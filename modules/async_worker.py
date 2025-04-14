@@ -620,7 +620,7 @@ def worker():
                           str((async_task.freeu_b1, async_task.freeu_b2, async_task.freeu_s1, async_task.freeu_s2))))
 
             for li, (n, w) in enumerate(loras):
-                if n != 'None' and async_task.task_class in ['Fooocus', 'Kolors', 'Flux']:
+                if n != 'None':
                     d.append((f'LoRA {li + 1}', f'lora_combined_{li + 1}', f'{n} : {w}'))
 
             metadata_parser = None
@@ -1511,6 +1511,7 @@ def worker():
         else:
             logger.info(f'Enable Fooocus backend.')
             comfyd.stop()
+            pipeline.refresh_controlnets([controlnet_canny_path, controlnet_cpds_path, controlnet_pose_path])
 
         if len(goals) > 0:
             current_progress += 1
