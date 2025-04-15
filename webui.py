@@ -1050,7 +1050,6 @@ with shared.gradio_root:
                                                     elem_classes=['style_selections'])
                 gradio_receiver_style_selections = gr.Textbox(elem_id='gradio_receiver_style_selections', visible=False)
                 buttons = []
-                load_more_trigger = gr.Button(visible=False, elem_id="load_more_trigger")
 
                 with gr.Column(visible=False, elem_id="scrollable-box") as visual_layout_container:
                     with gr.Blocks(elem_id="style_visual_container"):
@@ -1077,7 +1076,6 @@ with shared.gradio_root:
 
                 has_loaded = gr.State(value=0)
                 filtered_sorted_styles = gr.State(value=legal_style_names.copy())
-                BATCH_SIZE = 100
 
                 def toggle_layout(use_visual, current_loaded):
                                   new_loaded = 0 if use_visual and current_loaded == 0 else current_loaded

@@ -41,6 +41,7 @@ def check_base_environment():
     print(f"{now_string()} Fooocus version: {fooocus_version.version}")
     print(f"{now_string()} Comfyd version: {comfy_version.version}")
     print(f'{now_string()} {version.get_branch()} version: {version.get_simplesdxl_ver()}')
+    print(f'{now_string()} 当前运行在可视化分支，部分界面与主分支存在差异，可通过启动器切换分支。')
 
     base_pkg = "simpleai_base"
     ver_required = "0.3.21"
