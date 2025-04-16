@@ -140,6 +140,7 @@ all_args = [
         'style_selections',
         'performance_selection',
         'aspect_ratios_selection',
+        'random_aspect_ratio',
         'image_number',
         'output_format',
         'image_seed',
@@ -246,8 +247,8 @@ backend_args = [
 
 def normalization(args, default_max_lora_number, default_controlnet_image_count, default_enhance_tabs):
     args_norm = []
-    args_norm += args[:15]
-    index = 15
+    args_norm += args[:16]
+    index = 16
 
     lora_list = [[bool(args[index + i * 3]), str(args[index + i * 3 + 1]), float(args[index + i * 3 + 2])] 
                  for i in range(default_max_lora_number)]
