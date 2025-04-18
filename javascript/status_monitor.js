@@ -68,11 +68,13 @@
             background: transparent; /* 设置背景为透明 */
             pointer-events: auto; /* 修改为auto以支持拖拽 */
             cursor: grab; /* 显示可拖拽的手型光标 */
+            transition: all 0.2s ease;
         }
         
         #gradio-status-monitor.dragging {
             cursor: grabbing; /* 拖拽时显示抓取状态的光标 */
             opacity: 0.8;
+            transition: none !important; /* 拖拽时禁用所有过渡 */
         }
 
         /* 亮色主题 */
@@ -474,7 +476,65 @@
             }
         }
     }
+    // ==================== 避让行为逻辑 ====================
+    function initAvoidanceBehavior() {
+        let isHovering = false;
 
+        statusContainer.addEventListener('mouseenter', (e) => {
+            if (state.isDragging) return;
+
+            const rect = statusContainer.getBoundingClientRect();
+            const mouseX = e.clientX;
+            const mouseY = e.clientY;
+
+            // 计算避让方向
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            const deltaX = mouseX - centerX;
+            const deltaY = mouseY - centerY;
+
+            // 新增边界保护计算
+            const safeMargin = 3;
+            const elementWidth = rect.width;
+            const elementHeight = rect.height;
+            const maxX = window.innerWidth - elementWidth - safeMargin;
+            const maxY = window.innerHeight - elementHeight - safeMargin;
+
+            // 新增反向移动检测
+            const isStuckLeft = rect.left <= safeMargin + 10; // 10px 为检测阈值
+            const isStuckRight = rect.left >= maxX - 10;
+            const isStuckTop = rect.top <= safeMargin + 10;
+            const isStuckBottom = rect.top >= maxY - 10;
+
+            // 动态调整避让方向
+            let moveX = Math.min(100, window.innerWidth * 0.2); // 最大移动窗口宽度的20%
+            let moveY = Math.min(80, window.innerHeight * 0.15);
+
+            if (isStuckLeft || isStuckRight) {
+                moveX *= -1; // 反向水平移动
+                moveY *= 0.8; // 减少垂直移动量
+            }
+            if (isStuckTop || isStuckBottom) {
+                moveY *= -1; // 反向垂直移动
+                moveX *= 0.8; // 减少水平移动量
+            }
+
+            // 应用边界保护
+            let newX = deltaX > 0 ?
+                rect.left - moveX :
+                rect.left + moveX;
+
+            let newY = deltaY > 0 ?
+                rect.top - moveY :
+                rect.top + moveY;
+
+            newX = Math.max(safeMargin, Math.min(maxX, newX));
+            newY = Math.max(safeMargin, Math.min(maxY, newY));
+
+            statusContainer.style.left = `${newX}px`;
+            statusContainer.style.top = `${newY}px`;
+        });
+    }
     // ==================== 初始化 ====================
     function initializeMonitor() {
         // 检测并应用主题
@@ -495,10 +555,10 @@
             // 初始化拖拽功能
             initDragFeature();
         }
-
         // 启动检测
         setInterval(performHealthCheck, CHECK_INTERVAL);
         performHealthCheck();
+        initAvoidanceBehavior();
     }
 
     // 启动监控
