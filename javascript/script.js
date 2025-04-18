@@ -302,39 +302,39 @@ function initStylePreviewOverlay() {
         }
     });
     document.addEventListener('contextmenu', function(e) {
-        // const modelDropdown = e.target.closest(
-        //     '#model_dropdown_base, #model_dropdown_refiner, [id^="lora_dropdown"]'
-        // );
-        // if (modelDropdown) {
-        //     e.preventDefault();
-        //     e.stopPropagation();
+        const modelDropdown = e.target.closest(
+            '#model_dropdown_base, #model_dropdown_refiner, [id^="lora_dropdown"]'
+        );
+        if (modelDropdown) {
+            e.preventDefault();
+            e.stopPropagation();
 
-        //     let buttonId;
-        //     switch(modelDropdown.id) {
-        //         case 'model_dropdown_base':
-        //             buttonId = 'base_preview_btn';
-        //             break;
-        //         case 'model_dropdown_refiner':
-        //             buttonId = 'refiner_preview_btn';
-        //             break;
-        //         default:
-        //             if (modelDropdown.id.startsWith('lora_dropdown')) {
-        //                 const indexMatch = modelDropdown.id.match(/lora_dropdown_(\d+)$/);
-        //                 if (indexMatch) {
-        //                     buttonId = `lora_preview_btn_${indexMatch[1]}`;
-        //                 } else {
-        //                     console.warn('LORA ID格式异常:', modelDropdown.id);
-        //                 }
-        //             }
-        //         }
+            let buttonId;
+            switch(modelDropdown.id) {
+                case 'model_dropdown_base':
+                    buttonId = 'base_preview_btn';
+                    break;
+                case 'model_dropdown_refiner':
+                    buttonId = 'refiner_preview_btn';
+                    break;
+                default:
+                    if (modelDropdown.id.startsWith('lora_dropdown')) {
+                        const indexMatch = modelDropdown.id.match(/lora_dropdown_(\d+)$/);
+                        if (indexMatch) {
+                            buttonId = `lora_preview_btn_${indexMatch[1]}`;
+                        } else {
+                            console.warn('LORA ID格式异常:', modelDropdown.id);
+                        }
+                    }
+                }
 
-        //     const btn = gradioApp().querySelector(`#${buttonId}`);
-        //     if (btn) {
-        //         const event = new MouseEvent('click', { bubbles: true });
-        //         btn.dispatchEvent(event);
-        //     }
-        //     return;
-        // }
+            const btn = gradioApp().querySelector(`#${buttonId}`);
+            if (btn) {
+                const event = new MouseEvent('click', { bubbles: true });
+                btn.dispatchEvent(event);
+            }
+            return;
+        }
         const styleItem = e.target.closest('.style_item');
         const styleLabel = e.target.closest('.style_selections label');
 
