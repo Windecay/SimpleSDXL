@@ -418,29 +418,7 @@
                 moveElement(e.touches[0].clientX, e.touches[0].clientY);
             }
         }
-        
-        // 统一移动元素的函数，增加边界保护
-        function moveElement(clientX, clientY) {
-            // 计算新位置
-            const newLeft = clientX - state.offsetX;
-            const newTop = clientY - state.offsetY;
-            
-            // 获取元素实际尺寸
-            const rect = statusContainer.getBoundingClientRect();
-            const elementWidth = rect.width;
-            const elementHeight = rect.height;
-            
-            // 确保不超出视口边界，并留出余量防止变形
-            const safeMargin = 3; // 安全边距，防止元素变形
-            const maxX = window.innerWidth - elementWidth - safeMargin;
-            const maxY = window.innerHeight - elementHeight - safeMargin;
-            
-            statusContainer.style.left = `${Math.max(safeMargin, Math.min(maxX, newLeft))}px`;
-            statusContainer.style.top = `${Math.max(safeMargin, Math.min(maxY, newTop))}px`;
-            statusContainer.style.right = 'auto'; // 取消右侧定位
-            statusContainer.style.bottom = 'auto'; // 取消底部定位
-        }
-        
+
         function stopDrag() {
             if (state.isDragging) {
                 state.isDragging = false;
@@ -476,9 +454,29 @@
             }
         }
     }
+    // 统一移动元素的函数，增加边界保护
+    function moveElement(clientX, clientY) {
+        // 计算新位置
+        const newLeft = clientX - state.offsetX;
+        const newTop = clientY - state.offsetY;
+
+        // 获取元素实际尺寸
+        const rect = statusContainer.getBoundingClientRect();
+        const elementWidth = rect.width;
+        const elementHeight = rect.height;
+
+        // 确保不超出视口边界，并留出余量防止变形
+        const safeMargin = 3; // 安全边距，防止元素变形
+        const maxX = window.innerWidth - elementWidth - safeMargin;
+        const maxY = window.innerHeight - elementHeight - safeMargin;
+
+        statusContainer.style.left = `${Math.max(safeMargin, Math.min(maxX, newLeft))}px`;
+        statusContainer.style.top = `${Math.max(safeMargin, Math.min(maxY, newTop))}px`;
+        statusContainer.style.right = 'auto'; // 取消右侧定位
+        statusContainer.style.bottom = 'auto'; // 取消底部定位
+    }
     // ==================== 避让行为逻辑 ====================
     function initAvoidanceBehavior() {
-        let isHovering = false;
 
         statusContainer.addEventListener('mouseenter', (e) => {
             if (state.isDragging) return;
@@ -531,8 +529,10 @@
             newX = Math.max(safeMargin, Math.min(maxX, newX));
             newY = Math.max(safeMargin, Math.min(maxY, newY));
 
-            statusContainer.style.left = `${newX}px`;
-            statusContainer.style.top = `${newY}px`;
+            moveElement(
+                newX + rect.width / 2,  // 模拟鼠标中点的 X 坐标
+                newY + rect.height / 2   // 模拟鼠标中点的 Y 坐标
+            );
         });
     }
     // ==================== 初始化 ====================
