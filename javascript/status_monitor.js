@@ -12,7 +12,8 @@
         currentTheme: 'light',
         isDragging: false,
         offsetX: 0,
-        offsetY: 0
+        offsetY: 0,
+        initialPositionMoved: false // 新增初始位置标记
     };
 
     // ==================== 移动设备检测 ====================
@@ -480,7 +481,19 @@
 
         statusContainer.addEventListener('mouseenter', (e) => {
             if (state.isDragging) return;
-
+            // 新增初始位置强制下移逻辑
+            if (!state.initialPositionMoved) {
+                const rect = statusContainer.getBoundingClientRect();
+                // 检测是否为初始位置（top:18px, right:3px）
+                if (Math.abs(rect.top - 18) < 2 &&
+                    Math.abs(window.innerWidth - rect.right - 3) < 2) {
+                    const newY = rect.top + 100;
+                    const maxY = window.innerHeight - rect.height - 3; // 安全边距
+                    moveElement(rect.left + rect.width/2, Math.min(newY, maxY) + rect.height/2);
+                    state.initialPositionMoved = true;
+                    return;
+                }
+            }
             const rect = statusContainer.getBoundingClientRect();
             const mouseX = e.clientX;
             const mouseY = e.clientY;
@@ -499,35 +512,57 @@
             const maxY = window.innerHeight - elementHeight - safeMargin;
 
             // 新增反向移动检测
-            const isStuckLeft = rect.left <= safeMargin + 10;
-            const isStuckRight = rect.left >= maxX - 10;
-            const isStuckTop = rect.top <= safeMargin + 10;
-            const isStuckBottom = rect.top >= maxY - 10;
+            const isStuckLeft = rect.left <= safeMargin + 30;
+            const isStuckRight = rect.left >= maxX - 30;
+            const isStuckTop = rect.top <= safeMargin + 30;
+            const isStuckBottom = rect.top >= maxY - 30;
 
             // 动态调整避让方向
-            let moveX = Math.min(100, window.innerWidth * 0.2); // 最大移动窗口宽度的20%
+            let moveX = Math.min(100, window.innerWidth * 0.2);
             let moveY = Math.min(80, window.innerHeight * 0.15);
 
-            if (isStuckLeft || isStuckRight) {
-                moveX *= -1; // 反向水平移动
-                moveY *= 0.8; // 减少垂直移动量
+            // 修改开始：处理同时触碰两个边界的情况
+            const isStuckHorizontal = isStuckLeft || isStuckRight;
+            const isStuckVertical = isStuckTop || isStuckBottom;
+
+            if (isStuckHorizontal && isStuckVertical) {
+                // 当同时触碰两个边界时，增加反向移动距离
+                moveX *= -1.0;
+                moveY *= -1.0;
+            } else if (isStuckHorizontal) {
+                moveX *= -1;
+                moveY *= 0.8;
+            } else if (isStuckVertical) {
+                moveY *= -1;
+                moveX *= 0.8;
             }
-            if (isStuckTop || isStuckBottom) {
-                moveY *= -1; // 反向垂直移动
-                moveX *= 0.8; // 减少水平移动量
-            }
 
-            // 应用边界保护
-            let newX = deltaX > 0 ?
-                rect.left - moveX :
-                rect.left + moveX;
+            // 修改位移计算逻辑
+            let remainingMoveX = moveX;
+            let remainingMoveY = moveY;
 
-            let newY = deltaY > 0 ?
-                rect.top - moveY :
-                rect.top + moveY;
+            // 水平方向剩余距离分配
+            const actualMoveX = deltaX > 0 ?
+                Math.min(remainingMoveX, rect.left - safeMargin) :
+                Math.min(remainingMoveX, maxX - rect.left);
+            remainingMoveX -= actualMoveX;
+            remainingMoveY += remainingMoveX * 0.6; // 将剩余水平移动量的60%转为垂直移动
 
-            newX = Math.max(safeMargin, Math.min(maxX, newX));
-            newY = Math.max(safeMargin, Math.min(maxY, newY));
+            // 垂直方向剩余距离分配
+            const actualMoveY = deltaY > 0 ?
+                Math.min(remainingMoveY, rect.top - safeMargin) :
+                Math.min(remainingMoveY, maxY - rect.top);
+            remainingMoveY -= actualMoveY;
+            remainingMoveX += remainingMoveY * 0.6; // 将剩余垂直移动量的60%转为水平移动
+
+            // 应用最终位移
+            newX = deltaX > 0 ? 
+                rect.left - (actualMoveX + remainingMoveX) : 
+                rect.left + (actualMoveX + remainingMoveX);
+                
+            newY = deltaY > 0 ?
+                rect.top - (actualMoveY + remainingMoveY) :
+                rect.top + (actualMoveY + remainingMoveY);
 
             moveElement(
                 newX + rect.width / 2,  // 模拟鼠标中点的 X 坐标
