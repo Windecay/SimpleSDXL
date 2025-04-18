@@ -581,7 +581,15 @@
 
         // 组装 DOM
         statusContainer.appendChild(statusIndicator);
-
+        // 新增resize事件监听
+        window.addEventListener('resize', () => {
+            // 复位到初始位置
+            statusContainer.style.left = 'auto';
+            statusContainer.style.top = '18px';
+            statusContainer.style.right = '3px';
+            statusContainer.style.bottom = 'auto';
+            state.initialPositionMoved = false; // 重置位置标记
+        });
         // 集成到 Gradio
         const gradioContainer = gradioApp();
         if (gradioContainer) {
