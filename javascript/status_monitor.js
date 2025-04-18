@@ -501,10 +501,10 @@
             const maxY = window.innerHeight - elementHeight - safeMargin;
 
             // 新增反向移动检测
-            const isStuckLeft = rect.left <= safeMargin + 30; // 10px 为检测阈值
-            const isStuckRight = rect.left >= maxX - 300;
-            const isStuckTop = rect.top <= safeMargin + 30;
-            const isStuckBottom = rect.top >= maxY - 30;
+            const isStuckLeft = rect.left <= safeMargin + 10;
+            const isStuckRight = rect.left >= maxX - 10;
+            const isStuckTop = rect.top <= safeMargin + 10;
+            const isStuckBottom = rect.top >= maxY - 10;
 
             // 动态调整避让方向
             let moveX = Math.min(100, window.innerWidth * 0.2); // 最大移动窗口宽度的20%
