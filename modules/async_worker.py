@@ -149,6 +149,7 @@ class AsyncTask:
         self.enhance_uov_processing_order = args.pop()
         self.enhance_uov_prompt_type = args.pop()
         self.enhance_ctrls = args.pop()
+        self.enhance_ctrls = [ctrls[1:] for ctrls in self.enhance_ctrls if ctrls[0]]
         
         self.should_enhance = self.enhance_checkbox and (self.enhance_uov_method != disabled.casefold() or len(self.enhance_ctrls) > 0)
         self.images_to_enhance_count = 0
@@ -458,7 +459,7 @@ def worker():
             logger.info(f'reserved_vram={reserved_vram}, wavespeed_strength={wavespeed_strength}')
             default_params.update(params_backend)
             try:
-                #user_cert = shared.token.get_register_cert(async_task.user_did)
+                user_cert = shared.token.get_register_cert(async_task.user_did)
                 comfy_task = get_comfy_task(async_task.user_did, async_task.task_name, async_task.task_method, 
                         default_params, input_images, options)
                 if async_task.disable_preview:
