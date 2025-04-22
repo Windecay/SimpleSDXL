@@ -233,6 +233,7 @@ backend_args = [
         'scene_additional_prompt',
         'scene_steps',
         'scene_aspect_ratio',
+        'scene_var_number',
         'scene_image_number',
         'base_model_dtype',
         'clip_model',
