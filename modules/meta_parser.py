@@ -283,7 +283,9 @@ def switch_layout_template(presetdata: dict | str, state_params, preset_url=''):
 
     return results
 
-def get_welcome_image(preset=None, is_mobile=False, is_change=False):
+def get_welcome_image(preset=None, is_mobile=False, is_change=False, no_welcome=False):
+    if no_welcome:  # 新增参数控制是否显示欢迎图
+        return None
     path_welcome = os.path.abspath(f'./presets/welcome/')
     if preset:
         suffix = 'w' if not is_mobile else 'm'
@@ -304,7 +306,7 @@ def get_welcome_image(preset=None, is_mobile=False, is_change=False):
     return file_welcome
 
 
-def load_parameter_button_click(raw_metadata: dict | str, is_generating: bool, inpaint_mode: str):
+def load_parameter_button_click(raw_metadata: dict | str, is_generating: bool, inpaint_mode: str, no_welcome=False):
     loaded_parameter_dict = raw_metadata
     if isinstance(raw_metadata, str):
         loaded_parameter_dict = json.loads(raw_metadata)
@@ -312,7 +314,10 @@ def load_parameter_button_click(raw_metadata: dict | str, is_generating: bool, i
    
     preset = loaded_parameter_dict.get("preset", None)
     is_mobile = loaded_parameter_dict.get("is_mobile", False)
-    results = [gr.update(value=get_welcome_image(preset, is_mobile), visible=True), gr.update(visible=False), gr.update(visible=False), gr.update(visible=False), None] 
+    if no_welcome:
+        results = [gr.update(),gr.update(),gr.update(),gr.update(),None]
+    else:
+        results = [gr.update(value=get_welcome_image(preset, is_mobile, no_welcome=no_welcome), visible=True), gr.update(visible=False), gr.update(visible=False), gr.update(visible=False), None]
 
     get_image_number('image_number', 'Image Number', loaded_parameter_dict, results)
     get_str('prompt', 'Prompt', loaded_parameter_dict, results)

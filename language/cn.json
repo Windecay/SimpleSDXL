@@ -359,7 +359,7 @@
   "Set to 0 to detect all": "为0值,则识别所有的",
   "Invert Mask": "翻转蒙版",
   "Save only final enhanced image": "增强修图只留结果图片",
-
+  "Hide welcome picture":"隐藏欢迎图片轮播",
   "Layer_iclight": "融图打光",
   "Layer case": "场景选择",
   "Generate foreground with Conv Injection": "透明前景和蒙版生成",
