@@ -1438,7 +1438,7 @@ with shared.gradio_root:
                         outputs=None,
                         queue=False
                     ).then(
-                        lambda x: (gr.update(value=None) if x else gr.update())[1],
+                        lambda x: gr.update(value=None) if x else gr.update(),
                         inputs=[no_welcome_checkbox],
                         outputs=progress_window
                     )
