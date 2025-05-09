@@ -200,10 +200,10 @@ function(system_params) {
 }
 '''
 
-def init_nav_bars(state_params, comfyd_active_checkbox, fast_comfyd_checkbox, reserved_vram, minicpm_checkbox, advanced_logs, wavespeed_strength, translation_methods, p2p_active_checkbox, p2p_remote_process, p2p_in_did_list, p2p_out_did_list, request: gr.Request):
+def init_nav_bars(state_params, comfyd_active_checkbox, fast_comfyd_checkbox, reserved_vram, minicpm_checkbox, advanced_logs, wavespeed_strength, translation_methods, p2p_active_checkbox, p2p_remote_process, p2p_in_did_list, p2p_out_did_list, no_welcome_checkbox, request: gr.Request):
     #logger.info(f'request.headers:{request.headers}')
     #logger.info(f'request.client:{request.client}')
-    admin_currunt_value = [comfyd_active_checkbox, fast_comfyd_checkbox, reserved_vram, minicpm_checkbox, advanced_logs, wavespeed_strength, translation_methods, p2p_active_checkbox, p2p_remote_process, p2p_in_did_list, p2p_out_did_list]
+    admin_currunt_value = [comfyd_active_checkbox, fast_comfyd_checkbox, reserved_vram, minicpm_checkbox, advanced_logs, wavespeed_strength, translation_methods, p2p_active_checkbox, p2p_remote_process, p2p_in_did_list, p2p_out_did_list, no_welcome_checkbox]
     #logger.info(f'admin_currunt_value: {admin_currunt_value}')
 
     user_agent = request.headers["user-agent"]
@@ -269,7 +269,7 @@ def init_nav_bars(state_params, comfyd_active_checkbox, fast_comfyd_checkbox, re
     state_params.update({"bar_button": config.preset})
     state_params.update({"preset_store": False})
     state_params.update({"engine": 'Fooocus'})
-    results = [gr.update(value=f'{get_welcome_image(config.preset, state_params["__is_mobile"])}')]
+    results = [gr.update(value=get_welcome_image(config.preset,state_params["__is_mobile"],no_welcome=ads.get_admin_default("no_welcome_checkbox")))]
     results += [gr.update(value=modules.flags.language_radio(state_params["__lang"])), gr.update(value=state_params["__theme"])]
     preset = 'default'
     preset_url = get_preset_inc_url(preset)
@@ -536,7 +536,7 @@ def reset_layout_params(prompt, negative_prompt, state_params, is_generating, in
 
     results = refresh_nav_bars(state_params)
     results += meta_parser.switch_layout_template(preset_prepared, state_params, preset_url)
-    results += meta_parser.load_parameter_button_click(preset_prepared, is_generating, inpaint_mode)
+    results += meta_parser.load_parameter_button_click(preset_prepared, is_generating, inpaint_mode, no_welcome=ads.get_admin_default("no_welcome_checkbox"))
     results += update_after_identity_sub(state_params)
 
     sync_intput_reserved()
@@ -649,7 +649,8 @@ def update_topbar_js_params(state):
         __lang=state["__lang"],
         __preset_url=state["__preset_url"],
         __finished_nums_pages=state["__finished_nums_pages"],
-        user_qr="" if 'user_qr' not in state else state.pop("user_qr")
+        user_qr="" if 'user_qr' not in state else state.pop("user_qr"),
+        no_welcome_image=ads.get_admin_default("no_welcome_checkbox")
         )
     return [system_params]
 
@@ -798,10 +799,18 @@ def get_all_user_default(state):
     return results
 
 def get_all_admin_default(currunt_value):
-    admin_keys = ['comfyd_active_checkbox', 'fast_comfyd_checkbox', 'reserved_vram', 'minicpm_checkbox', 'advanced_logs', 'wavespeed_strength', 'translation_methods', 'p2p_active_checkbox', "p2p_remote_process", "p2p_in_did_list", "p2p_out_did_list"]
+    admin_keys = ['comfyd_active_checkbox', 'fast_comfyd_checkbox', 'reserved_vram', 'minicpm_checkbox', 'advanced_logs', 'wavespeed_strength', 'translation_methods', 'p2p_active_checkbox', "p2p_remote_process", "p2p_in_did_list", "p2p_out_did_list", "no_welcome_checkbox"]
     result = []
-    for i, admin_key in enumerate(admin_keys): 
+    for i, admin_key in enumerate(admin_keys):
         admin_value = ads.get_admin_default(admin_key)
+
+        if admin_key == 'no_welcome_checkbox':
+            if isinstance(admin_value, str):
+                processed_value = admin_value.lower() == 'true'
+            else:
+                processed_value = bool(admin_value)
+            result.append(gr.update(value=processed_value, interactive=True))
+            continue
         if admin_value == 'None':
             result.append(gr.update(interactive=False))
             continue
@@ -816,7 +825,6 @@ def get_all_admin_default(currunt_value):
                 elif admin_key == 'translation_methods' and admin_value not in modules.flags.translation_methods:
                     admin_value = config.default_translation_methods
                 result.append(gr.update(interactive=True, value=admin_value))
-
     return result
 
 
