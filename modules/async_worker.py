@@ -1634,9 +1634,13 @@ def worker():
         if async_task.task_class not in ['Fooocus']:
             pipeline.free_everything()
             #ldm_patched.modules.model_management.unload_and_free_everything()
+            callback_function = callback_comfytask
+
+            if async_task.refiner_model_name:
+                async_task.params_backend['base_model2'] = async_task.refiner_model_name
+                async_task.params_backend['refiner_step'] = async_task.refiner_switch
             async_task.refiner_model_name = ''
             async_task.refiner_switch = 1.0
-            callback_function = callback_comfytask
             
             input_images = None
             if async_task.layer_input_image is not None:
@@ -1675,6 +1679,33 @@ def worker():
                 else:
                     if async_task.task_class == 'Flux':
                         async_task.params_backend['base_model_dtype'] = 'default'
+                if async_task.enhance_checkbox:
+                    if async_task.enhance_input_image is not None:
+                        input_images.set_image(f'enhance_input_image', async_task.enhance_input_image)
+                    if async_task.enhance_uov_method.lower() != 'disabled':
+                        async_task.params_backend[f'enhance_uov_method'] = async_task.enhance_uov_method
+                        async_task.params_backend[f'enhance_uov_processing_order'] = async_task.enhance_uov_processing_order
+                        if async_task.enhance_uov_processing_order == flags.enhancement_uov_after:
+                            async_task.params_backend[f'enhance_uov_prompt_type'] = async_task.enhance_uov_prompt_type
+                    if len(async_task.enhance_ctrls) > 0:
+                        for i in range(len(async_task.enhance_ctrls)):
+                            n = f'{i}' if i > 0 else ''
+                            async_task.params_backend[f'enhance_mask_dino_prompt_text{n}'] = async_task.enhance_ctrls[i][0]
+                            async_task.params_backend[f'enhance_prompt{n}'] = async_task.enhance_ctrls[i][1]
+                            async_task.params_backend[f'enhance_negative_prompt{n}'] = async_task.enhance_ctrls[i][2]
+                            async_task.params_backend[f'enhance_mask_model{n}'] = async_task.enhance_ctrls[i][3]
+                            async_task.params_backend[f'enhance_mask_cloth_category{n}'] = async_task.enhance_ctrls[i][4]
+                            async_task.params_backend[f'enhance_mask_sam_model{n}'] = async_task.enhance_ctrls[i][5]
+                            async_task.params_backend[f'enhance_mask_text_threshold{n}'] = async_task.enhance_ctrls[i][6]
+                            async_task.params_backend[f'enhance_mask_box_threshold{n}'] = async_task.enhance_ctrls[i][7]
+                            async_task.params_backend[f'enhance_mask_sam_max_detections{n}'] = async_task.enhance_ctrls[i][8]
+                            async_task.params_backend[f'enhance_inpaint_disable_initial_latent{n}'] = async_task.enhance_ctrls[i][9]
+                            async_task.params_backend[f'enhance_inpaint_engine{n}'] = async_task.enhance_ctrls[i][10]
+                            async_task.params_backend[f'enhance_inpaint_strength{n}'] = async_task.enhance_ctrls[i][11]
+                            async_task.params_backend[f'enhance_inpaint_respective_field{n}'] = async_task.enhance_ctrls[i][12]
+                            async_task.params_backend[f'enhance_inpaint_erode_or_dilate{n}'] = async_task.enhance_ctrls[i][13]
+                            async_task.params_backend[f'enhance_mask_invert{n}'] = async_task.enhance_ctrls[i][14]
+
                 if 'cn' in goals:
                     async_task.params_backend['i2i_function'] = 1 # image prompt
                     if async_task.skipping_cn_preprocessor:
@@ -1761,6 +1792,8 @@ def worker():
                     async_task.params_backend['i2i_function'] = 3 # image inpaint
                     input_images.set_image(f'i2i_inpaint_image', inpaint_worker.current_task.interested_image)
                     input_images.set_image(f'i2i_inpaint_mask', inpaint_worker.current_task.interested_mask)
+                    if async_task.inpaint_disable_initial_latent:
+                        async_task.params_backend['i2i_inpaint_disable_initial_latent'] = async_task.inpaint_disable_initial_latent
                     inpaint_engine_model_index = f'{async_task.task_method}_{async_task.inpaint_engine}'
                     if inpaint_engine_model_index in flags.inpaint_engine_model_names:
                         async_task.base_model_name = flags.inpaint_engine_model_names[inpaint_engine_model_index]
@@ -1793,6 +1826,8 @@ def worker():
             if 'display_steps' not in async_task.params_backend:
                 async_task.params_backend['display_steps'] = 30 if async_task.steps==-1 else async_task.steps
             all_steps = async_task.params_backend['display_steps'] * async_task.image_number
+            if 'refiner_step' in async_task.params_backend:
+                async_task.params_backend['refiner_step'] = int(async_task.steps * (1 - async_task.params_backend['refiner_step']))
             async_task.params_backend['input_images'] = input_images
 
         ldm_patched.modules.model_management.print_memory_info("begin to process_task")

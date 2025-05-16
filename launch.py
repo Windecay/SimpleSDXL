@@ -44,7 +44,7 @@ def check_base_environment():
     print(f'{now_string()} 当前运行在可视化分支，部分界面与主分支存在差异，可通过启动器切换分支。')
 
     base_pkg = "simpleai_base"
-    ver_required = "0.3.21"
+    ver_required = "0.3.23"
     REINSTALL_BASE = True #if '_dev' not in version.get_branch() else True
     base_branch = "release"
     if '--dev' in (sys.argv):
@@ -69,7 +69,8 @@ def check_base_environment():
 
     base_path = os.path.abspath(os.path.join(root, f'enhanced/libs/{base_file[platform_os]}'))
     base_url = f'{base_url}/{base_file[platform_os]}'
-    if download_if_updated(base_url, base_path) or REINSTALL_BASE:
+    has_update_whl = download_if_updated(base_url, base_path)
+    if has_update_whl or REINSTALL_BASE:
         if not is_installed(base_pkg):
             run(f'"{python}" -m pip install {base_path}', f'Install {base_pkg} {ver_required}')
         else:
@@ -79,7 +80,7 @@ def check_base_environment():
                 run(f'"{python}" -m pip install {base_path}', f'Install {base_pkg} {ver_required}')
 
     if is_installed("sageattention"):
-        extra_pkgs = [('comfyui-frontend-package', 'comfyui_frontend_package==1.18.6'), ('comfyui-workflow-templates', 'comfyui_workflow_templates==0.1.3')]
+        extra_pkgs = [('comfyui_frontend_package', 'comfyui_frontend_package==1.18.6'), ('comfyui_workflow_templates', 'comfyui_workflow_templates==0.1.3')]
         for (extra_pkg, extra_pkg_name) in extra_pkgs:
             if not is_installed(extra_pkg):
                 pkg_command = f'pip install {extra_pkg_name} -i {index_url}'

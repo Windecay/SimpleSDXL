@@ -13,6 +13,7 @@
         isDragging: false,
         offsetX: 0,
         offsetY: 0,
+        hasAdminAPI: false,
         initialPositionMoved: false // 新增初始位置标记
     };
 
@@ -35,6 +36,15 @@
 
     const statusIndicator = document.createElement('div');
     statusIndicator.className = 'status-indicator';
+
+    const backToAdminBtn = document.createElement('button');
+    backToAdminBtn.className = 'back-to-admin-btn';
+    backToAdminBtn.textContent = '返回管理窗口';
+    backToAdminBtn.onclick = () => {
+        if (window.pywebview && window.pywebview.api && window.pywebview.api.switchToAdmin) {
+            window.pywebview.api.switchToAdmin();
+        }
+    };
 
     const reconnectBtn = document.createElement('button');
     reconnectBtn.className = 'reconnect-btn';
@@ -62,7 +72,7 @@
     style.textContent = `
         #gradio-status-monitor {
             position: fixed;
-            top: 18px;
+            top: 8px;
             right: 3px;
             z-index: 9999;
             font-family: Arial, sans-serif;
@@ -147,7 +157,7 @@
             margin-top: 4px;
             font-size: 11px;
         }
-	.light .vram-usage {
+	    .light .vram-usage {
             background: #f0f0f0;
             padding: 1px 6px;
             border-radius: 8px;
@@ -159,7 +169,7 @@
             border-radius: 8px;
 	    color: var(--neutral-400);
         }
-	.dark .vram-usage {
+	    .dark .vram-usage {
             background: #2d3748;
             padding: 1px 6px;
             border-radius: 8px;
@@ -170,6 +180,24 @@
             padding: 1px 6px;
             border-radius: 8px;
 	    color: var(--neutral-500);
+        }
+        .back-to-admin-btn {
+            margin-left: 8px;
+            padding: 2px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 11px;
+            pointer-events: auto;
+        }
+        .light .back-to-admin-btn {
+            border: 1px solid #4a90e2;
+            background: #f0f8ff;
+            color: #4a90e2;
+        }
+        .dark .back-to-admin-btn {
+            border: 1px solid aqua;
+            background: #1a2a3a;
+            color: aqua;
         }
     `;
 
@@ -209,8 +237,8 @@
                 vramUsed: parseInt(vramUsedStr),
                 vramTotal: parseInt(vramTotalStr),
                 onlineUsers: parseInt(onlineUsersStr),
-		onlineDomainUsers: parseInt(onlineDomainUsersStr),
-		onlineNodes: parseInt(onlineNodesStr),
+		        onlineDomainUsers: parseInt(onlineDomainUsersStr),
+		        onlineNodes: parseInt(onlineNodesStr),
             };
         } catch (error) {
             return null;
@@ -219,6 +247,11 @@
 
     function updateStatusUI(statusType, queueSize, ramUsed, ramTotal, vramUsed, vramTotal, onlineUsers, onlineDomainUsers, onlineNodes) {
         statusIndicator.innerHTML = '';
+        
+        if (state.hasAdminAPI) {
+            statusIndicator.appendChild(backToAdminBtn);
+        }
+
         const statusMap = {
             connected: { text: '连接', class: 'status-connected' },
             disconnected: { text: '断开', class: 'status-disconnected' },
@@ -281,6 +314,7 @@
     }
 
     async function performHealthCheck() {
+        checkAdminAPIAvailability();
         const statusData = await fetchAppStatus();
 
         if (!statusData) {
@@ -307,8 +341,8 @@
                 statusData.vramUsed,
                 statusData.vramTotal,
                 statusData.onlineUsers,
-		statusData.onlineDomainUsers,
-		statusData.onlineNodes,
+		        statusData.onlineDomainUsers,
+		        statusData.onlineNodes,
             );
         } else {
             updateStatusUI('exception');
@@ -570,8 +604,15 @@
             );
         });
     }
+    function checkAdminAPIAvailability() {
+        state.hasAdminAPI = !!(window.pywebview && 
+                             window.pywebview.api && 
+                             typeof window.pywebview.api.switchToAdmin === 'function');
+    }
+
     // ==================== 初始化 ====================
     function initializeMonitor() {
+        checkAdminAPIAvailability();
         // 检测并应用主题
         state.currentTheme = detectTheme();
         applyTheme();
@@ -611,4 +652,5 @@
         window.addEventListener('load', initializeMonitor);
     }
 })();
+
 
