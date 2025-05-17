@@ -1694,7 +1694,7 @@ with shared.gradio_root:
         ctrls = [currentTask, generate_image_grid]
         ctrls += [
             prompt, negative_prompt, style_selections,
-            performance_selection, aspect_ratios_selection, random_aspect_ratio_checkbox, image_number, output_format, image_seed,
+            performance_selection, aspect_ratios_selection, image_number, output_format, image_seed,
             read_wildcards_in_order, sharpness, guidance_scale
         ]
 
@@ -1721,6 +1721,7 @@ with shared.gradio_root:
                   enhance_input_image, enhance_checkbox, enhance_uov_method, enhance_uov_processing_order,
                   enhance_uov_prompt_type]
         ctrls += enhance_ctrls
+        ctrls += [random_aspect_ratio_checkbox]
 
         def parse_meta(raw_prompt_txt, state_params, scene_input_image1, state_is_generating):
             if state_is_generating:

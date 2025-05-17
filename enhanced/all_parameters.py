@@ -250,8 +250,8 @@ backend_args = [
 
 def normalization(args, default_max_lora_number, default_controlnet_image_count, default_enhance_tabs):
     args_norm = []
-    args_norm += args[:16]
-    index = 16
+    args_norm += args[:15]
+    index = 15
 
     lora_list = [[bool(args[index + i * 3]), str(args[index + i * 3 + 1]), float(args[index + i * 3 + 2])] 
                  for i in range(default_max_lora_number)]
@@ -278,7 +278,8 @@ def normalization(args, default_max_lora_number, default_controlnet_image_count,
     enhance_tabs_list = [[args[index + i * 16 + j] for j in range(16)] 
                          for i in range(default_enhance_tabs)]
     args_norm.append(enhance_tabs_list)
-    
+    index += 1
+    args_norm.append(args[index])  # 添加 random_aspect_ratio 参数
     return args_norm
 
 def normalization_backend(args):

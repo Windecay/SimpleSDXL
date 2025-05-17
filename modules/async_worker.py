@@ -31,11 +31,10 @@ class AsyncTask:
         self.last_stop = False
         self.processing = False
         self.task_id = str(uuid.uuid4()) if task_id is None else task_id
-        self.final_prompts = []
         self.remote_task = None
         self.img_paths = []
         self.lasttime = time.time()
-
+        self.final_prompts = []
         self.performance_loras = []
 
         if len(args) == 0:
@@ -52,7 +51,6 @@ class AsyncTask:
         self.original_steps = self.steps
 
         self.aspect_ratios_selection = args.pop()
-        self.random_aspect_ratio = args.pop()
         self.image_number = args.pop()
         self.output_format = args.pop()
         self.seed = int(args.pop())
@@ -150,7 +148,7 @@ class AsyncTask:
         self.enhance_uov_prompt_type = args.pop()
         self.enhance_ctrls = args.pop()
         self.enhance_ctrls = [ctrls[1:] for ctrls in self.enhance_ctrls if ctrls[0]]
-        
+        self.random_aspect_ratio = args.pop()
         self.should_enhance = self.enhance_checkbox and (self.enhance_uov_method != disabled.casefold() or len(self.enhance_ctrls) > 0)
         self.images_to_enhance_count = 0
         self.enhance_stats = {}
