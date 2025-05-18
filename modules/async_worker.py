@@ -213,34 +213,34 @@ class AsyncTask:
             self.scene_frontend = self.params_backend.pop('scene_frontend')
             if self.scene_frontend.startswith('v'):
                 self.content_type = 'video'
-                
-        if self.random_aspect_ratio:
-            from modules.flags import available_aspect_ratios_list
-            import random
+        else:
+            if self.random_aspect_ratio:
+                from modules.flags import available_aspect_ratios_list
+                import random
 
-            all_ratios = []
-            all_ratios.extend(available_aspect_ratios_list['SDXL'])
-            valid_ratios = [r.split('|')[0].strip().replace('*', '×')
-                for r in all_ratios
-                if re.match(r'^\s*\d+\*?\d+\s*', r.split('|')[0])]
+                all_ratios = []
+                all_ratios.extend(available_aspect_ratios_list['SDXL'])
+                valid_ratios = [r.split('|')[0].strip().replace('*', '×')
+                    for r in all_ratios
+                    if re.match(r'^\s*\d+\*?\d+\s*', r.split('|')[0])]
 
-            valid_ratios = valid_ratios[:20]
+                valid_ratios = valid_ratios[:20]
 
-            if not valid_ratios:
-                valid_ratios = ['1024×1024']
+                if not valid_ratios:
+                    valid_ratios = ['1024×1024']
 
-            list_length = len(valid_ratios)
-            mid_index = (list_length - 1) / 2
-            std_dev = list_length / 4
+                list_length = len(valid_ratios)
+                mid_index = (list_length - 1) / 2
+                std_dev = list_length / 4
 
-            while True:
-                index = int(round(random.normalvariate(mid_index, std_dev)))
-                if 0 <= index < list_length:
-                    break
-                index = max(0, min(index, list_length - 1))
+                while True:
+                    index = int(round(random.normalvariate(mid_index, std_dev)))
+                    if 0 <= index < list_length:
+                        break
+                    index = max(0, min(index, list_length - 1))
 
-            selected = valid_ratios[index]
-            self.aspect_ratios_selection = selected.split('<')[0].strip()
+                selected = valid_ratios[index]
+                self.aspect_ratios_selection = selected.split('<')[0].strip()
 
 class EarlyReturnException(BaseException):
     pass
