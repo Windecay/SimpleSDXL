@@ -26,18 +26,19 @@ class GeneralInput:
                     "clip_skip": ("INT", {"default": -1, "min": -24, "max": -1, "step": 1}),
                     "inpaint_disable_initial_latent": ("BOOLEAN", {"default": False}),
                     "wavespeed_strength": ("FLOAT", {"default": 0.12, "min": 0.0, "max": 1.0, "step": 0.01}),
+                    "save_final_enhanced_image_only": ("BOOLEAN", {"default": False}),
                     }}
     
-    RETURN_TYPES = ("STRING", "STRING", "INT", "INT", "FLOAT", "INT", "INT", SAMPLER_NAMES, SCHEDULER_NAMES, "FLOAT", "INT",  "BOOLEAN", "FLOAT",)
-    RETURN_NAMES = ("prompt", "negative_prompt", "width", "height", "cfg", "steps", "refiner_step", "sampler", "scheduler", "denoise", "clip_skip", "inpaint_disable_initial_latent", "wavespeed_strength",)
+    RETURN_TYPES = ("STRING", "STRING", "INT", "INT", "FLOAT", "INT", "INT", SAMPLER_NAMES, SCHEDULER_NAMES, "FLOAT", "INT",  "BOOLEAN", "FLOAT", "BOOLEAN", )
+    RETURN_NAMES = ("prompt", "negative_prompt", "width", "height", "cfg", "steps", "refiner_step", "sampler", "scheduler", "denoise", "clip_skip", "inpaint_disable_initial_latent", "wavespeed_strength", "save_final_enhanced_image_only", )
     
     FUNCTION = "general_input"
 
     CATEGORY = "api/input"
 
-    def general_input(self, prompt, negative_prompt, width, height, cfg, steps, refiner_step, sampler, scheduler, denoise, clip_skip, inpaint_disable_initial_latent, wavespeed_strength ):
+    def general_input(self, prompt, negative_prompt, width, height, cfg, steps, refiner_step, sampler, scheduler, denoise, clip_skip, inpaint_disable_initial_latent, wavespeed_strength, save_final_enhanced_image_only):
 
-        return (prompt, negative_prompt, width, height, cfg, steps, refiner_step, sampler, scheduler, denoise, clip_skip, inpaint_disable_initial_latent, wavespeed_strength, )
+        return (prompt, negative_prompt, width, height, cfg, steps, refiner_step, sampler, scheduler, denoise, clip_skip, inpaint_disable_initial_latent, wavespeed_strength, save_final_enhanced_image_only)
 
 
 class SceneInput:
@@ -87,7 +88,7 @@ class EnhanceUovInput:
     @classmethod
     def INPUT_TYPES(s):
         return {"required": {
-                "uov_method": (["Disabled", "Vary (Subtle)", "Vary (Strong)", "Upscale (1.5x)", "Upscale (2x)", "Upscale (Fast 2x)"], {"default": "Disabled"}),
+                "uov_method": (["disabled", "vary (subtle)", "vary (strong)", "upscale (1.5x)", "upscale (2x)", "upscale (fast 2x)"], {"default": "disabled"}),
                 "uov_denoise": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 1.0, "step": 0.01}),
                 "uov_processing_order": (["Before First Enhancemen", "After Last Enhancement"], {"default": "Before First Enhancemen"}),
                 "uov_prompt_type": (["Original Prompts", "Last Filled Enhancement Prompts"], {"default": ""}),
@@ -105,7 +106,7 @@ class EnhanceUovInput:
 
     def enhance_uov_input(self, uov_method, uov_denoise, uov_processing_order, uov_prompt_type, uov_multiple, uov_tiled_width, uov_tiled_height, uov_tiled_steps):
 
-        return (uov_method.lower(), uov_denoise, uov_processing_order, uov_prompt_type, uov_multiple, uov_tiled_width, uov_tiled_height, uov_tiled_steps)
+        return (uov_method, uov_denoise, uov_processing_order, uov_prompt_type, uov_multiple, uov_tiled_width, uov_tiled_height, uov_tiled_steps)
 
 
 class EnhanceRegionInput:
