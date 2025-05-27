@@ -338,6 +338,10 @@
   "Region#1": "区域#1",
   "Region#2": "区域#2",
   "Region#3": "区域#3",
+  "Enable Region#1": "启用区域#1",
+  "Enable Region#2": "启用区域#2",
+  "Enable Region#3": "启用区域#3",
+
   "Use with Enhance, skips image generation": "需增强的图片,不用生成的", 
   "Enable": "启用",
   "Detection prompt": "识别目标",

@@ -672,6 +672,11 @@ with shared.gradio_root:
                             with gr.Column():
                                 enhance_checkbox = gr.Checkbox(label='Enhance', value=modules.config.default_enhance_checkbox, container=False)
                                 enhance_input_image = grh.Image(label='Use with Enhance, skips image generation', source='upload', type='numpy')
+                                with gr.Group():
+                                    with gr.Row():
+                                        enhance_enabled_1 = gr.Checkbox(label='Enable Region#1', value=False, elem_classes='min_check')
+                                        enhance_enabled_2 = gr.Checkbox(label='Enable Region#2', value=False, elem_classes='min_check')
+                                        enhance_enabled_3 = gr.Checkbox(label='Enable Region#3', value=False, elem_classes='min_check')
                                 gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/3281" target="_blank">\U0001F4D4 Documentation</a>')
                             with gr.Column():
                                 with gr.Row(visible=True) as enhance_input_panel:
@@ -705,9 +710,9 @@ with shared.gradio_root:
                                         enhance_inpaint_update_ctrls = []
                                         for index in range(modules.config.default_enhance_tabs):
                                             with gr.Tab(label=f'Region#{index + 1}') as enhance_tab_item:
-                                                enhance_enabled = gr.Checkbox(label='Enable', value=False, 
-                                                        elem_classes='min_check', container=False)
-
+                                                # enhance_enabled = gr.Checkbox(label='Enable', value=False, 
+                                                #         elem_classes='min_check', container=False)
+                                                enhance_enabled = [enhance_enabled_1, enhance_enabled_2, enhance_enabled_3][index]
                                                 enhance_mask_dino_prompt_text = gr.Textbox(label='Detection prompt',
                                                                        info='Use singular whenever possible',
                                                                        placeholder='Describe what you want to detect.',
