@@ -455,6 +455,42 @@ with shared.gradio_root:
 
                         stop_button.click(stop_clicked, inputs=currentTask, outputs=currentTask, queue=False, show_progress=False, _js='cancelGenerateForever')
                         skip_button.click(skip_clicked, inputs=currentTask, outputs=currentTask, queue=False, show_progress=False)
+
+                with gr.Accordion(label='Translate Preview', visible=True, open=False, elem_id='translate_preview_accordion', elem_classes='translate_preview_accordion') as translation_preview:
+                    translated_prompt = gr.HTML(value="", elem_classes='translation-preview')
+                    translation_preview_open = gr.Checkbox(value=False, elem_id="translation_preview_open",visible=False,container=False)
+                    def translate_prompt(text):
+                        try:
+                            translation_method = ads.get_admin_default('translation_methods')
+                            result = translator.toggle(text, translation_method)
+                            return result if result else "无翻译结果"
+                        except Exception as e:
+                            return f"翻译错误：{str(e)}"
+
+                    def handle_translation_preview_open(current_prompt, is_open):
+                        if is_open:
+                            return translate_prompt(current_prompt)
+                        return translated_prompt.value
+                    trigger_translation_btn = gr.Button(visible=False, elem_id="trigger_translation_btn")
+                    trigger_translation_btn.click(
+                        fn=handle_translation_preview_open,
+                        inputs=[prompt, translation_preview_open],
+                        outputs=[translated_prompt]
+                    )
+                prompt.change(
+                    fn=lambda text, is_open, current_translation: translate_prompt(text) if (contains_trigger_chars(text) and is_open) else current_translation,
+                    inputs=[prompt, translation_preview_open, translated_prompt],
+                    outputs=translated_prompt,
+                    queue=False,
+                    show_progress=False
+                )
+                def contains_trigger_chars(text):
+                    trigger_chars = {',', '，', '.', '。', ' ', '　'}
+                    if len(text) == 0:
+                        return False
+                    last_char = text[-1]
+                    return last_char in trigger_chars
+
                 state_prompt_history = gr.State([])
                 with gr.Accordion(label='Prompt History', visible=False, open=True) as prompt_history:
                     history_prompts = gr.Dataset(components=[prompt],label='Click to reuse:',samples=[[p] for p in state_prompt_history.value[-5:]],type='index')

@@ -642,3 +642,70 @@ window.highlightModelDropdown = function(activeTarget) {
         activeDropdown.style.setProperty('--border-color-primary', '#005CC8');
     }
 }
+function initTranslationPreview() {
+    window.addEventListener('error', (e) => {
+        console.error('全局JS错误:', e.message, e.filename, e.lineno);
+    });
+
+    let retryCount = 0;
+    function tryInit() {
+        const accordionElement = gradioApp().getElementById('translate_preview_accordion');
+        if (!accordionElement) {
+            retryCount++;
+            if (retryCount < 10) {
+                setTimeout(tryInit, 1000);
+            } else {
+                console.error('翻译面板元素最终未找到！请检查webui.py中gr.Accordion的elem_id是否为"translate_preview_accordion"');
+            }
+            return;
+        }
+
+        const accordionHeader = accordionElement.querySelector('.label-wrap');
+
+        if (!accordionHeader) {
+            console.error('翻译面板标题元素未找到！请检查浏览器开发者工具中Accordion标题的data-testid/类名');
+            return;
+        }
+
+        accordionHeader.removeEventListener('click', handleHeaderClick);
+        accordionHeader.addEventListener('click', handleHeaderClick);
+    }
+
+    function handleHeaderClick() {
+        const translationPreviewOpenContainer = gradioApp().getElementById('translation_preview_open');
+        const translationPreviewOpenCheckbox = translationPreviewOpenContainer?.querySelector('input[type="checkbox"]');
+        const promptContainer = gradioApp().getElementById('positive_prompt');
+        const promptInput = promptContainer?.querySelector('textarea, input');
+
+        if (!translationPreviewOpenCheckbox || !promptInput) {
+            console.error('状态组件或提示词输入框未找到！');
+            return;
+        }
+
+        const isOpen = translationPreviewOpenCheckbox.checked;
+        const promptValue = promptInput.value.trim();
+
+        translationPreviewOpenCheckbox.checked = !isOpen;
+        const changeEvent = new Event('change');
+        translationPreviewOpenCheckbox.dispatchEvent(changeEvent);
+
+        const triggerBtn = gradioApp().getElementById('trigger_translation_btn');
+        if (triggerBtn) {
+            triggerBtn.click();
+        } else {
+            console.error('未找到触发翻译的隐藏按钮，请检查webui.py中trigger_translation_btn的elem_id');
+        }
+    }
+
+    const observer = new MutationObserver(() => {
+        if (gradioApp().getElementById('translate_preview_accordion')) {
+            observer.disconnect();
+            tryInit();
+        }
+    });
+    observer.observe(gradioApp(), { childList: true, subtree: true });
+}
+
+onUiLoaded(() => {
+    initTranslationPreview();
+});
