@@ -462,8 +462,9 @@ with shared.gradio_root:
                     def translate_prompt(text):
                         try:
                             translation_method = ads.get_admin_default('translation_methods')
-                            result = translator.toggle(text, translation_method)
-                            return result if result else "无翻译结果"
+                            if translation_method == 'Big Model' and MiniCPM.get_enable():
+                                return minicpm.translate_cn(text)
+                            return translator.toggle(text, translation_method)
                         except Exception as e:
                             return f"翻译错误：{str(e)}"
 
@@ -477,7 +478,7 @@ with shared.gradio_root:
                         inputs=[prompt, translation_preview_open],
                         outputs=[translated_prompt]
                     )
-                    
+
                 state_prompt_history = gr.State([])
                 with gr.Accordion(label='Prompt History', visible=False, open=True) as prompt_history:
                     history_prompts = gr.Dataset(components=[prompt],label='Click to reuse:',samples=[[p] for p in state_prompt_history.value[-5:]],type='index')
