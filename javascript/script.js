@@ -709,3 +709,22 @@ function initTranslationPreview() {
 onUiLoaded(() => {
     initTranslationPreview();
 });
+
+function setupAutoTranslate() {
+    const promptContainer = gradioApp().getElementById('positive_prompt');
+    const promptInput = promptContainer?.querySelector('textarea, input');
+    const translateBtn = gradioApp().getElementById('trigger_translation_btn');
+
+    if (promptInput && translateBtn) {
+        let lastContent = '';
+        let timer = setInterval(() => {
+            const currentContent = promptInput.value;
+            if (currentContent !== lastContent) {
+                translateBtn.click();
+                lastContent = currentContent;
+            }
+        }, 3000);
+    }
+}
+
+onUiLoaded(setupAutoTranslate);

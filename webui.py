@@ -477,20 +477,7 @@ with shared.gradio_root:
                         inputs=[prompt, translation_preview_open],
                         outputs=[translated_prompt]
                     )
-                prompt.change(
-                    fn=lambda text, is_open, current_translation: translate_prompt(text) if (contains_trigger_chars(text) and is_open) else current_translation,
-                    inputs=[prompt, translation_preview_open, translated_prompt],
-                    outputs=translated_prompt,
-                    queue=False,
-                    show_progress=False
-                )
-                def contains_trigger_chars(text):
-                    trigger_chars = {',', '，', '.', '。', ' ', '　'}
-                    if len(text) == 0:
-                        return False
-                    last_char = text[-1]
-                    return last_char in trigger_chars
-
+                    
                 state_prompt_history = gr.State([])
                 with gr.Accordion(label='Prompt History', visible=False, open=True) as prompt_history:
                     history_prompts = gr.Dataset(components=[prompt],label='Click to reuse:',samples=[[p] for p in state_prompt_history.value[-5:]],type='index')
