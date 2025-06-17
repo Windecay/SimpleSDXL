@@ -510,6 +510,7 @@ function htmlDecode(input) {
         const pathMeta = document.querySelector(`meta[name='${folder}-paths']`).getAttribute("content");
         const basePaths = pathMeta.split(',').map(p => p.split('?')[0].replace(/\\/g, '/'));
         const handleMouseOver = (e) => {
+            clearTimeout(autoHideTimer);
             const option = e.target.closest('li.item[role="button"]');
             if (!option) return;
 
@@ -600,7 +601,11 @@ function htmlDecode(input) {
         const handleMouseOut = (e) => {
             if (!e.relatedTarget?.closest('li.item')) {
                 previewOverlay.style.opacity = '0';
+                clearTimeout(autoHideTimer);
             }
+            autoHideTimer = setTimeout(() => {
+                previewOverlay.style.opacity = '0';
+            }, 3000);
         };
 
         dropdown.addEventListener('mouseover', handleMouseOver);
@@ -649,13 +654,13 @@ function initTranslationPreview() {
 
     let retryCount = 0;
     function tryInit() {
-        const accordionElement = gradioApp().getElementById('translate_preview_accordion');
+        const accordionElement = gradioApp().getElementById('translation_preview_accordion');
         if (!accordionElement) {
             retryCount++;
             if (retryCount < 10) {
                 setTimeout(tryInit, 1000);
             } else {
-                console.error('翻译面板元素最终未找到！请检查webui.py中gr.Accordion的elem_id是否为"translate_preview_accordion"');
+                console.error('未找到翻译预览面板');
             }
             return;
         }
@@ -663,7 +668,7 @@ function initTranslationPreview() {
         const accordionHeader = accordionElement.querySelector('.label-wrap');
 
         if (!accordionHeader) {
-            console.error('翻译面板标题元素未找到！请检查浏览器开发者工具中Accordion标题的data-testid/类名');
+            console.error('未找到翻译预览标题');
             return;
         }
 
@@ -678,7 +683,7 @@ function initTranslationPreview() {
         const promptInput = promptContainer?.querySelector('textarea, input');
 
         if (!translationPreviewOpenCheckbox || !promptInput) {
-            console.error('状态组件或提示词输入框未找到！');
+            console.error('组件未找到！');
             return;
         }
 
@@ -693,12 +698,12 @@ function initTranslationPreview() {
         if (triggerBtn) {
             triggerBtn.click();
         } else {
-            console.error('未找到触发翻译的隐藏按钮，请检查webui.py中trigger_translation_btn的elem_id');
+            console.error('未找到触发翻译的按钮');
         }
     }
 
     const observer = new MutationObserver(() => {
-        if (gradioApp().getElementById('translate_preview_accordion')) {
+        if (gradioApp().getElementById('translation_preview_accordion')) {
             observer.disconnect();
             tryInit();
         }
@@ -716,14 +721,29 @@ function setupAutoTranslate() {
     const translateBtn = gradioApp().getElementById('trigger_translation_btn');
 
     if (promptInput && translateBtn) {
+        let timer = null;
         let lastContent = '';
-        let timer = setInterval(() => {
+
+        const handleInput = () => {
             const currentContent = promptInput.value;
-            if (currentContent !== lastContent) {
+            if (currentContent === lastContent) return;
+
+            if (timer) clearTimeout(timer);
+            timer = setTimeout(() => {
                 translateBtn.click();
                 lastContent = currentContent;
+            }, 1000);
+        };
+
+        let lastManualCheck = promptInput.value;
+        setInterval(() => {
+            if (promptInput.value !== lastManualCheck) {
+                lastManualCheck = promptInput.value;
+                handleInput();
             }
-        }, 3000);
+        }, 1500);
+
+        promptInput.addEventListener('input', handleInput);
     }
 }
 
