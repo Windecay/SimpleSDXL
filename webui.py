@@ -433,7 +433,7 @@ with shared.gradio_root:
                             shared.gradio_root.load(lambda: default_prompt, outputs=prompt)
                     with gr.Column(scale=2, min_width=0) as prompt_internal_panel:
                         random_button = gr.Button(value="RandomPrompt", elem_classes='type_row_half', size="sm", min_width = 70)
-                        super_prompter = gr.Button(value="SuperPrompt", elem_classes='type_row_half', size="sm", min_width = 70)
+                        super_prompter = gr.Button(value="SuperPrompt", interactive=False, elem_classes='type_row_half', size="sm", min_width = 70)
                     with gr.Column(scale=2, min_width=0):
                         generate_button = gr.Button(label="Generate", value="Generate", elem_classes='type_row', elem_id='generate_button', visible=True, min_width = 70)
                         load_parameter_button = gr.Button(label="Load Parameters", value="Load Parameters", elem_classes='type_row', elem_id='load_parameter_button', visible=False, min_width = 70)
@@ -876,11 +876,6 @@ with shared.gradio_root:
         with gr.Column(scale=1, visible=modules.config.default_advanced_checkbox, elem_id="scrollable-box-hidden") as advanced_column:
             with gr.Tab(label='Setting', elem_id="scrollable-box") as setting_tab:
                 preset_instruction = gr.HTML(visible=False, value=topbar.preset_instruction())
-                if not args_manager.args.disable_preset_selection:
-                    preset_selection = gr.Radio(label='Preset',
-                                                choices=modules.config.available_presets,
-                                                value=args_manager.args.preset if args_manager.args.preset else "initial",
-                                                visible=False, interactive=True)
                 with gr.Tab(label="General"):
                     performance_selection = gr.Radio(label='Performance', container=False, 
                                                  choices=flags.Performance.list(),
@@ -1375,16 +1370,12 @@ with shared.gradio_root:
                     results = [gr.update(choices=model_filenames)]
                     results += [gr.update(choices=['None'] + model_filenames)]
                     results += [gr.update(choices=[flags.default_vae] + vae_filenames)]
-                    if not args_manager.args.disable_preset_selection:
-                        results += [gr.update(choices=modules.config.available_presets)]
                     for i in range(modules.config.default_max_lora_number):
                         results += [gr.update(interactive=True),
                                     gr.update(choices=['None'] + lora_filenames), gr.update()]
                     return results
 
                 refresh_files_output = [base_model, refiner_model, vae_name]
-                if not args_manager.args.disable_preset_selection:
-                    refresh_files_output += [preset_selection]
                 refresh_files.click(refresh_files_clicked, [state_topbar], refresh_files_output + lora_ctrls,
                                     queue=False, show_progress=False)
 
@@ -1627,7 +1618,7 @@ with shared.gradio_root:
             comfyd_active_checkbox.change(lambda x: toggle_comfyd_checked(x), inputs=comfyd_active_checkbox, queue=False, show_progress=False)
             
             import enhanced.superprompter
-            super_prompter.click(lambda x, y, z, s: minicpm.extended_prompt(x, y, s, z), inputs=[prompt, super_prompter_prompt, translation_methods, state_topbar], outputs=prompt, queue=False, show_progress=True)
+            super_prompter.click(lambda x, y, z, i, s: minicpm.extended_prompt(x, y, i, s, z), inputs=[prompt, super_prompter_prompt, translation_methods, scene_input_image1, state_topbar], outputs=prompt, queue=False, show_progress=True)
             scene_params = [scene_theme, scene_canvas_image, scene_input_image1, scene_input_image2, scene_additional_prompt, scene_additional_prompt_2, scene_var_number, scene_aspect_ratio, scene_image_number, scene_mask_color]
             
 
@@ -1760,17 +1751,18 @@ with shared.gradio_root:
 
         def parse_meta(raw_prompt_txt, state_params, scene_input_image1, state_is_generating):
             if state_is_generating:
-                 return [gr.update()]*4
+                 return [gr.update()]*5
             if len(raw_prompt_txt)>=1 and (raw_prompt_txt[-1]=='[' or raw_prompt_txt[-1]=='_'):
-                return [gr.update()] * 3 + [True]
+                return [gr.update()] * 4 + [True]
+            super_prompter_result = gr.update(interactive=len(raw_prompt_txt)>0)
             if 'scene_frontend' in state_params and len(raw_prompt_txt)==0 and scene_input_image1 is not None:
                 is_canvas_image = 'scene_canvas_image' not in state_params["scene_frontend"].get('disvisible', [])
                 if not is_canvas_image:
-                    return [gr.update(), gr.update(visible=False), gr.update(visible=True), gr.update()]
+                    return [gr.update(), super_prompter_result, gr.update(visible=False), gr.update(visible=True), gr.update()]
             
-            return [gr.update(), gr.update(visible=True), gr.update(visible=False), gr.update()]
+            return [gr.update(), super_prompter_result, gr.update(visible=True), gr.update(visible=False), gr.update()]
 
-        prompt.change(parse_meta, inputs=[prompt, state_topbar, scene_input_image1, state_is_generating], outputs=[prompt, generate_button, load_parameter_button, prompt_panel_checkbox], queue=False, show_progress=False)      
+        prompt.change(parse_meta, inputs=[prompt, state_topbar, scene_input_image1, state_is_generating], outputs=[prompt, super_prompter, generate_button, load_parameter_button, prompt_panel_checkbox], queue=False, show_progress=False)      
 
         def trigger_metadata_import(file, state_is_generating, state_params):
             parameters, metadata_scheme = modules.meta_parser.read_info_from_image(file)
