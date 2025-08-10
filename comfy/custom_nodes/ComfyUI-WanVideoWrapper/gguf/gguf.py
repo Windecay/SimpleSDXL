@@ -68,6 +68,7 @@ def set_lora_params(module, patches, module_prefix=""):
                     continue
             lora_strengths = [p[0] for p in patch]
             module.lora = (lora_diffs, lora_strengths)
+            module.step = 0  # Initialize step for LoRA scheduling
 
 
 class GGUFLinear(nn.Linear):
@@ -82,6 +83,7 @@ class GGUFLinear(nn.Linear):
         super().__init__(in_features, out_features, bias, device)
         self.compute_dtype = compute_dtype
         self.lora = None
+        self.step = 0
 
     def forward(self, inputs):
         weight = self.dequantize_without_compile()
@@ -89,7 +91,7 @@ class GGUFLinear(nn.Linear):
         bias = self.bias.to(self.compute_dtype) if self.bias is not None else None
 
         if hasattr(self, "lora") and self.lora is not None:
-            weight = self.apply_lora(weight).to(self.compute_dtype)
+            weight = self.apply_lora(weight, self.step).to(self.compute_dtype)
 
         output = torch.nn.functional.linear(inputs, weight, bias)
         return output
@@ -99,8 +101,14 @@ class GGUFLinear(nn.Linear):
         return dequantize_gguf_tensor(self.weight)
 
     @torch.compiler.disable()
-    def apply_lora(self, weight):
+    def apply_lora(self, weight, step=None):
         for lora_diff, lora_strength in zip(self.lora[0], self.lora[1]):
+            if isinstance(lora_strength, list):
+                lora_strength = lora_strength[step]
+                if lora_strength == 0.0:
+                    continue
+            elif lora_strength == 0.0:
+                continue
             patch_diff = torch.mm(
                 lora_diff[0].flatten(start_dim=1).to(weight.device),
                 lora_diff[1].flatten(start_dim=1).to(weight.device)
