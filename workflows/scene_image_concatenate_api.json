@@ -22,11 +22,11 @@
       "direction": "right",
       "match_image_size": true,
       "image1": [
-        "2",
+        "18",
         0
       ],
       "image2": [
-        "1",
+        "16",
         0
       ]
     },
@@ -81,11 +81,11 @@
       "direction": "down",
       "match_image_size": true,
       "image1": [
-        "2",
+        "18",
         0
       ],
       "image2": [
-        "1",
+        "16",
         0
       ]
     },
@@ -118,6 +118,130 @@
     "class_type": "easy int",
     "_meta": {
       "title": "int"
+    }
+  },
+  "10": {
+    "inputs": {
+      "fill_background": true,
+      "background_color": "#FFFFFF",
+      "RGBA_image": [
+        "1",
+        0
+      ],
+      "mask": [
+        "13",
+        0
+      ]
+    },
+    "class_type": "LayerUtility: ImageRemoveAlpha",
+    "_meta": {
+      "title": "LayerUtility: ImageRemoveAlpha"
+    }
+  },
+  "11": {
+    "inputs": {
+      "fill_background": true,
+      "background_color": "#FFFFFF",
+      "RGBA_image": [
+        "2",
+        0
+      ],
+      "mask": [
+        "14",
+        0
+      ]
+    },
+    "class_type": "LayerUtility: ImageRemoveAlpha",
+    "_meta": {
+      "title": "LayerUtility: ImageRemoveAlpha"
+    }
+  },
+  "13": {
+    "inputs": {
+      "mask": [
+        "1",
+        1
+      ]
+    },
+    "class_type": "InvertMask",
+    "_meta": {
+      "title": "InvertMask"
+    }
+  },
+  "14": {
+    "inputs": {
+      "mask": [
+        "2",
+        1
+      ]
+    },
+    "class_type": "InvertMask",
+    "_meta": {
+      "title": "InvertMask"
+    }
+  },
+  "15": {
+    "inputs": {
+      "mask": [
+        "1",
+        1
+      ]
+    },
+    "class_type": "easy isMaskEmpty",
+    "_meta": {
+      "title": "Is Mask Empty"
+    }
+  },
+  "16": {
+    "inputs": {
+      "boolean": [
+        "15",
+        0
+      ],
+      "on_true": [
+        "1",
+        0
+      ],
+      "on_false": [
+        "10",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "17": {
+    "inputs": {
+      "mask": [
+        "2",
+        1
+      ]
+    },
+    "class_type": "easy isMaskEmpty",
+    "_meta": {
+      "title": "Is Mask Empty"
+    }
+  },
+  "18": {
+    "inputs": {
+      "boolean": [
+        "17",
+        0
+      ],
+      "on_true": [
+        "2",
+        0
+      ],
+      "on_false": [
+        "11",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
     }
   }
 }

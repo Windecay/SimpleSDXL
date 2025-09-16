@@ -141,11 +141,11 @@
       "spacing_width": 0,
       "spacing_color": "white",
       "image1": [
-        "22",
+        "53",
         0
       ],
       "image2": [
-        "12",
+        "56",
         0
       ]
     },
@@ -175,7 +175,7 @@
     "inputs": {
       "channel": "red",
       "image": [
-        "12",
+        "56",
         0
       ]
     },
@@ -221,7 +221,7 @@
         0
       ],
       "on_true": [
-        "22",
+        "53",
         0
       ],
       "on_false": [
@@ -266,7 +266,7 @@
     "inputs": {
       "sage_attention": "auto",
       "model": [
-        "45",
+        "50",
         0
       ]
     },
@@ -478,7 +478,7 @@
   "41": {
     "inputs": {
       "image": [
-        "12",
+        "56",
         0
       ]
     },
@@ -502,7 +502,7 @@
   "43": {
     "inputs": {
       "image": [
-        "22",
+        "53",
         0
       ]
     },
@@ -511,71 +511,152 @@
       "title": "FluxKontextImageScale"
     }
   },
-  "44": {
+  "47": {
     "inputs": {
-      "toggle": true,
-      "mode": "simple",
-      "num_loras": 10,
-      "lora_1_name": "None",
-      "lora_1_strength": 1,
-      "lora_1_model_strength": 1,
-      "lora_1_clip_strength": 1,
-      "lora_2_name": "None",
-      "lora_2_strength": 1,
-      "lora_2_model_strength": 1,
-      "lora_2_clip_strength": 1,
-      "lora_3_name": "None",
-      "lora_3_strength": 1,
-      "lora_3_model_strength": 1,
-      "lora_3_clip_strength": 1,
-      "lora_4_name": "None",
-      "lora_4_strength": 1,
-      "lora_4_model_strength": 1,
-      "lora_4_clip_strength": 1,
-      "lora_5_name": "None",
-      "lora_5_strength": 1,
-      "lora_5_model_strength": 1,
-      "lora_5_clip_strength": 1,
-      "lora_6_name": "None",
-      "lora_6_strength": 1,
-      "lora_6_model_strength": 1,
-      "lora_6_clip_strength": 1,
-      "lora_7_name": "None",
-      "lora_7_strength": 1,
-      "lora_7_model_strength": 1,
-      "lora_7_clip_strength": 1,
-      "lora_8_name": "None",
-      "lora_8_strength": 1,
-      "lora_8_model_strength": 1,
-      "lora_8_clip_strength": 1,
-      "lora_9_name": "None",
-      "lora_9_strength": 1,
-      "lora_9_model_strength": 1,
-      "lora_9_clip_strength": 1,
-      "lora_10_name": "None",
-      "lora_10_strength": 1,
-      "lora_10_model_strength": 1,
-      "lora_10_clip_strength": 1
-    },
-    "class_type": "easy loraStack",
-    "_meta": {
-      "title": "kontext_lora_stack"
-    }
-  },
-  "45": {
-    "inputs": {
-      "lora_stack": [
-        "44",
-        0
-      ],
+      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "strength_model": 0,
       "model": [
         "29",
         0
       ]
     },
-    "class_type": "easy loraStackApply",
+    "class_type": "LoraLoaderModelOnly",
     "_meta": {
-      "title": "Easy Apply LoraStack"
+      "title": "lora_1"
+    }
+  },
+  "48": {
+    "inputs": {
+      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "strength_model": 0,
+      "model": [
+        "47",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_2"
+    }
+  },
+  "49": {
+    "inputs": {
+      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "strength_model": 0,
+      "model": [
+        "48",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_3"
+    }
+  },
+  "50": {
+    "inputs": {
+      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "strength_model": 0,
+      "model": [
+        "49",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_4"
+    }
+  },
+  "51": {
+    "inputs": {
+      "mask": [
+        "12",
+        1
+      ]
+    },
+    "class_type": "InvertMask",
+    "_meta": {
+      "title": "InvertMask"
+    }
+  },
+  "52": {
+    "inputs": {
+      "fill_background": true,
+      "background_color": "#FFFFFF",
+      "RGBA_image": [
+        "12",
+        0
+      ],
+      "mask": [
+        "51",
+        0
+      ]
+    },
+    "class_type": "LayerUtility: ImageRemoveAlpha",
+    "_meta": {
+      "title": "LayerUtility: ImageRemoveAlpha"
+    }
+  },
+  "53": {
+    "inputs": {
+      "fill_background": true,
+      "background_color": "#FFFFFF",
+      "RGBA_image": [
+        "22",
+        0
+      ],
+      "mask": [
+        "54",
+        0
+      ]
+    },
+    "class_type": "LayerUtility: ImageRemoveAlpha",
+    "_meta": {
+      "title": "LayerUtility: ImageRemoveAlpha"
+    }
+  },
+  "54": {
+    "inputs": {
+      "mask": [
+        "22",
+        1
+      ]
+    },
+    "class_type": "InvertMask",
+    "_meta": {
+      "title": "InvertMask"
+    }
+  },
+  "55": {
+    "inputs": {
+      "mask": [
+        "12",
+        1
+      ]
+    },
+    "class_type": "easy isMaskEmpty",
+    "_meta": {
+      "title": "Is Mask Empty"
+    }
+  },
+  "56": {
+    "inputs": {
+      "boolean": [
+        "55",
+        0
+      ],
+      "on_true": [
+        "12",
+        0
+      ],
+      "on_false": [
+        "52",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
     }
   }
 }

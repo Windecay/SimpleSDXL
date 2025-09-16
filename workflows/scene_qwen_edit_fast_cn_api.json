@@ -12,8 +12,8 @@
     "inputs": {
       "prompt": "",
       "negative_prompt": "",
-      "width": 512,
-      "height": 512,
+      "width": 1024,
+      "height": 1024,
       "cfg": 1,
       "steps": 8,
       "refiner_step": 16,
@@ -86,7 +86,7 @@
     "inputs": {
       "shift": 3,
       "model": [
-        "21",
+        "34",
         0
       ]
     },
@@ -111,7 +111,7 @@
   "10": {
     "inputs": {
       "prompt": [
-        "2",
+        "61",
         0
       ],
       "clip": [
@@ -197,7 +197,7 @@
     },
     "class_type": "SaveImageWebsocket",
     "_meta": {
-      "title": "SaveImageWebsocket"
+      "title": "result_image2"
     }
   },
   "16": {
@@ -257,7 +257,7 @@
       ],
       "aspect_ratio_preservation": "keep_input",
       "image": [
-        "3",
+        "38",
         0
       ]
     },
@@ -266,77 +266,10 @@
       "title": "WanVideo Image Resize To Closest"
     }
   },
-  "20": {
-    "inputs": {
-      "toggle": true,
-      "mode": "simple",
-      "num_loras": 10,
-      "lora_1_name": "None",
-      "lora_1_strength": 1,
-      "lora_1_model_strength": 1,
-      "lora_1_clip_strength": 1,
-      "lora_2_name": "None",
-      "lora_2_strength": 1,
-      "lora_2_model_strength": 1,
-      "lora_2_clip_strength": 1,
-      "lora_3_name": "None",
-      "lora_3_strength": 1,
-      "lora_3_model_strength": 1,
-      "lora_3_clip_strength": 1,
-      "lora_4_name": "None",
-      "lora_4_strength": 1,
-      "lora_4_model_strength": 1,
-      "lora_4_clip_strength": 1,
-      "lora_5_name": "None",
-      "lora_5_strength": 1,
-      "lora_5_model_strength": 1,
-      "lora_5_clip_strength": 1,
-      "lora_6_name": "None",
-      "lora_6_strength": 1,
-      "lora_6_model_strength": 1,
-      "lora_6_clip_strength": 1,
-      "lora_7_name": "None",
-      "lora_7_strength": 1,
-      "lora_7_model_strength": 1,
-      "lora_7_clip_strength": 1,
-      "lora_8_name": "None",
-      "lora_8_strength": 1,
-      "lora_8_model_strength": 1,
-      "lora_8_clip_strength": 1,
-      "lora_9_name": "None",
-      "lora_9_strength": 1,
-      "lora_9_model_strength": 1,
-      "lora_9_clip_strength": 1,
-      "lora_10_name": "None",
-      "lora_10_strength": 1,
-      "lora_10_model_strength": 1,
-      "lora_10_clip_strength": 1
-    },
-    "class_type": "easy loraStack",
-    "_meta": {
-      "title": "EasyLoraStack"
-    }
-  },
-  "21": {
-    "inputs": {
-      "lora_stack": [
-        "20",
-        0
-      ],
-      "model": [
-        "7",
-        0
-      ]
-    },
-    "class_type": "easy loraStackApply",
-    "_meta": {
-      "title": "Easy Apply LoraStack"
-    }
-  },
   "28": {
     "inputs": {
       "anything": [
-        "16",
+        "46",
         0
       ]
     },
@@ -349,7 +282,7 @@
     "inputs": {
       "noise_radius": 1,
       "preserve_edges": 0.75,
-      "sharpen": 1,
+      "sharpen": 0.5,
       "ratio": 0.1,
       "image": [
         "14",
@@ -383,6 +316,526 @@
     "class_type": "ImageResize+",
     "_meta": {
       "title": "🔧 Image Resize"
+    }
+  },
+  "31": {
+    "inputs": {
+      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "strength_model": 0,
+      "model": [
+        "33",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_2"
+    }
+  },
+  "32": {
+    "inputs": {
+      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "strength_model": 0,
+      "model": [
+        "31",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_3"
+    }
+  },
+  "33": {
+    "inputs": {
+      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "strength_model": 0,
+      "model": [
+        "7",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_1"
+    }
+  },
+  "34": {
+    "inputs": {
+      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "strength_model": 0,
+      "model": [
+        "32",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_4"
+    }
+  },
+  "35": {
+    "inputs": {
+      "mask": [
+        "3",
+        1
+      ]
+    },
+    "class_type": "InvertMask",
+    "_meta": {
+      "title": "InvertMask"
+    }
+  },
+  "36": {
+    "inputs": {
+      "fill_background": true,
+      "background_color": "#FFFFFF",
+      "RGBA_image": [
+        "3",
+        0
+      ],
+      "mask": [
+        "35",
+        0
+      ]
+    },
+    "class_type": "LayerUtility: ImageRemoveAlpha",
+    "_meta": {
+      "title": "LayerUtility: ImageRemoveAlpha"
+    }
+  },
+  "37": {
+    "inputs": {
+      "mask": [
+        "3",
+        1
+      ]
+    },
+    "class_type": "easy isMaskEmpty",
+    "_meta": {
+      "title": "Is Mask Empty"
+    }
+  },
+  "38": {
+    "inputs": {
+      "boolean": [
+        "37",
+        0
+      ],
+      "on_true": [
+        "3",
+        0
+      ],
+      "on_false": [
+        "36",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "39": {
+    "inputs": {
+      "mask": [
+        "43",
+        1
+      ]
+    },
+    "class_type": "InvertMask",
+    "_meta": {
+      "title": "InvertMask"
+    }
+  },
+  "40": {
+    "inputs": {
+      "boolean": [
+        "41",
+        0
+      ],
+      "on_true": [
+        "43",
+        0
+      ],
+      "on_false": [
+        "42",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "41": {
+    "inputs": {
+      "mask": [
+        "43",
+        1
+      ]
+    },
+    "class_type": "easy isMaskEmpty",
+    "_meta": {
+      "title": "Is Mask Empty"
+    }
+  },
+  "42": {
+    "inputs": {
+      "fill_background": true,
+      "background_color": "#FFFFFF",
+      "RGBA_image": [
+        "43",
+        0
+      ],
+      "mask": [
+        "39",
+        0
+      ]
+    },
+    "class_type": "LayerUtility: ImageRemoveAlpha",
+    "_meta": {
+      "title": "LayerUtility: ImageRemoveAlpha"
+    }
+  },
+  "43": {
+    "inputs": {
+      "image": "welcome.png"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "i2i_ip_image2"
+    }
+  },
+  "44": {
+    "inputs": {
+      "channel": "red",
+      "image": [
+        "43",
+        0
+      ]
+    },
+    "class_type": "ImageToMask",
+    "_meta": {
+      "title": "Convert Image to Mask"
+    }
+  },
+  "45": {
+    "inputs": {
+      "mask": [
+        "44",
+        0
+      ]
+    },
+    "class_type": "easy isMaskEmpty",
+    "_meta": {
+      "title": "Is Mask Empty"
+    }
+  },
+  "46": {
+    "inputs": {
+      "boolean": [
+        "45",
+        0
+      ],
+      "on_true": [
+        "16",
+        0
+      ],
+      "on_false": [
+        "47",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "47": {
+    "inputs": {
+      "seed": [
+        "1",
+        0
+      ],
+      "steps": [
+        "2",
+        5
+      ],
+      "cfg": [
+        "2",
+        4
+      ],
+      "sampler_name": [
+        "2",
+        7
+      ],
+      "scheduler": [
+        "2",
+        8
+      ],
+      "denoise": 1,
+      "model": [
+        "9",
+        0
+      ],
+      "positive": [
+        "49",
+        0
+      ],
+      "negative": [
+        "49",
+        1
+      ],
+      "latent_image": [
+        "13",
+        0
+      ]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "KSampler"
+    }
+  },
+  "48": {
+    "inputs": {
+      "control_net_name": "Qwen-Image-InstantX-ControlNet-Union.safetensors"
+    },
+    "class_type": "ControlNetLoader",
+    "_meta": {
+      "title": "Load ControlNet Model"
+    }
+  },
+  "49": {
+    "inputs": {
+      "strength": 1.5,
+      "start_percent": 0,
+      "end_percent": 0.2,
+      "positive": [
+        "10",
+        0
+      ],
+      "negative": [
+        "11",
+        0
+      ],
+      "control_net": [
+        "54",
+        0
+      ],
+      "image": [
+        "56",
+        0
+      ],
+      "vae": [
+        "5",
+        0
+      ]
+    },
+    "class_type": "ControlNetApplyAdvanced",
+    "_meta": {
+      "title": "Apply ControlNet"
+    }
+  },
+  "50": {
+    "inputs": {
+      "resolution": [
+        "51",
+        0
+      ],
+      "image": [
+        "52",
+        0
+      ]
+    },
+    "class_type": "Zoe-DepthMapPreprocessor",
+    "_meta": {
+      "title": "Zoe Depth Map"
+    }
+  },
+  "51": {
+    "inputs": {
+      "resize_mode": "Just Resize",
+      "image": [
+        "17",
+        0
+      ]
+    },
+    "class_type": "easy imagePixelPerfect",
+    "_meta": {
+      "title": "ImagePixelPerfect"
+    }
+  },
+  "52": {
+    "inputs": {
+      "generation_width": [
+        "30",
+        1
+      ],
+      "generation_height": [
+        "30",
+        2
+      ],
+      "aspect_ratio_preservation": "crop_to_new",
+      "image": [
+        "40",
+        0
+      ]
+    },
+    "class_type": "WanVideoImageResizeToClosest",
+    "_meta": {
+      "title": "WanVideo Image Resize To Closest"
+    }
+  },
+  "54": {
+    "inputs": {
+      "type": "auto",
+      "control_net": [
+        "48",
+        0
+      ]
+    },
+    "class_type": "SetUnionControlNetType",
+    "_meta": {
+      "title": "SetUnionControlNetType"
+    }
+  },
+  "55": {
+    "inputs": {
+      "detect_hand": "enable",
+      "detect_body": "enable",
+      "detect_face": "enable",
+      "resolution": [
+        "51",
+        0
+      ],
+      "scale_stick_for_xinsr_cn": "disable",
+      "image": [
+        "52",
+        0
+      ]
+    },
+    "class_type": "OpenposePreprocessor",
+    "_meta": {
+      "title": "OpenPose Pose"
+    }
+  },
+  "56": {
+    "inputs": {
+      "index": [
+        "57",
+        0
+      ],
+      "value1": [
+        "55",
+        0
+      ],
+      "value2": [
+        "50",
+        0
+      ],
+      "value3": [
+        "58",
+        0
+      ]
+    },
+    "class_type": "easy anythingIndexSwitch",
+    "_meta": {
+      "title": "Any Index Switch"
+    }
+  },
+  "57": {
+    "inputs": {
+      "value": 3
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "var_number"
+    }
+  },
+  "58": {
+    "inputs": {
+      "low_threshold": 150,
+      "high_threshold": 200,
+      "resolution": [
+        "51",
+        0
+      ],
+      "image": [
+        "52",
+        0
+      ]
+    },
+    "class_type": "CannyEdgePreprocessor",
+    "_meta": {
+      "title": "Canny Edge"
+    }
+  },
+  "61": {
+    "inputs": {
+      "boolean": [
+        "62",
+        0
+      ],
+      "on_true": [
+        "64",
+        0
+      ],
+      "on_false": [
+        "2",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "62": {
+    "inputs": {
+      "comparison": "a == b",
+      "a": [
+        "2",
+        0
+      ],
+      "b": [
+        "63",
+        0
+      ]
+    },
+    "class_type": "easy compare",
+    "_meta": {
+      "title": "Compare"
+    }
+  },
+  "63": {
+    "inputs": {
+      "value": ""
+    },
+    "class_type": "easy string",
+    "_meta": {
+      "title": "String"
+    }
+  },
+  "64": {
+    "inputs": {
+      "value": "更换角色的姿势，保持角色一致性不变"
+    },
+    "class_type": "easy string",
+    "_meta": {
+      "title": "String"
+    }
+  },
+  "66": {
+    "inputs": {
+      "images": [
+        "56",
+        0
+      ]
+    },
+    "class_type": "SaveImageWebsocket",
+    "_meta": {
+      "title": "result_image1"
     }
   }
 }
