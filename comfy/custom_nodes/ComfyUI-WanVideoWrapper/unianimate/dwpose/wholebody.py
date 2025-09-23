@@ -1,6 +1,7 @@
 import numpy as np
 from .jit_det import inference_detector as inference_jit_yolox
 from .jit_pose import inference_pose as inference_jit_pose
+import os
 
 
 class Wholebody:
