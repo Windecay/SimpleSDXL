@@ -1,3 +1,4 @@
+import os
 from comfy.ldm.modules import attention as comfy_attention
 import logging
 import comfy.model_patcher
@@ -8,7 +9,13 @@ import folder_paths
 import comfy.model_management as mm
 from comfy.cli_args import args
 from typing import Optional, Tuple
-
+import importlib
+try:
+    from comfy_api.latest import io
+    v3_available = True
+except ImportError:
+    v3_available = False
+    logging.warning("ComfyUI v3 node API not available, please update ComfyUI to access latest v3 nodes.")
 
 sageattn_modes = ["disabled", "auto", "sageattn_qk_int8_pv_fp16_cuda", "sageattn_qk_int8_pv_fp16_triton", "sageattn_qk_int8_pv_fp8_cuda", "sageattn_qk_int8_pv_fp8_cuda++"]
 
@@ -40,6 +47,7 @@ class BaseLoaderKJ:
                 encoder_hidden_states_mask: torch.FloatTensor = None,
                 attention_mask: Optional[torch.FloatTensor] = None,
                 image_rotary_emb: Optional[torch.Tensor] = None,
+                transformer_options={},
             ) -> Tuple[torch.Tensor, torch.Tensor]:
                 seq_txt = encoder_hidden_states.shape[1]
 
@@ -67,7 +75,7 @@ class BaseLoaderKJ:
                 joint_key = joint_key.flatten(start_dim=2)
                 joint_value = joint_value.flatten(start_dim=2)
 
-                joint_hidden_states = attention_sage(joint_query, joint_key, joint_value, self.heads, attention_mask)
+                joint_hidden_states = attention_sage(joint_query, joint_key, joint_value, self.heads, attention_mask, transformer_options=transformer_options)
 
                 txt_attn_output = joint_hidden_states[:, :seq_txt, :]
                 img_attn_output = joint_hidden_states[:, seq_txt:, :]
@@ -117,7 +125,7 @@ class BaseLoaderKJ:
             sage_func = set_sage_func(sage_attention)
 
             @torch.compiler.disable()
-            def attention_sage(q, k, v, heads, mask=None, attn_precision=None, skip_reshape=False, skip_output_reshape=False):
+            def attention_sage(q, k, v, heads, mask=None, attn_precision=None, skip_reshape=False, skip_output_reshape=False, transformer_options=None):
                 if skip_reshape:
                     b, _, _, dim_head = q.shape
                     tensor_layout="HND"
@@ -241,7 +249,7 @@ class CheckpointLoaderKJ(BaseLoaderKJ):
             "compute_dtype": (["default", "fp16", "bf16", "fp32"], {"default": "default", "tooltip": "The compute dtype to use for the model."}),
             "patch_cublaslinear": ("BOOLEAN", {"default": False, "tooltip": "Enable or disable the patching, won't take effect on already loaded models!"}),
             "sage_attention": (sageattn_modes, {"default": False, "tooltip": "Patch comfy attention to use sageattn."}),
-            "enable_fp16_accumulation": ("BOOLEAN", {"default": False, "tooltip": "Enable torch.backends.cuda.matmul.allow_fp16_accumulation, requires pytorch 2.7.0 nightly."}),
+            "enable_fp16_accumulation": ("BOOLEAN", {"default": False, "tooltip": "Enable torch.backends.cuda.matmul.allow_fp16_accumulation, required minimum pytorch version 2.7.1"}),
         }}
 
     RETURN_TYPES = ("MODEL", "CLIP", "VAE")
@@ -287,7 +295,7 @@ class CheckpointLoaderKJ(BaseLoaderKJ):
             if hasattr(torch.backends.cuda.matmul, "allow_fp16_accumulation"):
                 torch.backends.cuda.matmul.allow_fp16_accumulation = True
             else:
-                raise RuntimeError("Failed to set fp16 accumulation, this requires pytorch 2.7.0 nightly currently")
+                raise RuntimeError("Failed to set fp16 accumulation, requires pytorch version 2.7.1 or higher")
         else:
             if hasattr(torch.backends.cuda.matmul, "allow_fp16_accumulation"):
                 torch.backends.cuda.matmul.allow_fp16_accumulation = False
@@ -1318,6 +1326,7 @@ class WanVideoTeaCacheKJ:
     RETURN_NAMES = ("model",)
     FUNCTION = "patch_teacache"
     CATEGORY = "KJNodes/teacache"
+    DEPRECATED = True
     DESCRIPTION = """
 Patch WanVideo model to use TeaCache. Speeds up inference by caching the output and  
 applying it instead of doing the step.  Best results are achieved by choosing the  
@@ -1452,7 +1461,7 @@ Official recommended values https://github.com/ali-vilab/TeaCache/tree/main/TeaC
 
 from comfy.ldm.flux.math import apply_rope
 
-def modified_wan_self_attention_forward(self, x, freqs):
+def modified_wan_self_attention_forward(self, x, freqs, transformer_options={}):
     r"""
     Args:
         x(Tensor): Shape [B, L, num_heads, C / num_heads]
@@ -1472,13 +1481,23 @@ def modified_wan_self_attention_forward(self, x, freqs):
     q, k = apply_rope(q, k, freqs)
 
     feta_scores = get_feta_scores(q, k, self.num_frames, self.enhance_weight)
-
-    x = comfy.ldm.modules.attention.optimized_attention(
-        q.view(b, s, n * d),
-        k.view(b, s, n * d),
-        v,
-        heads=self.num_heads,
-    )
+    
+    try:
+        x = comfy.ldm.modules.attention.optimized_attention(
+            q.view(b, s, n * d),
+            k.view(b, s, n * d),
+            v,
+            heads=self.num_heads,
+            transformer_options=transformer_options,
+        )
+    except:
+        # backward compatibility for now
+        x = comfy.ldm.modules.attention.attention(
+            q.view(b, s, n * d),
+            k.view(b, s, n * d),
+            v,
+            heads=self.num_heads,
+        )
 
     x = self.o(x)
 
@@ -1583,14 +1602,18 @@ class WanVideoEnhanceAVideoKJ:
             
         return (model_clone,)
     
-def normalized_attention_guidance(self, query, context_positive, context_negative):
+def normalized_attention_guidance(self, query, context_positive, context_negative, transformer_options={}):
     k_positive = self.norm_k(self.k(context_positive))
     v_positive = self.v(context_positive)
     k_negative = self.norm_k(self.k(context_negative))
     v_negative = self.v(context_negative)
 
-    x_positive = comfy.ldm.modules.attention.optimized_attention(query, k_positive, v_positive, heads=self.num_heads).flatten(2)
-    x_negative = comfy.ldm.modules.attention.optimized_attention(query, k_negative, v_negative, heads=self.num_heads).flatten(2)
+    try:
+        x_positive = comfy.ldm.modules.attention.optimized_attention(query, k_positive, v_positive, heads=self.num_heads, transformer_options=transformer_options).flatten(2)
+        x_negative = comfy.ldm.modules.attention.optimized_attention(query, k_negative, v_negative, heads=self.num_heads, transformer_options=transformer_options).flatten(2)
+    except: #backwards compatibility for now
+        x_positive = comfy.ldm.modules.attention.optimized_attention(query, k_positive, v_positive, heads=self.num_heads).flatten(2)
+        x_negative = comfy.ldm.modules.attention.optimized_attention(query, k_negative, v_negative, heads=self.num_heads).flatten(2)
 
     nag_guidance = x_positive * self.nag_scale - x_negative * (self.nag_scale - 1)
 
@@ -1609,7 +1632,7 @@ def normalized_attention_guidance(self, query, context_positive, context_negativ
     return x
 
 #region NAG
-def wan_crossattn_forward_nag(self, x, context, **kwargs):
+def wan_crossattn_forward_nag(self, x, context, transformer_options={}, **kwargs):
     r"""
     Args:
         x(Tensor): Shape [B, L1, C]
@@ -1634,14 +1657,20 @@ def wan_crossattn_forward_nag(self, x, context, **kwargs):
     nag_context = self.nag_context
     if self.input_type == "batch":
         nag_context = nag_context.repeat(x_pos.shape[0], 1, 1)
-    x_pos_out = normalized_attention_guidance(self, q_pos, context_pos, nag_context)
+    try:
+        x_pos_out = normalized_attention_guidance(self, q_pos, context_pos, nag_context, transformer_options=transformer_options)
+    except: #backwards compatibility for now
+        x_pos_out = normalized_attention_guidance(self, q_pos, context_pos, nag_context)
 
     # Negative branch
     if x_neg is not None and context_neg is not None:
         q_neg = self.norm_q(self.q(x_neg))
         k_neg = self.norm_k(self.k(context_neg))
         v_neg = self.v(context_neg)
-        x_neg_out = comfy.ldm.modules.attention.optimized_attention(q_neg, k_neg, v_neg, heads=self.num_heads)
+        try:
+            x_neg_out = comfy.ldm.modules.attention.optimized_attention(q_neg, k_neg, v_neg, heads=self.num_heads, transformer_options=transformer_options)
+        except: #backwards compatibility for now
+            x_neg_out = comfy.ldm.modules.attention.optimized_attention(q_neg, k_neg, v_neg, heads=self.num_heads)
         x = torch.cat([x_pos_out, x_neg_out], dim=0)
     else:
         x = x_pos_out
@@ -1649,7 +1678,7 @@ def wan_crossattn_forward_nag(self, x, context, **kwargs):
     return self.o(x)
 
 
-def wan_i2v_crossattn_forward_nag(self, x, context, context_img_len):
+def wan_i2v_crossattn_forward_nag(self, x, context, context_img_len, transformer_options={}, **kwargs):
     r"""
     Args:
         x(Tensor): Shape [B, L1, C]
@@ -1661,7 +1690,10 @@ def wan_i2v_crossattn_forward_nag(self, x, context, context_img_len):
     q_img = self.norm_q(self.q(x))    
     k_img = self.norm_k_img(self.k_img(context_img))
     v_img = self.v_img(context_img)
-    img_x = comfy.ldm.modules.attention.optimized_attention(q_img, k_img, v_img, heads=self.num_heads)
+    try:
+        img_x = comfy.ldm.modules.attention.optimized_attention(q_img, k_img, v_img, heads=self.num_heads, transformer_options=transformer_options)
+    except: #backwards compatibility for now
+        img_x = comfy.ldm.modules.attention.optimized_attention(q_img, k_img, v_img, heads=self.num_heads)
 
     if context.shape[0] == 2:
         x, x_real_negative = torch.chunk(x, 2, dim=0)
@@ -1672,13 +1704,16 @@ def wan_i2v_crossattn_forward_nag(self, x, context, context_img_len):
     
     q = self.norm_q(self.q(x))
 
-    x = normalized_attention_guidance(self, q, context_positive, self.nag_context)
+    x = normalized_attention_guidance(self, q, context_positive, self.nag_context, transformer_options=transformer_options)
 
     if context_negative is not None:
         q_real_negative = self.norm_q(self.q(x_real_negative))
         k_real_negative = self.norm_k(self.k(context_negative))
         v_real_negative = self.v(context_negative)
-        x_real_negative = comfy.ldm.modules.attention.optimized_attention(q_real_negative, k_real_negative, v_real_negative, heads=self.num_heads)
+        try:
+            x_real_negative = comfy.ldm.modules.attention.optimized_attention(q_real_negative, k_real_negative, v_real_negative, heads=self.num_heads, transformer_options=transformer_options)
+        except: #backwards compatibility for now
+            x_real_negative = comfy.ldm.modules.attention.optimized_attention(q_real_negative, k_real_negative, v_real_negative, heads=self.num_heads)
         x = torch.cat([x, x_real_negative], dim=0)
 
     # output
@@ -1768,7 +1803,7 @@ class SkipLayerGuidanceWanVideo:
     FUNCTION = "slg"
     EXPERIMENTAL = True
     DESCRIPTION = "Simplified skip layer guidance that only skips the uncond on selected blocks"
-
+    DEPRECATED = True
     CATEGORY = "advanced/guidance"
 
     def slg(self, model, start_percent, end_percent, blocks):
@@ -1886,3 +1921,123 @@ class CFGZeroStarAndInit:
         m = model.clone()
         m.set_model_sampler_cfg_function(cfg_zerostar)
         return (m, )
+    
+if v3_available:
+
+    class GGUFLoaderKJ(io.ComfyNode):
+        @classmethod
+        def define_schema(cls):
+            return io.Schema(
+                node_id="GGUFLoaderKJ",
+                category="KJNodes/experimental",
+                description="Loads a GGUF model with advanced options, requires [ComfyUI-GGUF](https://github.com/city96/ComfyUI-GGUF) to be installed.",
+                is_experimental=True,
+                inputs=[
+                    io.Combo.Input("model_name", options=[x for x in folder_paths.get_filename_list("unet_gguf")]),
+                    io.Combo.Input("extra_model_name", options=[x for x in folder_paths.get_filename_list("unet_gguf")] + ["none"], default="none", tooltip="An extra gguf model to load and merge into the main model, for example VACE module"),
+                    io.Combo.Input("dequant_dtype", options=["default", "target", "float32", "float16", "bfloat16"], default="default"),
+                    io.Combo.Input("patch_dtype", options=["default", "target", "float32", "float16", "bfloat16"], default="default"),
+                    io.Boolean.Input("patch_on_device", default=False),
+                    io.Boolean.Input("enable_fp16_accumulation", default=False, tooltip="Enable torch.backends.cuda.matmul.allow_fp16_accumulation, required minimum pytorch version 2.7.1"),
+                    io.Combo.Input("attention_override", options=["none", "sdpa", "sageattn", "xformers", "flashattn"], default="none", tooltip="Overrides the used attention implementation, requires the respective library to be installed"),
+
+                ],
+                outputs=[io.Model.Output(),],
+            )
+        
+        def attention_override_pytorch(func, *args, **kwargs):
+            new_attention = comfy.ldm.modules.attention.attention_pytorch
+            return new_attention.__wrapped__(*args, **kwargs)
+        def attention_override_sage(func, *args, **kwargs):
+            new_attention = comfy.ldm.modules.attention.attention_sage
+            return new_attention.__wrapped__(*args, **kwargs)
+        def attention_override_xformers(func, *args, **kwargs):
+            new_attention = comfy.ldm.modules.attention.attention_xformers
+            return new_attention.__wrapped__(*args, **kwargs)
+        def attention_override_flash(func, *args, **kwargs):
+            new_attention = comfy.ldm.modules.attention.attention_flash
+            return new_attention.__wrapped__(*args, **kwargs)
+        
+        ATTENTION_OVERRIDES = {
+            "sdpa": attention_override_pytorch,
+            "sageattn": attention_override_sage,
+            "xformers": attention_override_xformers,
+            "flashattn": attention_override_flash,
+        }
+
+        @classmethod
+        def _get_gguf_module(cls):
+            gguf_path = os.path.join(folder_paths.folder_names_and_paths["custom_nodes"][0][0], "ComfyUI-GGUF")
+            """Import GGUF module with version validation"""
+            for module_name in ["ComfyUI-GGUF", "custom_nodes.ComfyUI-GGUF", "comfyui-gguf", "custom_nodes.comfyui-gguf", gguf_path, gguf_path.lower()]:
+                try:
+                    module = importlib.import_module(module_name)
+                    return module
+                except ImportError:
+                    continue
+
+            raise ImportError(
+                "Compatible ComfyUI-GGUF not found. "
+                "Please install/update from: https://github.com/city96/ComfyUI-GGUF"
+            )
+
+        
+        @classmethod
+        def execute(cls, model_name, extra_model_name, dequant_dtype, patch_dtype, patch_on_device, attention_override, enable_fp16_accumulation):
+            gguf_nodes = cls._get_gguf_module()
+            ops = gguf_nodes.ops.GGMLOps()
+
+            def set_linear_dtype(attr, value):
+                if value == "default":
+                    setattr(ops.Linear, attr, None)
+                elif value == "target":
+                    setattr(ops.Linear, attr, value)
+                else:
+                    setattr(ops.Linear, attr, getattr(torch, value))
+
+            set_linear_dtype("dequant_dtype", dequant_dtype)
+            set_linear_dtype("patch_dtype", patch_dtype)
+
+            # init model
+            model_path = folder_paths.get_full_path("unet", model_name)
+            sd = gguf_nodes.loader.gguf_sd_loader(model_path)
+
+            if extra_model_name is not None and extra_model_name != "none":
+                if not extra_model_name.endswith(".gguf"):
+                    raise ValueError("Extra model must also be a .gguf file")
+                extra_model_full_path = folder_paths.get_full_path("unet", extra_model_name)
+                extra_model = gguf_nodes.loader.gguf_sd_loader(extra_model_full_path)
+                sd.update(extra_model)
+
+            model = comfy.sd.load_diffusion_model_state_dict(
+                sd, model_options={"custom_operations": ops}
+            )
+            if model is None:
+                raise RuntimeError(f"ERROR: Could not detect model type of: {model_path}")
+            
+            model = gguf_nodes.nodes.GGUFModelPatcher.clone(model)
+            model.patch_on_device = patch_on_device
+
+            # attention override
+            if attention_override in cls.ATTENTION_OVERRIDES:
+                model.model_options["transformer_options"]["optimized_attention_override"] = cls.ATTENTION_OVERRIDES[attention_override]
+            
+            if enable_fp16_accumulation:
+                if hasattr(torch.backends.cuda.matmul, "allow_fp16_accumulation"):
+                    torch.backends.cuda.matmul.allow_fp16_accumulation = True
+                else:
+                    raise RuntimeError("Failed to set fp16 accumulation, requires pytorch version 2.7.1 or higher")
+            else:
+                if hasattr(torch.backends.cuda.matmul, "allow_fp16_accumulation"):
+                    torch.backends.cuda.matmul.allow_fp16_accumulation = False
+
+            return io.NodeOutput(model,)
+else:
+    class GGUFLoaderKJ:
+        @classmethod
+        def INPUT_TYPES(s):
+            return {}
+        RETURN_TYPES = ()
+        FUNCTION = ""
+        CATEGORY = ""
+        DESCRIPTION = "This node requires newer ComfyUI"

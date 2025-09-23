@@ -22,8 +22,10 @@ NODE_CONFIG = {
     "ConditioningSetMaskAndCombine5": {"class": ConditioningSetMaskAndCombine5, "name": "ConditioningSetMaskAndCombine5"},
     "CondPassThrough": {"class": CondPassThrough},
     #masking
+    "DrawMaskOnImage": {"class": DrawMaskOnImage, "name": "Draw Mask On Image"},
     "DownloadAndLoadCLIPSeg": {"class": DownloadAndLoadCLIPSeg, "name": "(Down)load CLIPSeg"},
     "BatchCLIPSeg": {"class": BatchCLIPSeg, "name": "Batch CLIPSeg"},
+    "BlockifyMask": {"class": BlockifyMask, "name": "Blockify Mask"},
     "ColorToMask": {"class": ColorToMask, "name": "Color To Mask"},
     "CreateGradientMask": {"class": CreateGradientMask, "name": "Create Gradient Mask"},
     "CreateTextMask": {"class": CreateTextMask, "name": "Create Text Mask"},
@@ -42,6 +44,7 @@ NODE_CONFIG = {
     "ResizeMask": {"class": ResizeMask, "name": "Resize Mask"},
     "RoundMask": {"class": RoundMask, "name": "Round Mask"},
     "SeparateMasks": {"class": SeparateMasks, "name": "Separate Masks"},
+    "ConsolidateMasksKJ": {"class": ConsolidateMasksKJ, "name": "Consolidate Masks"},
     #images
     "AddLabel": {"class": AddLabel, "name": "Add Label"},
     "ColorMatch": {"class": ColorMatch, "name": "Color Match"},
@@ -51,6 +54,7 @@ NODE_CONFIG = {
     "GetImagesFromBatchIndexed": {"class": GetImagesFromBatchIndexed, "name": "Get Images From Batch Indexed"},
     "GetImageRangeFromBatch": {"class": GetImageRangeFromBatch, "name": "Get Image or Mask Range From Batch"},
     "GetLatentRangeFromBatch": {"class": GetLatentRangeFromBatch, "name": "Get Latent Range From Batch"},
+    "GetLatentSizeAndCount": {"class": GetLatentSizeAndCount, "name": "Get Latent Size & Count"},
     "GetImageSizeAndCount": {"class": GetImageSizeAndCount, "name": "Get Image Size & Count"},
     "FastPreview": {"class": FastPreview, "name": "Fast Preview"},
     "ImageBatchFilter": {"class": ImageBatchFilter, "name": "Image Batch Filter"},
@@ -85,6 +89,7 @@ NODE_CONFIG = {
     "InsertLatentToIndexed": {"class": InsertLatentToIndex, "name": "Insert Latent To Index"},
     "LoadAndResizeImage": {"class": LoadAndResizeImage, "name": "Load & Resize Image"},
     "LoadImagesFromFolderKJ": {"class": LoadImagesFromFolderKJ, "name": "Load Images From Folder (KJ)"},
+    "LoadVideosFromFolder": {"class": LoadVideosFromFolder, "name": "Load Videos From Folder"},
     "MergeImageChannels": {"class": MergeImageChannels, "name": "Merge Image Channels"},
     "PadImageBatchInterleaved": {"class": PadImageBatchInterleaved, "name": "Pad Image Batch Interleaved"},
     "PreviewAnimation": {"class": PreviewAnimation, "name": "Preview Animation"},
@@ -134,6 +139,7 @@ NODE_CONFIG = {
     "SetShakkerLabsUnionControlNetType": {"class": SetShakkerLabsUnionControlNetType, "name": "Set Shakker Labs Union ControlNet Type"},
     "StyleModelApplyAdvanced": {"class": StyleModelApplyAdvanced, "name": "Style Model Apply Advanced"},
     "DiffusionModelSelector": {"class": DiffusionModelSelector, "name": "Diffusion Model Selector"},
+    "LazySwitchKJ": {"class": LazySwitchKJ, "name": "Lazy Switch KJ"},
     #audioscheduler stuff
     "NormalizedAmplitudeToMask": {"class": NormalizedAmplitudeToMask},
     "NormalizedAmplitudeToFloatList": {"class": NormalizedAmplitudeToFloatList},
@@ -201,6 +207,7 @@ NODE_CONFIG = {
     "CFGZeroStarAndInit": {"class": CFGZeroStarAndInit, "name": "CFG Zero Star/Init"},
     "ModelPatchTorchSettings": {"class": ModelPatchTorchSettings, "name": "Model Patch Torch Settings"},
     "WanVideoNAG": {"class": WanVideoNAG, "name": "WanVideoNAG"},
+    "GGUFLoaderKJ": {"class": GGUFLoaderKJ, "name": "GGUF Loader KJ"},
 
     #instance diffusion
     "CreateInstanceDiffusionTracking": {"class": CreateInstanceDiffusionTracking},
@@ -209,6 +216,7 @@ NODE_CONFIG = {
 
     #lora
     "LoraExtractKJ": {"class": LoraExtractKJ, "name": "LoraExtractKJ"},
+    "LoraReduceRankKJ": {"class": LoraReduceRank, "name": "LoraReduceRank"}
 }
 
 def generate_node_mappings(node_config):
