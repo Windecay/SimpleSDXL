@@ -1,7 +1,7 @@
 {
   "1": {
     "inputs": {
-      "seed": 1049825940314182
+      "seed": 0
     },
     "class_type": "SeedInput",
     "_meta": {
@@ -97,22 +97,6 @@
     "class_type": "CFGNorm",
     "_meta": {
       "title": "CFGNorm"
-    }
-  },
-  "13": {
-    "inputs": {
-      "pixels": [
-        "30",
-        0
-      ],
-      "vae": [
-        "5",
-        0
-      ]
-    },
-    "class_type": "VAEEncode",
-    "_meta": {
-      "title": "VAE Encode"
     }
   },
   "14": {
@@ -418,22 +402,13 @@
         0
       ],
       "latent_image": [
-        "13",
+        "91",
         0
       ]
     },
     "class_type": "KSampler",
     "_meta": {
       "title": "KSampler"
-    }
-  },
-  "48": {
-    "inputs": {
-      "control_net_name": "Qwen-Image-InstantX-ControlNet-Union.safetensors"
-    },
-    "class_type": "ControlNetLoader",
-    "_meta": {
-      "title": "Load ControlNet Model"
     }
   },
   "52": {
@@ -457,74 +432,10 @@
       "title": "WanVideo Image Resize To Closest"
     }
   },
-  "57": {
-    "inputs": {
-      "value": 3
-    },
-    "class_type": "easy int",
-    "_meta": {
-      "title": "var_number"
-    }
-  },
-  "61": {
-    "inputs": {
-      "boolean": [
-        "62",
-        0
-      ],
-      "on_true": [
-        "64",
-        0
-      ],
-      "on_false": [
-        "2",
-        0
-      ]
-    },
-    "class_type": "easy ifElse",
-    "_meta": {
-      "title": "If else"
-    }
-  },
-  "62": {
-    "inputs": {
-      "comparison": "a == b",
-      "a": [
-        "2",
-        0
-      ],
-      "b": [
-        "63",
-        0
-      ]
-    },
-    "class_type": "easy compare",
-    "_meta": {
-      "title": "Compare"
-    }
-  },
-  "63": {
-    "inputs": {
-      "value": ""
-    },
-    "class_type": "easy string",
-    "_meta": {
-      "title": "String"
-    }
-  },
-  "64": {
-    "inputs": {
-      "value": "更换角色的姿势，保持角色一致性不变"
-    },
-    "class_type": "easy string",
-    "_meta": {
-      "title": "String"
-    }
-  },
   "65": {
     "inputs": {
       "prompt": [
-        "61",
+        "2",
         0
       ],
       "clip": [
@@ -677,7 +588,7 @@
   "81": {
     "inputs": {
       "prompt": [
-        "61",
+        "2",
         0
       ],
       "clip": [
@@ -705,7 +616,7 @@
   "82": {
     "inputs": {
       "prompt": [
-        "61",
+        "2",
         0
       ],
       "clip": [
@@ -833,6 +744,65 @@
     "class_type": "UNETLoader",
     "_meta": {
       "title": "base_model"
+    }
+  },
+  "91": {
+    "inputs": {
+      "width": [
+        "94",
+        0
+      ],
+      "height": [
+        "94",
+        1
+      ],
+      "batch_size": 1
+    },
+    "class_type": "EmptyLatentImage",
+    "_meta": {
+      "title": "Empty Latent Image"
+    }
+  },
+  "92": {
+    "inputs": {
+      "width": [
+        "2",
+        2
+      ],
+      "height": [
+        "2",
+        3
+      ],
+      "batch_size": 1,
+      "color": 0
+    },
+    "class_type": "EmptyImage",
+    "_meta": {
+      "title": "EmptyImage"
+    }
+  },
+  "93": {
+    "inputs": {
+      "image": [
+        "92",
+        0
+      ]
+    },
+    "class_type": "FluxKontextImageScale",
+    "_meta": {
+      "title": "FluxKontextImageScale"
+    }
+  },
+  "94": {
+    "inputs": {
+      "image": [
+        "93",
+        0
+      ]
+    },
+    "class_type": "GetImageSize",
+    "_meta": {
+      "title": "Get Image Size"
     }
   }
 }

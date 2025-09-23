@@ -1955,8 +1955,12 @@ with shared.gradio_root:
             results = [trigger_auto_aspect_ratio_for_scene(state, canvas_image['image'], scene_theme)]
             need_canvas_image = 'scene_canvas_image' not in state["scene_frontend"].get('disvisible', [])
             need_input_image1 = 'scene_input_image1' not in state["scene_frontend"].get('disvisible', [])
-            if need_canvas_image and canvas_image is not None and (not need_input_image1 or (need_input_image1 and input_image1 is not None)):
-                results.append(gr.update(interactive=True, visible=True))
+            need_input_image2 = 'scene_input_image2' not in state["scene_frontend"].get('disvisible', [])
+            if need_canvas_image and canvas_image is not None:
+                if need_input_image2 or (not need_input_image1 or (need_input_image1 and input_image1 is not None)):
+                    results.append(gr.update(interactive=True, visible=True))
+                else:
+                    results.append(gr.update(interactive=False, visible=True))
             else:
                 results.append(gr.update(interactive=False, visible=True))
             return results

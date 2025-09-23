@@ -21,7 +21,7 @@
                     "Qwen-Editplus": [["-normalization"]],
                     "Qwen-Editplus-fast": [["-normalization"]]
                 },
-                "aspect_ratio" : ["1024|1:1"]
+                "aspect_ratio" : ["9:16", "4:5", "4:3", "3:2", "16:9"]
             }
     },
     "default_model": "qwen_image_edit_2509_fp8_e4m3fn.safetensors",
