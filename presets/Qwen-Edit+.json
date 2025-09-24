@@ -8,7 +8,7 @@
                 "version": "m1.1",
                 "theme": ["Qwen-Editplus","Qwen-Editplus-fast"],
                 "theme_title": "Qwen-Edit使用中文指令修改图片(涂抹无效）",
-                "disvisible": ["scene_additional_prompt","scene_additional_prompt_2","scene_var_number"],
+                "disvisible": ["scene_additional_prompt","scene_additional_prompt_2"],
                 "task_method": {
                     "Qwen-Editplus": "qwen_editplus_cn",
                     "Qwen-Editplus-fast": "qwen_editplus_fast_cn"
@@ -21,7 +21,13 @@
                     "Qwen-Editplus": [["-normalization"]],
                     "Qwen-Editplus-fast": [["-normalization"]]
                 },
-                "aspect_ratio" : ["9:16", "4:5", "4:3", "3:2", "16:9"]
+                "var_number": {
+                    "Qwen-Editplus": 1,
+                    "Qwen-Edit-fastplus": 1
+                },
+                "var_number_title": "1为遵从原图比例，2为下方自定义比例",
+                "var_number_max": 2,
+                "aspect_ratio" : [ "1024|1:1", "756|9:16", "832|2:3", "1216|4:3", "1248|3:2", "1344|16:9"]
             }
     },
     "default_model": "qwen_image_edit_2509_fp8_e4m3fn.safetensors",
