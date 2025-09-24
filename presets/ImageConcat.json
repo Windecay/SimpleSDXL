@@ -8,7 +8,7 @@
                 "version": "m1.1",
                 "theme": ["ImageConcat"],
                 "theme_title": "快速图像拼接[用于指令修图前置拼接]",
-                "disvisible": ["scene_canvas_image", "scene_additional_prompt","scene_additional_prompt_2","scene_aspect_ratio", "scene_image_number"],
+                "disvisible": ["scene_canvas_image", "scene_additional_prompt","scene_additional_prompt_2","scene_aspect_ratio", "scene_image_number", "scene_use_lora"],
                 "task_method": {
                     "ImageConcat": "image_concatenate"
                 },
