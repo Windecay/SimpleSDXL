@@ -882,11 +882,11 @@
       "y": 0,
       "operation": "subtract",
       "destination": [
-        "112",
+        "127",
         0
       ],
       "source": [
-        "115",
+        "112",
         0
       ]
     },
@@ -897,10 +897,10 @@
   },
   "112": {
     "inputs": {
-      "expand": 15,
+      "expand": -10,
       "tapered_corners": false,
       "mask": [
-        "115",
+        "127",
         0
       ]
     },
@@ -941,19 +941,6 @@
       "title": "FluxKontextImageScale"
     }
   },
-  "115": {
-    "inputs": {
-      "block_size": 64,
-      "masks": [
-        "109",
-        0
-      ]
-    },
-    "class_type": "BlockifyMask",
-    "_meta": {
-      "title": "Blockify Mask"
-    }
-  },
   "117": {
     "inputs": {
       "string_a": [
@@ -986,6 +973,107 @@
     "class_type": "easy ifElse",
     "_meta": {
       "title": "If else"
+    }
+  },
+  "119": {
+    "inputs": {
+      "continue": [
+        "123",
+        0
+      ],
+      "in": [
+        "107",
+        0
+      ]
+    },
+    "class_type": "easy blocker",
+    "_meta": {
+      "title": "Blocker"
+    }
+  },
+  "121": {
+    "inputs": {
+      "value": false
+    },
+    "class_type": "easy boolean",
+    "_meta": {
+      "title": "Boolean"
+    }
+  },
+  "122": {
+    "inputs": {
+      "value": true
+    },
+    "class_type": "easy boolean",
+    "_meta": {
+      "title": "Boolean"
+    }
+  },
+  "123": {
+    "inputs": {
+      "boolean": [
+        "108",
+        0
+      ],
+      "on_true": [
+        "121",
+        0
+      ],
+      "on_false": [
+        "122",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "124": {
+    "inputs": {
+      "images": [
+        "119",
+        0
+      ]
+    },
+    "class_type": "SaveImageWebsocket",
+    "_meta": {
+      "title": "result_image2"
+    }
+  },
+  "126": {
+    "inputs": {
+      "sort_method": "left_to_right",
+      "bbox_select": "all",
+      "select_index": "0,",
+      "object_mask": [
+        "109",
+        0
+      ]
+    },
+    "class_type": "LayerMask: ObjectDetectorMask",
+    "_meta": {
+      "title": "LayerMask: Object Detector Mask"
+    }
+  },
+  "127": {
+    "inputs": {
+      "grow_top": 0,
+      "grow_bottom": 0,
+      "grow_left": 0,
+      "grow_right": 0,
+      "image": [
+        "100",
+        0
+      ],
+      "bboxes": [
+        "126",
+        0
+      ]
+    },
+    "class_type": "LayerMask: DrawBBoxMask",
+    "_meta": {
+      "title": "LayerMask: Draw BBox Mask"
     }
   }
 }
