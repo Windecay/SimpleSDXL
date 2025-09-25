@@ -7,7 +7,7 @@
             "scene_frontend": {
                 "version": "m1.1",
                 "theme": ["Qwen-Editplus","Qwen-Editplus-fast"],
-                "theme_title": "Qwen-Edit使用中文指令修改图片(涂抹无效）",
+                "theme_title": "Qwen-Edit使用中文指令修改图片(画笔可生成[绿色方框区域]）",
                 "disvisible": ["scene_additional_prompt","scene_additional_prompt_2"],
                 "task_method": {
                     "Qwen-Editplus": "qwen_editplus_cn",
