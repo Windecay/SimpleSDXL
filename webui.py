@@ -1987,10 +1987,15 @@ with shared.gradio_root:
             return gr.update(choices=aspect_ratios, value=aspect_ratio)
         
         def scene_input_image1_clear(state, input_image1):
-            if input_image1 is None and 'scene_frontend' in state and 'scene_input_image1' not in state["scene_frontend"].get('disvisible', []):
-                return '', gr.update(interactive=False, visible=True), gr.update(visible=False)
-            else:
-                return [gr.update()]*3
+            if input_image1 is None and 'scene_frontend' in state:
+                scene_input_image1_visible = 'scene_input_image1' not in state["scene_frontend"].get('disvisible', [])
+                scene_input_image2_visible = 'scene_input_image2' not in state["scene_frontend"].get('disvisible', [])
+                need_canvas_image = 'scene_canvas_image' not in state["scene_frontend"].get('disvisible', [])
+                should_disable_generate = scene_input_image1_visible and not (scene_input_image2_visible and need_canvas_image)
+
+                if should_disable_generate:
+                    return '', gr.update(interactive=False, visible=True), gr.update(visible=False)
+            return [gr.update()]*3
 
         def scene_canvas_image_clear(state, canvas_image, input_image1):
             if canvas_image is None:

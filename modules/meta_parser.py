@@ -112,12 +112,39 @@ def switch_scene_theme_select(state):
 def switch_scene_theme_ready_to_gen(state, image_number, canvas_image, input_image1, additional_prompt, additional_prompt_2, theme=None):
     scenes = state.get("scene_frontend",{})
     visible = scenes.get('disvisible', [])
-    inter = scenes.get('disinteractive', [])
     input_image_number = 1 if 'scene_canvas_image' not in visible or 'scene_input_image1' not in visible else 0
     input_image_number = 2 if 'scene_canvas_image' not in visible and 'scene_input_image1' not in visible else input_image_number
     refer_image_number = 2 if 'scene_input_image1' not in visible and 'scene_input_image2' not in visible else 1 if 'scene_input_image1' not in visible else 0
-    ready_to_gen = True if (input_image_number==1 and (('scene_canvas_image' not in visible and canvas_image is not None) or ('scene_input_image1' not in visible and input_image1 is not None))) or (input_image_number==2 and (('scene_canvas_image' not in visible and canvas_image is not None) and ('scene_input_image1' not in visible and input_image1 is not None))) else False
-    describe_prompt, img_is_ok = describe_prompt_for_scene(state, input_image1, theme, f'{additional_prompt}{additional_prompt_2}') if ready_to_gen else ('', False)
+
+    canvas_visible = 'scene_canvas_image' not in visible
+    input_image1_visible = 'scene_input_image1' not in visible
+
+    ready_to_gen = False
+    if input_image_number == 1:
+        if canvas_visible and canvas_image is not None:
+            ready_to_gen = True
+        elif input_image1_visible and input_image1 is not None:
+            ready_to_gen = True
+    elif input_image_number == 2:
+        if canvas_visible and canvas_image is not None :
+            ready_to_gen = True
+
+    use_image = None
+    has_canvas_image = canvas_image is not None and isinstance(canvas_image, dict) and 'image' in canvas_image
+    has_input_image1 = input_image1 is not None and isinstance(input_image1, dict) and 'image' in input_image1
+
+    if not canvas_visible:
+        if has_input_image1:
+            use_image = input_image1['image']
+        elif has_canvas_image:
+            use_image = canvas_image['image']
+    else:
+        if has_canvas_image:
+            use_image = canvas_image['image']
+        elif has_input_image1:
+            use_image = input_image1['image']
+
+    describe_prompt, img_is_ok = describe_prompt_for_scene(state, use_image, theme, f'{additional_prompt}{additional_prompt_2}') if ready_to_gen else ('', False)
     return describe_prompt if describe_prompt else gr.update(), gr.update(interactive=ready_to_gen and img_is_ok)
 
 
