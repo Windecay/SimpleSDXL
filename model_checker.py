@@ -955,7 +955,8 @@ def auto_download_missing_files_with_retry(max_threads=5):
     if fail_count == 0 and success_count > 0:
         if os.path.exists("downloadlist.txt"):
             os.remove("downloadlist.txt")
-            print("√下载完成，已删除 'downloadlist.txt' 文件。输入【R】重新检测")
+            print("√下载完成，执行重新检测")
+            validate_files(packages)
     else:
         print(f"△有{fail_count}个文件下载失败，请检查网络连接或手动下载文件。")
 
@@ -1023,46 +1024,105 @@ def delete_package(package_name, packages):
     file_refs = defaultdict(list)
     for pkg_name, pkg_info in packages.items():
         for file_entry in pkg_info["files"]:
-            path_parts = file_entry[0].split('/')
-            if len(path_parts) < 1: continue
+            path_with_url = file_entry[0]
+            url_pattern = r'https?://[^\s/$.?#].[^\s]*'
+            url_match = re.search(url_pattern, path_with_url)
 
-            file_type = path_parts[0].lower()
-            rel_path = '/'.join(path_parts[1:]) if len(path_parts) > 1 else ""
+            if url_match:
+                url = url_match.group(0)
+                path_part = path_with_url.split(url)[0].rstrip('/')
+                file_name = os.path.basename(url)
 
-            for base_dir in path_mapping.get(file_type, []):
-                full_path = os.path.join(base_dir, rel_path)
-                if os.path.exists(full_path):
-                    file_refs[full_path].append(pkg_name)
+                if path_part:
+                    path_parts = path_part.split('/')
+                    file_type = path_parts[0].lower() if path_parts else ""
+
+                    for base_dir in path_mapping.get(file_type, []):
+                        full_path = os.path.join(base_dir, file_name)
+                        if os.path.exists(full_path):
+                            file_refs[full_path].append(pkg_name)
+            else:
+                path_parts = path_with_url.split('/')
+                if len(path_parts) < 1: continue
+
+                file_type = path_parts[0].lower()
+                rel_path = '/'.join(path_parts[1:]) if len(path_parts) > 1 else ""
+
+                for base_dir in path_mapping.get(file_type, []):
+                    full_path = os.path.join(base_dir, rel_path)
+                    if os.path.exists(full_path):
+                        file_refs[full_path].append(pkg_name)
 
     delete_candidates = []
     shared_files = []
 
     for file_entry in package["files"]:
-        path_parts = file_entry[0].split('/')
-        if len(path_parts) < 1: continue
+        path_with_url = file_entry[0]
+        url_pattern = r'https?://[^\s/$.?#].[^\s]*'
+        url_match = re.search(url_pattern, path_with_url)
 
-        file_type = path_parts[0].lower()
-        rel_path = '/'.join(path_parts[1:]) if len(path_parts) > 1 else ""
-        found = False
+        if url_match:
+            url = url_match.group(0)
+            path_part = path_with_url.split(url)[0].rstrip('/')
+            file_name = os.path.basename(url)
+            found = False
 
-        for base_dir in path_mapping.get(file_type, []):
-            full_path = os.path.join(base_dir, rel_path)
-            if os.path.exists(full_path):
+            if path_part:
+                path_parts = path_part.split('/')
+                file_type = path_parts[0].lower() if path_parts else ""
 
-                if len(file_refs[full_path]) == 1 and file_refs[full_path][0] == package_name:
-                    delete_candidates.append(full_path)
+                for base_dir in path_mapping.get(file_type, []):
+                    full_path = os.path.join(base_dir, file_name)
+                    if os.path.exists(full_path):
+                        if len(file_refs[full_path]) == 1 and file_refs[full_path][0] == package_name:
+                            delete_candidates.append(full_path)
+                        else:
+                            shared_files.append(full_path)
+                        found = True
+                        break
+
+            if not found:
+                if path_part:
+                    path_parts = path_part.split('/')
+                    if path_parts:
+                        file_type = path_parts[0].lower()
+                        default_base_dir = os.path.join(simplemodels_root, file_type)
+                    else:
+                        default_base_dir = simplemodels_root
                 else:
-                    shared_files.append(full_path)
-                found = True
-                break
+                    default_base_dir = simplemodels_root
 
-        if not found:
-            default_path = os.path.join(simplemodels_root, file_type, rel_path)
-            if os.path.exists(default_path):
-                if len(file_refs[default_path]) == 1 and file_refs[default_path][0] == package_name:
-                    delete_candidates.append(default_path)
-                else:
-                    shared_files.append(default_path)
+                default_path = os.path.join(default_base_dir, file_name)
+                if os.path.exists(default_path):
+                    if len(file_refs[default_path]) == 1 and file_refs[default_path][0] == package_name:
+                        delete_candidates.append(default_path)
+                    else:
+                        shared_files.append(default_path)
+        else:
+            path_parts = path_with_url.split('/')
+            if len(path_parts) < 1: continue
+
+            file_type = path_parts[0].lower()
+            rel_path = '/'.join(path_parts[1:]) if len(path_parts) > 1 else ""
+            found = False
+
+            for base_dir in path_mapping.get(file_type, []):
+                full_path = os.path.join(base_dir, rel_path)
+                if os.path.exists(full_path):
+                    if len(file_refs[full_path]) == 1 and file_refs[full_path][0] == package_name:
+                        delete_candidates.append(full_path)
+                    else:
+                        shared_files.append(full_path)
+                    found = True
+                    break
+
+            if not found:
+                default_path = os.path.join(simplemodels_root, file_type, rel_path)
+                if os.path.exists(default_path):
+                    if len(file_refs[default_path]) == 1 and file_refs[default_path][0] == package_name:
+                        delete_candidates.append(default_path)
+                    else:
+                        shared_files.append(default_path)
 
     if shared_files:
         print(f"\n{Fore.YELLOW}△ 以下文件被其他包体共享：{Style.RESET_ALL}")
@@ -1619,11 +1679,7 @@ packages = {
             ("clip_vision/sigclip_vision_patch14_384.safetensors", 856505640),
             ("vae/hunyuan_video_vae_bf16.safetensors", 492984198)
         ],
-        "download_links": [
-            "【选配】https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/checkpoints/FramePackI2V_HY_fp8_e4m3fn.safetensors",
-            "【选配】https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/clip/llava_llama3_fp8_scaled.safetensors",
-            "【选配】https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/vae/hunyuan_video_vae_bf16.safetensors"
-        ]
+        "download_links": []
     },
         "Illustrious2_aio_package": {
         "id": 18,
