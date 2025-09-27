@@ -1177,11 +1177,21 @@ def filter_packages_by_gpu_arch(packages):
     """
     根据GPU架构过滤package
     - 当sm120时，只显示带fp4的package和其他无标识package
-    - 当不等于sm120时，只显示带int4的package和其他无标识package
+    - 当不等于sm120且高于10系显卡时，只显示带int4的package和其他无标识package
+    - 对于10系及以下显卡，只显示无标识package
     """
     # 获取GPU架构
     gpu_arch = get_gpu_arch_str()
     filtered_packages = {}
+
+    is_legacy_gpu = False
+    if gpu_arch.startswith('sm'):
+        try:
+            arch_number = int(gpu_arch[2:])
+            # 计算能力<=61的视为10系及以下显卡
+            is_legacy_gpu = arch_number <= 61
+        except ValueError:
+            pass
 
     for package_key, package_info in packages.items():
         package_name = package_info["name"]
@@ -1189,12 +1199,20 @@ def filter_packages_by_gpu_arch(packages):
         has_int4 = 'int4' in package_name.lower()
         has_fp4 = 'fp4' in package_name.lower()
 
-        if gpu_arch == 'sm120':
-            if (has_fp4 and not has_int4) or (not has_fp4 and not has_int4):
+        # 10系及以下显卡特殊处理：只保留无标识package
+        if is_legacy_gpu:
+            if not has_int4 and not has_fp4:
                 filtered_packages[package_key] = package_info
         else:
-            if (has_int4 and not has_fp4) or (not has_int4 and not has_fp4):
-                filtered_packages[package_key] = package_info
+            if has_int4 and has_fp4:
+                continue
+
+            if gpu_arch == 'sm120':
+                if has_fp4 or (not has_int4 and not has_fp4):
+                    filtered_packages[package_key] = package_info
+            else:
+                if has_int4 or (not has_int4 and not has_fp4):
+                    filtered_packages[package_key] = package_info
 
     return filtered_packages
 
@@ -1922,7 +1940,7 @@ packages = {
     },
         "nun_int4_qwen_image_edit_plus_package": {
         "id":30,
-        "name": "[30]双截棍QwenPlus图像编辑",
+        "name": "[30]双截棍int4-QwenPlus图像编辑",
         "note": "Qwen_Image_EditPlus指令编辑图像|显存需求：★★★★ 速度:★★",
         "files": [
             ("checkpoints/https://www.modelscope.cn/models/nunchaku-tech/nunchaku-qwen-image-edit-2509/resolve/master/svdq-int4_r128-qwen-image-edit-2509-lightningv2.0-4steps.safetensors", 12654443144),
@@ -1933,7 +1951,7 @@ packages = {
     },
         "nun_fp4_qwen_image_edit_plus_package": {
         "id":31,
-        "name": "[31]双截棍QwenPlus图像编辑",
+        "name": "[31]双截棍fp4-QwenPlus图像编辑",
         "note": "Qwen_Image_EditPlus指令编辑图像|显存需求：★★★★ 速度:★★",
         "files": [
             ("checkpoints/https://www.modelscope.cn/models/nunchaku-tech/nunchaku-qwen-image-edit-2509/resolve/master/svdq-fp4_r128-qwen-image-edit-2509-lightningv2.0-4steps.safetensors", 13081386856),
