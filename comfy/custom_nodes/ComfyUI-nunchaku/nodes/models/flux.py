@@ -1,5 +1,11 @@
+"""
+This module provides the :class:`NunchakuFluxDiTLoader` class for loading Nunchaku FLUX models.
+It also supports attention implementation selection, CPU offload, and first-block caching.
+"""
+
 import gc
 import json
+import logging
 import os
 from pathlib import Path
 
@@ -7,153 +13,53 @@ import comfy.model_management
 import comfy.model_patcher
 import folder_paths
 import torch
-from comfy.ldm.common_dit import pad_to_patch_size
 from comfy.supported_models import Flux, FluxSchnell
-from diffusers import FluxPipeline, FluxTransformer2DModel
-from einops import rearrange
-from torch import nn
 import comfy.model_management as mm
 from nunchaku import NunchakuFluxTransformer2dModel
 from nunchaku.caching.diffusers_adapters.flux import apply_cache_on_transformer
-from nunchaku.caching.utils import cache_context, create_cache_context
-from nunchaku.lora.flux.compose import compose_lora
-from nunchaku.utils import is_turing, load_state_dict_in_safetensors
+from nunchaku.utils import is_turing
 
+from ...wrappers.flux import ComfyFluxWrapper
 
-class ComfyFluxWrapper(nn.Module):
-    def __init__(self, model: NunchakuFluxTransformer2dModel, config):
-        super(ComfyFluxWrapper, self).__init__()
-        self.model = model
-        self.dtype = next(model.parameters()).dtype
-        self.config = config
-        self.loras = []
+# Get log level from environment variable (default to INFO)
+log_level = os.getenv("LOG_LEVEL", "INFO").upper()
 
-        self._prev_timestep = None  # for first-block cache
-        self._cache_context = None
-
-    def forward(
-        self,
-        x,
-        timestep,
-        context,
-        y,
-        guidance,
-        control=None,
-        transformer_options={},
-        **kwargs,
-    ):
-        if isinstance(timestep, torch.Tensor):
-            if timestep.numel() == 1:
-                timestep_float = timestep.item()
-            else:
-                timestep_float = timestep.flatten()[0].item()
-        else:
-            assert isinstance(timestep, float)
-            timestep_float = timestep
-
-        model = self.model
-        assert isinstance(model, NunchakuFluxTransformer2dModel)
-
-        bs, c, h, w = x.shape
-        patch_size = self.config["patch_size"]
-        x = pad_to_patch_size(x, (patch_size, patch_size))
-
-        img = rearrange(x, "b c (h ph) (w pw) -> b (h w) (c ph pw)", ph=patch_size, pw=patch_size)
-
-        h_len = (h + (patch_size // 2)) // patch_size
-        w_len = (w + (patch_size // 2)) // patch_size
-        img_ids = FluxPipeline._prepare_latent_image_ids(bs, h_len, w_len, x.device, x.dtype)
-        txt_ids = torch.zeros((context.shape[1], 3), device=x.device, dtype=x.dtype)
-
-        # load and compose LoRA
-        if self.loras != model.comfy_lora_meta_list:
-            lora_to_be_composed = []
-            for _ in range(max(0, len(model.comfy_lora_meta_list) - len(self.loras))):
-                model.comfy_lora_meta_list.pop()
-                model.comfy_lora_sd_list.pop()
-            for i in range(len(self.loras)):
-                meta = self.loras[i]
-                if i >= len(model.comfy_lora_meta_list):
-                    sd = load_state_dict_in_safetensors(meta[0])
-                    model.comfy_lora_meta_list.append(meta)
-                    model.comfy_lora_sd_list.append(sd)
-                elif model.comfy_lora_meta_list[i] != meta:
-                    if meta[0] != model.comfy_lora_meta_list[i][0]:
-                        sd = load_state_dict_in_safetensors(meta[0])
-                        model.comfy_lora_sd_list[i] = sd
-                    model.comfy_lora_meta_list[i] = meta
-                lora_to_be_composed.append(({k: v for k, v in model.comfy_lora_sd_list[i].items()}, meta[1]))
-
-            composed_lora = compose_lora(lora_to_be_composed)
-
-            if len(composed_lora) == 0:
-                model.reset_lora()
-            else:
-                if "x_embedder.lora_A.weight" in composed_lora:
-                    new_in_channels = composed_lora["x_embedder.lora_A.weight"].shape[1]
-                    current_in_channels = model.x_embedder.in_features
-                    if new_in_channels < current_in_channels:
-                        model.reset_x_embedder()
-                model.update_lora_params(composed_lora)
-
-        controlnet_block_samples = None if control is None else [y.to(x.dtype) for y in control["input"]]
-        controlnet_single_block_samples = None if control is None else [y.to(x.dtype) for y in control["output"]]
-        if getattr(model, "_is_cached", False):
-            # A more robust caching strategy
-            cache_invalid = False
-
-            # Check if timestamps have changed or are out of valid range
-            if self._prev_timestep is None:
-                cache_invalid = True
-            elif self._prev_timestep < timestep_float + 1e-5:  # allow a small tolerance to reuse the cache
-                cache_invalid = True
-
-            if cache_invalid:
-                self._cache_context = create_cache_context()
-
-            # Update the previous timestamp
-            self._prev_timestep = timestep_float
-            with cache_context(self._cache_context):
-                out = model(
-                    hidden_states=img,
-                    encoder_hidden_states=context,
-                    pooled_projections=y,
-                    timestep=timestep,
-                    img_ids=img_ids,
-                    txt_ids=txt_ids,
-                    guidance=guidance if self.config["guidance_embed"] else None,
-                    controlnet_block_samples=controlnet_block_samples,
-                    controlnet_single_block_samples=controlnet_single_block_samples,
-                ).sample
-        else:
-            out = model(
-                hidden_states=img,
-                encoder_hidden_states=context,
-                pooled_projections=y,
-                timestep=timestep,
-                img_ids=img_ids,
-                txt_ids=txt_ids,
-                guidance=guidance if self.config["guidance_embed"] else None,
-                controlnet_block_samples=controlnet_block_samples,
-                controlnet_single_block_samples=controlnet_single_block_samples,
-            ).sample
-
-        out = rearrange(
-            out,
-            "b (h w) (c ph pw) -> b c (h ph) (w pw)",
-            h=h_len,
-            w=w_len,
-            ph=patch_size,
-            pw=patch_size,
-        )
-        out = out[:, :, :h, :w]
-
-        self._prev_timestep = timestep_float
-        return out
+# Configure logging
+logging.basicConfig(level=getattr(logging, log_level, logging.INFO), format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
 
 
 class NunchakuFluxDiTLoader:
+    """
+    Loader for Nunchaku FLUX.1 models.
+
+    This class manages model loading, device selection, attention implementation,
+    CPU offload, and caching for efficient inference.
+
+    Attributes
+    ----------
+    transformer : :class:`~nunchaku.models.transformers.transformer_flux.NunchakuFluxTransformer2dModel` or None
+        The loaded transformer model.
+    metadata : dict or None
+        Metadata associated with the loaded model.
+    model_path : str or None
+        Path to the loaded model.
+    device : torch.device or None
+        Device on which the model is loaded.
+    cpu_offload : bool or None
+        Whether CPU offload is enabled.
+    data_type : str or None
+        Data type used for inference.
+    patcher : object or None
+        ComfyUI model patcher instance.
+    """
+
     def __init__(self):
+        """
+        Initialize the NunchakuFluxDiTLoader.
+
+        Sets up internal state and selects the default torch device.
+        """
         self.transformer = None
         self.metadata = None
         self.model_path = None
@@ -165,6 +71,14 @@ class NunchakuFluxDiTLoader:
 
     @classmethod
     def INPUT_TYPES(s):
+        """
+        Define the input types and tooltips for the node.
+
+        Returns
+        -------
+        dict
+            A dictionary specifying the required inputs and their descriptions for the node interface.
+        """
         prefixes = folder_paths.folder_names_and_paths["diffusion_models"][0]
         local_folders = set()
         for prefix in prefixes:
@@ -179,7 +93,7 @@ class NunchakuFluxDiTLoader:
         model_paths = sorted(list(local_folders))
         safetensor_files = folder_paths.get_filename_list("diffusion_models")
 
-        # exclude the safetensors in svdquant folders
+        # exclude the safetensors in the legacy svdquant folders
         new_safetensor_files = []
         for safetensor_file in safetensor_files:
             safetensor_path = folder_paths.get_full_path_or_raise("diffusion_models", safetensor_file)
@@ -207,7 +121,7 @@ class NunchakuFluxDiTLoader:
             "required": {
                 "model_path": (
                     model_paths,
-                    {"tooltip": "The SVDQuant quantized FLUX.1 models."},
+                    {"tooltip": "The Nunchaku FLUX model."},
                 ),
                 "cache_threshold": (
                     "FLOAT",
@@ -216,7 +130,8 @@ class NunchakuFluxDiTLoader:
                         "min": 0,
                         "max": 1,
                         "step": 0.001,
-                        "tooltip": "Adjusts the caching tolerance like `residual_diff_threshold` in WaveSpeed. "
+                        "tooltip": "Adjusts the first-block caching tolerance"
+                        "like `residual_diff_threshold` in WaveSpeed. "
                         "Increasing the value enhances speed at the cost of quality. "
                         "A typical setting is 0.12. Setting it to 0 disables the effect.",
                     },
@@ -285,7 +200,32 @@ class NunchakuFluxDiTLoader:
         device_id: int,
         data_type: str,
         **kwargs,
-    ) -> tuple[FluxTransformer2DModel]:
+    ):
+        """
+        Load a Nunchaku FLUX model with the specified configuration.
+
+        Parameters
+        ----------
+        model_path : str
+            Path to the model directory or safetensors file.
+        attention : str
+            Attention implementation to use ("nunchaku-fp16" or "flash-attention2").
+        cache_threshold : float
+            Caching tolerance for first-block cache. See :ref:`nunchaku:usage-fbcache` for details.
+        cpu_offload : str
+            Whether to enable CPU offload ("auto", "enable", "disable").
+        device_id : int
+            GPU device ID to use.
+        data_type : str
+            Data type for inference ("bfloat16" or "float16").
+        **kwargs
+            Additional keyword arguments.
+
+        Returns
+        -------
+        tuple
+            A tuple containing the loaded and patched model.
+        """
         device = torch.device(f"cuda:{device_id}")
 
         if model_path.endswith((".sft", ".safetensors")):
@@ -306,7 +246,6 @@ class NunchakuFluxDiTLoader:
         gpu_properties = torch.cuda.get_device_properties(device_id)
         gpu_memory = gpu_properties.total_memory / (1024**2)  # Convert to MiB
         gpu_name = gpu_properties.name
-
         compute_cap = mm.get_current_compute_capability().lower()
         print(f"GPU {device_id} ({gpu_name}) Memory: {gpu_memory} MiB, Compute Capability: {compute_cap}")
 
@@ -314,16 +253,16 @@ class NunchakuFluxDiTLoader:
         if cpu_offload == "auto":
             if gpu_memory < 14336:  # 14GB threshold
                 cpu_offload_enabled = True
-                print("VRAM < 14GiB，enable CPU offload")
+                print("VRAM < 14GiB, enabling CPU offload")
             else:
                 cpu_offload_enabled = False
-                print("VRAM > 14GiB，disable CPU offload")
+                print("VRAM > 14GiB, disabling CPU offload")
         elif cpu_offload == "enable":
             cpu_offload_enabled = True
-            print("Enable CPU offload")
+            print("Enabling CPU offload")
         else:
             cpu_offload_enabled = False
-            print("Disable CPU offload")
+            print("Disabling CPU offload")
 
         if (
             self.model_path != model_path
@@ -341,7 +280,6 @@ class NunchakuFluxDiTLoader:
                 comfy.model_management.cleanup_models_gc()
                 comfy.model_management.soft_empty_cache()
                 comfy.model_management.free_memory(model_size, device)
-
             # 根据GPU架构决定实际数据类型（20系强制float16）
             if compute_cap not in ['sm80', 'sm86', 'sm87', 'sm89', 'sm90', 'sm100', 'sm120']:
                 print(f"Unsupported GPU architecture {compute_cap} detected, forcing float16 dtype.")
@@ -359,6 +297,7 @@ class NunchakuFluxDiTLoader:
             self.model_path = model_path
             self.device = device
             self.cpu_offload = cpu_offload_enabled
+            self.data_type = data_type
         self.transformer = apply_cache_on_transformer(
             transformer=self.transformer, residual_diff_threshold=cache_threshold
         )
@@ -378,7 +317,7 @@ class NunchakuFluxDiTLoader:
                 config_path = os.path.join(default_config_root, f"{config_name}.json")
                 assert os.path.exists(config_path), f"Config file not found: {config_path}"
 
-            print(f"Loading ComfyUI model config from {config_path}")
+            logger.info(f"Loading ComfyUI model config from {config_path}")
             comfy_config = json.load(open(config_path, "r"))
         else:
             comfy_config_str = self.metadata.get("comfy_config", None)

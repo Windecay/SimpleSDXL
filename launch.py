@@ -35,7 +35,34 @@ if "GRADIO_SERVER_PORT" not in os.environ:
 
 ssl._create_default_https_context = ssl._create_unverified_context
 
+def install_package_with_retry(pkg_name, pkg_version=None, description=None):
+    """尝试安装包，先使用阿里源，如果失败则尝试使用清华源"""
+    desc = description or f'Installing {pkg_name}'
+    errdesc = f"Couldn't install {pkg_name}"
 
+    try:
+        if pkg_version:
+            pkg_command = f'pip install -U {pkg_name}=={pkg_version} -i {index_url}'
+        else:
+            pkg_command = f'pip install -U {pkg_name} -i {index_url}'
+
+        run(f'"{python}" -m {pkg_command}', desc, errdesc, live=True)
+        return True
+    except Exception as e:
+        logger.warning(f"阿里源安装{pkg_name}失败: {str(e)}")
+        logger.info("尝试使用清华源镜像...")
+
+    try:
+        if pkg_version:
+            pkg_command = f'pip install -U {pkg_name}=={pkg_version} -i {extra_index_url}'
+        else:
+            pkg_command = f'pip install -U {pkg_name} -i {extra_index_url}'
+
+        run(f'"{python}" -m {pkg_command}', desc, errdesc, live=True)
+        return True
+    except Exception as e:
+        logger.error(f"使用清华源安装{pkg_name}失败: {str(e)}")
+        return False
 def check_base_environment():
     print(f"{now_string()} Python {sys.version}")
     print(f"{now_string()} Fooocus version: {fooocus_version.version}")
@@ -86,16 +113,16 @@ def check_base_environment():
                 pkg_command = f'pip install {extra_pkg_name} -i {index_url}'
                 run(f'"{python}" -m {pkg_command}', f'Installing {extra_pkg_name}', f"Couldn't install {extra_pkg_name}", live=True)
 
-        update_pkgs = [('comfyui_frontend_package', '1.26.13'), ('comfyui_workflow_templates', '0.1.81'), ('comfyui-embedded-docs', '0.2.6'), ('transformers', '4.47.1'), ('bitsandbytes', '0.45.5'), ('accelerate', '1.6.0'), ('av', '14.2.0'), ('yarl', '1.18.0'), ('gguf', '0.14.0'), ('sentencepiece', '0.2.0')]
+        update_pkgs = [('comfyui_frontend_package', '1.26.13'), ('comfyui_workflow_templates', '0.1.81'), ('comfyui-embedded-docs', '0.2.6'), ('transformers', '4.56.2'), ('bitsandbytes', '0.45.5'), ('accelerate', '1.10.1'), ('av', '14.2.0'), ('yarl', '1.18.0'), ('gguf', '0.14.0'), ('sentencepiece', '0.2.0'), ('diffusers', '0.35.1'), ('huggingface_hub', '0.35.1'), ('peft', '0.17.1'), ('tokenizers', '0.22.1')]
         for (update_pkg_name, update_pkg_version) in update_pkgs:
             if not is_installed_version(update_pkg_name, update_pkg_version):
-                pkg_command = f'pip install -U {update_pkg_name}=={update_pkg_version} -i {index_url}'
-                run(f'"{python}" -m {pkg_command}', f'Installing {update_pkg_name}', f"Couldn't install {update_pkg_name}", live=True)
+                success = install_package_with_retry(update_pkg_name, update_pkg_version)
+                if not success:
+                    logger.error(f"无法安装{update_pkg_name}，请检查网络状态")
 
-        if platform.system() == 'Windows' and not is_installed_version('nunchaku', '0.3.1.dev20250611+torch2.7'):
-            #pkg_url = 'https://hf-mirror.com/metercai/SimpleSDXL2/resolve/main/libs/dev/nunchaku-0.3.1.dev20250611%2Btorch2.7-cp310-cp310-win_amd64.whl'
-            pkg_url = 'https://modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/libs/dev/nunchaku-0.3.1.dev20250611%2Btorch2.7-cp310-cp310-win_amd64.whl'
-            pkg_path = os.path.abspath(os.path.join(root, 'nunchaku-0.3.1.dev20250611+torch2.7-cp310-cp310-win_amd64.whl'))
+        if platform.system() == 'Windows' and not is_installed_version('nunchaku', '1.0.0+torch2.7'):
+            pkg_url = 'https://www.modelscope.cn/models/nunchaku-tech/nunchaku/resolve/master/nunchaku-1.0.0%2Btorch2.7-cp310-cp310-win_amd64.whl'
+            pkg_path = os.path.abspath(os.path.join(root, 'nunchaku-1.0.0+torch2.7-cp310-cp310-win_amd64.whl'))
             print('check nunchaku...')
             has_update_whl = download_if_updated(pkg_url, pkg_path)
             if has_update_whl:

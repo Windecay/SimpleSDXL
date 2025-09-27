@@ -965,6 +965,7 @@
   },
   "208": {
     "inputs": {
+      "strength": 1,
       "model": [
         "626",
         0
@@ -3647,7 +3648,7 @@
         0
       ],
       "on_true": [
-        "774",
+        "793",
         0
       ],
       "on_false": [
@@ -5486,6 +5487,7 @@
   },
   "664": {
     "inputs": {
+      "strength": 1,
       "model": [
         "779",
         0
@@ -6830,43 +6832,6 @@
       "title": "Flux_depth"
     }
   },
-  "773": {
-    "inputs": {
-      "pulid_file": "pulid_flux_v0.9.1.safetensors",
-      "model": [
-        "468",
-        2
-      ]
-    },
-    "class_type": "NunchakuPulidLoader",
-    "_meta": {
-      "title": "Nunchaku Pulid Loader"
-    }
-  },
-  "774": {
-    "inputs": {
-      "ip_weight": [
-        "495",
-        0
-      ],
-      "pulid": [
-        "773",
-        1
-      ],
-      "image": [
-        "499",
-        0
-      ],
-      "model": [
-        "773",
-        0
-      ]
-    },
-    "class_type": "NunchakuPulidApply",
-    "_meta": {
-      "title": "Nunchaku Pulid Apply"
-    }
-  },
   "776": {
     "inputs": {
       "model_type": "flux.1",
@@ -7053,6 +7018,50 @@
     "class_type": "NunchakuFluxLoraLoader",
     "_meta": {
       "title": "NunchakuFluxLoraLoader5"
+    }
+  },
+  "792": {
+    "inputs": {
+      "pulid_file": "pulid_flux_v0.9.1.safetensors",
+      "eva_clip_file": "EVA02_CLIP_L_336_psz14_s6B.pt",
+      "insight_face_provider": "gpu",
+      "model": [
+        "468",
+        2
+      ]
+    },
+    "class_type": "NunchakuPuLIDLoaderV2",
+    "_meta": {
+      "title": "Nunchaku PuLID Loader V2"
+    }
+  },
+  "793": {
+    "inputs": {
+      "weight": [
+        "495",
+        0
+      ],
+      "start_at": 0,
+      "end_at": [
+        "747",
+        0
+      ],
+      "model": [
+        "792",
+        0
+      ],
+      "pulid_pipline": [
+        "792",
+        1
+      ],
+      "image": [
+        "499",
+        0
+      ]
+    },
+    "class_type": "NunchakuFluxPuLIDApplyV2",
+    "_meta": {
+      "title": "Nunchaku FLUX PuLID Apply V2"
     }
   }
 }

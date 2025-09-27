@@ -18,28 +18,32 @@ script_dir = os.path.join(os.path.dirname(__file__), "scripts")
 @pytest.mark.parametrize(
     "script_name, expected_clip_iqa, expected_lpips, expected_psnr",
     [
-        ("nunchaku_flux1_redux_dev.py", 0.9, 0.137, 21.7),
-        ("nunchaku_flux1_dev_controlnet_upscaler.py", 0.9, 0.1, 26),
-        ("nunchaku_flux1_dev_controlnet_union_pro2.py", 0.9, 0.1, 26),
-        ("nunchaku_flux1_depth_lora.py", 0.7, 0.1, 26),
-        ("nunchaku_flux1_canny.py", 0.9, 0.1, 26),
-        ("nunchaku_flux1_schnell.py", 0.9, 0.29, 19.3),
-        ("nunchaku_flux1_depth.py", 0.9, 0.1, 26),
-        ("nunchaku_flux1_shuttle_jaguar.py", 0.9, 0.14, 23.9),
-        ("nunchaku_flux1_fill.py", 0.9, 0.1, 26),
-        ("nunchaku_flux1_fill_removalV2.py", 0.56, 0.13, 26),
-        ("nunchaku_flux1_dev.py", 0.9, 0.28, 19.7),
-        ("nunchaku_flux1_canny_lora.py", 0.9, 0.1, 25),
+        ("nunchaku-flux1-redux-dev.py", 0.9, 0.137, 18.9),
+        ("nunchaku-flux1-dev-controlnet_upscaler.py", 0.9, 0.1, 26),
+        ("nunchaku-flux1-dev-controlnet_union_pro2.py", 0.9, 0.1, 26),
+        ("nunchaku-flux1-depth-lora.py", 0.59, 0.13, 21),
+        ("nunchaku-flux1-canny.py", 0.9, 0.1, 26),
+        ("nunchaku-flux1-schnell.py", 0.9, 0.29, 19.3),
+        ("nunchaku-flux1-depth.py", 0.9, 0.13, 26),
+        ("nunchaku-shuttle-jaguar.py", 0.9, 0.14, 23.9),
+        ("nunchaku-flux1-fill.py", 0.9, 0.1, 26),
+        ("nunchaku-flux1-fill-removalV2.py", 0.56, 0.13, 26),
+        ("nunchaku-flux1-dev.py", 0.9, 0.28, 19.7),
+        ("nunchaku-flux1-canny-lora.py", 0.9, 0.1, 25),
     ],
 )
+@pytest.mark.flaky(reruns=2, reruns_delay=0)
 def test_workflows(script_name: str, expected_clip_iqa: float, expected_lpips: float, expected_psnr: float):
     gc.collect()
     torch.cuda.empty_cache()
     script_path = os.path.join(script_dir, script_name)
 
     result = subprocess.run(["python", script_path], capture_output=True, text=True)
+    if result.returncode != 0:
+        print(f"Output: {result.stdout}")
+        print(f"Error: {result.stderr}")
+        assert result.returncode == 0, f"{script_path} failed with code {result.returncode}"
     print(f"Running {script_path} -> Return code: {result.returncode}")
-    assert result.returncode == 0, f"{script_path} failed with code {result.returncode}"
 
     path = open("image_path.txt", "r").read().strip()
 
@@ -52,7 +56,7 @@ def test_workflows(script_name: str, expected_clip_iqa: float, expected_lpips: f
 
     # lpips metric
     ref_image_url = (
-        f"https://huggingface.co/mit-han-lab/nunchaku-artifacts/resolve/main/ComfyUI-nunchaku/ref_images/"
+        f"https://huggingface.co/datasets/nunchaku-tech/test-data/resolve/main/ComfyUI-nunchaku/ref_images/"
         f"{get_precision()}/{script_name.replace('.py', '.png')}"
     )
     ref_image = load_image(ref_image_url).convert("RGB")
@@ -66,6 +70,6 @@ def test_workflows(script_name: str, expected_clip_iqa: float, expected_lpips: f
     psnr = metric(gen_tensor, ref_tensor).item()
     print(f"PSNR: {psnr}")
 
-    assert clip_iqa >= expected_clip_iqa * 0.9
-    assert lpips <= expected_lpips * 1.1
-    assert psnr >= expected_psnr * 0.9
+    assert clip_iqa >= expected_clip_iqa * 0.85
+    assert lpips <= expected_lpips * 1.15
+    assert psnr >= expected_psnr * 0.85

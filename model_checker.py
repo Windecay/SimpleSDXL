@@ -319,12 +319,19 @@ def validate_files(packages):
     path_mapping = load_model_paths()
     print_colored(f">>>>>>默认模型根目录为：{simplemodels_root}<<<<<<", Fore.YELLOW)
     print()
+    # 根据GPU架构过滤packages
+    filtered_packages = filter_packages_by_gpu_arch(packages)
+
+    # 获取GPU架构信息并显示
+    gpu_arch = get_gpu_arch_str()
+    print_colored(f"当前GPU架构: {gpu_arch}, 已根据架构过滤预置包", Fore.CYAN)
+
     download_files = {}
     missing_package_names = []
     package_percentages = {}
     package_sizes = {}
     root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-    for package_key, package_info in packages.items():
+    for package_key, package_info in filtered_packages.items():
         package_name = package_info["name"]
         package_note = package_info.get("note", "")
         files_and_sizes = package_info["files"]
@@ -1092,6 +1099,44 @@ def delete_package(package_name, packages):
     else:
         print(f"{Fore.BLUE}△ 未找到可安全删除的文件{Style.RESET_ALL}")
 
+def get_gpu_arch_str():
+    """获取GPU架构字符串，如sm120等"""
+    try:
+        import torch
+        if torch.cuda.is_available():
+            major, minor = torch.cuda.get_device_capability(0)
+            arch_str = f"sm{major}{minor}"
+            return arch_str
+        else:
+            return "cpu"
+    except Exception as e:
+        print(f"获取GPU架构失败: {e}")
+        return "cpu"
+
+def filter_packages_by_gpu_arch(packages):
+    """
+    根据GPU架构过滤package
+    - 当sm120时，只显示带fp4的package和其他无标识package
+    - 当不等于sm120时，只显示带int4的package和其他无标识package
+    """
+    # 获取GPU架构
+    gpu_arch = get_gpu_arch_str()
+    filtered_packages = {}
+
+    for package_key, package_info in packages.items():
+        package_name = package_info["name"]
+
+        has_int4 = 'int4' in package_name.lower()
+        has_fp4 = 'fp4' in package_name.lower()
+
+        if gpu_arch == 'sm120':
+            if (has_fp4 and not has_int4) or (not has_fp4 and not has_int4):
+                filtered_packages[package_key] = package_info
+        else:
+            if (has_int4 and not has_fp4) or (not has_int4 and not has_fp4):
+                filtered_packages[package_key] = package_info
+
+    return filtered_packages
 
 packages = {
     "base_package": {
@@ -1814,6 +1859,28 @@ packages = {
             ("checkpoints/https://www.modelscope.cn/models/Comfy-Org/Qwen-Image-Edit_ComfyUI/resolve/master/split_files/diffusion_models/qwen_image_edit_2509_fp8_e4m3fn.safetensors", 20430698424),
             ("loras/Qwen-Image-Edit-Lightning-8steps-V1.0-bf16.safetensors", 849608296),
             ("loras/Qwen-Image-Edit-Lightning-4steps-V1.0-bf16.safetensors", 849608296),
+            ("clip/qwen_2.5_vl_7b_fp8_scaled.safetensors", 9384670680),
+            ("vae/qwen_image_vae.safetensors", 253806246)
+        ],
+        "download_links": []
+    },
+        "nun_int4_qwen_image_edit_plus_package": {
+        "id":30,
+        "name": "[30]双截棍QwenPlus图像编辑",
+        "note": "Qwen_Image_EditPlus指令编辑图像|显存需求：★★★★ 速度:★★",
+        "files": [
+            ("checkpoints/https://www.modelscope.cn/models/nunchaku-tech/nunchaku-qwen-image-edit-2509/resolve/master/svdq-int4_r128-qwen-image-edit-2509-lightningv2.0-4steps.safetensors", 12654443144),
+            ("clip/qwen_2.5_vl_7b_fp8_scaled.safetensors", 9384670680),
+            ("vae/qwen_image_vae.safetensors", 253806246)
+        ],
+        "download_links": []
+    },
+        "nun_fp4_qwen_image_edit_plus_package": {
+        "id":31,
+        "name": "[31]双截棍QwenPlus图像编辑",
+        "note": "Qwen_Image_EditPlus指令编辑图像|显存需求：★★★★ 速度:★★",
+        "files": [
+            ("checkpoints/https://www.modelscope.cn/models/nunchaku-tech/nunchaku-qwen-image-edit-2509/resolve/master/svdq-fp4_r128-qwen-image-edit-2509-lightningv2.0-4steps.safetensors", 13081386856),
             ("clip/qwen_2.5_vl_7b_fp8_scaled.safetensors", 9384670680),
             ("vae/qwen_image_vae.safetensors", 253806246)
         ],
