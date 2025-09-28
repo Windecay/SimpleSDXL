@@ -166,28 +166,78 @@ def check_models_exists(preset, user_did=None):
                     return False
         return True
     return False
-
+def get_gpu_arch_str_in_preset_name():
+    if shared.gpu_arch:
+        if shared.gpu_arch.lower() == 'sm120':
+            return '_fp4'
+        else:
+            return '_int4'
+    return ''
 def is_models_file_absent(preset_name, user_did=None):
     global presets_model_list
 
     if shared.args.disable_backend:
         return False
+
     if preset_name in presets_model_list:
         if check_models_exists(preset_name, user_did):
             return False
         else:
             return True
+
+    # 先尝试原始路径
     preset_path = os.path.abspath(f'./presets/{preset_name}.json')
+
+    # 如果原始路径不存在，尝试根据GPU架构添加_fp4或_int4后缀
+    if not os.path.exists(preset_path):
+        arch_str = get_gpu_arch_str_in_preset_name()
+        if arch_str:
+            preset_path_with_arch = os.path.abspath(f'./presets/{preset_name}{arch_str}.json')
+            if os.path.exists(preset_path_with_arch):
+                preset_path = preset_path_with_arch
+
     if os.path.exists(preset_path):
         with open(preset_path, "r", encoding="utf-8") as json_file:
             config_preset = json.load(json_file)
+
         if config_preset["default_model"] and config_preset["default_model"] != 'None':
-            if 'Flux' in preset_name and config_preset["default_model"]== 'auto':
+            if 'Flux' in preset_name and config_preset["default_model"] == 'auto':
                 config_preset["default_model"] = comfy_task.get_default_base_Flux_name('+' in preset_name)
             model_key = f'checkpoints/{config_preset["default_model"]}'
-            return not shared.modelsinfo.exists_model(catalog="checkpoints", model_path=config_preset["default_model"])
+            if not shared.modelsinfo.exists_model(catalog="checkpoints", model_path=config_preset["default_model"]):
+                return True
+
         if config_preset["default_refiner"] and config_preset["default_refiner"] != 'None':
-           return not shared.modelsinfo.exists_model(catalog="checkpoints", model_path=config_preset["default_refiner"])
+            if not shared.modelsinfo.exists_model(catalog="checkpoints", model_path=config_preset["default_refiner"]):
+                return True
+
+        if config_preset.get("model_list"):
+            for model_entry in config_preset["model_list"]:
+                # 处理不同格式的model_entry
+                if isinstance(model_entry, list) and len(model_entry) >= 2:
+                    cata = model_entry[0]
+                    path_file = model_entry[1]
+
+                    # 检查文件是否存在
+                    file_path = shared.modelsinfo.get_model_filepath(cata, path_file)
+                    if file_path is None or file_path == '' or not os.path.exists(file_path):
+                        # 记录缺失的文件信息
+                        logger.info(f'Missing model file in preset({preset_name}): {cata}, {path_file}')
+                        return True
+                elif isinstance(model_entry, str):
+                    # 处理字符串格式的条目
+                    parts = model_entry.split(',')
+                    if len(parts) >= 2:
+                        cata = parts[0].strip()
+                        path_file = parts[1].strip()
+
+                        # 检查文件是否存在
+                        file_path = shared.modelsinfo.get_model_filepath(cata, path_file)
+                        if file_path is None or file_path == '' or not os.path.exists(file_path):
+                            # 记录缺失的文件信息
+                            logger.info(f'Missing model file in preset({preset_name}): {cata}, {path_file}')
+                            return True
+
     return False
 
 
@@ -195,14 +245,23 @@ default_download_url_prefix = 'https://huggingface.co/metercai/SimpleSDXL2/resol
 def download_model_files(preset, user_did=None, async_task=False):
     from modules.config import path_models_root, model_cata_map
     global presets_model_list, default_download_url_prefix, download_queue
-    
+
     if shared.args.disable_backend:
         return False
     if preset.endswith('.'):
         if user_did is None:
             return False
         preset = f'{preset}{user_did[:7]}'
-    model_list = [] if preset not in presets_model_list else presets_model_list[preset]
+    # 尝试根据GPU架构获取合适的预置包名称
+    arch_str = get_gpu_arch_str_in_preset_name()
+    model_list = []
+
+    # 首先尝试使用架构特定的预置包名称
+    if arch_str and f'{preset}{arch_str}' in presets_model_list:
+        model_list = presets_model_list[f'{preset}{arch_str}']
+    # 如果没有找到，尝试使用原始预置包名称
+    elif preset in presets_model_list:
+        model_list = presets_model_list[preset]
     if len(model_list)>0:
         download_task_list = []
         for cata, path_file, size, hash10, url in model_list:
@@ -248,7 +307,6 @@ def download_model_files(preset, user_did=None, async_task=False):
                         size=size
                     )
     return
-
 
 def download_diffusers_model(cata, model_name, num, url):
     def _download_task():
