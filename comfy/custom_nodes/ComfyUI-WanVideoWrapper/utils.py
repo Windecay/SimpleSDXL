@@ -3,12 +3,15 @@ import torch
 import logging
 import math
 from tqdm import tqdm
+from pathlib import Path
+import os
 import types, collections
 from comfy.utils import ProgressBar, copy_to_param, set_attr_param
 from comfy.model_patcher import get_key_weight, string_to_seed
 from comfy.lora import calculate_weight
 from comfy.model_management import cast_to_device
 from comfy.float import stochastic_rounding
+import folder_paths
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 log = logging.getLogger(__name__)
 
@@ -129,7 +132,7 @@ def get_tensor_memory(tensor):
 def patch_weight_to_device(self, key, device_to=None, inplace_update=False, backup_keys=False, scale_weight=None):
     if key not in self.patches:
         return
-    
+
     weight, set_func, convert_func = get_key_weight(self.model, key)
     inplace_update = self.weight_inplace_update or inplace_update
 
@@ -147,7 +150,7 @@ def patch_weight_to_device(self, key, device_to=None, inplace_update=False, back
         temp_weight = temp_weight * scale_weight.to(temp_weight.device, temp_weight.dtype)
 
     out_weight = calculate_weight(self.patches[key], temp_weight, key)
-    
+
     if set_func is None:
         out_weight = stochastic_rounding(out_weight, weight.dtype, seed=string_to_seed(key))
         if inplace_update:
@@ -173,7 +176,8 @@ def apply_lora(model, device_to, transformer_load_device, params_to_keep=None, d
                 to_load.append((n, m, params))
 
         to_load.sort(reverse=True)
-        #pbar = ProgressBar(len(to_load))
+        cnt = 0
+        pbar = ProgressBar(len(to_load))
         for x in tqdm(to_load, desc="Loading model and applying LoRA weights:", leave=True):
             name = x[0]
             m = x[1]
@@ -207,8 +211,11 @@ def apply_lora(model, device_to, transformer_load_device, params_to_keep=None, d
                     except:
                         continue
             m.comfy_patched_weights = True
-            #pbar.update(1)
-        
+            cnt += 1
+            if cnt % 100 == 0:
+                pbar.update(100)
+
+
         # After LoRA patching, scale weights that have scale_weight but are NOT LoRA patched
         if len(scale_weights) > 0 and not getattr(model, "scale_weights_applied", False):
             for name, param in model.model.diffusion_model.named_parameters():
@@ -220,7 +227,7 @@ def apply_lora(model, device_to, transformer_load_device, params_to_keep=None, d
                     param_fp32.mul_(scale.to(param.device, torch.float32))
                     param.copy_(param_fp32.to(param.dtype))
             model.scale_weights_applied = True
-      
+
         model.current_weight_patches_uuid = model.patches_uuid
         if low_mem_load:
             for name, param in model.model.diffusion_model.named_parameters():
@@ -242,11 +249,11 @@ def split_tiles(embeds, num_split):
     for x in embeds:
         x = x.unsqueeze(0)
         h, w = H // num_split, W // num_split
-        x_split = torch.cat([x[:, i*h:(i+1)*h, j*w:(j+1)*w, :] for i in range(num_split) for j in range(num_split)], dim=0)    
+        x_split = torch.cat([x[:, i*h:(i+1)*h, j*w:(j+1)*w, :] for i in range(num_split) for j in range(num_split)], dim=0)
         out.append(x_split)
-    
+
     x_split = torch.stack(out, dim=0)
-    
+
     return x_split
 
 def merge_hiddenstates(x, tiles):
@@ -266,19 +273,19 @@ def merge_hiddenstates(x, tiles):
         patch_embeds = embeds[:, 1:, :]  # Shape: [num_tiles, tile_size^2, embeds[-1]]
         reshaped = patch_embeds.reshape(grid_size, grid_size, tile_size, tile_size, embeds.shape[-1])
 
-        merged = torch.cat([torch.cat([reshaped[i, j] for j in range(grid_size)], dim=1) 
+        merged = torch.cat([torch.cat([reshaped[i, j] for j in range(grid_size)], dim=1)
                             for i in range(grid_size)], dim=0)
-        
+
         merged = merged.unsqueeze(0)  # Shape: [1, grid_size*tile_size, grid_size*tile_size, embeds[-1]]
-        
+
         # Pool to original size
         pooled = torch.nn.functional.adaptive_avg_pool2d(merged.permute(0, 3, 1, 2), (tile_size, tile_size)).permute(0, 2, 3, 1)
         flattened = pooled.reshape(1, tile_size*tile_size, embeds.shape[-1])
-        
+
         # Add back the class token
         with_class = torch.cat([avg_class_token, flattened], dim=1)  # Shape: original shape
         out.append(with_class)
-    
+
     out = torch.cat(out, dim=0)
 
     return out
@@ -379,7 +386,7 @@ def is_image_black(image, threshold=1e-3):
     return torch.all(image < threshold).item()
 
 def add_noise_to_reference_video(image, ratio=None):
-    sigma = torch.ones((image.shape[0],)).to(image.device, image.dtype) * ratio 
+    sigma = torch.ones((image.shape[0],)).to(image.device, image.dtype) * ratio
     image_noise = torch.randn_like(image) * sigma[:, None, None, None]
     image_noise = torch.where(image==-1, torch.zeros_like(image), image_noise)
     image = image + image_noise
@@ -395,7 +402,7 @@ def optimized_scale(positive_flat, negative_flat):
 
     # st_star = v_cond^T * v_uncond / ||v_uncond||^2
     st_star = dot_product / squared_norm
-    
+
     return st_star
 
 def find_closest_valid_dim(fixed_dim, var_dim, block_size):
@@ -463,7 +470,7 @@ def setup_radial_attention(transformer, transformer_options, latent, seq_len, la
             block.dense_attention_mode = dense_attention_mode
             block.dense_timesteps = dense_timesteps
             block.self_attn.decay_factor = decay_factor
-                    
+
     log.info(f"Radial attention mode enabled.")
     log.info(f"dense_attention_mode: {dense_attention_mode}, dense_timesteps: {dense_timesteps}, decay_factor: {decay_factor}")
     log.info(f"dense_blocks: {[i for i, block in enumerate(transformer.blocks) if getattr(block, 'dense_block', False)]})")
@@ -535,3 +542,49 @@ def get_raag_guidance(noise_pred_cond, noise_pred_uncond, w_max, alpha=1.0, eps=
     ratio_mean = ratio.mean().item()
     adaptive_w = 1.0 + (w_max - 1.0) * math.exp(-alpha * ratio_mean)
     return adaptive_w
+
+def tensor_pingpong_pad(video, target_len):
+    """
+    Pads a video tensor along the frame dimension (dim=2) in a ping-pong fashion.
+    video: torch.Tensor of shape [B, C, F, H, W]
+    target_len: desired number of frames
+    Returns: padded tensor of shape [B, C, target_len, H, W]
+    """
+    in_dims = len(video.shape)
+    if in_dims == 4:
+        video = video.unsqueeze(0)
+    B, C, F, H, W = video.shape
+    idx = 0
+    flip = False
+    indices = []
+    while len(indices) < target_len:
+        indices.append(idx)
+        if flip:
+            idx -= 1
+        else:
+            idx += 1
+        if idx == 0 or idx == F - 1:
+            flip = not flip
+    indices = indices[:target_len]
+    padded_video = video[:, :, indices, :, :]
+    if in_dims == 4:
+        padded_video = padded_video.squeeze(0)
+    return padded_video
+
+
+def check_duplicate_nodes():
+    """Check ComfyUI custom_nodes directory for duplicate installations"""
+    custom_nodes_dir = Path(folder_paths.folder_names_and_paths["custom_nodes"][0][0])
+    current_path = Path(__file__).parent
+    
+    wanvideo_dirs = []
+    
+    # Check all directories in custom_nodes
+    for path in custom_nodes_dir.iterdir():
+        if (path.is_dir() and 
+            path != current_path and
+            'wanvideo' in path.name.lower() and
+            'wrapper' in path.name.lower()):
+            wanvideo_dirs.append(str(path))
+    
+    return wanvideo_dirs

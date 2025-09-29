@@ -4,6 +4,7 @@ import os, gc, uuid
 from .utils import log, apply_lora
 import numpy as np
 from tqdm import tqdm
+import re
 
 from .wanvideo.modules.model import WanModel, LoRALinearLayer
 from .wanvideo.modules.t5 import T5EncoderModel
@@ -62,7 +63,7 @@ try:
     from comfy.latent_formats import Wan21, Wan22
     latent_format = Wan21
 except: #for backwards compatibility
-    log.warning("Wan21 latent format not found, update ComfyUI for better livepreview")
+    log.warning("WARNING: Wan21 latent format not found, update ComfyUI for better live video preview")
     from comfy.latent_formats import HunyuanVideo
     latent_format = HunyuanVideo
 
@@ -330,7 +331,7 @@ class WanVideoTorchCompileSettings:
     RETURN_NAMES = ("torch_compile_args",)
     FUNCTION = "set_args"
     CATEGORY = "WanVideoWrapper"
-    DESCRIPTION = "torch.compile settings, when connected to the model loader, torch.compile of the selected layers is attempted. Requires Triton and torch 2.5.0 is recommended"
+    DESCRIPTION = "torch.compile settings, when connected to the model loader, torch.compile of the selected layers is attempted. Requires Triton and torch > 2.7.0 is recommended"
 
     def set_args(self, backend, fullgraph, mode, dynamic, dynamo_cache_size_limit, compile_transformer_blocks_only, dynamo_recompile_limit=128):
 
@@ -346,7 +347,6 @@ class WanVideoTorchCompileSettings:
 
         return (compile_args, )
 
-    
 class WanVideoLoraSelect:
     @classmethod
     def INPUT_TYPES(s):
@@ -442,6 +442,36 @@ class WanVideoLoraSelect:
         loras_list.append(lora)
         return (loras_list,)
     
+class WanVideoLoraSelectByName(WanVideoLoraSelect):
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+               "lora_name": ("STRING", {"default": "", "multiline": False, "tooltip": "Lora filename to load"}),
+               "strength": ("FLOAT", {"default": 1.0, "min": -10.0, "max": 10.0, "step": 0.0001, "tooltip": "LORA strength, set to 0.0 to unmerge the LORA"}),
+            },
+            "optional": {
+                "prev_lora":("WANVIDLORA", {"default": None, "tooltip": "For loading multiple LoRAs"}),
+                "blocks":("SELECTEDBLOCKS", ),
+                "low_mem_load": ("BOOLEAN", {"default": False, "tooltip": "Load the LORA model with less VRAM usage, slower loading. This affects ALL LoRAs, not just the current one. No effect if merge_loras is False"}),
+                "merge_loras": ("BOOLEAN", {"default": True, "tooltip": "Merge LoRAs into the model, otherwise they are loaded on the fly. Always disabled for GGUF and scaled fp8 models. This affects ALL LoRAs, not just the current one"}),
+            },
+            "hidden": {
+                "unique_id": "UNIQUE_ID",
+            },
+        }
+    
+    def getlorapath(self, lora_name, strength, unique_id, blocks={}, prev_lora=None, low_mem_load=False, merge_loras=True):
+        lora_list = folder_paths.get_filename_list("loras")
+        lora_path = "none"
+        for lora in lora_list:
+            if lora_name in lora:
+                lora_path = lora
+                log.info(f"Found LoRA file: {lora_path}")
+        return super().getlorapath(
+            lora_path, strength, unique_id, blocks=blocks, prev_lora=prev_lora, low_mem_load=low_mem_load, merge_loras=merge_loras
+        )
+    
 class WanVideoLoraSelectMulti:
     @classmethod
     def INPUT_TYPES(s):
@@ -529,7 +559,7 @@ class WanVideoExtraModelSelect:
     def INPUT_TYPES(s):
         return {
             "required": {
-                "extra_model": (folder_paths.get_filename_list("diffusion_models"), {"tooltip": "These models are loaded from the 'ComfyUI/models/diffusion_models' path to extra state dict to add to the main model"}),
+                "extra_model": (folder_paths.get_filename_list("unet_gguf") + folder_paths.get_filename_list("diffusion_models"), {"tooltip": "These models are loaded from the 'ComfyUI/models/diffusion_models' path to extra state dict to add to the main model"}),
             },
         }
 
@@ -729,9 +759,21 @@ class WanVideoSetLoRAs:
 
         return (patcher,)
 
+def rename_fuser_block(name):
+    # map fuser blocks to main blocks
+    new_name = name
+    if "face_adapter.fuser_blocks." in name:
+        match = re.search(r'face_adapter\.fuser_blocks\.(\d+)\.', name)
+        if match:
+            fuser_block_num = int(match.group(1))
+            main_block_num = fuser_block_num * 5
+            new_name = name.replace(f"face_adapter.fuser_blocks.{fuser_block_num}.", f"blocks.{main_block_num}.fuser_block.")
+    return new_name
+
 def load_weights(transformer, sd=None, weight_dtype=None, base_dtype=None, 
                  transformer_load_device=None, block_swap_args=None, gguf=False, reader=None, patcher=None):
-    params_to_keep = {"time_in", "patch_embedding", "time_", "modulation", "text_embedding", "adapter", "add", "ref_conv", "audio_proj"}
+    params_to_keep = {"time_in", "patch_embedding", "time_", "modulation", "text_embedding", 
+                      "adapter", "add", "ref_conv", "casual_audio_encoder", "cond_encoder", "frame_packer", "audio_proj_glob", "face_encoder", "fuser_block"}
     param_count = sum(1 for _ in transformer.named_parameters())
     pbar = ProgressBar(param_count)
     cnt = 0
@@ -742,26 +784,29 @@ def load_weights(transformer, sd=None, weight_dtype=None, base_dtype=None,
 
         # Prepare sd from GGUF readers
 
-        # UniAnimate embedding weight workaround
-        unianimate_sd = {}
-        for key in sd.keys():
-            if "dwpose_embedding" in key or "randomref_embedding_pose" in key:
-                unianimate_sd[key] = sd[key]
+        # handle possible non-GGUF weights
+        extra_sd = {}
+        for key, value in sd.items():
+            if value.device != torch.device("meta"):
+                extra_sd[key] = value
 
         sd = {}
         all_tensors = []
         for r in reader:
             all_tensors.extend(r.tensors)
         for tensor in all_tensors:
+            name = rename_fuser_block(tensor.name)
+            if "glob" not in name and "audio_proj" in name:
+                name = name.replace("audio_proj", "multitalk_audio_proj")
             load_device = device
-            if "vace_blocks." in tensor.name:
+            if "vace_blocks." in name:
                 try:
-                    vace_block_idx = int(tensor.name.split("vace_blocks.")[1].split(".")[0])
+                    vace_block_idx = int(name.split("vace_blocks.")[1].split(".")[0])
                 except Exception:
                     vace_block_idx = None
-            elif "blocks." in tensor.name:
+            elif "blocks." in name and "face" not in name:
                 try:
-                    block_idx = int(tensor.name.split("blocks.")[1].split(".")[0])
+                    block_idx = int(name.split("blocks.")[1].split(".")[0])
                 except Exception:
                     block_idx = None
 
@@ -775,9 +820,9 @@ def load_weights(transformer, sd=None, weight_dtype=None, base_dtype=None,
                         
             is_gguf_quant = tensor.tensor_type not in [GGMLQuantizationType.F32, GGMLQuantizationType.F16]
             weights = torch.from_numpy(tensor.data.copy()).to(load_device)
-            sd[tensor.name] = GGUFParameter(weights, quant_type=tensor.tensor_type) if is_gguf_quant else weights
-        sd.update(unianimate_sd)
-        del all_tensors, unianimate_sd
+            sd[name] = GGUFParameter(weights, quant_type=tensor.tensor_type) if is_gguf_quant else weights
+        sd.update(extra_sd)
+        del all_tensors, extra_sd
 
         if not getattr(transformer, "gguf_patched", False):
             transformer = _replace_with_gguf_linear(
@@ -798,7 +843,7 @@ def load_weights(transformer, sd=None, weight_dtype=None, base_dtype=None,
                 vace_block_idx = int(name.split("vace_blocks.")[1].split(".")[0])
             except Exception:
                 vace_block_idx = None
-        elif "blocks." in name:
+        elif "blocks." in name and "face" not in name:
             try:
                 block_idx = int(name.split("blocks.")[1].split(".")[0])
             except Exception:
@@ -812,13 +857,13 @@ def load_weights(transformer, sd=None, weight_dtype=None, base_dtype=None,
             continue
 
         if gguf:
-            dtype_to_use = torch.float32 if "patch_embedding" in name else base_dtype
+            dtype_to_use = torch.float32 if "patch_embedding" in name or "motion_encoder" in name else base_dtype
         else:
             dtype_to_use = base_dtype if any(keyword in name for keyword in params_to_keep) else weight_dtype
             dtype_to_use = weight_dtype if sd[name.replace("_orig_mod.", "")].dtype == weight_dtype else dtype_to_use
             if "modulation" in name or "norm" in name or "bias" in name or "img_emb" in name:
                 dtype_to_use = base_dtype
-            if "patch_embedding" in name:
+            if "patch_embedding" in name or "motion_encoder" in name:
                 dtype_to_use = torch.float32
 
         load_device = transformer_load_device
@@ -835,8 +880,9 @@ def load_weights(transformer, sd=None, weight_dtype=None, base_dtype=None,
         cnt += 1
         if cnt % 100 == 0:
             pbar.update(100)
+    #for name, param in transformer.named_parameters():
+    #    print(name, param.device, param.dtype)
 
-    pbar.update_absolute(param_count)
     pbar.update_absolute(0)
 
 def patch_control_lora(transformer, device):
@@ -928,7 +974,8 @@ class WanVideoModelLoader:
                 "model": (folder_paths.get_filename_list("unet_gguf") + folder_paths.get_filename_list("diffusion_models"), {"tooltip": "These models are loaded from the 'ComfyUI/models/diffusion_models' -folder",}),
 
             "base_precision": (["fp32", "bf16", "fp16", "fp16_fast"], {"default": "bf16"}),
-            "quantization": (["disabled", "fp8_e4m3fn", "fp8_e4m3fn_fast", "fp8_e4m3fn_scaled", "fp8_e4m3fn_scaled_fast", "fp8_e5m2", "fp8_e5m2_fast", "fp8_e5m2_scaled", "fp8_e5m2_scaled_fast"], {"default": "disabled", "tooltip": "optional quantization method"}),
+            "quantization": (["disabled", "fp8_e4m3fn", "fp8_e4m3fn_fast", "fp8_e4m3fn_scaled", "fp8_e4m3fn_scaled_fast", "fp8_e5m2", "fp8_e5m2_fast", "fp8_e5m2_scaled", "fp8_e5m2_scaled_fast"], {"default": "disabled", 
+                            "tooltip": "Optional quantization method, 'disabled' acts as autoselect based by weights. Scaled modes only work with matching weights, _fast modes (fp8 matmul) require CUDA compute capability >= 8.9 (NVIDIA 4000 series and up), e4m3fn generally can not be torch.compiled on compute capability < 8.9 (3000 series and under)"}),
             "load_device": (["main_device", "offload_device"], {"default": "offload_device", "tooltip": "Initial device to load the model to, NOT recommended with the larger models unless you have 48GB+ VRAM"}),
             },
             "optional": {
@@ -938,7 +985,6 @@ class WanVideoModelLoader:
                     "flash_attn_3",
                     "sageattn",
                     "sageattn_3",
-                    "flex_attention",
                     "radial_sage_attention",
                     ], {"default": "sdpa"}),
                 "compile_args": ("WANCOMPILEARGS", ),
@@ -949,6 +995,7 @@ class WanVideoModelLoader:
                 "fantasytalking_model": ("FANTASYTALKINGMODEL", {"default": None, "tooltip": "FantasyTalking model https://github.com/Fantasy-AMAP"}),
                 "multitalk_model": ("MULTITALKMODEL", {"default": None, "tooltip": "Multitalk model"}),
                 "fantasyportrait_model": ("FANTASYPORTRAITMODEL", {"default": None, "tooltip": "FantasyPortrait model"}),
+                "rms_norm_function": (["default", "pytorch"], {"default": "default", "tooltip": "RMSNorm function to use, 'pytorch' is the new native torch RMSNorm, which is faster (when not using torch.compile mostly) but changes results slightly. 'default' is the original WanRMSNorm"}),
             }
         }
 
@@ -959,15 +1006,14 @@ class WanVideoModelLoader:
 
     def loadmodel(self, model, base_precision, load_device,  quantization,
                   compile_args=None, attention_mode="sdpa", block_swap_args=None, lora=None, vram_management_args=None, extra_model=None, vace_model=None,
-                  fantasytalking_model=None, multitalk_model=None, fantasyportrait_model=None):
+                  fantasytalking_model=None, multitalk_model=None, fantasyportrait_model=None, rms_norm_function="default"):
         assert not (vram_management_args is not None and block_swap_args is not None), "Can't use both block_swap_args and vram_management_args at the same time"
         if vace_model is not None:
             extra_model = vace_model
         lora_low_mem_load = merge_loras = False
         if lora is not None:
-            for l in lora:
-                lora_low_mem_load = l.get("low_mem_load", False)
-                merge_loras = l.get("merge_loras", True)
+            merge_loras = any(l.get("merge_loras", True) for l in lora)
+            lora_low_mem_load = any(l.get("low_mem_load", False) for l in lora)
 
         transformer = None
         mm.unload_all_models()
@@ -990,7 +1036,9 @@ class WanVideoModelLoader:
                 raise ValueError("GGUF models do not support LoRA merging, please disable merge_loras in the LoRA select node.")
 
         transformer_load_device = device if load_device == "main_device" else offload_device
-        
+        if lora is not None and not merge_loras:
+            transformer_load_device = offload_device
+
         base_dtype = {"fp8_e4m3fn": torch.float8_e4m3fn, "fp8_e4m3fn_fast": torch.float8_e4m3fn, "bf16": torch.bfloat16, "fp16": torch.float16, "fp16_fast": torch.float16, "fp32": torch.float32}[base_precision]
         
         if base_precision == "fp16_fast":
@@ -1017,6 +1065,14 @@ class WanVideoModelLoader:
             sd, reader = load_gguf(model_path)
             gguf_reader.append(reader)
 
+        is_wananimate = "pose_patch_embedding.weight" in sd
+        # rename WanAnimate face fuser block keys to insert into main blocks instead
+        if is_wananimate:
+            for key in list(sd.keys()):
+                new_key = rename_fuser_block(key)
+                if new_key != key:
+                    sd[new_key] = sd.pop(key)
+
         if quantization == "disabled":
             for k, v in sd.items():
                 if isinstance(v, torch.Tensor):
@@ -1036,7 +1092,7 @@ class WanVideoModelLoader:
             major, minor = torch.cuda.get_device_capability(device)
             log.info(f"CUDA Compute Capability: {major}.{minor}")
             if compile_args is not None and "e4" in quantization and (major, minor) < (8, 9):
-                log.warning("Torch.compile with fp8_e4m3fn weights on CUDA compute capability < 8.9 is not supported. Please use fp8_e5m2, GGUF or higher precision instead.")
+                log.warning("WARNING: Torch.compile with fp8_e4m3fn weights on CUDA compute capability < 8.9 is not supported. Please use fp8_e5m2, GGUF or higher precision instead.")
 
         if "scaled_fp8" in sd and "scaled" not in quantization:
             raise ValueError("The model is a scaled fp8 model, please set quantization to '_scaled'")
@@ -1048,11 +1104,13 @@ class WanVideoModelLoader:
         if extra_model is not None:
             if gguf:
                 if not extra_model["path"].endswith(".gguf"):
-                    raise ValueError("With GGUF main model the extra model must also be a GGUF quantized, if the main model already has extra included, you can disconnect the extra module loader")
+                    raise ValueError("With GGUF main model the extra model must also be GGUF quantized, if the main model already has VACE included, you can disconnect the extra module loader")
                 extra_sd, extra_reader = load_gguf(extra_model["path"])
                 gguf_reader.append(extra_reader)
                 del extra_reader
             else:
+                if extra_model["path"].endswith(".gguf"):
+                    raise ValueError("With GGUF extra model the main model must also be GGUF quantized model")
                 extra_sd = load_torch_file(extra_model["path"], device=transformer_load_device, safe_load=True)
             sd.update(extra_sd)
             del extra_sd
@@ -1080,8 +1138,13 @@ class WanVideoModelLoader:
         ffn_dim = sd["blocks.0.ffn.0.bias"].shape[0]
         ffn2_dim = sd["blocks.0.ffn.2.weight"].shape[1]
 
+        is_humo = "audio_proj.audio_proj_glob_1.layer.weight" in sd
+        is_wananimate = "pose_patch_embedding.weight" in sd
+
         model_type = "t2v"
-        if not "text_embedding.0.weight" in sd:
+        if "audio_injector.injector.0.k.weight" in sd:
+            model_type = "s2v"
+        elif not "text_embedding.0.weight" in sd:
             model_type = "no_cross_attn" #minimaxremover
         elif "model_type.Wan2_1-FLF2V-14B-720P" in sd or "img_emb.emb_pos" in sd or "flf2v" in model.lower():
             model_type = "fl2v"
@@ -1180,6 +1243,7 @@ class WanVideoModelLoader:
             "rope_func": "comfy",
             "main_device": device,
             "offload_device": offload_device,
+            "dtype": base_dtype,
             "teacache_coefficients": teacache_coefficients_map[model_variant],
             "magcache_ratios": magcache_ratios_map[model_variant],
             "vace_layers": vace_layers,
@@ -1188,7 +1252,14 @@ class WanVideoModelLoader:
             "add_ref_conv": True if "ref_conv.weight" in sd else False,
             "in_dim_ref_conv": sd["ref_conv.weight"].shape[1] if "ref_conv.weight" in sd else None,
             "add_control_adapter": True if "control_adapter.conv.weight" in sd else False,
-            "use_motion_attn": True if "blocks.0.motion_attn.k.weight" in sd else False
+            "use_motion_attn": True if "blocks.0.motion_attn.k.weight" in sd else False,
+            "enable_adain": True if "audio_injector.injector_adain_layers.0.linear.weight" in sd else False,
+            "cond_dim": sd["cond_encoder.weight"].shape[1] if "cond_encoder.weight" in sd else 0,
+            "zero_timestep": model_type == "s2v",
+            "humo_audio": is_humo,
+            "is_wananimate": is_wananimate,
+            "rms_norm_function": rms_norm_function,
+
         }
 
         with init_empty_weights():
@@ -1238,7 +1309,9 @@ class WanVideoModelLoader:
             multitalk_model_path = multitalk_model["model_path"]
             if multitalk_model_path.endswith(".gguf") and not gguf:
                 raise ValueError("Multitalk/InfiniteTalk model is a GGUF model, main model also has to be a GGUF model.")
-            
+            if "scaled" in multitalk_model and gguf:
+                raise ValueError("fp8 scaled Multitalk/InfiniteTalk model can't be used with GGUF main model")
+
             # init audio module
             from .multitalk.multitalk import SingleStreamMultiAttention
             from .wanvideo.modules.model import WanLayerNorm
@@ -1255,16 +1328,21 @@ class WanVideoModelLoader:
                         class_interval=4,
                         attention_mode=attention_mode,
                     )
-            transformer.audio_proj = multitalk_model["proj_model"]
+            transformer.multitalk_audio_proj = multitalk_model["proj_model"]
             transformer.multitalk_model_type = multitalk_model_type
 
             extra_model_path = multitalk_model["model_path"]
-            if gguf:
-                extra_sd, extra_reader = load_gguf(extra_model_path)
+            extra_sd = {}
+            if multitalk_model_path.endswith(".gguf"):
+                extra_sd_temp, extra_reader = load_gguf(extra_model_path)
                 gguf_reader.append(extra_reader)
                 del extra_reader
             else:
-                extra_sd = load_torch_file(extra_model_path, device=transformer_load_device, safe_load=True)
+                extra_sd_temp = load_torch_file(extra_model_path, device=transformer_load_device, safe_load=True)
+                
+            for k, v in extra_sd_temp.items():
+                extra_sd[k.replace("audio_proj.", "multitalk_audio_proj.")] = v
+                
             sd.update(extra_sd)
             del extra_sd
 
@@ -1297,7 +1375,7 @@ class WanVideoModelLoader:
         if "fp8" in quantization:
             for k, v in sd.items():
                 if k.endswith(".scale_weight"):
-                    scale_weights[k] = v.to(base_dtype)
+                    scale_weights[k] = v.to(device, base_dtype)
         
         if "fp8_e4m3fn" in quantization:
             weight_dtype = torch.float8_e4m3fn
@@ -1332,7 +1410,7 @@ class WanVideoModelLoader:
                 log.info("Merging LoRA to the model...")
                 patcher = apply_lora(
                     patcher, device, transformer_load_device, params_to_keep=params_to_keep, dtype=weight_dtype, base_dtype=base_dtype, state_dict=sd, 
-                    low_mem_load=lora_low_mem_load, control_lora=control_lora, scale_weights=scale_weights,)
+                    low_mem_load=lora_low_mem_load, control_lora=control_lora, scale_weights=scale_weights)
                 if not control_lora:
                     scale_weights.clear()
                     patcher.patches.clear()
@@ -1348,9 +1426,6 @@ class WanVideoModelLoader:
                 raise NotImplementedError("fp8_fast is not supported with unmerged LoRAs")
             from .fp8_optimization import convert_fp8_linear
             convert_fp8_linear(transformer, base_dtype, params_to_keep, scale_weight_keys=scale_weights)
-
-        if multitalk_model is not None:
-            transformer.audio_proj = multitalk_model["proj_model"]
 
         if vram_management_args is not None:
             if gguf:
@@ -1692,6 +1767,7 @@ NODE_CLASS_MAPPINGS = {
     "WanVideoModelLoader": WanVideoModelLoader,
     "WanVideoVAELoader": WanVideoVAELoader,
     "WanVideoLoraSelect": WanVideoLoraSelect,
+    "WanVideoLoraSelectByName": WanVideoLoraSelectByName,
     "WanVideoSetLoRAs": WanVideoSetLoRAs,
     "WanVideoLoraBlockEdit": WanVideoLoraBlockEdit,
     "WanVideoTinyVAELoader": WanVideoTinyVAELoader,
@@ -1709,6 +1785,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "WanVideoModelLoader": "WanVideo Model Loader",
     "WanVideoVAELoader": "WanVideo VAE Loader",
     "WanVideoLoraSelect": "WanVideo Lora Select",
+    "WanVideoLoraSelectByName": "WanVideo Lora Select By Name",
     "WanVideoSetLoRAs": "WanVideo Set LoRAs",
     "WanVideoLoraBlockEdit": "WanVideo Lora Block Edit",
     "WanVideoTinyVAELoader": "WanVideo Tiny VAE Loader",

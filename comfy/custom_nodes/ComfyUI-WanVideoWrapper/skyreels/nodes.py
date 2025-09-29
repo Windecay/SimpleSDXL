@@ -19,6 +19,11 @@ import comfy.model_management as mm
 from comfy.utils import load_torch_file, ProgressBar, common_upscale
 from comfy.clip_vision import clip_preprocess, ClipVisionModel
 from comfy.cli_args import args, LatentPreviewMethod
+from ..nodes_model_loading import load_weights
+from ..nodes_sampler import offload_transformer
+
+device = mm.get_torch_device()
+offload_device = mm.unet_offload_device()
 
 script_directory = os.path.dirname(os.path.abspath(__file__))
 
@@ -142,33 +147,51 @@ class WanVideoDiffusionForcingSampler:
         patcher = model
         model = model.model
         transformer = model.diffusion_model
-        dtype = model["dtype"]
-        device = mm.get_torch_device()
-        offload_device = mm.unet_offload_device()
 
+        dtype = model["base_dtype"]
+        weight_dtype = model["weight_dtype"]
         fp8_matmul = model["fp8_matmul"]
-        gguf = model["gguf"]
+        gguf_reader = model["gguf_reader"]
+        control_lora = model["control_lora"]
+
         transformer_options = patcher.model_options.get("transformer_options", None)
         merge_loras = transformer_options["merge_loras"]
 
-        patch_linear = transformer_options.get("patch_linear", False)
+        block_swap_args = transformer_options.get("block_swap_args", None)
+        if block_swap_args is not None:
+            transformer.use_non_blocking = block_swap_args.get("use_non_blocking", False)
+            transformer.blocks_to_swap = block_swap_args.get("blocks_to_swap", 0)
+            transformer.vace_blocks_to_swap = block_swap_args.get("vace_blocks_to_swap", 0)
+            transformer.prefetch_blocks = block_swap_args.get("prefetch_blocks", 0)
+            transformer.block_swap_debug = block_swap_args.get("block_swap_debug", False)
+            transformer.offload_img_emb = block_swap_args.get("offload_img_emb", False)
+            transformer.offload_txt_emb = block_swap_args.get("offload_txt_emb", False)
 
-        if gguf:
+        is_5b = transformer.out_dim == 48
+        vae_upscale_factor = 16 if is_5b else 8
+
+        # Load weights
+        if transformer.patched_linear and gguf_reader is None:
+            load_weights(patcher.model.diffusion_model, patcher.model["sd"], weight_dtype, base_dtype=dtype, transformer_load_device=device, block_swap_args=block_swap_args)
+
+        if gguf_reader is not None: #handle GGUF
+            load_weights(transformer, patcher.model["sd"], base_dtype=dtype, transformer_load_device=device, patcher=patcher, gguf=True, reader=gguf_reader, block_swap_args=block_swap_args)
             set_lora_params_gguf(transformer, patcher.patches)
-        elif len(patcher.patches) != 0 and patch_linear:
+            transformer.patched_linear = True
+        elif len(patcher.patches) != 0 and transformer.patched_linear: #handle patched linear layers (unmerged loras, fp8 scaled)
             log.info(f"Using {len(patcher.patches)} LoRA weight patches for WanVideo model")
             if not merge_loras and fp8_matmul:
                 raise NotImplementedError("FP8 matmul with unmerged LoRAs is not supported")
             set_lora_params(transformer, patcher.patches)
         else:
-            remove_lora_from_module(transformer)
+            remove_lora_from_module(transformer) #clear possible unmerged lora weights
 
         transformer.lora_scheduling_enabled = transformer_options.get("lora_scheduling_enabled", False)
 
         #torch.compile
         if model["auto_cpu_offload"] is False:
             transformer = compile_model(transformer, model["compile_args"])
-        
+
         steps = int(steps/denoise_strength)
 
         timesteps = None
@@ -367,34 +390,39 @@ class WanVideoDiffusionForcingSampler:
         callback = prepare_callback(patcher, steps)
 
         #blockswap init        
-        if transformer_options is not None:
-            block_swap_args = transformer_options.get("block_swap_args", None)
+        #blockswap init
+        if not transformer.patched_linear:
+            if block_swap_args is not None:
+                transformer.use_non_blocking = block_swap_args.get("use_non_blocking", False)
+                for name, param in transformer.named_parameters():
+                    if "block" not in name:
+                        param.data = param.data.to(device)
+                    if "control_adapter" in name:
+                        param.data = param.data.to(device)
+                    elif block_swap_args["offload_txt_emb"] and "txt_emb" in name:
+                        param.data = param.data.to(offload_device)
+                    elif block_swap_args["offload_img_emb"] and "img_emb" in name:
+                        param.data = param.data.to(offload_device)
 
-        if block_swap_args is not None:
-            transformer.use_non_blocking = block_swap_args.get("use_non_blocking", False)
-            for name, param in transformer.named_parameters():
-                if "block" not in name:
-                    param.data = param.data.to(device)
-                elif block_swap_args["offload_txt_emb"] and "txt_emb" in name:
-                    param.data = param.data.to(offload_device)
-                elif block_swap_args["offload_img_emb"] and "img_emb" in name:
-                    param.data = param.data.to(offload_device)
-
-            transformer.block_swap(
-                block_swap_args["blocks_to_swap"] - 1 ,
-                block_swap_args["offload_txt_emb"],
-                block_swap_args["offload_img_emb"],
-                vace_blocks_to_swap = block_swap_args.get("vace_blocks_to_swap", None),
-            )
-
-        elif model["auto_cpu_offload"]:
-            for module in transformer.modules():
-                if hasattr(module, "offload"):
-                    module.offload()
-                if hasattr(module, "onload"):
-                    module.onload()
-        elif model["manual_offloading"]:
-            transformer.to(device)
+                transformer.block_swap(
+                    block_swap_args["blocks_to_swap"] - 1 ,
+                    block_swap_args["offload_txt_emb"],
+                    block_swap_args["offload_img_emb"],
+                    vace_blocks_to_swap = block_swap_args.get("vace_blocks_to_swap", None),
+                    prefetch_blocks = block_swap_args.get("prefetch_blocks", 0),
+                    block_swap_debug = block_swap_args.get("block_swap_debug", False),
+                )
+            elif model["auto_cpu_offload"]:
+                for module in transformer.modules():
+                    if hasattr(module, "offload"):
+                        module.offload()
+                    if hasattr(module, "onload"):
+                        module.onload()
+                for block in transformer.blocks:
+                    block.modulation = torch.nn.Parameter(block.modulation.to(device))
+                transformer.head.modulation = torch.nn.Parameter(transformer.head.modulation.to(device))
+            else:
+                transformer.to(device)
 
         # Initialize Cache if enabled
         transformer.enable_teacache = transformer.enable_magcache = False
@@ -610,10 +638,8 @@ class WanVideoDiffusionForcingSampler:
             transformer.teacache_state.clear_all()
 
         if force_offload:
-            if model["manual_offloading"]:
-                transformer.to(offload_device)
-                mm.soft_empty_cache()
-                gc.collect()
+            if not model["auto_cpu_offload"]:
+                offload_transformer(transformer)
 
         try:
             print_memory(device)

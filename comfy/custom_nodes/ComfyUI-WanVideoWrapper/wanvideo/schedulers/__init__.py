@@ -22,7 +22,7 @@ scheduler_list = [
     "multitalk"
 ]
 
-def get_scheduler(scheduler, steps, start_step, end_step, shift, device, transformer_dim=5120, flowedit_args=None, denoise_strength=1.0, sigmas=None):
+def get_scheduler(scheduler, steps, start_step, end_step, shift, device, transformer_dim=5120, flowedit_args=None, denoise_strength=1.0, sigmas=None, log_timesteps=False):
     timesteps = None
     if 'unipc' in scheduler:
         sample_scheduler = FlowUniPCMultistepScheduler(shift=shift)
@@ -89,10 +89,9 @@ def get_scheduler(scheduler, steps, start_step, end_step, shift, device, transfo
         sample_scheduler.timesteps = denoising_step_list[:steps].clone().detach().to(device)
         sample_scheduler.sigmas = torch.cat([sample_scheduler.timesteps / 1000, torch.tensor([0.0], device=device)])
     elif 'flowmatch_pusa' in scheduler:
-        sample_scheduler = FlowMatchSchedulerPusa(
-            shift=shift, sigma_min=0.0, extra_one_step=True
-        )
-        sample_scheduler.set_timesteps(steps, denoising_strength=denoise_strength, shift=shift, sigmas=sigmas[:-1].tolist() if sigmas is not None else None)
+        sample_scheduler = FlowMatchSchedulerPusa(shift=shift, sigma_min=0.0, extra_one_step=True)
+        sample_scheduler.set_timesteps(steps+1, denoising_strength=denoise_strength, shift=shift,
+                                       sigmas=sigmas[:-1].tolist() if sigmas is not None else None)
     elif scheduler == 'res_multistep':
         sample_scheduler = FlowMatchSchedulerResMultistep(shift=shift)
         sample_scheduler.set_timesteps(steps, denoising_strength=denoise_strength, sigmas=sigmas[:-1].tolist() if sigmas is not None else None)
@@ -100,18 +99,16 @@ def get_scheduler(scheduler, steps, start_step, end_step, shift, device, transfo
         timesteps = sample_scheduler.timesteps
 
     steps = len(timesteps)
-    if end_step != -1 and start_step >= end_step:
+    if (isinstance(start_step, int) and end_step != -1 and start_step >= end_step) or (not isinstance(start_step, int) and start_step != -1 and end_step >= start_step):
         raise ValueError("start_step must be less than end_step")
-    if denoise_strength < 1.0:
-        if start_step != 0:
-            raise ValueError("start_step must be 0 when denoise_strength is used")
-        start_step = steps - int(steps * denoise_strength) - 1
 
     # Determine start and end indices for slicing
     start_idx = 0
     end_idx = len(timesteps) - 1
 
-    log.info(f"Total timesteps: {timesteps}")
+    if log_timesteps:
+        log.info(f"------- Scheduler info -------")
+        log.info(f"Total timesteps: {timesteps}")
 
     if isinstance(start_step, float):
         idxs = (sample_scheduler.sigmas <= start_step).nonzero(as_tuple=True)[0]
@@ -134,9 +131,11 @@ def get_scheduler(scheduler, steps, start_step, end_step, shift, device, transfo
     sample_scheduler.full_sigmas = sample_scheduler.sigmas.clone()
     sample_scheduler.sigmas = sample_scheduler.sigmas[start_idx:start_idx+len(timesteps)+1]  # always one longer
     
+    if log_timesteps:
+        log.info(f"Using timesteps: {timesteps}")
+        log.info(f"Using sigmas: {sample_scheduler.sigmas}")
+        log.info(f"------------------------------")
 
-    log.info(f"Using timesteps: {timesteps}")
-    
     if hasattr(sample_scheduler, 'timesteps'):
         sample_scheduler.timesteps = timesteps
 

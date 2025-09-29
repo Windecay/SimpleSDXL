@@ -134,7 +134,7 @@ NODE_CLASS_MAPPINGS = {
     "WanVideoEasyCache": WanVideoEasyCache,
     }
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "WanVideoTeaCache": "WaWanVideo TeaCache",
+    "WanVideoTeaCache": "WanVideo TeaCache",
     "WanVideoMagCache": "WanVideo MagCache",
     "WanVideoEasyCache": "WanVideo EasyCache"
     }

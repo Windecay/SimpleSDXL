@@ -56,8 +56,7 @@ def convert_fp8_linear(module, base_dtype, params_to_keep={}, scale_weight_keys=
                 if scale_weight_keys is not None:
                     scale_key = f"{name}.scale_weight"
                     if scale_key in scale_weight_keys:
-                        print("Setting scale_weight for", name)
-                        setattr(submodule, "scale_weight", scale_weight_keys[scale_key])
+                        setattr(submodule, "scale_weight", scale_weight_keys[scale_key].float())
                 original_forward = submodule.forward
                 setattr(submodule, "original_forward", original_forward)
                 setattr(submodule, "forward", lambda input, m=submodule: fp8_linear_forward(m, base_dtype, input))

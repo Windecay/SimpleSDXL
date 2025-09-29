@@ -17,20 +17,6 @@ def check_is_instance(model, module_class):
     return False
 
 
-def block_causal_mask(x, block_size):
-    # params
-    b, n, s, _, device = *x.size(), x.device
-    assert s % block_size == 0
-    num_blocks = s // block_size
-
-    # build mask
-    mask = torch.zeros(b, n, s, s, dtype=torch.bool, device=device)
-    for i in range(num_blocks):
-        mask[:, :,
-             i * block_size:(i + 1) * block_size, :(i + 1) * block_size] = 1
-    return mask
-
-
 class CausalConv3d(nn.Conv3d):
     """
     Causal 3d convolusion.
@@ -329,12 +315,7 @@ class AttentionBlock(nn.Module):
             0, 1, 3, 2).contiguous().chunk(3, dim=-1)
 
         # apply attention
-        x = F.scaled_dot_product_attention(
-            q,
-            k,
-            v,
-            #attn_mask=block_causal_mask(q, block_size=h * w)
-        )
+        x = F.scaled_dot_product_attention(q, k, v)
         x = x.squeeze(1).permute(0, 2, 1).reshape(b * t, c, h, w)
 
         # output
@@ -860,7 +841,7 @@ class Decoder3d_38(nn.Module):
 
         # dimensions
         dims = [dim * u for u in [dim_mult[-1]] + dim_mult[::-1]]
-        scale = 1.0 / 2 ** (len(dim_mult) - 2)
+
         # init block
         self.conv1 = CausalConv3d(z_dim, dims[0], 3, padding=1)
 
@@ -989,8 +970,6 @@ class VideoVAE_(nn.Module):
 
     #modification originally by @raindrop313 https://github.com/raindrop313/ComfyUI-WanVideoStartEndFrames
     def encode_2(self, x):
-        self.clear_cache()
-        ## cache
         t = x.shape[2]
         iter_ = 2 + (t - 2) // 4
 
@@ -1010,18 +989,16 @@ class VideoVAE_(nn.Module):
                                     feat_cache=self._enc_feat_map,
                                     feat_idx=self._enc_conv_idx)
                 out = torch.cat([out, out_], 2)
+        self.clear_cache()
         out_head = out[:, :, :iter_ - 1, :, :]
         out_tail = out[:, :, -1, :, :].unsqueeze(2)
         mu = torch.cat([self.conv1(out_head), self.conv1(out_tail)], dim=2).chunk(2, dim=1)[0]
-        
         mu = (mu - self.mean.to(mu)) * self.inv_std.to(mu)
 
         return mu
 
 
     def encode(self, x, pbar=True):
-        self.clear_cache()
-        ## cache
         t = x.shape[2]
         iter_ = 1 + (t - 1) // 4
         if pbar:
@@ -1040,18 +1017,17 @@ class VideoVAE_(nn.Module):
                 out = torch.cat([out, out_], 2)
             if pbar:
                 pbar.update(1)
+        self.clear_cache()
         mu = self.conv1(out).chunk(2, dim=1)[0]
-
         mu = (mu - self.mean.to(mu)) * self.inv_std.to(mu)
         if pbar:
             pbar.update_absolute(0)
-
+        
         return mu
 
 
     #modification originally by @raindrop313 https://github.com/raindrop313/ComfyUI-WanVideoStartEndFrames
     def decode_2(self, z):
-        self.clear_cache()
         # z: [b,c,t,h,w]
         
         z = z / self.inv_std.to(z) + self.mean.to(z)
@@ -1076,12 +1052,12 @@ class VideoVAE_(nn.Module):
                                     feat_cache=self._feat_map,
                                     feat_idx=self._conv_idx)
                 out = torch.cat([out, out_], 2) # may add tensor offload
+        self.clear_cache()
         return out
 
 
 
     def decode(self, z, pbar=True):
-        self.clear_cache()
         # z: [b,c,t,h,w]
         z = z / self.inv_std.to(z) + self.mean.to(z)
         iter_ = z.shape[2]
@@ -1104,6 +1080,7 @@ class VideoVAE_(nn.Module):
                 pbar.update(1)
         if pbar:
             pbar.update_absolute(0)
+        self.clear_cache()
         return out
 
     def reparameterize(self, mu, log_var):
@@ -1318,6 +1295,7 @@ class WanVideoVAE(nn.Module):
         return video
 
     def encode(self, videos, device, tiled=False,end_=False, tile_size=None, tile_stride=None, pbar=True):
+        self.model.clear_cache()
         videos = [video.to("cpu") for video in videos]
         hidden_states = []
         for video in videos:
@@ -1336,6 +1314,7 @@ class WanVideoVAE(nn.Module):
 
 
     def decode(self, hidden_states, device, tiled=False, end_=False, tile_size=(34, 34), tile_stride=(18, 16), pbar=True):
+        self.model.clear_cache()
         hidden_states = [hidden_state.to("cpu") for hidden_state in hidden_states]
         videos = []
         for hidden_state in hidden_states:
@@ -1350,25 +1329,6 @@ class WanVideoVAE(nn.Module):
             video = video.squeeze(0)
             videos.append(video)
         return videos
-
-
-    @staticmethod
-    def state_dict_converter():
-        return WanVideoVAEStateDictConverter()
-
-
-class WanVideoVAEStateDictConverter:
-
-    def __init__(self):
-        pass
-
-    def from_civitai(self, state_dict):
-        state_dict_ = {}
-        if 'model_state' in state_dict:
-            state_dict = state_dict['model_state']
-        for name in state_dict:
-            state_dict_['model.' + name] = state_dict[name]
-        return state_dict_
 
 
 class VideoVAE38_(VideoVAE_):
@@ -1427,9 +1387,7 @@ class VideoVAE38_(VideoVAE_):
             if pbar:
                 pbar.update(1)
         mu = self.conv1(out).chunk(2, dim=1)[0]
-        
         mu = (mu - self.mean.to(mu)) * self.inv_std.to(mu)
-        
         self.clear_cache()
         return mu
 
