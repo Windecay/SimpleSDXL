@@ -184,7 +184,7 @@
   "18": {
     "inputs": {
       "anything": [
-        "20",
+        "90",
         0
       ]
     },
@@ -197,7 +197,7 @@
     "inputs": {
       "format": "MP4",
       "codec": "h264",
-      "fps": 30,
+      "fps": 60,
       "crf": 19,
       "images": [
         "18",
@@ -207,25 +207,6 @@
     "class_type": "SaveVideoWebsocket",
     "_meta": {
       "title": "SaveVideoWebsocket"
-    }
-  },
-  "20": {
-    "inputs": {
-      "ckpt_name": "rife49.pth",
-      "clear_cache_after_n_frames": 180,
-      "multiplier": 2,
-      "fast_mode": true,
-      "ensemble": true,
-      "scale_factor": 1,
-      "enabled": true,
-      "frames": [
-        "17",
-        0
-      ]
-    },
-    "class_type": "RIFE VFI",
-    "_meta": {
-      "title": "RIFE VFI (recommend rife47 and rife49)"
     }
   },
   "21": {
@@ -1153,6 +1134,22 @@
     "class_type": "easy ifElse",
     "_meta": {
       "title": "If else"
+    }
+  },
+  "90": {
+    "inputs": {
+      "source_fps": 16,
+      "target_fps": 60,
+      "scale": 1,
+      "model_name": "flownet.pkl",
+      "images": [
+        "17",
+        0
+      ]
+    },
+    "class_type": "RIFEInterpolation",
+    "_meta": {
+      "title": "RIFE Frame Interpolation"
     }
   }
 }

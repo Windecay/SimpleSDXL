@@ -79,6 +79,6 @@
         "vae,Wan2_1_VAE_bf16.safetensors,253806278,0,",
         "loras,lightx2v_I2V_14B_480p_cfg_step_distill_rank64_bf16.safetensors,738005744,0,",
         "loras,Wan2.2-Lightning_I2V-A14B-4steps-lora_LOW_fp16.safetensors,613561776,0,",
-        "controlnet,rife/rife49.pth,21345274,0,"
+        "controlnet,rife/flownet.pkl,24636301,0,https://www.modelscope.cn/models/windecay/rife/resolve/master/flownet.pkl"
     ]
 }

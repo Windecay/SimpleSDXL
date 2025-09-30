@@ -1832,7 +1832,7 @@ packages = {
             ("vae/Wan2_1_VAE_bf16.safetensors", 253806278),
             ("loras/lightx2v_I2V_14B_480p_cfg_step_distill_rank64_bf16.safetensors", 738005744),
             ("loras/Wan2.2-Lightning_I2V-A14B-4steps-lora_LOW_fp16.safetensors", 613561776),
-            ("controlnet/rife/rife49.pth", 21345274)
+            ("controlnet/rife/https://www.modelscope.cn/models/windecay/rife/resolve/master/flownet.pkl", 24636301)
         ],
         "download_links": [
             "https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/checkpoints/Wan2.2-I2V-A14B-HighNoise-Q4_K_M.gguf",
@@ -1850,7 +1850,7 @@ packages = {
             ("clip/umt5-xxl-encoder-Q8_0.gguf", 6043068256),
             ("vae/Wan2_1_VAE_bf16.safetensors", 253806278),
             ("loras/lightx2v_T2V_14B_cfg_step_distill_v2_lora_rank64_bf16.safetensors", 630697104),
-            ("controlnet/rife/rife49.pth", 21345274)
+            ("controlnet/rife/https://www.modelscope.cn/models/windecay/rife/resolve/master/flownet.pkl", 24636301)
         ],
         "download_links": [
             "https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/checkpoints/Wan2.2_T2V_High_Noise_14B_VACE-Q4_K_M.gguf",

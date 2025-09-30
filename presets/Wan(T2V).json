@@ -53,6 +53,6 @@
         "clip,umt5-xxl-encoder-Q8_0.gguf,6043068256,0,",
         "vae,Wan2_1_VAE_bf16.safetensors,253806278,0,",
         "loras,lightx2v_T2V_14B_cfg_step_distill_v2_lora_rank64_bf16.safetensors,630697104,0,",
-        "controlnet,rife/rife49.pth,21345274,0,"
+        "controlnet,rife/flownet.pkl,24636301,0,https://www.modelscope.cn/models/windecay/rife/resolve/master/flownet.pkl"
     ]
 }
