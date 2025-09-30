@@ -125,7 +125,9 @@ def check_base_environment():
             pkg_path = os.path.abspath(os.path.join(root, 'nunchaku-1.0.0+torch2.7-cp310-cp310-win_amd64.whl'))
             print('check nunchaku...')
             has_update_whl = download_if_updated(pkg_url, pkg_path)
-            if has_update_whl:
+            is_version_ok = is_installed_version('nunchaku', '1.0.0+torch2.7')
+
+            if has_update_whl or not is_version_ok:
                 print(f'ready to install {pkg_path}')
                 run(f'"{python}" -m pip install -U {pkg_path}', f'Install {pkg_path}', live=True)
 
