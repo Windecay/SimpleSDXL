@@ -928,11 +928,11 @@ with shared.gradio_root:
                         image_number = gr.Slider(label='Image Number', minimum=1, maximum=modules.config.default_max_image_number, step=1, value=modules.config.default_image_number)
                         with gr.Accordion(label='Aspect Ratios', open=False, elem_id='aspect_ratios_accordion') as aspect_ratios_accordion:
                             aspect_ratios_selection = gr.Textbox(value='', visible=False) 
-                            # random_aspect_ratio_checkbox = gr.Checkbox(label='Random Aspect Ratio', value=False)
+                            random_aspect_ratio_checkbox = gr.Checkbox(label='Random Aspect Ratio', value=False)
                             aspect_ratios_selections = []
                             for template in flags.aspect_ratios_templates:
                                 aspect_ratios_selections.append(gr.Radio(label='aspect ratios', choices=flags.available_aspect_ratios_list[template], value=flags.default_aspect_ratios[template], visible= template=='SDXL', info='Vertical(9:16), Portrait(4:5), Photo(4:3), Landscape(3:2), Widescreen(16:9), Cinematic(21:9)', elem_classes='aspect_ratios'))
-                        
+
                             for aspect_ratios_select in aspect_ratios_selections:
                                 aspect_ratios_select.change(lambda x: x, inputs=aspect_ratios_select, outputs=aspect_ratios_selection, queue=False, show_progress=False).then(lambda x: None, inputs=aspect_ratios_select, queue=False, show_progress=False, _js='(x)=>{refresh_aspect_ratios_label(x);}')
                             overwrite_width = gr.Slider(label='Forced Overwrite of Generating Width',
@@ -941,16 +941,32 @@ with shared.gradio_root:
                                                          'Results will be worse for non-standard numbers that SDXL is not trained on.')
                             overwrite_height = gr.Slider(label='Forced Overwrite of Generating Height',
                                                      minimum=-1, maximum=2048, step=1, value=-1)
+
+                            def select_random_aspect_ratio(use_random, current_template='SDXL'):
+                                if use_random:
+                                    available_ratios = flags.available_aspect_ratios_list[current_template]
+                                    if available_ratios:
+                                        import random
+                                        selected_ratio = random.choice(available_ratios)
+                                        width_height = selected_ratio.split('×')[0]
+                                        width = int(width_height.split('|')[0] if '|' in width_height else width_height)
+                                        for ratio in flags.available_aspect_ratios[flags.aspect_ratios_templates.index(current_template)]:
+                                            if str(width) in ratio.split('*')[0]:
+                                                height = int(ratio.split('*')[1])
+                                                return [width, height, selected_ratio]
+                                return [gr.update(), gr.update(), gr.update()]
+
                             def overwrite_aspect_ratios(width, height):
                                 if width>0 and height>0:
                                     return flags.add_ratio(f'{width}*{height}')
                                 return gr.update()
                             overwrite_width.change(overwrite_aspect_ratios, inputs=[overwrite_width, overwrite_height], outputs=aspect_ratios_selection, queue=False, show_progress=False).then(lambda x: None, inputs=aspect_ratios_select, queue=False, show_progress=False, _js='(x)=>{refresh_aspect_ratios_label(x);}')
                             overwrite_height.change(overwrite_aspect_ratios, inputs=[overwrite_width, overwrite_height], outputs=aspect_ratios_selection, queue=False, show_progress=False).then(lambda x: None, inputs=aspect_ratios_select, queue=False, show_progress=False, _js='(x)=>{refresh_aspect_ratios_label(x);}')
+
                         output_format = gr.Radio(label='Output Format',
                                          choices=flags.OutputFormat.list(),
                                          value=modules.config.default_output_format)
-                       
+
                         negative_prompt = gr.Textbox(label='Negative Prompt', show_label=True, placeholder="Type prompt here.", lines=2,
                                              elem_id='negative_prompt', value=modules.config.default_prompt_negative)
                         seed_random = gr.Checkbox(label='Random', value=True)
@@ -1579,7 +1595,7 @@ with shared.gradio_root:
                                         minicpm_checkbox = gr.Checkbox(label='Enable MiniCPMv26', value=ads.get_admin_default('minicpm_checkbox'), info='Enable it for describe, translate and expand.')
                                         advanced_logs = gr.Checkbox(label='Enable advanced logs', value=ads.get_admin_default('advanced_logs'), info='Enabling with more infomation in logs.')
                                     with gr.Row(visible=True if not args_manager.args.disable_backend else False):
-                                        reserved_vram = gr.Slider(label='Reserved VRAM(GB)', minimum=0, maximum=6, step=0.1, value=ads.get_admin_default('reserved_vram'))
+                                        reserved_vram = gr.Slider(label='Reserved VRAM(GB)', minimum=0, maximum=24, step=0.1, value=ads.get_admin_default('reserved_vram'))
                                         wavespeed_strength = gr.Slider(label='wavespeed_strength', minimum=0, maximum=1, step=0.01, value=ads.get_admin_default('wavespeed_strength'))
                                     with gr.Row(visible=True if not args_manager.args.disable_backend else False):
                                         translation_methods = gr.Radio(label='Translation methods', choices=modules.flags.translation_methods, value=ads.get_admin_default('translation_methods'))
@@ -1891,6 +1907,7 @@ with shared.gradio_root:
         protections = [random_button, super_prompter, background_theme, image_tools_checkbox] + nav_bars
         generate_button.click(topbar.process_before_generation, inputs=[state_topbar, seed_random, image_seed, params_backend] + scene_params[:-2], outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating, index_radio, image_toolbox, prompt_info_box, image_seed] + protections + [preset_store, identity_dialog], show_progress=False) \
             .then(topbar.avoid_empty_prompt_for_scene, inputs=[prompt, state_topbar, scene_input_image1, scene_theme, scene_additional_prompt, scene_additional_prompt_2], outputs=prompt, show_progress=True) \
+            .then(lambda use_random: select_random_aspect_ratio(use_random), inputs=[random_aspect_ratio_checkbox], outputs=[overwrite_width, overwrite_height, aspect_ratios_selection]) \
             .then(fn=get_task, inputs=ctrls, outputs=currentTask) \
             .then(fn=generate_clicked, inputs=[currentTask, state_topbar], outputs=[progress_html, progress_window, progress_gallery, progress_video, gallery]) \
             .then(topbar.process_after_generation, inputs=state_topbar, outputs=[generate_button, stop_button, skip_button, state_is_generating, gallery_index, index_radio] + protections + [gallery_index_stat, history_link], show_progress=False) \
