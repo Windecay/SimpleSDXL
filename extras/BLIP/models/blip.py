@@ -127,47 +127,64 @@ class BLIP_Decoder(nn.Module):
         
     def generate(self, image, sample=False, num_beams=3, max_length=30, min_length=10, top_p=0.9, repetition_penalty=1.0):
         image_embeds = self.visual_encoder(image)
+        image_atts = torch.ones(image_embeds.size()[:-1], dtype=torch.long).to(image.device)
 
-        if not sample:
-            image_embeds = image_embeds.repeat_interleave(num_beams,dim=0)
-            
-        image_atts = torch.ones(image_embeds.size()[:-1],dtype=torch.long).to(image.device)
-        model_kwargs = {"encoder_hidden_states": image_embeds, "encoder_attention_mask":image_atts}
-        
         prompt = [self.prompt] * image.size(0)
-        input_ids = self.tokenizer(prompt, return_tensors="pt").input_ids.to(image.device) 
-        input_ids[:,0] = self.tokenizer.bos_token_id
-        input_ids = input_ids[:, :-1] 
+        input_ids = self.tokenizer(prompt, return_tensors="pt").input_ids.to(image.device)
+        input_ids[:, 0] = self.tokenizer.bos_token_id
+        input_ids = input_ids[:, :-1]
 
-        if sample:
-            #nucleus sampling
-            outputs = self.text_decoder.generate(input_ids=input_ids,
-                                                  max_length=max_length,
-                                                  min_length=min_length,
-                                                  do_sample=True,
-                                                  top_p=top_p,
-                                                  num_return_sequences=1,
-                                                  eos_token_id=self.tokenizer.sep_token_id,
-                                                  pad_token_id=self.tokenizer.pad_token_id, 
-                                                  repetition_penalty=1.1,                                            
-                                                  **model_kwargs)
-        else:
-            #beam search
-            outputs = self.text_decoder.generate(input_ids=input_ids,
-                                                  max_length=max_length,
-                                                  min_length=min_length,
-                                                  num_beams=num_beams,
-                                                  eos_token_id=self.tokenizer.sep_token_id,
-                                                  pad_token_id=self.tokenizer.pad_token_id,     
-                                                  repetition_penalty=repetition_penalty,
-                                                  **model_kwargs)            
+        batch_size = input_ids.shape[0]
+        generated = input_ids
+
+        for _ in range(max_length - input_ids.shape[1]):
+            outputs = self.text_decoder(
+                input_ids=generated,
+                encoder_hidden_states=image_embeds,
+                encoder_attention_mask=image_atts,
+                return_dict=True
+            )
+            next_token_logits = outputs.logits[:, -1, :]
+
+            if repetition_penalty > 1:
+                for b in range(batch_size):
+                    for token_id in set(generated[b].tolist()):
+                        if next_token_logits[b, token_id] < 0:
+                            next_token_logits[b, token_id] *= repetition_penalty
+                        else:
+                            next_token_logits[b, token_id] /= repetition_penalty
+
+            if sample:
+                next_token_logits = self._top_p_sampling(next_token_logits, top_p)
+                probs = nn.functional.softmax(next_token_logits, dim=-1)
+                next_tokens = torch.multinomial(probs, num_samples=1)
+            else:
+                next_tokens = torch.argmax(next_token_logits, dim=-1).unsqueeze(-1)
+
+            generated = torch.cat([generated, next_tokens], dim=1)
             
-        captions = []    
-        for output in outputs:
-            caption = self.tokenizer.decode(output, skip_special_tokens=True)    
+            if (next_tokens == self.tokenizer.sep_token_id).any():
+                break
+
+        captions = []
+        for output in generated:
+            caption = self.tokenizer.decode(output, skip_special_tokens=True)
             captions.append(caption[len(self.prompt):])
+
         return captions
-    
+
+    def _top_p_sampling(self, logits, top_p):
+        sorted_logits, sorted_indices = torch.sort(logits, descending=True)
+        cumulative_probs = torch.cumsum(nn.functional.softmax(sorted_logits, dim=-1), dim=-1)
+
+        sorted_indices_to_remove = cumulative_probs > top_p
+        sorted_indices_to_remove[..., 1:] = sorted_indices_to_remove[..., :-1].clone()
+        sorted_indices_to_remove[..., 0] = 0
+
+        indices_to_remove = sorted_indices[sorted_indices_to_remove]
+        logits[:, indices_to_remove] = -float("inf")
+
+        return logits
 
 def blip_decoder(pretrained='',**kwargs):
     model = BLIP_Decoder(**kwargs)
