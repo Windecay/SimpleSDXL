@@ -323,7 +323,7 @@ def init_nav_bars(state_params, comfyd_active_checkbox, fast_comfyd_checkbox, re
     if "__preset" not in state_params.keys():
         state_params.update({"__preset": config.preset})
     if "__is_mobile" not in state_params.keys():
-        state_params.update({"__is_mobile": True if user_agent.find("Mobile")>0 and user_agent.find("AppleWebKit")>0 else False})
+        state_params.update({"__is_mobile": False if user_agent.find("Mobile")>0 and user_agent.find("AppleWebKit")>0 else False})
     if "__webpath" not in state_params.keys():
         state_params.update({"__webpath": f'{args_manager.args.webroot}/file={os.getcwd()}'})
     if "__max_per_page" not in state_params.keys():

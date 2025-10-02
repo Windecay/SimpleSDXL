@@ -476,10 +476,10 @@ with shared.gradio_root:
                         default_prompt = modules.config.default_prompt
                         if isinstance(default_prompt, str) and default_prompt != '':
                             shared.gradio_root.load(lambda: default_prompt, outputs=prompt)
-                    with gr.Column(scale=2, min_width=0) as prompt_internal_panel:
+                    with gr.Column(scale=2, min_width=40) as prompt_internal_panel:
                         random_button = gr.Button(value="RandomPrompt", elem_classes='type_row_half', size="sm", min_width = 70)
                         super_prompter = gr.Button(value="SuperPrompt", interactive=False, elem_classes='type_row_half', size="sm", min_width = 70)
-                    with gr.Column(scale=2, min_width=0):
+                    with gr.Column(scale=2, min_width=40):
                         generate_button = gr.Button(label="Generate", value="Generate", elem_classes='type_row', elem_id='generate_button', visible=True, min_width = 70)
                         load_parameter_button = gr.Button(label="Load Parameters", value="Load Parameters", elem_classes='type_row', elem_id='load_parameter_button', visible=False, min_width = 70)
                         skip_button = gr.Button(label="Skip", value="Skip", elem_classes='type_row_half', elem_id='skip_button', visible=False, min_width = 70)
