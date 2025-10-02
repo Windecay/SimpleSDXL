@@ -292,7 +292,7 @@ def print_instructions():
     time.sleep(0.1)
     print(f"{Fore.GREEN}★{Style.RESET_ALL}打开默认浏览器设置，关闭GPU加速、或图形加速的选项。{Fore.GREEN}★{Style.RESET_ALL}大内存(64+)与固态硬盘存放模型有助于减少模型加载时间。{Fore.GREEN}★{Style.RESET_ALL}")
     time.sleep(0.1)
-    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：938075852{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:25.09.13{Fore.GREEN}★{Style.RESET_ALL}")
+    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：938075852{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:25.10.03{Fore.GREEN}★{Style.RESET_ALL}")
     print()
     time.sleep(0.1)
     
@@ -1179,22 +1179,31 @@ def filter_packages_by_gpu_arch(packages):
     - 当sm120时，只显示带fp4的package和其他无标识package
     - 当不等于sm120且高于10系显卡时，只显示带int4的package和其他无标识package
     - 对于10系及以下显卡，只显示无标识package
+    - 当GPU小于等于20系时，不显示"[31]双截棍fp4-QwenEdit+图像编辑"和"[30]双截棍int4-QwenEdit+图像编辑"
     """
     # 获取GPU架构
     gpu_arch = get_gpu_arch_str()
     filtered_packages = {}
 
     is_legacy_gpu = False
+    is_20_series_or_lower = False
     if gpu_arch.startswith('sm'):
         try:
             arch_number = int(gpu_arch[2:])
             # 计算能力<=61的视为10系及以下显卡
             is_legacy_gpu = arch_number <= 61
+            # 计算能力<=75的视为20系及以下显卡（RTX 20系列计算能力为7.5）
+            is_20_series_or_lower = arch_number <= 75
         except ValueError:
             pass
 
     for package_key, package_info in packages.items():
         package_name = package_info["name"]
+
+        # 当GPU小于等于20系时，不显示这两个特定的package
+        if is_20_series_or_lower:
+            if package_name == "[31]双截棍fp4-QwenEdit+图像编辑" or package_name == "[30]双截棍int4-QwenEdit+图像编辑":
+                continue
 
         has_int4 = 'int4' in package_name.lower()
         has_fp4 = 'fp4' in package_name.lower()
@@ -1449,7 +1458,6 @@ packages = {
         "id": 6,
         "name": "[6]MiniCPMv26反推扩展包",
         "note": "本地多模态大语言模型[反推、翻译、扩写]|显存需求：★★ 速度：★★",
-
         "files": [
             ("llms/MiniCPMv2_6-prompt-generator/.gitattributes", 1657),
             ("llms/MiniCPMv2_6-prompt-generator/.mdl", 49),
@@ -1599,7 +1607,7 @@ packages = {
         "eraser-a_package": {
         "id": 12,
         "name": "[12]一键消除",
-        "note": "一键消除-默认模型[FluxQ5/Fill_Q4]|显存需求：★★ 速度：★★☆",
+        "note": "一键消除-默认模型[Flux1-fill-dev-OneReward]|显存需求：★★ 速度：★★☆",
         "files": [
             ("checkpoints/flux1-fill-dev-OneReward_fp8.safetensors", 11902532704),
             ("clip/clip_l.safetensors", 246144152),
@@ -1614,7 +1622,7 @@ packages = {
         "Illustrious_package": {
         "id": 13,
         "name": "[13]光辉模型包",
-        "note": "支持NoobAI/光辉文生图-默认模型[miaomiaoV15b]|显存需求：★★ 速度：★★★☆",
+        "note": "支持NoobAI/光辉文生图-默认模型[miaomiaoV1.5b]|显存需求：★★ 速度：★★★☆",
         "files": [
             ("checkpoints/miaomiaoHarem_v15b.safetensors", 6938043202)
         ],
@@ -1623,7 +1631,7 @@ packages = {
         "Illustrious_aio_package": {
         "id": 14,
         "name": "[14]光辉AIO扩展包",
-        "note": "NoobAI/光辉全功能-默认模型[miaomiaoV15b]|显存需求：★★★ 速度：★★★",
+        "note": "NoobAI/光辉全功能-默认模型[miaomiaoV1.5b]|显存需求：★★★ 速度：★★★",
         "files": [
             ("checkpoints/miaomiaoHarem_v15b.safetensors", 6938043202),
             ("ipadapter/noob_ip_adapter.bin", 1396798350),
@@ -1809,7 +1817,7 @@ packages = {
     "qwen_image_package": {
         "id": 23,
         "name": "[23]Qwen-Image文生图扩展包",
-        "note": "千问大模型文生图扩展包|显存需求：★★★★★ 速度：★",
+        "note": "千问Image大模型文生图扩展包|显存需求：★★★★★ 速度：★",
         "files": [
             ("checkpoints/qwen-image-Q4_K_M.gguf", 13065746976),
             ("loras/Qwen-Image-Lightning-8steps-V1.1-bf16.safetensors", 849608296),
@@ -1824,7 +1832,7 @@ packages = {
     "wan_i2v_package": {
         "id": 24,
         "name": "[24]Wan2.2图生视频扩展包",
-        "note": "Wan2.2图生图扩展包|显存需求：★★★★ 速度：★",
+        "note": "通义万相2.2图生图扩展包|显存需求：★★★★ 速度：★",
         "files": [
             ("checkpoints/Wan2.2-I2V-A14B-HighNoise-Q4_K_M.gguf", 9651728896),
             ("checkpoints/Wan2.2-I2V-A14B-LowNoise-Q4_K_M.gguf", 9651728896),
@@ -1843,7 +1851,7 @@ packages = {
     "wan_t2v_package": {
         "id": 25,
         "name": "[25]Wan2.2文生视频扩展包",
-        "note": "Wan2.2文生视频扩展包|显存需求：★★★★ 速度：★",
+        "note": "通义万相2.2文生视频扩展包|显存需求：★★★★ 速度：★",
         "files": [
             ("checkpoints/Wan2.2_T2V_High_Noise_14B_VACE-Q4_K_M.gguf", 11629612832),
             ("checkpoints/Wan2.2_T2V_Low_Noise_14B_VACE-Q4_K_M.gguf", 11629612832),
@@ -1861,7 +1869,7 @@ packages = {
     "onekey_kontext_package": {
         "id": 26,
         "name": "[26]OneKeyKontext一键精修预置包",
-        "note": "基于Kontext的一键精修|显存需求：★★★★ 速度：★★",
+        "note": "基于Flux_Kontext的一键精修|显存需求：★★★★ 速度：★★☆",
         "files": [
             ("checkpoints/flux1-dev-kontext_fp8_scaled.safetensors", 11904640136),
             ("clip/clip_l.safetensors", 246144152),
@@ -1909,7 +1917,7 @@ packages = {
     "qwen_aio_package": {
         "id":28,
         "name": "[28]Qwen全功能预置包",
-        "note": "QwenImage全功能包|显存需求：★★★★★ 速度:★★",
+        "note": "QwenImage全功能预置包|显存需求：★★★★ 速度:★★",
         "files": [
             ("checkpoints/qwen-image-Q4_K_M.gguf", 13065746976),
             ("controlnet/Qwen-Image-InstantX-ControlNet-Union.safetensors", 3536027816),
@@ -1928,7 +1936,7 @@ packages = {
     "qwen_image_edit_plus_package": {
         "id":29,
         "name": "[29]QwenPlus图像编辑预置包",
-        "note": "Qwen_Image_EditPlus指令编辑图像|显存需求：★★★★ 速度:★★",
+        "note": "Qwen_Image_EditPlus指令编辑图像|显存需求：★★★★★ 速度:★☆",
         "files": [
             ("checkpoints/https://www.modelscope.cn/models/Comfy-Org/Qwen-Image-Edit_ComfyUI/resolve/master/split_files/diffusion_models/qwen_image_edit_2509_fp8_e4m3fn.safetensors", 20430698424),
             ("loras/Qwen-Image-Edit-Lightning-8steps-V1.0-bf16.safetensors", 849608296),
@@ -1940,8 +1948,8 @@ packages = {
     },
         "nun_int4_qwen_image_edit_plus_package": {
         "id":30,
-        "name": "[30]双截棍int4-QwenPlus图像编辑",
-        "note": "Qwen_Image_EditPlus指令编辑图像|显存需求：★★★★ 速度:★★",
+        "name": "[30]双截棍int4-QwenEdit+图像编辑",
+        "note": "Qwen_Image_EditPlus指令编辑图像|显存需求：★★★★ 速度:★★★",
         "files": [
             ("checkpoints/https://www.modelscope.cn/models/nunchaku-tech/nunchaku-qwen-image-edit-2509/resolve/master/svdq-int4_r128-qwen-image-edit-2509-lightningv2.0-4steps.safetensors", 12654443144),
             ("clip/qwen_2.5_vl_7b_fp8_scaled.safetensors", 9384670680),
@@ -1951,8 +1959,8 @@ packages = {
     },
         "nun_fp4_qwen_image_edit_plus_package": {
         "id":31,
-        "name": "[31]双截棍fp4-QwenPlus图像编辑",
-        "note": "Qwen_Image_EditPlus指令编辑图像|显存需求：★★★★ 速度:★★",
+        "name": "[31]双截棍fp4-QwenEdit+图像编辑",
+        "note": "Qwen_Image_EditPlus指令编辑图像|显存需求：★★★★ 速度:★★★",
         "files": [
             ("checkpoints/https://www.modelscope.cn/models/nunchaku-tech/nunchaku-qwen-image-edit-2509/resolve/master/svdq-fp4_r128-qwen-image-edit-2509-lightningv2.0-4steps.safetensors", 13081386856),
             ("clip/qwen_2.5_vl_7b_fp8_scaled.safetensors", 9384670680),
@@ -2083,7 +2091,7 @@ if __name__ == "__main__":
         print(f">>>输入【{Fore.YELLOW}R{Style.RESET_ALL}】+【{Fore.YELLOW}回车{Style.RESET_ALL}】-----------------------重新检测<<<     备注：再玩一遍，玩不腻")
         print(f">>>输入【{Fore.YELLOW}S{Style.RESET_ALL}】+【{Fore.YELLOW}回车{Style.RESET_ALL}】-----------------下载模型预览图<<<     备注：只下载checkpoints和lora预览图")
         print(f">>>输入【{Fore.YELLOW}H{Style.RESET_ALL}】+【{Fore.YELLOW}回车{Style.RESET_ALL}】--------切换下载源到Huggingface<<<     备注：当前使用源：{current_source}")
-        print(f">>>输入【{Fore.YELLOW}M{Style.RESET_ALL}】+【{Fore.YELLOW}回车{Style.RESET_ALL}】--------切换下载源到ModelScope<<<<      备注：当前使用源：{current_source}")
+        print(f">>>输入【{Fore.YELLOW}M{Style.RESET_ALL}】+【{Fore.YELLOW}回车{Style.RESET_ALL}】--------切换下载源到ModelScope<<<<     备注：当前使用源：{current_source}")
         user_input = input("请选择操作(不需要括号):")
 
         if user_input == "":

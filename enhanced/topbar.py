@@ -47,17 +47,74 @@ else:
     config_ext.update({'fooocus_line': '# 2.1.852', 'simplesdxl_line': '# 2023-12-20'})
 
 def preset_filter(presets):
-    is_list = isinstance(presets[0], list)
-    if shared.gpu_arch:
-        if is_list:
-            presets = [p[0] for p in presets]
-        results = [p.split('_')[0] for p in presets]
-        results = list(dict.fromkeys(results))
-        if is_list:
-            results = [[p] for p in results]
-    else:
-        results = [p for p in presets]
-    return results
+    if not shared.gpu_arch:
+        return presets
+
+    try:
+        compute_capability = int(shared.gpu_arch[2:])
+        # 定义不同显卡系列的判断条件
+        is_10_series_or_lower = compute_capability <= 61  # 10系列及以下
+        is_20_series_or_lower = compute_capability <= 75  # 20系列及以下
+
+        # 创建过滤后的预设列表
+        filtered_presets = []
+        seen_presets = set()
+        for preset_item in presets:
+            # 标记是否应该被过滤
+            should_filter = False
+
+            # 获取预设名称字符串用于判断
+            if isinstance(preset_item, list) and len(preset_item) > 0:
+                preset_name = str(preset_item[0])
+            else:
+                # 处理普通字符串预设
+                preset_name = str(preset_item)
+
+            # 10系列及以下显卡过滤规则
+            if is_10_series_or_lower:
+                if 'fp4' in preset_name.lower() or 'int4' in preset_name.lower() or 'nun' in preset_name.lower():
+                    should_filter = True
+
+            elif is_20_series_or_lower:
+                if ('NunQwen-Edit+' in preset_name) or ('fp4' in preset_name.lower()):
+                    should_filter = True
+            # 如果提供了user_did，过滤掉模型不全的预设
+            if is_models_file_absent(preset_name, ""):
+                should_filter = True
+            if not should_filter:
+                # 处理预设名称，去掉 _fp4 或 _int4 后缀
+                if isinstance(preset_item, list) and len(preset_item) > 0:
+                    original_name = str(preset_item[0])
+                    # 检查并去掉 _fp4 或 _int4 后缀
+                    if original_name.endswith('_fp4'):
+                        modified_name = original_name[:-4]
+                    elif original_name.endswith('_int4'):
+                        modified_name = original_name[:-5]
+                    else:
+                        modified_name = original_name
+                    if modified_name not in seen_presets:
+                        seen_presets.add(modified_name)
+                        modified_preset = [modified_name] + preset_item[1:]
+                        filtered_presets.append(modified_preset)
+                else:
+                    # 处理普通字符串形式的预设
+                    original_name = str(preset_item)
+                    # 检查并去掉 _fp4 或 _int4 后缀
+                    if original_name.endswith('_fp4'):
+                        modified_name = original_name[:-4]
+                    elif original_name.endswith('_int4'):
+                        modified_name = original_name[:-5]
+                    else:
+                        modified_name = original_name
+                    # 检查是否已经添加过相同名称的预设
+                    if modified_name not in seen_presets:
+                        seen_presets.add(modified_name)
+                        filtered_presets.append(modified_name)
+        return filtered_presets
+
+    except Exception as e:
+        print(f"预置包过滤过程中出现错误: {str(e)}")
+        return presets
 
 def get_preset_name_list(user_session, ua_hash):
     presets_list = shared.token.get_local_vars("user_presets", "", user_session, ua_hash)
@@ -305,7 +362,14 @@ def get_preset_inc_url(preset_name='blank'):
         return f'{args_manager.args.webroot}/file={blank_inc_path}'
 
 def refresh_nav_bars(state_params):
-    preset_name_list = get_preset_name_list(state_params["__session"], state_params["ua_hash"]).split(',')
+    # 安全获取__session和ua_hash，如果不存在则提供默认值
+    user_session = state_params.get("__session", "")
+    ua_hash = state_params.get("ua_hash", "")
+    preset_name_list = get_preset_name_list(user_session, ua_hash).split(',')
+    # 首先获取过滤后的预设列表
+    filtered_presets = preset_filter(preset_name_list)
+    # 然后创建一个仅包含过滤后预设的新列表
+    preset_name_list = [preset for preset in preset_name_list if preset in filtered_presets]
     user_did = state_params["user"].get_did()
     path_preset = os.path.abspath(f'./presets/')
     user_path_preset = get_path_in_user_dir('presets', user_did)
@@ -342,7 +406,6 @@ def refresh_nav_bars(state_params):
         else: 
             results += [gr.update(value='', interactive=False, visible=visible_flag)]
     return results
-
 
 def avoid_empty_prompt_for_scene(prompt, state, img, scene_theme, additional_prompt, additional_prompt_2):
     describe_prompt = None
@@ -679,10 +742,19 @@ def admin_sync_to_guest(state, catalog='presets'):
 
 
 def update_topbar_js_params(state):
+    # 获取原始预设列表
+    nav_name_list = get_preset_name_list(state["__session"], state["ua_hash"])
+    # 对预设列表进行过滤，确保与UI显示的预设一致
+    preset_name_list = nav_name_list.split(',')
+    filtered_presets = preset_filter(preset_name_list)
+    # 创建一个仅包含过滤后预设的新列表
+    filtered_preset_name_list = [preset for preset in preset_name_list if preset in filtered_presets]
+    filtered_nav_name_list_str = ','.join(filtered_preset_name_list)
+
     system_params= dict(
         __preset=state["__preset"],
         __theme=state["__theme"],
-        __nav_name_list=get_preset_name_list(state["__session"], state["ua_hash"]),
+        __nav_name_list=filtered_nav_name_list_str,  # 使用过滤后的预设列表
         sstoken=state["sstoken"],
         user_name=state["user"].get_nickname(),
         user_did=state["user"].get_did(),
