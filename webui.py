@@ -1516,6 +1516,8 @@ with shared.gradio_root:
                                                                          value=modules.config.default_save_only_final_enhanced_image)
                             read_wildcards_in_order = gr.Checkbox(label="Read wildcards in order", value=False, visible=False)
                             no_welcome_checkbox = gr.Checkbox(label="Hide welcome picture", value=False)
+                            missing_model_filter_checkbox = gr.Checkbox(label="Missing model filter", value=False, info="Filtering presets with missing models")
+
                         with gr.Group():
                             image_tools_checkbox = gr.Checkbox(label='Enable ParamsTools', value=True, info='Management of published image sets, located in the middle toolbox on the right side of the image set.')
                             generate_image_grid = gr.Checkbox(label='Generate Image Grid for Each Batch',
@@ -1579,6 +1581,13 @@ with shared.gradio_root:
                         inputs=[no_welcome_checkbox],
                         outputs=progress_window
                     )
+                    missing_model_filter_checkbox.change(
+                        lambda x,y: ads.set_admin_default_value("missing_model_filter_checkbox", x, y),
+                        inputs=[missing_model_filter_checkbox, state_topbar],
+                        outputs=None,
+                        queue=False
+                    )
+
                     with gr.Tab(label='Local System'):
                         with gr.Column() as admin_panel:
                             with gr.Group():
@@ -1684,7 +1693,7 @@ with shared.gradio_root:
                 wavespeed_strength.change(lambda x,y: ads.set_admin_default_value('wavespeed_strength',x,y), inputs=[wavespeed_strength, state_topbar])
                 admin_sync_button.click(topbar.admin_sync_to_guest, inputs=[state_topbar], outputs=admin_sync_button, queue=False, show_progress=False)
 
-                admin_ctrls = [comfyd_active_checkbox, fast_comfyd_checkbox, reserved_vram, minicpm_checkbox, advanced_logs, wavespeed_strength, translation_methods, p2p_active_checkbox, p2p_remote_process, p2p_in_did_list, p2p_out_did_list, no_welcome_checkbox]
+                admin_ctrls = [comfyd_active_checkbox, fast_comfyd_checkbox, reserved_vram, minicpm_checkbox, advanced_logs, wavespeed_strength, translation_methods, p2p_active_checkbox, p2p_remote_process, p2p_in_did_list, p2p_out_did_list, no_welcome_checkbox, missing_model_filter_checkbox]
                 user_app_ctrls = [backfill_prompt, image_tools_checkbox, disable_preview, disable_intermediate_results, disable_seed_increment, save_final_enhanced_image_only, style_preview_checkbox]
 
 
