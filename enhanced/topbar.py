@@ -59,6 +59,10 @@ def preset_filter(presets):
         # 创建过滤后的预设列表
         filtered_presets = []
         seen_presets = set()
+ 
+        # 获取是否跳过模型缺失过滤的设置
+        missing_model_filter = ads.get_admin_default('missing_model_filter_checkbox')
+
         for preset_item in presets:
             # 标记是否应该被过滤
             should_filter = False
@@ -81,8 +85,9 @@ def preset_filter(presets):
                 if ('NunQwen-Edit+' in preset_name) or ('fp4' in preset_name.lower()):
                     should_filter = True
                     filter_reason = "20 Series GPU incompatible (NunQwen-Edit+)"
-            # 如果提供了user_did，过滤掉模型不全的预设
-            if not should_filter and is_models_file_absent(preset_name, None):
+
+            # 只有当启用模型缺失过滤选项时，才检查模型是否缺失
+            if not should_filter and missing_model_filter and is_models_file_absent(preset_name, None):
                 should_filter = True
                 filter_reason = "Missing Model"
 
@@ -280,10 +285,10 @@ function(system_params) {
 }
 '''
 
-def init_nav_bars(state_params, comfyd_active_checkbox, fast_comfyd_checkbox, reserved_vram, minicpm_checkbox, advanced_logs, wavespeed_strength, translation_methods, p2p_active_checkbox, p2p_remote_process, p2p_in_did_list, p2p_out_did_list, no_welcome_checkbox, request: gr.Request):
+def init_nav_bars(state_params, comfyd_active_checkbox, fast_comfyd_checkbox, reserved_vram, minicpm_checkbox, advanced_logs, wavespeed_strength, translation_methods, p2p_active_checkbox, p2p_remote_process, p2p_in_did_list, p2p_out_did_list, no_welcome_checkbox, missing_model_filter_checkbox, request: gr.Request):
     #logger.info(f'request.headers:{request.headers}')
     #logger.info(f'request.client:{request.client}')
-    admin_currunt_value = [comfyd_active_checkbox, fast_comfyd_checkbox, reserved_vram, minicpm_checkbox, advanced_logs, wavespeed_strength, translation_methods, p2p_active_checkbox, p2p_remote_process, p2p_in_did_list, p2p_out_did_list, no_welcome_checkbox]
+    admin_currunt_value = [comfyd_active_checkbox, fast_comfyd_checkbox, reserved_vram, minicpm_checkbox, advanced_logs, wavespeed_strength, translation_methods, p2p_active_checkbox, p2p_remote_process, p2p_in_did_list, p2p_out_did_list, no_welcome_checkbox, missing_model_filter_checkbox]
     #logger.info(f'admin_currunt_value: {admin_currunt_value}')
 
     user_agent = request.headers["user-agent"]
@@ -778,7 +783,8 @@ def update_topbar_js_params(state):
         __finished_nums_pages=state["__finished_nums_pages"],
         user_qr="" if 'user_qr' not in state else state.pop("user_qr"),
         engine_type=state['engine_type'],
-        no_welcome_image=ads.get_admin_default("no_welcome_checkbox")
+        no_welcome_image=ads.get_admin_default("no_welcome_checkbox"),
+        missing_model_filter=ads.get_admin_default("missing_model_filter_checkbox")
         )
     return [system_params]
 
@@ -929,18 +935,18 @@ def get_all_user_default(state):
     return results
 
 def get_all_admin_default(currunt_value):
-    admin_keys = ['comfyd_active_checkbox', 'fast_comfyd_checkbox', 'reserved_vram', 'minicpm_checkbox', 'advanced_logs', 'wavespeed_strength', 'translation_methods', 'p2p_active_checkbox', "p2p_remote_process", "p2p_in_did_list", "p2p_out_did_list", "no_welcome_checkbox"]
+    admin_keys = ['comfyd_active_checkbox', 'fast_comfyd_checkbox', 'reserved_vram', 'minicpm_checkbox', 'advanced_logs', 'wavespeed_strength', 'translation_methods', 'p2p_active_checkbox', "p2p_remote_process", "p2p_in_did_list", "p2p_out_did_list", "no_welcome_checkbox", "missing_model_filter_checkbox"]
     result = []
     for i, admin_key in enumerate(admin_keys):
         admin_value = ads.get_admin_default(admin_key)
 
-        if admin_key == 'no_welcome_checkbox':
-            if isinstance(admin_value, str):
-                processed_value = admin_value.lower() == 'true'
-            else:
-                processed_value = bool(admin_value)
-            result.append(gr.update(value=processed_value, interactive=True))
-            continue
+        # if admin_key == 'no_welcome_checkbox':
+        #     if isinstance(admin_value, str):
+        #         processed_value = admin_value.lower() == 'true'
+        #     else:
+        #         processed_value = bool(admin_value)
+        #     result.append(gr.update(value=processed_value, interactive=True))
+        #     continue
         if admin_value == 'None':
             result.append(gr.update(interactive=False))
             continue
