@@ -164,7 +164,7 @@ class RIFEInterpolation:
         # Look for model in multiple locations
         model_paths = [
             os.path.join(os.path.dirname(__file__), "rife", "train_log", model_name),
-            os.path.join(os.path.dirname(__file__), "models", model_name),
+            os.path.join(folder_paths.models_dir, "controlnet", "rife", model_name),
         ]
 
         # Add ComfyUI model directory if available
@@ -182,7 +182,7 @@ class RIFEInterpolation:
             print(f"RIFE model '{model_name}' not found. Attempting to download...")
 
             # Default download location
-            download_target = os.path.join(os.path.dirname(__file__), "rife", "train_log")
+            download_target = os.path.join(folder_paths.models_dir, "controlnet", "rife")
 
             try:
                 # Run the download script
