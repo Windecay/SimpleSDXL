@@ -62,6 +62,7 @@ def preset_filter(presets):
         for preset_item in presets:
             # 标记是否应该被过滤
             should_filter = False
+            filter_reason = ""
 
             # 获取预设名称字符串用于判断
             if isinstance(preset_item, list) and len(preset_item) > 0:
@@ -74,13 +75,21 @@ def preset_filter(presets):
             if is_10_series_or_lower:
                 if 'fp4' in preset_name.lower() or 'int4' in preset_name.lower() or 'nun' in preset_name.lower():
                     should_filter = True
+                    filter_reason = "10 Series GPU incompatible (Nunchaku)"
 
             elif is_20_series_or_lower:
                 if ('NunQwen-Edit+' in preset_name) or ('fp4' in preset_name.lower()):
                     should_filter = True
+                    filter_reason = "20 Series GPU incompatible (NunQwen-Edit+)"
             # 如果提供了user_did，过滤掉模型不全的预设
-            if is_models_file_absent(preset_name, ""):
+            if not should_filter and is_models_file_absent(preset_name, None):
                 should_filter = True
+                filter_reason = "Missing Model"
+
+            # 记录被过滤的预置包和原因
+            if should_filter:
+                logger.info(f"[Preset Filter] Disvisible: {preset_name}, Reason: {filter_reason}")
+
             if not should_filter:
                 # 处理预设名称，去掉 _fp4 或 _int4 后缀
                 if isinstance(preset_item, list) and len(preset_item) > 0:
@@ -113,7 +122,7 @@ def preset_filter(presets):
         return filtered_presets
 
     except Exception as e:
-        print(f"预置包过滤过程中出现错误: {str(e)}")
+        logger.info(f"预置包过滤过程中出现错误: {str(e)}")
         return presets
 
 def get_preset_name_list(user_session, ua_hash):
