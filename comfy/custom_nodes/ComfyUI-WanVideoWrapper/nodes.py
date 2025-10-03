@@ -1868,6 +1868,51 @@ class WanVideoScheduler: #WIP
                 pass
 
         return (sigmas, steps, shift, scheduler_dict, start_step, end_step)
+    
+class WanVideoSchedulerSA_ODE:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": {
+                "use_adaptive_order": ("BOOLEAN", {"default": False, "tooltip": "Use adaptive order"}),
+                "use_velocity_smoothing": ("BOOLEAN", {"default": True, "tooltip": "Use velocity smoothing"}),
+                "convergence_threshold": ("FLOAT", {"default": 0.15, "min": 0.0, "max": 1.0, "step": 0.001, "tooltip": "Convergence threshold for velocity smoothing"}),
+                "smoothing_factor": ("FLOAT", {"default": 0.8, "min": 0.0, "max": 1.0, "step": 0.001, "tooltip": "Smoothing factor for velocity smoothing"}),
+                "steps": ("INT", {"default": 30, "min": 1, "tooltip": "Number of steps for the scheduler"}),
+                "shift": ("FLOAT", {"default": 5.0, "min": 0.0, "max": 1000.0, "step": 0.01}),
+                "start_step": ("INT", {"default": 0, "min": 0, "tooltip": "Starting step for the scheduler"}),
+                "end_step": ("INT", {"default": -1, "min": -1, "tooltip": "Ending step for the scheduler"})
+            },
+            "optional": {
+                "sigmas": ("SIGMAS", ),
+            },
+        }
+
+    RETURN_TYPES = ("SIGMAS", "INT", "FLOAT", scheduler_list, "INT", "INT",)
+    RETURN_NAMES = ("sigmas", "steps", "shift", "scheduler", "start_step", "end_step")
+    FUNCTION = "process"
+    CATEGORY = "WanVideoWrapper"
+    EXPERIMENTAL = True
+
+    def process(self, steps, start_step, end_step, shift, use_adaptive_order, use_velocity_smoothing, convergence_threshold, smoothing_factor, sigmas=None):
+        sample_scheduler, timesteps, _, _ = get_scheduler(
+            scheduler="sa_ode_stable/lowstep", 
+            steps=steps, 
+            start_step=start_step, end_step=end_step, shift=shift, 
+            device=device, 
+            sigmas=sigmas,
+            log_timesteps=True,
+            use_adaptive_order=use_adaptive_order,
+            use_velocity_smoothing=use_velocity_smoothing,
+            convergence_threshold=convergence_threshold,
+            smoothing_factor=smoothing_factor
+            )
+        
+        scheduler_dict = {
+            "sample_scheduler": sample_scheduler,
+            "timesteps": timesteps,
+        }
+
+        return (sigmas, steps, shift, scheduler_dict, start_step, end_step)
 
 rope_functions = ["default", "comfy", "comfy_chunked"]
 class WanVideoRoPEFunction:
@@ -2146,6 +2191,7 @@ NODE_CLASS_MAPPINGS = {
     "WanVideoAddPusaNoise": WanVideoAddPusaNoise,
     "WanVideoAnimateEmbeds": WanVideoAnimateEmbeds,
     "WanVideoAddLucyEditLatents": WanVideoAddLucyEditLatents,
+    "WanVideoSchedulerSA_ODE": WanVideoSchedulerSA_ODE,
     }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -2184,4 +2230,5 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "WanVideoAddPusaNoise": "WanVideo Add Pusa Noise",
     "WanVideoAnimateEmbeds": "WanVideo Animate Embeds",
     "WanVideoAddLucyEditLatents": "WanVideo Add LucyEdit Latents",
+    "WanVideoSchedulerSA_ODE": "WanVideo Scheduler SA-ODE",
 }

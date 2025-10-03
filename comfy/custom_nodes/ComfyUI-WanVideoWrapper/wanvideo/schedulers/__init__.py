@@ -5,8 +5,14 @@ from .basic_flowmatch import FlowMatchScheduler
 from .flowmatch_pusa import FlowMatchSchedulerPusa
 from .flowmatch_res_multistep import FlowMatchSchedulerResMultistep
 from .scheduling_flow_match_lcm import FlowMatchLCMScheduler
-from diffusers.schedulers import FlowMatchEulerDiscreteScheduler, DEISMultistepScheduler
+from .fm_sa_ode import FlowMatchSAODEStableScheduler
 from ...utils import log
+
+try:
+    from diffusers.schedulers import FlowMatchEulerDiscreteScheduler, DEISMultistepScheduler
+except ImportError:
+    FlowMatchEulerDiscreteScheduler = None
+    DEISMultistepScheduler = None
 
 scheduler_list = [
     "unipc", "unipc/beta",
@@ -19,10 +25,11 @@ scheduler_list = [
     "flowmatch_causvid",
     "flowmatch_distill",
     "flowmatch_pusa",
-    "multitalk"
+    "multitalk",
+    "sa_ode_stable"
 ]
 
-def get_scheduler(scheduler, steps, start_step, end_step, shift, device, transformer_dim=5120, flowedit_args=None, denoise_strength=1.0, sigmas=None, log_timesteps=False):
+def get_scheduler(scheduler, steps, start_step, end_step, shift, device, transformer_dim=5120, flowedit_args=None, denoise_strength=1.0, sigmas=None, log_timesteps=False, **kwargs):
     timesteps = None
     if 'unipc' in scheduler:
         sample_scheduler = FlowUniPCMultistepScheduler(shift=shift)
@@ -77,15 +84,15 @@ def get_scheduler(scheduler, steps, start_step, end_step, shift, device, transfo
             shift=shift, sigma_min=0.0, extra_one_step=True
         )
         sample_scheduler.set_timesteps(1000, training=True)
-    
+
         denoising_step_list = torch.tensor([999, 750, 500, 250] , dtype=torch.long)
         temp_timesteps = torch.cat((sample_scheduler.timesteps.cpu(), torch.tensor([0], dtype=torch.float32)))
         denoising_step_list = temp_timesteps[1000 - denoising_step_list]
         #print("denoising_step_list: ", denoising_step_list)
-        
+
         if steps != 4:
             raise ValueError("This scheduler is only for 4 steps")
-        
+
         sample_scheduler.timesteps = denoising_step_list[:steps].clone().detach().to(device)
         sample_scheduler.sigmas = torch.cat([sample_scheduler.timesteps / 1000, torch.tensor([0.0], device=device)])
     elif 'flowmatch_pusa' in scheduler:
@@ -95,6 +102,9 @@ def get_scheduler(scheduler, steps, start_step, end_step, shift, device, transfo
     elif scheduler == 'res_multistep':
         sample_scheduler = FlowMatchSchedulerResMultistep(shift=shift)
         sample_scheduler.set_timesteps(steps, denoising_strength=denoise_strength, sigmas=sigmas[:-1].tolist() if sigmas is not None else None)
+    elif "sa_ode_stable" in scheduler:
+        sample_scheduler = FlowMatchSAODEStableScheduler(shift=shift, **kwargs)
+        sample_scheduler.set_timesteps(steps, device=device, sigmas=sigmas[:-1].tolist() if sigmas is not None else None)
     if timesteps is None:
         timesteps = sample_scheduler.timesteps
 
@@ -130,7 +140,7 @@ def get_scheduler(scheduler, steps, start_step, end_step, shift, device, transfo
     timesteps = timesteps[start_idx:end_idx+1]
     sample_scheduler.full_sigmas = sample_scheduler.sigmas.clone()
     sample_scheduler.sigmas = sample_scheduler.sigmas[start_idx:start_idx+len(timesteps)+1]  # always one longer
-    
+
     if log_timesteps:
         log.info(f"Using timesteps: {timesteps}")
         log.info(f"Using sigmas: {sample_scheduler.sigmas}")

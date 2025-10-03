@@ -68,11 +68,20 @@ EchoShot: https://github.com/D2I-ai/EchoShot
 
 Stand-In: https://github.com/WeChatCV/Stand-In
 
+HuMo: https://github.com/Phantom-video/HuMo
+
+WanAnimate: https://github.com/Wan-Video/Wan2.2/tree/main/wan/modules/animate
+
 
 Examples:
 ---
 
+WanAnimate:
+
+https://github.com/user-attachments/assets/f370b001-0f98-4c4c-bcb5-cfad0b330697
+
 [ReCamMaster](https://github.com/KwaiVGI/ReCamMaster):
+
 
 https://github.com/user-attachments/assets/c58a12c2-13ba-4af8-8041-e283dbef197e
 
