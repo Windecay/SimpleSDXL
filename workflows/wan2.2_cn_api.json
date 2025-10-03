@@ -611,6 +611,8 @@
       "target_fps": 60,
       "scale": 1,
       "model_name": "flownet.pkl",
+      "batch_size": 32,
+      "use_fp16": true,
       "images": [
         "17",
         0
