@@ -296,12 +296,23 @@ def free_everything():
     return
 
 if modules.config.backend_engine == 'Fooocus':
-    refresh_everything(
-        refiner_model_name=modules.config.default_refiner_model_name,
-        base_model_name=modules.config.default_base_model_name,
-        loras=get_enabled_loras(modules.config.default_loras),
-        vae_name=modules.config.default_vae,
-    )
+    try:
+        # 先检查默认模型是否存在
+        default_model_path = get_file_from_folder_list(modules.config.default_base_model_name, modules.config.paths_checkpoints)
+        if default_model_path is None or not os.path.exists(default_model_path):
+            import shared
+            shared.args.absent_model = True
+        else:
+            refresh_everything(
+                refiner_model_name=modules.config.default_refiner_model_name,
+                base_model_name=modules.config.default_base_model_name,
+                loras=get_enabled_loras(modules.config.default_loras),
+                vae_name=modules.config.default_vae,
+            )
+    except Exception as e:
+        logger.error(f"加载模型时出错: {str(e)}")
+        import shared
+        shared.args.absent_model = True
 
 
 @torch.no_grad()

@@ -68,7 +68,7 @@ def check_base_environment():
     print(f"{now_string()} Fooocus version: {fooocus_version.version}")
     print(f"{now_string()} Comfyd version: {comfy_version.version}")
     print(f'{now_string()} {version.get_branch()} version: {version.get_simplesdxl_ver()}')
-    print(f'{now_string()} 当前运行在可视化分支，部分界面与主分支存在差异，可通过启动器切换分支。')
+    print(f'{now_string()} 当前运行在可视化分支by冰華，部分界面和功能与主分支存在差异。')
 
     base_pkg = "simpleai_base"
     ver_required = "0.3.24"
@@ -158,7 +158,7 @@ def check_base_environment():
         logger.info(f'The total virtual memory capacity of the system is too small, which will affect the loading and computing efficiency of the model. Please expand the total virtual memory capacity of the system to be greater than 40G.')
         logger.info(f'系统虚拟内存总容量过小，会影响模型的加载与计算效率，请扩充系统虚拟内存总容量(RAM+SWAP)大于40G。')
         logger.info(f'有任何疑问可到SimpleSDXL的QQ群交流: 938075852')
-        sys.exit(0)
+        # sys.exit(0)
 
     return token, sysinfo
 
@@ -225,17 +225,52 @@ def prepare_environment():
                 run_pip(f"install -U -I --no-deps {xformers_whl_url_linux}", "xformers 0.0.31")
 
     if REINSTALL_ALL or not requirements_met(requirements_file):
-        if len(met_diff.keys())>0:
-            for p in met_diff.keys():
-                logger.info(f'Uninstall {p}.{met_diff[p]} ...')
-                run(f'"{python}" -m pip uninstall -y {p}=={met_diff[p]}')
-        if is_win32_standalone_build:
-            run_pip(f"install -r \"{requirements_file}\" -t {target_path_win}", "requirements")
-        else:
-            run_pip(f"install -r \"{requirements_file}\"", "requirements")
-
+        # if len(met_diff.keys())>0:
+        #     for p in met_diff.keys():
+        #         logger.info(f'Uninstall {p}.{met_diff[p]} ...')
+        #         run(f'"{python}" -m pip uninstall -y {p}=={met_diff[p]}')
+        # if is_win32_standalone_build:
+        #     run_pip(f"install -r \"{requirements_file}\" -t {target_path_win}", "requirements")
+        # else:
+        #     run_pip(f"install -r \"{requirements_file}\"", "requirements", live=True)
+        logger.info(f'运行环境中有不匹配的依赖，可能曾经被改动。重新部署程序或咨询交流群938075852。')
     return
 
+def create_placeholder_files():
+    # 定义checkpoints目录路径
+    checkpoints_dir = config.paths_checkpoints
+    # 如果是列表，取第一个元素
+    if isinstance(checkpoints_dir, list) and checkpoints_dir:
+        checkpoints_dir = checkpoints_dir[0]
+        logger.info(f"Using first checkpoints directory from list: {checkpoints_dir}")
+    # 如果目录不存在则创建
+    if not os.path.exists(checkpoints_dir):
+        try:
+            os.makedirs(checkpoints_dir)
+            logger.info(f"Created checkpoints directory at {checkpoints_dir}")
+        except Exception as e:
+            logger.error(f"Failed to create checkpoints directory: {e}")
+            return
+
+    # 创建safetensors占位文件
+    safetensors_path = os.path.join(checkpoints_dir, "placeholder.safetensors")
+    if not os.path.exists(safetensors_path):
+        try:
+            with open(safetensors_path, 'w') as f:
+                f.write("This is a placeholder file for ComfyUI workflow list.")
+            logger.info(f"Created placeholder file: {safetensors_path}")
+        except Exception as e:
+            logger.error(f"Failed to create safetensors placeholder: {e}")
+
+    # 创建gguf占位文件
+    gguf_path = os.path.join(checkpoints_dir, "placeholder.gguf")
+    if not os.path.exists(gguf_path):
+        try:
+            with open(gguf_path, 'w') as f:
+                f.write("This is a placeholder file for ComfyUI workflow list.")
+            logger.info(f"Created placeholder file: {gguf_path}")
+        except Exception as e:
+            logger.error(f"Failed to create gguf placeholder: {e}")
 def ini_args():
     import args_manager
     if not platform.system() == "Darwin" and args_manager.args.disable_backend:
@@ -396,8 +431,16 @@ if not shared.args.disable_backend:
         config.default_base_model_name, config.previous_default_models, config.checkpoint_downloads,
         config.embeddings_downloads, config.lora_downloads, config.vae_downloads)
 
+    # 检查默认模型是否存在
+    default_model_path = shared.modelsinfo.get_file_path_by_name('checkpoints', config.default_base_model_name)
+    if not os.path.exists(default_model_path):
+        logger.error(f"默认模型不存在: {config.default_base_model_name}，将导致部分预置包运行失败")
+        logger.error(f"请运行模型检测器或手动下载模型到: {os.path.dirname(default_model_path)}")
+        # 设置标志以便UI显示错误信息
+        shared.args.absent_model = True
+
 config.update_files()
 init_cache(config.model_filenames, config.paths_checkpoints, config.lora_filenames, config.paths_loras)
-
+create_placeholder_files()
 from webui import *
 

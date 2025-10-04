@@ -187,7 +187,7 @@
   },
   "118": {
     "inputs": {
-      "unet_name": "qwen-image-Q4_K_M.gguf"
+      "unet_name": "placeholder.gguf"
     },
     "class_type": "UnetLoaderGGUF",
     "_meta": {
@@ -5150,7 +5150,7 @@
   },
   "729": {
     "inputs": {
-      "unet_name": "juggernautXL_juggXIByRundiffusion.safetensors",
+      "unet_name": "placeholder.safetensors",
       "weight_dtype": "default"
     },
     "class_type": "UNETLoader",

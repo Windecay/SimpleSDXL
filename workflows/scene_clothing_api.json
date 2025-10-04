@@ -190,7 +190,7 @@
   },
   "92": {
     "inputs": {
-      "unet_name": "flux1-fill-dev-hyp8-Q4_K_S.gguf"
+      "unet_name": "placeholder.gguf"
     },
     "class_type": "UnetLoaderGGUF",
     "_meta": {
