@@ -92,8 +92,8 @@ def preset_filter(presets):
                 filter_reason = "Missing Model"
 
             # 记录被过滤的预置包和原因
-            if should_filter:
-                logger.info(f"[Preset Filter] Disvisible: {preset_name}, Reason: {filter_reason}")
+            # if should_filter:
+            #     logger.info(f"[Preset Filter] Disvisible: {preset_name}, Reason: {filter_reason}")
 
             if not should_filter:
                 # 处理预设名称，去掉 _fp4 或 _int4 后缀
@@ -719,13 +719,22 @@ def update_navbar_from_mystore(selected_preset, state):
     results2 = update_topbar_js_params(state)
     nav_name_list = get_preset_name_list(state["__session"], state["ua_hash"])
     nav_array = nav_name_list.split(',')
+
+    # 计算实际可用的预置包数量（排除缺少模型文件的预置包）
+    user_did = state["user"].get_did()
+    available_presets_count = 0
+    for preset in nav_array:
+        if preset and not is_models_file_absent(preset, user_did):
+            available_presets_count += 1
+
     if selected_preset in ["default", state["__preset"]]:
         return results + results2
     if selected_preset in nav_array:
         nav_array.remove(selected_preset)
         logger.info(f'Withdraw the preset/回撤预置包: {selected_preset}.')
     else:
-        if len(nav_array) >= shared.BUTTON_NUM:
+        # 使用实际可用的预置包数量作为淘汰触发条件
+        if available_presets_count >= shared.BUTTON_NUM:
             if state["__preset"] not in nav_array:
                 return results + results2
             position = nav_array.index(state["__preset"])
@@ -735,11 +744,12 @@ def update_navbar_from_mystore(selected_preset, state):
                 nav_array = nav_array[:-1]
         nav_array.append(selected_preset)
         logger.info(f'Launch the preset/启用预置包: {selected_preset}.')
+
     nav_name_list = ','.join(nav_array)
     if 'user' in state and not shared.token.is_guest(state["user"].get_did()):
         logger.info(f"save mypreset: {nav_name_list}")
         shared.token.set_local_vars("user_presets", nav_name_list, state["__session"], state["ua_hash"])
-    #logger.info(f'__nav_name_list:{nav_name_list}')
+
     return refresh_nav_bars(state) + update_topbar_js_params(state)
 
 def admin_sync_to_guest(state, catalog='presets'):
