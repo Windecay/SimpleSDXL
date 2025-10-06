@@ -72,8 +72,8 @@
     "vae_downloads": {},
     "model_list": [
         "checkpoints,qwen_image_edit_2509_fp8_e4m3fn.safetensors,20430698424,0,https://www.modelscope.cn/models/Comfy-Org/Qwen-Image-Edit_ComfyUI/resolve/master/split_files/diffusion_models/qwen_image_edit_2509_fp8_e4m3fn.safetensors",
-        "loras,Qwen-Image-Edit-Lightning-8steps-V1.0-bf16.safetensors,849608296,0,",
-        "loras,Qwen-Image-Edit-Lightning-4steps-V1.0-bf16.safetensors,849608296,0,",
+        "loras,Qwen-Image-Edit-2509-Lightning-8steps-V1.0-bf16.safetensors,849608296,0,https://www.modelscope.cn/models/windecay/my_favorite_loras/resolve/master/Qwen-Image-Edit-2509-Lightning-8steps-V1.0-bf16.safetensors",
+        "loras,Qwen-Image-Edit-2509-Lightning-4steps-V1.0-bf16.safetensors,849608296,0,https://www.modelscope.cn/models/windecay/my_favorite_loras/resolve/master/Qwen-Image-Edit-2509-Lightning-4steps-V1.0-bf16.safetensors",
         "clip,qwen_2.5_vl_7b_fp8_scaled.safetensors,9384670680,0,",
         "vae,qwen_image_vae.safetensors,253806246,0,"
         ]

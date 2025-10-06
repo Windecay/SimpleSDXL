@@ -292,7 +292,7 @@ def print_instructions():
     time.sleep(0.1)
     print(f"{Fore.GREEN}★{Style.RESET_ALL}打开默认浏览器设置，关闭GPU加速、或图形加速的选项。{Fore.GREEN}★{Style.RESET_ALL}大内存(64+)与固态硬盘存放模型有助于减少模型加载时间。{Fore.GREEN}★{Style.RESET_ALL}")
     time.sleep(0.1)
-    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：938075852{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:25.10.03{Fore.GREEN}★{Style.RESET_ALL}")
+    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：938075852{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:25.10.07{Fore.GREEN}★{Style.RESET_ALL}")
     print()
     time.sleep(0.1)
     
@@ -1939,8 +1939,8 @@ packages = {
         "note": "Qwen_Image_EditPlus指令编辑图像|显存需求：★★★★★ 速度:★☆",
         "files": [
             ("checkpoints/https://www.modelscope.cn/models/Comfy-Org/Qwen-Image-Edit_ComfyUI/resolve/master/split_files/diffusion_models/qwen_image_edit_2509_fp8_e4m3fn.safetensors", 20430698424),
-            ("loras/Qwen-Image-Edit-Lightning-8steps-V1.0-bf16.safetensors", 849608296),
-            ("loras/Qwen-Image-Edit-Lightning-4steps-V1.0-bf16.safetensors", 849608296),
+            ("loras/https://www.modelscope.cn/models/windecay/my_favorite_loras/resolve/master/Qwen-Image-Edit-2509-Lightning-8steps-V1.0-bf16.safetensors", 849608296),
+            ("loras/https://www.modelscope.cn/models/windecay/my_favorite_loras/resolve/master/Qwen-Image-Edit-2509-Lightning-4steps-V1.0-bf16.safetensors", 849608296),
             ("clip/qwen_2.5_vl_7b_fp8_scaled.safetensors", 9384670680),
             ("vae/qwen_image_vae.safetensors", 253806246)
         ],
