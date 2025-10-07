@@ -1694,22 +1694,9 @@ packages = {
         ],
         "download_links": []
     },
-        "Framepack_package": {
-        "id": 17,
-        "name": "[17]Framepack视频扩展包",
-        "note": "图像转视频功能支持-默认模型[FramePackfp8]|显存需求：★★★ 速度：★",
-        "files": [
-            ("checkpoints/FramePackI2V_HY_fp8_e4m3fn.safetensors", 16331849976),
-            ("clip/clip_l.safetensors", 246144152),
-            ("clip/llava_llama3_fp8_scaled.safetensors", 9091392483),
-            ("clip_vision/sigclip_vision_patch14_384.safetensors", 856505640),
-            ("vae/hunyuan_video_vae_bf16.safetensors", 492984198)
-        ],
-        "download_links": []
-    },
         "Illustrious2_aio_package": {
-        "id": 18,
-        "name": "[18]光辉2.0_AIO扩展包",
+        "id": 17,
+        "name": "[17]光辉2.0_AIO扩展包",
         "note": "NoobAI/光辉2.0全功能-默认模型oneObsV13|显存需求：★★★ 速度：★★★",
         "files": [
             ("checkpoints/oneObsession_13.safetensors", 6938040682),
@@ -1723,8 +1710,8 @@ packages = {
         "download_links": []
     },
         "nunchaku_int4_aio_package": {
-        "id": 19,
-        "name": "[19]双截棍int4量化Flux扩展包",
+        "id": 18,
+        "name": "[18]双截棍int4量化Flux扩展包",
         "note": "适配非50系-默认模型[svdq-int4]|显存需求：★★★ 速度：★★★",
         "files": [
             ("checkpoints/svdq-int4_r32-flux.1-dev.safetensors", 6768309832),
@@ -1752,8 +1739,8 @@ packages = {
         "download_links": []
     },
         "nunchaku_fp4_aio_package": {
-        "id": 20,
-        "name": "[20]双截棍fp4量化Flux扩展包",
+        "id": 19,
+        "name": "[19]双截棍fp4量化Flux扩展包",
         "note": "仅适配50系-默认模型[svdq-fp4]|显存需求：★★☆ 速度：★★★",
         "files": [
             ("checkpoints/svdq-fp4_r32-flux.1-dev.safetensors", 7038706888),
@@ -1781,8 +1768,8 @@ packages = {
         "download_links": []
     },
     "kontext_package": {
-        "id": 21,
-        "name": "[21]Flux_Kontext扩展包",
+        "id": 20,
+        "name": "[20]Flux_Kontext扩展包",
         "note": "Flux_Kontext指令修图功能扩展包|显存需求：★★★☆ 速度：★★",
         "files": [
             ("checkpoints/flux1-dev-kontext_fp8_scaled.safetensors", 11904640136),
@@ -1796,8 +1783,8 @@ packages = {
         ]
     },
     "wan_t2i_package": {
-        "id": 22,
-        "name": "[22]Wan2.2_T2I扩展包",
+        "id": 21,
+        "name": "[21]Wan2.2_T2I扩展包",
         "note": "万相2.2文生图扩展包|显存需求：★★★ 速度：★★",
         "files": [
             ("checkpoints/Wan2.2_T2V_Low_Noise_14B_VACE-Q4_K_M.gguf", 11629612832),
@@ -1815,8 +1802,8 @@ packages = {
         ]
     },
     "qwen_image_package": {
-        "id": 23,
-        "name": "[23]Qwen-Image文生图扩展包",
+        "id": 22,
+        "name": "[22]Qwen-Image文生图扩展包",
         "note": "千问Image大模型文生图扩展包|显存需求：★★★★★ 速度：★",
         "files": [
             ("checkpoints/qwen-image-Q4_K_M.gguf", 13065746976),
@@ -1830,8 +1817,8 @@ packages = {
         ]
     },
     "wan_i2v_package": {
-        "id": 24,
-        "name": "[24]Wan2.2图生视频扩展包",
+        "id": 23,
+        "name": "[23]Wan2.2图生视频扩展包",
         "note": "通义万相2.2图生图扩展包|显存需求：★★★★ 速度：★",
         "files": [
             ("checkpoints/Wan2.2-I2V-A14B-HighNoise-Q4_K_M.gguf", 9651728896),
@@ -1849,8 +1836,8 @@ packages = {
         ]
     },
     "wan_t2v_package": {
-        "id": 25,
-        "name": "[25]Wan2.2文生视频扩展包",
+        "id": 24,
+        "name": "[24]Wan2.2文生视频扩展包",
         "note": "通义万相2.2文生视频扩展包|显存需求：★★★★ 速度：★",
         "files": [
             ("checkpoints/Wan2.2_T2V_High_Noise_14B_VACE-Q4_K_M.gguf", 11629612832),
@@ -1867,8 +1854,8 @@ packages = {
         ]
     },
     "onekey_kontext_package": {
-        "id": 26,
-        "name": "[26]OneKeyKontext一键精修预置包",
+        "id": 25,
+        "name": "[25]OneKeyKontext一键精修预置包",
         "note": "基于Flux_Kontext的一键精修|显存需求：★★★★ 速度：★★☆",
         "files": [
             ("checkpoints/flux1-dev-kontext_fp8_scaled.safetensors", 11904640136),
@@ -1900,23 +1887,9 @@ packages = {
         ],
         "download_links": []
     },
-    "qwen_image_edit_package": {
-        "id":27,
-        "name": "[27]Qwen图像编辑预置包",
-        "note": "基于Qwen_Image_Edit的指令编辑图像|显存需求：★★★★ 速度:★★",
-        "files": [
-            ("checkpoints/Qwen_Image_Edit-Q4_K_M.gguf", 13065746976),
-            ("loras/Qwen-Image-Edit-Lightning-8steps-V1.0-bf16.safetensors", 849608296),
-            ("loras/Qwen-Image-Edit-Lightning-4steps-V1.0-bf16.safetensors", 849608296),
-            ("clip/qwen_2.5_vl_7b_fp8_scaled.safetensors", 9384670680),
-            ("controlnet/Qwen-Image-InstantX-ControlNet-Union.safetensors", 3536027816),
-            ("vae/qwen_image_vae.safetensors", 253806246)
-        ],
-        "download_links": []
-    },
     "qwen_aio_package": {
-        "id":28,
-        "name": "[28]Qwen全功能预置包",
+        "id":26,
+        "name": "[26]Qwen全功能预置包",
         "note": "QwenImage全功能预置包|显存需求：★★★★ 速度:★★",
         "files": [
             ("checkpoints/qwen-image-Q4_K_M.gguf", 13065746976),
@@ -1934,8 +1907,8 @@ packages = {
         "download_links": []
     },
     "qwen_image_edit_plus_package": {
-        "id":29,
-        "name": "[29]QwenPlus图像编辑预置包",
+        "id":27,
+        "name": "[27]QwenPlus图像编辑预置包",
         "note": "Qwen_Image_EditPlus指令编辑图像|显存需求：★★★★★ 速度:★☆",
         "files": [
             ("checkpoints/https://www.modelscope.cn/models/Comfy-Org/Qwen-Image-Edit_ComfyUI/resolve/master/split_files/diffusion_models/qwen_image_edit_2509_fp8_e4m3fn.safetensors", 20430698424),
@@ -1947,8 +1920,8 @@ packages = {
         "download_links": []
     },
         "nun_int4_qwen_image_edit_plus_package": {
-        "id":30,
-        "name": "[30]双截棍int4-QwenEdit+图像编辑",
+        "id":28,
+        "name": "[28]双截棍int4-QwenEdit+图像编辑",
         "note": "Qwen_Image_EditPlus指令编辑图像|显存需求：★★★★ 速度:★★★",
         "files": [
             ("checkpoints/https://www.modelscope.cn/models/nunchaku-tech/nunchaku-qwen-image-edit-2509/resolve/master/svdq-int4_r128-qwen-image-edit-2509-lightningv2.0-4steps.safetensors", 12654443144),
@@ -1958,8 +1931,8 @@ packages = {
         "download_links": []
     },
         "nun_fp4_qwen_image_edit_plus_package": {
-        "id":31,
-        "name": "[31]双截棍fp4-QwenEdit+图像编辑",
+        "id":29,
+        "name": "[29]双截棍fp4-QwenEdit+图像编辑",
         "note": "Qwen_Image_EditPlus指令编辑图像|显存需求：★★★★ 速度:★★★",
         "files": [
             ("checkpoints/https://www.modelscope.cn/models/nunchaku-tech/nunchaku-qwen-image-edit-2509/resolve/master/svdq-fp4_r128-qwen-image-edit-2509-lightningv2.0-4steps.safetensors", 13081386856),
@@ -2059,7 +2032,13 @@ OBSOLETE_MODELS = [
     "sd3.5_large.safetensors",
     "clip_g.safetensors",
     "StickersRedmond.safetensors",
-    "flux1-fill-dev_fp8.safetensors"
+    "flux1-fill-dev_fp8.safetensors",
+    "Qwen_Image_Edit-Q4_K_M.gguf",
+    "Qwen-Image-Edit-Lightning-8steps-V1.0-bf16.safetensors",
+    "Qwen-Image-Edit-Lightning-4steps-V1.0-bf16.safetensors",
+    "FramePackI2V_HY_fp8_e4m3fn.safetensors"
+    "llava_llama3_fp8_scaled.safetensors",
+    "hunyuan_video_vae_bf16.safetensors"
 ]
 def main():
     print()
