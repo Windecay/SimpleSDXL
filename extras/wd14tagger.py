@@ -13,30 +13,59 @@
 import numpy as np
 import csv
 import onnxruntime as ort
+import os
 
 from PIL import Image
 from onnxruntime import InferenceSession
 from modules.config import path_clip_vision
 from modules.model_loader import load_file_from_url
-
+import logging
+logger = logging.getLogger(__name__)
 
 global_model = None
 global_csv = None
+current_model_name = None
 
 
 def default_interrogator(image, threshold=0.35, character_threshold=0.85, exclude_tags=""):
-    global global_model, global_csv
+    global global_model, global_csv, current_model_name
 
-    model_name = "wd-v1-4-moat-tagger-v2"
+    new_model_name = "wd-eva02-large-tagger-v3"
+    new_model_onnx_url = f'https://www.modelscope.cn/models/windecay/WD-tagger/resolve/master/{new_model_name}.onnx'
+    new_model_csv_url = f'https://www.modelscope.cn/models/windecay/WD-tagger/resolve/master/{new_model_name}.csv'
+    new_model_onnx_path = os.path.join(path_clip_vision, f"{new_model_name}.onnx")
+    new_model_csv_path = os.path.join(path_clip_vision, f"{new_model_name}.csv")
 
+    old_model_name = "wd-v1-4-moat-tagger-v2"
+    old_model_onnx_url = f'https://huggingface.co/lllyasviel/misc/resolve/main/{old_model_name}.onnx'
+    old_model_csv_url = f'https://huggingface.co/lllyasviel/misc/resolve/main/{old_model_name}.csv'
+
+    use_new_model = os.path.exists(new_model_onnx_path) and os.path.exists(new_model_csv_path)
+
+    if current_model_name != (new_model_name if use_new_model else old_model_name):
+        global_model = None
+        global_csv = None
+
+    if use_new_model:
+        model_name = new_model_name
+        model_onnx_url = new_model_onnx_url
+        model_csv_url = new_model_csv_url
+        current_model_name = new_model_name
+        logger.info(f"[WD14 Tagger] 当前使用模型: {model_name}")
+    else:
+        model_name = old_model_name
+        model_onnx_url = old_model_onnx_url
+        model_csv_url = old_model_csv_url
+        current_model_name = old_model_name
+        logger.info(f"[WD14 Tagger] 当前使用旧版模型: {model_name}，可运行模型检测更新。")
     model_onnx_filename = load_file_from_url(
-        url=f'https://huggingface.co/lllyasviel/misc/resolve/main/{model_name}.onnx',
+        url=model_onnx_url,
         model_dir=path_clip_vision,
         file_name=f'{model_name}.onnx',
     )
 
     model_csv_filename = load_file_from_url(
-        url=f'https://huggingface.co/lllyasviel/misc/resolve/main/{model_name}.csv',
+        url=model_csv_url,
         model_dir=path_clip_vision,
         file_name=f'{model_name}.csv',
     )
@@ -49,7 +78,6 @@ def default_interrogator(image, threshold=0.35, character_threshold=0.85, exclud
 
     input = model.get_inputs()[0]
     height = input.shape[1]
-
     if type(image) == np.ndarray:
         image = Image.fromarray(image)
     ratio = float(height)/max(image.size)

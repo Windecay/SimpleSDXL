@@ -292,7 +292,7 @@ def print_instructions():
     time.sleep(0.1)
     print(f"{Fore.GREEN}★{Style.RESET_ALL}打开默认浏览器设置，关闭GPU加速、或图形加速的选项。{Fore.GREEN}★{Style.RESET_ALL}大内存(64+)与固态硬盘存放模型有助于减少模型加载时间。{Fore.GREEN}★{Style.RESET_ALL}")
     time.sleep(0.1)
-    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：938075852{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:25.10.07{Fore.GREEN}★{Style.RESET_ALL}")
+    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：938075852{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:25.10.08{Fore.GREEN}★{Style.RESET_ALL}")
     print()
     time.sleep(0.1)
     
@@ -1234,8 +1234,8 @@ packages = {
             ("checkpoints/juggernautXL_juggXIByRundiffusion.safetensors", 7105350536),
             ("clip_vision/clip_vision_vit_h.safetensors", 1972298538),
             ("clip_vision/model_base_caption_capfilt_large.pth", 896081425),
-            ("clip_vision/wd-v1-4-moat-tagger-v2.onnx", 326197340),
-            ("clip_vision/wd-v1-4-moat-tagger-v2.csv", 253906),
+            ("clip_vision/https://www.modelscope.cn/models/windecay/WD-tagger/resolve/master/wd-eva02-large-tagger-v3.onnx", 1260435999),
+            ("clip_vision/https://www.modelscope.cn/models/windecay/WD-tagger/resolve/master/wd-eva02-large-tagger-v3.csv", 308468),
             ("clip_vision/clip-vit-large-patch14/merges.txt", 524619),
             ("clip_vision/clip-vit-large-patch14/special_tokens_map.json", 389),
             ("clip_vision/clip-vit-large-patch14/tokenizer_config.json", 905),
