@@ -49,7 +49,7 @@ class MiniCPM:
     def set_enable(cls, flag):
         with cls.lock:
             cls.enable = flag
-    
+
     @classmethod
     def get_enable(cls):
         return cls.enable
@@ -64,9 +64,9 @@ class MiniCPM:
         from typing import List
         sys.modules[__name__].__builtins__['List'] = List
         MODEL_PATH = os.path.join(config.paths_llms[0], MiniCPM.model)
-        tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH, trust_remote_code=True, low_cpu_mem_usage=True, local_files_only=True)
-        text_model = AutoModel.from_pretrained(MODEL_PATH, trust_remote_code=True, low_cpu_mem_usage=True, local_files_only=True, 
-                attn_implementation="sdpa", torch_dtype=torch.bfloat16 if MiniCPM.bf16_support else torch.float16)
+        tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH, trust_remote_code=True, low_cpu_mem_usage=False, local_files_only=True, device_map="cpu")
+        text_model = AutoModel.from_pretrained(MODEL_PATH, trust_remote_code=True, low_cpu_mem_usage=False, local_files_only=True,
+                attn_implementation="sdpa", dtype=torch.bfloat16 if MiniCPM.bf16_support else torch.float16, device_map="cpu")
         text_model.eval()
         with MiniCPM.lock:
             MiniCPM.model_v26 = text_model
@@ -108,9 +108,16 @@ class MiniCPM:
         ldm_patched.modules.model_management.print_vram_info_by_nvml("before minicpm inference")
         if MiniCPM.model_v26 is None or MiniCPM.tokenizer is None:
             self.load_model(download=True)
+
+        if hasattr(torch, 'cuda') and torch.cuda.is_available():
+            device = torch.device('cuda')
+            MiniCPM.model_v26 = MiniCPM.model_v26.to(device)
+        else:
+            device = torch.device('cpu')
+
         image = image if image is None else Image.fromarray(resize_image(image, min_side=768, resize_mode=3))
         msgs = [{'role': 'user', 'content': [image, prompt]}]
-        
+
         res = MiniCPM.model_v26.chat(
             image=None,
             msgs=msgs,
@@ -123,7 +130,10 @@ class MiniCPM:
             temperature=temperature,
             seed=seed
         )
-        
+
+        if hasattr(torch, 'cuda') and torch.cuda.is_available():
+            MiniCPM.model_v26 = MiniCPM.model_v26.to('cpu')
+
         generated_text = res
         logger.info(f'The generated text:{generated_text}')
         ldm_patched.modules.model_management.print_memory_info("after minicpm inference")
