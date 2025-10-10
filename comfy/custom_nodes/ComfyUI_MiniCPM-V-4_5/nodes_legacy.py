@@ -132,7 +132,7 @@ class MiniCPM_VQA:
             torch.manual_seed(seed)
         model_id = f"openbmb/{model}"
         self.model_checkpoint = os.path.join(
-            folder_paths.models_dir, "prompt_generator", os.path.basename(model_id)
+            folder_paths.models_dir, "llms", os.path.basename(model_id)
         )
 
         if not os.path.exists(self.model_checkpoint):
