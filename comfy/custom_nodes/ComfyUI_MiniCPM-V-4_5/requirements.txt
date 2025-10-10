@@ -1,0 +1,9 @@
+torch
+torchvision
+torchaudio
+numpy
+pillow
+huggingface_hub
+transformers
+bitsandbytes
+accelerate

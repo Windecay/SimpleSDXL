@@ -285,10 +285,10 @@ function(system_params) {
 }
 '''
 
-def init_nav_bars(state_params, comfyd_active_checkbox, fast_comfyd_checkbox, reserved_vram, minicpm_checkbox, advanced_logs, wavespeed_strength, translation_methods, p2p_active_checkbox, p2p_remote_process, p2p_in_did_list, p2p_out_did_list, no_welcome_checkbox, missing_model_filter_checkbox, request: gr.Request):
+def init_nav_bars(state_params, comfyd_active_checkbox, fast_comfyd_checkbox, reserved_vram, minicpm_checkbox, minicpm_version, advanced_logs, wavespeed_strength, translation_methods, p2p_active_checkbox, p2p_remote_process, p2p_in_did_list, p2p_out_did_list, no_welcome_checkbox, missing_model_filter_checkbox, request: gr.Request):
     #logger.info(f'request.headers:{request.headers}')
     #logger.info(f'request.client:{request.client}')
-    admin_currunt_value = [comfyd_active_checkbox, fast_comfyd_checkbox, reserved_vram, minicpm_checkbox, advanced_logs, wavespeed_strength, translation_methods, p2p_active_checkbox, p2p_remote_process, p2p_in_did_list, p2p_out_did_list, no_welcome_checkbox, missing_model_filter_checkbox]
+    admin_currunt_value = [comfyd_active_checkbox, fast_comfyd_checkbox, reserved_vram, minicpm_checkbox, minicpm_version, advanced_logs, wavespeed_strength, translation_methods, p2p_active_checkbox, p2p_remote_process, p2p_in_did_list, p2p_out_did_list, no_welcome_checkbox, missing_model_filter_checkbox]
     #logger.info(f'admin_currunt_value: {admin_currunt_value}')
 
     user_agent = request.headers["user-agent"]
@@ -945,7 +945,7 @@ def get_all_user_default(state):
     return results
 
 def get_all_admin_default(currunt_value):
-    admin_keys = ['comfyd_active_checkbox', 'fast_comfyd_checkbox', 'reserved_vram', 'minicpm_checkbox', 'advanced_logs', 'wavespeed_strength', 'translation_methods', 'p2p_active_checkbox', "p2p_remote_process", "p2p_in_did_list", "p2p_out_did_list", "no_welcome_checkbox", "missing_model_filter_checkbox"]
+    admin_keys = ['comfyd_active_checkbox', 'fast_comfyd_checkbox', 'reserved_vram', 'minicpm_checkbox', 'minicpm_version', 'advanced_logs', 'wavespeed_strength', 'translation_methods', 'p2p_active_checkbox', "p2p_remote_process", "p2p_in_did_list", "p2p_out_did_list", "no_welcome_checkbox", "missing_model_filter_checkbox"]
     result = []
     for i, admin_key in enumerate(admin_keys):
         admin_value = ads.get_admin_default(admin_key)

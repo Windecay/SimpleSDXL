@@ -21,26 +21,44 @@ from modules.model_loader import download_diffusers_model
 from modules.util import HWC3, resize_image, is_chinese
 from enhanced.simpleai import comfyd, p2p_task
 
-class MiniCPM:  
-    model = "MiniCPMv2_6-prompt-generator" # "MiniCPM-V-2_6-int4"
+class MiniCPM:
+    model = "MiniCPMv2_6-prompt-generator"
     prompt_i2t = "A descriptive caption for this image"
     output_chinese = "and output it in Chinese"
     prompt_extend = "Expand the following description to obtain a descriptive caption with more details in image: "
     prompt_translator = "Translate the following text into English, remind you only need respons the translation itself and no other information:"
     prompt_translator_cn = "Translate the following text into Chinese, remind you only need respons the translation itself and no other information:"
-    model_file = os.path.join(model, "pytorch_model-00001-of-00002.bin")  # "model-00001-of-00002.safetensors")
-    model_url = "https://huggingface.co/metercai/SimpleSDXL2/resolve/main/models_minicpm_v2.6_prompt_simpleai_1224.zip"
-    
+    model_file = os.path.join(model, "pytorch_model-00001-of-00002.bin")
+    model_url = None
+
     remove_prefixs = [
         'A descriptive caption for this image could be: "',
         '"',
         ]
 
     lock = threading.Lock()
-    model_v26 = None
+    model_cpm = None
     tokenizer = None
     enable = ads.get_admin_default('minicpm_checkbox')
     bf16_support = ( torch.cuda.is_available() and torch.cuda.get_device_capability(torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu"))[0] >= 8 )
+    saved_version = ads.get_admin_default('minicpm_version')
+    if saved_version and saved_version != 'None':
+        if saved_version == 'MiniCPMv45':
+            model = "MiniCPM-V-4_5-int4"
+            model_file = os.path.join(model, "model-00001-of-00002.safetensors")
+            model_url = "https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/MiniCPM-V-4_5-int4.zip"
+    @classmethod
+    def set_version(cls, version):
+        with cls.lock:
+            if version == "MiniCPMv26":
+                cls.model = "MiniCPMv2_6-prompt-generator"
+                cls.model_file = os.path.join(cls.model, "pytorch_model-00001-of-00002.bin")
+                cls.model_url = "https://huggingface.co/metercai/SimpleSDXL2/resolve/main/models_minicpm_v2.6_prompt_simpleai_1224.zip"
+            elif version == "MiniCPMv45":
+                cls.model = "MiniCPM-V-4_5-int4"
+                cls.model_file = os.path.join(cls.model, "model-00001-of-00002.safetensors")
+                cls.model_url = "https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/MiniCPM-V-4_5-int4.zip"
+            logger.info(f"加载 MiniCPM 模型: 版本={version}, 模型路径={cls.model}")
 
     def __init__(self):
         pass
@@ -69,18 +87,18 @@ class MiniCPM:
                 attn_implementation="sdpa", dtype=torch.bfloat16 if MiniCPM.bf16_support else torch.float16, device_map="cpu")
         text_model.eval()
         with MiniCPM.lock:
-            MiniCPM.model_v26 = text_model
+            MiniCPM.model_cpm = text_model
             MiniCPM.tokenizer = tokenizer
         ldm_patched.modules.model_management.print_memory_info("after load minicpm model")
         return
 
     def free_model(self):
-        if MiniCPM.model_v26 is None and MiniCPM.tokenizer is None:
+        if MiniCPM.model_cpm is None and MiniCPM.tokenizer is None:
             return
         with MiniCPM.lock:
-            del MiniCPM.model_v26
+            del MiniCPM.model_cpm
             del MiniCPM.tokenizer
-            MiniCPM.model_v26 = None
+            MiniCPM.model_cpm = None
             MiniCPM.tokenizer = None
         translator.free_translator_model()
         torch.cuda.empty_cache()
@@ -106,19 +124,19 @@ class MiniCPM:
         comfyd.stop()
         pipeline.free_everything()
         ldm_patched.modules.model_management.print_vram_info_by_nvml("before minicpm inference")
-        if MiniCPM.model_v26 is None or MiniCPM.tokenizer is None:
+        if MiniCPM.model_cpm is None or MiniCPM.tokenizer is None:
             self.load_model(download=True)
 
         if hasattr(torch, 'cuda') and torch.cuda.is_available():
             device = torch.device('cuda')
-            MiniCPM.model_v26 = MiniCPM.model_v26.to(device)
+            MiniCPM.model_cpm = MiniCPM.model_cpm.to(device)
         else:
             device = torch.device('cpu')
 
         image = image if image is None else Image.fromarray(resize_image(image, min_side=768, resize_mode=3))
         msgs = [{'role': 'user', 'content': [image, prompt]}]
 
-        res = MiniCPM.model_v26.chat(
+        res = MiniCPM.model_cpm.chat(
             image=None,
             msgs=msgs,
             tokenizer=MiniCPM.tokenizer,
@@ -132,7 +150,7 @@ class MiniCPM:
         )
 
         if hasattr(torch, 'cuda') and torch.cuda.is_available():
-            MiniCPM.model_v26 = MiniCPM.model_v26.to('cpu')
+            MiniCPM.model_cpm = MiniCPM.model_cpm.to('cpu')
 
         generated_text = res
         logger.info(f'The generated text:{generated_text}')

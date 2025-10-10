@@ -1941,6 +1941,34 @@ packages = {
         ],
         "download_links": []
     },
+        "MiniCPM_V45_package": {
+        "id": 30,
+        "name": "[30]MiniCPMv45反推扩展包",
+        "note": "本地多模态大语言模型[反推、翻译、扩写]|显存需求：★★ 速度：★★",
+        "files": [
+            ("llms/MiniCPM-V-4_5-int4/https://www.modelscope.cn/models/OpenBMB/MiniCPM-V-4_5-int4/resolve/master/added_tokens.json", 2862),
+            ("llms/MiniCPM-V-4_5-int4/https://www.modelscope.cn/models/OpenBMB/MiniCPM-V-4_5-int4/resolve/master/config.json", 1995),
+            ("llms/MiniCPM-V-4_5-int4/https://www.modelscope.cn/models/OpenBMB/MiniCPM-V-4_5-int4/resolve/master/configuration.json", 51),
+            ("llms/MiniCPM-V-4_5-int4/https://www.modelscope.cn/models/OpenBMB/MiniCPM-V-4_5-int4/resolve/master/configuration_minicpm.py", 3367),
+            ("llms/MiniCPM-V-4_5-int4/https://www.modelscope.cn/models/OpenBMB/MiniCPM-V-4_5-int4/resolve/master/generation_config.json", 268),
+            ("llms/MiniCPM-V-4_5-int4/https://www.modelscope.cn/models/OpenBMB/MiniCPM-V-4_5-int4/resolve/master/image_processing_minicpmv.py", 20757),
+            ("llms/MiniCPM-V-4_5-int4/https://www.modelscope.cn/models/OpenBMB/MiniCPM-V-4_5-int4/resolve/master/merges.txt", 1671853),
+            ("llms/MiniCPM-V-4_5-int4/https://www.modelscope.cn/models/OpenBMB/MiniCPM-V-4_5-int4/resolve/master/model-00001-of-00002.safetensors", 4827364414),
+            ("llms/MiniCPM-V-4_5-int4/https://www.modelscope.cn/models/OpenBMB/MiniCPM-V-4_5-int4/resolve/master/model-00002-of-00002.safetensors", 1699920944),
+            ("llms/MiniCPM-V-4_5-int4/https://www.modelscope.cn/models/OpenBMB/MiniCPM-V-4_5-int4/resolve/master/model.safetensors.index.json", 267079),
+            ("llms/MiniCPM-V-4_5-int4/https://www.modelscope.cn/models/OpenBMB/MiniCPM-V-4_5-int4/resolve/master/modeling_minicpmv.py", 17679),
+            ("llms/MiniCPM-V-4_5-int4/https://www.modelscope.cn/models/OpenBMB/MiniCPM-V-4_5-int4/resolve/master/modeling_navit_siglip.py", 41835),
+            ("llms/MiniCPM-V-4_5-int4/https://www.modelscope.cn/models/OpenBMB/MiniCPM-V-4_5-int4/resolve/master/preprocessor_config.json", 714),
+            ("llms/MiniCPM-V-4_5-int4/https://www.modelscope.cn/models/OpenBMB/MiniCPM-V-4_5-int4/resolve/master/processing_minicpmv.py", 11026),
+            ("llms/MiniCPM-V-4_5-int4/https://www.modelscope.cn/models/OpenBMB/MiniCPM-V-4_5-int4/resolve/master/resampler.py", 11374),
+            ("llms/MiniCPM-V-4_5-int4/https://www.modelscope.cn/models/OpenBMB/MiniCPM-V-4_5-int4/resolve/master/special_tokens_map.json", 12103),
+            ("llms/MiniCPM-V-4_5-int4/https://www.modelscope.cn/models/OpenBMB/MiniCPM-V-4_5-int4/resolve/master/tokenization_minicpmv_fast.py", 1647),
+            ("llms/MiniCPM-V-4_5-int4/https://www.modelscope.cn/models/OpenBMB/MiniCPM-V-4_5-int4/resolve/master/tokenizer.json", 11437868),
+            ("llms/MiniCPM-V-4_5-int4/https://www.modelscope.cn/models/OpenBMB/MiniCPM-V-4_5-int4/resolve/master/tokenizer_config.json", 25786),
+            ("llms/MiniCPM-V-4_5-int4/https://www.modelscope.cn/models/OpenBMB/MiniCPM-V-4_5-int4/resolve/master/vocab.json", 2776833),
+        ],
+        "download_links": []
+    },
 }
 
 MANUAL_DOWNLOAD_MAP = {

@@ -124,6 +124,7 @@ default = {
     'fast_comfyd_checkbox': False,
     'reserved_vram': 0,
     'minicpm_checkbox': False,
+    'minicpm_version': 'MiniCPMv26',
     'advanced_logs': False,
     'wavespeed_strength': 0.12,
     'p2p_active_checkbox': False,

@@ -349,13 +349,17 @@ async def download_diffusers_model_async(cata, model_name, num, url):
             os.makedirs(path_temp)
         file_name = os.path.basename(urlparse(url).path)
         downfile = os.path.join(path_temp, file_name)
-        download_url_to_file(url, downfile, progress=True)
+
+        if not os.path.exists(downfile):
+            download_url_to_file(url, downfile, progress=True)
+        else:
+            logger.info(f'Temp exists，skip download: {downfile}')
+
         with zipfile.ZipFile(downfile, 'r') as zipf:
             logger.info(f'extractall: {downfile} to {path_temp}')
             zipf.extractall(path_temp)
-        shutil.move(os.path.join(path_temp, f'SimpleModels/{cata}/{model_name}'), os.path.join(model_cata_map[cata][0], model_name))
+        shutil.move(os.path.join(path_temp, model_name), os.path.join(model_cata_map[cata][0], model_name))
         os.remove(downfile)
         shutil.rmtree(path_temp)
     shared.modelsinfo.refresh_from_path()
     return
-
