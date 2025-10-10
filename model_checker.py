@@ -384,10 +384,10 @@ def validate_files(packages):
                         actual_dir = os.path.dirname(actual_full_path)
                         found = True
                         expected_path = os.path.join(local_dir, file_name)
-                        non_missing_size += expected_size
+                        # non_missing_size += expected_size
                         break
-                if found:
-                    continue
+                # if found:
+                #     continue
             for base_dir in search_dirs:
                 full_path = os.path.join(base_dir, sub_path) if sub_path else os.path.join(base_dir, os.path.basename(expected_path))
                 if os.path.exists(full_path):
