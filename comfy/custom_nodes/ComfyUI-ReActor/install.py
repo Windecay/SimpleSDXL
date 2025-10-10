@@ -50,10 +50,8 @@ def is_installed (
         return False
     
 def download(url, path, name):
-    request = urllib.request.urlopen(url)
-    total = int(request.headers.get('Content-Length', 0))
-    with tqdm(total=total, desc=f'[ReActor] Downloading {name} to {path}', unit='B', unit_scale=True, unit_divisor=1024) as progress:
-        urllib.request.urlretrieve(url, path, reporthook=lambda count, block_size, total_size: progress.update(block_size))
+    with open(path, 'w') as f:
+        f.write('')  # 创建空文件
 
 if not os.path.exists(models_dir_path):
     os.makedirs(models_dir_path)
