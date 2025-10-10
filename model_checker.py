@@ -1179,7 +1179,7 @@ def filter_packages_by_gpu_arch(packages):
     - 当sm120时，只显示带fp4的package和其他无标识package
     - 当不等于sm120且高于10系显卡时，只显示带int4的package和其他无标识package
     - 对于10系及以下显卡，只显示无标识package
-    - 当GPU小于等于20系时，不显示"[31]双截棍fp4-QwenEdit+图像编辑"和"[30]双截棍int4-QwenEdit+图像编辑"
+    - 当GPU小于等于20系时，不显示"[29]双截棍fp4-QwenEdit+图像编辑"和"[28]双截棍int4-QwenEdit+图像编辑"
     """
     # 获取GPU架构
     gpu_arch = get_gpu_arch_str()
@@ -1202,7 +1202,7 @@ def filter_packages_by_gpu_arch(packages):
 
         # 当GPU小于等于20系时，不显示这两个特定的package
         if is_20_series_or_lower:
-            if package_name == "[31]双截棍fp4-QwenEdit+图像编辑" or package_name == "[30]双截棍int4-QwenEdit+图像编辑":
+            if package_name == "[29]双截棍fp4-QwenEdit+图像编辑" or package_name == "[28]双截棍int4-QwenEdit+图像编辑":
                 continue
 
         has_int4 = 'int4' in package_name.lower()
