@@ -910,7 +910,7 @@
   "75": {
     "inputs": {
       "reserved": 1.0,
-      "mode": "auto",
+      "mode": "manual",
       "anything": [
         "31",
         0
