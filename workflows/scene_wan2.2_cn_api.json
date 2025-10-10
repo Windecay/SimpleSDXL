@@ -909,7 +909,8 @@
   },
   "75": {
     "inputs": {
-      "reserved": 2,
+      "reserved": 1.0,
+      "mode": "auto",
       "anything": [
         "31",
         0

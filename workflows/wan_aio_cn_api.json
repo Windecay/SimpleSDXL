@@ -5796,7 +5796,8 @@
   },
   "977": {
     "inputs": {
-      "reserved": 1.5,
+      "reserved": 1.0,
+      "mode": "auto",
       "anything": [
         "417",
         0
