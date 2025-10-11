@@ -1117,11 +1117,12 @@ with shared.gradio_root:
                                     describe_methods = gr.CheckboxGroup(
                                         label='Content Type', 
                                         choices=flags.describe_types,
-                                        value=modules.config.default_describe_content_type, visible= not MiniCPM.get_enable())
-                                    describe_prompt = gr.Textbox(label="Additional prompt for describe", show_label=True, max_lines=1, placeholder="Type additional prompt for describe image.", visible=MiniCPM.get_enable())
+                                        value=modules.config.default_describe_content_type, visible= not MiniCPM.get_enable(),
+                                        info='To use natural language, go to settings to enable MiniCPM')
+                                    describe_prompt = gr.Textbox(label="MiniCPM enabled: Enter additional prompts (optional).", show_label=True, max_lines=1, placeholder="Type additional prompt for describe image.", visible=MiniCPM.get_enable())
                                     with gr.Row():
                                         describe_apply_styles = gr.Checkbox(label='Apply Styles', value=modules.config.default_describe_apply_prompts_checkbox, visible=not MiniCPM.get_enable())
-                                        describe_output_tags = gr.Checkbox(label='Output with tags', value=False, visible=MiniCPM.get_enable())
+                                        describe_output_tags = gr.Checkbox(label='Output with tags', value=True, visible=MiniCPM.get_enable())
                                         describe_output_chinese = gr.Checkbox(label='Output in Chinese', value=False, visible=MiniCPM.get_enable())
                                 describe_image_size = gr.Textbox(label='Original Size / Recommended Size', elem_id='describe_image_size', visible=False)
                                 describe_btn = gr.Button(value='Describe this Image into Prompt')
@@ -2037,7 +2038,10 @@ with shared.gradio_root:
                     return gr.update(interactive=False, visible=True)
             else:
                 return gr.update()
-
+        def update_describe_output_tags(engine_class_display):
+            if engine_class_display in ['SDXL', 'SD15', 'Illustrious']:
+                return gr.update(value=True)
+            return gr.update(value=False)
 
         scene_canvas_image.upload(trigger_auto_aspect_ratio_for_scene_from_canvas_image, inputs=[state_topbar, scene_canvas_image, scene_input_image1, scene_theme], outputs=[scene_aspect_ratio, generate_button], show_progress=False, queue=False).then(lambda: None, _js='()=>{refresh_scene_localization();}')
         #scene_canvas_image.change(scene_canvas_image_clear, inputs=[state_topbar, scene_canvas_image, scene_input_image1], outputs=[generate_button], show_progress=False, queue=False)
@@ -2114,6 +2118,7 @@ with shared.gradio_root:
                .then(fn=lambda x: None, inputs=system_params, _js='(x)=>{refresh_topbar_status_js(x);}') \
                .then(lambda: None, _js='()=>{refresh_style_localization();}') \
                .then(lambda: None, _js='()=>{refresh_scene_localization();}') \
+               .then(update_describe_output_tags, inputs=engine_class_display, outputs=describe_output_tags, queue=False, show_progress=False) \
                .then(inpaint_mode_change, inputs=[inpaint_mode, inpaint_engine_state, outpaint_selections, state_topbar], outputs=[inpaint_additional_prompt, outpaint_selections, example_inpaint_prompts, inpaint_disable_initial_latent, inpaint_engine, inpaint_strength, inpaint_respective_field], show_progress=False, queue=False) \
                .then(inpaint_engine_state_change, inputs=[inpaint_engine_state, state_topbar] + enhance_inpaint_mode_ctrls, outputs=enhance_inpaint_engine_ctrls, queue=False, show_progress=False)  \
                .then(fn=lambda: [gr.update(visible=False),False,[],"base",gr.update(variant="secondary"),gr.update(variant="secondary")]
@@ -2137,7 +2142,6 @@ with shared.gradio_root:
 def dump_default_english_config():
     from modules.localization import dump_english_config
     dump_english_config(grh.all_components)
-
 
 #dump_default_english_config()
 import logging
