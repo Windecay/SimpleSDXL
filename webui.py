@@ -1145,7 +1145,7 @@ with shared.gradio_root:
                                         describe_apply_styles = gr.Checkbox(label='Apply Styles', value=modules.config.default_describe_apply_prompts_checkbox, visible=not MiniCPM.get_enable())
                                         describe_output_tags = gr.Checkbox(label='Output with tags', value=True, visible=MiniCPM.get_enable())
                                         describe_output_chinese = gr.Checkbox(label='Output in Chinese', value=False, visible=MiniCPM.get_enable())
-                                describe_image_size = gr.Textbox(label='Original Size / Recommended Size', elem_id='describe_image_size', visible=False)
+                                describe_image_size = gr.Button(label='Original Size / Recommended Size', elem_id='describe_image_size', visible=False)
                                 describe_btn = gr.Button(value='Describe this Image into Prompt')
                                 gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/1363" target="_blank">\U0001F4D4 Documentation</a>')
 
@@ -1153,7 +1153,30 @@ with shared.gradio_root:
                                     image_size = modules.util.get_image_size_info(image, modules.flags.available_aspect_ratios[0])
                                     return gr.update(value=image_size, visible=True)
 
+                                def apply_recommended_size(button_text):
+                                    try:
+                                        if ' / ' in button_text:
+                                            parts = button_text.split(' / ')
+                                            if len(parts) > 1:
+                                                recommended_part = parts[1].strip()
+                                            else:
+                                                recommended_part = button_text
+                                        else:
+                                            recommended_part = button_text
+
+                                        if 'x' in recommended_part:
+                                            size_part = recommended_part.split('|')[0].strip()
+                                            width_str, height_str = size_part.split('x')[:2]
+                                            width = int(''.join(filter(str.isdigit, width_str)))
+                                            height = int(''.join(filter(str.isdigit, height_str)))
+                                            return [width, height]
+                                        else:
+                                            return [gr.update(), gr.update()]
+                                    except Exception:
+                                        return [gr.update(), gr.update()]
+
                                 describe_input_image.upload(trigger_show_image_properties, inputs=describe_input_image, outputs=describe_image_size, show_progress=False, queue=False)
+                                describe_image_size.click(apply_recommended_size, inputs=describe_image_size, outputs=[overwrite_width, overwrite_height], show_progress=False, queue=False)
 
                     with gr.Tab(label='Metadata', id='metadata_tab', visible=True) as metadata_tab:
                         with gr.Column():
