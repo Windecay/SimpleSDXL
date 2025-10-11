@@ -1649,7 +1649,7 @@ with shared.gradio_root:
                                         minicpm_checkbox = gr.Checkbox(label='Enable MiniCPM', value=ads.get_admin_default('minicpm_checkbox'), info='Enable it for describe, translate and expand.')
                                         advanced_logs = gr.Checkbox(label='Enable advanced logs', value=ads.get_admin_default('advanced_logs'), info='Enabling with more infomation in logs.')
                                         with gr.Column():
-                                            minicpm_version = gr.Dropdown(label='MiniCPM Version', choices=['MiniCPMv26', 'MiniCPMv45'], value=ads.get_admin_default('minicpm_version'), info='Select the MiniCPM model version to use', max_width=100)
+                                            minicpm_version = gr.Dropdown(label='MiniCPM Version', choices=['MiniCPMv26', 'MiniCPMv45'], value=ads.get_admin_default('minicpm_version'), info='Select the MiniCPM model version to use')
                                     with gr.Row(visible=True if not args_manager.args.disable_backend else False):
                                         reserved_vram = gr.Slider(label='Reserved VRAM(GB)', minimum=0, maximum=24, step=0.1, value=ads.get_admin_default('reserved_vram'))
                                         wavespeed_strength = gr.Slider(label='wavespeed_strength', minimum=0, maximum=1, step=0.01, value=ads.get_admin_default('wavespeed_strength'))
