@@ -1551,9 +1551,9 @@ with shared.gradio_root:
                             lora_models.append(lora_model)
                             with gr.Column(min_width=80):
                                 send_to_prompt_btn = gr.Button("✅", variant="secondary",
-                                                            elem_id=f"lora_send_to_prompt_{i}")
+                                                            elem_id=f"lora_send_to_prompt_{i}", elem_classes='lora_send_to_prompt')
                                 lora_save_btns.append(gr.Button("💾", variant="secondary",
-                                                            elem_id=f"lora_save_{i}"))
+                                                            elem_id=f"lora_save_{i}", elem_classes='lora_save'))
                             lora_save_btns[i].click(
                                 fn=save_trigger_word,
                                 inputs=[lora_models[i], lora_trigger_words[i]],

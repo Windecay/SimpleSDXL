@@ -1025,3 +1025,11 @@ button.gallery-item {
   height: 42px;
   min-width: min(200px, 100%) !important;
 }
+
+.lora_send_to_prompt {
+  min-height: 50px;
+}
+
+.lora_save {
+  min-height: 50px;
+}
