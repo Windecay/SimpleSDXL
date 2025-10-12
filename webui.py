@@ -996,39 +996,11 @@ with shared.gradio_root:
                     def reversed_checked(r):
                         return gr.update(visible=not r)
 
-                    seed_random.change(reversed_checked, inputs=[seed_random], outputs=[image_seed],
-                                   queue=False, show_progress=False)
-                    scene_seed_random.change(
-                        lambda x: [gr.update(value=x), gr.update(visible=not x)],
-                        inputs=scene_seed_random,
-                        outputs=[seed_random, image_seed],
-                        queue=False,
-                        show_progress=False
-                    )
-
-                    seed_random.change(
-                        lambda x: [gr.update(value=x), gr.update(visible=not x)],
-                        inputs=seed_random,
-                        outputs=[scene_seed_random, scene_image_seed],
-                        queue=False,
-                        show_progress=False
-                    )
-
-                    scene_image_seed.change(
-                        lambda x: gr.update(value=x),
-                        inputs=scene_image_seed,
-                        outputs=image_seed,
-                        queue=False,
-                        show_progress=False
-                    )
-
-                    image_seed.change(
-                        lambda x: gr.update(value=x),
-                        inputs=image_seed,
-                        outputs=scene_image_seed,
-                        queue=False,
-                        show_progress=False
-                    )
+                    seed_random.change(reversed_checked, inputs=[seed_random], outputs=[image_seed], queue=False, show_progress=False)
+                    scene_seed_random.change(lambda x: [gr.update(value=x), gr.update(visible=not x)], inputs=scene_seed_random, outputs=[seed_random, image_seed], queue=False, show_progress=False)
+                    seed_random.change(lambda x: [gr.update(value=x), gr.update(visible=not x)], inputs=seed_random, outputs=[scene_seed_random, scene_image_seed], queue=False, show_progress=False)
+                    scene_image_seed.change(lambda x: gr.update(value=x), inputs=scene_image_seed, outputs=image_seed, queue=False, show_progress=False)
+                    image_seed.change(lambda x: gr.update(value=x), inputs=image_seed, outputs=scene_image_seed, queue=False, show_progress=False)
                 with gr.Tab(label="Advanced"):
                     with gr.Group():
                         guidance_scale = gr.Slider(label='Guidance Scale', minimum=0.01, maximum=30.0, step=0.01,
@@ -1479,26 +1451,14 @@ with shared.gradio_root:
                         with gr.Row():
                             lora_gallery = gr.Gallery(label=f"LoRA {i + 1} Previews", columns=4, rows=2, height="auto", visible=False, elem_classes="lora-gallery")
                             lora_galleries.append(lora_gallery)
-                    scene_lora_model.change(
-                        fn=lambda model, weight: (model, weight) if model != "None" else (lora_ctrls[1].value, lora_ctrls[2].value),
-                        inputs=[scene_lora_model, scene_lora_weight],
-                        outputs=[lora_ctrls[1], lora_ctrls[2]]
-                    )
-                    scene_lora_model_2.change(
-                        fn=lambda model, weight: (model, weight) if model != "None" else (lora_ctrls[4].value, lora_ctrls[5].value),
-                        inputs=[scene_lora_model_2, scene_lora_weight_2],
-                        outputs=[lora_ctrls[4], lora_ctrls[5]]
-                    )
-                    scene_lora_model_3.change(
-                        fn=lambda model, weight: (model, weight) if model != "None" else (lora_ctrls[7].value, lora_ctrls[8].value),
-                        inputs=[scene_lora_model_3, scene_lora_weight_3],
-                        outputs=[lora_ctrls[7], lora_ctrls[8]]
-                    )
-                    scene_lora_model_4.change(
-                        fn=lambda model, weight: (model, weight) if model != "None" else (lora_ctrls[10].value, lora_ctrls[11].value),
-                        inputs=[scene_lora_model_4, scene_lora_weight_4],
-                        outputs=[lora_ctrls[10], lora_ctrls[11]]
-                    )
+                    scene_lora_model.change(fn=lambda model, weight: (model, weight) if model != "None" else (lora_ctrls[1].value, lora_ctrls[2].value), inputs=[scene_lora_model, scene_lora_weight], outputs=[lora_ctrls[1], lora_ctrls[2]])
+                    scene_lora_model_2.change(fn=lambda model, weight: (model, weight) if model != "None" else (lora_ctrls[4].value, lora_ctrls[5].value), inputs=[scene_lora_model_2, scene_lora_weight_2], outputs=[lora_ctrls[4], lora_ctrls[5]])
+                    scene_lora_model_3.change(fn=lambda model, weight: (model, weight) if model != "None" else (lora_ctrls[7].value, lora_ctrls[8].value), inputs=[scene_lora_model_3, scene_lora_weight_3], outputs=[lora_ctrls[7], lora_ctrls[8]])
+                    scene_lora_model_4.change(fn=lambda model, weight: (model, weight) if model != "None" else (lora_ctrls[10].value, lora_ctrls[11].value), inputs=[scene_lora_model_4, scene_lora_weight_4], outputs=[lora_ctrls[10], lora_ctrls[11]])
+                    scene_lora_weight.change(fn=lambda weight: weight, inputs=[scene_lora_weight], outputs=[lora_ctrls[2]])
+                    scene_lora_weight_2.change(fn=lambda weight: weight, inputs=[scene_lora_weight_2], outputs=[lora_ctrls[5]])
+                    scene_lora_weight_3.change(fn=lambda weight: weight, inputs=[scene_lora_weight_3], outputs=[lora_ctrls[8]])
+                    scene_lora_weight_4.change(fn=lambda weight: weight, inputs=[scene_lora_weight_4], outputs=[lora_ctrls[11]])
                     for i in range(len(modules.config.default_loras)):
                         lora_galleries[i].select(on_lora_gallery_select,
                                                  inputs=[lora_current_previews[i], gr.State(i)],
