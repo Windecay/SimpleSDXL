@@ -1274,7 +1274,7 @@
         0
       ],
       "on_false": [
-        "74",
+        "676",
         0
       ]
     },
@@ -1294,7 +1294,7 @@
         0
       ],
       "on_false": [
-        "74",
+        "676",
         0
       ]
     },
@@ -2890,19 +2890,11 @@
       "title": "🔧 Image Resize"
     }
   },
-  "332": {
-    "inputs": {
-      "boolean": false
-    },
-    "class_type": "easy ifElse",
-    "_meta": {
-      "title": "If else"
-    }
-  },
   "333": {
     "inputs": {
+      "strength": 1,
       "model": [
-        "389",
+        "679",
         0
       ]
     },
@@ -6579,7 +6571,7 @@
     "inputs": {
       "total": 4,
       "initial_value1": [
-        "74",
+        "676",
         0
       ]
     },
@@ -7350,6 +7342,90 @@
     "class_type": "BatchCropFromMaskAdvanced",
     "_meta": {
       "title": "Batch Crop From Mask Advanced"
+    }
+  },
+  "676": {
+    "inputs": {
+      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "strength_model": 0,
+      "model": [
+        "678",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_8"
+    }
+  },
+  "677": {
+    "inputs": {
+      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "strength_model": 0,
+      "model": [
+        "74",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_6"
+    }
+  },
+  "678": {
+    "inputs": {
+      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "strength_model": 0,
+      "model": [
+        "677",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_7"
+    }
+  },
+  "679": {
+    "inputs": {
+      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "strength_model": 0,
+      "model": [
+        "681",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_8"
+    }
+  },
+  "680": {
+    "inputs": {
+      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "strength_model": 0,
+      "model": [
+        "389",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_6"
+    }
+  },
+  "681": {
+    "inputs": {
+      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "strength_model": 0,
+      "model": [
+        "680",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_7"
     }
   }
 }

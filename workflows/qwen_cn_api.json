@@ -204,7 +204,7 @@
     "inputs": {
       "shift": 3.1,
       "model": [
-        "19",
+        "29",
         0
       ]
     },
@@ -271,6 +271,48 @@
     "class_type": "PathchSageAttentionKJ",
     "_meta": {
       "title": "Patch Sage Attention KJ"
+    }
+  },
+  "27": {
+    "inputs": {
+      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "strength_model": 0,
+      "model": [
+        "19",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_6"
+    }
+  },
+  "28": {
+    "inputs": {
+      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "strength_model": 0,
+      "model": [
+        "27",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_7"
+    }
+  },
+  "29": {
+    "inputs": {
+      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "strength_model": 0,
+      "model": [
+        "28",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_8"
     }
   }
 }

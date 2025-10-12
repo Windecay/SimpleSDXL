@@ -884,6 +884,7 @@
   },
   "195": {
     "inputs": {
+      "strength": 1,
       "model": [
         "487",
         0
@@ -1935,6 +1936,7 @@
   },
   "305": {
     "inputs": {
+      "strength": 1,
       "model": [
         "596",
         0
@@ -6111,7 +6113,7 @@
     "inputs": {
       "total": 4,
       "initial_value1": [
-        "91",
+        "641",
         0
       ]
     },
@@ -6258,6 +6260,48 @@
     "class_type": "CLIPTextEncode",
     "_meta": {
       "title": "CLIP Text Encode (Prompt)"
+    }
+  },
+  "639": {
+    "inputs": {
+      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "strength_model": 0,
+      "model": [
+        "91",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_6"
+    }
+  },
+  "640": {
+    "inputs": {
+      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "strength_model": 0,
+      "model": [
+        "639",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_7"
+    }
+  },
+  "641": {
+    "inputs": {
+      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "strength_model": 0,
+      "model": [
+        "640",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_8"
     }
   }
 }

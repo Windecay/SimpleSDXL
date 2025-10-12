@@ -303,7 +303,7 @@
     "inputs": {
       "sage_attention": "auto",
       "model": [
-        "86",
+        "31",
         0
       ]
     },
@@ -314,9 +314,9 @@
   },
   "34": {
     "inputs": {
-      "strength": 1.1,
+      "strength": 1,
       "model": [
-        "83",
+        "88",
         0
       ]
     },
@@ -375,7 +375,7 @@
       "lora_name": "lightx2v_T2V_14B_cfg_step_distill_v2_lora_rank64_bf16.safetensors",
       "strength_model": 1,
       "model": [
-        "85",
+        "90",
         0
       ]
     },
@@ -547,7 +547,7 @@
     },
     "class_type": "LoraLoaderModelOnly",
     "_meta": {
-      "title": "lora_2"
+      "title": "lora_3"
     }
   },
   "83": {
@@ -561,7 +561,7 @@
     },
     "class_type": "LoraLoaderModelOnly",
     "_meta": {
-      "title": "lora_3"
+      "title": "lora_5"
     }
   },
   "84": {
@@ -575,7 +575,7 @@
     },
     "class_type": "LoraLoaderModelOnly",
     "_meta": {
-      "title": "lora_4"
+      "title": "lora_2"
     }
   },
   "85": {
@@ -589,21 +589,7 @@
     },
     "class_type": "LoraLoaderModelOnly",
     "_meta": {
-      "title": "lora_5"
-    }
-  },
-  "86": {
-    "inputs": {
-      "reserved": 1.0,
-      "mode": "manual",
-      "anything": [
-        "31",
-        0
-      ]
-    },
-    "class_type": "ReservedVRAMSetter",
-    "_meta": {
-      "title": "Set Reserved VRAM(GB) ⚙️"
+      "title": "lora_4"
     }
   },
   "87": {
@@ -622,6 +608,48 @@
     "class_type": "RIFEInterpolation",
     "_meta": {
       "title": "RIFE Frame Interpolation"
+    }
+  },
+  "88": {
+    "inputs": {
+      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "strength_model": 0,
+      "model": [
+        "83",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_7"
+    }
+  },
+  "89": {
+    "inputs": {
+      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "strength_model": 0,
+      "model": [
+        "85",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_6"
+    }
+  },
+  "90": {
+    "inputs": {
+      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "strength_model": 0,
+      "model": [
+        "89",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_8"
     }
   }
 }

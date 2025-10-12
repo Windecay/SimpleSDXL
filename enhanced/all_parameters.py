@@ -105,7 +105,7 @@ default = {
     'inpaint_erode_or_dilate': 0,
     'loras_min_weight': -2,
     'loras_max_weight': 2,
-    'max_lora_number': 5,
+    'max_lora_number': 8,
     'max_image_number': 32,
     'image_number': 2,
     'output_format': 'jpeg',

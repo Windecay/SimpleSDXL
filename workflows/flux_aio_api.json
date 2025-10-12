@@ -852,6 +852,7 @@
   },
   "208": {
     "inputs": {
+      "strength": 1,
       "model": [
         "626",
         0
@@ -5474,6 +5475,7 @@
   },
   "664": {
     "inputs": {
+      "strength": 1,
       "model": [
         "401",
         0
@@ -6571,7 +6573,7 @@
         0
       ],
       "model": [
-        "571",
+        "768",
         0
       ]
     },
@@ -6804,6 +6806,48 @@
     "class_type": "BatchCropFromMaskAdvanced",
     "_meta": {
       "title": "Batch Crop From Mask Advanced"
+    }
+  },
+  "766": {
+    "inputs": {
+      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "strength_model": 0,
+      "model": [
+        "571",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_6"
+    }
+  },
+  "767": {
+    "inputs": {
+      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "strength_model": 0,
+      "model": [
+        "766",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_7"
+    }
+  },
+  "768": {
+    "inputs": {
+      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "strength_model": 0,
+      "model": [
+        "767",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_8"
     }
   }
 }
