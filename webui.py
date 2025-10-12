@@ -1632,8 +1632,8 @@ with shared.gradio_root:
                     results += [gr.update(choices=['None'] + model_filenames)]
                     results += [gr.update(choices=[flags.default_vae] + vae_filenames)]
                     for i in range(4):
-                        results += [gr.update(choices=['None'] + lora_filenames), gr.update(),
-                                    gr.update(interactive=True)]
+                        results.append(gr.update(choices=['None'] + lora_filenames))
+                        results.append(gr.update(interactive=True))
                     for i in range(modules.config.default_max_lora_number):
                         results += [gr.update(interactive=True),
                                     gr.update(choices=['None'] + lora_filenames), gr.update()]
