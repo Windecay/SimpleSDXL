@@ -724,18 +724,30 @@ def update_navbar_from_mystore(selected_preset, state):
     available_presets_count = 0
 
     missing_model_filter = ads.get_admin_default("missing_model_filter_checkbox")
+
+    filtered_nav_array = []
     for preset in nav_array:
         if preset:
             if not missing_model_filter or not is_models_file_absent(preset, user_did):
                 available_presets_count += 1
+                filtered_nav_array.append(preset)
+            else:
+                logger.info(f'[Preset Management] Filtered out preset with missing model: {preset}')
+
+    if len(filtered_nav_array) != len([p for p in nav_array if p]):
+        nav_array = filtered_nav_array
+        if 'user' in state and not shared.token.is_guest(state["user"].get_did()):
+            filtered_nav_name_list = ','.join(nav_array)
+            shared.token.set_local_vars("user_presets", filtered_nav_name_list, state["__session"], state["ua_hash"])
 
     if selected_preset in ["default", state["__preset"]]:
         return results + results2
     if selected_preset in nav_array:
         nav_array.remove(selected_preset)
-        logger.info(f'Withdraw the preset/回撤预置包: {selected_preset}.')
+        logger.info(f'[Preset Management] Withdraw the preset/回撤预置包: {selected_preset}.')
     else:
-        if available_presets_count >= shared.BUTTON_NUM:
+        elimination_threshold = max(available_presets_count, len(nav_array))
+        if elimination_threshold >= shared.BUTTON_NUM:
             if state["__preset"] not in nav_array:
                 return results + results2
             position = nav_array.index(state["__preset"])
@@ -744,13 +756,16 @@ def update_navbar_from_mystore(selected_preset, state):
             else:
                 nav_array = nav_array[:-1]
         nav_array.append(selected_preset)
-        logger.info(f'Launch the preset/启用预置包: {selected_preset}.')
+        logger.info(f'[Preset Management] Launch the preset/启用预置包: {selected_preset}.')
+
     nav_name_list = ','.join(nav_array)
     if 'user' in state and not shared.token.is_guest(state["user"].get_did()):
-        logger.info(f"save mypreset: {nav_name_list}")
+        logger.info(f"[Preset Management] save mypreset: {nav_name_list}")
         shared.token.set_local_vars("user_presets", nav_name_list, state["__session"], state["ua_hash"])
-
-    return refresh_nav_bars(state) + update_topbar_js_params(state)
+    try:
+        return refresh_nav_bars(state) + update_topbar_js_params(state)
+    except TypeError as e:
+        logger.error(f"UI Update Error: {str(e)}")
 
 def admin_sync_to_guest(state, catalog='presets'):
     user_did = state["user"].get_did()
