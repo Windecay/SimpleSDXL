@@ -355,6 +355,11 @@ with shared.gradio_root:
                             scene_use_lora = gr.Checkbox(label='Use LoRAs', value=False, visible=True)
                         lora_group = gr.Group(visible=False)
                         with lora_group:
+                            from modules.lora_trigger_manager import get_lora_trigger_word, update_trigger_word, save_trigger_word, send_trigger_to_prompt
+
+                            scene_lora_trigger_words = []
+                            scene_lora_send_to_prompt_btns = []
+                            scene_lora_save_btns = []
                             with gr.Row():
                                 scene_lora_model = gr.Dropdown(label='LoRA 1 / HighNoise ',
                                                               choices=['None'] + modules.config.lora_filenames, value='None', 
@@ -363,12 +368,52 @@ with shared.gradio_root:
                                                              maximum=modules.config.default_loras_max_weight, step=0.01, value=1.0, 
                                                              elem_classes='lora_weight', scale=5,interactive=True)
                             with gr.Row():
+                                trigger_word_value_0 = get_lora_trigger_word(scene_lora_model.value) if scene_lora_model.value != 'None' else ''
+                                scene_lora_trigger_word_0 = gr.Textbox(label='Trigger Word', value=trigger_word_value_0,
+                                                                   placeholder='Input LoRA trigger word',
+                                                                   elem_id="scene_lora_trigger_word_0", min_width=300, lines=1, scale=5)
+                                scene_lora_trigger_words.append(scene_lora_trigger_word_0)
+                                with gr.Column(min_width=80):
+                                    scene_send_to_prompt_btn_0 = gr.Button("✅", variant="secondary",elem_id=f"scene_lora_send_to_prompt_0")
+                                    scene_lora_save_btns.append(gr.Button("💾", variant="secondary",elem_id=f"scene_lora_save_0"))
+                                scene_lora_save_btns[0].click(
+                                    fn=save_trigger_word,
+                                    inputs=[scene_lora_model, scene_lora_trigger_word_0],
+                                    outputs=[scene_lora_trigger_word_0]
+                                )
+                                scene_lora_send_to_prompt_btns.append(scene_send_to_prompt_btn_0)
+                                scene_send_to_prompt_btn_0.click(
+                                    fn=send_trigger_to_prompt,
+                                    inputs=[scene_lora_model, scene_lora_trigger_word_0],
+                                    outputs=[scene_lora_send_to_prompt_btns[0]]
+                                )
+                            with gr.Row():
                                 scene_lora_model_2 = gr.Dropdown(label='LoRA 2 / HighNoise',
                                                                choices=['None'] + modules.config.lora_filenames, value='None', 
                                                                elem_classes='lora_model', scale=5, elem_id="scene_lora_dropdown_1",interactive=True)
                                 scene_lora_weight_2 = gr.Slider(label='Weight', minimum=modules.config.default_loras_min_weight, 
                                                                 maximum=modules.config.default_loras_max_weight, step=0.01, value=1.0, 
                                                                 elem_classes='lora_weight', scale=5,interactive=True)
+                            with gr.Row():
+                                trigger_word_value_1 = get_lora_trigger_word(scene_lora_model.value) if scene_lora_model.value != 'None' else ''
+                                scene_lora_trigger_word_1 = gr.Textbox(label='Trigger Word', value=trigger_word_value_0,
+                                                                   placeholder='Input LoRA trigger word',
+                                                                   elem_id="scene_lora_trigger_word_0", min_width=300, lines=1, scale=5)
+                                scene_lora_trigger_words.append(scene_lora_trigger_word_1)
+                                with gr.Column(min_width=80):
+                                    scene_send_to_prompt_btn_1 = gr.Button("✅", variant="secondary",elem_id=f"scene_lora_send_to_prompt_0")
+                                    scene_lora_save_btns.append(gr.Button("💾", variant="secondary",elem_id=f"scene_lora_save_0"))
+                                scene_lora_save_btns[0].click(
+                                    fn=save_trigger_word,
+                                    inputs=[scene_lora_model, scene_lora_trigger_word_1],
+                                    outputs=[scene_lora_trigger_word_1]
+                                )
+                                scene_lora_send_to_prompt_btns.append(scene_send_to_prompt_btn_1)
+                                scene_send_to_prompt_btn_1.click(
+                                    fn=send_trigger_to_prompt,
+                                    inputs=[scene_lora_model, scene_lora_trigger_word_1],
+                                    outputs=[scene_lora_send_to_prompt_btns[1]]
+                                )
                             with gr.Row():
                                 scene_lora_model_3 = gr.Dropdown(label='LoRA 3 / LowNoise',
                                                                choices=['None'] + modules.config.lora_filenames, value='None', 
@@ -377,12 +422,52 @@ with shared.gradio_root:
                                                                 maximum=modules.config.default_loras_max_weight, step=0.01, value=1.0, 
                                                                 elem_classes='lora_weight', scale=5,interactive=True)
                             with gr.Row():
+                                trigger_word_value_2 = get_lora_trigger_word(scene_lora_model_3.value) if scene_lora_model_3.value != 'None' else ''
+                                scene_lora_trigger_word_2 = gr.Textbox(label='Trigger Word', value=trigger_word_value_2,
+                                                                   placeholder='Input LoRA trigger word',
+                                                                   elem_id="scene_lora_trigger_word_2", min_width=300, lines=1, scale=5)
+                                scene_lora_trigger_words.append(scene_lora_trigger_word_2)
+                                with gr.Column(min_width=80):
+                                    scene_send_to_prompt_btn_2 = gr.Button("✅", variant="secondary",elem_id=f"scene_lora_send_to_prompt_2")
+                                    scene_lora_save_btns.append(gr.Button("💾", variant="secondary",elem_id=f"scene_lora_save_2"))
+                                scene_lora_save_btns[2].click(
+                                    fn=save_trigger_word,
+                                    inputs=[scene_lora_model_3, scene_lora_trigger_word_2],
+                                    outputs=[scene_lora_trigger_word_2]
+                                )
+                                scene_lora_send_to_prompt_btns.append(scene_send_to_prompt_btn_2)
+                                scene_send_to_prompt_btn_2.click(
+                                    fn=send_trigger_to_prompt,
+                                    inputs=[scene_lora_model_3, scene_lora_trigger_word_2],
+                                    outputs=[scene_lora_send_to_prompt_btns[2]]
+                                )
+                            with gr.Row():
                                 scene_lora_model_4 = gr.Dropdown(label='LoRA 4 / LowNoise',
                                                                choices=['None'] + modules.config.lora_filenames, value='None', 
                                                                elem_classes='lora_model', scale=5, elem_id="scene_lora_dropdown_3",interactive=True)
                                 scene_lora_weight_4 = gr.Slider(label='Weight', minimum=modules.config.default_loras_min_weight, 
                                                                 maximum=modules.config.default_loras_max_weight, step=0.01, value=1.0, 
                                                                 elem_classes='lora_weight', scale=5,interactive=True)
+                            with gr.Row():
+                                trigger_word_value_3 = get_lora_trigger_word(scene_lora_model_4.value) if scene_lora_model_4.value != 'None' else ''
+                                scene_lora_trigger_word_3 = gr.Textbox(label='Trigger Word', value=trigger_word_value_3,
+                                                                   placeholder='Input LoRA trigger word',
+                                                                   elem_id="scene_lora_trigger_word_3", min_width=300, lines=1, scale=5)
+                                scene_lora_trigger_words.append(scene_lora_trigger_word_3)
+                                with gr.Column(min_width=80):
+                                    scene_send_to_prompt_btn_3 = gr.Button("✅", variant="secondary",elem_id=f"scene_lora_send_to_prompt_3")
+                                    scene_lora_save_btns.append(gr.Button("💾", variant="secondary",elem_id=f"scene_lora_save_3"))
+                                scene_lora_save_btns[3].click(
+                                    fn=save_trigger_word,
+                                    inputs=[scene_lora_model_4, scene_lora_trigger_word_3],
+                                    outputs=[scene_lora_trigger_word_3]
+                                )
+                                scene_lora_send_to_prompt_btns.append(scene_send_to_prompt_btn_3)
+                                scene_send_to_prompt_btn_3.click(
+                                    fn=send_trigger_to_prompt,
+                                    inputs=[scene_lora_model_4, scene_lora_trigger_word_3],
+                                    outputs=[scene_lora_send_to_prompt_btns[3]]
+                                )
                         scene_use_lora.change(
                             fn=lambda x: gr.update(visible= x),
                             inputs=scene_use_lora,
@@ -1432,6 +1517,12 @@ with shared.gradio_root:
                     lora_galleries = []
                     lora_preview_btns = []
                     lora_models = []
+                    lora_trigger_words = []
+                    lora_send_to_prompt_btns = []
+                    lora_save_btns = []
+
+                    from modules.lora_trigger_manager import get_lora_trigger_word, update_trigger_word, save_trigger_word, send_trigger_to_prompt
+
                     for i, (enabled, filename, weight) in enumerate(modules.config.default_loras):
                         with gr.Row():
                             lora_enabled = gr.Checkbox(label='Enable', value=enabled,
@@ -1445,20 +1536,70 @@ with shared.gradio_root:
                             lora_weight = gr.Slider(label='Weight', minimum=modules.config.default_loras_min_weight,
                                                     maximum=modules.config.default_loras_max_weight, step=0.01, value=weight,
                                                     elem_classes='lora_weight', scale=5)
+
+                            trigger_word_value = get_lora_trigger_word(filename) if filename != 'None' else ''
+                        with gr.Row():
+                            lora_trigger_word = gr.Textbox(label='Trigger Word', value=trigger_word_value,
+                                                         placeholder='Input LoRA trigger word',
+                                                         elem_id=f"lora_trigger_word_{i}", min_width=300,lines=1, scale=5)
+                            lora_trigger_words.append(lora_trigger_word)
                             lora_ctrls += [lora_enabled, lora_model, lora_weight]
                             lora_models.append(lora_model)
+                            with gr.Column(min_width=80):
+                                send_to_prompt_btn = gr.Button("✅", variant="secondary",
+                                                            elem_id=f"lora_send_to_prompt_{i}")
+                                lora_save_btns.append(gr.Button("💾", variant="secondary",
+                                                            elem_id=f"lora_save_{i}"))
+                            lora_save_btns[i].click(
+                                fn=save_trigger_word,
+                                inputs=[lora_models[i], lora_trigger_words[i]],
+                                outputs=[lora_trigger_words[i]]
+                            )
+                            lora_send_to_prompt_btns.append(send_to_prompt_btn)
+                            send_to_prompt_btn.click(
+                                fn=send_trigger_to_prompt,
+                                inputs=[lora_model, lora_trigger_word],
+                                outputs=[lora_send_to_prompt_btns[i]]
+                            ).then(fn=None, _js=f"autoAddLoraTriggerWord('{lora_trigger_word.elem_id}', '{lora_model.elem_id}')")
+
+                    for i in range(len(lora_models)):
+                        lora_models[i].change(
+                            fn=update_trigger_word,
+                            inputs=[lora_models[i]],
+                            outputs=[lora_trigger_words[i]],
+                            queue=False, show_progress=False
+                        ).then(fn=None, _js=f"autoAddLoraTriggerWord('{lora_trigger_words[i].elem_id}', '{lora_models[i].elem_id}')")
 
                         with gr.Row():
                             lora_gallery = gr.Gallery(label=f"LoRA {i + 1} Previews", columns=4, rows=2, height="auto", visible=False, elem_classes="lora-gallery")
                             lora_galleries.append(lora_gallery)
-                    scene_lora_model.change(fn=lambda model, weight: (model, weight) if model != "None" else (lora_ctrls[1].value, lora_ctrls[2].value), inputs=[scene_lora_model, scene_lora_weight], outputs=[lora_ctrls[1], lora_ctrls[2]])
-                    scene_lora_model_2.change(fn=lambda model, weight: (model, weight) if model != "None" else (lora_ctrls[4].value, lora_ctrls[5].value), inputs=[scene_lora_model_2, scene_lora_weight_2], outputs=[lora_ctrls[4], lora_ctrls[5]])
-                    scene_lora_model_3.change(fn=lambda model, weight: (model, weight) if model != "None" else (lora_ctrls[7].value, lora_ctrls[8].value), inputs=[scene_lora_model_3, scene_lora_weight_3], outputs=[lora_ctrls[7], lora_ctrls[8]])
-                    scene_lora_model_4.change(fn=lambda model, weight: (model, weight) if model != "None" else (lora_ctrls[10].value, lora_ctrls[11].value), inputs=[scene_lora_model_4, scene_lora_weight_4], outputs=[lora_ctrls[10], lora_ctrls[11]])
-                    scene_lora_weight.change(fn=lambda weight: weight, inputs=[scene_lora_weight], outputs=[lora_ctrls[2]])
-                    scene_lora_weight_2.change(fn=lambda weight: weight, inputs=[scene_lora_weight_2], outputs=[lora_ctrls[5]])
-                    scene_lora_weight_3.change(fn=lambda weight: weight, inputs=[scene_lora_weight_3], outputs=[lora_ctrls[8]])
-                    scene_lora_weight_4.change(fn=lambda weight: weight, inputs=[scene_lora_weight_4], outputs=[lora_ctrls[11]])
+
+                        with gr.Row():
+                            lora_gallery = gr.Gallery(label=f"LoRA {i + 1} Previews", columns=4, rows=2, height="auto", visible=False, elem_classes="lora-gallery")
+                            lora_galleries.append(lora_gallery)
+                    scene_lora_models = [scene_lora_model, scene_lora_model_2, scene_lora_model_3, scene_lora_model_4]
+                    scene_lora_weights = [scene_lora_weight, scene_lora_weight_2, scene_lora_weight_3, scene_lora_weight_4]
+                    scene_lora_trigger_words = [scene_lora_trigger_words[0], scene_lora_trigger_words[1], scene_lora_trigger_words[2],scene_lora_trigger_words[3]]
+
+                    for i, (scene_model, scene_weight, ctrl_idx, trigger_word_id) in enumerate([
+                        (scene_lora_model, scene_lora_weight, 1, scene_lora_trigger_words[0].elem_id if scene_lora_trigger_words else ''),
+                        (scene_lora_model_2, scene_lora_weight_2, 4, scene_lora_trigger_words[1].elem_id if scene_lora_trigger_words else ''),
+                        (scene_lora_model_3, scene_lora_weight_3, 7, scene_lora_trigger_words[2].elem_id if len(scene_lora_trigger_words)>1 else ''),
+                        (scene_lora_model_4, scene_lora_weight_4, 10, scene_lora_trigger_words[3].elem_id if len(scene_lora_trigger_words)>2 else '')
+                    ]):
+                        scene_model.change(
+                            fn=lambda model, weight, idx=i, cidx=ctrl_idx: \
+                                (model, weight) if model != "None" else (lora_ctrls[cidx].value, lora_ctrls[cidx+1].value),
+                            inputs=[scene_model, scene_weight],
+                            outputs=[lora_ctrls[ctrl_idx], lora_ctrls[ctrl_idx+1]],
+                            queue=False, show_progress=False
+                        )
+                        scene_model.change(fn=update_trigger_word, inputs=[scene_model], outputs=[scene_lora_trigger_words[i] if scene_lora_trigger_words and i<len(scene_lora_trigger_words) else gr.Textbox()], queue=False, show_progress=False)
+                        if trigger_word_id and hasattr(scene_model, 'elem_id'): scene_model.change(fn=update_trigger_word, inputs=[scene_model], outputs=[scene_lora_trigger_words[i] if scene_lora_trigger_words and i<len(scene_lora_trigger_words) else gr.Textbox()], show_progress=False, queue=False)
+                        scene_lora_weight.change(fn=lambda weight: weight, inputs=[scene_lora_weight], outputs=[lora_ctrls[2]], show_progress=False, queue=False)
+                        scene_lora_weight_2.change(fn=lambda weight: weight, inputs=[scene_lora_weight_2], outputs=[lora_ctrls[5]], show_progress=False, queue=False)
+                        scene_lora_weight_3.change(fn=lambda weight: weight, inputs=[scene_lora_weight_3], outputs=[lora_ctrls[8]], show_progress=False, queue=False)
+                        scene_lora_weight_4.change(fn=lambda weight: weight, inputs=[scene_lora_weight_4], outputs=[lora_ctrls[11]], show_progress=False, queue=False)
                     for i in range(len(modules.config.default_loras)):
                         lora_galleries[i].select(on_lora_gallery_select,
                                                  inputs=[lora_current_previews[i], gr.State(i)],
@@ -2141,6 +2282,7 @@ with shared.gradio_root:
                       .then(lambda x: x, inputs=aspect_ratios_selections[0], outputs=aspect_ratios_selection, queue=False, show_progress=False) \
                       .then(lambda x: None, inputs=aspect_ratios_selections[0], queue=False, show_progress=False, _js='(x)=>{refresh_aspect_ratios_label(x);}') \
                       .then(fn=lambda: None, _js='refresh_grid_delayed') \
+                      .then(fn=lambda: [update_trigger_word(lora_models[i].value) for i in range(len(lora_models))], inputs=[], outputs=lora_trigger_words, queue=False, show_progress=False) \
                       .then(fn=lambda: None, _js='bindPluginBtn')
 
 def dump_default_english_config():

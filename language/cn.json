@@ -85,13 +85,15 @@
   "* Powered by Fooocus Inpaint Engine,": "* 由Fooocus重绘引擎支持, ",
   ", and Comfyd workflow engine from ComfyUI.": ", 以及源自ComfyUI的Comfyd工作流引擎.",
   "* Powered by Fooocus upscale engine,": "* 由Fooocus放大引擎支持, ",
-
+  "Trigger Word": "触发词",
+  "Input LoRA trigger word": "输入LoRA触发词",
   "Models": "模型",
   "Base Model (SDXL only)": "基础模型（右键展开）",
   "Refiner (SDXL or SD 1.5)": "精炼模型",
   "None": "无",
   "LoRAs (SDXL or SD 1.5)": "LoRAs局部模型",
   "Refresh": "刷新",
+
   "\ud83d\udd04 Refresh All Files": "\ud83d\udd04 本地刷新",
   "Image Sharpness": "图像锐度",
   "Higher value means image and texture are sharper.": "数值越高纹理越清晰。后续设置仅适用于SDXL",
