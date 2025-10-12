@@ -468,6 +468,10 @@ with shared.gradio_root:
                                     inputs=[scene_lora_model_4, scene_lora_trigger_word_3],
                                     outputs=[scene_lora_send_to_prompt_btns[3]]
                                 )
+                            scene_lora_ctrls = [scene_lora_model, scene_lora_weight,
+                                                scene_lora_model_2, scene_lora_weight_2,
+                                                scene_lora_model_3, scene_lora_weight_3,
+                                                scene_lora_model_4, scene_lora_weight_4]
                         scene_use_lora.change(
                             fn=lambda x: gr.update(visible= x),
                             inputs=scene_use_lora,
@@ -1627,12 +1631,15 @@ with shared.gradio_root:
                     results = [gr.update(choices=model_filenames)]
                     results += [gr.update(choices=['None'] + model_filenames)]
                     results += [gr.update(choices=[flags.default_vae] + vae_filenames)]
+                    for i in range(4):
+                        results += [gr.update(choices=['None'] + lora_filenames), gr.update(),
+                                    gr.update(interactive=True)]
                     for i in range(modules.config.default_max_lora_number):
                         results += [gr.update(interactive=True),
                                     gr.update(choices=['None'] + lora_filenames), gr.update()]
                     return results
 
-                refresh_files_output = [base_model, refiner_model, vae_name]
+                refresh_files_output = [base_model, refiner_model, vae_name] + scene_lora_ctrls
                 refresh_files.click(refresh_files_clicked, [state_topbar], refresh_files_output + lora_ctrls,
                                     queue=False, show_progress=False)
 
