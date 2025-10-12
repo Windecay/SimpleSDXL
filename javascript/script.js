@@ -503,7 +503,7 @@ function htmlDecode(input) {
         const loraDropdowns = gradioApp().querySelectorAll('[id^="lora_dropdown"]');
         loraDropdowns.forEach(dropdown => initDropdownPreview(dropdown, 'loras'));
     }
-
+    autoHideTimer = 3000;
     function initDropdownPreview(dropdown, folder) {
         if (!modelPreviewCache[folder]) modelPreviewCache[folder] = {};
         const folderCache = modelPreviewCache[folder];
@@ -748,3 +748,33 @@ function setupAutoTranslate() {
 }
 
 onUiLoaded(setupAutoTranslate);
+
+window.autoAddLoraTriggerWord = function(triggerWordElemId, modelElemId, directTriggerWord) {
+    try {
+        function addTriggerWordToPrompt(triggerWord) {
+            const positivePrompt = gradioApp().querySelector('#positive_prompt textarea');
+            if (positivePrompt) {
+                const currentText = positivePrompt.value.trim();
+                const separator = currentText ? ', ' : '';
+                positivePrompt.value = currentText + separator + triggerWord;
+                positivePrompt.dispatchEvent(new Event('input', { bubbles: true }));
+                console.log('Added trigger word to prompt:', triggerWord);
+            } else {
+                console.error('Positive prompt textarea not found');
+            }
+        }
+
+        if (typeof directTriggerWord === 'string') {
+            addTriggerWordToPrompt(directTriggerWord);
+        } else {
+            const triggerWordElem = gradioApp().querySelector(`#${triggerWordElemId} textarea`);
+            const modelElem = gradioApp().querySelector(`#${modelElemId}`);
+
+            if (modelElem && modelElem.value !== 'None' && triggerWordElem && triggerWordElem.value) {
+                addTriggerWordToPrompt(triggerWordElem.value);
+            }
+        }
+    } catch (error) {
+        console.error('Error in autoAddLoraTriggerWord:', error);
+    }
+};
