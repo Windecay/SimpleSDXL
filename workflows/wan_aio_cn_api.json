@@ -218,7 +218,7 @@
   },
   "118": {
     "inputs": {
-      "unet_name": "placeholder.gguf"
+      "unet_name": "Wan2.2-T2V-A14B-LowNoise-Q4_K_M.gguf"
     },
     "class_type": "UnetLoaderGGUF",
     "_meta": {
@@ -5100,7 +5100,7 @@
   },
   "863": {
     "inputs": {
-      "unet_name": "placeholder.gguf"
+      "unet_name": "Wan2.2-T2V-A14B-LowNoise-Q4_K_M.gguf"
     },
     "class_type": "UnetLoaderGGUF",
     "_meta": {
