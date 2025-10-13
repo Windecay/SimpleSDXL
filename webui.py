@@ -1856,13 +1856,13 @@ with shared.gradio_root:
                 if 'layer' in tab:
                     result += [gr.update(choices=flags.Performance.list()[:2]), gr.update(value=[s for s in styles if s!=fooocus_expansion and s!='Fooocus Sharp']), gr.update()]
                     result += [gr.update(value=False, interactive=False)]
-                    result += [gr.update(interactive=False)] * 17
+                    result += [gr.update(interactive=False)] * 26
                 elif 'uov' in tab:
                     result += [gr.update(choices=flags.Performance.list()), gr.update(), 1]
-                    result += [gr.update(interactive=True)] * 18
+                    result += [gr.update(interactive=True)] * 27
                 else:
                     result += [gr.update(choices=flags.Performance.list()), gr.update(), gr.update()]
-                    result += [gr.update(interactive=True)] * 18
+                    result += [gr.update(interactive=True)] * 27
                 return result
             
             uov_tab.select(lambda: 'uov', outputs=current_tab, queue=False, _js=down_js, show_progress=False).then(toggle_image_tab,inputs=[current_tab, style_selections], outputs=layout_image_tab, show_progress=False, queue=False)
@@ -1872,7 +1872,7 @@ with shared.gradio_root:
             enhance_tab.select(lambda: 'enhance', outputs=current_tab, queue=False, _js=down_js, show_progress=False).then(toggle_image_tab,inputs=[current_tab, style_selections], outputs=layout_image_tab, show_progress=False, queue=False)
 
             input_image_checkbox.change(lambda x: [gr.update(visible=x), gr.update(visible=x), gr.update(choices=flags.Performance.list()), gr.update(), 
-                gr.update()] + [gr.update(interactive=True)]*18, inputs=input_image_checkbox,
+                gr.update()] + [gr.update(interactive=True)]*27, inputs=input_image_checkbox,
                 outputs=[image_input_panel, engine_class_display] + layout_image_tab, queue=False, show_progress=False, _js=switch_js)
             prompt_panel_checkbox.change(lambda x: [gr.update(visible=x, open=x if x else True), gr.update(visible=x)],
                                          inputs=prompt_panel_checkbox, outputs=[prompt_wildcards, prompt_history], queue=False, show_progress=False,
