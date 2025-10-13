@@ -165,10 +165,16 @@ class AsyncTask:
 
         if len(self.loras) > 0:
             for i, (lora_name, lora_strength) in enumerate(self.loras):
-                self.params_backend.update({
-                    f"lora_{i+1}": lora_name,
-                    f"lora_{i+1}_strength": lora_strength,
-                })
+                if lora_name == 'None':
+                    self.params_backend.update({
+                        f"lora_{i+1}": 'placeholder.safetensors',
+                        f"lora_{i+1}_strength": 0.0,
+                    })
+                else:
+                    self.params_backend.update({
+                        f"lora_{i+1}": lora_name,
+                        f"lora_{i+1}_strength": lora_strength,
+                    })
 
         ui_options = {
             'iclight_enable': self.iclight_enable,

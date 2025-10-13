@@ -376,7 +376,7 @@
     "inputs": {
       "sage_attention": "auto",
       "model": [
-        "75",
+        "31",
         0
       ]
     },
@@ -905,20 +905,6 @@
     "class_type": "easy ifElse",
     "_meta": {
       "title": "If else"
-    }
-  },
-  "75": {
-    "inputs": {
-      "reserved": 1.0,
-      "mode": "manual",
-      "anything": [
-        "31",
-        0
-      ]
-    },
-    "class_type": "ReservedVRAMSetter",
-    "_meta": {
-      "title": "Set Reserved VRAM(GB) ⚙️"
     }
   },
   "76": {

@@ -71,12 +71,12 @@ def check_base_environment():
     print(f'{now_string()} 当前运行在可视化分支by冰華，部分界面和功能与主分支存在差异。')
 
     base_pkg = "simpleai_base"
-    ver_required = "0.3.24"
+    ver_required = "0.3.25"
     REINSTALL_BASE = True #if '_dev' not in version.get_branch() else True
     base_branch = "release"
     if '--dev' in (sys.argv):
         base_branch = 'dev'
-    base_url = f"https://modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/libs/{base_branch}"
+    base_url = f"https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/{base_branch}"
     #base_url = f"https://hf-mirror.com/metercai/SimpleSDXL2/resolve/main/libs/{base_branch}"
     base_file = {
         "Windows": f'simpleai_base-{ver_required}-cp310-cp310-win_amd64.whl',
@@ -237,13 +237,9 @@ def prepare_environment():
     return
 
 def create_placeholder_files():
-    # 定义checkpoints目录路径
     checkpoints_dir = config.paths_checkpoints
-    # 如果是列表，取第一个元素
     if isinstance(checkpoints_dir, list) and checkpoints_dir:
         checkpoints_dir = checkpoints_dir[0]
-        logger.info(f"Using first checkpoints directory from list: {checkpoints_dir}")
-    # 如果目录不存在则创建
     if not os.path.exists(checkpoints_dir):
         try:
             os.makedirs(checkpoints_dir)
@@ -252,7 +248,6 @@ def create_placeholder_files():
             logger.error(f"Failed to create checkpoints directory: {e}")
             return
 
-    # 创建safetensors占位文件
     safetensors_path = os.path.join(checkpoints_dir, "placeholder.safetensors")
     if not os.path.exists(safetensors_path):
         try:
@@ -262,7 +257,6 @@ def create_placeholder_files():
         except Exception as e:
             logger.error(f"Failed to create safetensors placeholder: {e}")
 
-    # 创建gguf占位文件
     gguf_path = os.path.join(checkpoints_dir, "placeholder.gguf")
     if not os.path.exists(gguf_path):
         try:
@@ -271,6 +265,26 @@ def create_placeholder_files():
             logger.info(f"Created placeholder file: {gguf_path}")
         except Exception as e:
             logger.error(f"Failed to create gguf placeholder: {e}")
+
+    loras_dir = config.paths_loras
+    if isinstance(loras_dir, list) and loras_dir:
+        loras_dir = loras_dir[0]
+    if not os.path.exists(loras_dir):
+        try:
+            os.makedirs(loras_dir)
+            logger.info(f"Created loras directory at {loras_dir}")
+        except Exception as e:
+            logger.error(f"Failed to create loras directory: {e}")
+            return
+
+    loras_placeholder_path = os.path.join(loras_dir, "placeholder.safetensors")
+    if not os.path.exists(loras_placeholder_path):
+        try:
+            with open(loras_placeholder_path, 'w') as f:
+                f.write("This is a placeholder file for LoRA models.")
+            logger.info(f"Created placeholder file: {loras_placeholder_path}")
+        except Exception as e:
+            logger.error(f"Failed to create loras placeholder: {e}")
 def ini_args():
     import args_manager
     if not platform.system() == "Darwin" and args_manager.args.disable_backend:

@@ -459,12 +459,23 @@ def get_file_from_folder_list(name, folders):
 
     return os.path.abspath(os.path.realpath(os.path.join(folders[0], name)))
 
-
 def get_enabled_loras(loras: list, remove_none=True) -> list:
-    return [(lora[1], lora[2]) for lora in loras if lora[0] and (lora[1] != 'None' if remove_none else True)]
+    result = []
+
+    for i, lora in enumerate(loras):
+        is_enabled = lora[0]
+        model_path = lora[1]
+        strength = lora[2]
+
+        if is_enabled:
+            result.append((model_path, strength))
+        else:
+            result.append(('None', 1.0))
+
+    return result
 
 
-def parse_lora_references_from_prompt(prompt: str, loras: List[Tuple[AnyStr, float]], loras_limit: int = 5,
+def parse_lora_references_from_prompt(prompt: str, loras: List[Tuple[AnyStr, float]], loras_limit: int = 8,
                                       skip_file_check=False, prompt_cleanup=True, deduplicate_loras=True,
                                       lora_filenames=None) -> tuple[List[Tuple[AnyStr, float]], str]:
     # prevent unintended side effects when returning without detection
