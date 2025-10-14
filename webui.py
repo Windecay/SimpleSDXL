@@ -375,7 +375,7 @@ with shared.gradio_root:
                                                               choices=['None'] + modules.config.lora_filenames, value='None', 
                                                               elem_classes='lora_model', scale=5, elem_id="scene_lora_dropdown_0",interactive=True)
                                 scene_lora_weight = gr.Slider(label='Weight', minimum=modules.config.default_loras_min_weight, 
-                                                             maximum=modules.config.default_loras_max_weight, step=0.01, value=1.0, 
+                                                             maximum=modules.config.default_loras_max_weight, step=0.05, value=1.0,
                                                              elem_classes='lora_weight', scale=5,interactive=True)
                             with gr.Row():
                                 trigger_word_value_0 = get_lora_trigger_word(scene_lora_model.value) if scene_lora_model.value != 'None' else ''
@@ -402,7 +402,7 @@ with shared.gradio_root:
                                                                choices=['None'] + modules.config.lora_filenames, value='None', 
                                                                elem_classes='lora_model', scale=5, elem_id="scene_lora_dropdown_1",interactive=True)
                                 scene_lora_weight_2 = gr.Slider(label='Weight', minimum=modules.config.default_loras_min_weight, 
-                                                                maximum=modules.config.default_loras_max_weight, step=0.01, value=1.0, 
+                                                                maximum=modules.config.default_loras_max_weight, step=0.05, value=1.0,
                                                                 elem_classes='lora_weight', scale=5,interactive=True)
                             with gr.Row():
                                 trigger_word_value_1 = get_lora_trigger_word(scene_lora_model.value) if scene_lora_model.value != 'None' else ''
@@ -429,7 +429,7 @@ with shared.gradio_root:
                                                                choices=['None'] + modules.config.lora_filenames, value='None', 
                                                                elem_classes='lora_model', scale=5, elem_id="scene_lora_dropdown_2",interactive=True)
                                 scene_lora_weight_3 = gr.Slider(label='Weight', minimum=modules.config.default_loras_min_weight, 
-                                                                maximum=modules.config.default_loras_max_weight, step=0.01, value=1.0, 
+                                                                maximum=modules.config.default_loras_max_weight, step=0.05, value=1.0,
                                                                 elem_classes='lora_weight', scale=5,interactive=True)
                             with gr.Row():
                                 trigger_word_value_2 = get_lora_trigger_word(scene_lora_model_3.value) if scene_lora_model_3.value != 'None' else ''
@@ -456,7 +456,7 @@ with shared.gradio_root:
                                                                choices=['None'] + modules.config.lora_filenames, value='None', 
                                                                elem_classes='lora_model', scale=5, elem_id="scene_lora_dropdown_3",interactive=True)
                                 scene_lora_weight_4 = gr.Slider(label='Weight', minimum=modules.config.default_loras_min_weight, 
-                                                                maximum=modules.config.default_loras_max_weight, step=0.01, value=1.0, 
+                                                                maximum=modules.config.default_loras_max_weight, step=0.05, value=1.0,
                                                                 elem_classes='lora_weight', scale=5,interactive=True)
                             with gr.Row():
                                 trigger_word_value_3 = get_lora_trigger_word(scene_lora_model_4.value) if scene_lora_model_4.value != 'None' else ''
@@ -677,10 +677,10 @@ with shared.gradio_root:
                                     ip_ctrls.append(ip_image)
                                     with gr.Column(visible=modules.config.default_image_prompt_advanced_checkbox) as ad_col:
                                         with gr.Row():
-                                            ip_stop = gr.Slider(label='Stop At', minimum=0.0, maximum=1.0, step=0.001, value=modules.config.default_ip_stop_ats[image_count])
+                                            ip_stop = gr.Slider(label='Stop At', minimum=0.0, maximum=1.0, step=0.01, value=modules.config.default_ip_stop_ats[image_count])
                                             ip_stops.append(ip_stop)
                                             ip_ctrls.append(ip_stop)
-                                            ip_weight = gr.Slider(label='Weight', minimum=0.0, maximum=2.0, step=0.001, value=modules.config.default_ip_weights[image_count])
+                                            ip_weight = gr.Slider(label='Weight', minimum=0.0, maximum=2.0, step=0.01, value=modules.config.default_ip_weights[image_count])
                                             ip_weights.append(ip_weight)
                                             ip_ctrls.append(ip_weight)
                                         ip_type = gr.Radio(label='Type', choices=flags.ip_list, value=modules.config.default_ip_types[image_count], container=False)
@@ -713,15 +713,15 @@ with shared.gradio_root:
                                     with gr.Row():
                                         uov_image_size = gr.Textbox(label='OriginalSize | FinalSize', elem_classes='uov_image_size')
                                         overwrite_upscale_strength = gr.Slider(label='Forced Overwrite of Denoising Strength of "Upscale"',
-                                                               visible=False, minimum=0, maximum=1.0, step=0.001,
+                                                               visible=False, minimum=0, maximum=1.0, step=0.01,
                                                                value=modules.config.default_overwrite_upscale)
                                         overwrite_vary_strength = gr.Slider(label='Forced Overwrite of Denoising Strength of "Vary"',
-                                                            visible=False, minimum=0, maximum=1.0, step=0.001, value=-1)
+                                                            visible=False, minimum=0, maximum=1.0, step=0.01, value=-1)
 
                                     with gr.Row(visible=False) as uov_hires_fix:
-                                        hires_fix_stop = gr.Slider(label='Stop At', minimum=0.0, maximum=1.0, step=0.001, value=0.8, min_width=20)
-                                        hires_fix_weight = gr.Slider(label='Weight', minimum=0.0, maximum=2.0, step=0.001, value=0.5, min_width=20)
-                                        hires_fix_blurred = gr.Slider(label='Blurred', minimum=0.0, maximum=1.0, step=0.001, value=0.0, min_width=20)
+                                        hires_fix_stop = gr.Slider(label='Stop At', minimum=0.0, maximum=1.0, step=0.01, value=0.8, min_width=20)
+                                        hires_fix_weight = gr.Slider(label='Weight', minimum=0.0, maximum=2.0, step=0.01, value=0.5, min_width=20)
+                                        hires_fix_blurred = gr.Slider(label='Blurred', minimum=0.0, maximum=1.0, step=0.01, value=0.0, min_width=20)
                         uov_input_image.upload(topbar.update_upscale_size_of_image, inputs=[uov_input_image, uov_method], outputs=uov_image_size, show_progress=False, queue=False)
                         uov_method.change(topbar.update_size_and_hires_fix, inputs=[uov_input_image, uov_method, params_backend, hires_fix_stop, hires_fix_weight, hires_fix_blurred], outputs=[uov_image_size, uov_hires_fix, overwrite_vary_strength, overwrite_upscale_strength], show_progress=False, queue=False)
                         hires_fix_stop.change(lambda x,y,z: sync_backend_params('hires_fix_s',x,y,z), inputs=[hires_fix_stop, params_backend, state_topbar])
@@ -773,12 +773,12 @@ with shared.gradio_root:
                                 generate_mask_button = gr.Button(value='Generate mask from image')
                         with gr.Row():
                             inpaint_strength = gr.Slider(label='Inpaint Denoising Strength',
-                                                     minimum=0.0, maximum=1.0, step=0.001, value=1.0,
+                                                     minimum=0.0, maximum=1.0, step=0.01, value=1.0,
                                                      info='Same as the denoising strength in A1111 inpaint. '
                                                           'Only used in inpaint, not used in outpaint. '
                                                           '(Outpaint always use 1.0)')
                             inpaint_respective_field = gr.Slider(label='Inpaint Respective Field',
-                                                             minimum=0.0, maximum=1.0, step=0.001, value=0.618,
+                                                             minimum=0.0, maximum=1.0, step=0.01, value=0.618,
                                                              info='The area to inpaint. '
                                                                   'Value 0 is same as "Only Masked" in A1111. '
                                                                   'Value 1 is same as "Whole Image" in A1111. '
@@ -858,7 +858,7 @@ with shared.gradio_root:
                                                     enhance_uov_method = gr.Radio(label='Upscale or Variation:', choices=flags.uov_list,
                                                                         value=modules.config.default_enhance_uov_method)
                                                     enhance_uov_strength = gr.Slider(label='Denoising Strength of enhance',
-                                                                        visible=False, minimum=0, maximum=1.0, step=0.001, value=0)
+                                                                        visible=False, minimum=0, maximum=1.0, step=0.01, value=0)
                                                     enhance_uov_processing_order = gr.Radio(label='Order of Processing',
                                                                         info='Use before to enhance small details and after to enhance large areas.',
                                                                         choices=flags.enhancement_uov_processing_order,
@@ -947,13 +947,13 @@ with shared.gradio_root:
                                                                      choices=flags.inpaint_engine_versions["SDXL"],
                                                                      info='Version of Fooocus inpaint model. If set, use performance Quality or Speed (no performance LoRAs) for best results.')
                                                     enhance_inpaint_strength = gr.Slider(label='Inpaint Denoising Strength',
-                                                                     minimum=0.0, maximum=1.0, step=0.001,
+                                                                     minimum=0.0, maximum=1.0, step=0.01,
                                                                      value=1.0,
                                                                      info='Same as the denoising strength in A1111 inpaint. '
                                                                           'Only used in inpaint, not used in outpaint. '
                                                                           '(Outpaint always use 1.0)')
                                                     enhance_inpaint_respective_field = gr.Slider(label='Inpaint Respective Field',
-                                                                             minimum=0.0, maximum=1.0, step=0.001,
+                                                                             minimum=0.0, maximum=1.0, step=0.01,
                                                                              value=0.618,
                                                                              info='The area to inpaint. '
                                                                                   'Value 0 is same as "Only Masked" in A1111. '
@@ -1125,7 +1125,7 @@ with shared.gradio_root:
                     sdxl_adv_checkbox = gr.Checkbox(label='SDXL advanced setting', value=False,  container=False)
                     with gr.Group(visible=False) as sdxl_adv_pannel: 
                         with gr.Row():
-                            sharpness = gr.Slider(label='Image Sharpness', minimum=0.0, maximum=30.0, step=0.001,
+                            sharpness = gr.Slider(label='Image Sharpness', minimum=0.0, maximum=30.0, step=0.01,
                                       value=modules.config.default_sample_sharpness)
                             adaptive_cfg = gr.Slider(label='CFG Mimicking from TSNR', minimum=1.0, maximum=30.0, step=0.01,
                                                  value=modules.config.default_cfg_tsnr)
@@ -1136,9 +1136,9 @@ with shared.gradio_root:
                                                      minimum=-1, maximum=200, step=1,
                                                      value=modules.config.default_overwrite_switch)
                         with gr.Row():
-                            adm_scaler_positive = gr.Slider(label='Positive ADM Guidance Scaler', minimum=0.1, maximum=3.0, step=0.001, value=1.5)
-                            adm_scaler_negative = gr.Slider(label='Negative ADM Guidance Scaler', minimum=0.1, maximum=3.0, step=0.001, value=0.8)
-                            adm_scaler_end = gr.Slider(label='ADM Guidance End At Step', minimum=0.0, maximum=1.0, step=0.001, value=0.3)
+                            adm_scaler_positive = gr.Slider(label='Positive ADM Guidance Scaler', minimum=0.1, maximum=3.0, step=0.01, value=1.5)
+                            adm_scaler_negative = gr.Slider(label='Negative ADM Guidance Scaler', minimum=0.1, maximum=3.0, step=0.01, value=0.8)
+                            adm_scaler_end = gr.Slider(label='ADM Guidance End At Step', minimum=0.0, maximum=1.0, step=0.01, value=0.3)
                     def toggle_checked(r):
                         return gr.update(visible=r)
 
@@ -1150,7 +1150,7 @@ with shared.gradio_root:
                     skipping_cn_preprocessor = gr.Checkbox(label='Skip Preprocessors', value=False,
                                                                info='Do not preprocess images. (Inputs are already canny/depth/cropped-face/etc.)')
                     controlnet_softness = gr.Slider(label='Softness of ControlNet', minimum=0.0, maximum=1.0,
-                                                        step=0.001, value=0.25,
+                                                        step=0.01, value=0.25,
                                                         info='Similar to the Control Mode in A1111 (use 0.0 to disable). ')
                     canny_low_threshold = gr.Slider(label='Canny Low Threshold', minimum=1, maximum=255,
                                                             step=1, value=64)
@@ -1551,7 +1551,7 @@ with shared.gradio_root:
                                                      choices=['None'] + modules.config.lora_filenames, value=filename,
                                                      elem_classes='lora_model', scale=5, elem_id=f"lora_dropdown_{i}")
                             lora_weight = gr.Slider(label='Weight', minimum=modules.config.default_loras_min_weight,
-                                                    maximum=modules.config.default_loras_max_weight, step=0.01, value=weight,
+                                                    maximum=modules.config.default_loras_max_weight, step=0.05, value=weight,
                                                     elem_classes='lora_weight', scale=5)
 
                             trigger_word_value = get_lora_trigger_word(filename) if filename != 'None' else ''
