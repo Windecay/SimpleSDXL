@@ -95,7 +95,7 @@ def generate_clicked(task: worker.AsyncTask, state):
             gr.update(visible=False)
         return
 
-    MAX_WAIT_TIME = 480
+    MAX_WAIT_TIME = 600
     POLL_INTERVAL = 0.1
 
     worker.add_task(task)
@@ -127,7 +127,7 @@ def generate_clicked(task: worker.AsyncTask, state):
     execution_start_time = time.perf_counter()
     finished = False
     ready_flag = True if qsize==1 else ready_flag
-    MAX_WAIT_TIME = 480 if task.content_type == 'image' else 1800
+    MAX_WAIT_TIME = 600 if task.content_type == 'image' else 3600
     POLL_INTERVAL = 0.08
     in_progress = False
 
@@ -288,7 +288,16 @@ def enhance_inpaint_mode_change(mode, inpaint_engine_version, state):
     return [
         False, inpaint_engine_version, 1.0, 0.618
     ]
-
+def check_generating_state(state_is_generating=None, pending_tasks=None, worker_processing=None):
+    if state_is_generating is None:
+        state_is_generating = False
+    if pending_tasks is None:
+        import modules.async_worker
+        pending_tasks = modules.async_worker.pending_tasks
+    if worker_processing is None:
+        import modules.async_worker
+        worker_processing = modules.async_worker.worker_processing is not None
+    return state_is_generating or pending_tasks > 0 or worker_processing
 
 reload_javascript()
 
@@ -307,6 +316,7 @@ with shared.gradio_root:
     gallery_index_stat = gr.Textbox(value='', visible=False)
     currentTask = gr.State(worker.AsyncTask(args=[]))
     inpaint_engine_state = gr.State('empty')
+    state_is_generating = gr.State(False)
     with gr.Row():
         with gr.Column(scale=2):
             with gr.Group():
@@ -598,11 +608,14 @@ with shared.gradio_root:
                             if not text.strip():
                                 return ""
                             translation_method = ads.get_admin_default('translation_methods')
-                            if translation_method == 'Big Model' and MiniCPM.get_enable():
+                            is_generating = check_generating_state()
+                            if not is_generating and translation_method == 'Big Model' and MiniCPM.get_enable():
                                 if is_chinese(text):
                                     return minicpm.translate(text)
                                 else:
                                     return minicpm.translate_cn(text)
+                            if is_generating :
+                                logger.info("Translation disable MiniCPM while generating.")
                             return translator.toggle(text, translation_method)
                         except Exception as e:
                             return f"Translation error：{str(e)}"
@@ -1890,7 +1903,15 @@ with shared.gradio_root:
             comfyd_active_checkbox.change(lambda x: toggle_comfyd_checked(x), inputs=comfyd_active_checkbox, queue=False, show_progress=False)
             
             import enhanced.superprompter
-            super_prompter.click(lambda x, y, z, i, s: minicpm.extended_prompt(x, y, i, s, z), inputs=[prompt, super_prompter_prompt, translation_methods, scene_input_image1, state_topbar], outputs=prompt, queue=False, show_progress=True)
+            super_prompter.click(
+                lambda x, y, z, i, s, state_is_generating:
+                    (logger.info('Using superprompter'), enhanced.superprompter.answer(input_text=enhanced.translator.convert(f'{y}{x}', z)))[1] if check_generating_state(state_is_generating) else
+                    (logger.info('Using miniCPM'), minicpm.extended_prompt(x, y, i, s, z))[1],
+                inputs=[prompt, super_prompter_prompt, translation_methods, scene_input_image1, state_topbar, state_is_generating],
+                outputs=prompt,
+                queue=False,
+                show_progress=True
+            )
             scene_params = [scene_theme, scene_canvas_image, scene_input_image1, scene_input_image2, scene_additional_prompt, scene_additional_prompt_2, scene_var_number, scene_aspect_ratio, scene_image_number, scene_mask_color, scene_use_lora]
             
 
@@ -1902,8 +1923,6 @@ with shared.gradio_root:
             gallery.select(gallery_util.select_gallery, inputs=[gallery_index, state_topbar, backfill_prompt], outputs=[prompt_info_box, prompt, negative_prompt, params_note_info, params_note_input_name, params_note_regen_button, params_note_preset_button], show_progress=False)
             progress_gallery.select(gallery_util.select_gallery_progress, inputs=state_topbar, outputs=[prompt_info_box, params_note_info, params_note_input_name, params_note_regen_button, params_note_preset_button], show_progress=False)
 
-        state_is_generating = gr.State(False)
-        
         load_data_outputs = [progress_window, progress_gallery, progress_video, gallery, gallery_index, image_number, prompt, negative_prompt, style_selections,
                              performance_selection, overwrite_step, overwrite_switch, aspect_ratios_selection,
                              overwrite_width, overwrite_height, guidance_scale, sharpness, adm_scaler_positive,
@@ -2117,7 +2136,7 @@ with shared.gradio_root:
             is_worker_processing = modules.async_worker.worker_processing is not None
             has_pending_tasks = modules.async_worker.pending_tasks > 0
 
-            if state_is_generating or is_worker_processing or has_pending_tasks:
+            if check_generating_state(state_is_generating, has_pending_tasks, is_worker_processing):
                 logger.info("Generation is in progress or pending, skipping image description")
                 return gr.update(), gr.update()
             return trigger_describe(modes, img, apply_styles, output_tags, output_chinese, describe_prompt)

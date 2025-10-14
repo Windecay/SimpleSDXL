@@ -177,6 +177,7 @@ def convert(text: str, method: str = 'Slim Model', lang: str = 'en' ) -> str:
         else:
             tokenizer, model = init_or_load_translator_model(method)
             text_zh = translate2zh_model(model, tokenizer, text)
+            ts_method = method
         stop = time.perf_counter()
         logger.info(f'Translate by "{ts_method}" in {(stop-start):.2f}s: "{text}" to "{text_zh}"')
         return text_zh
