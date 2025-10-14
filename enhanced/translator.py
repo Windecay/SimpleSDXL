@@ -20,7 +20,7 @@ B_punct = '`~!@#$%^&*()_+=-{}[]:";|<>?,./. 1234567890'
 Q_alphabet = 'ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ'
 B_alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
-translator_org = ['baidu', 'alibaba', 'sogou', 'caiyun']
+translator_org = ['alibaba','cloudTranslation', 'google', 'iflyrec', 'translateCom', 'youdao']
 translator_default = 'alibaba'
 translator_path = os.path.join(paths_llms[0], 'nllb-200-distilled-600M')
 translator_slim_path = os.path.join(paths_llms[0], 'Helsinki-NLP/opus-mt-zh-en')
@@ -82,7 +82,7 @@ def translate2zh_apis(text):
     except Exception as e:
         try:
             logger.info(f'Change another translator because of {e}')
-            translator_default = translator_org[random.randint(1,3)]
+            translator_default = translator_org[random.randint(0,5)]
             return ts.translate_text(text, translator=translator_default, from_language='en', to_language='zh')
         except Exception as e:
             logger.info(f'Error during translation of APIs methods: {e}')
@@ -96,7 +96,7 @@ def translate2en_apis(text):
     except Exception as e:
         try:
             logger.info(f'Change another translator because of {e}')
-            translator_default = translator_org[random.randint(1,3)]
+            translator_default = translator_org[random.randint(0,5)]
             return ts.translate_text(text, translator=translator_default, to_language='en')
         except Exception as e:
             logger.info(f'Error during translation of APIs methods: {e}')
