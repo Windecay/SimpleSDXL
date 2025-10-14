@@ -2113,13 +2113,32 @@ with shared.gradio_root:
                     describe_image = minicpm.translate_cn(describe_image)
 
             return describe_image, styles
+        def describe_with_generating_check(state_is_generating, modes, img, apply_styles, output_tags, output_chinese, describe_prompt=""):
+            is_worker_processing = modules.async_worker.worker_processing is not None
+            has_pending_tasks = modules.async_worker.pending_tasks > 0
 
-        describe_btn.click(trigger_describe, inputs=[describe_methods, describe_input_image, describe_apply_styles, describe_output_tags, describe_output_chinese, describe_prompt], outputs=[prompt, style_selections], show_progress=True, queue=True) \
+            if state_is_generating or is_worker_processing or has_pending_tasks:
+                logger.info("Generation is in progress or pending, skipping image description")
+                return gr.update(), gr.update()
+            return trigger_describe(modes, img, apply_styles, output_tags, output_chinese, describe_prompt)
+        describe_btn.click(describe_with_generating_check,
+                           inputs=[state_is_generating, describe_methods, describe_input_image, describe_apply_styles,
+                                   describe_output_tags, describe_output_chinese, describe_prompt],
+                           outputs=[prompt, style_selections],
+                           show_progress=True,
+                           queue=True) \
             .then(fn=style_sorter.sort_styles, inputs=style_selections, outputs=style_selections, queue=False, show_progress=False) \
             .then(lambda: None, _js='()=>{refresh_style_localization();}')
 
+        def trigger_auto_describe_for_scene(state, canvas_image, img, scene_theme, additional_prompt, additional_prompt_2, state_is_generating):
+            is_worker_processing = worker.worker_processing is not None
+            has_pending_tasks = worker.pending_tasks > 0
+            is_generating = state_is_generating or is_worker_processing or has_pending_tasks
 
-        def trigger_auto_describe_for_scene(state, canvas_image, img, scene_theme, additional_prompt, additional_prompt_2): 
+            if is_generating:
+                logger.info(f"Generation is in progress or pending, skipping image description")
+                return gr.update(), gr.update(), gr.update()
+
             is_canvas_image = 'scene_canvas_image' not in state["scene_frontend"].get('disvisible', [])
             ready_to_gen = True 
             if canvas_image is None and is_canvas_image:
@@ -2193,13 +2212,13 @@ with shared.gradio_root:
 
         scene_canvas_image.upload(trigger_auto_aspect_ratio_for_scene_from_canvas_image, inputs=[state_topbar, scene_canvas_image, scene_input_image1, scene_theme], outputs=[scene_aspect_ratio, generate_button], show_progress=False, queue=False).then(lambda: None, _js='()=>{refresh_scene_localization();}')
         #scene_canvas_image.change(scene_canvas_image_clear, inputs=[state_topbar, scene_canvas_image, scene_input_image1], outputs=[generate_button], show_progress=False, queue=False)
-        scene_input_image1.upload(trigger_auto_describe_for_scene, inputs=[state_topbar, scene_canvas_image, scene_input_image1, scene_theme, scene_additional_prompt, scene_additional_prompt_2], outputs=[prompt, style_selections, generate_button], show_progress=True, queue=True) \
+        scene_input_image1.upload(trigger_auto_describe_for_scene, inputs=[state_topbar, scene_canvas_image, scene_input_image1, scene_theme, scene_additional_prompt, scene_additional_prompt_2, state_is_generating], outputs=[prompt, style_selections, generate_button], show_progress=True, queue=True) \
                         .then(trigger_auto_aspect_ratio_for_scene_from_input_image, inputs=[state_topbar, scene_input_image1, scene_theme],
                                 outputs=scene_aspect_ratio, show_progress=False, queue=False) \
                         .then(lambda: None, _js='()=>{refresh_scene_localization();}')
         #scene_input_image1.clear(lambda: ['', gr.update(interactive=False)], outputs=[prompt, generate_button], show_progress=False, queue=False)
         scene_input_image1.change(scene_input_image1_clear, inputs=[state_topbar, scene_input_image1], outputs=[prompt, generate_button, load_parameter_button], show_progress=False, queue=False) 
-        load_parameter_button.click(trigger_auto_describe_for_scene, inputs=[state_topbar, scene_canvas_image, scene_input_image1, scene_theme, scene_additional_prompt, scene_additional_prompt_2], outputs=[prompt, style_selections, generate_button], show_progress=True, queue=False) \
+        load_parameter_button.click(trigger_auto_describe_for_scene, inputs=[state_topbar, scene_canvas_image, scene_input_image1, scene_theme, scene_additional_prompt, scene_additional_prompt_2, state_is_generating], outputs=[prompt, style_selections, generate_button], show_progress=True, queue=False) \
                         .then(trigger_auto_aspect_ratio_for_scene, inputs=[state_topbar, scene_input_image1, scene_theme],
                                 outputs=scene_aspect_ratio, show_progress=False, queue=False) \
                         .then(lambda: None, _js='()=>{refresh_scene_localization();}')
@@ -2209,7 +2228,15 @@ with shared.gradio_root:
                    .then(switch_scene_theme_ready_to_gen, inputs=[state_topbar, image_number, scene_canvas_image, scene_input_image1, scene_additional_prompt, scene_additional_prompt_2, scene_theme], outputs=[prompt, generate_button], queue=False, show_progress=True)
 
         if args_manager.args.enable_auto_describe_image:
-            def trigger_auto_describe(mode, img, prompt, apply_styles, output_tags, output_chinese):
+            def trigger_auto_describe(mode, img, prompt, apply_styles, output_tags, output_chinese, state_is_generating=False):
+
+                is_worker_processing = modules.async_worker.worker_processing is not None
+                has_pending_tasks = modules.async_worker.pending_tasks > 0
+
+                if state_is_generating or is_worker_processing or has_pending_tasks:
+                    logger.info("Generation is in progress or pending, skipping auto image description")
+                    return gr.update(), gr.update()
+
                 if isinstance(img, dict):
                     img = img['image']
                 # keep prompt if not empty
