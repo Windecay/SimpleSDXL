@@ -479,7 +479,7 @@ function htmlDecode(input) {
             Object.assign(previewOverlay.style, {
                 position: 'fixed',
                 pointerEvents: 'none',
-                zIndex: 9999,
+                zIndex: 9999999999,
                 maxWidth: '320px',
                 borderRadius: '8px',
                 overflow: 'hidden',
@@ -500,7 +500,7 @@ function htmlDecode(input) {
         const refinerDropdown = gradioApp().getElementById('model_dropdown_refiner');
         if (refinerDropdown) initDropdownPreview(refinerDropdown, 'checkpoints');
 
-        const loraDropdowns = gradioApp().querySelectorAll('[id^="lora_dropdown"]');
+        const loraDropdowns = gradioApp().querySelectorAll('[id^="lora_dropdown"], [id^="scene_lora_dropdown"]');
         loraDropdowns.forEach(dropdown => initDropdownPreview(dropdown, 'loras'));
     }
     autoHideTimer = 3000;

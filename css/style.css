@@ -770,12 +770,6 @@ div.block.tagHelper.active {
     padding: 8px 8px !important;
 }
 
-.scene_input_2 input {
-}
-
-.scene_aspect_ratio_selections {
-}
-
 .identity_input {
     padding: 0px 0px !important;
     height: 42px;
@@ -996,7 +990,7 @@ button.style-button.primary {
   border-radius: 5px 5px 5px 5px !important;
 }
 
-#component-9 {
+#component-10 {
   overflow: visible !important;
   contain: none !important;
   min-width: initial !important;

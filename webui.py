@@ -1601,13 +1601,11 @@ with shared.gradio_root:
                         (scene_lora_model_4, scene_lora_weight_4, 10, scene_lora_trigger_words[3].elem_id if len(scene_lora_trigger_words)>2 else '')
                     ]):
                         scene_model.change(
-                            fn=lambda model, weight, idx=i, cidx=ctrl_idx: \
-                                (model, weight) if model != "None" else (lora_ctrls[cidx].value, lora_ctrls[cidx+1].value),
+                            fn=lambda model, weight, idx=i, cidx=ctrl_idx: (model, weight),
                             inputs=[scene_model, scene_weight],
                             outputs=[lora_ctrls[ctrl_idx], lora_ctrls[ctrl_idx+1]],
                             queue=False, show_progress=False
-                        )
-                        scene_model.change(fn=update_trigger_word, inputs=[scene_model], outputs=[scene_lora_trigger_words[i] if scene_lora_trigger_words and i<len(scene_lora_trigger_words) else gr.Textbox()], queue=False, show_progress=False)
+                        ).then(fn=update_trigger_word, inputs=[scene_model], outputs=[scene_lora_trigger_words[i] if scene_lora_trigger_words and i<len(scene_lora_trigger_words) else gr.Textbox()], queue=False, show_progress=False)
                         if trigger_word_id and hasattr(scene_model, 'elem_id'): scene_model.change(fn=update_trigger_word, inputs=[scene_model], outputs=[scene_lora_trigger_words[i] if scene_lora_trigger_words and i<len(scene_lora_trigger_words) else gr.Textbox()], show_progress=False, queue=False)
                         scene_lora_weight.change(fn=lambda weight: weight, inputs=[scene_lora_weight], outputs=[lora_ctrls[2]], show_progress=False, queue=False)
                         scene_lora_weight_2.change(fn=lambda weight: weight, inputs=[scene_lora_weight_2], outputs=[lora_ctrls[5]], show_progress=False, queue=False)
@@ -2309,6 +2307,7 @@ with shared.gradio_root:
     for i in range(shared.BUTTON_NUM):
         bar_buttons[i].click(topbar.check_absent_model, inputs=[bar_buttons[i], state_topbar]) \
                .then(topbar.reset_layout_params, inputs=reset_preset_inputs, outputs=reset_layout_params, show_progress=False) \
+               .then(fn=lambda: ["None"]*4 + [False], inputs=[], outputs=[scene_lora_model, scene_lora_model_2, scene_lora_model_3, scene_lora_model_4, scene_use_lora], queue=False, show_progress=False) \
                .then(fn=lambda x: None, inputs=system_params, _js='(x)=>{refresh_topbar_status_js(x);}') \
                .then(lambda: None, _js='()=>{refresh_style_localization();}') \
                .then(lambda: None, _js='()=>{refresh_scene_localization();}') \
@@ -2320,8 +2319,7 @@ with shared.gradio_root:
                      + [False for _ in lora_gallery_visible]
                      + [[] for _ in lora_current_previews]
                      + [gr.update(variant="secondary") for _ in lora_preview_btns],
-                    outputs=[model_gallery, gallery_visible, current_previews, active_target, base_preview_btn, refiner_preview_btn] + lora_galleries + lora_gallery_visible + lora_current_previews + lora_preview_btns) \
-                .then(fn=lambda: ["None"]*4, inputs=[], outputs=[scene_lora_model, scene_lora_model_2, scene_lora_model_3, scene_lora_model_4])
+                    outputs=[model_gallery, gallery_visible, current_previews, active_target, base_preview_btn, refiner_preview_btn] + lora_galleries + lora_gallery_visible + lora_current_previews + lora_preview_btns)
     shared.gradio_root.load(fn=lambda x: x, inputs=system_params, outputs=state_topbar, _js=topbar.get_system_params_js, queue=False, show_progress=False) \
                       .then(topbar.init_nav_bars, inputs=[state_topbar] + admin_ctrls, outputs=[progress_window, language_ui, background_theme, preset_instruction] + user_app_ctrls + admin_ctrls, show_progress=False) \
                       .then(topbar.reset_layout_params, inputs=reset_preset_inputs, outputs=reset_layout_params, show_progress=False) \
