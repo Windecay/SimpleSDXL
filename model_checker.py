@@ -537,11 +537,49 @@ def validate_files(packages):
                 selected_package = package_info
                 break
 
-        if selected_package:
-            get_download_links_for_package({package_name: selected_package}, "downloadlist.txt")
+        gpu_arch = get_gpu_arch_str()
+        if gpu_arch == "cpu":
+            print(f"\n{Fore.YELLOW}△检测到当前使用的是非NVIDIA显卡，SimpAI当前版本仅支持NVIDIA显卡{Style.RESET_ALL}")
+            print(f"{Fore.YELLOW}△如需手动下载，请手动按键{Style.RESET_ALL}")
+        else:
+            countdown_seconds = 10  # 设置倒计时时间（秒）
+            print(f"\n{Fore.CYAN}△检测到基础包不完整，将在{countdown_seconds}秒后自动触发下载流程...{Style.RESET_ALL}")
+            print(f"{Fore.YELLOW}※按任意键可以取消自动下载{Style.RESET_ALL}")
 
-        print(f"\n{Fore.CYAN}△检测到基础包不完整，自动触发下载流程...{Style.RESET_ALL}")
-        auto_download_missing_files_with_retry(max_threads=5)
+            import select
+
+            user_cancel = False
+            try:
+                if platform.system() == 'Windows':
+                    import msvcrt
+                    start_time = time.time()
+                    while time.time() - start_time < countdown_seconds:
+                        remaining = int(countdown_seconds - (time.time() - start_time))
+                        print(f"\r倒计时: {remaining}秒...", end="", flush=True)
+                        time.sleep(1)
+                        if msvcrt.kbhit():
+                            msvcrt.getch()
+                            user_cancel = True
+                            print(f"\n{Fore.GREEN}√已取消自动下载{Style.RESET_ALL}")
+                            break
+                else:
+                    for i in range(countdown_seconds, 0, -1):
+                        print(f"\r倒计时: {i}秒...", end="", flush=True)
+                        if select.select([sys.stdin], [], [], 1)[0]:
+                            sys.stdin.readline()
+                            user_cancel = True
+                            print(f"\n{Fore.GREEN}√已取消自动下载{Style.RESET_ALL}")
+                            break
+            except Exception as e:
+                print(f"{Fore.RED}×倒计时功能出错: {e}{Style.RESET_ALL}")
+
+            if not user_cancel:
+                print(f"\n{Fore.CYAN}▶开始自动下载流程...{Style.RESET_ALL}")
+                if selected_package:
+                    get_download_links_for_package({package_name: selected_package}, "downloadlist.txt")
+                auto_download_missing_files_with_retry(max_threads=5)
+            else:
+                print(f"{Fore.YELLOW}△如需手动下载，请手动按键{Style.RESET_ALL}")
 
 def delete_partial_files():
     global OBSOLETE_MODELS
