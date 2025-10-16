@@ -1,0 +1,1 @@
+Node addon for the WAS Suite. Converts a "comfy" FLOAT to a NUMBER.

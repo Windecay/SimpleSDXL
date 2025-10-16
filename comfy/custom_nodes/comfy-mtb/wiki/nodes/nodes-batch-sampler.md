@@ -1,0 +1,1 @@
+Experimental sampler that can use batch values to affect images in the batch differently

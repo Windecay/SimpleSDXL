@@ -1,0 +1,182 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "comfy-mtb"
+version = "0.5.4"
+description = "Animation oriented nodes pack for ComfyUI."
+license = { text = "MIT" }
+readme = "README.md"
+# repository = ""
+# url = "https://github.com/melMass/comfy_mtb"
+authors = [{ name = "Mel Massadian", email = "mel@melmassadian.com" }]
+classifiers = [
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Intended Audience :: Developers",
+]
+requires-python = ">=3.10"
+dependencies = [
+  "qrcode",
+  "cachetools",
+  "onnxruntime-gpu",
+  "requirements-parserx",
+  "rembg",
+  "imageio_ffmpeg",
+  "rich",
+  "rich_argparse",
+  "matplotlib",
+  "pillow",
+]
+optional-dependencies = { mel = [
+  "jupyterlab==4.1.6",
+], dev = [
+  "black[jupyter]",
+  "codespell",
+  "marimo",
+  "mypy",
+  "pre-commit",
+  "pytest",
+  "pytest-cov",
+  "pytest-random-order",
+  "ruff",
+], doc = [
+  "docutils==0.17.1",
+  "jupyter-book>=0.15",
+  "sphinx-autobuild",
+] }
+
+[project.urls]
+Homepage = "https://github.com/melMass/comfy_mtb"
+Documentation = "https://github.com/melMass/comfy_mtb/wiki"
+Repository = "https://github.com/melMass/comfy_mtb"
+Issues = "https://github.com/melMass/comfy_mtb/issues"
+
+[tool.comfy]
+PublisherId = "mel"
+DisplayName = "comfy-mtb"
+Icon = "https://avatars.githubusercontent.com/u/7041726?v=4"
+
+[tool.bumpversion]
+current_version = "0.5.1"
+parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)"
+serialize = ["{major}.{minor}.{patch}"]
+search = "{current_version}"
+replace = "{new_version}"
+regex = false
+ignore_missing_version = false
+ignore_missing_files = false
+tag = true
+sign_tags = true
+tag_name = "v{new_version}"
+tag_message = "⬆️ Bump version: {current_version} → {new_version}"
+allow_dirty = true
+commit = true
+message = "⬆️ Bump version: {current_version} → {new_version}"
+commit_args = ""
+
+[[tool.bumpversion.files]]
+filename = "__init__.py"
+search = "__version__ = \"{current_version}\""
+replace = "__version__ = \"{new_version}\""
+
+[[tool.bumpversion.files]]
+filename = "pyproject.toml"
+search = "version = \"{current_version}\""
+replace = "version = \"{new_version}\""
+
+# [[tool.bumpversion.files]]
+# filename = "your_package/__init__.py"
+# search = "__version__ = '{current_version}'"
+# replace = "__version__ = '{new_version}'"
+
+# INFO: All those remaining keys are meant for local dev
+[tool.pyright]
+include = ["."]
+exclude = [
+  "**/node_modules",
+  "**/__pycache__",
+  "src/experimental",
+  "src/typestubs",
+]
+ignore = ["src/oldstuff"]
+defineConstant = { DEBUG = true }
+extraPaths = ["python", "../.."]
+stubPath = "src/stubs"
+
+reportMissingImports = true
+reportMissingTypeStubs = false
+typeCheckingMode = "basic"
+
+pythonVersion = "3.10"
+pythonPlatform = "Windows"
+
+[tool.pytest.ini_options]
+log_level = "DEBUG"
+log_cli = true
+markers = [
+  "wip: tests that aren't fully finished yet",
+  "heavy: marks tests as heavy (deselect with '-m \"not heavy\"')",
+
+]
+filterwarnings = ["ignore::UserWarning", 'ignore::DeprecationWarning']
+
+[tool.isort]
+profile = "black"
+line_length = 88
+auto_identify_namespace_packages = false
+# NOTE:
+# pyright doesn't like implicit namespace + single line (related to https://github.com/microsoft/pyright/issues/2882?) but it's horible so I'll live with it
+force_single_line = false
+known_first_party = ["mtb"]
+extend_skip = ["archives"]
+combine_straight_imports = true
+
+[tool.coverage.run]
+parallel = true
+source = ["docs", "tests", "comfy-mtb"]
+
+[tool.coverage.report]
+fail_under = 90
+show_missing = true
+
+[tool.coverage.html]
+show_contexts = true
+
+[tool.ruff]
+line-length = 79
+extend-exclude = ["./docs/conf.py", "notebooks", "stubs"]
+
+[tool.ruff.lint]
+select = ["A", "B", "C", "D", "E", "F", "FBT", "I", "N", "S", "SIM", "UP", "W"]
+# NOTE:
+# D102 - undocumented-public-method (noisy)
+# D103 - undocumented-public-function (noisy)
+# D100 - undocumented-public-module (noisy)
+# N802 - invalid-function-name (forced by comfy's arch)
+ignore = ["D103", "D102", "D100", "N802"]
+
+[tool.ruff.lint.per-file-ignores]
+# imported but unused
+"__init__.py" = ["F401"]
+# use of assert detected
+"tests/*" = ["S101"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.mypy]
+pretty = true
+ignore_missing_imports = true
+# exclude auto generated file
+exclude = ["docs/conf.py"]
+
+[tool.codespell]
+# exclude auto generated file
+skip = "./docs/conf.py,poetry.lock"
+check-filenames = true
