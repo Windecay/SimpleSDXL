@@ -252,6 +252,18 @@ class PromptServer():
 
         @routes.get("/")
         async def get_root(request):
+            # 检查是否是通过main_comfyd.py启动的
+            main_module = sys.modules.get('__main__')
+            if main_module and hasattr(main_module, '__file__'):
+                main_file = os.path.basename(main_module.__file__)
+                if main_file == 'main_comfyd.py':
+                    response = web.FileResponse(os.path.join(self.web_root, "index.html"))
+                    response.set_cookie("sstoken", "bypass_auth", max_age=3600*24*30*6, httponly=True, secure=True)
+                    response.headers['Cache-Control'] = 'no-cache'
+                    response.headers["Pragma"] = "no-cache"
+                    response.headers["Expires"] = "0"
+                    return response
+
             key_point = request.query.get("p")
             if not key_point or (not check_entry_point(key_point) and datetime.now().strftime("%Y%m%d%H") not in key_point):
                 return web.Response(status=403, text="Invalid identity key / 没有有效的身份标识 !")

@@ -247,6 +247,10 @@ path_insightface = get_dir_or_set_default('path_insightface', f'{path_models_roo
 path_style_models = get_dir_or_set_default('path_style_models', f'{path_models_root}/style_models')
 path_audio_encoders = get_dir_or_set_default('path_audio_encoders', f'{path_models_root}/audio_encoders')
 path_model_patches = get_dir_or_set_default('path_model_patches', f'{path_models_root}/model_patches')
+path_detection = get_dir_or_set_default('path_detection', f'{path_models_root}/detection')
+path_diffusion_models = get_dir_or_set_default('path_diffusion_models', f'{path_models_root}/diffusion_models')
+
+
 
 model_cata_map = {
     'checkpoints': paths_checkpoints,
@@ -269,7 +273,9 @@ model_cata_map = {
     'insightface': [path_insightface],
     'style_models': [path_style_models],
     'audio_encoders': [path_audio_encoders],
-    'model_patches': [path_model_patches]
+    'model_patches': [path_model_patches],
+    'detection': [path_detection],
+    'diffusion_models': [path_diffusion_models],
     }
 
 from enhanced.simpleai import init_modelsinfo, get_path_in_user_dir
@@ -1003,6 +1009,7 @@ comfyui:
      clip: {clip}
      controlnet: {controlnets}
      diffusers: {diffusers}
+     diffusion_models: {diffusion_models}
      embeddings: {embeddings}
      loras: {loras}
      upscale_models: {upscale_models}
@@ -1017,6 +1024,7 @@ comfyui:
      style_models: {style_models}
      audio_encoders: {audio_encoders}
      model_patches: {model_patches}
+     detection: {detection}
      '''
 
 paths2str = lambda p,n: p[0] if len(p)<=1 else '|\n'+''.join([' ']*(5+len(n)))+''.join(['\n']+[' ']*(5+len(n))).join(p) 
@@ -1041,7 +1049,10 @@ config_comfy_text = config_comfy_formatted_text.format(
         insightface=path_insightface,
         style_models=path_style_models,
         audio_encoders=path_audio_encoders,
-        model_patches=path_model_patches)
+        model_patches=path_model_patches,
+        detection=path_detection,
+        diffusion_models=paths2str([path_diffusion_models]+paths_checkpoints, 'diffusion_models')
+        )
 
 with open(config_comfy_path, "w", encoding="utf-8") as comfy_file:
     comfy_file.write(config_comfy_text)
