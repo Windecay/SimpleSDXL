@@ -429,4 +429,4 @@ for item in registration_data:
     logger.info(fmt_reg.format(item['name'], item['found'], str(item['count'])))
 logger.info(dash_line)
 
-logger.info(f"[MultiGPU] Registration complete. Final mappings: {', '.join(NODE_CLASS_MAPPINGS.keys())}")
+# logger.info(f"[MultiGPU] Registration complete. Final mappings: {', '.join(NODE_CLASS_MAPPINGS.keys())}")
