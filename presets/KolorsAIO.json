@@ -1,7 +1,7 @@
 { 
     "default_engine": {
 	"backend_engine": "Kolors",
-	"disvisible": ["backend_selection", "performance_selection"],
+	"disvisible": ["backend_selection", "performance_selection", "refiner_model"],
 	"disinteractive": ["performance_selection", "refiner_model", "layer_method", "layer_input_image"],
 	"available_aspect_ratios_selection": "Common",
 	"backend_params": {

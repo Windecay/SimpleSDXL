@@ -1502,10 +1502,10 @@ with shared.gradio_root:
 
                 with gr.Group():
                     with gr.Row():
-                        base_model = gr.Dropdown(label='Base Model (SDXL only)', choices=modules.config.model_filenames, value=modules.config.default_base_model_name, show_label=True,
-                                                 elem_id="model_dropdown_base",elem_classes="model-dropdown",interactive=True)
-                        refiner_model = gr.Dropdown(label='Refiner (SDXL or SD 1.5)', choices=['None'] + modules.config.model_filenames, value=modules.config.default_refiner_model_name, show_label=True,
-                                                 elem_id="model_dropdown_refiner",elem_classes="model-dropdown",interactive=True)
+                        base_model = gr.Dropdown(label='Base Model (or HighNoise)', choices=modules.config.model_filenames, value=modules.config.default_base_model_name, show_label=True,
+                                                 elem_id="model_dropdown_base",elem_classes="model-dropdown",interactive=True, info="Right Click for Model Gallery")
+                        refiner_model = gr.Dropdown(label='Refiner (or LowNoise)', choices=['None'] + modules.config.model_filenames, value=modules.config.default_refiner_model_name, show_label=True,
+                                                 elem_id="model_dropdown_refiner",elem_classes="model-dropdown",interactive=True, info="WanT2I selects VACE here")
                     with gr.Row():
                         base_preview_btn = gr.Button( "🖼️ Base Model", variant="secondary", visible=False,elem_id="base_preview_btn")
                         refiner_preview_btn = gr.Button("🖼️ Refiner", variant="secondary", visible=False,elem_id="refiner_preview_btn")
@@ -2085,6 +2085,10 @@ with shared.gradio_root:
         protections = [random_button, super_prompter, background_theme, image_tools_checkbox] + nav_bars
         generate_button.click(topbar.process_before_generation, inputs=[state_topbar, seed_random, image_seed, params_backend] + scene_params[:-2], outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating, index_radio, image_toolbox, prompt_info_box, image_seed] + protections + [preset_store, identity_dialog], show_progress=False) \
             .then(topbar.avoid_empty_prompt_for_scene, inputs=[prompt, state_topbar, scene_input_image1, scene_theme, scene_additional_prompt, scene_additional_prompt_2], outputs=prompt, show_progress=True) \
+            .then(lambda state_topbar_value, use_loras, model1, model2, model3, model4: [ \
+                 "None" if "scene_frontend" in state_topbar_value and not use_loras else model1, "None" if "scene_frontend" in state_topbar_value and not use_loras else model2, "None" if "scene_frontend" in state_topbar_value and not use_loras else model3, "None" if "scene_frontend" in state_topbar_value and not use_loras else model4], \
+            inputs=[state_topbar, scene_use_lora, scene_lora_model, scene_lora_model_2, scene_lora_model_3, scene_lora_model_4], \
+            outputs=[scene_lora_model, scene_lora_model_2, scene_lora_model_3, scene_lora_model_4]) \
             .then(lambda use_random: select_random_aspect_ratio(use_random), inputs=[random_aspect_ratio_checkbox], outputs=[overwrite_width, overwrite_height, aspect_ratios_selection]) \
             .then(fn=get_task, inputs=ctrls, outputs=currentTask) \
             .then(fn=generate_clicked, inputs=[currentTask, state_topbar], outputs=[progress_html, progress_window, progress_gallery, progress_video, gallery]) \

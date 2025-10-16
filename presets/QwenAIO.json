@@ -1,7 +1,7 @@
 { 
     "default_engine": {
 	"backend_engine": "Qwen",
-	"disvisible": ["backend_selection", "performance_selection", "negative_prompt"],
+	"disvisible": ["backend_selection", "performance_selection", "negative_prompt", "refiner_model"],
 	"disinteractive": ["performance_selection", "negative_prompt", "refiner_model", "layer_method", "layer_input_image"],
 	"available_aspect_ratios_selection": "Flux",
 	"backend_params": {
