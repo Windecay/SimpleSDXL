@@ -177,8 +177,8 @@ translation_methods = ['Slim Model', 'Big Model', 'Third APIs']
 
 COMFY_KSAMPLER_NAMES = ['euler', 'euler_cfg_pp', 'euler_ancestral', 'euler_ancestral_cfg_pp', 'heun', 'heunpp2', 'dpm_2', 'dpm_2_ancestral', 'lms', 'dpm_fast', 'dpm_adaptive', 'dpmpp_2s_ancestral', 'dpmpp_2s_ancestral_cfg_pp', 'dpmpp_sde', 'dpmpp_sde_gpu', 'dpmpp_2m', 'dpmpp_2m_cfg_pp', 'dpmpp_2m_sde', 'dpmpp_2m_sde_gpu', 'dpmpp_3m_sde', 'dpmpp_3m_sde_gpu', 'ddpm', 'lcm', 'ipndm', 'ipndm_v', 'deis', 'res_multistep', 'res_multistep_cfg_pp', 'res_multistep_ancestral', 'res_multistep_ancestral_cfg_pp', 'gradient_estimation', 'gradient_estimation_cfg_pp', 'er_sde', 'seeds_2', 'seeds_3']
 
-comfy_scheduler_list = COMFY_SCHEDULER_NAMES = ['normal', 'karras', 'exponential', 'sgm_uniform', 'simple', 'ddim_uniform', 'beta', 'linear_quadratic', 'kl_optimal']
-comfy_sampler_list = COMFY_SAMPLER_NAMES = COMFY_KSAMPLER_NAMES + ["ddim", "uni_pc", "uni_pc_bh2"]
+comfy_scheduler_list = COMFY_SCHEDULER_NAMES = ['normal', 'karras', 'exponential', 'sgm_uniform', 'simple', 'ddim_uniform', 'beta', 'linear_quadratic', 'kl_optimal', 'bong_tangent', 'beta57']
+comfy_sampler_list = COMFY_SAMPLER_NAMES = COMFY_KSAMPLER_NAMES + ["ddim", "uni_pc", "uni_pc_bh2", "legacy_rk", "rk", "rk_beta", "deis_3m_ode", "deis_2m_ode", "deis_3m", "deis_2m", "res_6s_ode", "res_5s_ode", "res_3s_ode", "res_2s_ode", "res_3m_ode", "res_2m_ode", "res_6s", "res_5s", "res_3s", "res_2s", "res_3m", "res_2m"]
 
 aspect_ratios_templates = ['SDXL', 'HyDiT', 'Common', 'Flux', 'Wan']
 default_aspect_ratio = ['1152*896', '1024*1024', '1280*768', '1280*720', '832*1216']

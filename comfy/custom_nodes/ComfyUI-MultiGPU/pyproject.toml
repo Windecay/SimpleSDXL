@@ -1,0 +1,14 @@
+[project]
+name = "comfyui-multigpu"
+description = "Provides a suite of custom nodes to manage multiple GPUs for ComfyUI, including advanced model offloading for both GGUF and Safetensor formats with DisTorch, and bespoke MultiGPU support for WanVideoWrapper and other custom nodes."
+version = "2.5.10"
+license = {file = "LICENSE"}
+
+[project.urls]
+Repository = "https://github.com/pollockjj/ComfyUI-MultiGPU"
+#  Used by Comfy Registry https://comfyregistry.org
+
+[tool.comfy]
+PublisherId = "pollockjj"
+DisplayName = "ComfyUI-MultiGPU"
+Icon = "https://raw.githubusercontent.com/pollockjj/ComfyUI-MultiGPU/main/assets/multigpu_icon.png"
