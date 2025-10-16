@@ -249,6 +249,7 @@ path_audio_encoders = get_dir_or_set_default('path_audio_encoders', f'{path_mode
 path_model_patches = get_dir_or_set_default('path_model_patches', f'{path_models_root}/model_patches')
 path_detection = get_dir_or_set_default('path_detection', f'{path_models_root}/detection')
 path_diffusion_models = get_dir_or_set_default('path_diffusion_models', f'{path_models_root}/diffusion_models')
+path_text_encoders = get_dir_or_set_default('path_text_encoders', f'{path_models_root}/text_encoders')
 
 
 
@@ -276,6 +277,7 @@ model_cata_map = {
     'model_patches': [path_model_patches],
     'detection': [path_detection],
     'diffusion_models': [path_diffusion_models],
+    'text_encoders': [path_text_encoders],
     }
 
 from enhanced.simpleai import init_modelsinfo, get_path_in_user_dir
@@ -1025,21 +1027,22 @@ comfyui:
      audio_encoders: {audio_encoders}
      model_patches: {model_patches}
      detection: {detection}
+     text_encoders: {text_encoders}
      '''
 
 paths2str = lambda p,n: p[0] if len(p)<=1 else '|\n'+''.join([' ']*(5+len(n)))+''.join(['\n']+[' ']*(5+len(n))).join(p) 
 
 config_comfy_text = config_comfy_formatted_text.format(
         models_root=path_models_root, 
-        checkpoints=paths2str(paths_checkpoints,'checkpoints'), 
+        checkpoints=paths2str([path_diffusion_models]+paths_checkpoints,'checkpoints'),
         clip_vision=paths2str([path_clip_vision,path_ipadapter],'clip_vision'), 
-        clip=path_clip, 
+        clip=paths2str([path_text_encoders, path_clip], 'clip'),
         controlnets=paths2str(paths_controlnet,'controlnet'), 
         diffusers=paths2str(paths_diffusers,'diffusers'), 
         embeddings=path_embeddings, 
         loras=paths2str(paths_loras, 'loras'), 
         upscale_models=path_upscale_models, 
-        unet=paths2str([path_unet]+paths_checkpoints, 'unet'), 
+        unet=paths2str([path_unet]+[path_diffusion_models]+paths_checkpoints, 'unet'),
         rembg=path_rembg, 
         layer_model=path_layer_model, 
         vae=path_vae, 
@@ -1051,6 +1054,7 @@ config_comfy_text = config_comfy_formatted_text.format(
         audio_encoders=path_audio_encoders,
         model_patches=path_model_patches,
         detection=path_detection,
+        text_encoders=paths2str([path_text_encoders, path_clip], 'text_encoders'),
         diffusion_models=paths2str([path_diffusion_models]+paths_checkpoints, 'diffusion_models')
         )
 
