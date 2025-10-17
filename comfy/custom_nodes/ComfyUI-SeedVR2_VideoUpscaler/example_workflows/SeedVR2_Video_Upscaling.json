@@ -1,0 +1,396 @@
+{
+  "id": "27decc95-db23-489f-bd36-91f56e7ec825",
+  "revision": 0,
+  "last_node_id": 15,
+  "last_link_id": 18,
+  "nodes": [
+    {
+      "id": 14,
+      "type": "SeedVR2ExtraArgs",
+      "pos": [
+        1160,
+        430
+      ],
+      "size": [
+        270,
+        202
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "label": "extra_args",
+          "name": "extra_args",
+          "type": "extra_args",
+          "links": [
+            17
+          ]
+        }
+      ],
+      "properties": {
+        "aux_id": "numz/ComfyUI-SeedVR2_VideoUpscaler",
+        "ver": "12aefc08bb302fa595a5938e1520522dc7246d7c",
+        "Node name for S&R": "SeedVR2ExtraArgs"
+      },
+      "widgets_values": [
+        true,
+        512,
+        64,
+        false,
+        false,
+        false,
+        "cuda:0"
+      ]
+    },
+    {
+      "id": 15,
+      "type": "SeedVR2",
+      "pos": [
+        1490,
+        130
+      ],
+      "size": [
+        270,
+        194
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "images",
+          "name": "images",
+          "type": "IMAGE",
+          "link": 15
+        },
+        {
+          "label": "block_swap_config",
+          "name": "block_swap_config",
+          "shape": 7,
+          "type": "block_swap_config",
+          "link": 16
+        },
+        {
+          "label": "extra_args",
+          "name": "extra_args",
+          "shape": 7,
+          "type": "extra_args",
+          "link": 17
+        }
+      ],
+      "outputs": [
+        {
+          "label": "image",
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            18
+          ]
+        }
+      ],
+      "properties": {
+        "aux_id": "numz/ComfyUI-SeedVR2_VideoUpscaler",
+        "ver": "12aefc08bb302fa595a5938e1520522dc7246d7c",
+        "Node name for S&R": "SeedVR2"
+      },
+      "widgets_values": [
+        "seedvr2_ema_3b_fp8_e4m3fn.safetensors",
+        100,
+        "randomize",
+        1072,
+        5
+      ]
+    },
+    {
+      "id": 13,
+      "type": "SeedVR2BlockSwap",
+      "pos": [
+        1160,
+        260
+      ],
+      "size": [
+        270,
+        110
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "label": "block_swap_config",
+          "name": "block_swap_config",
+          "type": "block_swap_config",
+          "links": [
+            16
+          ]
+        }
+      ],
+      "properties": {
+        "aux_id": "numz/ComfyUI-SeedVR2_VideoUpscaler",
+        "ver": "12aefc08bb302fa595a5938e1520522dc7246d7c",
+        "Node name for S&R": "SeedVR2BlockSwap"
+      },
+      "widgets_values": [
+        16,
+        false,
+        false
+      ]
+    },
+    {
+      "id": 12,
+      "type": "GetVideoComponents",
+      "pos": [
+        1160,
+        130
+      ],
+      "size": [
+        150,
+        70
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "video",
+          "name": "video",
+          "type": "VIDEO",
+          "link": 10
+        }
+      ],
+      "outputs": [
+        {
+          "label": "images",
+          "name": "images",
+          "type": "IMAGE",
+          "links": [
+            15
+          ]
+        },
+        {
+          "label": "audio",
+          "name": "audio",
+          "type": "AUDIO",
+          "links": null
+        },
+        {
+          "label": "fps",
+          "name": "fps",
+          "type": "FLOAT",
+          "links": [
+            12
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.50",
+        "Node name for S&R": "GetVideoComponents"
+      }
+    },
+    {
+      "id": 11,
+      "type": "CreateVideo",
+      "pos": [
+        1820,
+        130
+      ],
+      "size": [
+        210,
+        80
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "images",
+          "name": "images",
+          "type": "IMAGE",
+          "link": 18
+        },
+        {
+          "label": "audio",
+          "name": "audio",
+          "shape": 7,
+          "type": "AUDIO",
+          "link": null
+        },
+        {
+          "label": "fps",
+          "name": "fps",
+          "type": "FLOAT",
+          "widget": {
+            "name": "fps"
+          },
+          "link": 12
+        }
+      ],
+      "outputs": [
+        {
+          "label": "VIDEO",
+          "name": "VIDEO",
+          "type": "VIDEO",
+          "links": [
+            7
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.50",
+        "Node name for S&R": "CreateVideo"
+      },
+      "widgets_values": [
+        30
+      ]
+    },
+    {
+      "id": 10,
+      "type": "SaveVideo",
+      "pos": [
+        2090,
+        130
+      ],
+      "size": [
+        270,
+        106
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "video",
+          "name": "video",
+          "type": "VIDEO",
+          "link": 7
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.50",
+        "Node name for S&R": "SaveVideo"
+      },
+      "widgets_values": [
+        "video/ComfyUI",
+        "mp4",
+        "auto"
+      ]
+    },
+    {
+      "id": 8,
+      "type": "LoadVideo",
+      "pos": [
+        820,
+        130
+      ],
+      "size": [
+        280,
+        500
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "label": "VIDEO",
+          "name": "VIDEO",
+          "type": "VIDEO",
+          "links": [
+            10
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.50",
+        "Node name for S&R": "LoadVideo"
+      },
+      "widgets_values": [
+        "none",
+        "image"
+      ]
+    }
+  ],
+  "links": [
+    [
+      7,
+      11,
+      0,
+      10,
+      0,
+      "VIDEO"
+    ],
+    [
+      10,
+      8,
+      0,
+      12,
+      0,
+      "VIDEO"
+    ],
+    [
+      12,
+      12,
+      2,
+      11,
+      2,
+      "FLOAT"
+    ],
+    [
+      15,
+      12,
+      0,
+      15,
+      0,
+      "IMAGE"
+    ],
+    [
+      16,
+      13,
+      0,
+      15,
+      1,
+      "block_swap_config"
+    ],
+    [
+      17,
+      14,
+      0,
+      15,
+      2,
+      "extra_args"
+    ],
+    [
+      18,
+      15,
+      0,
+      11,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.9431135829263315,
+      "offset": [
+        -724.0470189811382,
+        16.39777269620356
+      ]
+    },
+    "frontendVersion": "1.25.7",
+    "VHS_latentpreview": false,
+    "VHS_latentpreviewrate": 0,
+    "VHS_MetadataImage": true,
+    "VHS_KeepIntermediate": true
+  },
+  "version": 0.4
+}
