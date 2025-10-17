@@ -216,10 +216,10 @@ def unet_offload_device_patched():
     logger.debug(f"[MultiGPU Core Patching] unet_offload_device_patched returning device: {device} (current_unet_offload_device={current_unet_offload_device})")
     return device
 
-logger.info(f"[MultiGPU Core Patching] Patching mm.get_torch_device, mm.text_encoder_device, mm.unet_offload_device")
-logger.info(f"[MultiGPU DEBUG] Initial current_device: {current_device}")
-logger.info(f"[MultiGPU DEBUG] Initial current_text_encoder_device: {current_text_encoder_device}")
-logger.info(f"[MultiGPU DEBUG] Initial current_unet_offload_device: {current_unet_offload_device}")
+# logger.info(f"[MultiGPU Core Patching] Patching mm.get_torch_device, mm.text_encoder_device, mm.unet_offload_device")
+# logger.info(f"[MultiGPU DEBUG] Initial current_device: {current_device}")
+# logger.info(f"[MultiGPU DEBUG] Initial current_text_encoder_device: {current_text_encoder_device}")
+# logger.info(f"[MultiGPU DEBUG] Initial current_unet_offload_device: {current_unet_offload_device}")
 
 mm.get_torch_device = get_torch_device_patched
 mm.text_encoder_device = text_encoder_device_patched
@@ -323,12 +323,12 @@ NODE_CLASS_MAPPINGS["ControlNetLoaderDisTorch2MultiGPU"] = override_class_with_d
 NODE_CLASS_MAPPINGS["DiffusersLoaderDisTorch2MultiGPU"] = override_class_with_distorch_safetensor_v2(GLOBAL_NODE_CLASS_MAPPINGS["DiffusersLoader"])
 NODE_CLASS_MAPPINGS["DiffControlNetLoaderDisTorch2MultiGPU"] = override_class_with_distorch_safetensor_v2(GLOBAL_NODE_CLASS_MAPPINGS["DiffControlNetLoader"])
 
-logger.info("[MultiGPU] Initiating custom_node Registration. . .")
+# logger.info("[MultiGPU] Initiating custom_node Registration. . .")
 dash_line = "-" * 47
 fmt_reg = "{:<30}{:>5}{:>10}"
-logger.info(dash_line)
-logger.info(fmt_reg.format("custom_node", "Found", "Nodes"))
-logger.info(dash_line)
+# logger.info(dash_line)
+# logger.info(fmt_reg.format("custom_node", "Found", "Nodes"))
+# logger.info(dash_line)
 
 registration_data = []
 
