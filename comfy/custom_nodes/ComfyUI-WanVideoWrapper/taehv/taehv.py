@@ -146,9 +146,7 @@ def apply_model_with_memblocks(model, x, parallel, show_progress_bar):
     return x
 
 class TAEHV(nn.Module):
-    latent_channels = 16
-    image_channels = 3
-    def __init__(self, state_dict, parallel=False, decoder_time_upscale=(True, True), decoder_space_upscale=(True, True, True)):
+    def __init__(self, state_dict, parallel=False, decoder_time_upscale=(True, True), decoder_space_upscale=(True, True, True), dtype=torch.float16):
         """Initialize pretrained TAEHV from the given checkpoint.
 
         Arg:
@@ -157,25 +155,32 @@ class TAEHV(nn.Module):
             decoder_space_upscale: whether spatial upsampling is enabled for each block. upsampling can be disabled for a cheaper preview.
         """
         super().__init__()
+        self.image_channels = 3
+        self.latent_channels = state_dict["decoder.1.weight"].shape[1]
+        self.patch_size = 1
+        if self.latent_channels == 48:
+            self.patch_size = 2
+        self.dtype = dtype
+
         self.encoder = nn.Sequential(
-            conv(TAEHV.image_channels, 64), nn.ReLU(inplace=True),
+            conv(self.image_channels*self.patch_size**2, 64), nn.ReLU(inplace=True),
             TPool(64, 2), conv(64, 64, stride=2, bias=False), MemBlock(64, 64), MemBlock(64, 64), MemBlock(64, 64),
             TPool(64, 2), conv(64, 64, stride=2, bias=False), MemBlock(64, 64), MemBlock(64, 64), MemBlock(64, 64),
             TPool(64, 1), conv(64, 64, stride=2, bias=False), MemBlock(64, 64), MemBlock(64, 64), MemBlock(64, 64),
-            conv(64, TAEHV.latent_channels),
+            conv(64, self.latent_channels),
         )
         n_f = [256, 128, 64, 64]
         self.frames_to_trim = 2**sum(decoder_time_upscale) - 1
         self.decoder = nn.Sequential(
-            Clamp(), conv(TAEHV.latent_channels, n_f[0]), nn.ReLU(inplace=True),
+            Clamp(), conv(self.latent_channels, n_f[0]), nn.ReLU(inplace=True),
             MemBlock(n_f[0], n_f[0]), MemBlock(n_f[0], n_f[0]), MemBlock(n_f[0], n_f[0]), nn.Upsample(scale_factor=2 if decoder_space_upscale[0] else 1), TGrow(n_f[0], 1), conv(n_f[0], n_f[1], bias=False),
             MemBlock(n_f[1], n_f[1]), MemBlock(n_f[1], n_f[1]), MemBlock(n_f[1], n_f[1]), nn.Upsample(scale_factor=2 if decoder_space_upscale[1] else 1), TGrow(n_f[1], 2 if decoder_time_upscale[0] else 1), conv(n_f[1], n_f[2], bias=False),
             MemBlock(n_f[2], n_f[2]), MemBlock(n_f[2], n_f[2]), MemBlock(n_f[2], n_f[2]), nn.Upsample(scale_factor=2 if decoder_space_upscale[2] else 1), TGrow(n_f[2], 2 if decoder_time_upscale[1] else 1), conv(n_f[2], n_f[3], bias=False),
-            nn.ReLU(inplace=True), conv(n_f[3], TAEHV.image_channels),
+            nn.ReLU(inplace=True), conv(n_f[3], self.image_channels*self.patch_size**2),
         )
         if state_dict is not None:
             self.load_state_dict(self.patch_tgrow_layers(state_dict))
-        self.dtype = torch.float16
+        
         self.parallel = parallel
 
     def patch_tgrow_layers(self, sd):
@@ -203,9 +208,10 @@ class TAEHV(nn.Module):
               if False, frames will be processed sequentially.
         Returns NTCHW latent tensor with ~Gaussian values.
         """
-        return apply_model_with_memblocks(self.encoder, x, self.parallel, show_progress_bar)
+        if self.patch_size > 1: x = F.pixel_unshuffle(x, self.patch_size)
+        return apply_model_with_memblocks(self.encoder, x, parallel, show_progress_bar)
 
-    def decode_video(self, x, parallel=False, show_progress_bar=True):
+    def decode_video(self, x, parallel=False, show_progress_bar=True, **kwargs):
         """Decode a sequence of frames.
 
         Args:
@@ -216,6 +222,7 @@ class TAEHV(nn.Module):
         Returns NTCHW RGB tensor with ~[0, 1] values.
         """
         x = apply_model_with_memblocks(self.decoder, x, self.parallel, show_progress_bar)
+        if self.patch_size > 1: x = F.pixel_shuffle(x, self.patch_size)
         return x[:, self.frames_to_trim:]
 
     def forward(self, x):

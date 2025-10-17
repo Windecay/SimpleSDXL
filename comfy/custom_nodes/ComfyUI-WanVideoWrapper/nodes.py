@@ -1017,9 +1017,9 @@ class WanVideoAnimateEmbeds:
 
     def process(self, vae, width, height, num_frames, force_offload, frame_window_size, colormatch, pose_strength, face_strength,
                 ref_images=None, pose_images=None, face_images=None, clip_embeds=None, tiled_vae=False, bg_images=None, mask=None):
-
-        H = height
-        W = width
+        
+        W = (width // 16) * 16
+        H = (height // 16) * 16
 
         lat_h = H // vae.upsampling_factor
         lat_w = W // vae.upsampling_factor
@@ -1044,7 +1044,7 @@ class WanVideoAnimateEmbeds:
         gc.collect()
         vae.to(device)
         # Resize and rearrange the input image dimensions
-        pose_latents = ref_latents = ref_latent = None
+        pose_latents = ref_latent = None
         if pose_images is not None:
             pose_images = pose_images[..., :3]
             if pose_images.shape[1] != H or pose_images.shape[2] != W:
@@ -1738,7 +1738,10 @@ class WanVideoExperimentalArgs:
                 "fresca_freq_cutoff": ("INT", {"default": 20, "min": 0, "max": 10000, "step": 1}),
                 "use_tcfg": ("BOOLEAN", {"default": False, "tooltip": "https://arxiv.org/abs/2503.18137 TCFG: Tangential Damping Classifier-free Guidance. CFG artifacts reduction."}),
                 "raag_alpha": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 10.0, "step": 0.01, "tooltip": "Alpha value for RAAG, 1.0 is default, 0.0 is disabled."}),
-                "bidirectional_sampling": ("BOOLEAN", {"default": False, "tooltip": "Enable bidirectional sampling, based on https://github.com/ff2416/WanFM"})
+                "bidirectional_sampling": ("BOOLEAN", {"default": False, "tooltip": "Enable bidirectional sampling, based on https://github.com/ff2416/WanFM"}),
+                "temporal_score_rescaling": ("BOOLEAN", {"default": False, "tooltip": "Enable temporal score rescaling: https://github.com/temporalscorerescaling/TSR/"}),
+                "tsr_k": ("FLOAT", {"default": 0.95, "min": 0.0, "max": 100.0, "step": 0.01, "tooltip": "The sampling temperature"}),
+                "tsr_sigma": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 1.0, "step": 0.01, "tooltip": "How early TSR steer the sampling process"}),
             },
         }
 
@@ -1994,6 +1997,8 @@ class WanVideoDecode:
         drop_last = samples.get("drop_last", False)
         is_looped = samples.get("looped", False)
 
+        flashvsr_LQ_images = samples.get("flashvsr_LQ_images", None)
+
         vae.to(device)
 
         latents = latents.to(device = device, dtype = vae.dtype)
@@ -2006,7 +2011,7 @@ class WanVideoDecode:
             latents = latents[:, :, :-1]
 
         if type(vae).__name__ == "TAEHV":      
-            images = vae.decode_video(latents.permute(0, 2, 1, 3, 4))[0].permute(1, 0, 2, 3)
+            images = vae.decode_video(latents.permute(0, 2, 1, 3, 4), cond=flashvsr_LQ_images.to(vae.dtype) if flashvsr_LQ_images is not None else None)[0].permute(1, 0, 2, 3)
             images = torch.clamp(images, 0.0, 1.0)
             images = images.permute(1, 2, 3, 0).cpu().float()
             return (images,)

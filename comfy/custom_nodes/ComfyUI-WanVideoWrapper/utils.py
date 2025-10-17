@@ -160,7 +160,8 @@ def patch_weight_to_device(self, key, device_to=None, inplace_update=False, back
     else:
         set_func(out_weight, inplace_update=inplace_update, seed=string_to_seed(key))
 
-def apply_lora(model, device_to, transformer_load_device, params_to_keep=None, dtype=None, base_dtype=None, state_dict=None, low_mem_load=False, control_lora=False, scale_weights={}):
+def apply_lora(model, device_to, transformer_load_device, params_to_keep=None, dtype=None, 
+               base_dtype=None, state_dict=None, low_mem_load=False, control_lora=False, scale_weights={}):
         model.patch_weight_to_device = types.MethodType(patch_weight_to_device, model)
         to_load = []
         for n, m in model.model.named_modules():
@@ -588,3 +589,16 @@ def check_duplicate_nodes():
             wanvideo_dirs.append(str(path))
     
     return wanvideo_dirs
+
+#https://github.com/temporalscorerescaling/TSR/
+def temporal_score_rescaling(model_output, sample, timestep, k=1.0, tsr_sigma=0.1):
+    t = (timestep / 1000)
+    if t == 0.0:
+        ratio = k
+    else:
+        snr_t = (1 - t)**2 / t**2
+        ratio = (snr_t * tsr_sigma**2 + 1) / (snr_t * tsr_sigma**2 / k + 1)
+
+    if not t == 1.0:
+        model_output = (ratio * ((1-t) * model_output + sample) - sample) / (1 - t)
+    return model_output

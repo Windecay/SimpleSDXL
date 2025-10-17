@@ -10,6 +10,7 @@ from .wanvideo.modules.model import WanModel, LoRALinearLayer
 from .wanvideo.modules.t5 import T5EncoderModel
 from .wanvideo.modules.clip import CLIPModel
 from .wanvideo.wan_video_vae import WanVideoVAE, WanVideoVAE38
+from .custom_linear import _replace_linear
 
 from accelerate import init_empty_weights
 from .utils import set_module_tensor_to_device
@@ -531,6 +532,8 @@ class WanVideoLoraSelectMulti:
                 "low_mem_load": low_mem_load,
                 "merge_loras": merge_loras,
             })
+        if len(loras_list) == 0:
+            return None,
         return (loras_list,)
     
 class WanVideoVACEModelSelect:
@@ -549,9 +552,7 @@ class WanVideoVACEModelSelect:
     DESCRIPTION = "VACE model to use when not using model that has it included, loaded from 'ComfyUI/models/diffusion_models'"
 
     def getvacepath(self, vace_model):
-        vace_model = {
-            "path": folder_paths.get_full_path("diffusion_models", vace_model),
-        }
+        vace_model = [{"path": folder_paths.get_full_path("diffusion_models", vace_model)}]
         return (vace_model,)
     
 class WanVideoExtraModelSelect:
@@ -561,19 +562,24 @@ class WanVideoExtraModelSelect:
             "required": {
                 "extra_model": (folder_paths.get_filename_list("unet_gguf") + folder_paths.get_filename_list("diffusion_models"), {"tooltip": "These models are loaded from the 'ComfyUI/models/diffusion_models' path to extra state dict to add to the main model"}),
             },
+            "optional": {
+                "prev_model":("VACEPATH", {"default": None, "tooltip": "For loading multiple extra models"}),
+            },
         }
 
     RETURN_TYPES = ("VACEPATH",)
     RETURN_NAMES = ("extra_model", )
-    FUNCTION = "getvacepath"
+    FUNCTION = "getmodelpath"
     CATEGORY = "WanVideoWrapper"
     DESCRIPTION = "Extra model to load and add to the main model, ie. VACE or MTV Crafter 'ComfyUI/models/diffusion_models'"
 
-    def getvacepath(self, extra_model):
-        extra_model = {
-            "path": folder_paths.get_full_path("diffusion_models", extra_model),
-        }
-        return (extra_model,)
+    def getmodelpath(self, extra_model, prev_model=None):
+        extra_model = {"path": folder_paths.get_full_path("diffusion_models", extra_model)}
+        if prev_model is not None and isinstance(prev_model, list):
+            extra_model_list = prev_model + [extra_model]
+        else:
+            extra_model_list = [extra_model]
+        return (extra_model_list,)
 
 class WanVideoLoraBlockEdit:
     def __init__(self):
@@ -855,12 +861,18 @@ def load_weights(transformer, sd=None, weight_dtype=None, base_dtype=None,
         # GGUF: skip GGUFParameter params
         if gguf and isinstance(param, GGUFParameter):
             continue
+        
+        key = name.replace("_orig_mod.", "")
+        value=sd[key]
 
         if gguf:
             dtype_to_use = torch.float32 if "patch_embedding" in name or "motion_encoder" in name else base_dtype
         else:
             dtype_to_use = base_dtype if any(keyword in name for keyword in params_to_keep) else weight_dtype
-            dtype_to_use = weight_dtype if sd[name.replace("_orig_mod.", "")].dtype == weight_dtype else dtype_to_use
+            dtype_to_use = weight_dtype if value.dtype == weight_dtype else dtype_to_use
+            scale_key = key.replace(".weight", ".scale_weight")
+            if scale_key in sd:
+                dtype_to_use = value.dtype
             if "modulation" in name or "norm" in name or "bias" in name or "img_emb" in name:
                 dtype_to_use = base_dtype
             if "patch_embedding" in name or "motion_encoder" in name:
@@ -876,12 +888,12 @@ def load_weights(transformer, sd=None, weight_dtype=None, base_dtype=None,
                 if vace_block_idx >= len(transformer.vace_blocks) - block_swap_args.get("vace_blocks_to_swap", 0):
                     load_device = offload_device
         # Set tensor to device
-        set_module_tensor_to_device(transformer, name, device=load_device, dtype=dtype_to_use, value=sd[name.replace("_orig_mod.", "")])
+        set_module_tensor_to_device(transformer, name, device=load_device, dtype=dtype_to_use, value=value)
         cnt += 1
         if cnt % 100 == 0:
             pbar.update(100)
-    #for name, param in transformer.named_parameters():
-    #    print(name, param.device, param.dtype)
+
+    #[print(name, param.device, param.dtype) for name, param in transformer.named_parameters()]
 
     pbar.update_absolute(0)
 
@@ -1092,7 +1104,7 @@ class WanVideoModelLoader:
             major, minor = torch.cuda.get_device_capability(device)
             log.info(f"CUDA Compute Capability: {major}.{minor}")
             if compile_args is not None and "e4" in quantization and (major, minor) < (8, 9):
-                log.warning("WARNING: Torch.compile with fp8_e4m3fn weights on CUDA compute capability < 8.9 is not supported. Please use fp8_e5m2, GGUF or higher precision instead.")
+                log.warning("WARNING: Torch.compile with fp8_e4m3fn weights on CUDA compute capability < 8.9 may not be supported. Please use fp8_e5m2, GGUF or higher precision instead, or check the latest triton version that adds support for older architectures https://github.com/woct0rdho/triton-windows/releases/tag/v3.5.0-windows.post21")
 
         if "scaled_fp8" in sd and "scaled" not in quantization:
             raise ValueError("The model is a scaled fp8 model, please set quantization to '_scaled'")
@@ -1100,46 +1112,67 @@ class WanVideoModelLoader:
         if "vace_blocks.0.after_proj.weight" in sd and not "patch_embedding.weight" in sd:
             raise ValueError("You are attempting to load a VACE module as a WanVideo model, instead you should use the vace_model input and matching T2V base model")
 
-        # currently this can be VAE or MTV-Crafter weights
+        # currently this can be VACE, MTV-Crafter, Lynx or Ovi-audio weights
+        extra_audio_model = False
         if extra_model is not None:
-            if gguf:
-                if not extra_model["path"].endswith(".gguf"):
-                    raise ValueError("With GGUF main model the extra model must also be GGUF quantized, if the main model already has VACE included, you can disconnect the extra module loader")
-                extra_sd, extra_reader = load_gguf(extra_model["path"])
-                gguf_reader.append(extra_reader)
-                del extra_reader
-            else:
-                if extra_model["path"].endswith(".gguf"):
-                    raise ValueError("With GGUF extra model the main model must also be GGUF quantized model")
-                extra_sd = load_torch_file(extra_model["path"], device=transformer_load_device, safe_load=True)
-            sd.update(extra_sd)
-            del extra_sd
+            for _model in extra_model:
+                print("Loading extra model: ", _model["path"])
+                if gguf:
+                    if not _model["path"].endswith(".gguf"):
+                        raise ValueError("With GGUF main model the extra model must also be GGUF quantized, if the main model already has VACE included, you can disconnect the extra module loader")
+                    extra_sd, extra_reader = load_gguf(_model["path"])
+                    gguf_reader.append(extra_reader)
+                    del extra_reader
+                else:
+                    if _model["path"].endswith(".gguf"):
+                        raise ValueError("With GGUF extra model the main model must also be GGUF quantized model")
+                    extra_sd = load_torch_file(_model["path"], device=transformer_load_device, safe_load=True)
+                if "audio_model.patch_embedding.0.weight" in extra_sd:
+                    extra_audio_model = True
+                sd.update(extra_sd)
+                del extra_sd
 
         first_key = next(iter(sd))
+        if first_key.startswith("audio_model.") and not extra_audio_model:
+            sd = {key.replace("audio_model.", "", 1): value for key, value in sd.items()}
         if first_key.startswith("model.diffusion_model."):
-            new_sd = {}
-            for key, value in sd.items():
-                new_key = key.replace("model.diffusion_model.", "", 1)
-                new_sd[new_key] = value
-            sd = new_sd
+            sd = {key.replace("model.diffusion_model.", "", 1): value for key, value in sd.items()}
         elif first_key.startswith("model."):
-            new_sd = {}
-            for key, value in sd.items():
-                new_key = key.replace("model.", "", 1)
-                new_sd[new_key] = value
-            sd = new_sd
-        if not "patch_embedding.weight" in sd:
-            raise ValueError("Invalid WanVideo model selected")
-        dim = sd["patch_embedding.weight"].shape[0]
+            sd = {key.replace("model.", "", 1): value for key, value in sd.items()}
+
+        if "patch_embedding.weight" in sd:
+            dim = sd["patch_embedding.weight"].shape[0]
+            in_channels = sd["patch_embedding.weight"].shape[1]
+        elif "patch_embedding.0.weight" in sd:
+            dim = sd["patch_embedding.0.weight"].shape[0]
+            in_channels = sd["patch_embedding.0.weight"].shape[1]
+        else:
+            raise ValueError("No patch_embedding weight found, is the selected model a full WanVideo model?")
+
         in_features = sd["blocks.0.self_attn.k.weight"].shape[1]
         out_features = sd["blocks.0.self_attn.k.weight"].shape[0]
-        in_channels = sd["patch_embedding.weight"].shape[1]
         log.info(f"Detected model in_channels: {in_channels}")
         ffn_dim = sd["blocks.0.ffn.0.bias"].shape[0]
         ffn2_dim = sd["blocks.0.ffn.2.weight"].shape[1]
 
+        patch_size=(1, 2, 2)
+        if "patch_embedding.0.weight" in sd:
+            patch_size = [1]
+
         is_humo = "audio_proj.audio_proj_glob_1.layer.weight" in sd
         is_wananimate = "pose_patch_embedding.weight" in sd
+
+        #lynx
+        lynx_ip_layers = lynx_ref_layers = None
+        if "blocks.0.self_attn.ref_adapter.to_k_ref.weight" in sd:
+            log.info("Lynx full reference adapter detected")
+            lynx_ref_layers = "full"
+        if "blocks.0.cross_attn.ip_adapter.registers" in sd:
+            log.info("Lynx full IP adapter detected")
+            lynx_ip_layers = "full"
+        elif "blocks.0.cross_attn.ip_adapter.to_v_ip.weight" in sd:
+            log.info("Lynx lite IP adapter detected")
+            lynx_ip_layers = "lite"
 
         model_type = "t2v"
         if "audio_injector.injector.0.k.weight" in sd:
@@ -1247,6 +1280,7 @@ class WanVideoModelLoader:
             "dim": dim,
             "in_features": in_features,
             "out_features": out_features,
+            "patch_size": patch_size,
             "ffn_dim": ffn_dim,
             "ffn2_dim": ffn2_dim,
             "eps": 1e-06,
@@ -1277,12 +1311,38 @@ class WanVideoModelLoader:
             "humo_audio": is_humo,
             "is_wananimate": is_wananimate,
             "rms_norm_function": rms_norm_function,
+            "lynx_ip_layers": lynx_ip_layers,
+            "lynx_ref_layers": lynx_ref_layers,
 
         }
 
         with init_empty_weights():
-            transformer = WanModel(**TRANSFORMER_CONFIG)
-        transformer.eval()
+            transformer = WanModel(**TRANSFORMER_CONFIG).eval()
+
+        if extra_audio_model:
+            log.info("Ovi extra audio model detected, initializing...")
+            TRANSFORMER_CONFIG.update({
+                "patch_size": [1],
+                "in_dim": 20, 
+                "out_dim": 20,
+                })
+
+            with init_empty_weights():
+                transformer.audio_model = WanModel(**TRANSFORMER_CONFIG).eval()
+
+            from .wanvideo.modules.model import WanLayerNorm, WanRMSNorm
+
+            for block in transformer.blocks:
+                block.cross_attn.k_fusion = nn.Linear(block.dim, block.dim)
+                block.cross_attn.v_fusion = nn.Linear(block.dim, block.dim)
+                block.cross_attn.pre_attn_norm_fusion = WanLayerNorm(block.dim, elementwise_affine=True)
+                block.cross_attn.norm_k_fusion = WanRMSNorm(block.dim, eps=1e-6) if block.qk_norm else nn.Identity()
+
+            for block in transformer.audio_model.blocks:
+                block.cross_attn.k_fusion = nn.Linear(block.dim, block.dim)
+                block.cross_attn.v_fusion = nn.Linear(block.dim, block.dim)
+                block.cross_attn.pre_attn_norm_fusion = WanLayerNorm(block.dim, elementwise_affine=True)
+                block.cross_attn.norm_k_fusion = WanRMSNorm(block.dim, eps=1e-6) if block.qk_norm else nn.Identity()
 
         #ReCamMaster
         if "blocks.0.cam_encoder.weight" in sd:
@@ -1364,6 +1424,12 @@ class WanVideoModelLoader:
             sd.update(extra_sd)
             del extra_sd
 
+        # FlashVSR
+        if "LQ_proj_in.norm1.gamma" in sd:
+            log.info("FlashVSR model detected, patching model...")
+            from .FlashVSR.LQ_proj_model import Buffer_LQ4x_Proj
+            transformer.LQ_proj_in = Buffer_LQ4x_Proj(in_dim=3, out_dim=1536, layer_num=1)
+
         # Additional cond latents
         if "add_conv_in.weight" in sd:
             def zero_module(module):
@@ -1394,10 +1460,10 @@ class WanVideoModelLoader:
             for k, v in sd.items():
                 if k.endswith(".scale_weight"):
                     scale_weights[k] = v.to(device, base_dtype)
-        
-        if "fp8_e4m3fn" in quantization:
+
+        if quantization == "fp8_e4m3fn":
             weight_dtype = torch.float8_e4m3fn
-        elif "fp8_e5m2" in quantization:
+        elif quantization == "fp8_e5m2":
             weight_dtype = torch.float8_e5m2
         else:
             weight_dtype = base_dtype
@@ -1417,7 +1483,7 @@ class WanVideoModelLoader:
                 del unianimate_sd
       
         if not gguf:
-            if merge_loras and lora is not None:
+            if lora is not None and merge_loras:
                 if not lora_low_mem_load:
                     load_weights(transformer, sd, weight_dtype, base_dtype, transformer_load_device)
                 
@@ -1434,8 +1500,7 @@ class WanVideoModelLoader:
                     patcher.patches.clear()
                 transformer.patched_linear = False
                 sd = None
-            else:
-                from .custom_linear import _replace_linear
+            elif "scaled" in quantization or lora is not None:
                 transformer = _replace_linear(transformer, base_dtype, sd, scale_weights=scale_weights)
                 transformer.patched_linear = True
 
@@ -1622,9 +1687,9 @@ class WanVideoTinyVAELoader:
         model_path = folder_paths.get_full_path("vae_approx", model_name)
         vae_sd = load_torch_file(model_path, safe_load=True)
         
-        vae = TAEHV(vae_sd, parallel=parallel)
-       
-        vae.to(device = offload_device, dtype = dtype)
+        vae = TAEHV(vae_sd, parallel=parallel, dtype=dtype)
+
+        vae.to(device=offload_device, dtype=dtype)
 
         return (vae,)
 

@@ -113,6 +113,7 @@ class EasyCacheState:
             'cache': None,
             'accumulated_error': 0.0,
             'skipped_steps': [],
+            'cache_ovi': None,
         }
         return pred_id
 

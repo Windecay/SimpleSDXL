@@ -8,6 +8,15 @@ from comfy.utils import ProgressBar
 
 CACHE_T = 2
 
+# Workaround for increased memory usage in Conv3D with bfloat16 in torch 2.9.0 stable and up
+try:
+    torch_cudnn_bug = (
+        hasattr(torch.backends.cudnn, 'version') and
+        torch.backends.cudnn.version() >= 90800 and
+        torch.__version__ in ["2.9.0+cu126", "2.9.0+cu128", "2.9.0+cu130"] or torch.__version__.startswith("2.10.")
+    )
+except:
+    torch_cudnn_bug = False
 
 def check_is_instance(model, module_class):
     if isinstance(model, module_class):
@@ -35,6 +44,21 @@ class CausalConv3d(nn.Conv3d):
             x = torch.cat([cache_x, x], dim=2)
             padding[4] -= cache_x.shape[2]
         x = F.pad(x, padding)
+
+        # Convert to float32 only if this would trigger cuDNN bug
+        if (
+            torch_cudnn_bug and
+            x.dtype in (torch.bfloat16, torch.half) and
+            len(self.weight.shape) == 5 and
+            any(self.weight.shape[i] != 1 for i in range(2, 5))
+        ):
+            self.weight.data = self.weight.data.float()
+            if self.bias is not None:
+                self.bias.data = self.bias.data.float()
+            
+            result = super().forward(x.float())
+                
+            return result.to(x.dtype)
 
         return super().forward(x)
 
@@ -969,9 +993,12 @@ class VideoVAE_(nn.Module):
 
 
     #modification originally by @raindrop313 https://github.com/raindrop313/ComfyUI-WanVideoStartEndFrames
-    def encode_2(self, x):
+    def encode_2(self, x, pbar=True, sample=False):
         t = x.shape[2]
         iter_ = 2 + (t - 2) // 4
+
+        if pbar:
+            pbar = ProgressBar(iter_)
 
         for i in range(iter_):
             self._enc_conv_idx = [0]
@@ -994,11 +1021,13 @@ class VideoVAE_(nn.Module):
         out_tail = out[:, :, -1, :, :].unsqueeze(2)
         mu = torch.cat([self.conv1(out_head), self.conv1(out_tail)], dim=2).chunk(2, dim=1)[0]
         mu = (mu - self.mean.to(mu)) * self.inv_std.to(mu)
+        if pbar:
+            pbar.update_absolute(0)
 
         return mu
 
 
-    def encode(self, x, pbar=True):
+    def encode(self, x, pbar=True, sample=False):
         t = x.shape[2]
         iter_ = 1 + (t - 1) // 4
         if pbar:
@@ -1018,11 +1047,15 @@ class VideoVAE_(nn.Module):
             if pbar:
                 pbar.update(1)
         self.clear_cache()
-        mu = self.conv1(out).chunk(2, dim=1)[0]
+        mu, log_var = self.conv1(out).chunk(2, dim=1)
         mu = (mu - self.mean.to(mu)) * self.inv_std.to(mu)
         if pbar:
             pbar.update_absolute(0)
-        
+
+        if sample:
+            std = torch.exp(0.5 * log_var.clamp(-30.0, 20.0))
+            eps = torch.randn_like(std)
+            return mu + std * eps
         return mu
 
 
@@ -1271,21 +1304,20 @@ class WanVideoVAE(nn.Module):
         return values
 
 
-    def single_encode(self, video, device, pbar=True):
+    def single_encode(self, video, device, pbar=True, sample=False):
         video = video.to(device)
-        x = self.model.encode(video, pbar=pbar)
+        x = self.model.encode(video, pbar=pbar, sample=sample)
         return x.float()
-
 
     def single_decode(self, hidden_state, device, pbar=True):
         hidden_state = hidden_state.to(device)
         video = self.model.decode(hidden_state, pbar=pbar)
         return video
 
-    def double_encode(self, video, device):
+    def double_encode(self, video, device, pbar=True, sample=False):
         print('double_encode')
         video = video.to(device)
-        x = self.model.encode_2(video)
+        x = self.model.encode_2(video, pbar=pbar, sample=sample)
         return x.float()
 
     def double_decode(self, hidden_state, device):
@@ -1294,7 +1326,7 @@ class WanVideoVAE(nn.Module):
         video = self.model.decode_2(hidden_state)
         return video
 
-    def encode(self, videos, device, tiled=False,end_=False, tile_size=None, tile_stride=None, pbar=True):
+    def encode(self, videos, device, tiled=False,end_=False, tile_size=None, tile_stride=None, pbar=True, sample=False):
         self.model.clear_cache()
         videos = [video.to("cpu") for video in videos]
         hidden_states = []
@@ -1304,9 +1336,9 @@ class WanVideoVAE(nn.Module):
                 hidden_state = self.tiled_encode(video, device, tile_size, tile_stride, end_=end_, pbar=pbar)
             else:
                 if end_:
-                    hidden_state = self.double_encode(video, device)
+                    hidden_state = self.double_encode(video, device, pbar=pbar, sample=sample)
                 else:
-                    hidden_state = self.single_encode(video, device, pbar=pbar)
+                    hidden_state = self.single_encode(video, device, pbar=pbar, sample=sample)
             hidden_state = hidden_state.squeeze(0)
             hidden_states.append(hidden_state)
         hidden_states = torch.stack(hidden_states)
@@ -1366,7 +1398,7 @@ class VideoVAE38_(VideoVAE_):
                                     attn_scales, self.temperal_upsample, dropout)
 
 
-    def encode(self, x, pbar=True):
+    def encode(self, x, pbar=True, sample=False):
         self.clear_cache()
         x = patchify(x, patch_size=2)
         t = x.shape[2]

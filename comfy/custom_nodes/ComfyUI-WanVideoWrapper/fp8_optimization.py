@@ -13,9 +13,10 @@ def fp8_linear_forward(cls, base_dtype, input):
             if scale_weight is None:
                 scale_weight = torch.ones((), device=input.device, dtype=torch.float32)
             else:
-                scale_weight = scale_weight.to(input.device)
+                scale_weight = scale_weight.to(input.device).squeeze()
             
             scale_input = torch.ones((), device=input.device, dtype=torch.float32)
+            
             input = torch.clamp(input, min=-448, max=448, out=input)
             inn = input.reshape(-1, input_shape[2]).to(torch.float8_e4m3fn).contiguous() #always e4m3fn because e5m2 * e5m2 is not supported
 

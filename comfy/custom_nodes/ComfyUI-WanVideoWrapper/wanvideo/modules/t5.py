@@ -511,4 +511,5 @@ class T5EncoderModel:
         mask = mask.to(device)
         seq_lens = mask.gt(0).sum(dim=1).long()
         context = self.model(ids, mask)
+        print("prompt token count:", seq_lens)
         return [u[:v] for u, v in zip(context, seq_lens)]

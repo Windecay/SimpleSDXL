@@ -1,7 +1,5 @@
 # Copyright 2024-2025 The Alibaba Wan Team Authors. All rights reserved.
 import math
-
-import librosa
 import numpy as np
 import torch
 import torch.nn.functional as F
@@ -62,31 +60,6 @@ class AudioEncoder():
         self.model = self.model.to(device)
 
         self.video_rate = 30
-
-    def extract_audio_feat(self,
-                           audio_path,
-                           return_all_layers=False,
-                           dtype=torch.float32):
-        audio_input, sample_rate = librosa.load(audio_path, sr=16000)
-
-        input_values = self.processor(
-            audio_input, sampling_rate=sample_rate,
-            return_tensors="pt").input_values
-
-        # INFERENCE
-
-        # retrieve logits & take argmax
-        res = self.model(
-            input_values.to(self.model.device), output_hidden_states=True)
-        if return_all_layers:
-            feat = torch.cat(res.hidden_states)
-        else:
-            feat = res.hidden_states[-1]
-        feat = linear_interpolation(
-            feat, input_fps=50, output_fps=self.video_rate)
-
-        z = feat.to(dtype)  # Encoding for the motion
-        return z
 
     def get_audio_embed_bucket(self,
                                audio_embed,
