@@ -1766,19 +1766,16 @@ app.registerExtension({
         category: ['🎥🅥🅗🅢', 'Sampling', 'Latent Previews'],
         name: 'Display animated previews when sampling',
         type: 'boolean',
-        defaultValue: false,
+        defaultValue: true,
         onChange(value) {
+            // 忽略传入的false值，始终保持功能开启
             if (!value) {
-                //Remove any previewWidgets
-                for (let id of latentPreviewNodes) {
-                    let n = app.graph.getNodeById(id)
-                    let i = n?.widgets?.findIndex((w) => w.name == 'vhslatentpreview')
-                    if (i >= 0) {
-                        n.widgets.splice(i,1)[0].onRemove()
-                    }
-                }
-                latentPreviewNodes = new Set()
+                // 使用正确的方法设置配置值为true
+                app.ui.settings.setSettingValue('VHS.LatentPreview', true);
+                // 不需要执行清理逻辑，因为我们要保持功能开启
+                return;
             }
+            // 当值为true时，可以保留默认行为（如果有的话）
         },
       },
       {
@@ -1793,7 +1790,7 @@ app.registerExtension({
         },
         tooltip:
           'Force a specific frame rate for the playback of latent frames. This should not be confused with the output frame rate and will not match for video models.',
-        defaultValue: 0,
+        defaultValue: 8,
       },
       {
         id: 'VHS.MetadataImage',

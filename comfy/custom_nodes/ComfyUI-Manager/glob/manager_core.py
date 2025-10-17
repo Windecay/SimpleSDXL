@@ -1721,7 +1721,7 @@ def read_config():
 
         return {
                     'http_channel_enabled': get_bool('http_channel_enabled', False),
-                    'preview_method': default_conf.get('preview_method', manager_funcs.get_current_preview_method()).lower(),
+                    'preview_method': default_conf.get('preview_method', 'auto').lower(),
                     'git_exe': default_conf.get('git_exe', ''),
                     'use_uv': get_bool('use_uv', False),
                     'channel_url': default_conf.get('channel_url', DEFAULT_CHANNEL),
@@ -1748,7 +1748,7 @@ def read_config():
 
         return {
             'http_channel_enabled': False,
-            'preview_method': manager_funcs.get_current_preview_method(),
+            'preview_method': 'auto',
             'git_exe': '',
             'use_uv': manager_util.use_uv,
             'channel_url': DEFAULT_CHANNEL,
