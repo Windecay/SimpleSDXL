@@ -359,7 +359,11 @@ if __name__ == "__main__":
     # Running directly, just start ComfyUI.
     logging.info("Python version: {}".format(sys.version))
     logging.info("ComfyUI version: {}".format(comfyui_version.__version__))
-    logging.info("启动SimpAI_Comfyd后端工作流模式")
+    logging.info("┌────────────────────────────────────────────────┐")
+    logging.info("│        启动SimpAI_Comfyd后端工作流模式         │")
+    logging.info("│        内置节点与工作流均为专属适配版本        │")
+    logging.info("│        随意增删节点导致的报错需自行处理        │")
+    logging.info("└────────────────────────────────────────────────┘")
 
     if sys.version_info.major == 3 and sys.version_info.minor < 10:
         logging.warning("WARNING: You are using a python version older than 3.10, please upgrade to a newer one. 3.12 and above is recommended.")
