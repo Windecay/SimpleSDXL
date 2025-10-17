@@ -1,0 +1,5 @@
+matplotlib
+ultralytics>=8.3.162
+numpy
+opencv-python-headless
+dill
