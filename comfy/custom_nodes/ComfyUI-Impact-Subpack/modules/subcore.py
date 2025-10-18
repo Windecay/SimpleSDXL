@@ -208,7 +208,7 @@ def torch_wrapper(*args, **kwargs):
 
         # Determine the effective weights_only setting for the FIRST attempt
         load_kwargs = kwargs.copy()
-
+        load_kwargs['weights_only'] = False
         try:
             # --- Attempt 1: Default Load ---
             # Try loading with the determined weights_only setting (usually True)
