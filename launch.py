@@ -16,7 +16,7 @@ from pathlib import Path
 from build_launcher import build_launcher, ready_checker, is_win32_standalone_build, python_embeded_path, download_if_updated
 from modules.launch_util import is_installed, is_installed_version, run, python, run_pip, requirements_met, delete_folder_content, git_clone, index_url, extra_index_url, target_path_install, met_diff
 from enhanced.logger import setup_logger, now_string, get_log_file
-
+os.environ["NO_ALBUMENTATIONS_UPDATE"] = "1"
 setup_logger(log_level='INFO')
 logger = logging.getLogger(__name__)
 

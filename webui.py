@@ -2084,6 +2084,7 @@ with shared.gradio_root:
         model_check = [prompt, negative_prompt, base_model, refiner_model] + lora_ctrls
         protections = [random_button, super_prompter, background_theme, image_tools_checkbox] + nav_bars
         generate_button.click(topbar.process_before_generation, inputs=[state_topbar, seed_random, image_seed, params_backend] + scene_params[:-2], outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating, index_radio, image_toolbox, prompt_info_box, image_seed] + protections + [preset_store, identity_dialog], show_progress=False) \
+            .then(topbar.wait_for_minicpm_completion, outputs=[], show_progress=False) \
             .then(topbar.avoid_empty_prompt_for_scene, inputs=[prompt, state_topbar, scene_input_image1, scene_theme, scene_additional_prompt, scene_additional_prompt_2], outputs=prompt, show_progress=True) \
             .then(lambda state_topbar_value, use_loras, model1, model2, model3, model4: [ \
                  "None" if "scene_frontend" in state_topbar_value and not use_loras else model1, "None" if "scene_frontend" in state_topbar_value and not use_loras else model2, "None" if "scene_frontend" in state_topbar_value and not use_loras else model3, "None" if "scene_frontend" in state_topbar_value and not use_loras else model4], \

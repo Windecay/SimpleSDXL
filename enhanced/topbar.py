@@ -25,6 +25,7 @@ import enhanced.superprompter as superprompter
 import enhanced.comfy_task as comfy_task
 import ldm_patched.modules.model_management
 import logging
+import time
 from enhanced.logger import format_name
 logger = logging.getLogger(format_name(__name__))
 
@@ -33,7 +34,7 @@ from modules.model_loader import load_file_from_url, is_models_file_absent, refr
 from modules.private_logger import get_current_html_path
 from modules.meta_parser import get_welcome_image, describe_prompt_for_scene
 from enhanced.simpleai import comfyd, get_path_in_user_dir, toggle_identity_dialog, sync_intput_reserved
-from enhanced.minicpm import minicpm
+from enhanced.minicpm import MiniCPM, minicpm
 from simpleai_base.simpleai_base import export_identity_qrcode_svg, import_identity_qrcode, gen_ua_session
 
 # app context
@@ -420,7 +421,21 @@ def refresh_nav_bars(state_params):
         else: 
             results += [gr.update(value='', interactive=False, visible=visible_flag)]
     return results
+def wait_for_minicpm_completion(check_interval=1):
+    try:
+        while True:
+            processing_status = MiniCPM.get_processing_status()
+            is_processing = False
+            if isinstance(processing_status, bool):
+                is_processing = processing_status
 
+            if not is_processing:
+                return True
+            time.sleep(check_interval)
+
+    except Exception as e:
+        logger.error(f"MiniCPM Error: {str(e)}")
+        return True
 def avoid_empty_prompt_for_scene(prompt, state, img, scene_theme, additional_prompt, additional_prompt_2):
     describe_prompt = None
     if not prompt and 'scene_frontend' in state:

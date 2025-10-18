@@ -42,6 +42,9 @@ class MiniCPM:
     enable = ads.get_admin_default('minicpm_checkbox')
     bf16_support = ( torch.cuda.is_available() and torch.cuda.get_device_capability(torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu"))[0] >= 8 )
     saved_version = ads.get_admin_default('minicpm_version')
+    # 添加状态标记
+    is_processing = False
+    processing_lock = threading.Lock()
     if saved_version and saved_version != 'None':
         if saved_version == 'MiniCPMv45':
             model = "MiniCPM-V-4_5-int4"
@@ -72,6 +75,18 @@ class MiniCPM:
     def get_enable(cls):
         return cls.enable
 
+    @classmethod
+    def set_processing_status(cls, status):
+        with cls.processing_lock:
+            previous_status = cls.is_processing
+            cls.is_processing = status
+            if previous_status != status:
+                logger.info(f"MiniCPM processing status changed to: {'processing' if status else 'idle'}")
+
+    @classmethod
+    def get_processing_status(cls):
+        with cls.processing_lock:
+            return cls.is_processing
     def load_model(self, download=False):
         if not shared.modelsinfo.exists_model(catalog="llms", model_path=MiniCPM.model_file):
             if download:
@@ -105,76 +120,96 @@ class MiniCPM:
         torch.cuda.ipc_collect()
         gc.collect()
         ldm_patched.modules.model_management.print_memory_info("after free minicpm model")
-    
+
     def inference(self, image, prompt, max_tokens=2048, temperature=0.7, top_p=0.8, top_k=100, repetition_penalty=1.05, seed=-1):
-        if ads.get_admin_default('p2p_active_checkbox') and ads.get_admin_default('p2p_remote_process').lower()=='out':
-            if isinstance(image, np.ndarray):
-                image = p2p_task.ndarray_to_webp_bytes(image)
-            args = (image, prompt, max_tokens, temperature, top_p, top_k, repetition_penalty, seed)
-            task = p2p_task.AsyncTask(method="minicpm_inference", args=args)
-            p2p_task.request_p2p_task(task)
-            result = task.wait(30)
-            return result[0]
-        else:
-            return self.inference_local(image, prompt, max_tokens, temperature, top_p, top_k, repetition_penalty, seed)
+        # 设置为处理中状态
+        MiniCPM.set_processing_status(True)
+        logger.info("Starting MiniCPM local inference...")
+        try:
+            if ads.get_admin_default('p2p_active_checkbox') and ads.get_admin_default('p2p_remote_process').lower()=='out':
+                if isinstance(image, np.ndarray):
+                    image = p2p_task.ndarray_to_webp_bytes(image)
+                args = (image, prompt, max_tokens, temperature, top_p, top_k, repetition_penalty, seed)
+                task = p2p_task.AsyncTask(method="minicpm_inference", args=args)
+                p2p_task.request_p2p_task(task)
+                result = task.wait(30)
+                return result[0]
+            else:
+                return self.inference_local(image, prompt, max_tokens, temperature, top_p, top_k, repetition_penalty, seed)
+        finally:
+            # 无论成功还是失败，都设置为非处理中状态
+            MiniCPM.set_processing_status(False)
+            logger.info("MiniCPM local inference completed")
 
     @torch.no_grad()
     @torch.inference_mode()
     def inference_local(self, image, prompt, max_tokens=2048, temperature=0.7, top_p=0.8, top_k=100, repetition_penalty=1.05, seed=-1):
-        comfyd.stop()
-        pipeline.free_everything()
-        ldm_patched.modules.model_management.print_vram_info_by_nvml("before minicpm inference")
-        if MiniCPM.model_cpm is None or MiniCPM.tokenizer is None:
-            self.load_model(download=True)
+        try:
+            # 设置处理状态为True
+            self.set_processing_status(True)
+            logger.info("MiniCPM inference_local started")
 
-        if hasattr(torch, 'cuda') and torch.cuda.is_available():
-            device = torch.device('cuda')
-            MiniCPM.model_cpm = MiniCPM.model_cpm.to(device)
-        else:
-            device = torch.device('cpu')
+            comfyd.stop()
+            pipeline.free_everything()
+            ldm_patched.modules.model_management.print_vram_info_by_nvml("before minicpm inference")
+            if MiniCPM.model_cpm is None or MiniCPM.tokenizer is None:
+                self.load_model(download=True)
 
-        image = image if image is None else Image.fromarray(resize_image(image, min_side=768, resize_mode=3))
-        msgs = [{'role': 'user', 'content': [image, prompt]}]
+            if hasattr(torch, 'cuda') and torch.cuda.is_available():
+                device = torch.device('cuda')
+                MiniCPM.model_cpm = MiniCPM.model_cpm.to(device)
+            else:
+                device = torch.device('cpu')
 
-        res = MiniCPM.model_cpm.chat(
-            image=None,
-            msgs=msgs,
-            tokenizer=MiniCPM.tokenizer,
-            sampling=True,
-            top_k=top_k,
-            top_p=top_p,
-            repetition_penalty=repetition_penalty,
-            max_tokens=max_tokens,
-            temperature=temperature,
-            seed=seed
-        )
+            image = image if image is None else Image.fromarray(resize_image(image, min_side=768, resize_mode=3))
+            msgs = [{'role': 'user', 'content': [image, prompt]}]
 
-        if hasattr(torch, 'cuda') and torch.cuda.is_available():
-            MiniCPM.model_cpm = MiniCPM.model_cpm.to('cpu')
+            res = MiniCPM.model_cpm.chat(
+                image=None,
+                msgs=msgs,
+                tokenizer=MiniCPM.tokenizer,
+                sampling=True,
+                top_k=top_k,
+                top_p=top_p,
+                repetition_penalty=repetition_penalty,
+                max_tokens=max_tokens,
+                temperature=temperature,
+                seed=seed
+            )
 
-        generated_text = res
-        logger.info(f'The generated text:{generated_text}')
-        ldm_patched.modules.model_management.print_memory_info("after minicpm inference")
-        return generated_text
+            if hasattr(torch, 'cuda') and torch.cuda.is_available():
+                MiniCPM.model_cpm = MiniCPM.model_cpm.to('cpu')
+
+            generated_text = res
+            logger.info(f'The generated text:{generated_text}')
+            ldm_patched.modules.model_management.print_memory_info("after minicpm inference")
+            return generated_text
+        finally:
+            self.set_processing_status(False)
+            logger.info("MiniCPM inference_local finished")
 
     def interrogate(self, image, output_chinese=False, prompt=None, additional_prompt=None):
-        if prompt is not None:
+        MiniCPM.set_processing_status(True)
+        try:
+            if prompt is not None:
+                logger.info(f'The prompt of image: {prompt}')
+                return self.inference(image, prompt)
+            prompt = MiniCPM.prompt_i2t
+            if additional_prompt:
+                prompt = f'{prompt}, {additional_prompt}'
+            if output_chinese:
+                prompt = f'{prompt}, {MiniCPM.output_chinese}'
             logger.info(f'The prompt of image: {prompt}')
-            return self.inference(image, prompt)
-        prompt = MiniCPM.prompt_i2t
-        if additional_prompt:
-            prompt = f'{prompt}, {additional_prompt}'
-        if output_chinese:
-            prompt = f'{prompt}, {MiniCPM.output_chinese}'
-        logger.info(f'The prompt of image: {prompt}')
-        result_prompt = self.inference(image, prompt)
+            result_prompt = self.inference(image, prompt)
 
-        for prefix in MiniCPM.remove_prefixs:
-            if result_prompt.startswith(prefix):
-                result_prompt = result_prompt[len(prefix):]
-        if result_prompt.endswith('"'):
-            result_prompt = result_prompt[:-1]
-        return result_prompt
+            for prefix in MiniCPM.remove_prefixs:
+                if result_prompt.startswith(prefix):
+                    result_prompt = result_prompt[len(prefix):]
+            if result_prompt.endswith('"'):
+                result_prompt = result_prompt[:-1]
+            return result_prompt
+        finally:
+            MiniCPM.set_processing_status(False)
 
     def extended_prompt(self, input_text, prompt, input_image, state, translation_methods='Third APIs'):
         if 'scene_frontend' in state:
