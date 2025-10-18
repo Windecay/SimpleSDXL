@@ -49,6 +49,7 @@ model_path = folder_paths.models_dir
 
 # folder_paths.supported_pt_extensions
 utils.add_folder_path_and_extensions("sams", [os.path.join(model_path, "sams")], folder_paths.supported_pt_extensions)
+utils.add_folder_path_and_extensions("inpaint", [os.path.join(model_path, "inpaint")], folder_paths.supported_pt_extensions)
 utils.add_folder_path_and_extensions("onnx", [os.path.join(model_path, "onnx")], {'.onnx'})
 
 
@@ -108,7 +109,13 @@ sam2_config_table = {
 class SAMLoader:
     @classmethod
     def INPUT_TYPES(cls):
-        models = [x for x in folder_paths.get_filename_list("sams") if 'hq' not in x and (x.endswith('.pt') or x.endswith('.pth') or x.endswith('.safetensors'))]
+        # 获取sams目录下的模型
+        sams_models = [x for x in folder_paths.get_filename_list("sams") if 'hq' not in x and (x.endswith('.pt') or x.endswith('.pth') or x.endswith('.safetensors'))]
+        # 获取inpaint目录下的模型
+        inpaint_models = [x for x in folder_paths.get_filename_list("inpaint") if 'hq' not in x and (x.endswith('.pt') or x.endswith('.pth') or x.endswith('.safetensors'))]
+
+        # 合并两个目录下的模型列表
+        models = sams_models + inpaint_models
 
         if 'ESAM_ModelLoader_Zho' in nodes.NODE_CLASS_MAPPINGS:
             models.append('ESAM')
@@ -154,7 +161,14 @@ class SAMLoader:
             config = sam2_config_table[model_name]
             modelname = folder_paths.get_full_path("sams", model_name)
         else:
+            # 首先尝试从sams目录查找模型
             modelname = folder_paths.get_full_path("sams", model_name)
+            # 如果在sams目录找不到，则尝试从inpaint目录查找
+            if modelname is None:
+                modelname = folder_paths.get_full_path("inpaint", model_name)
+
+            if modelname is None:
+                raise Exception(f"Model '{model_name}' not found in either sams or inpaint directory")
 
             if 'vit_h' in model_name:
                 model_kind = 'vit_h'
