@@ -4,7 +4,7 @@ import math
 
 import torch
 import torch.nn as nn
-from einops import repeat
+from einops import rearrange
 
 from comfy.ldm.modules.attention import optimized_attention
 from comfy.ldm.flux.layers import EmbedND
@@ -162,7 +162,10 @@ def repeat_e(e, x):
         repeats = x.size(1) // e.size(1)
     if repeats == 1:
         return e
-    return torch.repeat_interleave(e, repeats, dim=1)
+    if repeats * e.size(1) == x.size(1):
+        return torch.repeat_interleave(e, repeats, dim=1)
+    else:
+        return torch.repeat_interleave(e, repeats + 1, dim=1)[:, :x.size(1)]
 
 
 class WanAttentionBlock(nn.Module):
@@ -584,6 +587,29 @@ class WanModel(torch.nn.Module):
         x = self.unpatchify(x, grid_sizes)
         return x
 
+
+    def rope_encode(self, t, h, w, t_start=0, steps_t=None, steps_h=None, steps_w=None, device=None, dtype=None):
+        patch_size = self.patch_size
+        t_len = ((t + (patch_size[0] // 2)) // patch_size[0])
+        h_len = ((h + (patch_size[1] // 2)) // patch_size[1])
+        w_len = ((w + (patch_size[2] // 2)) // patch_size[2])
+
+        if steps_t is None:
+            steps_t = t_len
+        if steps_h is None:
+            steps_h = h_len
+        if steps_w is None:
+            steps_w = w_len
+
+        img_ids = torch.zeros((steps_t, steps_h, steps_w, 3), device=device, dtype=dtype)
+        img_ids[:, :, :, 0] = img_ids[:, :, :, 0] + torch.linspace(t_start, t_start + (t_len - 1), steps=steps_t, device=device, dtype=dtype).reshape(-1, 1, 1)
+        img_ids[:, :, :, 1] = img_ids[:, :, :, 1] + torch.linspace(0, h_len - 1, steps=steps_h, device=device, dtype=dtype).reshape(1, -1, 1)
+        img_ids[:, :, :, 2] = img_ids[:, :, :, 2] + torch.linspace(0, w_len - 1, steps=steps_w, device=device, dtype=dtype).reshape(1, 1, -1)
+        img_ids = img_ids.reshape(1, -1, img_ids.shape[-1])
+
+        freqs = self.rope_embedder(img_ids).movedim(1, 2)
+        return freqs
+
     def forward(self, x, timestep, context, clip_fea=None, time_dim_concat=None, transformer_options={}, **kwargs):
         return comfy.patcher_extension.WrapperExecutor.new_class_executor(
             self._forward,
@@ -595,26 +621,16 @@ class WanModel(torch.nn.Module):
         bs, c, t, h, w = x.shape
         x = comfy.ldm.common_dit.pad_to_patch_size(x, self.patch_size)
 
-        patch_size = self.patch_size
-        t_len = ((t + (patch_size[0] // 2)) // patch_size[0])
-        h_len = ((h + (patch_size[1] // 2)) // patch_size[1])
-        w_len = ((w + (patch_size[2] // 2)) // patch_size[2])
-
+        t_len = t
         if time_dim_concat is not None:
             time_dim_concat = comfy.ldm.common_dit.pad_to_patch_size(time_dim_concat, self.patch_size)
             x = torch.cat([x, time_dim_concat], dim=2)
-            t_len = ((x.shape[2] + (patch_size[0] // 2)) // patch_size[0])
+            t_len = x.shape[2]
 
         if self.ref_conv is not None and "reference_latent" in kwargs:
             t_len += 1
 
-        img_ids = torch.zeros((t_len, h_len, w_len, 3), device=x.device, dtype=x.dtype)
-        img_ids[:, :, :, 0] = img_ids[:, :, :, 0] + torch.linspace(0, t_len - 1, steps=t_len, device=x.device, dtype=x.dtype).reshape(-1, 1, 1)
-        img_ids[:, :, :, 1] = img_ids[:, :, :, 1] + torch.linspace(0, h_len - 1, steps=h_len, device=x.device, dtype=x.dtype).reshape(1, -1, 1)
-        img_ids[:, :, :, 2] = img_ids[:, :, :, 2] + torch.linspace(0, w_len - 1, steps=w_len, device=x.device, dtype=x.dtype).reshape(1, 1, -1)
-        img_ids = repeat(img_ids, "t h w c -> b (t h w) c", b=bs)
-
-        freqs = self.rope_embedder(img_ids).movedim(1, 2)
+        freqs = self.rope_encode(t_len, h, w, device=x.device, dtype=x.dtype)
         return self.forward_orig(x, timestep, context, clip_fea=clip_fea, freqs=freqs, transformer_options=transformer_options, **kwargs)[:, :, :t, :h, :w]
 
     def unpatchify(self, x, grid_sizes):

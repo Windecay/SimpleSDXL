@@ -2329,6 +2329,7 @@ async def init_builtin_extra_nodes():
         "nodes_chroma_radiance.py",
         "nodes_model_patch.py",
         "nodes_easycache.py",
+        "nodes_audio_encoder.py",
     ]
 
     import_failed = []

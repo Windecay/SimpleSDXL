@@ -940,15 +940,15 @@ class PromptServer():
             type_num = 10
         elif video_type == "MP4":
             type_num = 11
-    
+
         bytesIO = BytesIO()
         header = struct.pack(">I", type_num)
         bytesIO.write(header)
         bytesIO.write(video)
         video_bytes = bytesIO.getvalue()
-    
+
         await self.send_bytes(BinaryEventTypes.PREVIEW_VIDEO, video_bytes, sid=sid)
-    
+
     async def send_image_with_metadata(self, image_data, metadata=None, sid=None):
         image_type = image_data[0]
         image = image_data[1]

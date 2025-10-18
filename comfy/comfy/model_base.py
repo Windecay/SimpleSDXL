@@ -154,6 +154,7 @@ class BaseModel(torch.nn.Module):
         logging.debug("adm {}".format(self.adm_channels))
         self.memory_usage_factor = model_config.memory_usage_factor
         self.memory_usage_factor_conds = ()
+        self.memory_usage_shape_process = {}
 
     def apply_model(self, x, t, c_concat=None, c_crossattn=None, control=None, transformer_options={}, **kwargs):
         return comfy.patcher_extension.WrapperExecutor.new_class_executor(
@@ -354,8 +355,15 @@ class BaseModel(torch.nn.Module):
         input_shapes = [input_shape]
         for c in self.memory_usage_factor_conds:
             shape = cond_shapes.get(c, None)
-            if shape is not None and len(shape) > 0:
-                input_shapes += shape
+            if shape is not None:
+                if c in self.memory_usage_shape_process:
+                    out = []
+                    for s in shape:
+                        out.append(self.memory_usage_shape_process[c](s))
+                    shape = out
+
+                if len(shape) > 0:
+                    input_shapes += shape
 
         if comfy.model_management.xformers_enabled() or comfy.model_management.pytorch_attention_flash_attention():
             dtype = self.get_dtype()
@@ -1106,9 +1114,10 @@ class WAN21(BaseModel):
             shape_image[1] = extra_channels
             image = torch.zeros(shape_image, dtype=noise.dtype, layout=noise.layout, device=noise.device)
         else:
+            latent_dim = self.latent_format.latent_channels
             image = utils.common_upscale(image.to(device), noise.shape[-1], noise.shape[-2], "bilinear", "center")
-            for i in range(0, image.shape[1], 16):
-                image[:, i: i + 16] = self.process_latent_in(image[:, i: i + 16])
+            for i in range(0, image.shape[1], latent_dim):
+                image[:, i: i + latent_dim] = self.process_latent_in(image[:, i: i + latent_dim])
             image = utils.resize_to_batch_size(image, noise.shape[0])
 
         if extra_channels != image.shape[1] + 4:
@@ -1300,16 +1309,12 @@ class WAN22_S2V(WAN21):
 
 class WAN22(WAN21):
     def __init__(self, model_config, model_type=ModelType.FLOW, image_to_video=False, device=None):
-        super().__init__(model_config, model_type, device=device, unet_model=comfy.ldm.wan.model.WanModel)
+        super(WAN21, self).__init__(model_config, model_type, device=device, unet_model=comfy.ldm.wan.model.WanModel)
         self.image_to_video = image_to_video
 
     def extra_conds(self, **kwargs):
         out = super().extra_conds(**kwargs)
-        cross_attn = kwargs.get("cross_attn", None)
-        if cross_attn is not None:
-            out['c_crossattn'] = comfy.conds.CONDRegular(cross_attn)
-
-        denoise_mask = kwargs.get("concat_mask", kwargs.get("denoise_mask", None))
+        denoise_mask = kwargs.get("denoise_mask", None)
         if denoise_mask is not None:
             out["denoise_mask"] = comfy.conds.CONDRegular(denoise_mask)
         return out
