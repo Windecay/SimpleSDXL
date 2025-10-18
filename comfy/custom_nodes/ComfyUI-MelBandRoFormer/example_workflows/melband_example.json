@@ -1,0 +1,240 @@
+{
+  "id": "8b7a9a57-2303-4ef5-9fc2-bf41713bd1fc",
+  "revision": 0,
+  "last_node_id": 326,
+  "last_link_id": 585,
+  "nodes": [
+    {
+      "id": 325,
+      "type": "MelBandRoFormerModelLoader",
+      "pos": [
+        2141.159423828125,
+        -1714.64501953125
+      ],
+      "size": [
+        419.69976806640625,
+        58
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "model",
+          "type": "MELROFORMERMODEL",
+          "links": [
+            581
+          ]
+        }
+      ],
+      "properties": {
+        "aux_id": "kijai/ComfyUI-MelBandRoFormer",
+        "ver": "7b12f8c6105666552ac4e4f08b73e0f96eb05c64",
+        "Node name for S&R": "MelBandRoFormerModelLoader"
+      },
+      "widgets_values": [
+        "MelRoFormer\\MelBandRoformer_fp16.safetensors"
+      ]
+    },
+    {
+      "id": 317,
+      "type": "LoadAudio",
+      "pos": [
+        2146.195068359375,
+        -1579.27783203125
+      ],
+      "size": [
+        274.080078125,
+        136
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "AUDIO",
+          "type": "AUDIO",
+          "links": [
+            582
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.51",
+        "Node name for S&R": "LoadAudio"
+      },
+      "widgets_values": [
+        "0321. Alphaville - Big In Japan.mp3",
+        null,
+        null
+      ]
+    },
+    {
+      "id": 319,
+      "type": "PreviewAudio",
+      "pos": [
+        2892.392578125,
+        -1695.0682373046875
+      ],
+      "size": [
+        383.5520935058594,
+        88
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "audio",
+          "type": "AUDIO",
+          "link": 583
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.51",
+        "Node name for S&R": "PreviewAudio"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 326,
+      "type": "MelBandRoFormerSampler",
+      "pos": [
+        2610.4697265625,
+        -1629.0616455078125
+      ],
+      "size": [
+        222.73397827148438,
+        46
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MELROFORMERMODEL",
+          "link": 581
+        },
+        {
+          "name": "audio",
+          "type": "AUDIO",
+          "link": 582
+        }
+      ],
+      "outputs": [
+        {
+          "name": "vocals",
+          "type": "AUDIO",
+          "links": [
+            583
+          ]
+        },
+        {
+          "name": "instruments",
+          "type": "AUDIO",
+          "links": [
+            585
+          ]
+        }
+      ],
+      "properties": {
+        "aux_id": "kijai/ComfyUI-MelBandRoFormer",
+        "ver": "7b12f8c6105666552ac4e4f08b73e0f96eb05c64",
+        "Node name for S&R": "MelBandRoFormerSampler"
+      }
+    },
+    {
+      "id": 323,
+      "type": "PreviewAudio",
+      "pos": [
+        2897.984619140625,
+        -1545.7156982421875
+      ],
+      "size": [
+        376.83953857421875,
+        91.35621643066406
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "audio",
+          "type": "AUDIO",
+          "link": 585
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.51",
+        "Node name for S&R": "PreviewAudio"
+      },
+      "widgets_values": []
+    }
+  ],
+  "links": [
+    [
+      581,
+      325,
+      0,
+      326,
+      0,
+      "MELROFORMERMODEL"
+    ],
+    [
+      582,
+      317,
+      0,
+      326,
+      1,
+      "AUDIO"
+    ],
+    [
+      583,
+      326,
+      0,
+      319,
+      0,
+      "AUDIO"
+    ],
+    [
+      585,
+      326,
+      1,
+      323,
+      0,
+      "AUDIO"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 1.1918176537728358,
+      "offset": [
+        -1936.9884239637872,
+        1969.438456906274
+      ]
+    },
+    "frontendVersion": "1.26.3",
+    "node_versions": {
+      "ComfyUI-WanVideoWrapper": "0a11c67a0c0062b534178920a0d6dcaa75e7b5fe",
+      "comfy-core": "0.3.43",
+      "audio-separation-nodes-comfyui": "31a4567726e035097cc2d1f767767908a6fda2ea",
+      "ComfyUI-KJNodes": "f7eb33abc80a2aded1b46dff0dd14d07856a7d50",
+      "comfyui-videohelpersuite": "a7ce59e381934733bfae03b1be029756d6ce936d"
+    },
+    "VHS_latentpreview": true,
+    "VHS_latentpreviewrate": 0,
+    "VHS_MetadataImage": true,
+    "VHS_KeepIntermediate": true
+  },
+  "version": 0.4
+}

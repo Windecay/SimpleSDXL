@@ -1,0 +1,3 @@
+librosa
+rotary_embedding_torch
+einops
