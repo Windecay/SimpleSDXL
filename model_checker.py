@@ -91,7 +91,12 @@ def load_model_paths():
             "style_models": [os.path.abspath(os.path.join(script_dir, config.get("path_style_models", "")))],
             "configs": [os.path.abspath(os.path.join(simplemodels_root, "configs"))],
             "prompt_expansion": [os.path.abspath(os.path.join(simplemodels_root, "prompt_expansion"))],
-            "model_patches": [os.path.join(simplemodels_root, "model_patches")]
+            "model_patches": [os.path.join(simplemodels_root, "model_patches")],
+            "audio_encoder": [os.path.join(simplemodels_root, "audio_encoder")],
+            "text_encoder": [os.path.join(simplemodels_root, "text_encoder")],
+            "lsnet": [os.path.join(simplemodels_root, "lsnet")],
+            "kaloscope": [os.path.join(simplemodels_root, "lsnet", "kaloscope")],
+            "detection": [os.path.join(simplemodels_root, "detection")],
         }
 
     except Exception as e:
@@ -120,7 +125,12 @@ def load_model_paths():
             "style_models": [os.path.join(simplemodels_root, "style_models")],
             "configs": [os.path.normpath(os.path.join(simplemodels_root, "configs"))],
             "prompt_expansion": [os.path.normpath(os.path.join(simplemodels_root, "prompt_expansion"))],
-            "model_patches": [os.path.join(simplemodels_root, "model_patches")]
+            "model_patches": [os.path.join(simplemodels_root, "model_patches")],
+            "audio_encoder": [os.path.join(simplemodels_root, "audio_encoder")],
+            "text_encoder": [os.path.join(simplemodels_root, "text_encoder")],
+            "lsnet": [os.path.join(simplemodels_root, "lsnet")],
+            "kaloscope": [os.path.join(simplemodels_root, "lsnet", "kaloscope")],
+            "detection": [os.path.join(simplemodels_root, "detection")],
         }
 
     for key in path_mapping:
@@ -1837,6 +1847,17 @@ packages = {
         "download_links": [
             "https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/checkpoints/Wan2.2_T2V_Low_Noise_14B_VACE-Q4_K_M.gguf",
             "https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/clip/umt5-xxl-encoder-Q8_0.gguf"
+        ]
+    },
+    "LSnet_package": {
+        "id": 22,
+        "name": "[22]LSnet画师串反推器",
+        "note": "用于反推二次元风格对应画师名|显存需求：★ 速度：★★★★★",
+        "files": [
+            ("lsnet/kaloscope/https://www.modelscope.cn/models/Heathcliff02/Kaloscope/resolve/master/best_checkpoint.pth", 2015978609),
+            ("lsnet/kaloscope/https://www.modelscope.cn/models/Heathcliff02/Kaloscope/resolve/master/class_mapping.csv", 574531)
+        ],
+        "download_links": [
         ]
     },
     "wan_i2v_package": {

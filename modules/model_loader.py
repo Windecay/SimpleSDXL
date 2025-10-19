@@ -85,7 +85,7 @@ def load_file_from_url(
             try:
                 anyio.run(download_file_with_progress, url, cached_file, size)
             except Exception as e:
-                print(f'下载任务:{model_name} 失败, 错误为: {e}')
+                print(f'下载任务:{file_name} 失败, 错误为: {e}')
             finally:
                 with task_lock:
                     download_tasks.discard(file_name)

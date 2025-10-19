@@ -135,7 +135,8 @@ inpaint_options = [inpaint_option_default, inpaint_option_detail, inpaint_option
 
 describe_type_photo = 'Photograph'
 describe_type_anime = 'Art/Anime'
-describe_types = [describe_type_photo, describe_type_anime]
+describe_type_artist = 'Artist'
+describe_types = [describe_type_photo, describe_type_anime,describe_type_artist]
 
 scene_themes = [""] 
 scene_aspect_ratios = ["Vertical|9:16", "Portrait|4:5", "Photo|4:3", "Landscape|3:2", "Widescreen|16:9", "Cinematic|21:9"]
