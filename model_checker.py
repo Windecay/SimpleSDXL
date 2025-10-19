@@ -1839,21 +1839,6 @@ packages = {
             "https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/clip/umt5-xxl-encoder-Q8_0.gguf"
         ]
     },
-    "qwen_image_package": {
-        "id": 22,
-        "name": "[22]Qwen-Image文生图扩展包",
-        "note": "千问Image大模型文生图扩展包|显存需求：★★★★★ 速度：★",
-        "files": [
-            ("checkpoints/qwen-image-Q4_K_M.gguf", 13065746976),
-            ("loras/Qwen-Image-Lightning-8steps-V1.1-bf16.safetensors", 849608296),
-            ("clip/qwen_2.5_vl_7b_fp8_scaled.safetensors", 9384670680),
-            ("vae/qwen_image_vae.safetensors", 253806246)
-        ],
-        "download_links": [
-            "https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/checkpoints/qwen-image-Q4_K_M.gguf",
-            "https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/clip/qwen_2.5_vl_7b_fp8_scaled.safetensors"
-        ]
-    },
     "wan_i2v_package": {
         "id": 23,
         "name": "[23]Wan2.2图生视频扩展包",
