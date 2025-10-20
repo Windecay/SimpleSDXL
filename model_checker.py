@@ -91,12 +91,15 @@ def load_model_paths():
             "style_models": [os.path.abspath(os.path.join(script_dir, config.get("path_style_models", "")))],
             "configs": [os.path.abspath(os.path.join(simplemodels_root, "configs"))],
             "prompt_expansion": [os.path.abspath(os.path.join(simplemodels_root, "prompt_expansion"))],
-            "model_patches": [os.path.join(simplemodels_root, "model_patches")],
-            "audio_encoder": [os.path.join(simplemodels_root, "audio_encoder")],
-            "text_encoder": [os.path.join(simplemodels_root, "text_encoder")],
+            "model_patches": [os.path.abspath(os.path.join(script_dir, config.get("path_model_patches", "")))],
+            "audio_encoder": [os.path.abspath(os.path.join(script_dir, config.get("path_audio_encoders", "")))],
+            "text_encoder": [os.path.abspath(os.path.join(script_dir, config.get("path_text_encoders", "")))],
             "lsnet": [os.path.join(simplemodels_root, "lsnet")],
             "kaloscope": [os.path.join(simplemodels_root, "lsnet", "kaloscope")],
-            "detection": [os.path.join(simplemodels_root, "detection")],
+            "detection": [os.path.abspath(os.path.join(script_dir, config.get("path_detection", "")))],
+            "ultralytics": [os.path.join(simplemodels_root, "ultralytics")],
+            "bbox": [os.path.join(simplemodels_root, "ultralytics", "bbox")],
+            "segm": [os.path.join(simplemodels_root, "ultralytics", "segm")],
         }
 
     except Exception as e:
@@ -131,6 +134,9 @@ def load_model_paths():
             "lsnet": [os.path.join(simplemodels_root, "lsnet")],
             "kaloscope": [os.path.join(simplemodels_root, "lsnet", "kaloscope")],
             "detection": [os.path.join(simplemodels_root, "detection")],
+            "ultralytics": [os.path.join(simplemodels_root, "ultralytics")],
+            "bbox": [os.path.join(simplemodels_root, "ultralytics", "bbox")],
+            "segm": [os.path.join(simplemodels_root, "ultralytics", "segm")],
         }
 
     for key in path_mapping:
@@ -1359,6 +1365,8 @@ packages = {
             ("clip/clip_l.safetensors", 246144152),
             ("vae/ponyDiffusionV6XL_vae.safetensors", 334641162),
             ("loras/Hyper-SDXL-8steps-lora.safetensors", 787359648),
+            ("ultralytics/bbox/https://www.modelscope.cn/models/ACCC1380/Adetailer_model/resolve/master/face_yolov8m.pt", 52026019),
+            ("ultralytics/bbox/https://www.modelscope.cn/models/ACCC1380/Adetailer_model/resolve/master/hand_yolov8s.pt", 22507643),
         ],
         "download_links": []
     },
