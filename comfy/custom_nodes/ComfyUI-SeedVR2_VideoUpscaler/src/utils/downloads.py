@@ -230,7 +230,7 @@ def download_weight(model: str, model_dir: Optional[str] = None, debug=None) -> 
             if debug:
                 debug.log(f"Failed to download {filename} after {DOWNLOAD_MAX_RETRIES} attempts", 
                          level="ERROR", category="download", force=True)
-                debug.log(f"Manual download: https://huggingface.co/{repo}/blob/main/{filename}", 
+                debug.log(f"Manual download: https://modelscope.cn/models/{repo}/resolve/master/{filename}", 
                          category="info", force=True)
                 debug.log(f"Save to: {filepath}", category="info", force=True)
             return False

@@ -21,7 +21,7 @@ GGUF_BLOCK_SIZE = 32
 GGUF_TYPE_SIZE = 64
 
 # Download configuration
-HUGGINGFACE_BASE_URL = "https://huggingface.co/{repo}/resolve/main/{filename}"
+HUGGINGFACE_BASE_URL = "https://modelscope.cn/models/{repo}/resolve/master/{filename}"
 DOWNLOAD_CHUNK_SIZE = 8192 * 1024  # 8MB chunks for hash calculation
 DOWNLOAD_MAX_RETRIES = 3
 DOWNLOAD_RETRY_DELAY = 2  # seconds
