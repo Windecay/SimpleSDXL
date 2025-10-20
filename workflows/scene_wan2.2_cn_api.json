@@ -399,7 +399,7 @@
   },
   "34": {
     "inputs": {
-      "strength": 1,
+      "strength": 0.96,
       "model": [
         "76",
         0
@@ -434,7 +434,7 @@
       "end_at_step": 10000,
       "return_with_leftover_noise": "disable",
       "model": [
-        "16",
+        "91",
         0
       ],
       "positive": [
@@ -552,7 +552,7 @@
         "8",
         0
       ],
-      "noise_strength": 1,
+      "noise_strength": 0.65,
       "normalize": "false",
       "latent": [
         "49",
@@ -1139,6 +1139,19 @@
     "class_type": "RIFEInterpolation",
     "_meta": {
       "title": "RIFE Frame Interpolation"
+    }
+  },
+  "91": {
+    "inputs": {
+      "strength": 0.98,
+      "model": [
+        "16",
+        0
+      ]
+    },
+    "class_type": "CFGNorm",
+    "_meta": {
+      "title": "CFGNorm"
     }
   }
 }
