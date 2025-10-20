@@ -2257,7 +2257,7 @@ with shared.gradio_root:
                    .then(switch_scene_theme_ready_to_gen, inputs=[state_topbar, image_number, scene_canvas_image, scene_input_image1, scene_additional_prompt, scene_additional_prompt_2, scene_theme], outputs=[prompt, generate_button], queue=False, show_progress=True)
 
         if args_manager.args.enable_auto_describe_image:
-            def trigger_auto_describe(mode, img, prompt, apply_styles, output_tags, output_chinese, state_is_generating=False):
+            def trigger_auto_describe(mode, img, prompt, apply_styles, output_tags, output_chinese, output_artist, state_is_generating=False):
 
                 is_worker_processing = modules.async_worker.worker_processing is not None
                 has_pending_tasks = modules.async_worker.pending_tasks > 0
@@ -2270,7 +2270,7 @@ with shared.gradio_root:
                     img = img['image']
                 # keep prompt if not empty
                 if prompt == '':
-                    return trigger_describe(mode, img, apply_styles, output_tags, output_chinese)
+                    return trigger_describe(mode, img, apply_styles, output_tags, output_chinese, output_artist)
                 return gr.update(), gr.update()
 
             uov_input_image.upload(trigger_auto_describe, inputs=[describe_methods, uov_input_image, prompt, describe_apply_styles, describe_output_tags, describe_output_chinese, describe_output_artist], outputs=[prompt, style_selections], show_progress=True, queue=True) \
