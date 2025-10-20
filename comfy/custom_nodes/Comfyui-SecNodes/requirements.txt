@@ -1,0 +1,25 @@
+# ComfyUI SeC Nodes Requirements - Self-Contained Installation
+# All SeC inference code is bundled, only pip dependencies needed
+
+# Core ML dependencies
+huggingface_hub>=0.20.0
+peft>=0.10.0
+timm>=0.9.0
+
+# Image processing
+pillow>=8.0.0
+scikit-image>=0.19.0
+scipy>=1.7.0
+
+# Configuration and utilities
+hydra-core>=1.3.0
+omegaconf>=2.1.0
+ninja>=1.11.0
+iopath
+
+# Standard libraries (likely already installed with ComfyUI)
+packaging>=21.0
+
+# PyTorch (likely already installed with ComfyUI)
+# Uncomment if needed: 
+# torch>=2.3.0 torchvision>=0.18.0
