@@ -133,6 +133,17 @@ def check_base_environment():
                 print(f'ready to install {pkg_path}')
                 run(f'"{python}" -m pip install -U {pkg_path}', f'Install {pkg_path}', live=True)
 
+        if platform.system() == 'Windows' and not is_installed_version('SAM_2', '1.0'):
+            sam_url = 'https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/sam/SAM_2-1.0-cp310-cp310-win_amd64.whl'
+            sam_path = os.path.abspath(os.path.join(root, 'SAM_2-1.0-cp310-cp310-win_amd64.whl'))
+            print('check SAM_2...')
+            has_update_sam = download_if_updated(sam_url, sam_path)
+            is_sam_version_ok = is_installed_version('SAM_2', '1.0')
+
+            if has_update_sam or not is_sam_version_ok:
+                print(f'ready to install {sam_path}')
+                run(f'"{python}" -m pip install -U {sam_path}', f'Install {sam_path}', live=True)
+
         if platform.system() == 'Windows' and is_installed("rembg") and not is_installed("facexlib") and not is_installed("insightface"):
             logger.info(f'Due to Windows restrictions, The new version of SimpleSDXL requires downloading a new installation package, updating the system environment, and then running it. Download URL: https://hf-mirror.com/metercai/SimpleSDXL2/')
             logger.info(f'受组件安装限制，SimpleSDXL2新版本(增加对混元、可图和SD3支持)需要下载新的程序包和基本模型包。具体操作详见：https://hf-mirror.com/metercai/SimpleSDXL2/')
