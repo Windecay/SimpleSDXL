@@ -357,6 +357,7 @@ app.registerExtension({
                         .zml-image-grid {
                             display: grid;
                             grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+                            grid-auto-rows: min-content;
                             gap: 8px;
                             margin-top: 8px;
                             max-height: 400px;
@@ -366,14 +367,14 @@ app.registerExtension({
                             border: 1px solid #555;
                             border-radius: 4px;
                             overflow: hidden;
-                            aspect-ratio: 1/1;
                             position: relative;
                             cursor: pointer;
                         }
                         .zml-grid-image {
                             width: 100%;
-                            height: 100%;
-                            object-fit: cover;
+                            height: auto;
+                            object-fit: contain;
+                            max-height: 100%;
                         }
                         .zml-grid-image-item:hover {
                             border-color: #4a90e2;
@@ -535,7 +536,28 @@ app.registerExtension({
                     height: 32px;
                     transition: all 0.1s ease;
                 `;
+                
+                // 创建倒计时显示元素
+                const countdownElement = document.createElement("div");
+                countdownElement.className = "zml-countdown-timer";
+                countdownElement.style.cssText = `
+                    padding: 4px 8px;
+                    background-color: #2a2a2a;
+                    color: #ffcc00;
+                    border: 1px solid #444;
+                    border-radius: 4px;
+                    font-size: 12px;
+                    font-weight: bold;
+                    height: 32px;
+                    width: 32px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                `;
+                countdownElement.textContent = "60s";
+                
                 buttonsContainer.appendChild(refreshButton);
+                buttonsContainer.appendChild(countdownElement);
                 
                 // 添加三个通道选择按钮
                 for (let i = 0; i < 3; i++) {
@@ -668,6 +690,132 @@ app.registerExtension({
                 mainImage.className = "zml-main-image";
                 singleImageContainer.appendChild(mainImage);
                 
+                // 变量声明
+                let isSingleImageMode = false;
+                
+                // 创建放大镜按钮
+                const zoomButton = document.createElement("button");
+                zoomButton.className = "zml-zoom-button";
+                zoomButton.style.cssText = `
+                    position: absolute;
+                    top: 10px;
+                    right: 10px;
+                    width: 32px;
+                    height: 32px;
+                    background-color: rgba(0, 0, 0, 0.7);
+                    color: white;
+                    border: none;
+                    border-radius: 50%;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 18px;
+                    font-weight: bold;
+                    z-index: 20;
+                    transition: all 0.2s ease;
+                `;
+                zoomButton.textContent = "🔍";
+                zoomButton.onmouseover = () => {
+                    zoomButton.style.backgroundColor = "rgba(0, 0, 0, 0.9)";
+                    zoomButton.style.transform = "scale(1.1)";
+                };
+                zoomButton.onmouseout = () => {
+                    zoomButton.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
+                    zoomButton.style.transform = "scale(1)";
+                };
+                singleImageContainer.appendChild(zoomButton);
+                
+                // 创建图像查看弹窗
+                const createImageViewerModal = () => {
+                    // 检查弹窗是否已存在
+                    let modal = document.getElementById('zml-image-viewer-modal');
+                    if (!modal) {
+                        modal = document.createElement('div');
+                        modal.id = 'zml-image-viewer-modal';
+                        modal.style.cssText = `
+                            position: fixed;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            background-color: rgba(0, 0, 0, 0.9);
+                            display: none;
+                            z-index: 1000;
+                            margin: 0;
+                            box-sizing: border-box;
+                            overflow: auto;
+                        `;
+                        
+                        const modalContent = document.createElement('div');
+                        modalContent.style.cssText = `
+                            position: relative;
+                            width: 100%;
+                            height: 100%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            box-sizing: border-box;
+                            padding: 20px;
+                        `;
+                        
+                        const modalImage = document.createElement('img');
+                        modalImage.style.cssText = `
+                            max-width: 100%;
+                            max-height: calc(100vh - 60px); /* 为关闭按钮留出空间 */
+                            width: auto;
+                            height: auto;
+                            object-fit: contain;
+                            display: block;
+                            margin: 0 auto;
+                        `;
+                        
+                        const closeButton = document.createElement('button');
+                        closeButton.style.cssText = `
+                            position: fixed;
+                            top: 50px;
+                            right: 50px;
+                            background-color: #ff4d4d;
+                            color: white;
+                            border: 2px solid white;
+                            border-radius: 4px;
+                            padding: 10px 20px;
+                            cursor: pointer;
+                            font-size: 18px;
+                            z-index: 10001;
+                            min-width: 80px;
+                            text-align: center;
+                        `;
+                        closeButton.textContent = '关闭';
+                        closeButton.onclick = () => {
+                            modal.style.display = 'none';
+                        };
+                        
+                        // 点击模态框背景关闭
+                        modal.onclick = (e) => {
+                            if (e.target === modal) {
+                                modal.style.display = 'none';
+                            }
+                        };
+                        
+                        modalContent.appendChild(modalImage);
+                        modalContent.appendChild(closeButton);
+                        modal.appendChild(modalContent);
+                        document.body.appendChild(modal);
+                    }
+                    return modal;
+                };
+                
+                // 放大镜按钮点击事件
+                zoomButton.onclick = () => {
+                    if (isSingleImageMode && mainImage.src) {
+                        const modal = createImageViewerModal();
+                        const modalImage = modal.querySelector('img');
+                        modalImage.src = mainImage.src;
+                        modal.style.display = 'flex';
+                    }
+                };
+                
                 // 创建左切换按钮
                 const prevButton = document.createElement("button");
                 prevButton.textContent = "‹";
@@ -682,8 +830,6 @@ app.registerExtension({
                 
                 let currentImageIndex = 0;
                 let allImages = [];
-                
-                let isSingleImageMode = false;
                 let channelNumberElement = null;
                 
                 // 创建通道序号元素
@@ -884,6 +1030,16 @@ app.registerExtension({
                             }),
                         });
                         
+                        // 点击输出后重置倒计时
+                        // 先清除现有的计时器
+                        if (countdownTimer) {
+                            clearInterval(countdownTimer);
+                            countdownTimer = null;
+                        }
+                        // 重置时间并更新显示
+                        remainingTime = 60;
+                        updateCountdownDisplay();
+                        
                         // 按钮点击后添加视觉反馈
                         outputButton.style.background = "linear-gradient(45deg, #1e7e34, #388e3c)";
                         outputButton.style.borderColor = "#1e7e34";
@@ -1047,9 +1203,79 @@ app.registerExtension({
                     tryLoadImages();
                 };
                 
+                // 倒计时变量
+                let countdownTimer = null;
+                let remainingTime = 60;
+                
+                // 更新倒计时显示
+                const updateCountdownDisplay = () => {
+                    countdownElement.textContent = `${remainingTime}s`;
+                    // 当剩余时间少于10秒时，改变颜色以示警告
+                    if (remainingTime < 10) {
+                        countdownElement.style.color = "#ff6b6b";
+                        countdownElement.style.fontWeight = "bold";
+                    } else {
+                        countdownElement.style.color = "#ffcc00";
+                        countdownElement.style.fontWeight = "bold";
+                    }
+                };
+                
+                // 开始倒计时
+                const startCountdown = () => {
+                    // 重置时间
+                    remainingTime = 60;
+                    updateCountdownDisplay();
+                    
+                    // 清除现有的计时器
+                    if (countdownTimer) {
+                        clearInterval(countdownTimer);
+                    }
+                    
+                    // 启动新的倒计时
+                    countdownTimer = setInterval(() => {
+                        remainingTime--;
+                        updateCountdownDisplay();
+                        
+                        // 当倒计时结束时
+                        if (remainingTime <= 0) {
+                            clearInterval(countdownTimer);
+                            countdownTimer = null;
+                            
+                            // 自动点击输出按钮，选择第一张图像
+                            // 获取第一张图像并选中
+                            const firstImageItem = document.querySelector('.zml-grid-image-item');
+                            if (firstImageItem) {
+                                // 清除所有已选中的图像
+                                document.querySelectorAll('.zml-grid-image-item.selected').forEach(item => {
+                                    item.classList.remove('selected');
+                                    const existingMark = item.querySelector('.zml-image-mark');
+                                    if (existingMark) existingMark.remove();
+                                    delete item.dataset.channel;
+                                });
+                                
+                                // 选中第一张图像
+                                firstImageItem.classList.add('selected');
+                                firstImageItem.dataset.channel = '1';
+                                firstImageItem.dataset.index = firstImageItem.dataset.index || '0';
+                                
+                                // 添加标记
+                                const mark = document.createElement('div');
+                                mark.className = 'zml-image-mark';
+                                mark.textContent = '1';
+                                firstImageItem.appendChild(mark);
+                            }
+                            
+                            // 触发输出按钮点击事件
+                            outputButton.click();
+                        }
+                    }, 1000);
+                };
+                
                 // 绑定刷新按钮事件
                 refreshButton.addEventListener("click", () => {
                     loadNodePreviewImages(this.id);
+                    // 刷新时重新开始倒计时
+                    startCountdown();
                 });
                 
                 // 监听节点执行事件，自动加载预览
@@ -1065,6 +1291,11 @@ app.registerExtension({
                 // 组件销毁时清理
                 this.onRemoved = () => {
                     api.removeEventListener("executing", handleNodeExecuting);
+                    // 清除倒计时器
+                    if (countdownTimer) {
+                        clearInterval(countdownTimer);
+                        countdownTimer = null;
+                    }
                 };
                 
                 // 使用addDOMWidget将自定义UI挂载到节点

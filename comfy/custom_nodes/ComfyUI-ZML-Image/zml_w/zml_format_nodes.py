@@ -217,6 +217,7 @@ class ZML_TextFormatter:
                 "文本格式化": (["禁用", "下划线转空格", "空格转下划线", "空格隔离标签", "逗号追加换行", "清空换行"], {"default": "下划线转空格"}),
                 "格式化标点符号": ("BOOLEAN", {"default": True, "label_on": "启用", "label_off": "禁用"}),
                 "合并相同提示词": ("BOOLEAN", {"default": False, "label_on": "启用", "label_off": "禁用"}),
+                "合并白名单": ("STRING", {"default": " BREAK ", "multiline": False, "placeholder": "不合并的提示词，逗号分隔", "tooltip": "这里的提示词不会被合并，请使用逗号分隔"}),
             }
         }
     
@@ -360,14 +361,26 @@ class ZML_TextFormatter:
             return base_tag, f"({base_tag}:{weight})"
         return tag.strip(), tag.strip()
         
-    def merge_duplicate_prompts(self, text):
-        """合并文本中的重复提示词，默认使用第一个出现的提示词的权重"""
+    def merge_duplicate_prompts(self, text, 合并白名单=None):
+        """合并文本中的重复提示词，默认使用第一个出现的提示词的权重。
+        支持跨多行去重：保留首次出现的提示词（及其权重），后续行中的相同提示词会被移除，同时尽量保留原有的行结构。
+        白名单中的提示词不参与合并，会按原样保留重复。"""
         if not text.strip():
             return text
+        
+        # 解析白名单（支持逗号/中文逗号/空白分隔），统一用基础标签比较
+        whitelist_set = set()
+        if 合并白名单:
+            for w in [p.strip() for p in re.split(r"[\s,，、；;]+", 合并白名单) if p.strip()]:
+                base_w, _ = self.extract_base_tag(w)
+                whitelist_set.add(base_w)
         
         # 按行处理文本
         lines = text.splitlines()
         result_lines = []
+        
+        # 全局已见标签：在整个文本范围内保留首次出现的标签
+        global_seen = {}
         
         for line in lines:
             if not line.strip():
@@ -380,19 +393,35 @@ class ZML_TextFormatter:
             # 分割标签
             tags = [tag.strip() for tag in line.split(',') if tag.strip()]
             
-            # 合并重复标签，默认使用第一个出现的提示词的权重
-            seen_tags = {}
+            # 行内已见集合，用于避免单行内重复
+            line_seen = set()
+            kept_tags = []
             for tag in tags:
                 base_tag, processed_tag = self.extract_base_tag(tag)
-                # 只有当base_tag不存在于seen_tags中时才添加，这样就保留了第一个出现的权重
-                if base_tag not in seen_tags:
-                    seen_tags[base_tag] = processed_tag
+                
+                # 白名单：不参与合并、保留原样
+                if base_tag in whitelist_set:
+                    kept_tags.append(tag.strip())
+                    continue
+                
+                # 如果在全局已见中，跳过（跨行去重）
+                if base_tag in global_seen:
+                    continue
+                
+                # 行内去重
+                if base_tag in line_seen:
+                    continue
+                
+                # 记录首个出现的标签（保留其权重表达）
+                line_seen.add(base_tag)
+                global_seen[base_tag] = processed_tag
+                kept_tags.append(processed_tag)
             
-            # 重新组合该行
-            result_line = ', '.join(seen_tags.values())
+            # 重新组合该行（不自动在逗号后添加空格）
+            result_line = ','.join(kept_tags)
             
-            # 如果原始行以逗号结尾，则在处理后也添加逗号
-            if original_line_ends_with_comma:
+            # 若原始行以逗号结尾，且该行仍有内容，则保留逗号
+            if original_line_ends_with_comma and result_line:
                 result_line += ','
                 
             result_lines.append(result_line)
@@ -402,7 +431,7 @@ class ZML_TextFormatter:
         
         return result_text
     
-    def format_text(self, 文本, 权重转换, 文本格式化, 格式化标点符号, 合并相同提示词):
+    def format_text(self, 文本, 权重转换, 文本格式化, 格式化标点符号, 合并相同提示词, 合并白名单):
         """处理文本转换"""
         
         # 1. 处理权重转换
@@ -434,7 +463,7 @@ class ZML_TextFormatter:
 
         # 3. 处理合并相同提示词
         if 合并相同提示词:
-            文本 = self.merge_duplicate_prompts(文本)
+            文本 = self.merge_duplicate_prompts(文本, 合并白名单)
 
         # 4. 处理标点符号格式化
         if 格式化标点符号:
@@ -1124,7 +1153,7 @@ class ZML_SelectTextV3:
         # 返回float("nan")使ComfyUI认为节点每次都发生了变化，从而每次执行时都重新计算随机结果
         return float("nan")
 
-    def execute(self, separator, selectTextV3_data, unique_id=None, extra_pnginfo=None):
+    def execute(self, separator, selectTextV3_data, unique_id=None, extra_pnginfo=None, 可选输入=None):
         import json
         import random
 
@@ -1162,6 +1191,10 @@ class ZML_SelectTextV3:
         else:
             # 不启用随机时，使用所有启用的文本条目
             final_parts = enabled_entries
+        
+        # 如果有可选输入并且不为空，添加到结果中
+        if 可选输入 and 可选输入.strip():
+            final_parts.append(可选输入.strip())
         
         # 处理分隔符中的换行符
         processed_separator = separator.replace("\\n", "\n")
@@ -1327,6 +1360,57 @@ class ZML_AppendTextByKeyword:
 
 # 合并相同提示词功能已集成到ZML_TextFormatter节点中，作为一个新选项
 
+# ============================== 合并文本（动态）节点 ==============================
+class ZML_MergeText:
+    """ZML 合并文本（动态输入）节点：支持动态字符串输入、分隔符、标签化提示词。
+    标签化提示词启用时，会将所有输入拆分为标签（按逗号、中文逗号、空格、换行等分隔），去重后以分隔符连接。
+    """
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        # 预定义最多10个文本输入名称，供前端按需动态添加/移除
+        optional_inputs = {}
+        for i in range(1, 11):
+            optional_inputs[f"文本{i}"] = ("STRING", {"forceInput": True})
+        return {
+            "required": {
+                "分隔符": ("STRING", {"multiline": False, "default": ",\n\n"}),
+            },
+            "optional": optional_inputs,
+        }
+
+    CATEGORY = "image/ZML_图像/文本"
+    RETURN_TYPES = ("STRING",)
+    RETURN_NAMES = ("文本",)
+    FUNCTION = "merge_text"
+
+    def _split_to_tags(self, text):
+        # 以常见分隔符拆分为标签：英文逗号、中文逗号、顿号、分号、空白、换行
+        if not text:
+            return []
+        parts = [p.strip() for p in re.split(r"[\s,，、；;\n\r]+", text) if p and p.strip()]
+        return parts
+
+    def merge_text(self, 分隔符,
+                   文本1=None, 文本2=None, 文本3=None, 文本4=None, 文本5=None,
+                   文本6=None, 文本7=None, 文本8=None, 文本9=None, 文本10=None):
+        # 收集所有非空文本
+        texts = [
+            文本1 or "", 文本2 or "", 文本3 or "", 文本4 or "", 文本5 or "",
+            文本6 or "", 文本7 or "", 文本8 or "", 文本9 or "", 文本10 or "",
+        ]
+        non_empty_texts = [t for t in texts if t.strip()]
+
+        # 处理分隔符中的换行符写法
+        processed_separator = 分隔符.replace("\\n", "\n")
+
+        # 原样合并
+        combined = processed_separator.join(non_empty_texts)
+
+        # 标点格式化清理
+        combined = format_punctuation_global(combined)
+        return (combined,)
+
 # ============================== 节点注册 ==============================
 NODE_CLASS_MAPPINGS = {
     "ZML_TextFormatter": ZML_TextFormatter,
@@ -1343,6 +1427,7 @@ NODE_CLASS_MAPPINGS = {
     "ZML_SelectTextV4": ZML_SelectTextV4,
     "ZML_SplitText": ZML_SplitText,
     "ZML_AppendTextByKeyword": ZML_AppendTextByKeyword,
+    "ZML_MergeText": ZML_MergeText,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -1360,4 +1445,5 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "ZML_SelectTextV4": "ZML_选择文本V4",
     "ZML_SplitText": "ZML_文本分离",
     "ZML_AppendTextByKeyword": "ZML_追加提示词",
+    "ZML_MergeText": "ZML_合并文本（动态）",
 }
