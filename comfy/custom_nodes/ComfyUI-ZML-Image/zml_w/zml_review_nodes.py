@@ -26,11 +26,7 @@ from aiohttp import web
 
 #根据插件地址反推YOLO模型路径
 try:
-    current_node_file_path = os.path.abspath(__file__)
-
-    comfyui_app_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(current_node_file_path))))
-
-    correct_ultralytics_model_dir = os.path.join(comfyui_app_root, "models", "ultralytics")
+    correct_ultralytics_model_dir = os.path.join(folder_paths.models_dir, "ultralytics")
 
     is_registered = False
     if "ultralytics" in folder_paths.folder_names_and_paths:
