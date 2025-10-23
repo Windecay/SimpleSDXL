@@ -122,27 +122,35 @@ def check_base_environment():
                 if not success:
                     logger.error(f"无法安装{update_pkg_name}，请检查网络状态")
 
-        if platform.system() == 'Windows' and not is_installed_version('nunchaku', '1.0.0+torch2.7'):
-            pkg_url = 'https://www.modelscope.cn/models/nunchaku-tech/nunchaku/resolve/master/nunchaku-1.0.0%2Btorch2.7-cp310-cp310-win_amd64.whl'
-            pkg_path = os.path.abspath(os.path.join(root, 'nunchaku-1.0.0+torch2.7-cp310-cp310-win_amd64.whl'))
-            print('check nunchaku...')
-            has_update_whl = download_if_updated(pkg_url, pkg_path)
-            is_version_ok = is_installed_version('nunchaku', '1.0.0+torch2.7')
+        try:
+            if platform.system() == 'Windows' and not is_installed_version('nunchaku', '1.0.0+torch2.7'):
+                pkg_url = 'https://www.modelscope.cn/models/nunchaku-tech/nunchaku/resolve/master/nunchaku-1.0.0%2Btorch2.7-cp310-cp310-win_amd64.whl'
+                pkg_path = os.path.abspath(os.path.join(root, 'nunchaku-1.0.0+torch2.7-cp310-cp310-win_amd64.whl'))
+                print('check nunchaku...')
+                has_update_whl = download_if_updated(pkg_url, pkg_path)
+                is_version_ok = is_installed_version('nunchaku', '1.0.0+torch2.7')
 
-            if has_update_whl or not is_version_ok:
-                print(f'ready to install {pkg_path}')
-                run(f'"{python}" -m pip install -U {pkg_path}', f'Install {pkg_path}', live=True)
+                if has_update_whl or not is_version_ok:
+                    print(f'ready to install {pkg_path}')
+                    run(f'"{python}" -m pip install -U {pkg_path}', f'Install {pkg_path}', live=True)
+        except Exception as e:
+            print(f'Error installing nunchaku: {str(e)}')
+            print('Skipping nunchaku installation and continuing...')
 
-        if platform.system() == 'Windows' and not is_installed_version('SAM_2', '1.0'):
-            sam_url = 'https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/sam/SAM_2-1.0-cp310-cp310-win_amd64.whl'
-            sam_path = os.path.abspath(os.path.join(root, 'SAM_2-1.0-cp310-cp310-win_amd64.whl'))
-            print('check SAM_2...')
-            has_update_sam = download_if_updated(sam_url, sam_path)
-            is_sam_version_ok = is_installed_version('SAM_2', '1.0')
+        try:
+            if platform.system() == 'Windows' and not is_installed_version('SAM_2', '1.0'):
+                sam_url = 'https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/sam/SAM_2-1.0-cp310-cp310-win_amd64.whl'
+                sam_path = os.path.abspath(os.path.join(root, 'SAM_2-1.0-cp310-cp310-win_amd64.whl'))
+                print('check SAM_2...')
+                has_update_sam = download_if_updated(sam_url, sam_path)
+                is_sam_version_ok = is_installed_version('SAM_2', '1.0')
 
-            if has_update_sam or not is_sam_version_ok:
-                print(f'ready to install {sam_path}')
-                run(f'"{python}" -m pip install -U {sam_path}', f'Install {sam_path}', live=True)
+                if has_update_sam or not is_sam_version_ok:
+                    print(f'ready to install {sam_path}')
+                    run(f'"{python}" -m pip install -U {sam_path}', f'Install {sam_path}', live=True)
+        except Exception as e:
+            print(f'Error installing SAM_2: {str(e)}')
+            print('Skipping SAM_2 installation and continuing...')
 
         if platform.system() == 'Windows' and is_installed("rembg") and not is_installed("facexlib") and not is_installed("insightface"):
             logger.info(f'Due to Windows restrictions, The new version of SimpleSDXL requires downloading a new installation package, updating the system environment, and then running it. Download URL: https://hf-mirror.com/metercai/SimpleSDXL2/')
