@@ -99,7 +99,6 @@ def attempt_download(url, file_path, overwrite=False):
     try:
         if os.path.exists(file_path):
             if not overwrite:
-                print(f"文件已存在，跳过下载: {file_path}")
                 return True, f"文件已存在，跳过下载: {file_path}"
             else:
                 print(f"文件已存在，将在下载完成后覆盖: {file_path}")
