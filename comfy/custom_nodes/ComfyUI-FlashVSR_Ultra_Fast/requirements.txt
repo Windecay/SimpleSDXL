@@ -1,7 +1,12 @@
-torch
-torchvision
+--extra-index-url https://download.pytorch.org/whl/cu128
+
+torch==2.7.1+cu128
+torchvision==0.22.1+cu128
+numpy<2
 einops
-numpy
 safetensors
 tqdm
 pillow
+huggingface_hub
+triton; platform_system!="Windows"
+triton-windows; platform_system=="Windows"

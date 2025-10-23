@@ -12,6 +12,7 @@ import torch.nn.functional as F
 import requests
 from tqdm import tqdm
 from einops import rearrange
+from huggingface_hub import snapshot_download
 from .src.FlashVSR import ModelManager, FlashVSRFullPipeline, FlashVSRTinyPipeline
 from .src.FlashVSR.models.utils import clean_vram
 from .src.utils.utils import Buffer_LQ4x_Proj
@@ -30,6 +31,25 @@ def get_device_list():
     except Exception:
         pass
     return devs
+
+device_choices = get_device_list()
+
+def log(message:str, message_type:str='info'):
+    if message_type == 'error':
+        message = '\033[1;41m' + message + '\033[m'
+    elif message_type == 'warning':
+        message = '\033[1;31m' + message + '\033[m'
+    elif message_type == 'finish':
+        message = '\033[1;32m' + message + '\033[m'
+    else:
+        message = '\033[1;33m' + message + '\033[m'
+    print(f"{message}")
+
+def model_downlod(model_name="JunhaoZhuang/FlashVSR"):
+    model_dir = os.path.join(folder_paths.models_dir, "FlashVSR")
+    if not os.path.exists(model_dir):
+        log(f"Downloading model '{model_name}' from huggingface...", message_type='info')
+        snapshot_download(repo_id=model_name, local_dir=model_dir, local_dir_use_symlinks=False, resume_download=True)
 
 def tensor2video(frames: torch.Tensor):
     video_squeezed = frames.squeeze(0)
@@ -226,7 +246,7 @@ def download_file(main_url, backup_url, save_path):
                 pass
         raise RuntimeError(f"Download {os.path.basename(save_path)} from backup URL failed: {str(e)}")
 
-def init_pipeline(mode, device):
+def init_pipeline(mode, device, dtype):
     model_path = os.path.join(folder_paths.models_dir, "FlashVSR")
 
     if not os.path.exists(model_path):
@@ -285,8 +305,9 @@ def init_pipeline(mode, device):
         mm.load_models([ckpt_path])
         pipe = FlashVSRTinyPipeline.from_model_manager(mm, device=device)
         multi_scale_channels = [512, 256, 128, 128]
-        pipe.TCDecoder = build_tcdecoder(new_channels=multi_scale_channels, new_latent_channels=16+768)
-        mis = pipe.TCDecoder.load_state_dict(torch.load(tcd_path), strict=False)
+        pipe.TCDecoder = build_tcdecoder(new_channels=multi_scale_channels, device=device, dtype=dtype, new_latent_channels=16+768)
+        mis = pipe.TCDecoder.load_state_dict(torch.load(tcd_path, map_location=device), strict=False)
+        pipe.TCDecoder.clean_mem()
         
     pipe.denoising_model().LQ_proj_in = Buffer_LQ4x_Proj(in_dim=3, out_dim=1536, layer_num=1).to(device, dtype=torch.bfloat16)
     if os.path.exists(lq_path):
@@ -352,8 +373,6 @@ class cqdm:
 class FlashVSRNode:
     @classmethod
     def INPUT_TYPES(cls):
-        device_choices = get_device_list()
-            
         return {
             "required": {
                 "frames": ("IMAGE", {
@@ -363,13 +382,13 @@ class FlashVSRNode:
                     "default": "tiny",
                 }),
                 "scale": ("INT", {
-                    "default": 4,
+                    "default": 2,
                     "min": 2,
                     "max": 4,
                 }),
                 "color_fix": ("BOOLEAN", {
                     "default": True,
-                    "tooltip": "Disable tiling: faster decode but higher VRAM usage.\nSet to True for lower memory consumption at the cost of speed."
+                    "tooltip": "Use wavelet transform to correct output video color."
                 }),
                 "tiled_vae": ("BOOLEAN", {
                     "default": True,
@@ -437,13 +456,14 @@ class FlashVSRNode:
     DESCRIPTION = 'Download the entire "FlashVSR" folder with all the files inside it from "https://huggingface.co/JunhaoZhuang/FlashVSR" and put it in the "ComfyUI/models"'
     
     def main(self, frames, mode, scale, color_fix, tiled_vae, tiled_dit, tile_size, tile_overlap, unload_dit, sparse_ratio, kv_ratio, local_range, seed, device):
+        _device = device
         if device == "auto":
             _device = "cuda:0" if torch.cuda.is_available() else "mps" if torch.mps.is_available() else device
-        else:
-            _device = device
-        
-        if _device == "auto":
+        if _device == "auto" or _device not in device_choices:
             raise RuntimeError("No devices found to run FlashVSR!")
+        
+        if _device.startswith("cuda"):
+            torch.cuda.set_device(_device)
         
         if tiled_dit and (tile_overlap > tile_size / 2):
             raise ValueError('The "tile_overlap" must be less than half of "tile_size"!')
@@ -452,7 +472,7 @@ class FlashVSRNode:
             raise ValueError(f"Number of frames must be at least 21, got {frames.shape[0]}")
         
         dtype = torch.bfloat16
-        pipe = init_pipeline(mode, _device)
+        pipe = init_pipeline(mode, _device, dtype)
         
         if tiled_dit:
             N, H, W, C = frames.shape
@@ -468,7 +488,7 @@ class FlashVSRNode:
             latent_tiles_cpu = []
             
             for i, (x1, y1, x2, y2) in enumerate(cqdm(tile_coords, desc="Processing Tiles")):
-                print(f"[FlashVSR] Processing tile {i+1}/{len(tile_coords)}: coords ({x1},{y1}) to ({x2},{y2})")
+                log(f"[FlashVSR] Processing tile {i+1}/{len(tile_coords)}: coords ({x1},{y1}) to ({x2},{y2})", message_type='info')
                 input_tile = frames[:, y1:y2, x1:x2, :]
                 
                 _tile = input_tile.to(_device)
@@ -504,6 +524,8 @@ class FlashVSRNode:
             weight_sum_canvas[weight_sum_canvas == 0] = 1.0
             final_output = final_output_canvas / weight_sum_canvas
         else:
+            log(f"[FlashVSR] Processing {frames.shape[0]} frames...", message_type='info')
+            
             _frames = frames.to(_device)
             LQ, th, tw, F = prepare_input_tensor(_frames, scale=scale, dtype=dtype)
             
@@ -519,7 +541,7 @@ class FlashVSRNode:
             del pipe, video, LQ
             clean_vram()
         
-        print("[FlashVSR] Inference complete. Cleaning up models and cache...")
+        log("[FlashVSR] Done.", message_type='info')
         return (final_output,)
 
 NODE_CLASS_MAPPINGS = {
