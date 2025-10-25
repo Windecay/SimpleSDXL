@@ -2,7 +2,7 @@
 
 <div align="center">
 <a href="https://space.bilibili.com/1840885116">Video Tutorial</a> |
-Docs (Cooming Soon) | 
+<a href="https://docs.easyuse.yolain.com">Docs</a> | 
 <a href="https://github.com/yolain/ComfyUI-Yolain-Workflows">Workflow Collection</a> |
 <a href="#%EF%B8%8F-donation">Donation</a> 
 <br><br>
@@ -46,6 +46,60 @@ Double-click install.bat to install the required dependencies
 ```
 
 ## 📜 Changelog
+
+**v1.3.4**
+
+- Fix `easy seedList` max_num #879
+- Add controlnet input to xyplot #877
+- Support `nagative indexing` for `easy indexAnything`
+
+**v1.3.3**
+
+- Removed the definition of the CSS class name gird-cols-1 #859
+- Fix lock seed not working in `easy promptAwait`
+- Rename the nodes map
+- Fix `easy imageChooser` output error type #845
+
+**v1.3.2**
+
+- Revamp `easy imageChooser` node to adapt frontend>=v1.24.2, solution referenced from [Comfyui_LG_Tools](https://github.com/LAOGOU-666/Comfyui_LG_Tools)
+- Revamp `easy stylesSelector` node, and you can download [other styles files](https://github.com/yolain/EasyUse-Styles-Templates) to the `styles` folder
+- Revamp `easy humanSegmentation` node
+- Fix `easy makeImageForICLora` node issue, that occurred when the heights of two images were the same during image stitching on.
+- Add `easy joycaption3API` node
+- Add `easy promptAwait` node
+
+**v1.3.1**
+
+- Rewrite drawNodeWidget and fix the GroupNode preview issue.
+- Updated some features of XYPlot  by [mekinney](https://github.com/mekinney)
+- Add `easy seedList` node (It's useful for in loops)
+
+**v1.3.0**
+
+- Set loop nodes maximum number of inputs and outputs to 20
+- Add `uniform width` method to `easy makeImageForICLora`
+- Add `wildcardsPromptMatrix` Node by [Rosmeowtis](https://github.com/Rosmeowtis)
+
+**v1.2.9**
+
+- Fix ImageChooser causes workflow processing to cancel
+- Fix brushnet tensor(640) error
+- Fix widgets not hidden after v1.6.0 frontend
+- Fix image chooser can not select images
+- Fix contextMenu monkey patching to affect custom scripts (pysssss) nodes
+
+**v1.2.8**
+
+- Added the multi-language catalog 
+- Fix CLIP vision model download URLs for IPAdapter and DynamiCrafter
+- Improve error handling for model downloads with clearer error messages and better handling of download failures
+
+**v1.2.7**
+
+- Optimize display of the node maps
+- Added `ben2` on `easy imageRemBg`
+- Using a new way to display the models thumbnails in the loaders (supported diffusion_models、lors、checkpoints)
 
 **v1.2.6**
 
@@ -141,7 +195,8 @@ Double-click install.bat to install the required dependencies
 - Added `easy imageCount` - Get Image Count
 - Added `easy textSwitch` - Text Switch
 
-**v1.1.5**
+<details>
+<summary><b>v1.1.5</b></summary>
 
 - Rewrite `easy cleanGPUUsed` - the memory usage of the comfyUI can to be cleared
 - Added `easy humanSegmentation` - Human Part Segmentation
@@ -150,16 +205,19 @@ Double-click install.bat to install the required dependencies
 - Added `easy ipadapterApplyFromParams`
 - Added `easy imageInterrogator` - Image To Prompt
 - Added `easy stableDiffusion3API` - Easy Stable Diffusion 3 Multiple accounts API Node
+</details>
 
-**v1.1.4**
+<details>
+<summary><b>v1.1.4</b></summary>
 
 - Added `easy preSamplingCustom` - Custom-PreSampling, can be supported cosXL-edit
 - Added `easy ipadapterStyleComposition`
 - Added the right-click menu to view checkpoints and lora information in all Loaders
 - Fixed `easy preSamplingNoiseIn`、`easy latentNoisy`、`east Unsampler` compatible with ComfyUI Revision>=2098 [0542088e] or later
- 
+</details>
 
-**v1.1.3**
+<details>
+<summary><b>v1.1.3</b></summary>
 
 - `easy ipadapterApply` Added **COMPOSITION** preset
 - Supported [ResAdapter](https://huggingface.co/jiaxiangc/res-adapter) when load ResAdapter lora
@@ -167,6 +225,7 @@ Double-click install.bat to install the required dependencies
 - Added `easy promptReplace`
 - Added `easy promptConcat`
 - `easy wildcards` Added **multiline_mode**  
+</details>
 
 <details>
 <summary><b>v1.1.2</b></summary>
@@ -325,7 +384,6 @@ Double-click install.bat to install the required dependencies
 - `easy XYInputs ModelMergeBlocks` Values can be imported from CSV files
 - Fixed `easy pipeToBasicPipe` Bug
 
-
 - Removed `easy imageRemBg`
 - Remove the introductory diagram and workflow files from the package to reduce the package size
 - Replaced the font file used in the generation of XY diagrams
@@ -456,6 +514,12 @@ Disclaimer: Opened source was not easy. I have a lot of respect for the contribu
 
 [ComfyUI_ExtraModels](https://github.com/city96/ComfyUI_ExtraModels) - DiT custom nodes
 
+## Disclaimer
+
+This software is provided “as is,” without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and non-infringement. In no event shall the authors or copyright holders be liable for any claim, damages, or other liability, whether in an action of contract, tort, or otherwise, arising from, out of, or in connection with the software or the use or other dealings in the software.
+
+Users are solely responsible for ensuring that their use of this software complies with all applicable laws and regulations in the jurisdiction where they use the software or publish content generated by it. The authors and copyright holders are not responsible for any violations of laws or regulations by users in their respective locations.
+
 ## ☕️ Donation
 
 **Comfyui-Easy-Use** is an GPL-licensed open source project. In order to achieve better and sustainable development of the project, i expect to gain more backers. <br>
@@ -463,13 +527,7 @@ If my custom nodes has added value to your day, consider indulging in a coffee t
 💖You can support me in any of the following ways:
 
 - [BiliBili](https://space.bilibili.com/1840885116)
-- [Afdian](https://afdian.com/a/yolain)
 - [Wechat / Alipay](https://github.com/user-attachments/assets/803469bd-ed6a-4fab-932d-50e5088a2d03)
-- 🪙 Wallet Address:
-  - ETH: 0x01f7CEd3245CaB3891A0ec8f528178db352EaC74
-  - USDT(tron): TP3AnJXkAzfebL2GKmFAvQvXgsxzivweV6
-
-（This is a newly created wallet, and if it receives sponsorship, I'll use it to rent GPUs or other GPT services for better debugging and refinement of ComfyUI-Easy-Use features.）
 
 ##  🌟Stargazers
 
