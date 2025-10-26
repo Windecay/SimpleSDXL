@@ -564,8 +564,8 @@
       "id": 80,
       "type": "Note",
       "pos": [
-        -190,
-        800
+        -180,
+        900
       ],
       "size": [
         220,
@@ -574,7 +574,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 5,
+      "order": 43,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -606,7 +606,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 6,
+      "order": 5,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -629,7 +629,7 @@
       "type": "Note",
       "pos": [
         -500,
-        800
+        900
       ],
       "size": [
         290,
@@ -639,7 +639,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 7,
+      "order": 42,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -828,7 +828,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 8,
+      "order": 6,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -860,7 +860,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 9,
+      "order": 7,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -1083,7 +1083,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 10,
+      "order": 8,
       "mode": 4,
       "inputs": [],
       "outputs": [
@@ -1129,7 +1129,7 @@
         "allow_interaction": false,
         "pinned": true
       },
-      "order": 11,
+      "order": 9,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -1434,7 +1434,7 @@
       ],
       "size": [
         290,
-        90
+        218
       ],
       "flags": {
         "pinned": true
@@ -1444,6 +1444,7 @@
       "inputs": [
         {
           "name": "anything",
+          "shape": 7,
           "type": "*",
           "link": 234
         }
@@ -1455,6 +1456,16 @@
           "links": [
             418
           ]
+        },
+        {
+          "name": "SEED",
+          "type": "INT",
+          "links": null
+        },
+        {
+          "name": "Reserved(GB)",
+          "type": "FLOAT",
+          "links": null
         }
       ],
       "title": "保留显存（GB）",
@@ -1473,7 +1484,11 @@
       },
       "widgets_values": [
         0.6,
-        "manual"
+        "manual",
+        0,
+        "fixed",
+        0,
+        true
       ],
       "color": "#233",
       "bgcolor": "#355"
@@ -1487,13 +1502,13 @@
       ],
       "size": [
         240.05859375,
-        20
+        26
       ],
       "flags": {
         "allow_interaction": false,
         "pinned": true
       },
-      "order": 12,
+      "order": 10,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -1524,17 +1539,17 @@
       ],
       "size": [
         521.240234375,
-        20
+        26
       ],
       "flags": {
         "allow_interaction": false,
         "pinned": true
       },
-      "order": 13,
+      "order": 11,
       "mode": 0,
       "inputs": [],
       "outputs": [],
-      "title": " 此工作流于SimpAI_comfyd后端发布ver1.0 Design by 冰華",
+      "title": " 此工作流于SimpAI_comfyd后端发布ver1.1 Design by 冰華",
       "properties": {
         "fontSize": 20,
         "fontFamily": "Arial",
@@ -1844,7 +1859,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 14,
+      "order": 12,
       "mode": 4,
       "inputs": [
         {
@@ -2160,13 +2175,13 @@
       ],
       "size": [
         660,
-        20
+        26
       ],
       "flags": {
         "allow_interaction": false,
         "pinned": true
       },
-      "order": 15,
+      "order": 13,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -2202,7 +2217,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 16,
+      "order": 14,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -2244,7 +2259,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 17,
+      "order": 15,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -2286,7 +2301,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 18,
+      "order": 16,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -2345,7 +2360,6 @@
           "link": null
         },
         {
-          "dir": 3,
           "name": "any_05",
           "type": "MODEL",
           "link": null
@@ -2389,7 +2403,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 19,
+      "order": 17,
       "mode": 4,
       "inputs": [],
       "outputs": [
@@ -2508,7 +2522,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 20,
+      "order": 18,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -2591,7 +2605,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 21,
+      "order": 19,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -3153,7 +3167,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 22,
+      "order": 20,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -3309,7 +3323,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 23,
+      "order": 21,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -3396,7 +3410,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 24,
+      "order": 22,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -3555,7 +3569,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 25,
+      "order": 23,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -3748,7 +3762,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 26,
+      "order": 24,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -3881,7 +3895,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 27,
+      "order": 25,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -3922,7 +3936,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 28,
+      "order": 26,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -3963,7 +3977,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 29,
+      "order": 27,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4140,7 +4154,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 30,
+      "order": 28,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4181,7 +4195,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 31,
+      "order": 29,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4222,7 +4236,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 32,
+      "order": 30,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4252,8 +4266,8 @@
       "id": 227,
       "type": "SetNode",
       "pos": [
-        -320,
-        760
+        -190,
+        850
       ],
       "size": [
         210,
@@ -4401,7 +4415,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 33,
+      "order": 31,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4442,7 +4456,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 34,
+      "order": 32,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4688,7 +4702,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 35,
+      "order": 33,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4775,7 +4789,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 36,
+      "order": 34,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4816,7 +4830,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 37,
+      "order": 35,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4901,7 +4915,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 38,
+      "order": 36,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4988,7 +5002,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 39,
+      "order": 37,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -5075,7 +5089,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 40,
+      "order": 38,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -5115,7 +5129,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 41,
+      "order": 39,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -5246,7 +5260,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 42,
+      "order": 40,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -5286,7 +5300,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 43,
+      "order": 41,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -6080,7 +6094,7 @@
         60,
         -50,
         680,
-        1030
+        1050
       ],
       "color": "#8AA",
       "font_size": 24,
@@ -6095,7 +6109,7 @@
         750,
         -730,
         630,
-        1180
+        1170
       ],
       "color": "#f596f0",
       "font_size": 24,
@@ -6125,7 +6139,7 @@
         3000,
         -730,
         860,
-        1180
+        1170
       ],
       "color": "#444",
       "font_size": 24,
@@ -6155,7 +6169,7 @@
         -510,
         -50,
         560,
-        1030
+        1050
       ],
       "color": "#8AA",
       "font_size": 24,
@@ -6182,10 +6196,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.6303940863128591,
+      "scale": 0.6934334949441472,
       "offset": [
-        2131.513986669449,
-        1090.4617106640762
+        1425.7240084745906,
+        279.6709519611545
       ]
     },
     "frontendVersion": "1.26.13",
