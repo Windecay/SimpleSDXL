@@ -3542,7 +3542,7 @@
         }
       },
       "widgets_values": [
-        "Wan2.2-T2V-A14B-LowNoise-Q4_K_M.gguf"
+        "Wan2.2_T2V_Low_Noise_14B_VACE-Q4_K_M.gguf"
       ],
       "color": "#223",
       "bgcolor": "#335"
@@ -11147,10 +11147,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.5559917313492538,
+      "scale": 0.28531167061101564,
       "offset": [
-        1810.5095015508768,
-        1508.842361597176
+        5053.81556642585,
+        2308.048280201528
       ]
     },
     "frontendVersion": "1.26.13",
