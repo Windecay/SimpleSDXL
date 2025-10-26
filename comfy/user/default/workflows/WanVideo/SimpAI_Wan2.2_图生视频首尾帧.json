@@ -1,7 +1,7 @@
 {
   "id": "8e907f65-5b37-494d-a053-b1c690adb8e0",
   "revision": 0,
-  "last_node_id": 458,
+  "last_node_id": 459,
   "last_link_id": 1477,
   "nodes": [
     {
@@ -73,7 +73,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 50,
+      "order": 1,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -122,7 +122,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 70,
+      "order": 74,
       "mode": 0,
       "inputs": [
         {
@@ -196,7 +196,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 1,
+      "order": 2,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -243,7 +243,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 2,
+      "order": 3,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -288,7 +288,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 3,
+      "order": 4,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -335,7 +335,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 47,
+      "order": 5,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -367,7 +367,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 4,
+      "order": 6,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -399,7 +399,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 49,
+      "order": 7,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -431,7 +431,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 5,
+      "order": 8,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -464,7 +464,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 48,
+      "order": 9,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -496,7 +496,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 52,
+      "order": 10,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -543,7 +543,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 51,
+      "order": 11,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -576,7 +576,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 137,
+      "order": 138,
       "mode": 0,
       "inputs": [
         {
@@ -630,7 +630,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 68,
+      "order": 72,
       "mode": 0,
       "inputs": [
         {
@@ -682,7 +682,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 108,
+      "order": 109,
       "mode": 0,
       "inputs": [
         {
@@ -730,7 +730,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 99,
+      "order": 100,
       "mode": 0,
       "inputs": [
         {
@@ -778,7 +778,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 84,
+      "order": 86,
       "mode": 4,
       "inputs": [
         {
@@ -827,7 +827,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 6,
+      "order": 12,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -871,7 +871,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 65,
+      "order": 69,
       "mode": 0,
       "inputs": [
         {
@@ -927,7 +927,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 66,
+      "order": 70,
       "mode": 0,
       "inputs": [
         {
@@ -983,7 +983,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 129,
+      "order": 130,
       "mode": 0,
       "inputs": [
         {
@@ -1036,7 +1036,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 140,
+      "order": 141,
       "mode": 0,
       "inputs": [
         {
@@ -1085,7 +1085,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 82,
+      "order": 60,
       "mode": 0,
       "inputs": [
         {
@@ -1150,7 +1150,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 113,
+      "order": 114,
       "mode": 0,
       "inputs": [
         {
@@ -1192,7 +1192,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 74,
+      "order": 78,
       "mode": 0,
       "inputs": [
         {
@@ -1305,7 +1305,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 119,
+      "order": 120,
       "mode": 0,
       "inputs": [
         {
@@ -1353,7 +1353,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 138,
+      "order": 139,
       "mode": 0,
       "inputs": [
         {
@@ -1408,7 +1408,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 116,
+      "order": 117,
       "mode": 0,
       "inputs": [
         {
@@ -1450,7 +1450,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 117,
+      "order": 118,
       "mode": 0,
       "inputs": [
         {
@@ -1501,7 +1501,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 86,
+      "order": 88,
       "mode": 4,
       "inputs": [
         {
@@ -1550,7 +1550,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 100,
+      "order": 101,
       "mode": 0,
       "inputs": [
         {
@@ -1598,7 +1598,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 109,
+      "order": 110,
       "mode": 0,
       "inputs": [
         {
@@ -1646,7 +1646,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 130,
+      "order": 131,
       "mode": 0,
       "inputs": [
         {
@@ -1699,7 +1699,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 141,
+      "order": 142,
       "mode": 0,
       "inputs": [
         {
@@ -1748,7 +1748,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 67,
+      "order": 71,
       "mode": 0,
       "inputs": [
         {
@@ -1803,7 +1803,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 88,
+      "order": 90,
       "mode": 0,
       "inputs": [
         {
@@ -1858,7 +1858,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 101,
+      "order": 102,
       "mode": 0,
       "inputs": [
         {
@@ -1962,7 +1962,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 110,
+      "order": 111,
       "mode": 0,
       "inputs": [
         {
@@ -2016,7 +2016,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 7,
+      "order": 13,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -2048,7 +2048,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 71,
+      "order": 75,
       "mode": 0,
       "inputs": [
         {
@@ -2131,7 +2131,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 79,
+      "order": 83,
       "mode": 0,
       "inputs": [
         {
@@ -2211,7 +2211,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 133,
+      "order": 134,
       "mode": 0,
       "inputs": [
         {
@@ -2264,7 +2264,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 134,
+      "order": 135,
       "mode": 0,
       "inputs": [
         {
@@ -2317,7 +2317,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 54,
+      "order": 14,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -2349,7 +2349,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 8,
+      "order": 15,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -2391,7 +2391,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 9,
+      "order": 16,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -2433,7 +2433,7 @@
         "allow_interaction": false,
         "pinned": true
       },
-      "order": 10,
+      "order": 17,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -2470,7 +2470,7 @@
         "allow_interaction": false,
         "pinned": true
       },
-      "order": 11,
+      "order": 18,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -2507,7 +2507,7 @@
         "allow_interaction": false,
         "pinned": true
       },
-      "order": 12,
+      "order": 19,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -2544,7 +2544,7 @@
         "allow_interaction": false,
         "pinned": true
       },
-      "order": 13,
+      "order": 20,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -2580,7 +2580,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 72,
+      "order": 76,
       "mode": 4,
       "inputs": [
         {
@@ -2595,8 +2595,7 @@
           "name": "model_name",
           "type": "*",
           "links": [
-            699,
-            712
+            699
           ]
         },
         {
@@ -2636,7 +2635,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 90,
+      "order": 92,
       "mode": 4,
       "inputs": [
         {
@@ -2651,8 +2650,7 @@
           "name": "output",
           "type": "*",
           "links": [
-            700,
-            713
+            700
           ]
         },
         {
@@ -2696,7 +2694,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 102,
+      "order": 103,
       "mode": 4,
       "inputs": [
         {
@@ -2711,7 +2709,6 @@
           "name": "model_name",
           "type": "*",
           "links": [
-            714,
             842
           ]
         },
@@ -2752,7 +2749,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 73,
+      "order": 77,
       "mode": 4,
       "inputs": [
         {
@@ -2766,9 +2763,7 @@
           "name": "STRING",
           "shape": 6,
           "type": "STRING",
-          "links": [
-            718
-          ]
+          "links": []
         }
       ],
       "properties": {
@@ -2795,7 +2790,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 91,
+      "order": 93,
       "mode": 4,
       "inputs": [
         {
@@ -2809,9 +2804,7 @@
           "name": "STRING",
           "shape": 6,
           "type": "STRING",
-          "links": [
-            719
-          ]
+          "links": []
         }
       ],
       "properties": {
@@ -2838,7 +2831,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 103,
+      "order": 104,
       "mode": 4,
       "inputs": [
         {
@@ -2852,9 +2845,7 @@
           "name": "STRING",
           "shape": 6,
           "type": "STRING",
-          "links": [
-            720
-          ]
+          "links": []
         }
       ],
       "properties": {
@@ -2881,7 +2872,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 112,
+      "order": 113,
       "mode": 4,
       "inputs": [
         {
@@ -2895,9 +2886,7 @@
           "name": "STRING",
           "shape": 6,
           "type": "STRING",
-          "links": [
-            721
-          ]
+          "links": []
         }
       ],
       "properties": {
@@ -2924,7 +2913,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 121,
+      "order": 122,
       "mode": 4,
       "inputs": [
         {
@@ -2938,9 +2927,7 @@
           "name": "STRING",
           "shape": 6,
           "type": "STRING",
-          "links": [
-            722
-          ]
+          "links": []
         }
       ],
       "properties": {
@@ -2967,7 +2954,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 128,
+      "order": 129,
       "mode": 4,
       "inputs": [
         {
@@ -2981,9 +2968,7 @@
           "name": "STRING",
           "shape": 6,
           "type": "STRING",
-          "links": [
-            723
-          ]
+          "links": []
         }
       ],
       "properties": {
@@ -3010,7 +2995,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 132,
+      "order": 133,
       "mode": 4,
       "inputs": [
         {
@@ -3024,9 +3009,7 @@
           "name": "STRING",
           "shape": 6,
           "type": "STRING",
-          "links": [
-            724
-          ]
+          "links": []
         }
       ],
       "properties": {
@@ -3038,159 +3021,6 @@
         }
       },
       "widgets_values": []
-    },
-    {
-      "id": 350,
-      "type": "Mute / Bypass Repeater (rgthree)",
-      "pos": [
-        -3040,
-        -1310
-      ],
-      "size": [
-        274.14642333984375,
-        386
-      ],
-      "flags": {
-        "collapsed": true,
-        "pinned": true
-      },
-      "order": 142,
-      "mode": 4,
-      "inputs": [
-        {
-          "dir": 3,
-          "name": "Simple Batch Downloader",
-          "type": "*",
-          "link": 831
-        },
-        {
-          "dir": 3,
-          "name": "Simple Model Downloader",
-          "type": "*",
-          "link": 712
-        },
-        {
-          "dir": 3,
-          "name": "Simple Batch Downloader",
-          "type": "*",
-          "link": 713
-        },
-        {
-          "dir": 3,
-          "name": "Simple Model Downloader",
-          "type": "*",
-          "link": 714
-        },
-        {
-          "dir": 3,
-          "name": "Simple Batch Downloader",
-          "type": "*",
-          "link": 844
-        },
-        {
-          "dir": 3,
-          "name": "Show Text 🐍",
-          "type": "*",
-          "link": 718
-        },
-        {
-          "dir": 3,
-          "name": "Show Text 🐍",
-          "type": "*",
-          "link": 719
-        },
-        {
-          "dir": 3,
-          "name": "Show Text 🐍",
-          "type": "*",
-          "link": 720
-        },
-        {
-          "dir": 3,
-          "name": "Show Text 🐍",
-          "type": "*",
-          "link": 721
-        },
-        {
-          "dir": 3,
-          "name": "Show Text 🐍",
-          "type": "*",
-          "link": 722
-        },
-        {
-          "dir": 3,
-          "name": "Show Text 🐍",
-          "type": "*",
-          "link": 723
-        },
-        {
-          "dir": 3,
-          "name": "Show Text 🐍",
-          "type": "*",
-          "link": 724
-        },
-        {
-          "dir": 3,
-          "name": "Simple Batch Downloader",
-          "type": "*",
-          "link": 853
-        },
-        {
-          "dir": 3,
-          "name": "Simple Batch Downloader",
-          "type": "*",
-          "link": 854
-        },
-        {
-          "dir": 3,
-          "name": "Simple Model Downloader",
-          "type": "*",
-          "link": 1040
-        },
-        {
-          "dir": 3,
-          "name": "Show Text 🐍",
-          "type": "*",
-          "link": 856
-        },
-        {
-          "dir": 3,
-          "name": "Show Text 🐍",
-          "type": "*",
-          "link": 1039
-        },
-        {
-          "dir": 3,
-          "name": "Simple Batch Downloader",
-          "type": "*",
-          "link": 1061
-        },
-        {
-          "dir": 3,
-          "name": "",
-          "type": "*",
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "color_off": "#a80",
-          "color_on": "#Fc0",
-          "dir": 4,
-          "name": "OPT_CONNECTION",
-          "type": "*",
-          "links": [
-            725
-          ]
-        }
-      ],
-      "properties": {
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.3"
-        }
-      }
     },
     {
       "id": 351,
@@ -3206,7 +3036,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 14,
+      "order": 21,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -3225,54 +3055,6 @@
       "bgcolor": "#653"
     },
     {
-      "id": 352,
-      "type": "Fast Bypasser (rgthree)",
-      "pos": [
-        -2790,
-        -1350
-      ],
-      "size": [
-        340,
-        120
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 145,
-      "mode": 0,
-      "inputs": [
-        {
-          "dir": 3,
-          "name": "Mute / Bypass Repeater (rgthree)",
-          "type": "*",
-          "link": 725
-        },
-        {
-          "dir": 3,
-          "name": "",
-          "type": "*",
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "dir": 4,
-          "name": "OPT_CONNECTION",
-          "type": "*",
-          "links": null
-        }
-      ],
-      "title": "模型下载总开关",
-      "properties": {
-        "toggleRestriction": "default",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.3"
-        }
-      }
-    },
-    {
       "id": 353,
       "type": "easy float",
       "pos": [
@@ -3286,7 +3068,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 53,
+      "order": 22,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -3325,7 +3107,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 105,
+      "order": 106,
       "mode": 0,
       "inputs": [
         {
@@ -3391,7 +3173,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 83,
+      "order": 64,
       "mode": 0,
       "inputs": [
         {
@@ -3437,7 +3219,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 15,
+      "order": 23,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -3479,7 +3261,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 16,
+      "order": 24,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -3519,7 +3301,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 124,
+      "order": 125,
       "mode": 0,
       "inputs": [
         {
@@ -3661,7 +3443,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 125,
+      "order": 126,
       "mode": 0,
       "inputs": [
         {
@@ -3803,7 +3585,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 17,
+      "order": 25,
       "mode": 4,
       "inputs": [],
       "outputs": [
@@ -3848,7 +3630,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 18,
+      "order": 26,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -3892,7 +3674,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 19,
+      "order": 27,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -3936,7 +3718,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 20,
+      "order": 28,
       "mode": 4,
       "inputs": [],
       "outputs": [
@@ -3981,7 +3763,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 61,
+      "order": 65,
       "mode": 0,
       "inputs": [
         {
@@ -4051,7 +3833,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 63,
+      "order": 67,
       "mode": 0,
       "inputs": [
         {
@@ -4121,7 +3903,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 85,
+      "order": 87,
       "mode": 0,
       "inputs": [
         {
@@ -4171,7 +3953,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 62,
+      "order": 66,
       "mode": 0,
       "inputs": [
         {
@@ -4227,7 +4009,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 64,
+      "order": 68,
       "mode": 0,
       "inputs": [
         {
@@ -4283,7 +4065,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 87,
+      "order": 89,
       "mode": 0,
       "inputs": [
         {
@@ -4333,7 +4115,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 118,
+      "order": 119,
       "mode": 0,
       "inputs": [
         {
@@ -4385,7 +4167,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 126,
+      "order": 127,
       "mode": 0,
       "inputs": [
         {
@@ -4431,7 +4213,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 21,
+      "order": 29,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4470,7 +4252,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 60,
+      "order": 63,
       "mode": 0,
       "inputs": [
         {
@@ -4516,7 +4298,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 22,
+      "order": 30,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4647,7 +4429,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 23,
+      "order": 31,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4688,7 +4470,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 24,
+      "order": 32,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4728,7 +4510,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 58,
+      "order": 61,
       "mode": 0,
       "inputs": [
         {
@@ -4779,7 +4561,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 25,
+      "order": 33,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4824,7 +4606,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 95,
+      "order": 97,
       "mode": 0,
       "inputs": [
         {
@@ -4875,7 +4657,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 59,
+      "order": 62,
       "mode": 0,
       "inputs": [
         {
@@ -4921,7 +4703,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 26,
+      "order": 34,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4960,7 +4742,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 27,
+      "order": 35,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -5000,7 +4782,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 98,
+      "order": 85,
       "mode": 0,
       "inputs": [
         {
@@ -5045,7 +4827,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 28,
+      "order": 36,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -5086,7 +4868,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 104,
+      "order": 105,
       "mode": 0,
       "inputs": [
         {
@@ -5132,7 +4914,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 55,
+      "order": 56,
       "mode": 0,
       "inputs": [
         {
@@ -5178,7 +4960,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 29,
+      "order": 37,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -5220,7 +5002,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 114,
+      "order": 115,
       "mode": 0,
       "inputs": [
         {
@@ -5266,7 +5048,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 115,
+      "order": 116,
       "mode": 0,
       "inputs": [
         {
@@ -5312,7 +5094,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 30,
+      "order": 38,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -5354,7 +5136,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 31,
+      "order": 39,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -5396,7 +5178,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 123,
+      "order": 124,
       "mode": 0,
       "inputs": [
         {
@@ -5442,7 +5224,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 32,
+      "order": 40,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -5484,7 +5266,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 122,
+      "order": 123,
       "mode": 0,
       "inputs": [
         {
@@ -5530,7 +5312,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 33,
+      "order": 41,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -5571,7 +5353,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 81,
+      "order": 57,
       "mode": 0,
       "inputs": [
         {
@@ -5617,7 +5399,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 34,
+      "order": 42,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -5658,7 +5440,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 57,
+      "order": 59,
       "mode": 0,
       "inputs": [
         {
@@ -5704,7 +5486,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 35,
+      "order": 43,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -5746,7 +5528,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 56,
+      "order": 58,
       "mode": 0,
       "inputs": [
         {
@@ -5792,7 +5574,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 36,
+      "order": 44,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -5836,7 +5618,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 37,
+      "order": 45,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -5876,7 +5658,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 38,
+      "order": 46,
       "mode": 4,
       "inputs": [
         {
@@ -5891,8 +5673,7 @@
           "name": "output",
           "type": "*",
           "links": [
-            830,
-            831
+            830
           ]
         },
         {
@@ -5936,7 +5717,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 111,
+      "order": 112,
       "mode": 4,
       "inputs": [
         {
@@ -5951,7 +5732,6 @@
           "name": "output",
           "type": "*",
           "links": [
-            844,
             847
           ]
         },
@@ -5996,7 +5776,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 120,
+      "order": 121,
       "mode": 4,
       "inputs": [
         {
@@ -6011,8 +5791,7 @@
           "name": "output",
           "type": "*",
           "links": [
-            848,
-            853
+            848
           ]
         },
         {
@@ -6056,7 +5835,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 127,
+      "order": 128,
       "mode": 4,
       "inputs": [
         {
@@ -6071,8 +5850,7 @@
           "name": "output",
           "type": "*",
           "links": [
-            849,
-            854
+            849
           ]
         },
         {
@@ -6116,7 +5894,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 131,
+      "order": 132,
       "mode": 4,
       "inputs": [
         {
@@ -6131,8 +5909,7 @@
           "name": "output",
           "type": "*",
           "links": [
-            1041,
-            1061
+            1041
           ]
         },
         {
@@ -6176,7 +5953,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 136,
+      "order": 137,
       "mode": 4,
       "inputs": [
         {
@@ -6190,9 +5967,7 @@
           "name": "STRING",
           "shape": 6,
           "type": "STRING",
-          "links": [
-            856
-          ]
+          "links": []
         }
       ],
       "properties": {
@@ -6220,7 +5995,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 39,
+      "order": 47,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -6262,7 +6037,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 40,
+      "order": 48,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -6303,7 +6078,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 75,
+      "order": 79,
       "mode": 0,
       "inputs": [
         {
@@ -6354,7 +6129,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 93,
+      "order": 95,
       "mode": 0,
       "inputs": [
         {
@@ -6411,7 +6186,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 135,
+      "order": 136,
       "mode": 4,
       "inputs": [
         {
@@ -6425,9 +6200,7 @@
         {
           "name": "model_name",
           "type": "*",
-          "links": [
-            1040
-          ]
+          "links": []
         },
         {
           "name": "download_message",
@@ -6466,7 +6239,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 139,
+      "order": 140,
       "mode": 4,
       "inputs": [
         {
@@ -6480,9 +6253,7 @@
           "name": "STRING",
           "shape": 6,
           "type": "STRING",
-          "links": [
-            1039
-          ]
+          "links": []
         }
       ],
       "properties": {
@@ -6509,7 +6280,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 41,
+      "order": 49,
       "mode": 4,
       "inputs": [],
       "outputs": [
@@ -6556,7 +6327,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 76,
+      "order": 80,
       "mode": 0,
       "inputs": [
         {
@@ -6611,7 +6382,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 94,
+      "order": 96,
       "mode": 0,
       "inputs": [
         {
@@ -6661,7 +6432,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 77,
+      "order": 81,
       "mode": 0,
       "inputs": [
         {
@@ -6731,7 +6502,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 42,
+      "order": 50,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -6787,7 +6558,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 43,
+      "order": 51,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -6829,7 +6600,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 78,
+      "order": 82,
       "mode": 0,
       "inputs": [
         {
@@ -6874,7 +6645,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 92,
+      "order": 94,
       "mode": 0,
       "inputs": [
         {
@@ -6986,7 +6757,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 106,
+      "order": 107,
       "mode": 0,
       "inputs": [
         {
@@ -7127,7 +6898,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 44,
+      "order": 52,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -7167,7 +6938,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 45,
+      "order": 53,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -7207,7 +6978,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 80,
+      "order": 84,
       "mode": 0,
       "inputs": [
         {
@@ -7269,7 +7040,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 97,
+      "order": 99,
       "mode": 0,
       "inputs": [
         {
@@ -7315,7 +7086,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 46,
+      "order": 54,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -7353,7 +7124,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 96,
+      "order": 98,
       "mode": 0,
       "inputs": [
         {
@@ -7442,7 +7213,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 89,
+      "order": 91,
       "mode": 0,
       "inputs": [
         {
@@ -7531,7 +7302,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 107,
+      "order": 108,
       "mode": 0,
       "inputs": [
         {
@@ -7585,7 +7356,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 69,
+      "order": 73,
       "mode": 0,
       "inputs": [
         {
@@ -7658,6 +7429,48 @@
           "params": {}
         }
       }
+    },
+    {
+      "id": 459,
+      "type": "Fast Groups Bypasser (rgthree)",
+      "pos": [
+        -2790,
+        -1350
+      ],
+      "size": [
+        340,
+        120
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 55,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "OPT_CONNECTION",
+          "type": "*",
+          "links": null
+        }
+      ],
+      "title": "模型下载总开关",
+      "properties": {
+        "matchColors": "",
+        "matchTitle": "模型下载区",
+        "showNav": true,
+        "showAllGraphs": true,
+        "sort": "position",
+        "customSortAlphabet": "",
+        "toggleRestriction": "default",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
     }
   ],
   "links": [
@@ -7804,94 +7617,6 @@
       346,
       0,
       "STRING"
-    ],
-    [
-      712,
-      337,
-      0,
-      350,
-      1,
-      "*"
-    ],
-    [
-      713,
-      338,
-      0,
-      350,
-      2,
-      "*"
-    ],
-    [
-      714,
-      339,
-      0,
-      350,
-      3,
-      "*"
-    ],
-    [
-      718,
-      343,
-      0,
-      350,
-      5,
-      "*"
-    ],
-    [
-      719,
-      344,
-      0,
-      350,
-      6,
-      "*"
-    ],
-    [
-      720,
-      345,
-      0,
-      350,
-      7,
-      "*"
-    ],
-    [
-      721,
-      346,
-      0,
-      350,
-      8,
-      "*"
-    ],
-    [
-      722,
-      347,
-      0,
-      350,
-      9,
-      "*"
-    ],
-    [
-      723,
-      348,
-      0,
-      350,
-      10,
-      "*"
-    ],
-    [
-      724,
-      349,
-      0,
-      350,
-      11,
-      "*"
-    ],
-    [
-      725,
-      350,
-      0,
-      352,
-      0,
-      "*"
     ],
     [
       727,
@@ -8294,14 +8019,6 @@
       "*"
     ],
     [
-      831,
-      425,
-      0,
-      350,
-      0,
-      "*"
-    ],
-    [
       832,
       425,
       1,
@@ -8315,14 +8032,6 @@
       0,
       426,
       0,
-      "*"
-    ],
-    [
-      844,
-      426,
-      0,
-      350,
-      4,
       "*"
     ],
     [
@@ -8372,30 +8081,6 @@
       347,
       0,
       "STRING"
-    ],
-    [
-      853,
-      427,
-      0,
-      350,
-      12,
-      "*"
-    ],
-    [
-      854,
-      428,
-      0,
-      350,
-      13,
-      "*"
-    ],
-    [
-      856,
-      430,
-      0,
-      350,
-      15,
-      "*"
     ],
     [
       904,
@@ -8462,22 +8147,6 @@
       "STRING"
     ],
     [
-      1039,
-      437,
-      0,
-      350,
-      16,
-      "*"
-    ],
-    [
-      1040,
-      436,
-      0,
-      350,
-      14,
-      "*"
-    ],
-    [
       1041,
       429,
       0,
@@ -8492,14 +8161,6 @@
       430,
       0,
       "STRING"
-    ],
-    [
-      1061,
-      429,
-      0,
-      350,
-      17,
-      "*"
     ],
     [
       1080,
@@ -9119,8 +8780,8 @@
     "ds": {
       "scale": 0.8140274938684614,
       "offset": [
-        3161.561181619537,
-        1970.5881695574371
+        4257.347265896608,
+        2070.502888482413
       ]
     },
     "frontendVersion": "1.26.13",
