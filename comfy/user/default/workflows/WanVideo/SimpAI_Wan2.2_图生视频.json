@@ -675,7 +675,7 @@
       "id": 203,
       "type": "WanVideoEnhanceAVideoKJ",
       "pos": [
-        10,
+        910,
         -1080
       ],
       "size": [
@@ -910,7 +910,7 @@
       "id": 211,
       "type": "ModelPatchTorchSettings",
       "pos": [
-        300,
+        1200,
         -1180
       ],
       "size": [
@@ -958,7 +958,7 @@
       "id": 212,
       "type": "PathchSageAttentionKJ",
       "pos": [
-        10,
+        910,
         -1180
       ],
       "size": [
@@ -1006,7 +1006,7 @@
       "id": 214,
       "type": "TorchCompileModel",
       "pos": [
-        500,
+        1400,
         -1280
       ],
       "size": [
@@ -1055,7 +1055,7 @@
       "id": 217,
       "type": "VAELoader",
       "pos": [
-        0,
+        900,
         230
       ],
       "size": [
@@ -1213,7 +1213,7 @@
       "id": 224,
       "type": "LoraLoaderModelOnly",
       "pos": [
-        10,
+        910,
         -400
       ],
       "size": [
@@ -1266,7 +1266,7 @@
       "id": 230,
       "type": "ModelSamplingSD3",
       "pos": [
-        300,
+        1200,
         -1080
       ],
       "size": [
@@ -1407,7 +1407,7 @@
       "id": 249,
       "type": "KSamplerAdvanced",
       "pos": [
-        920,
+        -690,
         -1350
       ],
       "size": [
@@ -1735,7 +1735,7 @@
       "id": 265,
       "type": "WanVideoEnhanceAVideoKJ",
       "pos": [
-        20,
+        920,
         -570
       ],
       "size": [
@@ -1832,7 +1832,7 @@
       "id": 277,
       "type": "CFGNorm",
       "pos": [
-        580,
+        1480,
         -1180
       ],
       "size": [
@@ -1883,7 +1883,7 @@
       "id": 279,
       "type": "TorchCompileModel",
       "pos": [
-        530,
+        1430,
         -770
       ],
       "size": [
@@ -1932,7 +1932,7 @@
       "id": 280,
       "type": "PathchSageAttentionKJ",
       "pos": [
-        10,
+        910,
         -670
       ],
       "size": [
@@ -1980,7 +1980,7 @@
       "id": 282,
       "type": "ModelPatchTorchSettings",
       "pos": [
-        300,
+        1200,
         -670
       ],
       "size": [
@@ -2028,7 +2028,7 @@
       "id": 286,
       "type": "LoraLoaderModelOnly",
       "pos": [
-        450,
+        1350,
         -400
       ],
       "size": [
@@ -2081,7 +2081,7 @@
       "id": 287,
       "type": "ModelSamplingSD3",
       "pos": [
-        300,
+        1200,
         -570
       ],
       "size": [
@@ -2958,7 +2958,7 @@
       "id": 315,
       "type": "LoraLoaderModelOnly",
       "pos": [
-        10,
+        910,
         -230
       ],
       "size": [
@@ -3011,7 +3011,7 @@
       "id": 316,
       "type": "LoraLoaderModelOnly",
       "pos": [
-        450,
+        1350,
         -230
       ],
       "size": [
@@ -3096,7 +3096,7 @@
       "id": 326,
       "type": "KSampler",
       "pos": [
-        1370,
+        -240,
         -1350
       ],
       "size": [
@@ -4356,7 +4356,7 @@
       "id": 358,
       "type": "ZmlPowerLoraLoader",
       "pos": [
-        -690,
+        210,
         -1480
       ],
       "size": [
@@ -4498,7 +4498,7 @@
       "id": 359,
       "type": "ZmlPowerLoraLoader",
       "pos": [
-        -690,
+        210,
         -640
       ],
       "size": [
@@ -4640,7 +4640,7 @@
       "id": 360,
       "type": "UNETLoader",
       "pos": [
-        10,
+        910,
         -1420
       ],
       "size": [
@@ -4685,7 +4685,7 @@
       "id": 361,
       "type": "UnetLoaderGGUF",
       "pos": [
-        10,
+        910,
         -780
       ],
       "size": [
@@ -4729,7 +4729,7 @@
       "id": 362,
       "type": "UnetLoaderGGUF",
       "pos": [
-        10,
+        910,
         -1290
       ],
       "size": [
@@ -4773,7 +4773,7 @@
       "id": 363,
       "type": "UNETLoader",
       "pos": [
-        10,
+        910,
         -910
       ],
       "size": [
@@ -4818,7 +4818,7 @@
       "id": 364,
       "type": "Any Switch (rgthree)",
       "pos": [
-        300,
+        1200,
         -1420
       ],
       "size": [
@@ -4888,7 +4888,7 @@
       "id": 365,
       "type": "Any Switch (rgthree)",
       "pos": [
-        300,
+        1200,
         -910
       ],
       "size": [
@@ -4958,7 +4958,7 @@
       "id": 366,
       "type": "Fast Actions Button (rgthree)",
       "pos": [
-        500,
+        1400,
         -1420
       ],
       "size": [
@@ -5007,7 +5007,7 @@
       "id": 367,
       "type": "Fast Bypasser (rgthree)",
       "pos": [
-        300,
+        1200,
         -1230
       ],
       "size": [
@@ -5063,7 +5063,7 @@
       "id": 368,
       "type": "Fast Bypasser (rgthree)",
       "pos": [
-        300,
+        1200,
         -720
       ],
       "size": [
@@ -5120,7 +5120,7 @@
       "id": 369,
       "type": "Fast Actions Button (rgthree)",
       "pos": [
-        530,
+        1430,
         -910
       ],
       "size": [
@@ -5170,7 +5170,7 @@
       "id": 370,
       "type": "CFGNorm",
       "pos": [
-        580,
+        1480,
         -670
       ],
       "size": [
@@ -5391,7 +5391,7 @@
       "id": 375,
       "type": "SetNode",
       "pos": [
-        580,
+        1480,
         -570
       ],
       "size": [
@@ -5437,7 +5437,7 @@
       "id": 376,
       "type": "SetNode",
       "pos": [
-        580,
+        1480,
         -1080
       ],
       "size": [
@@ -5483,7 +5483,7 @@
       "id": 379,
       "type": "GetNode",
       "pos": [
-        1370,
+        -240,
         -1480
       ],
       "size": [
@@ -5524,7 +5524,7 @@
       "id": 380,
       "type": "GetNode",
       "pos": [
-        920,
+        -690,
         -1480
       ],
       "size": [
@@ -5565,7 +5565,7 @@
       "id": 381,
       "type": "Anything Everywhere",
       "pos": [
-        310,
+        1210,
         230
       ],
       "size": [
@@ -5616,7 +5616,7 @@
       "id": 382,
       "type": "CLIPLoaderGGUF",
       "pos": [
-        0,
+        900,
         110
       ],
       "size": [
@@ -5661,7 +5661,7 @@
       "id": 383,
       "type": "Anything Everywhere",
       "pos": [
-        540,
+        1440,
         -40
       ],
       "size": [
@@ -5842,7 +5842,7 @@
       "id": 387,
       "type": "SetNode",
       "pos": [
-        1140,
+        -470,
         -1350
       ],
       "size": [
@@ -5888,7 +5888,7 @@
       "id": 388,
       "type": "GetNode",
       "pos": [
-        1570,
+        -40,
         -1480
       ],
       "size": [
@@ -5930,7 +5930,7 @@
       "id": 389,
       "type": "GetNode",
       "pos": [
-        1640,
+        30,
         -1400
       ],
       "size": [
@@ -6095,7 +6095,7 @@
       "id": 393,
       "type": "SetNode",
       "pos": [
-        1530,
+        -80,
         -1350
       ],
       "size": [
@@ -6413,7 +6413,7 @@
       "id": 400,
       "type": "GetNode",
       "pos": [
-        920,
+        -690,
         -1400
       ],
       "size": [
@@ -6454,7 +6454,7 @@
       "id": 401,
       "type": "GetNode",
       "pos": [
-        920,
+        -690,
         -1440
       ],
       "size": [
@@ -6495,7 +6495,7 @@
       "id": 402,
       "type": "GetNode",
       "pos": [
-        1370,
+        -240,
         -1440
       ],
       "size": [
@@ -6536,7 +6536,7 @@
       "id": 403,
       "type": "GetNode",
       "pos": [
-        1370,
+        -240,
         -1400
       ],
       "size": [
@@ -6623,7 +6623,7 @@
       "id": 405,
       "type": "GetNode",
       "pos": [
-        1120,
+        -490,
         -1480
       ],
       "size": [
@@ -7012,7 +7012,7 @@
       "id": 415,
       "type": "GetNode",
       "pos": [
-        1180,
+        -430,
         -1440
       ],
       "size": [
@@ -7613,7 +7613,7 @@
       "id": 431,
       "type": "GetNode",
       "pos": [
-        1180,
+        -430,
         -1400
       ],
       "size": [
@@ -7900,7 +7900,7 @@
       "id": 438,
       "type": "CLIPLoader",
       "pos": [
-        0,
+        900,
         -40
       ],
       "size": [
@@ -7946,7 +7946,7 @@
       "id": 439,
       "type": "Fast Bypasser (rgthree)",
       "pos": [
-        310,
+        1210,
         150
       ],
       "size": [
@@ -8002,7 +8002,7 @@
       "id": 440,
       "type": "Fast Actions Button (rgthree)",
       "pos": [
-        540,
+        1440,
         70
       ],
       "size": [
@@ -8052,7 +8052,7 @@
       "id": 441,
       "type": "Any Switch (rgthree)",
       "pos": [
-        310,
+        1210,
         -40
       ],
       "size": [
@@ -9502,7 +9502,7 @@
       "id": 1,
       "title": "模型加载区",
       "bounding": [
-        -20,
+        880,
         -1550,
         910,
         1890
@@ -9577,7 +9577,7 @@
       "id": 7,
       "title": "采样器",
       "bounding": [
-        900,
+        -710,
         -1550,
         890,
         1890
@@ -9652,7 +9652,7 @@
       "id": 13,
       "title": "自选Lora加载区",
       "bounding": [
-        -710,
+        190,
         -1550,
         680,
         1890
@@ -9667,7 +9667,7 @@
       "id": 14,
       "title": "高噪声",
       "bounding": [
-        0,
+        900,
         -1490,
         870,
         500
@@ -9682,7 +9682,7 @@
       "id": 15,
       "title": "低噪声",
       "bounding": [
-        0,
+        900,
         -980,
         870,
         500
@@ -9697,7 +9697,7 @@
       "id": 16,
       "title": "功能性Lora",
       "bounding": [
-        0,
+        900,
         -470,
         870,
         370
@@ -9712,10 +9712,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.5559917313492408,
+      "scale": 0.2853116706110101,
       "offset": [
-        1745.365309505113,
-        1851.2010157628988
+        4068.234643561813,
+        3064.4682797948694
       ]
     },
     "frontendVersion": "1.26.13",
