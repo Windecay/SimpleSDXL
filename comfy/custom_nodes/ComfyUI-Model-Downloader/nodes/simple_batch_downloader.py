@@ -23,7 +23,16 @@ class AlwaysEqualProxy(str):
     def __ne__(self, _):
         return False
 any_type = AlwaysEqualProxy("*")
-
+def get_folder_group(folder_name):
+    """获取文件夹所属的组，用于跨文件夹检测文件是否存在"""
+    folder_groups = {
+        'checkpoints': ['checkpoints', 'diffusion_models', 'unet'],
+        'diffusion_models': ['checkpoints', 'diffusion_models', 'unet'],
+        'unet': ['checkpoints', 'diffusion_models', 'unet'],
+        'clip': ['clip', 'text_encoders'],
+        'text_encoders': ['clip', 'text_encoders']
+    }
+    return folder_groups.get(folder_name, [folder_name])
 def is_trusted_url(url):
     """检查URL是否属于可信站点范围"""
     trusted_domains = [
@@ -97,11 +106,28 @@ def download_file_with_temp(url, file_path, overwrite=False):
 def attempt_download(url, file_path, overwrite=False):
     """尝试执行单次下载"""
     try:
-        if os.path.exists(file_path):
-            if not overwrite:
-                return True, f"文件已存在，跳过下载: {file_path}"
+        file_name = os.path.basename(file_path)
+        current_folder = os.path.basename(os.path.dirname(file_path))
+        folder_group = get_folder_group(current_folder)
+
+        file_exists_in_group = False
+        for folder in folder_group:
+            if folder in folder_paths.folder_names_and_paths:
+                folder_path = folder_paths.get_folder_paths(folder)[0]
             else:
-                print(f"文件已存在，将在下载完成后覆盖: {file_path}")
+                folder_path = os.path.join(folder_paths.models_dir, folder)
+
+            potential_file_path = os.path.join(folder_path, file_name)
+            if os.path.exists(potential_file_path):
+                file_exists_in_group = True
+                existing_path = potential_file_path
+                break
+
+        if file_exists_in_group:
+            if not overwrite:
+                return True, f"文件已存在于 {existing_path}，跳过下载。"
+            else:
+                print(f"文件已存在于 {existing_path}，将在下载完成后覆盖: {file_path}")
 
         partial_file_path = file_path + ".partial"
 
