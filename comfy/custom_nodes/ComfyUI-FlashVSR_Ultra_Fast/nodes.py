@@ -13,10 +13,10 @@ import requests
 from tqdm import tqdm
 from einops import rearrange
 from huggingface_hub import snapshot_download
-from .src.FlashVSR import ModelManager, FlashVSRFullPipeline, FlashVSRTinyPipeline
-from .src.FlashVSR.models.utils import clean_vram
-from .src.utils.utils import Buffer_LQ4x_Proj
-from .src.utils.TCDecoder import build_tcdecoder
+from .src import ModelManager, FlashVSRFullPipeline, FlashVSRTinyPipeline, FlashVSRTinyLongPipeline
+from .src.models.TCDecoder import build_tcdecoder
+from .src.models.utils import clean_vram, Buffer_LQ4x_Proj
+from .src.models import wan_video_dit
 
 def get_device_list():
     devs = ["auto"]
@@ -34,15 +34,17 @@ def get_device_list():
 
 device_choices = get_device_list()
 
-def log(message:str, message_type:str='info'):
+def log(message:str, message_type:str='normal'):
     if message_type == 'error':
         message = '\033[1;41m' + message + '\033[m'
     elif message_type == 'warning':
         message = '\033[1;31m' + message + '\033[m'
     elif message_type == 'finish':
         message = '\033[1;32m' + message + '\033[m'
-    else:
+    elif message_type == 'info':
         message = '\033[1;33m' + message + '\033[m'
+    else:
+        message = message
     print(f"{message}")
 
 def model_downlod(model_name="JunhaoZhuang/FlashVSR"):
@@ -82,7 +84,7 @@ def tensor_upscale_then_center_crop(frame_tensor: torch.Tensor, scale: int, tW: 
 
     return cropped_tensor.squeeze(0)
 
-def prepare_input_tensor(image_tensor: torch.Tensor, scale: int = 4, dtype=torch.bfloat16):
+def prepare_input_tensor(image_tensor: torch.Tensor, device, scale: int = 4, dtype=torch.bfloat16):
     N0, h0, w0, _ = image_tensor.shape
     
     multiple = 128
@@ -96,10 +98,10 @@ def prepare_input_tensor(image_tensor: torch.Tensor, scale: int = 4, dtype=torch
     frames = []
     for i in range(F):
         frame_idx = min(i, N0 - 1)
-        frame_slice = image_tensor[frame_idx]
+        frame_slice = image_tensor[frame_idx].to(device)
         tensor_chw = tensor_upscale_then_center_crop(frame_slice, scale=scale, tW=tW, tH=tH)
         tensor_out = tensor_chw * 2.0 - 1.0
-        tensor_out = tensor_out.to(dtype)
+        tensor_out = tensor_out.to('cpu').to(dtype)
         frames.append(tensor_out)
 
     vid_stacked = torch.stack(frames, 0)
@@ -290,7 +292,7 @@ def init_pipeline(mode, device, dtype):
     tcd_path = os.path.join(model_path, "TCDecoder.ckpt")
 
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    prompt_path = os.path.join(current_dir, "src", "utils", "posi_prompt.pth")
+    prompt_path = os.path.join(current_dir, "posi_prompt.pth")
 
     if not os.path.exists(prompt_path):
         raise RuntimeError(f'File not found: {prompt_path}')
@@ -303,17 +305,20 @@ def init_pipeline(mode, device, dtype):
         pipe.vae.model.conv1 = None
     else:
         mm.load_models([ckpt_path])
-        pipe = FlashVSRTinyPipeline.from_model_manager(mm, device=device)
+        if mode == "tiny":
+            pipe = FlashVSRTinyPipeline.from_model_manager(mm, device=device)
+        else:
+            pipe = FlashVSRTinyLongPipeline.from_model_manager(mm, device=device)
         multi_scale_channels = [512, 256, 128, 128]
         pipe.TCDecoder = build_tcdecoder(new_channels=multi_scale_channels, device=device, dtype=dtype, new_latent_channels=16+768)
         mis = pipe.TCDecoder.load_state_dict(torch.load(tcd_path, map_location=device), strict=False)
         pipe.TCDecoder.clean_mem()
         
-    pipe.denoising_model().LQ_proj_in = Buffer_LQ4x_Proj(in_dim=3, out_dim=1536, layer_num=1).to(device, dtype=torch.bfloat16)
+    pipe.denoising_model().LQ_proj_in = Buffer_LQ4x_Proj(in_dim=3, out_dim=1536, layer_num=1).to(device, dtype=dtype)
     if os.path.exists(lq_path):
         pipe.denoising_model().LQ_proj_in.load_state_dict(torch.load(lq_path, map_location="cpu"), strict=True)
     pipe.denoising_model().LQ_proj_in.to(device)
-    pipe.to(device)
+    pipe.to(device, dtype=dtype)
     pipe.enable_vram_management(num_persistent_param_in_dit=None)
     pipe.init_cross_kv(prompt_path=prompt_path)
     pipe.load_models_to_device(["dit","vae"])
@@ -378,8 +383,9 @@ class FlashVSRNode:
                 "frames": ("IMAGE", {
                     "tooltip": "Sequential video frames as IMAGE tensor batch"
                 }),
-                "mode": (["tiny", "full"], {
+                "mode": (["tiny", "tiny-long", "full"], {
                     "default": "tiny",
+                    "tooltip": 'Using "tiny-long" mode can significantly reduce VRAM used with long video input.'
                 }),
                 "scale": ("INT", {
                     "default": 2,
@@ -446,6 +452,14 @@ class FlashVSRNode:
                     "default": device_choices[0],
                     "tooltip": "Device to load the weights, default: auto (CUDA if available, else CPU)"
                 }),
+                "precision": (["fp16", "bf16"], {
+                    "default": "bf16",
+                    "tooltip": "Data and inference precision."
+                }),
+                "attention_mode": (["sparse_sage_attention", "block_sparse_attention"], {
+                    "default": "sparse_sage_attention",
+                    "tooltip": '"sparse_sage_attention" is available for sm_75 to sm_120\n"block_sparse_attention" is available for sm_80 to sm_100'
+                }),
             }
         }
     
@@ -455,7 +469,7 @@ class FlashVSRNode:
     CATEGORY = "FlashVSR"
     DESCRIPTION = 'Download the entire "FlashVSR" folder with all the files inside it from "https://huggingface.co/JunhaoZhuang/FlashVSR" and put it in the "ComfyUI/models"'
     
-    def main(self, frames, mode, scale, color_fix, tiled_vae, tiled_dit, tile_size, tile_overlap, unload_dit, sparse_ratio, kv_ratio, local_range, seed, device):
+    def main(self, frames, mode, scale, color_fix, tiled_vae, tiled_dit, tile_size, tile_overlap, unload_dit, sparse_ratio, kv_ratio, local_range, seed, device, precision, attention_mode):
         _device = device
         if device == "auto":
             _device = "cuda:0" if torch.cuda.is_available() else "mps" if torch.mps.is_available() else device
@@ -467,15 +481,32 @@ class FlashVSRNode:
         
         if tiled_dit and (tile_overlap > tile_size / 2):
             raise ValueError('The "tile_overlap" must be less than half of "tile_size"!')
-            
+        
+        if attention_mode == "sparse_sage_attention":
+            wan_video_dit.USE_BLOCK_ATTN = False
+        else:
+            wan_video_dit.USE_BLOCK_ATTN = True
+        
+        _frames = frames
         if frames.shape[0] < 21:
-            raise ValueError(f"Number of frames must be at least 21, got {frames.shape[0]}")
+            add = 21 - frames.shape[0]
+            last_frame = frames[-1:, :, :, :]
+            padding_frames = last_frame.repeat(add, 1, 1, 1)
+            _frames = torch.cat([frames, padding_frames], dim=0)
+            #raise ValueError(f"Number of frames must be at least 21, got {frames.shape[0]}")
         
-        dtype = torch.bfloat16
-        pipe = init_pipeline(mode, _device, dtype)
-        
+        dtype_map = {
+            "fp32": torch.float32,
+            "fp16": torch.float16,
+            "bf16": torch.bfloat16,
+        }
+        try:
+            dtype = dtype_map[precision]
+        except:
+            dtype = torch.bfloat16
+
         if tiled_dit:
-            N, H, W, C = frames.shape
+            N, H, W, C = _frames.shape
             num_aligned_frames = largest_8n1_leq(N + 4) - 4
             
             final_output_canvas = torch.zeros(
@@ -487,14 +518,15 @@ class FlashVSRNode:
             tile_coords = calculate_tile_coords(H, W, tile_size, tile_overlap)
             latent_tiles_cpu = []
             
+            pipe = init_pipeline(mode, _device, dtype)
+            
             for i, (x1, y1, x2, y2) in enumerate(cqdm(tile_coords, desc="Processing Tiles")):
                 log(f"[FlashVSR] Processing tile {i+1}/{len(tile_coords)}: coords ({x1},{y1}) to ({x2},{y2})", message_type='info')
-                input_tile = frames[:, y1:y2, x1:x2, :]
+                input_tile = _frames[:, y1:y2, x1:x2, :]
                 
-                _tile = input_tile.to(_device)
-                LQ_tile, th, tw, F = prepare_input_tensor(_tile, scale=scale, dtype=torch.bfloat16)
-                del _tile
-                clean_vram()
+                LQ_tile, th, tw, F = prepare_input_tensor(input_tile, _device, scale=scale, dtype=dtype)
+                if "long" not in mode:
+                    LQ_tile = LQ_tile.to(_device)
                 
                 output_tile_gpu = pipe(
                     prompt="", negative_prompt="", cfg_scale=1.0, num_inference_steps=1, seed=seed, tiled=tiled_vae,
@@ -524,10 +556,13 @@ class FlashVSRNode:
             weight_sum_canvas[weight_sum_canvas == 0] = 1.0
             final_output = final_output_canvas / weight_sum_canvas
         else:
-            log(f"[FlashVSR] Processing {frames.shape[0]} frames...", message_type='info')
+            log("[FlashVSR] Preparing frames...")
+            LQ, th, tw, F = prepare_input_tensor(_frames, _device, scale=scale, dtype=dtype)
+            if "long" not in mode:
+                LQ = LQ.to(_device)
             
-            _frames = frames.to(_device)
-            LQ, th, tw, F = prepare_input_tensor(_frames, scale=scale, dtype=dtype)
+            pipe = init_pipeline(mode, _device, dtype)
+            log(f"[FlashVSR] Processing {frames.shape[0]} frames...", message_type='info')
             
             video = pipe(
                 prompt="", negative_prompt="", cfg_scale=1.0, num_inference_steps=1, seed=seed, tiled=tiled_vae,
@@ -536,13 +571,20 @@ class FlashVSRNode:
                 color_fix = color_fix, unload_dit=unload_dit
             )
             
-            final_output = tensor2video(video)
+            final_output = tensor2video(video).to('cpu')
             
             del pipe, video, LQ
             clean_vram()
         
         log("[FlashVSR] Done.", message_type='info')
-        return (final_output,)
+        if frames.shape[0] == 1:
+            final_output = final_output.to(_device)
+            stacked_image_tensor = torch.median(final_output, dim=0).unsqueeze(0).to('cpu')
+            del final_output
+            clean_vram()
+            return (stacked_image_tensor,)
+        
+        return (final_output[:frames.shape[0], :, :, :],)
 
 NODE_CLASS_MAPPINGS = {
     "FlashVSRNode": FlashVSRNode,

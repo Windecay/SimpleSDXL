@@ -1,1 +1,865 @@
-{"id":"4dca0cd2-cc50-42e7-b1ac-11e022b2586d","revision":0,"last_node_id":18,"last_link_id":14,"nodes":[{"id":11,"type":"VHS_LoadVideo","pos":[-32.20872116088867,410.459228515625],"size":[247.455078125,448.24859619140625],"flags":{"pinned":true},"order":0,"mode":0,"inputs":[{"localized_name":"meta_batch","name":"meta_batch","shape":7,"type":"VHS_BatchManager","link":null},{"localized_name":"vae","name":"vae","shape":7,"type":"VAE","link":null},{"localized_name":"video","name":"video","type":"COMBO","widget":{"name":"video"},"link":null},{"localized_name":"force_rate","name":"force_rate","type":"FLOAT","widget":{"name":"force_rate"},"link":null},{"localized_name":"custom_width","name":"custom_width","type":"INT","widget":{"name":"custom_width"},"link":null},{"localized_name":"custom_height","name":"custom_height","type":"INT","widget":{"name":"custom_height"},"link":null},{"localized_name":"frame_load_cap","name":"frame_load_cap","type":"INT","widget":{"name":"frame_load_cap"},"link":null},{"localized_name":"skip_first_frames","name":"skip_first_frames","type":"INT","widget":{"name":"skip_first_frames"},"link":null},{"localized_name":"select_every_nth","name":"select_every_nth","type":"INT","widget":{"name":"select_every_nth"},"link":null},{"localized_name":"format","name":"format","shape":7,"type":"COMBO","widget":{"name":"format"},"link":null}],"outputs":[{"localized_name":"IMAGE","name":"IMAGE","type":"IMAGE","links":[10]},{"localized_name":"frame_count","name":"frame_count","type":"INT","links":null},{"localized_name":"audio","name":"audio","type":"AUDIO","links":null},{"localized_name":"video_info","name":"video_info","type":"VHS_VIDEOINFO","links":[11]}],"properties":{"Node name for S&R":"VHS_LoadVideo","ue_properties":{"widget_ue_connectable":{},"input_ue_unconnectable":{},"version":"7.3"}},"widgets_values":{"video":"合成.mp4","force_rate":0,"custom_width":0,"custom_height":0,"frame_load_cap":0,"skip_first_frames":0,"select_every_nth":1,"format":"AnimateDiff","choose video to upload":"image","videopreview":{"hidden":false,"paused":false,"params":{"force_rate":0,"custom_width":0,"custom_height":0,"frame_load_cap":0,"skip_first_frames":0,"select_every_nth":1,"filename":"合成.mp4","type":"input","format":"video/mp4"}}}},{"id":13,"type":"VHS_VideoInfo","pos":[248.83822631835938,659.6964111328125],"size":[225.59765625,206],"flags":{"pinned":true},"order":7,"mode":0,"inputs":[{"localized_name":"video_info","name":"video_info","type":"VHS_VIDEOINFO","link":11}],"outputs":[{"localized_name":"source_fps🟨","name":"source_fps🟨","type":"FLOAT","links":[]},{"localized_name":"source_frame_count🟨","name":"source_frame_count🟨","type":"INT","links":null},{"localized_name":"source_duration🟨","name":"source_duration🟨","type":"FLOAT","links":null},{"localized_name":"source_width🟨","name":"source_width🟨","type":"INT","links":null},{"localized_name":"source_height🟨","name":"source_height🟨","type":"INT","links":null},{"localized_name":"loaded_fps🟦","name":"loaded_fps🟦","type":"FLOAT","links":[14]},{"localized_name":"loaded_frame_count🟦","name":"loaded_frame_count🟦","type":"INT","links":null},{"localized_name":"loaded_duration🟦","name":"loaded_duration🟦","type":"FLOAT","links":null},{"localized_name":"loaded_width🟦","name":"loaded_width🟦","type":"INT","links":null},{"localized_name":"loaded_height🟦","name":"loaded_height🟦","type":"INT","links":null}],"properties":{"Node name for S&R":"VHS_VideoInfo","ue_properties":{"widget_ue_connectable":{},"input_ue_unconnectable":{},"version":"7.3"}},"widgets_values":{}},{"id":10,"type":"FlashVSRNode","pos":[521.4957275390625,504.5493469238281],"size":[270,370],"flags":{"pinned":true},"order":6,"mode":0,"inputs":[{"localized_name":"frames","name":"frames","type":"IMAGE","link":10},{"localized_name":"mode","name":"mode","type":"COMBO","widget":{"name":"mode"},"link":null},{"localized_name":"scale","name":"scale","type":"INT","widget":{"name":"scale"},"link":null},{"localized_name":"color_fix","name":"color_fix","type":"BOOLEAN","widget":{"name":"color_fix"},"link":null},{"localized_name":"tiled_vae","name":"tiled_vae","type":"BOOLEAN","widget":{"name":"tiled_vae"},"link":null},{"localized_name":"tiled_dit","name":"tiled_dit","type":"BOOLEAN","widget":{"name":"tiled_dit"},"link":null},{"localized_name":"tile_size","name":"tile_size","type":"INT","widget":{"name":"tile_size"},"link":null},{"localized_name":"tile_overlap","name":"tile_overlap","type":"INT","widget":{"name":"tile_overlap"},"link":null},{"localized_name":"unload_dit","name":"unload_dit","type":"BOOLEAN","widget":{"name":"unload_dit"},"link":null},{"localized_name":"sparse_ratio","name":"sparse_ratio","type":"FLOAT","widget":{"name":"sparse_ratio"},"link":null},{"localized_name":"kv_ratio","name":"kv_ratio","type":"FLOAT","widget":{"name":"kv_ratio"},"link":null},{"localized_name":"local_range","name":"local_range","type":"INT","widget":{"name":"local_range"},"link":null},{"localized_name":"seed","name":"seed","type":"INT","widget":{"name":"seed"},"link":null},{"localized_name":"device","name":"device","type":"COMBO","widget":{"name":"device"},"link":null}],"outputs":[{"localized_name":"image","name":"image","type":"IMAGE","links":[13]}],"properties":{"Node name for S&R":"FlashVSRNode","ue_properties":{"widget_ue_connectable":{},"input_ue_unconnectable":{},"version":"7.3"}},"widgets_values":["tiny",2,true,true,true,256,24,false,2,3,11,0,"randomize","auto"]},{"id":12,"type":"VHS_VideoCombine","pos":[844.6632080078125,241.7938995361328],"size":[395.2085266113281,553.114013671875],"flags":{"pinned":true},"order":8,"mode":0,"inputs":[{"localized_name":"images","name":"images","type":"IMAGE","link":13},{"localized_name":"audio","name":"audio","shape":7,"type":"AUDIO","link":null},{"localized_name":"meta_batch","name":"meta_batch","shape":7,"type":"VHS_BatchManager","link":null},{"localized_name":"vae","name":"vae","shape":7,"type":"VAE","link":null},{"localized_name":"frame_rate","name":"frame_rate","type":"FLOAT","widget":{"name":"frame_rate"},"link":14},{"localized_name":"loop_count","name":"loop_count","type":"INT","widget":{"name":"loop_count"},"link":null},{"localized_name":"filename_prefix","name":"filename_prefix","type":"STRING","widget":{"name":"filename_prefix"},"link":null},{"localized_name":"format","name":"format","type":"COMBO","widget":{"name":"format"},"link":null},{"localized_name":"pingpong","name":"pingpong","type":"BOOLEAN","widget":{"name":"pingpong"},"link":null},{"localized_name":"save_output","name":"save_output","type":"BOOLEAN","widget":{"name":"save_output"},"link":null},{"name":"pix_fmt","type":["yuv420p","yuv420p10le"],"widget":{"name":"pix_fmt"},"link":null},{"name":"crf","type":"INT","widget":{"name":"crf"},"link":null},{"name":"save_metadata","type":"BOOLEAN","widget":{"name":"save_metadata"},"link":null},{"name":"trim_to_audio","type":"BOOLEAN","widget":{"name":"trim_to_audio"},"link":null}],"outputs":[{"localized_name":"Filenames","name":"Filenames","type":"VHS_FILENAMES","links":null}],"properties":{"Node name for S&R":"VHS_VideoCombine","ue_properties":{"widget_ue_connectable":{},"input_ue_unconnectable":{},"version":"7.3"}},"widgets_values":{"frame_rate":8,"loop_count":0,"filename_prefix":"Upscale\\FlashVSR_Upscale","format":"video/h264-mp4","pix_fmt":"yuv420p","crf":15,"save_metadata":true,"trim_to_audio":false,"pingpong":false,"save_output":true,"videopreview":{"hidden":false,"paused":false,"params":{"filename":"test_00001.mp4","subfolder":"","type":"output","format":"video/h264-mp4","frame_rate":29.97002997002997,"workflow":"test_00001.png","fullpath":"G:\\SimpleAI\\users\\ComfyUI\\test_00001.mp4"}}}},{"id":15,"type":"Note","pos":[518.0578002929688,248.42022705078125],"size":[304.8794250488281,208.8058319091797],"flags":{"pinned":true},"order":1,"mode":0,"inputs":[],"outputs":[],"properties":{"ue_properties":{"widget_ue_connectable":{},"version":"7.3","input_ue_unconnectable":{}}},"widgets_values":["## 使用说明\n- **mode（模式）：**  \n  `tiny` → 更快（默认）；`full` → 更高质量  \n- **scale（放大倍数）：**  \n  通常使用 `4` 效果更好；如果显存不足，可使用 `2`  \n- **color_fix（颜色修正）：**  \n  使用小波变换方法修正输出视频的颜色偏差。  \n- **tiled_vae（VAE分块解码）：**  \n  启用后可显著降低显存占用，但会降低解码速度。  \n- **tiled_dit（DiT分块计算）：**  \n  大幅减少显存占用，但会降低推理速度。  \n- **tile_size / tile_overlap（分块大小与重叠）：**  \n  控制输入视频在推理时的分块方式。  \n- **unload_dit（卸载DiT模型）：**  \n  解码前卸载 DiT 模型以降低显存峰值，但会略微降低速度。  "],"color":"#432","bgcolor":"#653"},{"id":16,"type":"Label (rgthree)","pos":[589.5457153320312,150.81182861328125],"size":[465.654296875,20],"flags":{"allow_interaction":true},"order":3,"mode":0,"inputs":[],"outputs":[],"title":" 此工作流于SimpAI_comfyd后端发布 Design by 冰華","properties":{"fontSize":20,"fontFamily":"Arial","fontColor":"#ffffff","textAlign":"left","backgroundColor":"transparent","padding":0,"borderRadius":0,"ue_properties":{"widget_ue_connectable":{},"input_ue_unconnectable":{},"version":"7.3"}},"color":"#fff0","bgcolor":"#fff0"},{"id":18,"type":"Label (rgthree)","pos":[1071.6339111328125,151.16290283203125],"size":[240.05859375,20],"flags":{"allow_interaction":true},"order":5,"mode":0,"inputs":[],"outputs":[],"title":"官方主页：http://simpai.cn/","properties":{"fontSize":20,"fontFamily":"Arial","fontColor":"#ffffff","textAlign":"left","backgroundColor":"transparent","padding":0,"borderRadius":0,"ue_properties":{"widget_ue_connectable":{},"input_ue_unconnectable":{},"version":"7.3"}},"color":"#fff0","bgcolor":"#fff0"},{"id":17,"type":"Label (rgthree)","pos":[-87.59432983398438,60.7979736328125],"size":[552.59521484375,65],"flags":{"allow_interaction":true},"order":4,"mode":0,"inputs":[],"outputs":[],"title":"FlashVSR视频放大","properties":{"fontSize":65,"fontFamily":"Arial","fontColor":"#ffffff","textAlign":"left","backgroundColor":"transparent","padding":0,"borderRadius":0,"ue_properties":{"widget_ue_connectable":{},"input_ue_unconnectable":{},"version":"7.3"}},"color":"#fff0","bgcolor":"#fff0"},{"id":14,"type":"Note","pos":[-18.93345069885254,246.45574951171875],"size":[512.819091796875,104.07711791992188],"flags":{"pinned":true},"order":2,"mode":0,"inputs":[],"outputs":[],"properties":{"ue_properties":{"widget_ue_connectable":{},"version":"7.3","input_ue_unconnectable":{}}},"widgets_values":["原项目地址 https://github.com/lihaoyun6/ComfyUI-FlashVSR_Ultra_Fast        \n\n感谢开源\n\n本流用到节点地址 https://github.com/Windecay/ComfyUI-FlashVSR_Ultra_Fast\n\n增加了更灵活的自动下载逻辑，运行即检测和下载所需模型到FlashVSR目录。"],"color":"#432","bgcolor":"#653"}],"links":[[10,11,0,10,0,"IMAGE"],[11,11,3,13,0,"VHS_VIDEOINFO"],[13,10,0,12,0,"IMAGE"],[14,13,5,12,4,"FLOAT"]],"groups":[{"id":1,"title":"FlashVSR视频放大","bounding":[-93.19036102294922,143.86712646484375,1410.464599609375,830.9806518554688],"color":"#3f789e","font_size":24,"flags":{}}],"config":{},"extra":{"ds":{"scale":1,"offset":[584.3530472712401,-48.03638168035005]},"ue_links":[],"links_added_by_ue":[]},"version":0.4}
+{
+  "id": "4dca0cd2-cc50-42e7-b1ac-11e022b2586d",
+  "revision": 0,
+  "last_node_id": 35,
+  "last_link_id": 45,
+  "nodes": [
+    {
+      "id": 10,
+      "type": "FlashVSRNode",
+      "pos": [
+        521.4957275390625,
+        504.5493469238281
+      ],
+      "size": [
+        270,
+        418
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "frames",
+          "type": "IMAGE",
+          "link": 43
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            36
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "FlashVSRNode",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        "tiny",
+        2,
+        true,
+        true,
+        true,
+        256,
+        24,
+        false,
+        2,
+        3,
+        11,
+        0,
+        "randomize",
+        "auto",
+        "bf16",
+        "sparse_sage_attention"
+      ]
+    },
+    {
+      "id": 11,
+      "type": "VHS_LoadVideo",
+      "pos": [
+        -32.20872116088867,
+        410.459228515625
+      ],
+      "size": [
+        247.455078125,
+        662.6776123046875
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "meta_batch",
+          "shape": 7,
+          "type": "VHS_BatchManager",
+          "link": null
+        },
+        {
+          "name": "vae",
+          "shape": 7,
+          "type": "VAE",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            27,
+            34
+          ]
+        },
+        {
+          "name": "frame_count",
+          "type": "INT",
+          "links": []
+        },
+        {
+          "name": "audio",
+          "type": "AUDIO",
+          "links": null
+        },
+        {
+          "name": "video_info",
+          "type": "VHS_VIDEOINFO",
+          "links": [
+            11
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VHS_LoadVideo",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": {
+        "video": "example.mp4",
+        "force_rate": 0,
+        "custom_width": 0,
+        "custom_height": 0,
+        "frame_load_cap": 1,
+        "skip_first_frames": 0,
+        "select_every_nth": 1,
+        "format": "AnimateDiff",
+        "choose video to upload": "image",
+        "videopreview": {
+          "hidden": false,
+          "paused": false,
+          "params": {
+            "force_rate": 0,
+            "custom_width": 0,
+            "custom_height": 0,
+            "frame_load_cap": 1,
+            "skip_first_frames": 0,
+            "select_every_nth": 1,
+            "filename": "example.mp4",
+            "type": "input",
+            "format": "video/mp4"
+          }
+        }
+      }
+    },
+    {
+      "id": 12,
+      "type": "VHS_VideoCombine",
+      "pos": [
+        844.6632080078125,
+        241.7938995361328
+      ],
+      "size": [
+        395.2085266113281,
+        907.3108520507812
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 37
+        },
+        {
+          "name": "audio",
+          "shape": 7,
+          "type": "AUDIO",
+          "link": null
+        },
+        {
+          "name": "meta_batch",
+          "shape": 7,
+          "type": "VHS_BatchManager",
+          "link": null
+        },
+        {
+          "name": "vae",
+          "shape": 7,
+          "type": "VAE",
+          "link": null
+        },
+        {
+          "name": "frame_rate",
+          "type": "FLOAT",
+          "widget": {
+            "name": "frame_rate"
+          },
+          "link": 14
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Filenames",
+          "type": "VHS_FILENAMES",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VHS_VideoCombine",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": {
+        "frame_rate": 8,
+        "loop_count": 0,
+        "filename_prefix": "Upscale\\FlashVSR_Upscale",
+        "format": "video/h264-mp4",
+        "pix_fmt": "yuv420p",
+        "crf": 19,
+        "save_metadata": true,
+        "trim_to_audio": false,
+        "pingpong": false,
+        "save_output": true,
+        "videopreview": {
+          "hidden": false,
+          "paused": false,
+          "params": {}
+        }
+      }
+    },
+    {
+      "id": 13,
+      "type": "VHS_VideoInfo",
+      "pos": [
+        260,
+        730
+      ],
+      "size": [
+        225.59765625,
+        206
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "video_info",
+          "type": "VHS_VIDEOINFO",
+          "link": 11
+        }
+      ],
+      "outputs": [
+        {
+          "name": "source_fps🟨",
+          "type": "FLOAT",
+          "links": []
+        },
+        {
+          "name": "source_frame_count🟨",
+          "type": "INT",
+          "links": null
+        },
+        {
+          "name": "source_duration🟨",
+          "type": "FLOAT",
+          "links": null
+        },
+        {
+          "name": "source_width🟨",
+          "type": "INT",
+          "links": null
+        },
+        {
+          "name": "source_height🟨",
+          "type": "INT",
+          "links": null
+        },
+        {
+          "name": "loaded_fps🟦",
+          "type": "FLOAT",
+          "links": [
+            14
+          ]
+        },
+        {
+          "name": "loaded_frame_count🟦",
+          "type": "INT",
+          "links": [
+            28,
+            38
+          ]
+        },
+        {
+          "name": "loaded_duration🟦",
+          "type": "FLOAT",
+          "links": null
+        },
+        {
+          "name": "loaded_width🟦",
+          "type": "INT",
+          "links": null
+        },
+        {
+          "name": "loaded_height🟦",
+          "type": "INT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VHS_VideoInfo",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": {}
+    },
+    {
+      "id": 14,
+      "type": "Note",
+      "pos": [
+        -18.93345069885254,
+        246.45574951171875
+      ],
+      "size": [
+        512.819091796875,
+        104.07711791992188
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 5,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.3",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "原项目地址 https://github.com/lihaoyun6/ComfyUI-FlashVSR_Ultra_Fast        \n\n感谢开源\n\n本流用到节点地址 https://github.com/Windecay/ComfyUI-FlashVSR_Ultra_Fast\n\n增加了更灵活的自动下载逻辑，运行即检测和下载所需模型到FlashVSR目录。"
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
+      "id": 15,
+      "type": "Note",
+      "pos": [
+        518.0578002929688,
+        248.42022705078125
+      ],
+      "size": [
+        310,
+        220
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.3",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "## 使用说明\n- **mode（模式）：**  \n  `tiny` → 更快（默认）；`tiny-long` → 长视频优化\n  `full` → 更高质量  \n- **scale（放大倍数）：**  \n  通常使用 `4` 效果更好；如果显存不足，可使用 `2`  \n- **color_fix（颜色修正）：**  \n  使用小波变换方法修正输出视频的颜色偏差。  \n- **tiled_vae（VAE分块解码）：**  \n  启用后可显著降低显存占用，但会降低解码速度。  \n- **tiled_dit（DiT分块计算）：**  \n  大幅减少显存占用，但会降低推理速度。  \n- **tile_size / tile_overlap（分块大小与重叠）：**  \n  控制输入视频在推理时的分块方式。  \n- **unload_dit（卸载DiT模型）：**  \n  解码前卸载 DiT 模型以降低显存峰值，但会略微降低速度。  "
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
+      "id": 16,
+      "type": "Label (rgthree)",
+      "pos": [
+        520,
+        150
+      ],
+      "size": [
+        521.240234375,
+        20
+      ],
+      "flags": {
+        "allow_interaction": false,
+        "pinned": true
+      },
+      "order": 3,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": " 此工作流于SimpAI_comfyd后端发布ver1.1 Design by 冰華",
+      "properties": {
+        "fontSize": 20,
+        "fontFamily": "Arial",
+        "fontColor": "#ffffff",
+        "textAlign": "left",
+        "backgroundColor": "transparent",
+        "padding": 0,
+        "borderRadius": 0,
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "color": "#fff0",
+      "bgcolor": "#fff0"
+    },
+    {
+      "id": 17,
+      "type": "Label (rgthree)",
+      "pos": [
+        -87.59432983398438,
+        60.7979736328125
+      ],
+      "size": [
+        552.59521484375,
+        65
+      ],
+      "flags": {
+        "allow_interaction": false,
+        "pinned": true
+      },
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "FlashVSR视频放大",
+      "properties": {
+        "fontSize": 65,
+        "fontFamily": "Arial",
+        "fontColor": "#ffffff",
+        "textAlign": "left",
+        "backgroundColor": "transparent",
+        "padding": 0,
+        "borderRadius": 0,
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "color": "#fff0",
+      "bgcolor": "#fff0"
+    },
+    {
+      "id": 18,
+      "type": "Label (rgthree)",
+      "pos": [
+        1071.6339111328125,
+        151.16290283203125
+      ],
+      "size": [
+        240.05859375,
+        20
+      ],
+      "flags": {
+        "allow_interaction": false,
+        "pinned": true
+      },
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "官方主页：http://simpai.cn/",
+      "properties": {
+        "fontSize": 20,
+        "fontFamily": "Arial",
+        "fontColor": "#ffffff",
+        "textAlign": "left",
+        "backgroundColor": "transparent",
+        "padding": 0,
+        "borderRadius": 0,
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "color": "#fff0",
+      "bgcolor": "#fff0"
+    },
+    {
+      "id": 25,
+      "type": "ImageFromBatch",
+      "pos": [
+        270,
+        980
+      ],
+      "size": [
+        220,
+        82
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 27
+        },
+        {
+          "name": "batch_index",
+          "type": "INT",
+          "widget": {
+            "name": "batch_index"
+          },
+          "link": 28
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            31
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.59",
+        "Node name for S&R": "ImageFromBatch",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": 27,
+      "type": "RepeatImageBatch",
+      "pos": [
+        270,
+        1120
+      ],
+      "size": [
+        220,
+        60
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 31
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            33
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.59",
+        "Node name for S&R": "RepeatImageBatch",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        7
+      ]
+    },
+    {
+      "id": 28,
+      "type": "ImageBatch",
+      "pos": [
+        530,
+        1110
+      ],
+      "size": [
+        260,
+        60
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image1",
+          "type": "IMAGE",
+          "link": 34
+        },
+        {
+          "name": "image2",
+          "type": "IMAGE",
+          "link": 33
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            43
+          ]
+        }
+      ],
+      "title": "补充帧数防止裁剪尾帧",
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.59",
+        "Node name for S&R": "ImageBatch",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 29,
+      "type": "ImageFromBatch",
+      "pos": [
+        530,
+        970
+      ],
+      "size": [
+        260,
+        100
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 36
+        },
+        {
+          "name": "length",
+          "type": "INT",
+          "widget": {
+            "name": "length"
+          },
+          "link": 38
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            37
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.59",
+        "Node name for S&R": "ImageFromBatch",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": 31,
+      "type": "Note",
+      "pos": [
+        260,
+        560
+      ],
+      "size": [
+        220,
+        120
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 4,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "tile_size分块",
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.3",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "使用高倍数放大导致爆显存时\n\n把分块尺寸调低\n\n可以根据视频尺寸调整128~512\n\n即可适配各种显存"
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    }
+  ],
+  "links": [
+    [
+      11,
+      11,
+      3,
+      13,
+      0,
+      "VHS_VIDEOINFO"
+    ],
+    [
+      14,
+      13,
+      5,
+      12,
+      4,
+      "FLOAT"
+    ],
+    [
+      27,
+      11,
+      0,
+      25,
+      0,
+      "IMAGE"
+    ],
+    [
+      28,
+      13,
+      6,
+      25,
+      1,
+      "INT"
+    ],
+    [
+      31,
+      25,
+      0,
+      27,
+      0,
+      "IMAGE"
+    ],
+    [
+      33,
+      27,
+      0,
+      28,
+      1,
+      "IMAGE"
+    ],
+    [
+      34,
+      11,
+      0,
+      28,
+      0,
+      "IMAGE"
+    ],
+    [
+      36,
+      10,
+      0,
+      29,
+      0,
+      "IMAGE"
+    ],
+    [
+      37,
+      29,
+      0,
+      12,
+      0,
+      "IMAGE"
+    ],
+    [
+      38,
+      13,
+      6,
+      29,
+      1,
+      "INT"
+    ],
+    [
+      43,
+      28,
+      0,
+      10,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "groups": [
+    {
+      "id": 1,
+      "title": "FlashVSR视频放大",
+      "bounding": [
+        -90,
+        140,
+        1440,
+        1490
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {
+        "pinned": true
+      }
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 1.4641000000000008,
+      "offset": [
+        393.1379036458401,
+        -170.09535754992953
+      ]
+    },
+    "ue_links": [],
+    "links_added_by_ue": [],
+    "frontendVersion": "1.26.13",
+    "VHS_latentpreview": true,
+    "VHS_latentpreviewrate": 8,
+    "VHS_MetadataImage": false,
+    "VHS_KeepIntermediate": true
+  },
+  "version": 0.4
+}

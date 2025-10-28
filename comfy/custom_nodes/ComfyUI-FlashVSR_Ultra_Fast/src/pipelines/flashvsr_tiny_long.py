@@ -3,7 +3,6 @@ import os
 import time
 from typing import Optional, Tuple, Literal
 
-import gc
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -152,7 +151,7 @@ class TorchColorCorrectorWavelet(nn.Module):
 # -----------------------------
 # 简化版 Pipeline（仅 dit + vae）
 # -----------------------------
-class FlashVSRTinyPipeline(BasePipeline):
+class FlashVSRTinyLongPipeline(BasePipeline):
 
     def __init__(self, device="cuda", torch_dtype=torch.float16):
         super().__init__(device=device, torch_dtype=torch_dtype)
@@ -167,13 +166,12 @@ class FlashVSRTinyPipeline(BasePipeline):
         self.ColorCorrector = TorchColorCorrectorWavelet(levels=5)
 
         print(r"""
-███████╗██╗      █████╗ ███████╗██╗  ██╗██╗   ██╗███████╗█████╗
-██╔════╝██║     ██╔══██╗██╔════╝██║  ██║██║   ██║██╔════╝██╔══██╗
-█████╗  ██║     ███████║███████╗███████║╚██╗ ██╔╝███████╗███████║
-██╔══╝  ██║     ██╔══██║╚════██║██╔══██║ ╚████╔╝ ╚════██║██╔═██║
-██║     ███████╗██║  ██║███████║██║  ██║  ╚██╔╝  ███████║██║  ██║
-╚═╝     ╚══════╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝
-                         ⚡FlashVSR
+    ███████╗██╗      █████╗ ███████╗██╗  ██╗██╗   ██╗███████╗█████╗
+    ██╔════╝██║     ██╔══██╗██╔════╝██║  ██║██║   ██║██╔════╝██╔══██╗
+    █████╗  ██║     ███████║███████╗███████║╚██╗ ██╔╝███████╗███████║
+    ██╔══╝  ██║     ██╔══██║╚════██║██╔══██║ ╚████╔╝ ╚════██║██╔═██║
+    ██║     ███████╗██║  ██║███████║██║  ██║  ╚██╔╝  ███████║██║  ██║
+    ╚═╝     ╚══════╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝
 """)
 
     def enable_vram_management(self, num_persistent_param_in_dit=None):
@@ -216,7 +214,7 @@ class FlashVSRTinyPipeline(BasePipeline):
     def from_model_manager(model_manager: ModelManager, torch_dtype=None, device=None, use_usp=False):
         if device is None: device = model_manager.device
         if torch_dtype is None: torch_dtype = model_manager.torch_dtype
-        pipe = FlashVSRTinyPipeline(device=device, torch_dtype=torch_dtype)
+        pipe = FlashVSRTinyLongPipeline(device=device, torch_dtype=torch_dtype)
         pipe.fetch_models(model_manager)
         # 可选：统一序列并行入口（此处默认关闭）
         pipe.use_unified_sequence_parallel = False
@@ -309,7 +307,7 @@ class FlashVSRTinyPipeline(BasePipeline):
         tile_size=(60, 104),
         tile_stride=(30, 52),
         tea_cache_l1_thresh=None,
-        tea_cache_model_id="Wan2.1-T2V-14B",
+        tea_cache_model_id="Wan2.1-T2V-1.3B",
         progress_bar_cmd=tqdm,
         progress_bar_st=None,
         LQ_video=None,
@@ -358,16 +356,10 @@ class FlashVSRTinyPipeline(BasePipeline):
         if hasattr(self.dit, "LQ_proj_in"):
             self.dit.LQ_proj_in.clear_cache()
 
-        latents_total = []
-        self.TCDecoder.clean_mem()
+        frames_total = []
         LQ_pre_idx = 0
         LQ_cur_idx = 0
-        
-        if unload_dit and hasattr(self, 'dit') and self.dit is not None:
-            current_dit_device = next(iter(self.dit.parameters())).device
-            if str(current_dit_device) != str(self.device):
-                print(f"[FlashVSR] DiT is on {current_dit_device}, moving it to target device {self.device}...")
-                self.dit.to(self.device)
+        self.TCDecoder.clean_mem()
 
         with torch.no_grad():
             for cur_process_idx in progress_bar_cmd(range(process_total_num)):
@@ -378,7 +370,7 @@ class FlashVSRTinyPipeline(BasePipeline):
                     inner_loop_num = 7
                     for inner_idx in range(inner_loop_num):
                         cur = self.denoising_model().LQ_proj_in.stream_forward(
-                            LQ_video[:, :, max(0, inner_idx*4-3):(inner_idx+1)*4-3, :, :]
+                            LQ_video[:, :, max(0, inner_idx*4-3):(inner_idx+1)*4-3, :, :].to(self.device)
                         ) if LQ_video is not None else None
                         if cur is None:
                             continue
@@ -394,7 +386,7 @@ class FlashVSRTinyPipeline(BasePipeline):
                     inner_loop_num = 2
                     for inner_idx in range(inner_loop_num):
                         cur = self.denoising_model().LQ_proj_in.stream_forward(
-                            LQ_video[:, :, cur_process_idx*8+17+inner_idx*4:cur_process_idx*8+21+inner_idx*4, :, :]
+                            LQ_video[:, :, cur_process_idx*8+17+inner_idx*4:cur_process_idx*8+21+inner_idx*4, :, :].to(self.device)
                         ) if LQ_video is not None else None
                         if cur is None:
                             continue
@@ -429,43 +421,35 @@ class FlashVSRTinyPipeline(BasePipeline):
 
                 # 更新 latent
                 cur_latents = cur_latents - noise_pred_posi
-                latents_total.append(cur_latents)
-                LQ_pre_idx = LQ_cur_idx
-            
-            if unload_dit and hasattr(self, 'dit') and not next(self.dit.parameters()).is_cpu:
+                
+                # Decode
+                cur_LQ_frame = LQ_video[:,:,LQ_pre_idx:LQ_cur_idx,:,:].to(self.device)
+                cur_frames = self.TCDecoder.decode_video(
+                    cur_latents.transpose(1, 2),
+                    parallel=False,
+                    show_progress_bar=False,
+                    cond=cur_LQ_frame).transpose(1, 2).mul_(2).sub_(1)
+
+                # 颜色校正（wavelet）
                 try:
-                    del pre_cache_k, pre_cache_v
-                except NameError:
+                    if color_fix:
+                        cur_frames = self.ColorCorrector(
+                            cur_frames.to(device=self.device),
+                            cur_LQ_frame,
+                            clip_range=(-1, 1),
+                            chunk_size=None,
+                            method='adain'
+                        )
+                except:
                     pass
-                print("[FlashVSR] Offloading DiT to the CPU to free up VRAM...")
-                self.dit.to('cpu')
+                
+                frames_total.append(cur_frames.to('cpu'))
+                LQ_pre_idx = LQ_cur_idx
+                
+                del cur_frames, cur_latents, cur_LQ_frame
                 clean_vram()
             
-            latents = torch.cat(latents_total, dim=2)
-            
-            del latents_total
-            clean_vram()
-                
-            if skip_vae:
-                return latents
-
-            # Decode
-            print("[FlashVSR] Starting VAE decoding...")
-            frames = self.TCDecoder.decode_video(latents.transpose(1, 2),parallel=False, show_progress_bar=False, cond=LQ_video[:,:,:LQ_cur_idx,:,:]).transpose(1, 2).mul_(2).sub_(1)
-
-            # 颜色校正（wavelet）
-            try:
-                if color_fix:
-                    frames = self.ColorCorrector(
-                        frames.to(device=LQ_video.device),
-                        LQ_video[:, :, :frames.shape[2], :, :],
-                        clip_range=(-1, 1),
-                        chunk_size=16,
-                        method='adain'
-                    )
-            except:
-                pass
-
+            frames = torch.cat(frames_total, dim=2)
         return frames[0]
 
 
