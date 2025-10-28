@@ -3047,7 +3047,7 @@
         }
       },
       "widgets_values": [
-        "此版本为SimpAI专属模型下载路径，独立版comfyui需要修改checkpoints->diffusion_models\n\n若第一次使用提示缺失模型时，请开启开关。 关闭开关跳过整组可以完全关闭模型下载功能。不含切换加载器所需模型。\n\n不想下载某些模型可以手动设置run_download为False，如有下载地址变动导致的下载失败请自行搜索补全\n\n模型下载节点：https://github.com/Windecay/ComfyUI-Model-Downloader"
+        "此版本为SimpAI专属模型下载路径，独立版comfyui需要修改checkpoints->diffusion_models\n\n若第一次使用提示缺失模型时，请开启开关。 关闭开关跳过整组可以完全关闭模型下载功能。不含切换加载器所需模型。\n\n不想下载某些模型可以手动设置run_download为False，如有下载地址变动导致的下载失败请自行搜索补全\n\n模型下载节点：https://github.com/Windecay/ComfyUI-Model-Downloader-plus"
       ],
       "color": "#432",
       "bgcolor": "#653"
