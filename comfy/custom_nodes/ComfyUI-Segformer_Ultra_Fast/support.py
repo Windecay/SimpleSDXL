@@ -48,8 +48,8 @@ def load_segmentation_model(model_name='mattmdjaga/segformer_b2_clothes', device
         os.makedirs(os.path.dirname(model_dir), exist_ok=True)
         shutil.move(old_model_dir, model_dir)
     if not os.path.exists(model_dir):
-        log(f"Downloading segmentation model '{model_name}' from huggingface...", message_type='info')
-        snapshot_download(repo_id=model_name, local_dir=model_dir, local_dir_use_symlinks=False, resume_download=True)
+        log(f"File Not Found: {model_dir}", message_type='info')
+        # snapshot_download(repo_id=model_name, local_dir=model_dir, local_dir_use_symlinks=False, resume_download=True)
         
     log(f"Loading segmentation model '{model_name}' to device '{device}'...", message_type='info')
     processor = SegformerImageProcessor.from_pretrained(model_dir)
