@@ -111,17 +111,31 @@ def attempt_download(url, file_path, overwrite=False):
         folder_group = get_folder_group(current_folder)
 
         file_exists_in_group = False
-        for folder in folder_group:
-            if folder in folder_paths.folder_names_and_paths:
-                folder_path = folder_paths.get_folder_paths(folder)[0]
-            else:
-                folder_path = os.path.join(folder_paths.models_dir, folder)
+        existing_path = None
 
-            potential_file_path = os.path.join(folder_path, file_name)
-            if os.path.exists(potential_file_path):
-                file_exists_in_group = True
-                existing_path = potential_file_path
-                break
+        if os.path.exists(file_path):
+            file_exists_in_group = True
+            existing_path = file_path
+        else:
+            for folder in folder_group:
+                try:
+                    if hasattr(folder_paths, 'folder_names_and_paths') and folder in folder_paths.folder_names_and_paths:
+                        folder_paths_list = folder_paths.get_folder_paths(folder)
+                        if folder_paths_list and len(folder_paths_list) > 0:
+                            folder_path = folder_paths_list[0]
+                        else:
+                            folder_path = os.path.join(folder_paths.models_dir, folder) if hasattr(folder_paths, 'models_dir') else os.path.dirname(file_path)
+                    else:
+                        folder_path = os.path.join(folder_paths.models_dir, folder) if hasattr(folder_paths, 'models_dir') else os.path.dirname(file_path)
+
+                    potential_file_path = os.path.join(folder_path, file_name)
+                    if os.path.exists(potential_file_path):
+                        file_exists_in_group = True
+                        existing_path = potential_file_path
+                        break
+                except Exception as e:
+                    print(f"检查文件夹 {folder} 时出错: {str(e)}")
+                    continue
 
         if file_exists_in_group:
             if not overwrite:
@@ -129,54 +143,82 @@ def attempt_download(url, file_path, overwrite=False):
             else:
                 print(f"文件已存在于 {existing_path}，将在下载完成后覆盖: {file_path}")
 
+        try:
+            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        except Exception as e:
+            return False, f"创建目录失败: {str(e)}"
+
         partial_file_path = file_path + ".partial"
 
-        os.makedirs(os.path.dirname(file_path), exist_ok=True)
-
-        print(f"开始下载: {url} 到 {file_path}")
-        start_time = time.time()
-
-        with requests.get(url, stream=True, allow_redirects=True) as response:
-            response.raise_for_status()
-
-            total_size = int(response.headers.get('content-length', 0))
-            downloaded_size = 0
-
-            filename = os.path.basename(file_path)
-            with tqdm(total=total_size, unit='B', unit_scale=True, unit_divisor=1024,
-                      desc=f"下载 {filename}", ascii=True) as pbar:
-
-                with open(partial_file_path, 'wb') as f:
-                    for chunk in response.iter_content(chunk_size=8192):
-                        if chunk:
-                            f.write(chunk)
-                            chunk_size = len(chunk)
-                            downloaded_size += chunk_size
-                            
-                            pbar.update(chunk_size)
-
-                            elapsed_time = time.time() - start_time
-                            if elapsed_time > 0:
-                                speed = downloaded_size / elapsed_time / 1024 / 1024  # MB/s
-                                pbar.set_postfix(speed=f"{speed:.2f} MB/s")
-
-        if os.path.exists(partial_file_path):
-            if os.path.exists(file_path):
-                os.remove(file_path)
-                print(f"已删除原有文件: {file_path}")
-
-            os.rename(partial_file_path, file_path)
-            print(f"下载完成: {file_path}")
-            return True, f"下载完成: {file_path}"
-
-        return False, "下载完成但文件不存在"
-
-    except Exception as e:
         if os.path.exists(partial_file_path):
             try:
                 os.remove(partial_file_path)
             except:
                 pass
+
+        print(f"开始下载: {url} 到 {file_path}")
+        start_time = time.time()
+
+        try:
+            with requests.get(url, stream=True, allow_redirects=True) as response:
+                response.raise_for_status()
+
+                total_size = int(response.headers.get('content-length', 0))
+                downloaded_size = 0
+
+                filename = os.path.basename(file_path)
+                with tqdm(total=total_size, unit='B', unit_scale=True, unit_divisor=1024,
+                          desc=f"下载 {filename}", ascii=True) as pbar:
+
+                    with open(partial_file_path, 'wb') as f:
+                        for chunk in response.iter_content(chunk_size=8192):
+                            if chunk:
+                                f.write(chunk)
+                                chunk_size = len(chunk)
+                                downloaded_size += chunk_size
+
+                                pbar.update(chunk_size)
+
+                                elapsed_time = time.time() - start_time
+                                if elapsed_time > 0:
+                                    speed = downloaded_size / elapsed_time / 1024 / 1024  # MB/s
+                                    pbar.set_postfix(speed=f"{speed:.2f} MB/s")
+        except Exception as e:
+            if os.path.exists(partial_file_path):
+                try:
+                    os.remove(partial_file_path)
+                except:
+                    pass
+            return False, f"下载过程出错: {str(e)}"
+
+        if os.path.exists(partial_file_path):
+            if os.path.exists(file_path):
+                if overwrite:
+                    try:
+                        os.remove(file_path)
+                        print(f"已删除原有文件: {file_path}")
+                    except Exception as e:
+                        os.remove(partial_file_path)
+                        return False, f"删除原有文件失败: {str(e)}"
+                else:
+                    os.remove(partial_file_path)
+                    return False, f"文件已存在且未设置覆盖标志: {file_path}"
+
+            try:
+                os.rename(partial_file_path, file_path)
+                print(f"下载完成: {file_path}")
+                return True, f"下载完成: {file_path}"
+            except Exception as e:
+                return False, f"重命名文件失败: {str(e)}"
+
+        return False, "下载完成但临时文件不存在"
+
+    except Exception as e:
+        try:
+            if 'partial_file_path' in locals() and os.path.exists(partial_file_path):
+                os.remove(partial_file_path)
+        except:
+            pass
         error_msg = f"下载失败: {url}. 错误: {str(e)}"
         print(error_msg)
         return False, error_msg
