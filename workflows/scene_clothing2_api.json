@@ -904,7 +904,7 @@
   "240": {
     "inputs": {
       "lora_name": "comfyui_subject_lora16.safetensors",
-      "strength_model": 1.0000000000000002,
+      "strength_model": 0,
       "model": [
         "245",
         0

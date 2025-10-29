@@ -230,14 +230,14 @@ class SimpleBatchDownloader:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "url1": ("STRING", {"default": "", "multiline": False}),
-                "url2": ("STRING", {"default": "", "multiline": False}),
-                "url3": ("STRING", {"default": "", "multiline": False}),
-                "url4": ("STRING", {"default": "", "multiline": False}),
-                "url5": ("STRING", {"default": "", "multiline": False}),
-                "model_folder": ("STRING", {"default": "checkpoints", "multiline": False}),
-                "run_download": ("BOOLEAN", {"default": True}),
-                "overwrite_existing": ("BOOLEAN", {"default": False}),
+                "url1": ("STRING", {"default": "", "multiline": False, "tooltip": "url1 for download"}),
+                "url2": ("STRING", {"default": "", "multiline": False, "tooltip": "url2 for download"}),
+                "url3": ("STRING", {"default": "", "multiline": False, "tooltip": "url3 for download"}),
+                "url4": ("STRING", {"default": "", "multiline": False, "tooltip": "url4 for download"}),
+                "url5": ("STRING", {"default": "", "multiline": False, "tooltip": "url5 for download"}),
+                "model_folder": ("STRING", {"default": "checkpoints", "multiline": False, "tooltip": "model folder for download"}),
+                "run_download": ("BOOLEAN", {"default": True, "tooltip": "run download"}),
+                "overwrite_existing": ("BOOLEAN", {"default": False, "tooltip": "overwrite existing"}),
             },
             "optional": {
                 "anything": (any_type, {})
@@ -295,10 +295,10 @@ class SimpleModelDownloader:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "model_url": ("STRING", {"default": "", "multiline": False}),
-                "model_folder": ("STRING", {"default": "checkpoints", "multiline": False}),
-                "run_download": ("BOOLEAN", {"default": True}),
-                "overwrite_existing": ("BOOLEAN", {"default": False}),
+                "model_url": ("STRING", {"default": "", "multiline": False, "tooltip": "model url for download"}),
+                "model_folder": ("STRING", {"default": "checkpoints", "multiline": False, "tooltip": "model folder for download"}),
+                "run_download": ("BOOLEAN", {"default": True, "tooltip": "run download"}),
+                "overwrite_existing": ("BOOLEAN", {"default": False, "tooltip": "overwrite existing"}),
             },
             "optional": {
                 "anything": (any_type, {})
