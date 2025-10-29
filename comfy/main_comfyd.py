@@ -364,7 +364,8 @@ if __name__ == "__main__":
     logging.info("│        内置节点与工作流均为专属适配版本        │")
     logging.info("│        随意增删节点导致的报错需自行处理        │")
     logging.info("└────────────────────────────────────────────────┘")
-
+    logging.info("请确保已安装git，否则会导致管理器和采样预览失效：https://git-scm.com/install/windows")
+    logging.info("")
     if sys.version_info.major == 3 and sys.version_info.minor < 10:
         logging.warning("WARNING: You are using a python version older than 3.10, please upgrade to a newer one. 3.12 and above is recommended.")
 
