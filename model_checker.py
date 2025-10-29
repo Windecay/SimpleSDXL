@@ -308,7 +308,7 @@ def print_instructions():
     time.sleep(0.1)
     print(f"{Fore.GREEN}★{Style.RESET_ALL}打开默认浏览器设置，关闭GPU加速、或图形加速的选项。{Fore.GREEN}★{Style.RESET_ALL}大内存(64+)与固态硬盘存放模型有助于减少模型加载时间。{Fore.GREEN}★{Style.RESET_ALL}")
     time.sleep(0.1)
-    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：938075852{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:25.10.08{Fore.GREEN}★{Style.RESET_ALL}")
+    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：938075852{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:25.10.29{Fore.GREEN}★{Style.RESET_ALL}")
     print()
     time.sleep(0.1)
     
@@ -1877,8 +1877,8 @@ packages = {
             ("checkpoints/Wan2.2-I2V-A14B-LowNoise-Q4_K_M.gguf", 9651728896),
             ("clip/umt5-xxl-encoder-Q8_0.gguf", 6043068256),
             ("vae/Wan2_1_VAE_bf16.safetensors", 253806278),
-            ("loras/lightx2v_I2V_14B_480p_cfg_step_distill_rank64_bf16.safetensors", 738005744),
-            ("loras/Wan2.2-Lightning_I2V-A14B-4steps-lora_LOW_fp16.safetensors", 613561776),
+            ("loras/https://www.modelscope.cn/models/lightx2v/Wan2.2-Distill-Loras/resolve/master/wan2.2_i2v_A14b_high_noise_lora_rank64_lightx2v_4step_1022.safetensors", 634645944),
+            ("loras/https://www.modelscope.cn/models/lightx2v/Wan2.2-Distill-Loras/resolve/master/wan2.2_i2v_A14b_low_noise_lora_rank64_lightx2v_4step_1022.safetensors", 739472104),
             ("controlnet/rife/https://www.modelscope.cn/models/windecay/rife/resolve/master/flownet.pkl", 24636301)
         ],
         "download_links": [
