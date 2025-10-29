@@ -30,7 +30,9 @@ def get_folder_group(folder_name):
         'diffusion_models': ['checkpoints', 'diffusion_models', 'unet'],
         'unet': ['checkpoints', 'diffusion_models', 'unet'],
         'clip': ['clip', 'text_encoders'],
-        'text_encoders': ['clip', 'text_encoders']
+        'text_encoders': ['clip', 'text_encoders'],
+        'sams': ['sams', 'inpaint'],
+        'inpaint': ['sams', 'inpaint'],
     }
     return folder_groups.get(folder_name, [folder_name])
 def is_trusted_url(url):

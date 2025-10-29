@@ -1,7 +1,7 @@
 {
   "id": "fec718a8-39ba-4932-8c50-6a87fd247684",
   "revision": 0,
-  "last_node_id": 253,
+  "last_node_id": 254,
   "last_link_id": 487,
   "nodes": [
     {
@@ -18,7 +18,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 62,
+      "order": 63,
       "mode": 0,
       "inputs": [
         {
@@ -79,7 +79,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 63,
+      "order": 64,
       "mode": 0,
       "inputs": [
         {
@@ -187,7 +187,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 65,
+      "order": 66,
       "mode": 0,
       "inputs": [
         {
@@ -338,7 +338,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 68,
+      "order": 69,
       "mode": 0,
       "inputs": [
         {
@@ -482,7 +482,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 85,
+      "order": 86,
       "mode": 0,
       "inputs": [
         {
@@ -533,7 +533,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 60,
+      "order": 61,
       "mode": 0,
       "inputs": [
         {
@@ -671,7 +671,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 64,
+      "order": 65,
       "mode": 0,
       "inputs": [
         {
@@ -769,7 +769,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 80,
+      "order": 81,
       "mode": 0,
       "inputs": [
         {
@@ -828,7 +828,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 8,
+      "order": 45,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -841,7 +841,7 @@
         }
       },
       "widgets_values": [
-        "此版本为SimpAI专属模型下载路径\n\n若第一次使用提示缺失模型时，请开启开关。 关闭开关跳过整组可以完全关闭模型下载功能\n\n不想下载某些模型可以手动设置run_download为False\n\n模型下载节点:https://github.com/Windecay/ComfyUI-Model-Downloader-plus"
+        "此版本为SimpAI专属模型下载路径,独立版comfyui需要修改checkpoints->diffusion_models\n\n若第一次使用提示缺失模型时，请开启开关。 关闭开关跳过整组可以完全关闭模型下载功能\n\n不想下载某些模型可以手动设置run_download为False\n\n模型下载节点:https://github.com/Windecay/ComfyUI-Model-Downloader-plus"
       ],
       "color": "#432",
       "bgcolor": "#653"
@@ -860,7 +860,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 9,
+      "order": 8,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -910,7 +910,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 66,
+      "order": 67,
       "mode": 0,
       "inputs": [
         {
@@ -983,7 +983,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 99,
+      "order": 100,
       "mode": 0,
       "inputs": [
         {
@@ -1033,7 +1033,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 101,
+      "order": 102,
       "mode": 0,
       "inputs": [
         {
@@ -1083,7 +1083,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 10,
+      "order": 9,
       "mode": 4,
       "inputs": [],
       "outputs": [
@@ -1129,7 +1129,7 @@
         "allow_interaction": false,
         "pinned": true
       },
-      "order": 11,
+      "order": 10,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -1165,7 +1165,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 97,
+      "order": 98,
       "mode": 0,
       "inputs": [
         {
@@ -1307,7 +1307,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 92,
+      "order": 93,
       "mode": 0,
       "inputs": [
         {
@@ -1439,7 +1439,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 46,
+      "order": 47,
       "mode": 0,
       "inputs": [
         {
@@ -1502,13 +1502,13 @@
       ],
       "size": [
         240.05859375,
-        20
+        26
       ],
       "flags": {
         "allow_interaction": false,
         "pinned": true
       },
-      "order": 12,
+      "order": 11,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -1539,13 +1539,13 @@
       ],
       "size": [
         521.240234375,
-        20
+        26
       ],
       "flags": {
         "allow_interaction": false,
         "pinned": true
       },
-      "order": 13,
+      "order": 12,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -1582,7 +1582,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 48,
+      "order": 49,
       "mode": 0,
       "inputs": [
         {
@@ -1627,7 +1627,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 52,
+      "order": 53,
       "mode": 4,
       "inputs": [
         {
@@ -1668,7 +1668,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 71,
+      "order": 72,
       "mode": 4,
       "inputs": [
         {
@@ -1709,7 +1709,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 70,
+      "order": 71,
       "mode": 4,
       "inputs": [
         {
@@ -1768,7 +1768,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 87,
+      "order": 88,
       "mode": 4,
       "inputs": [
         {
@@ -1809,7 +1809,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 94,
+      "order": 95,
       "mode": 4,
       "inputs": [
         {
@@ -1850,7 +1850,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 14,
+      "order": 13,
       "mode": 4,
       "inputs": [
         {
@@ -1905,7 +1905,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 51,
+      "order": 52,
       "mode": 4,
       "inputs": [
         {
@@ -1960,7 +1960,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 86,
+      "order": 87,
       "mode": 4,
       "inputs": [
         {
@@ -2010,13 +2010,13 @@
       ],
       "size": [
         660,
-        20
+        26
       ],
       "flags": {
         "allow_interaction": false,
         "pinned": true
       },
-      "order": 15,
+      "order": 14,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -2052,7 +2052,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 16,
+      "order": 15,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -2094,7 +2094,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 17,
+      "order": 16,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -2136,7 +2136,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 18,
+      "order": 17,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -2167,7 +2167,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 49,
+      "order": 50,
       "mode": 0,
       "inputs": [
         {
@@ -2195,7 +2195,6 @@
           "link": null
         },
         {
-          "dir": 3,
           "name": "any_05",
           "type": "MODEL",
           "link": null
@@ -2239,7 +2238,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 19,
+      "order": 18,
       "mode": 4,
       "inputs": [],
       "outputs": [
@@ -2286,7 +2285,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 55,
+      "order": 56,
       "mode": 0,
       "inputs": [
         {
@@ -2314,7 +2313,6 @@
           "link": null
         },
         {
-          "dir": 3,
           "name": "any_05",
           "type": "CLIP",
           "link": null
@@ -2358,7 +2356,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 20,
+      "order": 19,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -2390,7 +2388,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 45,
+      "order": 46,
       "mode": 0,
       "inputs": [
         {
@@ -2441,7 +2439,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 21,
+      "order": 20,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -2481,7 +2479,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 76,
+      "order": 77,
       "mode": 0,
       "inputs": [
         {
@@ -2560,7 +2558,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 59,
+      "order": 60,
       "mode": 0,
       "inputs": [
         {
@@ -2617,7 +2615,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 89,
+      "order": 90,
       "mode": 0,
       "inputs": [
         {
@@ -2720,7 +2718,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 95,
+      "order": 96,
       "mode": 0,
       "inputs": [
         {
@@ -2773,7 +2771,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 91,
+      "order": 92,
       "mode": 0,
       "inputs": [
         {
@@ -2820,7 +2818,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 83,
+      "order": 84,
       "mode": 0,
       "inputs": [
         {
@@ -2868,7 +2866,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 96,
+      "order": 97,
       "mode": 0,
       "inputs": [
         {
@@ -2942,7 +2940,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 58,
+      "order": 59,
       "mode": 0,
       "inputs": [
         {
@@ -3003,7 +3001,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 22,
+      "order": 21,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -3054,7 +3052,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 57,
+      "order": 58,
       "mode": 0,
       "inputs": [
         {
@@ -3113,7 +3111,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 74,
+      "order": 75,
       "mode": 0,
       "inputs": [
         {
@@ -3159,7 +3157,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 23,
+      "order": 22,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -3200,7 +3198,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 75,
+      "order": 76,
       "mode": 0,
       "inputs": [
         {
@@ -3246,7 +3244,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 24,
+      "order": 23,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -3287,7 +3285,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 61,
+      "order": 62,
       "mode": 0,
       "inputs": [
         {
@@ -3359,7 +3357,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 100,
+      "order": 101,
       "mode": 0,
       "inputs": [
         {
@@ -3405,7 +3403,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 25,
+      "order": 24,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -3445,7 +3443,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 69,
+      "order": 70,
       "mode": 0,
       "inputs": [
         {
@@ -3495,7 +3493,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 50,
+      "order": 51,
       "mode": 0,
       "inputs": [
         {
@@ -3552,7 +3550,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 88,
+      "order": 89,
       "mode": 0,
       "inputs": [
         {
@@ -3598,7 +3596,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 26,
+      "order": 25,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -3639,7 +3637,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 77,
+      "order": 78,
       "mode": 0,
       "inputs": [
         {
@@ -3685,7 +3683,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 78,
+      "order": 79,
       "mode": 0,
       "inputs": [
         {
@@ -3731,7 +3729,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 27,
+      "order": 26,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -3772,7 +3770,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 28,
+      "order": 27,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -3813,7 +3811,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 29,
+      "order": 28,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -3852,7 +3850,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 102,
+      "order": 103,
       "mode": 0,
       "inputs": [
         {
@@ -3898,7 +3896,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 79,
+      "order": 80,
       "mode": 0,
       "inputs": [
         {
@@ -3944,7 +3942,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 81,
+      "order": 82,
       "mode": 0,
       "inputs": [
         {
@@ -3990,7 +3988,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 30,
+      "order": 29,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4031,7 +4029,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 31,
+      "order": 30,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4072,7 +4070,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 32,
+      "order": 31,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4113,7 +4111,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 67,
+      "order": 68,
       "mode": 0,
       "inputs": [
         {
@@ -4159,7 +4157,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 53,
+      "order": 54,
       "mode": 0,
       "inputs": [
         {
@@ -4205,7 +4203,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 54,
+      "order": 55,
       "mode": 0,
       "inputs": [
         {
@@ -4251,7 +4249,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 33,
+      "order": 32,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4292,7 +4290,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 34,
+      "order": 33,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4332,7 +4330,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 73,
+      "order": 74,
       "mode": 0,
       "inputs": [
         {
@@ -4382,7 +4380,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 56,
+      "order": 57,
       "mode": 0,
       "inputs": [
         {
@@ -4439,7 +4437,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 72,
+      "order": 73,
       "mode": 0,
       "inputs": [
         {
@@ -4492,7 +4490,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 103,
+      "order": 104,
       "mode": 0,
       "inputs": [
         {
@@ -4538,7 +4536,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 35,
+      "order": 34,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4579,7 +4577,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 90,
+      "order": 91,
       "mode": 0,
       "inputs": [
         {
@@ -4625,7 +4623,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 36,
+      "order": 35,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4666,7 +4664,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 37,
+      "order": 36,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4705,7 +4703,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 84,
+      "order": 85,
       "mode": 0,
       "inputs": [
         {
@@ -4751,7 +4749,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 38,
+      "order": 37,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4792,7 +4790,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 47,
+      "order": 48,
       "mode": 0,
       "inputs": [
         {
@@ -4838,7 +4836,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 39,
+      "order": 38,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4879,7 +4877,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 82,
+      "order": 83,
       "mode": 0,
       "inputs": [
         {
@@ -4925,7 +4923,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 40,
+      "order": 39,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4965,7 +4963,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 41,
+      "order": 40,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -4997,7 +4995,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 93,
+      "order": 94,
       "mode": 4,
       "inputs": [
         {
@@ -5050,7 +5048,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 98,
+      "order": 99,
       "mode": 4,
       "inputs": [
         {
@@ -5092,7 +5090,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 42,
+      "order": 41,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -5132,7 +5130,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 43,
+      "order": 42,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -5171,7 +5169,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 44,
+      "order": 43,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -5198,6 +5196,43 @@
       },
       "color": "#2a363b",
       "bgcolor": "#3f5159"
+    },
+    {
+      "id": 254,
+      "type": "Label (rgthree)",
+      "pos": [
+        -890,
+        -760
+      ],
+      "size": [
+        250,
+        25
+      ],
+      "flags": {
+        "allow_interaction": false,
+        "pinned": true
+      },
+      "order": 44,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "↓↓↓首次运行先看这↓↓↓",
+      "properties": {
+        "fontSize": 25,
+        "fontFamily": "Arial",
+        "fontColor": "#ffffff",
+        "textAlign": "left",
+        "backgroundColor": "transparent",
+        "padding": 0,
+        "borderRadius": 0,
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "color": "#fff0",
+      "bgcolor": "#fff0"
     }
   ],
   "links": [
@@ -5982,10 +6017,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.8390545288824183,
+      "scale": 2.176291357901533,
       "offset": [
-        1949.4642450203169,
-        1107.7458578024248
+        1545.9664088537068,
+        838.821357282982
       ]
     },
     "frontendVersion": "1.26.13",
