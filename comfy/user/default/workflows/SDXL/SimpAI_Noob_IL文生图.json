@@ -7236,8 +7236,8 @@
         }
       },
       "widgets_values": [
-        221159485522716,
-        "fixed",
+        0,
+        "randomize",
         null
       ]
     },
@@ -10825,7 +10825,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 130,
+      "order": 93,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -10939,7 +10939,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 93,
+      "order": 94,
       "mode": 4,
       "inputs": [
         {
@@ -11241,7 +11241,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 94,
+      "order": 95,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -11363,9 +11363,7 @@
           "version": "7.3"
         }
       },
-      "widgets_values": [
-        "下载完成: E:\\SimpleAI\\SimpleModels\\upscale_models\\4x-AnimeSharp.safetensors"
-      ]
+      "widgets_values": []
     },
     {
       "id": 1905,
@@ -11577,7 +11575,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 95,
+      "order": 96,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -11712,7 +11710,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 96,
+      "order": 97,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -11848,7 +11846,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 97,
+      "order": 98,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -11937,7 +11935,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 98,
+      "order": 99,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -12022,7 +12020,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 99,
+      "order": 100,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -12111,7 +12109,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 100,
+      "order": 101,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -12198,7 +12196,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 101,
+      "order": 102,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -12239,7 +12237,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 102,
+      "order": 103,
       "mode": 4,
       "inputs": [],
       "outputs": [
@@ -12557,7 +12555,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 103,
+      "order": 104,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -12704,7 +12702,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 104,
+      "order": 105,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -12790,7 +12788,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 105,
+      "order": 106,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -12831,7 +12829,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 106,
+      "order": 107,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -12873,7 +12871,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 107,
+      "order": 108,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -13138,7 +13136,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 108,
+      "order": 109,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -13252,7 +13250,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 109,
+      "order": 110,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -13293,7 +13291,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 110,
+      "order": 111,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -13334,7 +13332,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 111,
+      "order": 112,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -13421,7 +13419,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 112,
+      "order": 113,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -13460,7 +13458,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 113,
+      "order": 114,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -13502,7 +13500,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 114,
+      "order": 115,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -13668,7 +13666,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 115,
+      "order": 116,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -13709,7 +13707,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 116,
+      "order": 117,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -13860,7 +13858,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 117,
+      "order": 118,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -13901,7 +13899,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 118,
+      "order": 119,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -13943,7 +13941,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 119,
+      "order": 120,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -13976,7 +13974,7 @@
         "allow_interaction": false,
         "pinned": true
       },
-      "order": 120,
+      "order": 121,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -14155,7 +14153,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 121,
+      "order": 122,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -14197,7 +14195,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 122,
+      "order": 123,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -14239,7 +14237,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 123,
+      "order": 124,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -14405,7 +14403,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 124,
+      "order": 125,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -14655,7 +14653,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 125,
+      "order": 126,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -14696,7 +14694,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 126,
+      "order": 127,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -14911,7 +14909,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 127,
+      "order": 128,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -14950,7 +14948,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 128,
+      "order": 129,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -14992,7 +14990,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 129,
+      "order": 130,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -18018,10 +18016,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.1610510000000022,
+      "scale": 1.3109994191500136,
       "offset": [
-        13995.119463584937,
-        2548.591781235589
+        5767.862543030496,
+        -253.15237562182276
       ]
     },
     "frontendVersion": "1.26.13",
