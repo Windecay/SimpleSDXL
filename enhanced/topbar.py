@@ -1007,7 +1007,7 @@ def get_all_admin_default(currunt_value):
 from transformers import CLIPTokenizer
 import shutil
 
-cur_clip_path = os.path.join(config.path_clip_vision, "clip-vit-large-patch14")
+cur_clip_path = os.path.join(config.paths_clip_vision[0], "clip-vit-large-patch14")
 if not os.path.exists(cur_clip_path):
     org_clip_path = os.path.join(shared.root, 'models/clip_vision/clip-vit-large-patch14')
     shutil.copytree(org_clip_path, cur_clip_path)

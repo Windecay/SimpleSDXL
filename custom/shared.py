@@ -5,12 +5,12 @@ import modules.config as config
 
 paths_checkpoints = config.paths_checkpoints
 paths_loras = config.paths_loras
-path_embeddings = config.path_embeddings
-path_vae_approx = config.path_vae_approx
-path_upscale_models = config.path_upscale_models
+path_embeddings = config.paths_embeddings
+path_vae_approx = config.paths_vae_approx
+path_upscale_models = config.paths_upscale_models
 paths_inpaint = config.paths_inpaint
 paths_controlnet = config.paths_controlnet
-path_clip_vision = config.path_clip_vision
+path_clip_vision = config.paths_clip_vision
 path_fooocus_expansion = config.path_fooocus_expansion
 paths_llms = config.paths_llms
 path_outputs = config.path_outputs

@@ -69,7 +69,7 @@ def refresh_base_model(name, vae_name=None):
 
     vae_filename = None
     if vae_name is not None and vae_name != modules.flags.default_vae:
-        vae_filename = get_file_from_folder_list(vae_name, modules.config.path_vae)
+        vae_filename = get_file_from_folder_list(vae_name, modules.config.paths_vae)
 
     if model_base.filename == filename and model_base.vae_filename == vae_filename:
         return

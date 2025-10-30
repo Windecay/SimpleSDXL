@@ -224,60 +224,60 @@ path_userhome = get_path_userhome()
 path_models_root = get_path_models_root()
 paths_checkpoints = get_dir_or_set_default('path_checkpoints', [f'{path_models_root}/checkpoints/', 'models/checkpoints/'], True)
 paths_loras = get_dir_or_set_default('path_loras', [f'{path_models_root}/loras/', 'models/loras/'], True)
-path_embeddings = get_dir_or_set_default('path_embeddings', f'{path_models_root}/embeddings/')
-path_vae_approx = get_dir_or_set_default('path_vae_approx', f'{path_models_root}/vae_approx/')
-path_vae = get_dir_or_set_default('path_vae', f'{path_models_root}/vae/')
-path_upscale_models = get_dir_or_set_default('path_upscale_models', f'{path_models_root}/upscale_models/')
+paths_embeddings = get_dir_or_set_default('path_embeddings', [f'{path_models_root}/embeddings/'], True)
+paths_vae_approx = get_dir_or_set_default('path_vae_approx', [f'{path_models_root}/vae_approx/'], True)
+paths_vae = get_dir_or_set_default('path_vae', [f'{path_models_root}/vae/'], True)
+paths_upscale_models = get_dir_or_set_default('path_upscale_models', [f'{path_models_root}/upscale_models/'], True)
 paths_inpaint = get_dir_or_set_default('path_inpaint', [f'{path_models_root}/inpaint/', 'models/inpaint/'], True)
 paths_controlnet = get_dir_or_set_default('path_controlnet', [f'{path_models_root}/controlnet/', 'models/controlnet/'], True)
-path_clip = get_dir_or_set_default('path_clip', f'{path_models_root}/clip/')
-path_clip_vision = get_dir_or_set_default('path_clip_vision', f'{path_models_root}/clip_vision/')
-path_fooocus_expansion = get_dir_or_set_default('path_fooocus_expansion', f'{path_models_root}/prompt_expansion/fooocus_expansion')
+paths_clip = get_dir_or_set_default('path_clip', [f'{path_models_root}/clip/'], True)
+paths_clip_vision = get_dir_or_set_default('path_clip_vision', [f'{path_models_root}/clip_vision/'], True)
+path_fooocus_expansion = get_dir_or_set_default('path_fooocus_expansion', [f'{path_models_root}/prompt_expansion/fooocus_expansion/'])
 paths_llms = get_dir_or_set_default('path_llms', [f'{path_models_root}/llms/'], True)
-path_wildcards = get_dir_or_set_default('path_wildcards', 'wildcards/')
-path_safety_checker = get_dir_or_set_default('path_safety_checker', f'{path_models_root}/safety_checker/')
+paths_wildcards = get_dir_or_set_default('path_wildcards', [f'{path_models_root}/wildcards/'], True)
+paths_safety_checker = get_dir_or_set_default('path_safety_checker', [f'{path_models_root}/safety_checker/'], True)
 path_sam = paths_inpaint[0]
-path_unet = get_dir_or_set_default('path_unet', f'{path_models_root}/unet')
-path_rembg = get_dir_or_set_default('path_rembg', f'{path_models_root}/rembg')
-path_layer_model = get_dir_or_set_default('path_layer_model', f'{path_models_root}/layer_model')
+paths_unet = get_dir_or_set_default('path_unet', f'{path_models_root}/unet', True)
+paths_rembg = get_dir_or_set_default('path_rembg', f'{path_models_root}/rembg', True)
+paths_layer_model = get_dir_or_set_default('path_layer_model', f'{path_models_root}/layer_model', True)
 paths_diffusers = get_dir_or_set_default('path_diffusers', [f'{path_models_root}/diffusers/'], True)
-path_ipadapter = get_dir_or_set_default('path_ipadapter', f'{path_models_root}/ipadapter')
-path_pulid = get_dir_or_set_default('path_pulid', f'{path_models_root}/pulid')
-path_insightface = get_dir_or_set_default('path_insightface', f'{path_models_root}/insightface')
-path_style_models = get_dir_or_set_default('path_style_models', f'{path_models_root}/style_models')
-path_audio_encoders = get_dir_or_set_default('path_audio_encoders', f'{path_models_root}/audio_encoders')
-path_model_patches = get_dir_or_set_default('path_model_patches', f'{path_models_root}/model_patches')
-path_detection = get_dir_or_set_default('path_detection', f'{path_models_root}/detection')
-path_diffusion_models = get_dir_or_set_default('path_diffusion_models', f'{path_models_root}/diffusion_models')
-path_text_encoders = get_dir_or_set_default('path_text_encoders', f'{path_models_root}/text_encoders')
+paths_ipadapter = get_dir_or_set_default('path_ipadapter', f'{path_models_root}/ipadapter', True)
+paths_pulid = get_dir_or_set_default('path_pulid', f'{path_models_root}/pulid', True)
+paths_insightface = get_dir_or_set_default('path_insightface', f'{path_models_root}/insightface', True)
+paths_style_models = get_dir_or_set_default('path_style_models', f'{path_models_root}/style_models', True)
+paths_audio_encoders = get_dir_or_set_default('path_audio_encoders', f'{path_models_root}/audio_encoders', True)
+paths_model_patches = get_dir_or_set_default('path_model_patches', f'{path_models_root}/model_patches', True)
+paths_detection = get_dir_or_set_default('path_detection', f'{path_models_root}/detection', True)
+paths_diffusion_models = get_dir_or_set_default('path_diffusion_models', f'{path_models_root}/diffusion_models', True)
+paths_text_encoders = get_dir_or_set_default('path_text_encoders', f'{path_models_root}/text_encoders', True)
 
 
 
 model_cata_map = {
     'checkpoints': paths_checkpoints,
     'loras': paths_loras,
-    'embeddings': [path_embeddings],
+    'embeddings': paths_embeddings,
     'diffusers': paths_diffusers,
     'DIFFUSERS': paths_diffusers,
-    'vae': [path_vae],
-    'upscale_models': [path_upscale_models],
+    'vae': paths_vae,
+    'upscale_models': paths_upscale_models,
     'inpaint': paths_inpaint,
     'controlnet': paths_controlnet,
-    'clip': [path_clip],
-    'clip_vision': [path_clip_vision],
+    'clip': paths_clip,
+    'clip_vision': paths_clip_vision,
     'llms': paths_llms,
-    'unet': [path_unet],
-    'rembg': [path_rembg],
-    'layer_model': [path_layer_model],
-    'pulid': [path_pulid],
-    'ipadapter': [path_ipadapter],
-    'insightface': [path_insightface],
-    'style_models': [path_style_models],
-    'audio_encoders': [path_audio_encoders],
-    'model_patches': [path_model_patches],
-    'detection': [path_detection],
-    'diffusion_models': [path_diffusion_models],
-    'text_encoders': [path_text_encoders],
+    'unet': paths_unet,
+    'rembg': paths_rembg,
+    'layer_model': paths_layer_model,
+    'pulid': paths_pulid,
+    'ipadapter': paths_ipadapter,
+    'insightface': paths_insightface,
+    'style_models': paths_style_models,
+    'audio_encoders': paths_audio_encoders,
+    'model_patches': paths_model_patches,
+    'detection': paths_detection,
+    'diffusion_models': paths_diffusion_models,
+    'text_encoders': paths_text_encoders,
     }
 
 from enhanced.simpleai import init_modelsinfo, get_path_in_user_dir
@@ -1034,28 +1034,28 @@ paths2str = lambda p,n: p[0] if len(p)<=1 else '|\n'+''.join([' ']*(5+len(n)))+'
 
 config_comfy_text = config_comfy_formatted_text.format(
         models_root=path_models_root, 
-        checkpoints=paths2str([path_diffusion_models]+paths_checkpoints,'checkpoints'),
-        clip_vision=paths2str([path_clip_vision,path_ipadapter],'clip_vision'), 
-        clip=paths2str([path_text_encoders, path_clip], 'clip'),
+        checkpoints=paths2str(paths_diffusion_models + paths_checkpoints,'checkpoints'),
+        clip_vision=paths2str(paths_clip_vision + paths_ipadapter, 'clip_vision'),
+        clip=paths2str(paths_text_encoders + paths_clip, 'clip'),
         controlnets=paths2str(paths_controlnet,'controlnet'), 
         diffusers=paths2str(paths_diffusers,'diffusers'), 
-        embeddings=path_embeddings, 
+        embeddings=paths2str(paths_embeddings, 'embeddings'),
         loras=paths2str(paths_loras, 'loras'), 
-        upscale_models=path_upscale_models, 
-        unet=paths2str([path_unet]+[path_diffusion_models]+paths_checkpoints, 'unet'),
-        rembg=path_rembg, 
-        layer_model=path_layer_model, 
-        vae=path_vae, 
-        ipadapter=paths2str([path_ipadapter]+paths_controlnet, 'ipadapter'), 
+        upscale_models=paths2str(paths_upscale_models, 'upscale_models'),
+        unet=paths2str(paths_unet + paths_diffusion_models + paths_checkpoints, 'unet'),
+        rembg=paths2str(paths_rembg, 'rembg'),
+        layer_model=paths2str(paths_layer_model, 'layer_model'),
+        vae=paths2str(paths_vae, 'vae'),
+        ipadapter=paths2str(paths_ipadapter + paths_controlnet, 'ipadapter'),
         inpaint=paths2str(paths_inpaint,'inpaint'), 
-        pulid=path_pulid, 
-        insightface=path_insightface,
-        style_models=path_style_models,
-        audio_encoders=path_audio_encoders,
-        model_patches=path_model_patches,
-        detection=path_detection,
-        text_encoders=paths2str([path_text_encoders, path_clip], 'text_encoders'),
-        diffusion_models=paths2str([path_diffusion_models]+paths_checkpoints, 'diffusion_models')
+        pulid=paths2str(paths_pulid, 'pulid'),
+        insightface=paths2str(paths_insightface, 'insightface'),
+        style_models=paths2str(paths_style_models, 'style_models'),
+        audio_encoders=paths2str(paths_audio_encoders, 'audio_encoders'),
+        model_patches=paths2str(paths_model_patches, 'model_patches'),
+        detection=paths2str(paths_detection, 'detection'),
+        text_encoders=paths2str(paths_text_encoders + paths_clip, 'text_encoders'),
+        diffusion_models=paths2str(paths_diffusion_models + paths_checkpoints, 'diffusion_models')
         )
 
 with open(config_comfy_path, "w", encoding="utf-8") as comfy_file:
@@ -1100,7 +1100,10 @@ def update_files(engine='Fooocus', task_method=None):
     model_filenames = get_base_model_list(engine, task_method)
     lora_filenames = modelsinfo.get_model_names('loras')
     vae_filenames = modelsinfo.get_model_names('vae')
-    wildcard_filenames = get_files_from_folder(path_wildcards, ['.txt'])
+    wildcard_filenames = []
+    for path in paths_wildcards:
+        files = get_files_from_folder(path, ['.txt'])
+        wildcard_filenames.extend(files)
     return model_filenames, lora_filenames, vae_filenames
 
 
@@ -1272,10 +1275,10 @@ def downloading_ip_adapters(v):
 
     load_file_from_url(
         url='https://huggingface.co/lllyasviel/misc/resolve/main/clip_vision_vit_h.safetensors',
-        model_dir=path_clip_vision,
+        model_dir=paths_clip_vision[0],
         file_name='clip_vision_vit_h.safetensors'
     )
-    results += [os.path.join(path_clip_vision, 'clip_vision_vit_h.safetensors')]
+    results += [os.path.join(paths_clip_vision[0], 'clip_vision_vit_h.safetensors')]
 
     load_file_from_url(
         url='https://huggingface.co/lllyasviel/misc/resolve/main/fooocus_ip_negative.safetensors',
@@ -1306,18 +1309,18 @@ def downloading_ip_adapters(v):
 def downloading_upscale_model():
     load_file_from_url(
         url='https://huggingface.co/lllyasviel/misc/resolve/main/fooocus_upscaler_s409985e5.bin',
-        model_dir=path_upscale_models,
+        model_dir=paths_upscale_models[0],
         file_name='fooocus_upscaler_s409985e5.bin'
     )
-    return os.path.join(path_upscale_models, 'fooocus_upscaler_s409985e5.bin')
+    return os.path.join(paths_upscale_models[0], 'fooocus_upscaler_s409985e5.bin')
 
 def downloading_safety_checker_model():
     load_file_from_url(
         url='https://huggingface.co/mashb1t/misc/resolve/main/stable-diffusion-safety-checker.bin',
-        model_dir=path_safety_checker,
+        model_dir=paths_safety_checker[0],
         file_name='stable-diffusion-safety-checker.bin'
     )
-    return os.path.join(path_safety_checker, 'stable-diffusion-safety-checker.bin')
+    return os.path.join(paths_safety_checker[0], 'stable-diffusion-safety-checker.bin')
 
 def download_sam_model(sam_model: str) -> str:
     match sam_model:
