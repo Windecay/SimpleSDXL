@@ -161,7 +161,8 @@ def cleanup():
         print("已删除 '缺失模型下载链接.txt' 文件。")
 atexit.register(cleanup)
 
-init(autoreset=True)
+init(autoreset=True, strip=False, convert=False)
+
 class DownloadStatus:
     def __init__(self, filename, total_size):
         self.filename = filename
@@ -172,7 +173,13 @@ class DownloadStatus:
             unit_scale=True,
             desc=filename,
             position=0,
-            leave=True
+            leave=True,          # 完成后保留进度条（显示100%）
+            dynamic_ncols=True,  # 动态列宽
+            file=sys.stdout,     # 输出到 stdout
+            miniters=1,          # 每次迭代都更新
+            mininterval=0.05,    # 缩短更新间隔到 0.05 秒
+            disable=False,       # 明确不禁用
+            ncols=100            # 固定列宽
         )
 
 def print_colored(text, color=Fore.WHITE):
@@ -565,31 +572,69 @@ def validate_files(packages):
             import select
 
             user_cancel = False
+            stdin_input_received = [False]  # 使用列表以便在线程中修改
+
+            def stdin_listener():
+                """监听 stdin 输入的线程函数（用于从启动器GUI接收输入）"""
+                try:
+                    # 尝试从 stdin 读取一行
+                    line = sys.stdin.readline()
+                    if line:
+                        stdin_input_received[0] = True
+                except:
+                    pass
+
+            # 启动 stdin 监听线程（适用于从启动器GUI接收输入）
+            listener_thread = threading.Thread(target=stdin_listener, daemon=True)
+            listener_thread.start()
+
             try:
                 if platform.system() == 'Windows':
-                    import msvcrt
+                    import ctypes
+                    user32 = ctypes.windll.user32
+
                     start_time = time.time()
+                    last_remaining = -1
+
                     while time.time() - start_time < countdown_seconds:
                         remaining = int(countdown_seconds - (time.time() - start_time))
-                        print(f"\r倒计时: {remaining}秒...", end="", flush=True)
-                        time.sleep(1)
-                        if msvcrt.kbhit():
-                            msvcrt.getch()
-                            user_cancel = True
-                            print(f"\n{Fore.GREEN}√已取消自动下载{Style.RESET_ALL}")
+                        if remaining != last_remaining:
+                            print(f"倒计时: {remaining}秒...", flush=True)
+                            print(f"{Fore.YELLOW}按任意键停止{Style.RESET_ALL}", flush=True)
+                            last_remaining = remaining
+
+                        for key_code in range(8, 256):
+                            if user32.GetAsyncKeyState(key_code) & 0x8000:
+                                user_cancel = True
+                                print(f"{Fore.GREEN}√已取消自动下载{Style.RESET_ALL}", flush=True)
+                                break
+                        if user_cancel:
                             break
                 else:
                     for i in range(countdown_seconds, 0, -1):
-                        print(f"\r倒计时: {i}秒...", end="", flush=True)
+                        print(f"倒计时: {i}秒...", flush=True)
                         if select.select([sys.stdin], [], [], 1)[0]:
                             sys.stdin.readline()
                             user_cancel = True
-                            print(f"\n{Fore.GREEN}√已取消自动下载{Style.RESET_ALL}")
+                            print(f"{Fore.GREEN}√已取消自动下载{Style.RESET_ALL}")
                             break
             except Exception as e:
                 print(f"{Fore.RED}×倒计时功能出错: {e}{Style.RESET_ALL}")
-
             if not user_cancel:
+                if platform.system() == 'Windows':
+                    try:
+                        import msvcrt
+                        while msvcrt.kbhit():
+                            msvcrt.getch()
+                    except:
+                        pass
+                else:
+                    try:
+                        import sys, termios
+                        termios.tcflush(sys.stdin, termios.TCIOFLUSH)
+                    except:
+                        pass
+
                 print(f"\n{Fore.CYAN}▶开始自动下载流程...{Style.RESET_ALL}")
                 if selected_package:
                     get_download_links_for_package({package_name: selected_package}, "downloadlist.txt")
@@ -792,7 +837,14 @@ def download_file_with_resume(link, file_path, position, result_queue, max_retri
                     unit='iB',
                     unit_scale=True,
                     position=position,
-                    initial=resume_size
+                    initial=resume_size,
+                    dynamic_ncols=True,  # 动态列宽
+                    leave=True,          # 完成后保留进度条（显示100%）
+                    file=sys.stdout,     # 输出到 stdout
+                    miniters=1,          # 每次迭代都更新
+                    mininterval=0.05,    # 缩短更新间隔到 0.05 秒
+                    disable=False,       # 明确不禁用
+                    ncols=100            # 固定列宽，避免动态计算问题
             ) as progress_bar:
                 for data in response.iter_content(block_size):
                     file.write(data)
@@ -2153,12 +2205,14 @@ if __name__ == "__main__":
         print(f">>>输入【{Fore.YELLOW}M{Style.RESET_ALL}】+【{Fore.YELLOW}回车{Style.RESET_ALL}】--------切换下载源到ModelScope<<<<     备注：当前使用源：{current_source}")
         user_input = input("请选择操作(不需要括号):")
 
+        stripped_input = user_input.strip()
+
         if user_input == "":
             print("※启动自动下载模块,支持断点续传，关闭窗口可中断。")
             auto_download_missing_files_with_retry(max_threads=5)
-        elif ',' in user_input or '，' in user_input:
+        elif ',' in stripped_input or '，' in stripped_input:
             selected_packages = {}
-            normalized_input = user_input.replace('，', ',')
+            normalized_input = stripped_input.replace('，', ',')
             package_ids = normalized_input.split(',')
             valid_input = True
 
@@ -2187,8 +2241,8 @@ if __name__ == "__main__":
                 print(f"{Fore.GREEN}√已选择 {len(selected_packages)} 个包体，正在生成合并的下载列表...{Style.RESET_ALL}")
                 get_download_links_for_package(selected_packages, "downloadlist.txt")
                 auto_download_missing_files_with_retry(max_threads=5)
-        elif user_input.isdigit():
-            package_id = int(user_input)
+        elif stripped_input.isdigit():
+            package_id = int(stripped_input)
             selected_package = None
             for package_name, package_info in packages.items():
                 if package_info["id"] == package_id:
@@ -2204,10 +2258,10 @@ if __name__ == "__main__":
                 delete_log_files()
             else:
                 print(f"{Fore.RED}△包体编号{package_id} 无效，请输入正确的包体ID。{Style.RESET_ALL}")
-        elif user_input.lower().startswith("del"):
+        elif stripped_input.lower().startswith("del"):
             try:
                 path_mapping = load_model_paths()
-                package_id_str = user_input[3:].strip()
+                package_id_str = stripped_input[3:].strip()
                 
                 if not package_id_str.isdigit():
                     print(f"{Fore.RED}△输入格式错误，请输入类似 del1 来删除对应包体。{Style.RESET_ALL}")
@@ -2227,19 +2281,19 @@ if __name__ == "__main__":
                         print(f"{Fore.RED}△无效的包体编号！{Style.RESET_ALL}")
             except Exception as e:
                 print(f"{Fore.RED}△删除过程中发生错误：{str(e)}{Style.RESET_ALL}")
-        elif user_input.lower() == "r":
+        elif stripped_input.lower() == "r":
             print("重新检测文件...")
             validate_files(packages)
-        elif user_input.lower() == "s":
+        elif stripped_input.lower() == "s":
             print("下载预览图...")
             trigger_manual_download()
-        elif user_input.lower() == "h":
+        elif stripped_input.lower() == "h":
             CURRENT_DOWNLOAD_PREFIX = HF_DOWNLOAD_PREFIX
             current_source = "HuggingFace拥抱脸国外源"
             validate_files(packages)
             print(f"{Fore.GREEN}√下载源已切换到Huggingface：{CURRENT_DOWNLOAD_PREFIX}{Style.RESET_ALL}")
             print(f"{Fore.YELLOW}※提示：此切换只在本次运行有效，重启程序后将恢复默认设置。{Style.RESET_ALL}")
-        elif user_input.lower() == "m":
+        elif stripped_input.lower() == "m":
             CURRENT_DOWNLOAD_PREFIX = DEFAULT_DOWNLOAD_PREFIX
             current_source = "ModelScope魔搭国内源"
             validate_files(packages)
