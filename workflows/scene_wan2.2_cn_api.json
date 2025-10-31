@@ -553,7 +553,7 @@
         5
       ],
       "cfg": 1,
-      "sampler_name": "dpmpp_2m_sde_gpu",
+      "sampler_name": "uni_pc",
       "scheduler": "simple",
       "start_at_step": [
         "67",
@@ -595,8 +595,8 @@
         5
       ],
       "cfg": 1,
-      "sampler_name": "sa_solver",
-      "scheduler": "beta",
+      "sampler_name": "uni_pc",
+      "scheduler": "simple",
       "start_at_step": 0,
       "end_at_step": [
         "67",
@@ -1068,7 +1068,7 @@
         0
       ],
       "cfg": 1,
-      "sampler_name": "dpmpp_2m_sde_gpu",
+      "sampler_name": "euler",
       "scheduler": "simple",
       "denoise": 0.65,
       "model": [
