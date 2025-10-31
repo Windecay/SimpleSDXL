@@ -530,7 +530,7 @@
   "57": {
     "inputs": {
       "lora_name": "wan2.2_i2v_A14b_low_noise_lora_rank64_lightx2v_4step_1022.safetensors",
-      "strength_model": 100,
+      "strength_model": 1.20,
       "model": [
         "79",
         0
