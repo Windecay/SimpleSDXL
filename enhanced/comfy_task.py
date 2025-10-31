@@ -363,19 +363,19 @@ def check_download_flux_model(base_model, clip_model=None):
         if not modelsinfo.exists_model(catalog="clip", model_path=clip_model):
             load_file_from_url(
                 url=f'https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/{clip_model}',
-                model_dir=config.path_clip,
+                model_dir=config.paths_clip[0],
                 file_name=f'{clip_model}'
             )
         if not modelsinfo.exists_model(catalog="clip", model_path='clip_l.safetensors'):
             load_file_from_url(
                 url=f'https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/clip_l.safetensors',
-                model_dir=config.path_clip,
+                model_dir=config.paths_clip[0],
                 file_name=f'clip_l.safetensors'
             )
         if not modelsinfo.exists_model(catalog="vae", model_path='ae.safetensors'):
             load_file_from_url(
                 url='https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/vae/ae.safetensors',
-                model_dir=config.path_vae,
+                model_dir=config.paths_vae[0],
                 file_name='ae.safetensors'
             )
 

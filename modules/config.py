@@ -82,14 +82,14 @@ def try_load_deprecated_user_path_config():
                 config_dict[new_key] = deprecated_config_dict[old_key]
                 del deprecated_config_dict[old_key]
 
-        replace_config('modelfile_path', 'path_checkpoints')
-        replace_config('lorafile_path', 'path_loras')
-        replace_config('embeddings_path', 'path_embeddings')
-        replace_config('vae_approx_path', 'path_vae_approx')
-        replace_config('upscale_models_path', 'path_upscale_models')
-        replace_config('inpaint_models_path', 'path_inpaint')
-        replace_config('controlnet_models_path', 'path_controlnet')
-        replace_config('clip_vision_models_path', 'path_clip_vision')
+        replace_config('modelfile_path', 'paths_checkpoints')
+        replace_config('lorafile_path', 'paths_loras')
+        replace_config('embeddings_path', 'paths_embeddings')
+        replace_config('vae_approx_path', 'paths_vae_approx')
+        replace_config('upscale_models_path', 'paths_upscale_models')
+        replace_config('inpaint_models_path', 'paths_inpaint')
+        replace_config('controlnet_models_path', 'paths_controlnet')
+        replace_config('clip_vision_models_path', 'paths_clip_vision')
         replace_config('fooocus_expansion_path', 'path_fooocus_expansion')
         replace_config('temp_outputs_path', 'path_outputs')
 
@@ -1158,10 +1158,10 @@ def downloading_inpaint_models(v):
     if v == 'kolors_inpainting':
         load_file_from_url(
             url='https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/unet/kolors_inpainting.safetensors',
-            model_dir=path_unet,
+            model_dir=paths_unet[0],
             file_name='kolors_inpainting.safetensors'
         )
-        patch_file = os.path.join(path_unet, 'kolors_inpainting.safetensors')
+        patch_file = os.path.join(paths_unet[0], 'kolors_inpainting.safetensors')
 
     return head_file, patch_file
 
