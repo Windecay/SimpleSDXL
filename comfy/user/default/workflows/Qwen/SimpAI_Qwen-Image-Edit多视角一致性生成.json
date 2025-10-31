@@ -1,7 +1,7 @@
 {
   "id": "16fe6802-970e-4261-9c38-1f7e0fc60e5a",
   "revision": 0,
-  "last_node_id": 1281,
+  "last_node_id": 1282,
   "last_link_id": 1950,
   "nodes": [
     {
@@ -19,7 +19,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 330,
+      "order": 331,
       "mode": 0,
       "inputs": [
         {
@@ -65,7 +65,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 342,
+      "order": 343,
       "mode": 0,
       "inputs": [
         {
@@ -112,7 +112,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 345,
+      "order": 346,
       "mode": 0,
       "inputs": [
         {
@@ -323,7 +323,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 245,
+      "order": 246,
       "mode": 0,
       "inputs": [
         {
@@ -574,18 +574,18 @@
       "id": 50,
       "type": "MarkdownNote",
       "pos": [
-        -3820,
-        -1430
+        -3800,
+        -1350
       ],
       "size": [
-        370,
-        130
+        360,
+        90
       ],
       "flags": {
         "pinned": true
       },
-      "order": 225,
-      "mode": 0,
+      "order": 240,
+      "mode": 4,
       "inputs": [],
       "outputs": [],
       "title": "可选模型：双截棍",
@@ -709,7 +709,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 374,
+      "order": 375,
       "mode": 0,
       "inputs": [
         {
@@ -758,7 +758,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 375,
+      "order": 376,
       "mode": 0,
       "inputs": [
         {
@@ -807,7 +807,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 300,
+      "order": 301,
       "mode": 0,
       "inputs": [
         {
@@ -898,7 +898,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 284,
+      "order": 285,
       "mode": 0,
       "inputs": [
         {
@@ -988,7 +988,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 246,
+      "order": 247,
       "mode": 0,
       "inputs": [
         {
@@ -1097,7 +1097,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 376,
+      "order": 377,
       "mode": 0,
       "inputs": [
         {
@@ -1146,7 +1146,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 285,
+      "order": 286,
       "mode": 0,
       "inputs": [
         {
@@ -1193,7 +1193,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 247,
+      "order": 248,
       "mode": 0,
       "inputs": [
         {
@@ -1359,7 +1359,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 299,
+      "order": 300,
       "mode": 0,
       "inputs": [
         {
@@ -1544,7 +1544,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 365,
+      "order": 366,
       "mode": 0,
       "inputs": [
         {
@@ -1592,7 +1592,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 344,
+      "order": 345,
       "mode": 0,
       "inputs": [
         {
@@ -1802,7 +1802,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 312,
+      "order": 311,
       "mode": 0,
       "inputs": [
         {
@@ -1848,7 +1848,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 231,
+      "order": 227,
       "mode": 0,
       "inputs": [
         {
@@ -1904,7 +1904,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 377,
+      "order": 378,
       "mode": 0,
       "inputs": [
         {
@@ -1952,7 +1952,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 248,
+      "order": 249,
       "mode": 0,
       "inputs": [
         {
@@ -2018,7 +2018,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 286,
+      "order": 287,
       "mode": 0,
       "inputs": [
         {
@@ -2152,7 +2152,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 378,
+      "order": 379,
       "mode": 0,
       "inputs": [
         {
@@ -2200,7 +2200,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 251,
+      "order": 252,
       "mode": 0,
       "inputs": [
         {
@@ -2352,7 +2352,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 287,
+      "order": 288,
       "mode": 0,
       "inputs": [
         {
@@ -2400,7 +2400,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 379,
+      "order": 380,
       "mode": 0,
       "inputs": [
         {
@@ -2449,7 +2449,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 380,
+      "order": 381,
       "mode": 0,
       "inputs": [
         {
@@ -2540,7 +2540,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 252,
+      "order": 253,
       "mode": 0,
       "inputs": [
         {
@@ -2649,7 +2649,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 288,
+      "order": 289,
       "mode": 0,
       "inputs": [
         {
@@ -2739,7 +2739,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 253,
+      "order": 254,
       "mode": 0,
       "inputs": [
         {
@@ -2848,7 +2848,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 289,
+      "order": 290,
       "mode": 0,
       "inputs": [
         {
@@ -2895,7 +2895,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 230,
+      "order": 226,
       "mode": 0,
       "inputs": [
         {
@@ -2979,7 +2979,7 @@
       "type": "Label (rgthree)",
       "pos": [
         -4120,
-        -2110
+        -2180
       ],
       "size": [
         500,
@@ -2989,7 +2989,7 @@
         "allow_interaction": false,
         "pinned": true
       },
-      "order": 224,
+      "order": 241,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -3064,7 +3064,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 228,
+      "order": 224,
       "mode": 0,
       "inputs": [
         {
@@ -3137,7 +3137,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 309,
+      "order": 308,
       "mode": 2,
       "inputs": [
         {
@@ -3339,7 +3339,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 311,
+      "order": 310,
       "mode": 0,
       "inputs": [
         {
@@ -3386,7 +3386,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 229,
+      "order": 225,
       "mode": 0,
       "inputs": [
         {
@@ -3441,7 +3441,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 244,
+      "order": 245,
       "mode": 0,
       "inputs": [
         {
@@ -3522,7 +3522,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 310,
+      "order": 309,
       "mode": 0,
       "inputs": [
         {
@@ -3575,7 +3575,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 260,
+      "order": 261,
       "mode": 0,
       "inputs": [
         {
@@ -3749,7 +3749,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 291,
+      "order": 292,
       "mode": 0,
       "inputs": [
         {
@@ -3882,7 +3882,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 256,
+      "order": 257,
       "mode": 0,
       "inputs": [
         {
@@ -3948,7 +3948,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 290,
+      "order": 291,
       "mode": 0,
       "inputs": [
         {
@@ -4081,7 +4081,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 257,
+      "order": 258,
       "mode": 0,
       "inputs": [
         {
@@ -4147,7 +4147,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 295,
+      "order": 296,
       "mode": 0,
       "inputs": [
         {
@@ -4195,7 +4195,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 301,
+      "order": 302,
       "mode": 0,
       "inputs": [
         {
@@ -4243,7 +4243,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 302,
+      "order": 303,
       "mode": 0,
       "inputs": [
         {
@@ -4376,7 +4376,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 255,
+      "order": 256,
       "mode": 0,
       "inputs": [
         {
@@ -4485,7 +4485,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 235,
+      "order": 231,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4527,7 +4527,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 313,
+      "order": 312,
       "mode": 0,
       "inputs": [
         {
@@ -4678,7 +4678,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 249,
+      "order": 250,
       "mode": 0,
       "inputs": [
         {
@@ -4744,7 +4744,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 381,
+      "order": 382,
       "mode": 0,
       "inputs": [
         {
@@ -4793,7 +4793,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 293,
+      "order": 294,
       "mode": 0,
       "inputs": [
         {
@@ -4926,7 +4926,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 254,
+      "order": 255,
       "mode": 0,
       "inputs": [
         {
@@ -5078,7 +5078,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 292,
+      "order": 293,
       "mode": 0,
       "inputs": [
         {
@@ -5125,7 +5125,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 250,
+      "order": 251,
       "mode": 0,
       "inputs": [
         {
@@ -5301,7 +5301,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 314,
+      "order": 313,
       "mode": 0,
       "inputs": [
         {
@@ -5351,7 +5351,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 242,
+      "order": 237,
       "mode": 0,
       "inputs": [
         {
@@ -5472,7 +5472,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 331,
+      "order": 332,
       "mode": 0,
       "inputs": [
         {
@@ -5554,7 +5554,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 259,
+      "order": 260,
       "mode": 0,
       "inputs": [
         {
@@ -5627,7 +5627,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 382,
+      "order": 383,
       "mode": 0,
       "inputs": [
         {
@@ -5812,7 +5812,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 332,
+      "order": 333,
       "mode": 0,
       "inputs": [
         {
@@ -5894,7 +5894,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 262,
+      "order": 263,
       "mode": 0,
       "inputs": [
         {
@@ -6073,7 +6073,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 261,
+      "order": 262,
       "mode": 0,
       "inputs": [
         {
@@ -6194,7 +6194,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 354,
+      "order": 355,
       "mode": 0,
       "inputs": [
         {
@@ -6346,7 +6346,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 315,
+      "order": 314,
       "mode": 0,
       "inputs": [
         {
@@ -6568,7 +6568,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 383,
+      "order": 384,
       "mode": 0,
       "inputs": [
         {
@@ -6648,7 +6648,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 294,
+      "order": 295,
       "mode": 0,
       "inputs": [
         {
@@ -6781,7 +6781,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 258,
+      "order": 259,
       "mode": 0,
       "inputs": [
         {
@@ -6846,7 +6846,7 @@
       "flags": {
         "collapsed": true
       },
-      "order": 352,
+      "order": 353,
       "mode": 0,
       "inputs": [
         {
@@ -6951,7 +6951,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 243,
+      "order": 244,
       "mode": 0,
       "inputs": [
         {
@@ -7229,17 +7229,17 @@
       "type": "MarkdownNote",
       "pos": [
         -4250,
-        -1430
+        -1350
       ],
       "size": [
-        410,
-        130
+        420,
+        100
       ],
       "flags": {
         "pinned": true
       },
-      "order": 226,
-      "mode": 0,
+      "order": 239,
+      "mode": 4,
       "inputs": [],
       "outputs": [],
       "title": "可选模型：Qwen-Rapid-AIO",
@@ -7270,7 +7270,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 329,
+      "order": 330,
       "mode": 0,
       "inputs": [
         {
@@ -7339,7 +7339,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 303,
+      "order": 304,
       "mode": 0,
       "inputs": [
         {
@@ -7408,7 +7408,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 296,
+      "order": 297,
       "mode": 0,
       "inputs": [
         {
@@ -7478,7 +7478,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 373,
+      "order": 374,
       "mode": 0,
       "inputs": [
         {
@@ -8221,7 +8221,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 240,
+      "order": 236,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -8302,7 +8302,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 384,
+      "order": 385,
       "mode": 0,
       "inputs": [
         {
@@ -8383,7 +8383,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 385,
+      "order": 386,
       "mode": 0,
       "inputs": [
         {
@@ -8492,7 +8492,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 353,
+      "order": 354,
       "mode": 0,
       "inputs": [
         {
@@ -8574,7 +8574,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 386,
+      "order": 387,
       "mode": 0,
       "inputs": [
         {
@@ -8700,7 +8700,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 387,
+      "order": 388,
       "mode": 0,
       "inputs": [
         {
@@ -8826,7 +8826,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 263,
+      "order": 264,
       "mode": 0,
       "inputs": [
         {
@@ -8968,7 +8968,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 388,
+      "order": 389,
       "mode": 0,
       "inputs": [
         {
@@ -9095,7 +9095,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 264,
+      "order": 265,
       "mode": 0,
       "inputs": [
         {
@@ -9273,7 +9273,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 316,
+      "order": 315,
       "mode": 0,
       "inputs": [
         {
@@ -9324,7 +9324,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 355,
+      "order": 356,
       "mode": 0,
       "inputs": [
         {
@@ -9406,7 +9406,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 333,
+      "order": 334,
       "mode": 0,
       "inputs": [
         {
@@ -9566,7 +9566,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 389,
+      "order": 390,
       "mode": 0,
       "inputs": [
         {
@@ -9819,7 +9819,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 390,
+      "order": 391,
       "mode": 0,
       "inputs": [
         {
@@ -9928,7 +9928,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 265,
+      "order": 266,
       "mode": 0,
       "inputs": [
         {
@@ -10115,7 +10115,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 391,
+      "order": 392,
       "mode": 0,
       "inputs": [
         {
@@ -10242,7 +10242,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 266,
+      "order": 267,
       "mode": 0,
       "inputs": [
         {
@@ -10420,7 +10420,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 317,
+      "order": 316,
       "mode": 0,
       "inputs": [
         {
@@ -10471,7 +10471,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 356,
+      "order": 357,
       "mode": 0,
       "inputs": [
         {
@@ -10553,7 +10553,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 334,
+      "order": 335,
       "mode": 0,
       "inputs": [
         {
@@ -10713,7 +10713,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 392,
+      "order": 393,
       "mode": 0,
       "inputs": [
         {
@@ -10972,7 +10972,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 393,
+      "order": 394,
       "mode": 0,
       "inputs": [
         {
@@ -11123,7 +11123,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 270,
+      "order": 271,
       "mode": 0,
       "inputs": [
         {
@@ -11244,7 +11244,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 318,
+      "order": 317,
       "mode": 0,
       "inputs": [
         {
@@ -11295,7 +11295,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 357,
+      "order": 358,
       "mode": 0,
       "inputs": [
         {
@@ -11377,7 +11377,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 335,
+      "order": 336,
       "mode": 0,
       "inputs": [
         {
@@ -11537,7 +11537,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 394,
+      "order": 395,
       "mode": 0,
       "inputs": [
         {
@@ -11846,7 +11846,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 395,
+      "order": 396,
       "mode": 0,
       "inputs": [
         {
@@ -12016,7 +12016,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 267,
+      "order": 268,
       "mode": 0,
       "inputs": [
         {
@@ -12119,7 +12119,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 396,
+      "order": 397,
       "mode": 0,
       "inputs": [
         {
@@ -12270,7 +12270,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 271,
+      "order": 272,
       "mode": 0,
       "inputs": [
         {
@@ -12391,7 +12391,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 319,
+      "order": 318,
       "mode": 0,
       "inputs": [
         {
@@ -12442,7 +12442,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 358,
+      "order": 359,
       "mode": 0,
       "inputs": [
         {
@@ -12524,7 +12524,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 336,
+      "order": 337,
       "mode": 0,
       "inputs": [
         {
@@ -12684,7 +12684,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 397,
+      "order": 398,
       "mode": 0,
       "inputs": [
         {
@@ -12993,7 +12993,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 398,
+      "order": 399,
       "mode": 0,
       "inputs": [
         {
@@ -13163,7 +13163,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 268,
+      "order": 269,
       "mode": 0,
       "inputs": [
         {
@@ -13266,7 +13266,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 399,
+      "order": 400,
       "mode": 0,
       "inputs": [
         {
@@ -13417,7 +13417,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 272,
+      "order": 273,
       "mode": 0,
       "inputs": [
         {
@@ -13538,7 +13538,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 320,
+      "order": 319,
       "mode": 0,
       "inputs": [
         {
@@ -13589,7 +13589,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 359,
+      "order": 360,
       "mode": 0,
       "inputs": [
         {
@@ -13671,7 +13671,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 337,
+      "order": 338,
       "mode": 0,
       "inputs": [
         {
@@ -13831,7 +13831,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 400,
+      "order": 401,
       "mode": 0,
       "inputs": [
         {
@@ -14140,7 +14140,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 401,
+      "order": 402,
       "mode": 0,
       "inputs": [
         {
@@ -14310,7 +14310,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 269,
+      "order": 270,
       "mode": 0,
       "inputs": [
         {
@@ -14413,7 +14413,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 402,
+      "order": 403,
       "mode": 0,
       "inputs": [
         {
@@ -14609,7 +14609,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 338,
+      "order": 339,
       "mode": 0,
       "inputs": [
         {
@@ -14729,7 +14729,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 273,
+      "order": 274,
       "mode": 0,
       "inputs": [
         {
@@ -14872,7 +14872,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 403,
+      "order": 404,
       "mode": 0,
       "inputs": [
         {
@@ -14982,7 +14982,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 237,
+      "order": 233,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -15151,7 +15151,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 360,
+      "order": 361,
       "mode": 0,
       "inputs": [
         {
@@ -15233,7 +15233,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 280,
+      "order": 281,
       "mode": 0,
       "inputs": [
         {
@@ -15307,7 +15307,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 404,
+      "order": 405,
       "mode": 0,
       "inputs": [
         {
@@ -15433,7 +15433,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 405,
+      "order": 406,
       "mode": 0,
       "inputs": [
         {
@@ -15759,7 +15759,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 321,
+      "order": 320,
       "mode": 0,
       "inputs": [
         {
@@ -15810,7 +15810,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 322,
+      "order": 321,
       "mode": 0,
       "inputs": [
         {
@@ -15862,7 +15862,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 339,
+      "order": 340,
       "mode": 0,
       "inputs": [
         {
@@ -16022,7 +16022,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 406,
+      "order": 407,
       "mode": 0,
       "inputs": [
         {
@@ -16190,7 +16190,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 236,
+      "order": 232,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -16233,7 +16233,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 239,
+      "order": 235,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -16364,7 +16364,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 323,
+      "order": 322,
       "mode": 0,
       "inputs": [
         {
@@ -16415,7 +16415,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 363,
+      "order": 364,
       "mode": 0,
       "inputs": [
         {
@@ -16497,7 +16497,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 341,
+      "order": 342,
       "mode": 0,
       "inputs": [
         {
@@ -16657,7 +16657,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 407,
+      "order": 408,
       "mode": 0,
       "inputs": [
         {
@@ -16825,7 +16825,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 283,
+      "order": 284,
       "mode": 0,
       "inputs": [
         {
@@ -16899,7 +16899,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 408,
+      "order": 409,
       "mode": 0,
       "inputs": [
         {
@@ -17075,7 +17075,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 304,
+      "order": 305,
       "mode": 0,
       "inputs": [
         {
@@ -17196,7 +17196,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 324,
+      "order": 323,
       "mode": 0,
       "inputs": [
         {
@@ -17247,7 +17247,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 366,
+      "order": 367,
       "mode": 0,
       "inputs": [
         {
@@ -17329,7 +17329,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 346,
+      "order": 347,
       "mode": 0,
       "inputs": [
         {
@@ -17489,7 +17489,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 409,
+      "order": 410,
       "mode": 0,
       "inputs": [
         {
@@ -17755,7 +17755,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 410,
+      "order": 411,
       "mode": 0,
       "inputs": [
         {
@@ -17864,7 +17864,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 411,
+      "order": 412,
       "mode": 0,
       "inputs": [
         {
@@ -18029,7 +18029,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 412,
+      "order": 413,
       "mode": 0,
       "inputs": [
         {
@@ -18155,7 +18155,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 413,
+      "order": 414,
       "mode": 0,
       "inputs": [
         {
@@ -18330,7 +18330,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 281,
+      "order": 282,
       "mode": 0,
       "inputs": [
         {
@@ -18403,7 +18403,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 361,
+      "order": 362,
       "mode": 0,
       "inputs": [
         {
@@ -18484,7 +18484,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 414,
+      "order": 415,
       "mode": 0,
       "inputs": [
         {
@@ -18654,7 +18654,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 274,
+      "order": 275,
       "mode": 0,
       "inputs": [
         {
@@ -18758,7 +18758,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 415,
+      "order": 416,
       "mode": 0,
       "inputs": [
         {
@@ -18850,7 +18850,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 275,
+      "order": 276,
       "mode": 0,
       "inputs": [
         {
@@ -18954,7 +18954,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 416,
+      "order": 417,
       "mode": 0,
       "inputs": [
         {
@@ -19046,7 +19046,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 276,
+      "order": 277,
       "mode": 0,
       "inputs": [
         {
@@ -19149,7 +19149,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 417,
+      "order": 418,
       "mode": 0,
       "inputs": [
         {
@@ -19347,7 +19347,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 325,
+      "order": 324,
       "mode": 0,
       "inputs": [
         {
@@ -19398,7 +19398,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 367,
+      "order": 368,
       "mode": 0,
       "inputs": [
         {
@@ -19480,7 +19480,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 347,
+      "order": 348,
       "mode": 0,
       "inputs": [
         {
@@ -19640,7 +19640,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 418,
+      "order": 419,
       "mode": 0,
       "inputs": [
         {
@@ -19850,7 +19850,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 277,
+      "order": 278,
       "mode": 0,
       "inputs": [
         {
@@ -19907,7 +19907,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 419,
+      "order": 420,
       "mode": 0,
       "inputs": [
         {
@@ -20102,7 +20102,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 282,
+      "order": 283,
       "mode": 0,
       "inputs": [
         {
@@ -20223,7 +20223,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 326,
+      "order": 325,
       "mode": 0,
       "inputs": [
         {
@@ -20274,7 +20274,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 362,
+      "order": 363,
       "mode": 0,
       "inputs": [
         {
@@ -20356,7 +20356,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 340,
+      "order": 341,
       "mode": 0,
       "inputs": [
         {
@@ -20516,7 +20516,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 420,
+      "order": 421,
       "mode": 0,
       "inputs": [
         {
@@ -20770,7 +20770,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 421,
+      "order": 422,
       "mode": 0,
       "inputs": [
         {
@@ -20879,7 +20879,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 278,
+      "order": 279,
       "mode": 0,
       "inputs": [
         {
@@ -20978,7 +20978,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 306,
+      "order": 307,
       "mode": 0,
       "inputs": [
         {
@@ -21099,7 +21099,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 327,
+      "order": 326,
       "mode": 0,
       "inputs": [
         {
@@ -21150,7 +21150,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 368,
+      "order": 369,
       "mode": 0,
       "inputs": [
         {
@@ -21232,7 +21232,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 348,
+      "order": 349,
       "mode": 0,
       "inputs": [
         {
@@ -21392,7 +21392,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 422,
+      "order": 423,
       "mode": 0,
       "inputs": [
         {
@@ -21646,7 +21646,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 423,
+      "order": 424,
       "mode": 0,
       "inputs": [
         {
@@ -21755,7 +21755,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 279,
+      "order": 280,
       "mode": 0,
       "inputs": [
         {
@@ -21980,7 +21980,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 424,
+      "order": 425,
       "mode": 0,
       "inputs": [
         {
@@ -22107,7 +22107,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 425,
+      "order": 426,
       "mode": 0,
       "inputs": [
         {
@@ -22155,7 +22155,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 426,
+      "order": 427,
       "mode": 0,
       "inputs": [
         {
@@ -22282,7 +22282,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 427,
+      "order": 428,
       "mode": 0,
       "inputs": [
         {
@@ -22330,7 +22330,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 428,
+      "order": 429,
       "mode": 0,
       "inputs": [
         {
@@ -22457,7 +22457,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 429,
+      "order": 430,
       "mode": 0,
       "inputs": [
         {
@@ -22678,7 +22678,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 305,
+      "order": 306,
       "mode": 0,
       "inputs": [
         {
@@ -22934,7 +22934,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 343,
+      "order": 344,
       "mode": 0,
       "inputs": [
         {
@@ -23008,7 +23008,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 297,
+      "order": 298,
       "mode": 0,
       "inputs": [
         {
@@ -23278,7 +23278,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 364,
+      "order": 365,
       "mode": 0,
       "inputs": [
         {
@@ -23360,7 +23360,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 298,
+      "order": 299,
       "mode": 0,
       "inputs": [
         {
@@ -23434,7 +23434,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 430,
+      "order": 431,
       "mode": 0,
       "inputs": [
         {
@@ -23560,7 +23560,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 431,
+      "order": 432,
       "mode": 0,
       "inputs": [
         {
@@ -23733,7 +23733,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 328,
+      "order": 327,
       "mode": 0,
       "inputs": [
         {
@@ -23886,7 +23886,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 432,
+      "order": 433,
       "mode": 0,
       "inputs": [
         {
@@ -23996,7 +23996,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 433,
+      "order": 434,
       "mode": 0,
       "inputs": [
         {
@@ -24045,7 +24045,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 238,
+      "order": 234,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -24087,7 +24087,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 234,
+      "order": 230,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -24129,7 +24129,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 351,
+      "order": 350,
       "mode": 0,
       "inputs": [
         {
@@ -24170,7 +24170,7 @@
       "type": "SimpleModelDownloader",
       "pos": [
         -4250,
-        -1870
+        -1790
       ],
       "size": [
         250,
@@ -24179,7 +24179,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 227,
+      "order": 238,
       "mode": 4,
       "inputs": [
         {
@@ -24224,8 +24224,8 @@
       "id": 1270,
       "type": "ShowText|pysssss",
       "pos": [
-        -3980,
-        -1870
+        -3990,
+        -1790
       ],
       "size": [
         140,
@@ -24234,7 +24234,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 308,
+      "order": 329,
       "mode": 4,
       "inputs": [
         {
@@ -24265,8 +24265,8 @@
       "id": 1271,
       "type": "SimpleModelDownloader",
       "pos": [
-        -3820,
-        -1870
+        -3830,
+        -1790
       ],
       "size": [
         240,
@@ -24275,7 +24275,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 307,
+      "order": 328,
       "mode": 4,
       "inputs": [
         {
@@ -24320,8 +24320,8 @@
       "id": 1272,
       "type": "ShowText|pysssss",
       "pos": [
-        -3560,
-        -1870
+        -3580,
+        -1790
       ],
       "size": [
         140,
@@ -24330,7 +24330,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 350,
+      "order": 352,
       "mode": 4,
       "inputs": [
         {
@@ -24362,7 +24362,7 @@
       "type": "SimpleModelDownloader",
       "pos": [
         -4250,
-        -1640
+        -1560
       ],
       "size": [
         250,
@@ -24371,7 +24371,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 349,
+      "order": 351,
       "mode": 4,
       "inputs": [
         {
@@ -24416,8 +24416,8 @@
       "id": 1274,
       "type": "SimpleModelDownloader",
       "pos": [
-        -3820,
-        -1640
+        -3830,
+        -1560
       ],
       "size": [
         240,
@@ -24426,7 +24426,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 369,
+      "order": 370,
       "mode": 4,
       "inputs": [
         {
@@ -24469,8 +24469,8 @@
       "id": 1275,
       "type": "ShowText|pysssss",
       "pos": [
-        -3980,
-        -1640
+        -3990,
+        -1560
       ],
       "size": [
         140,
@@ -24479,7 +24479,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 370,
+      "order": 371,
       "mode": 4,
       "inputs": [
         {
@@ -24510,8 +24510,8 @@
       "id": 1276,
       "type": "ShowText|pysssss",
       "pos": [
-        -3560,
-        -1640
+        -3580,
+        -1560
       ],
       "size": [
         140,
@@ -24520,7 +24520,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 372,
+      "order": 373,
       "mode": 4,
       "inputs": [
         {
@@ -24551,8 +24551,8 @@
       "id": 1277,
       "type": "Note",
       "pos": [
-        -4250,
-        -2010
+        -4260,
+        -2070
       ],
       "size": [
         830,
@@ -24561,7 +24561,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 241,
+      "order": 243,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -24593,7 +24593,7 @@
         "allow_interaction": false,
         "pinned": true
       },
-      "order": 232,
+      "order": 228,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -24631,7 +24631,7 @@
         "allow_interaction": false,
         "pinned": true
       },
-      "order": 233,
+      "order": 229,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -24668,7 +24668,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 371,
+      "order": 372,
       "mode": 0,
       "inputs": [
         {
@@ -24720,11 +24720,12 @@
         }
       ],
       "properties": {
+        "Node name for S&R": "ZmlPowerLoraLoader",
         "ue_properties": {
           "widget_ue_connectable": {},
-          "input_ue_unconnectable": {}
-        },
-        "Node name for S&R": "ZmlPowerLoraLoader"
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
       },
       "widgets_values": [
         "{\"entries\":[{\"id\":\"lora1\",\"item_type\":\"lora\",\"display_name\":\"\",\"custom_text\":\"\",\"lora_name\":\"None\",\"weight\":1,\"enabled\":true},{\"id\":\"lora1761940351590\",\"item_type\":\"lora\",\"display_name\":\"\",\"custom_text\":\"\",\"lora_name\":\"None\",\"weight\":1,\"enabled\":true,\"parent_id\":null},{\"id\":\"lora1761940382454\",\"item_type\":\"lora\",\"display_name\":\"\",\"custom_text\":\"\",\"lora_name\":\"None\",\"weight\":1,\"enabled\":true,\"parent_id\":null},{\"id\":\"lora1761940383208\",\"item_type\":\"lora\",\"display_name\":\"\",\"custom_text\":\"\",\"lora_name\":\"None\",\"weight\":1,\"enabled\":true,\"parent_id\":null},{\"id\":\"lora1761940385286\",\"item_type\":\"lora\",\"display_name\":\"\",\"custom_text\":\"\",\"lora_name\":\"None\",\"weight\":1,\"enabled\":true,\"parent_id\":null}]}",
@@ -24741,7 +24742,8 @@
             "custom_text": "",
             "lora_name": "None",
             "weight": 1,
-            "enabled": true
+            "enabled": true,
+            "parent_id": null
           },
           {
             "id": "lora1761940351590",
@@ -24792,6 +24794,48 @@
       "folderColor": "#30353c",
       "loraEntryColor": "#3a3a3a",
       "enabledStateColor": "#4CAF50"
+    },
+    {
+      "id": 1282,
+      "type": "Fast Groups Bypasser (rgthree)",
+      "pos": [
+        -4260,
+        -1940
+      ],
+      "size": [
+        830,
+        70
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 242,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "OPT_CONNECTION",
+          "type": "*",
+          "links": null
+        }
+      ],
+      "title": "模型下载总开关",
+      "properties": {
+        "matchColors": "",
+        "matchTitle": "模型下载区",
+        "showNav": true,
+        "showAllGraphs": true,
+        "sort": "position",
+        "customSortAlphabet": "",
+        "toggleRestriction": "default",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
     }
   ],
   "links": [
@@ -29053,7 +29097,24 @@
       ],
       "color": "#3f789e",
       "font_size": 24,
-      "flags": {}
+      "flags": {
+        "pinned": true
+      }
+    },
+    {
+      "id": 97,
+      "title": "模型下载区",
+      "bounding": [
+        -4260,
+        -1860,
+        830,
+        630
+      ],
+      "color": "#A88",
+      "font_size": 24,
+      "flags": {
+        "pinned": true
+      }
     }
   ],
   "definitions": {
@@ -42275,10 +42336,10 @@
     "frontendVersion": "1.26.13",
     "VHS_latentpreview": true,
     "ds": {
-      "scale": 0.16105100000001085,
+      "scale": 0.41772481694159436,
       "offset": [
-        8521.767405730474,
-        2732.76254743973
+        5782.1433386953295,
+        2157.6449459021424
       ]
     }
   },
