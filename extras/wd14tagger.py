@@ -17,7 +17,7 @@ import os
 
 from PIL import Image
 from onnxruntime import InferenceSession
-from modules.config import path_clip_vision
+from modules.config import paths_clip_vision
 from modules.model_loader import load_file_from_url
 import logging
 logger = logging.getLogger(__name__)
@@ -33,8 +33,8 @@ def default_interrogator(image, threshold=0.35, character_threshold=0.85, exclud
     new_model_name = "wd-eva02-large-tagger-v3"
     new_model_onnx_url = f'https://www.modelscope.cn/models/windecay/WD-tagger/resolve/master/{new_model_name}.onnx'
     new_model_csv_url = f'https://www.modelscope.cn/models/windecay/WD-tagger/resolve/master/{new_model_name}.csv'
-    new_model_onnx_path = os.path.join(path_clip_vision, f"{new_model_name}.onnx")
-    new_model_csv_path = os.path.join(path_clip_vision, f"{new_model_name}.csv")
+    new_model_onnx_path = os.path.join(paths_clip_vision[0], f"{new_model_name}.onnx")
+    new_model_csv_path = os.path.join(paths_clip_vision[0], f"{new_model_name}.csv")
 
     old_model_name = "wd-v1-4-moat-tagger-v2"
     old_model_onnx_url = f'https://huggingface.co/lllyasviel/misc/resolve/main/{old_model_name}.onnx'
@@ -60,13 +60,13 @@ def default_interrogator(image, threshold=0.35, character_threshold=0.85, exclud
         logger.info(f"[WD14 Tagger] 当前使用旧版模型: {model_name}，可运行模型检测更新。")
     model_onnx_filename = load_file_from_url(
         url=model_onnx_url,
-        model_dir=path_clip_vision,
+        model_dir=paths_clip_vision[0],
         file_name=f'{model_name}.onnx',
     )
 
     model_csv_filename = load_file_from_url(
         url=model_csv_url,
-        model_dir=path_clip_vision,
+        model_dir=paths_clip_vision[0],
         file_name=f'{model_name}.csv',
     )
 
