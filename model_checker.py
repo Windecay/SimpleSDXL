@@ -191,7 +191,8 @@ def check_python_embedded():
 
     if platform.system() =='Windows' and "python_embeded" not in python_exe.lower():
         print_colored("×当前 Python 解释器不在 python_embeded 目录中，请检查运行环境", Fore.RED)
-        input("按任意键继续。")
+        print("按任意键继续。", flush=True)
+        input()
         sys.exit(1)
 
 def check_script_file():
@@ -201,7 +202,8 @@ def check_script_file():
         print_colored("√找到主程序目录", Fore.GREEN)
     else:
         print_colored("×未找到主程序目录，请检查脚本位置", Fore.RED)
-        input("按任意键继续。")
+        print("按任意键继续。", flush=True)
+        input()
         sys.exit(1)
 
     base_dir = os.path.dirname(os.path.dirname(script_file))
@@ -707,7 +709,8 @@ def delete_partial_files():
         all_files_to_delete = files_to_delete + obsolete_files_found  # 新增合并逻辑
 
         print(f"{Fore.CYAN}△可清理的磁盘空间: {(total_size + obsolete_total) / (1024 * 1024):.2f} MB{Style.RESET_ALL}")
-        confirm = input(f"{Fore.GREEN}△是否确认删除这些文件？(y/n): {Style.RESET_ALL}")
+        print(f"{Fore.GREEN}△是否确认删除这些文件？(y/n): {Style.RESET_ALL}", flush=True)
+        confirm = input()
         if confirm.lower() == 'y':
             success_count = 0
             for file_path in all_files_to_delete:
@@ -752,8 +755,8 @@ def delete_specific_image_files():
         for file_path in files_to_delete:
             print(f"- {file_path}")
         print(f"{Fore.CYAN}△可清理的磁盘空间: {total_size / (1024 * 1024):.2f} MB{Style.RESET_ALL}")
-
-        confirm = input(f"{Fore.GREEN}△是否确认删除这些文件？(y/n): {Style.RESET_ALL}")
+        print(f"{Fore.GREEN}△是否确认删除这些文件？(y/n): {Style.RESET_ALL}", flush=True)
+        confirm = input()
         if confirm.lower() == 'y':
             for file_path in files_to_delete:
                 try:
@@ -798,8 +801,8 @@ def delete_log_files():
             print(f"- {file_path}")
 
         print(f"{Fore.CYAN}△可清理的磁盘空间: {total_size / (1024 * 1024):.2f} MB{Style.RESET_ALL}")
-
-        confirm = input(f"{Fore.GREEN}△是否确认删除这些日志文件？(y/n): {Style.RESET_ALL}")
+        print(f"{Fore.GREEN}△是否确认删除这些日志文件？(y/n): {Style.RESET_ALL}", flush=True)
+        confirm = input()
         if confirm.lower() == 'y':
             for file_path in files_to_delete:
                 try:
@@ -1248,7 +1251,8 @@ def delete_package(package_name, packages):
 
         print(f"{Fore.CYAN}△ 总计释放空间: {total_size/1024/1024/1024:.2f}GB{Style.RESET_ALL}")
         
-        confirm = input(f"\n{Fore.GREEN}是否确认删除？(y/n): {Style.RESET_ALL}")
+        print(f"\n{Fore.GREEN}是否确认删除？(y/n): {Style.RESET_ALL}", flush=True)
+        confirm = input()
         if confirm.lower() == 'y':
             success = 0
             for path in delete_candidates:
@@ -2203,7 +2207,8 @@ if __name__ == "__main__":
         print(f">>>输入【{Fore.YELLOW}S{Style.RESET_ALL}】+【{Fore.YELLOW}回车{Style.RESET_ALL}】-----------------下载模型预览图<<<     备注：只下载checkpoints和lora预览图")
         print(f">>>输入【{Fore.YELLOW}H{Style.RESET_ALL}】+【{Fore.YELLOW}回车{Style.RESET_ALL}】--------切换下载源到Huggingface<<<     备注：当前使用源：{current_source}")
         print(f">>>输入【{Fore.YELLOW}M{Style.RESET_ALL}】+【{Fore.YELLOW}回车{Style.RESET_ALL}】--------切换下载源到ModelScope<<<<     备注：当前使用源：{current_source}")
-        user_input = input("请选择操作(不需要括号):")
+        print("请选择操作(不需要括号):", flush=True)  # 启动器场景：保留换行符以便立即显示
+        user_input = input()
 
         stripped_input = user_input.strip()
 
