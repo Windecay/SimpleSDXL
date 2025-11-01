@@ -47,6 +47,7 @@ class LogInterceptor(io.TextIOWrapper):
                 #f.write(f"{entry['t']} - {entry['m']}")
 
         super().write(data)
+        super().flush()  # 立即刷新到底层流，确保启动器能实时捕获日志
 
     def flush(self):
         super().flush()
