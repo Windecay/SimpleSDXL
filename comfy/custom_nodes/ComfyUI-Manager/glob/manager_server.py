@@ -1625,6 +1625,14 @@ def restart(self):
     if '--windows-standalone-build' in sys_argv:
         sys_argv.remove('--windows-standalone-build')
 
+    for i in range(len(sys_argv)):
+        if sys_argv[i].lower().startswith("simplesdxl\\"):
+            prefix_start = sys_argv[i].find("SimpleSDXL\\")
+            if prefix_start == -1:
+                prefix_start = sys_argv[i].find("simplesdxl\\")
+            if prefix_start != -1:
+                sys_argv[i] = sys_argv[i][prefix_start + len("SimpleSDXL\\"):]
+
     if sys_argv[0].endswith("__main__.py"):  # this is a python module
         module_name = os.path.basename(os.path.dirname(sys_argv[0]))
         cmds = [sys.executable, '-m', module_name] + sys_argv[1:]
@@ -1634,7 +1642,6 @@ def restart(self):
         cmds = [sys.executable] + sys_argv
 
     print(f"Command: {cmds}", flush=True)
-
     return os.execv(sys.executable, cmds)
 
 

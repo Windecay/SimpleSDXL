@@ -2,7 +2,11 @@ import os
 import sys
 root = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(root)
-target_dir = os.path.join(os.getcwd(), 'SimpleSDXL')
+current_dir = os.getcwd()
+if 'simplesdxl' not in current_dir.lower():
+    target_dir = os.path.join(current_dir, 'SimpleSDXL')
+else:
+    target_dir = current_dir
 os.chdir(target_dir)
 import warnings
 warnings.filterwarnings("ignore", category=FutureWarning)
