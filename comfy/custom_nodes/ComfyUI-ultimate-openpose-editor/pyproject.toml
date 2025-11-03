@@ -1,0 +1,15 @@
+[project]
+name = "ComfyUI-ultimate-openpose-editor"
+description = "Enhanced features with flexible choice of inputs and outputs, fine control for pose plotting, freedom to composite poses and fast local pose editing. Both UI and procedural pose editting."
+version = "1.1.0"
+license = { file = "LICENSE"}
+dependencies = ["torch", "polygraphy", "numpy", "opencv-python", "matplotlib"]
+
+[project.urls]
+Repository = "https://github.com/westNeighbor/ComfyUI-ultimate-openpose-editor"
+#  Used by Comfy Registry https://comfyregistry.org
+
+[tool.comfy]
+PublisherId = "west-neighbor"
+DisplayName = "ComfyUI-ultimate-openpose-editor"
+Icon = ""
