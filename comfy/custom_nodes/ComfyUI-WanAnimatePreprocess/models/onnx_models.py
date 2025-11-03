@@ -8,6 +8,8 @@ import onnxruntime
 from ..pose_utils.pose2d_utils import box_convert_simple, keypoints_from_heatmaps
 
 class SimpleOnnxInference(object):
+    _global_warning_shown = False
+
     def __init__(self, checkpoint, device='CUDAExecutionProvider', **kwargs):
         # Store initialization parameters for potential reinit
         self.checkpoint = checkpoint
@@ -15,11 +17,61 @@ class SimpleOnnxInference(object):
         provider = [device, 'CPUExecutionProvider'] if device == 'CUDAExecutionProvider' else [device]
 
         self.provider = provider
-        self.session = onnxruntime.InferenceSession(checkpoint, providers=provider)
+        try:
+            self.session = onnxruntime.InferenceSession(checkpoint, providers=provider)
+
+            actual_providers = self.session.get_providers()
+
+            if 'CUDAExecutionProvider' in actual_providers:
+                print(f"Successfully using GPU acceleration with CUDAExecutionProvider")
+            elif 'CPUExecutionProvider' in actual_providers:
+                print(f"Using CPUExecutionProvider (GPU acceleration not available)")
+            print(f"Available providers in order of priority: {actual_providers}")
+
+            if device == 'CUDAExecutionProvider' and 'CUDAExecutionProvider' not in actual_providers:
+                if not SimpleOnnxInference._global_warning_shown:
+                    SimpleOnnxInference._global_warning_shown = True
+                    print(f"Warning: Cannot use CUDAExecutionProvider, falling back to CPU. Please install onnxruntime-gpu.")
+                    self._print_reinstall_command()
+        except Exception as e:
+            print(f"Error initializing ONNX session with {device}: {e}")
+            if not SimpleOnnxInference._global_warning_shown:
+                SimpleOnnxInference._global_warning_shown = True
+                print("Falling back to CPUExecutionProvider. Please install onnxruntime-gpu.")
+                self._print_reinstall_command()
+            self.session = onnxruntime.InferenceSession(checkpoint, providers=['CPUExecutionProvider'])
+            actual_providers = self.session.get_providers()
+
+            print(f"Using CPUExecutionProvider after fallback. Providers available: {actual_providers}")
+
         self.input_name = self.session.get_inputs()[0].name
         self.output_name = self.session.get_outputs()[0].name
         self.input_resolution = self.session.get_inputs()[0].shape[2:]
         self.input_resolution = np.array(self.input_resolution)
+
+
+    def _print_reinstall_command(self):
+        """打印重新安装onnxruntime-gpu的命令"""
+        try:
+            import sys
+            python_path = sys.executable
+
+            try:
+                import pkg_resources
+                try:
+                    version = pkg_resources.get_distribution('onnxruntime-gpu').version
+                except pkg_resources.DistributionNotFound:
+                    version = "1.20.1"  # 默认版本号
+            except ImportError:
+                version = "1.20.1"  # 默认版本号
+
+            command = f'"{python_path}" -m pip install --force-reinstall onnxruntime-gpu=={version} --no-deps'
+
+            print("\n检测到onnxruntime没有运行在GPU模式，推荐使用以下命令重新安装onnxruntime-gpu：")
+            print(f"{command}")
+            print("\n请在命令提示符(cmd)中运行上述命令，以确保正确使用CUDA进行GPU加速计算。")
+        except Exception as e:
+            print(f"生成安装命令时出错: {e}")
 
     def __call__(self, *args, **kwargs):
         return self.forward(*args, **kwargs)
