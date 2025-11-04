@@ -44,19 +44,6 @@
       "title": "CLIP Text Encode (Prompt)"
     }
   },
-  "6": {
-    "inputs": {
-      "base_resolution": 480,
-      "image": [
-        "77",
-        0
-      ]
-    },
-    "class_type": "FramePackFindNearestBucket",
-    "_meta": {
-      "title": "首次动态采样分辨率"
-    }
-  },
   "7": {
     "inputs": {
       "clip_name": "umt5-xxl-encoder-Q8_0.gguf",
@@ -132,7 +119,7 @@
         0
       ],
       "latent": [
-        "52",
+        "22",
         0
       ]
     },
@@ -231,8 +218,11 @@
         8
       ],
       "start_at_step": 0,
-      "end_at_step": 4,
-      "return_with_leftover_noise": "disable",
+      "end_at_step": [
+        "53",
+        0
+      ],
+      "return_with_leftover_noise": "enable",
       "model": [
         "13",
         0
@@ -268,7 +258,7 @@
     "inputs": {
       "sage_attention": "auto",
       "model": [
-        "25",
+        "94",
         0
       ]
     },
@@ -281,7 +271,7 @@
     "inputs": {
       "shift": 8,
       "model": [
-        "41",
+        "90",
         0
       ]
     },
@@ -303,7 +293,7 @@
     "inputs": {
       "sage_attention": "auto",
       "model": [
-        "31",
+        "93",
         0
       ]
     },
@@ -327,14 +317,14 @@
   },
   "37": {
     "inputs": {
-      "add_noise": "enable",
+      "add_noise": "disable",
       "noise_seed": [
         "8",
         0
       ],
       "steps": [
-        "53",
-        0
+        "21",
+        5
       ],
       "cfg": 1,
       "sampler_name": [
@@ -345,7 +335,10 @@
         "21",
         8
       ],
-      "start_at_step": 2,
+      "start_at_step": [
+        "53",
+        0
+      ],
       "end_at_step": 10000,
       "return_with_leftover_noise": "disable",
       "model": [
@@ -361,7 +354,7 @@
         0
       ],
       "latent_image": [
-        "52",
+        "51",
         0
       ]
     },
@@ -370,80 +363,10 @@
       "title": "KSampler (Advanced)"
     }
   },
-  "41": {
-    "inputs": {
-      "lora_name": "lightx2v_T2V_14B_cfg_step_distill_v2_lora_rank64_bf16.safetensors",
-      "strength_model": 1,
-      "model": [
-        "90",
-        0
-      ]
-    },
-    "class_type": "LoraLoaderModelOnly",
-    "_meta": {
-      "title": "LoraLoaderModelOnly"
-    }
-  },
-  "45": {
-    "inputs": {
-      "samples": [
-        "22",
-        0
-      ],
-      "vae": [
-        "10",
-        0
-      ]
-    },
-    "class_type": "VAEDecode",
-    "_meta": {
-      "title": "VAE Decode"
-    }
-  },
-  "48": {
-    "inputs": {
-      "width": [
-        "21",
-        2
-      ],
-      "height": [
-        "21",
-        3
-      ],
-      "interpolation": "area",
-      "method": "stretch",
-      "condition": "always",
-      "multiple_of": 0,
-      "image": [
-        "51",
-        0
-      ]
-    },
-    "class_type": "ImageResize+",
-    "_meta": {
-      "title": "🔧 Image Resize"
-    }
-  },
-  "49": {
-    "inputs": {
-      "pixels": [
-        "48",
-        0
-      ],
-      "vae": [
-        "10",
-        0
-      ]
-    },
-    "class_type": "VAEEncode",
-    "_meta": {
-      "title": "VAE Encode"
-    }
-  },
   "51": {
     "inputs": {
       "anything": [
-        "45",
+        "22",
         0
       ]
     },
@@ -452,27 +375,9 @@
       "title": "Clean VRAM Used"
     }
   },
-  "52": {
-    "inputs": {
-      "noise_seed": [
-        "8",
-        0
-      ],
-      "noise_strength": 1,
-      "normalize": "false",
-      "latent": [
-        "49",
-        0
-      ]
-    },
-    "class_type": "InjectLatentNoise+",
-    "_meta": {
-      "title": "🔧 Inject Latent Noise"
-    }
-  },
   "53": {
     "inputs": {
-      "value": "a-2",
+      "value": "a/2",
       "a": [
         "21",
         5
@@ -486,12 +391,12 @@
   "76": {
     "inputs": {
       "width": [
-        "6",
-        0
+        "21",
+        2
       ],
       "height": [
-        "6",
-        1
+        "21",
+        3
       ],
       "length": [
         "1",
@@ -502,24 +407,6 @@
     "class_type": "EmptyHunyuanLatentVideo",
     "_meta": {
       "title": "EmptyHunyuanLatentVideo"
-    }
-  },
-  "77": {
-    "inputs": {
-      "width": [
-        "21",
-        2
-      ],
-      "height": [
-        "21",
-        3
-      ],
-      "batch_size": 1,
-      "color": 0
-    },
-    "class_type": "EmptyImage",
-    "_meta": {
-      "title": "EmptyImage"
     }
   },
   "81": {
@@ -650,6 +537,101 @@
     "class_type": "LoraLoaderModelOnly",
     "_meta": {
       "title": "lora_8"
+    }
+  },
+  "91": {
+    "inputs": {
+      "unet_name": "placeholder.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "base_model2"
+    }
+  },
+  "92": {
+    "inputs": {
+      "unet_name": "placeholder.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "base_model"
+    }
+  },
+  "93": {
+    "inputs": {
+      "boolean": [
+        "97",
+        0
+      ],
+      "on_true": [
+        "92",
+        0
+      ],
+      "on_false": [
+        "31",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "94": {
+    "inputs": {
+      "boolean": [
+        "97",
+        0
+      ],
+      "on_true": [
+        "91",
+        0
+      ],
+      "on_false": [
+        "25",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "95": {
+    "inputs": {
+      "value": 1
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "i2i_model_type"
+    }
+  },
+  "96": {
+    "inputs": {
+      "value": 1
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "Int"
+    }
+  },
+  "97": {
+    "inputs": {
+      "comparison": "a == b",
+      "a": [
+        "95",
+        0
+      ],
+      "b": [
+        "96",
+        0
+      ]
+    },
+    "class_type": "easy compare",
+    "_meta": {
+      "title": "Compare"
     }
   }
 }

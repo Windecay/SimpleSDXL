@@ -1368,9 +1368,9 @@ def worker():
 
         use_style = len(async_task.style_selections) > 0
 
-        if async_task.base_model_name == async_task.refiner_model_name:
-            logger.info(f'Refiner disabled because base model and refiner are same.')
-            async_task.refiner_model_name = 'None'
+        # if async_task.base_model_name == async_task.refiner_model_name:
+        #     logger.info(f'Refiner disabled because base model and refiner are same.')
+        #     async_task.refiner_model_name = 'None'
 
         current_progress = 0
         if async_task.performance_selection == Performance.EXTREME_SPEED:
@@ -1827,6 +1827,8 @@ def worker():
                         async_task.params_backend['display_steps'] = async_task.steps
                 elif async_task.task_class in ['Kolors', 'Wan', 'Qwen']:
                     async_task.params_backend['display_steps'] = async_task.steps # + 1
+            if "wan2.2_cn" in async_task.task_method:
+                async_task.params_backend['i2i_model_type'] = 2 if 'gguf' in async_task.base_model_name else 1
             if 'display_steps' not in async_task.params_backend:
                 async_task.params_backend['display_steps'] = 30 if async_task.steps==-1 else async_task.steps
             if async_task.enhance_checkbox:
