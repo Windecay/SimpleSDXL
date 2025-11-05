@@ -1370,6 +1370,8 @@ packages = {
             ("controlnet/lllyasviel/Annotators/body_pose_model.pth", 209267595),
             ("controlnet/lllyasviel/Annotators/facenet.pth", 153718792),
             ("controlnet/lllyasviel/Annotators/hand_pose_model.pth", 147341049),
+            ("controlnet/hr16/DWPose-TorchScript-BatchSize5/https://www.modelscope.cn/models/svjack/DWPose-TorchScript-BatchSize5/resolve/master/dw-ll_ucoco_384_bs5.torchscript.pt", 135059124),
+            ("controlnet/yzd-v/DWPose/https://www.modelscope.cn/models/zhangjin/DWPose/resolve/master/yolox_l.onnx", 216746733),
             ("inpaint/fooocus_inpaint_head.pth", 52602),
             ("inpaint/groundingdino_swint_ogc.pth", 693997677),
             ("inpaint/inpaint_v26.fooocus.patch", 1323362033),
