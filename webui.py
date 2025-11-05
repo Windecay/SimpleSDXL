@@ -370,14 +370,18 @@ with shared.gradio_root:
                             scene_lora_trigger_words = []
                             scene_lora_send_to_prompt_btns = []
                             scene_lora_save_btns = []
+                            show_trigger_words_panel = gr.Checkbox(label='Show Trigger Words Panel', value=False, elem_classes='show_trigger_words_panel')
+                            trigger_word_containers = []
                             with gr.Row():
                                 scene_lora_model = gr.Dropdown(label='LoRA 1 / HighNoise ',
                                                               choices=['None'] + modules.config.lora_filenames, value='None', 
                                                               elem_classes='lora_model', scale=5, elem_id="scene_lora_dropdown_0",interactive=True)
                                 scene_lora_weight = gr.Slider(label='Weight', minimum=modules.config.default_loras_min_weight, 
                                                              maximum=modules.config.default_loras_max_weight, step=0.05, value=1.0,
-                                                             elem_classes='lora_weight', scale=5,interactive=True)
-                            with gr.Row():
+                                                             elem_classes='lora_weight', scale=5,interactive=True)\
+
+                            with gr.Row(visible=False) as trigger_container_0:
+                                trigger_word_containers.append(trigger_container_0)
                                 trigger_word_value_0 = get_lora_trigger_word(scene_lora_model.value) if scene_lora_model.value != 'None' else ''
                                 scene_lora_trigger_word_0 = gr.Textbox(label='Trigger Word', value=trigger_word_value_0,
                                                                    placeholder='Input LoRA trigger word',
@@ -404,7 +408,9 @@ with shared.gradio_root:
                                 scene_lora_weight_2 = gr.Slider(label='Weight', minimum=modules.config.default_loras_min_weight, 
                                                                 maximum=modules.config.default_loras_max_weight, step=0.05, value=1.0,
                                                                 elem_classes='lora_weight', scale=5,interactive=True)
-                            with gr.Row():
+
+                            with gr.Row(visible=False) as trigger_container_1:
+                                trigger_word_containers.append(trigger_container_1)
                                 trigger_word_value_1 = get_lora_trigger_word(scene_lora_model.value) if scene_lora_model.value != 'None' else ''
                                 scene_lora_trigger_word_1 = gr.Textbox(label='Trigger Word', value=trigger_word_value_0,
                                                                    placeholder='Input LoRA trigger word',
@@ -431,7 +437,9 @@ with shared.gradio_root:
                                 scene_lora_weight_3 = gr.Slider(label='Weight', minimum=modules.config.default_loras_min_weight, 
                                                                 maximum=modules.config.default_loras_max_weight, step=0.05, value=1.0,
                                                                 elem_classes='lora_weight', scale=5,interactive=True)
-                            with gr.Row():
+
+                            with gr.Row(visible=False) as trigger_container_2:
+                                trigger_word_containers.append(trigger_container_2)
                                 trigger_word_value_2 = get_lora_trigger_word(scene_lora_model_3.value) if scene_lora_model_3.value != 'None' else ''
                                 scene_lora_trigger_word_2 = gr.Textbox(label='Trigger Word', value=trigger_word_value_2,
                                                                    placeholder='Input LoRA trigger word',
@@ -458,7 +466,9 @@ with shared.gradio_root:
                                 scene_lora_weight_4 = gr.Slider(label='Weight', minimum=modules.config.default_loras_min_weight, 
                                                                 maximum=modules.config.default_loras_max_weight, step=0.05, value=1.0,
                                                                 elem_classes='lora_weight', scale=5,interactive=True)
-                            with gr.Row():
+
+                            with gr.Row(visible=False) as trigger_container_3:
+                                trigger_word_containers.append(trigger_container_3)
                                 trigger_word_value_3 = get_lora_trigger_word(scene_lora_model_4.value) if scene_lora_model_4.value != 'None' else ''
                                 scene_lora_trigger_word_3 = gr.Textbox(label='Trigger Word', value=trigger_word_value_3,
                                                                    placeholder='Input LoRA trigger word',
@@ -478,6 +488,13 @@ with shared.gradio_root:
                                     inputs=[scene_lora_model_4, scene_lora_trigger_word_3],
                                     outputs=[scene_lora_send_to_prompt_btns[3]]
                                 )
+                            show_trigger_words_panel.change(
+                                fn=lambda visible: [gr.update(visible=visible)] * len(trigger_word_containers),
+                                inputs=[show_trigger_words_panel],
+                                outputs=trigger_word_containers,
+                                queue=False, show_progress=False
+                            )
+
                             scene_lora_ctrls = [scene_lora_model, scene_lora_weight,
                                                 scene_lora_model_2, scene_lora_weight_2,
                                                 scene_lora_model_3, scene_lora_weight_3,
@@ -1538,7 +1555,8 @@ with shared.gradio_root:
                     lora_trigger_words = []
                     lora_send_to_prompt_btns = []
                     lora_save_btns = []
-
+                    show_trigger_words_panel = gr.Checkbox(label='Show Trigger Words Panel', value=False, elem_classes='show_trigger_words_panel')
+                    trigger_word_containers = []
                     from modules.lora_trigger_manager import get_lora_trigger_word, update_trigger_word, save_trigger_word, send_trigger_to_prompt
 
                     for i, (enabled, filename, weight) in enumerate(modules.config.default_loras):
@@ -1556,7 +1574,8 @@ with shared.gradio_root:
                                                     elem_classes='lora_weight', scale=5)
 
                             trigger_word_value = get_lora_trigger_word(filename) if filename != 'None' else ''
-                        with gr.Row():
+                        with gr.Row(visible=False) as trigger_container:
+                            trigger_word_containers.append(trigger_container)
                             lora_trigger_word = gr.Textbox(label='Trigger Word', value=trigger_word_value,
                                                          placeholder='Input LoRA trigger word',
                                                          elem_id=f"lora_trigger_word_{i}", min_width=300,lines=1, scale=5)
@@ -1582,7 +1601,12 @@ with shared.gradio_root:
                         with gr.Row():
                             lora_gallery = gr.Gallery(label=f"LoRA {i + 1} Previews", columns=4, rows=2, height="auto", visible=False, elem_classes="lora-gallery")
                             lora_galleries.append(lora_gallery)
-
+                    show_trigger_words_panel.change(
+                        fn=lambda visible: [gr.update(visible=visible)] * len(trigger_word_containers),
+                        inputs=[show_trigger_words_panel],
+                        outputs=trigger_word_containers,
+                        queue=False, show_progress=False
+                    )
                     for i in range(len(lora_models)):
                         lora_models[i].change(
                             fn=update_trigger_word,
