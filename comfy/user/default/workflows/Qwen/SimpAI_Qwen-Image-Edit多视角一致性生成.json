@@ -24254,7 +24254,7 @@
         }
       },
       "widgets_values": [
-        "Qwen-Image-Lightning/resolve/master/Qwen-Image-Edit-2509/Qwen-Image-Edit-2509-Lightning-4steps-V1.0-bf16.safetensors",
+        "https://www.modelscope.cn/models/windecay/my_favorite_loras/resolve/master/Qwen-Image-Edit-2509-Lightning-4steps-V1.0-bf16.safetensors",
         "loras",
         true,
         false
