@@ -132,10 +132,20 @@ def preset_filter(presets):
         return presets
 
 def get_preset_name_list(user_session, ua_hash):
+    user_did = shared.token.check_sstoken_and_get_did(user_session, ua_hash)
+    is_guest = not user_did or shared.token.is_guest(user_did)
+    if is_guest:
+        try:
+            presets_list = shared.token.get_local_vars("user_presets", "", user_session, ua_hash)
+            if presets_list and presets_list not in ["Unknown", "None", "Default"]:
+                return presets_list
+        except Exception as e:
+            print(f"[DEBUG] Error getting guest preset: {str(e)}")
+
     presets_list = shared.token.get_local_vars("user_presets", "", user_session, ua_hash)
     if presets_list and presets_list not in ["Unknown", "None", "Default"]:
         return presets_list
-    user_did = shared.token.check_sstoken_and_get_did(user_session, ua_hash)
+
     if user_did and not shared.token.is_guest(user_did):
         user_preset_file = get_path_in_user_dir('presets.txt', user_did, 'presets')
         if not os.path.exists(user_preset_file):
@@ -175,7 +185,12 @@ def get_preset_name_list(user_session, ua_hash):
             presets.insert(0, config.preset)
             presets = presets[:shared.BUTTON_NUM]
             presets_list = ','.join(presets)
-    shared.token.set_local_vars("user_presets", presets_list, user_session, ua_hash)
+
+    if is_guest and hasattr(shared.token, 'set_local_vars_for_guest'):
+        shared.token.set_local_vars_for_guest("user_presets", presets_list, user_session, ua_hash)
+    else:
+
+        shared.token.set_local_vars("user_presets", presets_list, user_session, ua_hash)
     return presets_list
 
 
@@ -381,15 +396,14 @@ def refresh_nav_bars(state_params):
     user_session = state_params.get("__session", "")
     ua_hash = state_params.get("ua_hash", "")
     preset_name_list = get_preset_name_list(user_session, ua_hash).split(',')
-    # 首先获取过滤后的预设列表
     filtered_presets = preset_filter(preset_name_list)
-    # 然后创建一个仅包含过滤后预设的新列表
-    preset_name_list = [preset for preset in preset_name_list if preset in filtered_presets]
+    preset_name_list = [preset for preset in preset_name_list if preset in filtered_presets]    
     user_did = state_params["user"].get_did()
+    is_guest = shared.token.is_guest(user_did)
     path_preset = os.path.abspath(f'./presets/')
     user_path_preset = get_path_in_user_dir('presets', user_did)
     num = len(preset_name_list)
-    for preset in preset_name_list:
+    for preset in preset_name_list[:]:
         arch_str = config.get_gpu_arch_str_in_preset_name()
         if preset.endswith('.'):
             preset_file = os.path.join(user_path_preset, f'{preset[:-1]}.json')
@@ -401,11 +415,14 @@ def refresh_nav_bars(state_params):
             preset_file = preset_file2
         if not os.path.exists(preset_file):
             preset_name_list.remove(preset)
-    if num!=len(preset_name_list):
+    if num != len(preset_name_list):
         nav_name_list = ','.join(preset_name_list)
-        shared.token.set_local_vars("user_presets", nav_name_list, state_params["__session"], state_params["ua_hash"])
+        if is_guest and hasattr(shared.token, 'set_local_vars_for_guest'):
+            shared.token.set_local_vars_for_guest("user_presets", nav_name_list, state_params["__session"], state_params["ua_hash"])
+        else:
+            shared.token.set_local_vars("user_presets", nav_name_list, state_params["__session"], state_params["ua_hash"])
 
-    for i in range(shared.BUTTON_NUM-len(preset_name_list)):
+    for i in range(shared.BUTTON_NUM - len(preset_name_list)):
         preset_name_list.append('')
     results = []
     if state_params["__is_mobile"]:
@@ -415,7 +432,7 @@ def refresh_nav_bars(state_params):
     for i in range(len(preset_name_list)):
         name = preset_name_list[i]
         name += '\u2B07' if is_models_file_absent(name, user_did) else ''
-        visible_flag = i<(7 if state_params["__is_mobile"] else shared.BUTTON_NUM)
+        visible_flag = i < (7 if state_params["__is_mobile"] else shared.BUTTON_NUM)
         if name:
             results += [gr.update(value=name, interactive=True, visible=visible_flag)]
         else: 
@@ -713,8 +730,36 @@ def download_models(default_model, previous_default_models, checkpoint_downloads
 
     return default_model, checkpoint_downloads
 
+def check_admin_exists():
+    try:
+        has_multiple_users = False
+        try:
+            user_home = os.path.expanduser("~")
+            did_dir = os.path.join(user_home, '.simpleai.vip', '.token')
+            if os.path.exists(did_dir):
+                try:
+                    all_files = os.listdir(did_dir)
+
+                    user_did_files = [f for f in all_files if f.startswith('user_') and f.endswith('.did')]
+
+                    user_did_count = len(user_did_files)
+                    has_multiple_users = user_did_count > 1
+                    return has_multiple_users
+                except Exception as list_error:
+                    return False
+            else:
+                return False
+        except Exception as e:
+            print(f"[DEBUG] 检查用户DID文件时出错: {str(e)}")
+            return False
+    except Exception as e:
+        print(f"[DEBUG] 获取管理员变量时出错: {str(e)}")
+        return False
+
 def toggle_preset_store(state):
-    if 'user' in state and not shared.token.is_guest(state["user"].get_did()):
+    user_in_state = 'user' in state
+    is_guest = shared.token.is_guest(state["user"].get_did()) if user_in_state else True
+    if user_in_state and not is_guest:
         if 'preset_store' in state:
             flag = state['preset_store']
         else:
@@ -724,18 +769,33 @@ def toggle_preset_store(state):
         state['identity_dialog'] = False
         return [gr.update(visible=not flag)] + update_topbar_js_params(state) + [gr.update(visible=False)] + [gr.update()]*17
     else:
-        #state['identity_dialog'] = False
-        return [gr.update()] + update_topbar_js_params(state) + toggle_identity_dialog(state)
+        has_admin = False
+        has_admin = check_admin_exists()
+
+        if not has_admin:
+            if 'preset_store' in state:
+                flag = state['preset_store']
+            else:
+                state['preset_store'] = False
+                flag = False
+            state['preset_store'] = not flag
+            state['identity_dialog'] = False
+            return [gr.update(visible=not flag)] + update_topbar_js_params(state) + [gr.update(visible=False)] + [gr.update()]*17
+        else:
+            return [gr.update()] + update_topbar_js_params(state) + toggle_identity_dialog(state)
 
 def update_navbar_from_mystore(selected_preset, state):
     global preset_samples
-    selected_preset = preset_samples[state["user"].get_did() if not shared.token.is_guest(state["user"].get_did()) else 'guest'][selected_preset][0]
+    user_did = state["user"].get_did()
+    is_guest = shared.token.is_guest(user_did)
+
+    selected_preset_name = preset_samples[user_did if not is_guest else 'guest'][selected_preset][0]
+
     results = refresh_nav_bars(state)
     results2 = update_topbar_js_params(state)
     nav_name_list = get_preset_name_list(state["__session"], state["ua_hash"])
     nav_array = nav_name_list.split(',')
 
-    user_did = state["user"].get_did()
     available_presets_count = 0
 
     missing_model_filter = ads.get_admin_default("missing_model_filter_checkbox")
@@ -751,15 +811,15 @@ def update_navbar_from_mystore(selected_preset, state):
 
     if len(filtered_nav_array) != len([p for p in nav_array if p]):
         nav_array = filtered_nav_array
-        if 'user' in state and not shared.token.is_guest(state["user"].get_did()):
+        if 'user' in state and not is_guest:
             filtered_nav_name_list = ','.join(nav_array)
             shared.token.set_local_vars("user_presets", filtered_nav_name_list, state["__session"], state["ua_hash"])
 
-    if selected_preset in ["default", state["__preset"]]:
+    if selected_preset_name in ["default", state["__preset"]]:
         return results + results2
-    if selected_preset in nav_array:
-        nav_array.remove(selected_preset)
-        logger.info(f'[Preset Management] Withdraw the preset/回撤预置包: {selected_preset}.')
+    if selected_preset_name in nav_array:
+        nav_array.remove(selected_preset_name)
+        logger.info(f'[Preset Management] Withdraw the preset/回撤预置包: {selected_preset_name}.')
     else:
         elimination_threshold = max(available_presets_count, len(nav_array))
         if elimination_threshold >= shared.BUTTON_NUM:
@@ -770,13 +830,21 @@ def update_navbar_from_mystore(selected_preset, state):
                 nav_array = nav_array[:-2] + nav_array[-1:]
             else:
                 nav_array = nav_array[:-1]
-        nav_array.append(selected_preset)
-        logger.info(f'[Preset Management] Launch the preset/启用预置包: {selected_preset}.')
+        nav_array.append(selected_preset_name)
+        logger.info(f'[Preset Management] Launch the preset/启用预置包: {selected_preset_name}.')
 
     nav_name_list = ','.join(nav_array)
-    if 'user' in state and not shared.token.is_guest(state["user"].get_did()):
-        logger.info(f"[Preset Management] save mypreset: {nav_name_list}")
-        shared.token.set_local_vars("user_presets", nav_name_list, state["__session"], state["ua_hash"])
+    if 'user' in state:
+        if not is_guest:
+            logger.info(f"[Preset Management] save mypreset: {nav_name_list}")
+            shared.token.set_local_vars("user_presets", nav_name_list, state["__session"], state["ua_hash"])
+        else:
+            has_admin = False
+            has_admin = check_admin_exists()
+            
+            if not has_admin:
+                shared.token.set_local_vars("user_presets", nav_name_list, state["__session"], state["ua_hash"])
+
     try:
         return refresh_nav_bars(state) + update_topbar_js_params(state)
     except TypeError as e:
