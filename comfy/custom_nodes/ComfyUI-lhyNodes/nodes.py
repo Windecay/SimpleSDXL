@@ -23,22 +23,26 @@ def get_schedulers(remove = []):
 class detailerKSamplerSchedulerFallback:
     @classmethod
     def INPUT_TYPES(cls):
+        all_schedulers = get_schedulers()
+        fallback_schedulers = get_schedulers(['beta57']) + ['AYS SDXL', 'AYS SD1', 'AYS SVD', 'GITS[coeff=1.2]', 'LTXV[default]', 'OSS FLUX', 'OSS Wan', 'OSS Chroma']
         return {
             "required": {
-                "scheduler": (get_schedulers(), {"forceInput": True}),
-                "fallback_scheduler": (get_schedulers(['beta57']) + ['AYS SDXL', 'AYS SD1', 'AYS SVD', 'GITS[coeff=1.2]', 'LTXV[default]', 'OSS FLUX', 'OSS Wan', 'OSS Chroma'],),
+                "scheduler": (all_schedulers, {"forceInput": True}),
+                "fallback_scheduler": (fallback_schedulers,),
             },
         }
-    
-    RETURN_TYPES = get_schedulers(['beta57']) + ['AYS SDXL', 'AYS SD1', 'AYS SVD', 'GITS[coeff=1.2]', 'LTXV[default]', 'OSS FLUX', 'OSS Wan', 'OSS Chroma'],
+
+    RETURN_TYPES = (get_schedulers() + ['AYS SDXL', 'AYS SD1', 'AYS SVD', 'GITS[coeff=1.2]', 'LTXV[default]', 'OSS FLUX', 'OSS Wan', 'OSS Chroma'],)
     RETURN_NAMES = ("SCHEDULER",)
     FUNCTION = "main"
     CATEGORY = "utils"
     
     def main(self, scheduler, fallback_scheduler):
-        if scheduler not in get_schedulers(['beta57']) + ['AYS SDXL', 'AYS SD1', 'AYS SVD', 'GITS[coeff=1.2]', 'LTXV[default]', 'OSS FLUX', 'OSS Wan', 'OSS Chroma']:
+        fallback_schedulers = get_schedulers(['beta57']) + ['AYS SDXL', 'AYS SD1', 'AYS SVD', 'GITS[coeff=1.2]', 'LTXV[default]', 'OSS FLUX', 'OSS Wan', 'OSS Chroma']
+        if scheduler not in fallback_schedulers:
             return (fallback_scheduler,)
         return(scheduler,)
+
 
 class effKSamplerSchedulerFallback:
     @classmethod
