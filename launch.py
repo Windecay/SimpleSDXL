@@ -124,16 +124,34 @@ def check_base_environment():
                     logger.error(f"无法安装{update_pkg_name}，请检查网络状态")
 
         try:
-            if platform.system() == 'Windows' and not is_installed_version('nunchaku', '1.0.0+torch2.7'):
-                pkg_url = 'https://www.modelscope.cn/models/nunchaku-tech/nunchaku/resolve/master/nunchaku-1.0.0%2Btorch2.7-cp310-cp310-win_amd64.whl'
-                pkg_path = os.path.abspath(os.path.join(root, 'nunchaku-1.0.0+torch2.7-cp310-cp310-win_amd64.whl'))
-                print('check nunchaku...')
-                has_update_whl = download_if_updated(pkg_url, pkg_path)
-                is_version_ok = is_installed_version('nunchaku', '1.0.0+torch2.7')
+            if platform.system() == 'Windows':
+                # 检查是否安装了nunchaku
+                if is_installed('nunchaku'):
+                    is_torch29_version = is_installed_version('nunchaku', '1.0.2+torch2.9')
+                    if not is_torch29_version:
+                        current_version = importlib.metadata.version('nunchaku') if is_installed('nunchaku') else 'unknown'
+                        # logger.info(f'检测到您当前使用的nunchaku版本为{current_version}，推荐使用一键部署新包到2.9.0版本以获得更好的性能和兼容性。')
+                        # logger.info(f'请注意：系统不会自动为您更新nunchaku，您可以自行选择是否升级。')
+                else:
+                    import torch
+                    torch_version = torch.__version__
 
-                if has_update_whl or not is_version_ok:
-                    print(f'ready to install {pkg_path}')
-                    run(f'"{python}" -m pip install -U {pkg_path}', f'Install {pkg_path}', live=True)
+                    if '2.9' in torch_version:
+                        pkg_url = 'https://www.modelscope.cn/models/nunchaku-tech/nunchaku/resolve/master/nunchaku-1.0.2%2Btorch2.9-cp310-cp310-win_amd64.whl'
+                        pkg_path = os.path.abspath(os.path.join(root, 'nunchaku-1.0.2+torch2.9-cp310-cp310-win_amd64.whl'))
+                        print('check nunchaku for torch 2.9...')
+                        has_update_whl = download_if_updated(pkg_url, pkg_path)
+                        is_version_ok = is_installed_version('nunchaku', '1.0.2+torch2.9')
+                    else:
+                        pkg_url = 'https://www.modelscope.cn/models/nunchaku-tech/nunchaku/resolve/master/nunchaku-1.0.0%2Btorch2.7-cp310-cp310-win_amd64.whl'
+                        pkg_path = os.path.abspath(os.path.join(root, 'nunchaku-1.0.0+torch2.7-cp310-cp310-win_amd64.whl'))
+                        print('check nunchaku...')
+                        has_update_whl = download_if_updated(pkg_url, pkg_path)
+                        is_version_ok = is_installed_version('nunchaku', '1.0.0+torch2.7')
+
+                    if has_update_whl or not is_version_ok:
+                        print(f'ready to install {pkg_path}')
+                        run(f'"{python}" -m pip install -U {pkg_path}', f'Install {pkg_path}', live=True)
         except Exception as e:
             print(f'Error installing nunchaku: {str(e)}')
             print('Skipping nunchaku installation and continuing...')
@@ -212,6 +230,15 @@ def prepare_environment():
 
     torch_ver = '2.7.1'
     torchvisio_ver = '0.22.1'
+    if is_installed("torch"):
+        try:
+            import torch
+            current_torch_ver = torch.__version__.split('+')[0]  # 获取主版本号
+            if current_torch_ver != '2.9.0':
+                logger.info(f'当前使用的PyTorch版本为{current_torch_ver}')
+                # logger.info(f'请注意：系统不会自动为您更新PyTorch，您可以自行选择是否升级。')
+        except Exception as e:
+            logger.error(f'检测PyTorch版本时发生错误: {str(e)}')
     if shared.sysinfo['gpu_brand'] == 'NVIDIA':
         torch_index_url = "https://download.pytorch.org/whl/cu128"
     elif shared.sysinfo['gpu_brand'] == 'AMD':
