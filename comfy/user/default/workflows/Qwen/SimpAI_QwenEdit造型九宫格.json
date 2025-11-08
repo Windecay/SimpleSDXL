@@ -1,8 +1,8 @@
 {
   "id": "52f1ab9e-0d7d-49c8-acf6-17c6e949af41",
   "revision": 0,
-  "last_node_id": 204,
-  "last_link_id": 497,
+  "last_node_id": 208,
+  "last_link_id": 500,
   "nodes": [
     {
       "id": 2,
@@ -18,7 +18,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 57,
+      "order": 67,
       "mode": 0,
       "inputs": [
         {
@@ -95,7 +95,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 68,
+      "order": 65,
       "mode": 0,
       "inputs": [
         {
@@ -176,7 +176,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 62,
+      "order": 63,
       "mode": 0,
       "inputs": [
         {
@@ -257,7 +257,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 56,
+      "order": 68,
       "mode": 0,
       "inputs": [
         {
@@ -318,7 +318,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 41,
+      "order": 0,
       "mode": 4,
       "inputs": [],
       "outputs": [
@@ -368,7 +368,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 42,
+      "order": 1,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -417,7 +417,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 40,
+      "order": 2,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -460,7 +460,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 39,
+      "order": 3,
       "mode": 4,
       "inputs": [],
       "outputs": [
@@ -509,7 +509,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 59,
+      "order": 66,
       "mode": 0,
       "inputs": [
         {
@@ -551,7 +551,7 @@
         "allow_interaction": false,
         "pinned": true
       },
-      "order": 30,
+      "order": 4,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -588,7 +588,7 @@
         "allow_interaction": false,
         "pinned": true
       },
-      "order": 0,
+      "order": 5,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -624,7 +624,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 45,
+      "order": 6,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -657,7 +657,7 @@
         "allow_interaction": false,
         "pinned": true
       },
-      "order": 38,
+      "order": 7,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -693,7 +693,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 20,
+      "order": 8,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -757,7 +757,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 25,
+      "order": 9,
       "mode": 0,
       "inputs": [
         {
@@ -860,7 +860,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 15,
+      "order": 11,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -920,7 +920,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 16,
+      "order": 12,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -1076,7 +1076,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 51,
+      "order": 56,
       "mode": 0,
       "inputs": [
         {
@@ -1126,7 +1126,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 1,
+      "order": 14,
       "mode": 2,
       "inputs": [],
       "outputs": [
@@ -1170,7 +1170,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 2,
+      "order": 15,
       "mode": 2,
       "inputs": [],
       "outputs": [
@@ -1214,7 +1214,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 3,
+      "order": 16,
       "mode": 2,
       "inputs": [],
       "outputs": [],
@@ -1245,7 +1245,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 4,
+      "order": 17,
       "mode": 2,
       "inputs": [],
       "outputs": [],
@@ -1276,7 +1276,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 14,
+      "order": 18,
       "mode": 2,
       "inputs": [],
       "outputs": [],
@@ -1307,7 +1307,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 5,
+      "order": 19,
       "mode": 2,
       "inputs": [],
       "outputs": [
@@ -1363,7 +1363,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 71,
+      "order": 74,
       "mode": 0,
       "inputs": [
         {
@@ -1432,7 +1432,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 52,
+      "order": 57,
       "mode": 0,
       "inputs": [
         {
@@ -1501,7 +1501,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 53,
+      "order": 58,
       "mode": 0,
       "inputs": [
         {
@@ -1560,8 +1560,8 @@
       "id": 76,
       "type": "SetNode",
       "pos": [
-        2700,
-        820
+        1920,
+        880
       ],
       "size": [
         210,
@@ -1571,13 +1571,13 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 107,
+      "order": 115,
       "mode": 0,
       "inputs": [
         {
           "name": "MODEL",
           "type": "MODEL",
-          "link": 114
+          "link": 500
         }
       ],
       "outputs": [
@@ -1616,7 +1616,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 27,
+      "order": 20,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -1659,7 +1659,7 @@
         "allow_interaction": false,
         "pinned": true
       },
-      "order": 17,
+      "order": 21,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -1696,7 +1696,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 101,
+      "order": 102,
       "mode": 0,
       "inputs": [
         {
@@ -1717,7 +1717,7 @@
           "name": "MODEL",
           "type": "MODEL",
           "links": [
-            114
+            499
           ]
         },
         {
@@ -1838,7 +1838,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 6,
+      "order": 22,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -1879,7 +1879,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 72,
+      "order": 75,
       "mode": 0,
       "inputs": [
         {
@@ -1931,7 +1931,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 73,
+      "order": 76,
       "mode": 0,
       "inputs": [
         {
@@ -1981,7 +1981,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 21,
+      "order": 23,
       "mode": 2,
       "inputs": [],
       "outputs": [
@@ -2034,12 +2034,12 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 85,
+      "order": 79,
       "mode": 0,
       "inputs": [
         {
-          "name": "STRING",
-          "type": "STRING",
+          "name": "*",
+          "type": "*",
           "link": 175
         }
       ],
@@ -2080,7 +2080,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 49,
+      "order": 55,
       "mode": 0,
       "inputs": [
         {
@@ -2125,7 +2125,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 9,
+      "order": 24,
       "mode": 4,
       "inputs": [],
       "outputs": [],
@@ -2157,7 +2157,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 8,
+      "order": 25,
       "mode": 4,
       "inputs": [],
       "outputs": [],
@@ -2189,7 +2189,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 7,
+      "order": 26,
       "mode": 4,
       "inputs": [
         {
@@ -2244,7 +2244,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 48,
+      "order": 60,
       "mode": 4,
       "inputs": [
         {
@@ -2285,7 +2285,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 47,
+      "order": 59,
       "mode": 4,
       "inputs": [
         {
@@ -2340,7 +2340,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 70,
+      "order": 78,
       "mode": 4,
       "inputs": [
         {
@@ -2381,7 +2381,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 69,
+      "order": 77,
       "mode": 4,
       "inputs": [
         {
@@ -2436,7 +2436,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 93,
+      "order": 96,
       "mode": 4,
       "inputs": [
         {
@@ -2489,7 +2489,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 94,
+      "order": 97,
       "mode": 4,
       "inputs": [
         {
@@ -2530,7 +2530,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 100,
+      "order": 103,
       "mode": 4,
       "inputs": [
         {
@@ -2571,7 +2571,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 28,
+      "order": 27,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -2624,7 +2624,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 60,
+      "order": 61,
       "mode": 0,
       "inputs": [
         {
@@ -2652,7 +2652,6 @@
           "link": null
         },
         {
-          "dir": 3,
           "name": "any_05",
           "type": "STRING",
           "link": null
@@ -2694,7 +2693,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 61,
+      "order": 62,
       "mode": 0,
       "inputs": [
         {
@@ -2749,7 +2748,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 86,
+      "order": 80,
       "mode": 0,
       "inputs": [
         {
@@ -2799,7 +2798,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 33,
+      "order": 28,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -2840,7 +2839,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 34,
+      "order": 29,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -2881,7 +2880,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 11,
+      "order": 30,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -2923,7 +2922,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 50,
+      "order": 64,
       "mode": 0,
       "inputs": [
         {
@@ -2966,7 +2965,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 99,
+      "order": 101,
       "mode": 0,
       "inputs": [
         {
@@ -3023,7 +3022,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 22,
+      "order": 31,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -3062,7 +3061,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 105,
+      "order": 107,
       "mode": 0,
       "inputs": [
         {
@@ -3119,7 +3118,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 106,
+      "order": 108,
       "mode": 0,
       "inputs": [
         {
@@ -3176,7 +3175,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 109,
+      "order": 111,
       "mode": 0,
       "inputs": [
         {
@@ -3238,7 +3237,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 43,
+      "order": 32,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -3280,7 +3279,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 31,
+      "order": 33,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -3321,7 +3320,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 32,
+      "order": 34,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -3362,7 +3361,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 91,
+      "order": 72,
       "mode": 0,
       "inputs": [
         {
@@ -3408,7 +3407,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 90,
+      "order": 71,
       "mode": 4,
       "inputs": [
         {
@@ -3454,7 +3453,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 89,
+      "order": 73,
       "mode": 4,
       "inputs": [
         {
@@ -3500,7 +3499,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 84,
+      "order": 83,
       "mode": 0,
       "inputs": [
         {
@@ -3546,7 +3545,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 24,
+      "order": 35,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -3587,7 +3586,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 12,
+      "order": 36,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -3628,7 +3627,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 92,
+      "order": 82,
       "mode": 0,
       "inputs": [
         {
@@ -3674,7 +3673,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 111,
+      "order": 114,
       "mode": 0,
       "inputs": [
         {
@@ -3720,7 +3719,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 74,
+      "order": 84,
       "mode": 0,
       "inputs": [
         {
@@ -3766,7 +3765,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 87,
+      "order": 81,
       "mode": 0,
       "inputs": [
         {
@@ -3812,7 +3811,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 26,
+      "order": 37,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -3853,7 +3852,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 18,
+      "order": 38,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -3894,7 +3893,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 58,
+      "order": 54,
       "mode": 0,
       "inputs": [
         {
@@ -3940,7 +3939,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 19,
+      "order": 39,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -3981,7 +3980,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 23,
+      "order": 40,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4022,7 +4021,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 55,
+      "order": 53,
       "mode": 0,
       "inputs": [
         {
@@ -4068,7 +4067,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 54,
+      "order": 52,
       "mode": 0,
       "inputs": [
         {
@@ -4114,7 +4113,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 29,
+      "order": 41,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4156,7 +4155,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 35,
+      "order": 42,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4198,7 +4197,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 96,
+      "order": 98,
       "mode": 0,
       "inputs": [
         {
@@ -4249,7 +4248,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 75,
+      "order": 85,
       "mode": 0,
       "inputs": [
         {
@@ -4294,7 +4293,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 76,
+      "order": 86,
       "mode": 0,
       "inputs": [
         {
@@ -4339,7 +4338,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 77,
+      "order": 87,
       "mode": 0,
       "inputs": [
         {
@@ -4384,7 +4383,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 102,
+      "order": 104,
       "mode": 0,
       "inputs": [
         {
@@ -4435,7 +4434,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 78,
+      "order": 88,
       "mode": 0,
       "inputs": [
         {
@@ -4480,7 +4479,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 79,
+      "order": 89,
       "mode": 0,
       "inputs": [
         {
@@ -4525,7 +4524,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 80,
+      "order": 90,
       "mode": 0,
       "inputs": [
         {
@@ -4570,7 +4569,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 97,
+      "order": 99,
       "mode": 0,
       "inputs": [
         {
@@ -4621,7 +4620,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 103,
+      "order": 105,
       "mode": 0,
       "inputs": [
         {
@@ -4672,7 +4671,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 98,
+      "order": 100,
       "mode": 0,
       "inputs": [
         {
@@ -4723,7 +4722,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 81,
+      "order": 91,
       "mode": 0,
       "inputs": [
         {
@@ -4768,7 +4767,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 82,
+      "order": 92,
       "mode": 0,
       "inputs": [
         {
@@ -4813,7 +4812,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 83,
+      "order": 93,
       "mode": 0,
       "inputs": [
         {
@@ -4858,7 +4857,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 104,
+      "order": 106,
       "mode": 0,
       "inputs": [
         {
@@ -4909,7 +4908,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 108,
+      "order": 110,
       "mode": 0,
       "inputs": [
         {
@@ -4960,7 +4959,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 110,
+      "order": 113,
       "mode": 0,
       "inputs": [
         {
@@ -5011,7 +5010,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 112,
+      "order": 116,
       "mode": 0,
       "inputs": [
         {
@@ -5057,7 +5056,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 37,
+      "order": 43,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -5097,7 +5096,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 64,
+      "order": 70,
       "mode": 0,
       "inputs": [
         {
@@ -5138,7 +5137,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 88,
+      "order": 94,
       "mode": 0,
       "inputs": [
         {
@@ -5207,7 +5206,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 63,
+      "order": 69,
       "mode": 0,
       "inputs": [
         {
@@ -5268,7 +5267,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 67,
+      "order": 50,
       "mode": 0,
       "inputs": [
         {
@@ -5326,7 +5325,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 66,
+      "order": 49,
       "mode": 4,
       "inputs": [
         {
@@ -5384,7 +5383,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 65,
+      "order": 51,
       "mode": 4,
       "inputs": [
         {
@@ -5441,7 +5440,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 36,
+      "order": 44,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -5484,7 +5483,7 @@
         "allow_interaction": false,
         "pinned": true
       },
-      "order": 44,
+      "order": 45,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -5525,12 +5524,199 @@
       "inputs": [],
       "outputs": [],
       "title": "提示词",
-      "properties": {},
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.3",
+          "input_ue_unconnectable": {}
+        }
+      },
       "widgets_values": [
         "建议使用deepseek、gpt等大语言模型智能体参考模板批量撰写。\n\n格式为9行，每行放置一组提示词。"
       ],
       "color": "#432",
       "bgcolor": "#653"
+    },
+    {
+      "id": 205,
+      "type": "ModelSamplingAuraFlow",
+      "pos": [
+        1760,
+        690
+      ],
+      "size": [
+        290,
+        60
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 109,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 499
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            498
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.48",
+        "Node name for S&R": "ModelSamplingAuraFlow",
+        "ue_properties": {
+          "version": "7.3",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "enableTabs": false,
+        "tabWidth": 65,
+        "tabXOffset": 10,
+        "hasSecondTab": false,
+        "secondTabText": "Send Back",
+        "secondTabOffset": 80,
+        "secondTabWidth": 65
+      },
+      "widgets_values": [
+        3
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 206,
+      "type": "CFGNorm",
+      "pos": [
+        1760,
+        790
+      ],
+      "size": [
+        290,
+        60
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 112,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 498
+        }
+      ],
+      "outputs": [
+        {
+          "name": "patched_model",
+          "type": "MODEL",
+          "links": [
+            500
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.50",
+        "Node name for S&R": "CFGNorm",
+        "ue_properties": {
+          "widget_ue_connectable": {
+            "strength": true
+          },
+          "version": "7.3",
+          "input_ue_unconnectable": {}
+        },
+        "enableTabs": false,
+        "tabWidth": 65,
+        "tabXOffset": 10,
+        "hasSecondTab": false,
+        "secondTabText": "Send Back",
+        "secondTabOffset": 80,
+        "secondTabWidth": 65
+      },
+      "widgets_values": [
+        1
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 207,
+      "type": "Label (rgthree)",
+      "pos": [
+        -640,
+        -530
+      ],
+      "size": [
+        113.34228515625,
+        15
+      ],
+      "flags": {
+        "allow_interaction": false,
+        "pinned": true
+      },
+      "order": 48,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "按数字1回主界面",
+      "properties": {
+        "fontSize": 15,
+        "fontFamily": "Arial",
+        "fontColor": "#ffffff",
+        "textAlign": "left",
+        "backgroundColor": "transparent",
+        "padding": 0,
+        "borderRadius": 0,
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "color": "#fff0",
+      "bgcolor": "#fff0"
+    },
+    {
+      "id": 208,
+      "type": "easy bookmark",
+      "pos": [
+        -620,
+        -480
+      ],
+      "size": [
+        210,
+        82
+      ],
+      "flags": {
+        "collapsed": true,
+        "pinned": true
+      },
+      "order": 47,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "🔖 1",
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.3",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "1",
+        1
+      ]
     }
   ],
   "links": [
@@ -5613,14 +5799,6 @@
       75,
       1,
       "VAE"
-    ],
-    [
-      114,
-      79,
-      0,
-      76,
-      0,
-      "*"
     ],
     [
       115,
@@ -6293,6 +6471,30 @@
       140,
       0,
       "IMAGE"
+    ],
+    [
+      498,
+      205,
+      0,
+      206,
+      0,
+      "MODEL"
+    ],
+    [
+      499,
+      79,
+      0,
+      205,
+      0,
+      "MODEL"
+    ],
+    [
+      500,
+      206,
+      0,
+      76,
+      0,
+      "MODEL"
     ]
   ],
   "groups": [
@@ -6510,21 +6712,13 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.5730855330117589,
+      "scale": 1.610510000000001,
       "offset": [
-        1492.8279000590267,
-        -16.188133251147498
+        1211.5232610066153,
+        997.8943287852685
       ]
     },
     "ue_links": [
-      {
-        "downstream": 79,
-        "downstream_slot": 1,
-        "upstream": "74",
-        "upstream_slot": 0,
-        "controller": 81,
-        "type": "CLIP"
-      },
       {
         "downstream": 3,
         "downstream_slot": 0,
@@ -6564,6 +6758,14 @@
         "upstream_slot": 0,
         "controller": 82,
         "type": "VAE"
+      },
+      {
+        "downstream": 79,
+        "downstream_slot": 1,
+        "upstream": "74",
+        "upstream_slot": 0,
+        "controller": 81,
+        "type": "CLIP"
       }
     ],
     "frontendVersion": "1.26.13",
