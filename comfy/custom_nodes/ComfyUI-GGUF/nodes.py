@@ -23,7 +23,7 @@ def update_folder_names_and_paths(key, targets=[]):
     # find base key & add w/ fallback, sanity check + warning
     target = next((x for x in targets if x in folder_paths.folder_names_and_paths), targets[0])
     orig, _ = folder_paths.folder_names_and_paths.get(target, ([], {}))
-    folder_paths.folder_names_and_paths[key] = (orig or base, {".gguf", ".safetensors"})  # 同时支持两种格式
+    folder_paths.folder_names_and_paths[key] = (orig or base, {".gguf"})
     if base and base != orig:
         logging.warning(f"Unknown file list already present on key {key}: {base}")
 
@@ -76,8 +76,22 @@ class GGUFModelPatcher(comfy.model_patcher.ModelPatcher):
         # TODO: Find another way to not unload after patches
         return super().unpatch_model(device_to=device_to, unpatch_weights=unpatch_weights)
 
+
+    def pin_weight_to_device(self, key):
+        op_key = key.rsplit('.', 1)[0]
+        if not self.mmap_released and op_key in self.named_modules_to_munmap:
+            # TODO: possible to OOM, find better way to detach
+            self.named_modules_to_munmap[op_key].to(self.load_device).to(self.offload_device)
+            del self.named_modules_to_munmap[op_key]
+        super().pin_weight_to_device(key)
+
     mmap_released = False
+    named_modules_to_munmap = {}
+
     def load(self, *args, force_patch_weights=False, **kwargs):
+        if not self.mmap_released:
+            self.named_modules_to_munmap = dict(self.model.named_modules())
+
         # always call `patch_weight_to_device` even for lowvram
         super().load(*args, force_patch_weights=True, **kwargs)
 
@@ -85,7 +99,7 @@ class GGUFModelPatcher(comfy.model_patcher.ModelPatcher):
         if not self.mmap_released:
             linked = []
             if kwargs.get("lowvram_model_memory", 0) > 0:
-                for n, m in self.model.named_modules():
+                for n, m in self.named_modules_to_munmap.items():
                     if hasattr(m, "weight"):
                         device = getattr(m.weight, "device", None)
                         if device == self.offload_device:
@@ -102,6 +116,7 @@ class GGUFModelPatcher(comfy.model_patcher.ModelPatcher):
                     # TODO: possible to OOM, find better way to detach
                     m.to(self.load_device).to(self.offload_device)
             self.mmap_released = True
+            self.named_modules_to_munmap = {}
 
     def clone(self, *args, **kwargs):
         src_cls = self.__class__
@@ -111,6 +126,7 @@ class GGUFModelPatcher(comfy.model_patcher.ModelPatcher):
         self.__class__ = src_cls
         # GGUF specific clone values below
         n.patch_on_device = getattr(self, "patch_on_device", False)
+        n.mmap_released = getattr(self, "mmap_released", False)
         if src_cls != GGUFModelPatcher:
             n.size = 0 # force recalc
         return n
@@ -118,11 +134,7 @@ class GGUFModelPatcher(comfy.model_patcher.ModelPatcher):
 class UnetLoaderGGUF:
     @classmethod
     def INPUT_TYPES(s):
-        # 同时从unet和unet_gguf路径获取文件列表
-        files = []
-        files += folder_paths.get_filename_list("unet")
-        files += folder_paths.get_filename_list("unet_gguf")
-        unet_names = sorted(files)
+        unet_names = [x for x in folder_paths.get_filename_list("unet_gguf")]
         return {
             "required": {
                 "unet_name": (unet_names,),
@@ -151,15 +163,9 @@ class UnetLoaderGGUF:
         else:
             ops.Linear.patch_dtype = getattr(torch, patch_dtype)
 
-        unet_path = folder_paths.get_full_path("unet", unet_name) or folder_paths.get_full_path("unet_gguf", unet_name)
-
-        if unet_path.endswith(".gguf"):
-            sd = gguf_sd_loader(unet_path)
-        else:
-            sd = comfy.utils.load_torch_file(unet_path, safe_load=True)
-            if "scaled_fp8" in sd:
-                raise NotImplementedError(f"Mixing scaled FP8 with GGUF is not supported! Use regular UNET loader or switch model(s)\n({unet_path})")
-
+        # init model
+        unet_path = folder_paths.get_full_path("unet", unet_name)
+        sd = gguf_sd_loader(unet_path)
         model = comfy.sd.load_diffusion_model_state_dict(
             sd, model_options={"custom_operations": ops}
         )
@@ -173,10 +179,7 @@ class UnetLoaderGGUF:
 class UnetLoaderGGUFAdvanced(UnetLoaderGGUF):
     @classmethod
     def INPUT_TYPES(s):
-        files = []
-        files += folder_paths.get_filename_list("unet")
-        files += folder_paths.get_filename_list("unet_gguf")
-        unet_names = sorted(files)
+        unet_names = [x for x in folder_paths.get_filename_list("unet_gguf")]
         return {
             "required": {
                 "unet_name": (unet_names,),

@@ -41,7 +41,7 @@ def reset_simpleai_args():
     reserve_vram = [['--reserve-vram', f'{reserve_vram_value}']] if reserve_vram_value and reserve_vram_value>0 else [] 
     smart_memory = [] if shared.sysinfo['gpu_memory']<8180 else [['--disable-smart-memory']]
     windows_standalone = [["--windows-standalone-build"]] if is_win32_standalone_build else []
-    fast_mode = [["--fast"]] if ads.get_admin_default('fast_comfyd_checkbox') else []
+    fast_mode = [['--fast', 'fp16_accumulation']] if ads.get_admin_default('fast_comfyd_checkbox') else []
     args_comfyd = comfyd.args_mapping(sys.argv) + [["--listen"], ["--port", f'{shared.sysinfo["loopback_port"]}']] + smart_memory + windows_standalone + reserve_vram + fast_mode
     args_comfyd += [["--cuda-malloc"]] if not shared.args.disable_async_cuda_allocation and not shared.args.async_cuda_allocation else []
     comfyd_images_path = os.path.join(shared.path_userhome, 'guest_user')

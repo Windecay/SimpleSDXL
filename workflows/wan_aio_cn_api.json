@@ -95,7 +95,7 @@
     },
     "class_type": "easy float",
     "_meta": {
-      "title": "Float"
+      "title": "浮点数"
     }
   },
   "70": {
@@ -104,7 +104,7 @@
     },
     "class_type": "easy float",
     "_meta": {
-      "title": "Float"
+      "title": "浮点数"
     }
   },
   "71": {
@@ -113,7 +113,7 @@
     },
     "class_type": "easy float",
     "_meta": {
-      "title": "Float"
+      "title": "浮点数"
     }
   },
   "74": {
@@ -133,7 +133,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "76": {
@@ -150,7 +150,7 @@
     },
     "class_type": "easy compare",
     "_meta": {
-      "title": "Compare"
+      "title": "比较"
     }
   },
   "77": {
@@ -159,7 +159,7 @@
     },
     "class_type": "easy int",
     "_meta": {
-      "title": "Int"
+      "title": "整数"
     }
   },
   "88": {
@@ -231,7 +231,7 @@
     },
     "class_type": "easy int",
     "_meta": {
-      "title": "Int"
+      "title": "整数"
     }
   },
   "124": {
@@ -244,7 +244,7 @@
     },
     "class_type": "ImageToMask",
     "_meta": {
-      "title": "Convert Image to Mask"
+      "title": "图像转换为遮罩"
     }
   },
   "126": {
@@ -270,7 +270,7 @@
     },
     "class_type": "easy compare",
     "_meta": {
-      "title": "Compare"
+      "title": "比较"
     }
   },
   "141": {
@@ -279,7 +279,7 @@
     },
     "class_type": "easy int",
     "_meta": {
-      "title": "Int"
+      "title": "整数"
     }
   },
   "142": {
@@ -299,7 +299,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "143": {
@@ -308,7 +308,7 @@
     },
     "class_type": "easy int",
     "_meta": {
-      "title": "Int"
+      "title": "整数"
     }
   },
   "144": {
@@ -325,7 +325,7 @@
     },
     "class_type": "easy compare",
     "_meta": {
-      "title": "Compare"
+      "title": "比较"
     }
   },
   "145": {
@@ -334,7 +334,7 @@
     },
     "class_type": "easy int",
     "_meta": {
-      "title": "Int"
+      "title": "整数"
     }
   },
   "146": {
@@ -351,7 +351,7 @@
     },
     "class_type": "easy compare",
     "_meta": {
-      "title": "Compare"
+      "title": "比较"
     }
   },
   "148": {
@@ -371,7 +371,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "149": {
@@ -391,7 +391,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "150": {
@@ -411,7 +411,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "151": {
@@ -431,7 +431,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "155": {
@@ -451,7 +451,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "156": {
@@ -471,7 +471,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "157": {
@@ -488,7 +488,7 @@
     },
     "class_type": "easy compare",
     "_meta": {
-      "title": "Compare"
+      "title": "比较"
     }
   },
   "158": {
@@ -497,7 +497,7 @@
     },
     "class_type": "easy int",
     "_meta": {
-      "title": "Int"
+      "title": "整数"
     }
   },
   "174": {
@@ -531,7 +531,7 @@
     },
     "class_type": "VAEEncode",
     "_meta": {
-      "title": "VAE Encode"
+      "title": "VAE编码"
     }
   },
   "177": {
@@ -547,7 +547,7 @@
     },
     "class_type": "VAEDecode",
     "_meta": {
-      "title": "VAE Decode"
+      "title": "VAE解码"
     }
   },
   "189": {
@@ -564,7 +564,7 @@
     },
     "class_type": "easy compare",
     "_meta": {
-      "title": "Compare"
+      "title": "比较"
     }
   },
   "195": {
@@ -580,7 +580,7 @@
     },
     "class_type": "VAEDecode",
     "_meta": {
-      "title": "VAE Decode"
+      "title": "VAE解码"
     }
   },
   "196": {
@@ -589,7 +589,7 @@
     },
     "class_type": "UpscaleModelLoader",
     "_meta": {
-      "title": "Load Upscale Model"
+      "title": "加载放大模型"
     }
   },
   "197": {
@@ -605,7 +605,7 @@
     },
     "class_type": "ImageUpscaleWithModel",
     "_meta": {
-      "title": "Upscale Image (using Model)"
+      "title": "使用模型放大图像"
     }
   },
   "202": {
@@ -622,7 +622,7 @@
     },
     "class_type": "easy compare",
     "_meta": {
-      "title": "Compare"
+      "title": "比较"
     }
   },
   "205": {
@@ -642,7 +642,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "208": {
@@ -655,7 +655,7 @@
     },
     "class_type": "DifferentialDiffusion",
     "_meta": {
-      "title": "Differential Diffusion"
+      "title": "差异扩散DifferentialDiffusion"
     }
   },
   "213": {
@@ -672,7 +672,7 @@
     },
     "class_type": "easy compare",
     "_meta": {
-      "title": "Compare"
+      "title": "比较"
     }
   },
   "217": {
@@ -699,7 +699,7 @@
     },
     "class_type": "UpscaleModelLoader",
     "_meta": {
-      "title": "Load Upscale Model"
+      "title": "加载放大模型"
     }
   },
   "224": {
@@ -724,7 +724,7 @@
     },
     "class_type": "ImageUpscaleWithModel",
     "_meta": {
-      "title": "Upscale Image (using Model)"
+      "title": "使用模型放大图像"
     }
   },
   "239": {
@@ -744,7 +744,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "242": {
@@ -776,7 +776,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "258": {
@@ -818,7 +818,7 @@
     },
     "class_type": "VAEDecode",
     "_meta": {
-      "title": "VAE Decode"
+      "title": "VAE解码"
     }
   },
   "268": {
@@ -838,7 +838,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "271": {
@@ -858,7 +858,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "272": {
@@ -875,7 +875,7 @@
     },
     "class_type": "easy compare",
     "_meta": {
-      "title": "Compare"
+      "title": "比较"
     }
   },
   "273": {
@@ -884,7 +884,7 @@
     },
     "class_type": "easy int",
     "_meta": {
-      "title": "Int"
+      "title": "整数"
     }
   },
   "275": {
@@ -902,7 +902,7 @@
     },
     "class_type": "easy promptReplace",
     "_meta": {
-      "title": "PromptReplace"
+      "title": "提示词替换"
     }
   },
   "276": {
@@ -949,7 +949,7 @@
     },
     "class_type": "easy compare",
     "_meta": {
-      "title": "Compare"
+      "title": "比较"
     }
   },
   "280": {
@@ -967,7 +967,7 @@
     },
     "class_type": "easy promptReplace",
     "_meta": {
-      "title": "PromptReplace"
+      "title": "提示词替换"
     }
   },
   "281": {
@@ -1002,7 +1002,7 @@
     },
     "class_type": "InvertMask",
     "_meta": {
-      "title": "InvertMask"
+      "title": "反转遮罩"
     }
   },
   "284": {
@@ -1020,7 +1020,7 @@
     },
     "class_type": "easy promptReplace",
     "_meta": {
-      "title": "PromptReplace"
+      "title": "提示词替换"
     }
   },
   "285": {
@@ -1060,7 +1060,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "298": {
@@ -1080,7 +1080,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "300": {
@@ -1138,7 +1138,7 @@
     },
     "class_type": "ImageScaleToTotalPixels",
     "_meta": {
-      "title": "Scale Image to Total Pixels"
+      "title": "缩放图像（像素）"
     }
   },
   "316": {
@@ -1191,7 +1191,7 @@
     },
     "class_type": "easy compare",
     "_meta": {
-      "title": "Compare"
+      "title": "比较"
     }
   },
   "319": {
@@ -1211,7 +1211,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "323": {
@@ -1259,7 +1259,7 @@
     },
     "class_type": "KSampler",
     "_meta": {
-      "title": "KSampler"
+      "title": "K采样器"
     }
   },
   "325": {
@@ -1307,7 +1307,7 @@
     },
     "class_type": "KSampler",
     "_meta": {
-      "title": "KSampler"
+      "title": "K采样器"
     }
   },
   "332": {
@@ -1369,7 +1369,7 @@
     },
     "class_type": "MaskToImage",
     "_meta": {
-      "title": "Convert Mask to Image"
+      "title": "遮罩转换为图像"
     }
   },
   "339": {
@@ -1386,7 +1386,7 @@
     },
     "class_type": "easy compare",
     "_meta": {
-      "title": "Compare"
+      "title": "比较"
     }
   },
   "340": {
@@ -1406,7 +1406,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "341": {
@@ -1473,7 +1473,7 @@
     },
     "class_type": "ImageScaleToTotalPixels",
     "_meta": {
-      "title": "Scale Image to Total Pixels"
+      "title": "缩放图像（像素）"
     }
   },
   "345": {
@@ -1538,7 +1538,7 @@
     },
     "class_type": "PreviewImage",
     "_meta": {
-      "title": "Preview Image"
+      "title": "预览图像"
     }
   },
   "349": {
@@ -1600,7 +1600,7 @@
     },
     "class_type": "easy compare",
     "_meta": {
-      "title": "Compare"
+      "title": "比较"
     }
   },
   "357": {
@@ -1644,7 +1644,7 @@
     },
     "class_type": "easy anythingIndexSwitch",
     "_meta": {
-      "title": "Any Index Switch"
+      "title": "编号切换"
     }
   },
   "358": {
@@ -1662,7 +1662,7 @@
     },
     "class_type": "easy promptReplace",
     "_meta": {
-      "title": "PromptReplace"
+      "title": "提示词替换"
     }
   },
   "360": {
@@ -1682,7 +1682,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "361": {
@@ -1703,7 +1703,7 @@
     },
     "class_type": "VAEEncodeForInpaint",
     "_meta": {
-      "title": "VAE Encode (for Inpainting)"
+      "title": "VAE编码（局部重绘）"
     }
   },
   "362": {
@@ -1727,7 +1727,7 @@
     },
     "class_type": "easy anythingIndexSwitch",
     "_meta": {
-      "title": "Any Index Switch"
+      "title": "编号切换"
     }
   },
   "363": {
@@ -1751,7 +1751,7 @@
     },
     "class_type": "easy anythingIndexSwitch",
     "_meta": {
-      "title": "Any Index Switch"
+      "title": "编号切换"
     }
   },
   "364": {
@@ -1780,7 +1780,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "366": {
@@ -1804,7 +1804,7 @@
     },
     "class_type": "easy anythingIndexSwitch",
     "_meta": {
-      "title": "Any Index Switch"
+      "title": "编号切换"
     }
   },
   "367": {
@@ -1821,7 +1821,7 @@
     },
     "class_type": "easy compare",
     "_meta": {
-      "title": "Compare"
+      "title": "比较"
     }
   },
   "368": {
@@ -1838,7 +1838,7 @@
     },
     "class_type": "GrowMask",
     "_meta": {
-      "title": "GrowMask"
+      "title": "扩展遮罩"
     }
   },
   "370": {
@@ -1888,7 +1888,7 @@
     },
     "class_type": "easy anythingIndexSwitch",
     "_meta": {
-      "title": "Any Index Switch"
+      "title": "编号切换"
     }
   },
   "372": {
@@ -1904,7 +1904,7 @@
     },
     "class_type": "VAEDecode",
     "_meta": {
-      "title": "VAE Decode"
+      "title": "VAE解码"
     }
   },
   "373": {
@@ -1930,7 +1930,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "379": {
@@ -1943,7 +1943,7 @@
     },
     "class_type": "ImageToMask",
     "_meta": {
-      "title": "Convert Image to Mask"
+      "title": "图像转换为遮罩"
     }
   },
   "380": {
@@ -1955,7 +1955,7 @@
     },
     "class_type": "easy isMaskEmpty",
     "_meta": {
-      "title": "Is Mask Empty"
+      "title": "遮罩是否为空"
     }
   },
   "381": {
@@ -1988,7 +1988,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "386": {
@@ -2002,7 +2002,7 @@
     },
     "class_type": "ImageScaleBy",
     "_meta": {
-      "title": "Upscale Image By"
+      "title": "缩放图像（比例）"
     }
   },
   "387": {
@@ -2018,7 +2018,7 @@
     },
     "class_type": "ImageUpscaleWithModel",
     "_meta": {
-      "title": "Upscale Image (using Model)"
+      "title": "使用模型放大图像"
     }
   },
   "389": {
@@ -2049,7 +2049,7 @@
     },
     "class_type": "easy promptReplace",
     "_meta": {
-      "title": "PromptReplace"
+      "title": "提示词替换"
     }
   },
   "391": {
@@ -2058,7 +2058,7 @@
     },
     "class_type": "easy int",
     "_meta": {
-      "title": "Int"
+      "title": "整数"
     }
   },
   "393": {
@@ -2078,7 +2078,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "394": {
@@ -2094,7 +2094,7 @@
     },
     "class_type": "VAEDecode",
     "_meta": {
-      "title": "VAE Decode"
+      "title": "VAE解码"
     }
   },
   "395": {
@@ -2111,7 +2111,7 @@
     },
     "class_type": "easy compare",
     "_meta": {
-      "title": "Compare"
+      "title": "比较"
     }
   },
   "396": {
@@ -2120,7 +2120,7 @@
     },
     "class_type": "easy string",
     "_meta": {
-      "title": "String"
+      "title": "字符串"
     }
   },
   "398": {
@@ -2153,7 +2153,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "400": {
@@ -2173,7 +2173,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "401": {
@@ -2194,7 +2194,7 @@
     },
     "class_type": "easy anythingIndexSwitch",
     "_meta": {
-      "title": "Any Index Switch"
+      "title": "编号切换"
     }
   },
   "403": {
@@ -2203,7 +2203,7 @@
     },
     "class_type": "easy string",
     "_meta": {
-      "title": "String"
+      "title": "字符串"
     }
   },
   "404": {
@@ -2220,7 +2220,7 @@
     },
     "class_type": "easy compare",
     "_meta": {
-      "title": "Compare"
+      "title": "比较"
     }
   },
   "406": {
@@ -2282,7 +2282,7 @@
     },
     "class_type": "easy anythingIndexSwitch",
     "_meta": {
-      "title": "Any Index Switch"
+      "title": "编号切换"
     }
   },
   "410": {
@@ -2291,7 +2291,7 @@
     },
     "class_type": "UpscaleModelLoader",
     "_meta": {
-      "title": "Load Upscale Model"
+      "title": "加载放大模型"
     }
   },
   "411": {
@@ -2305,7 +2305,7 @@
     },
     "class_type": "ImageScaleBy",
     "_meta": {
-      "title": "Upscale Image By"
+      "title": "缩放图像（比例）"
     }
   },
   "412": {
@@ -2376,7 +2376,7 @@
     },
     "class_type": "KSampler",
     "_meta": {
-      "title": "KSampler"
+      "title": "K采样器"
     }
   },
   "414": {
@@ -2392,7 +2392,7 @@
     },
     "class_type": "VAEDecode",
     "_meta": {
-      "title": "VAE Decode"
+      "title": "VAE解码"
     }
   },
   "416": {
@@ -2446,7 +2446,7 @@
     },
     "class_type": "easy compare",
     "_meta": {
-      "title": "Compare"
+      "title": "比较"
     }
   },
   "422": {
@@ -2466,7 +2466,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "424": {
@@ -2490,7 +2490,7 @@
     },
     "class_type": "easy anythingIndexSwitch",
     "_meta": {
-      "title": "Any Index Switch"
+      "title": "编号切换"
     }
   },
   "426": {
@@ -2510,7 +2510,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "427": {
@@ -2530,7 +2530,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "428": {
@@ -2550,7 +2550,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "429": {
@@ -2570,7 +2570,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "488": {
@@ -2662,7 +2662,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "525": {
@@ -2691,7 +2691,7 @@
     },
     "class_type": "easy forLoopEnd",
     "_meta": {
-      "title": "For Loop End"
+      "title": "For循环-结束"
     }
   },
   "528": {
@@ -2700,7 +2700,7 @@
     },
     "class_type": "easy int",
     "_meta": {
-      "title": "Int"
+      "title": "整数"
     }
   },
   "529": {
@@ -2709,7 +2709,7 @@
     },
     "class_type": "easy int",
     "_meta": {
-      "title": "Int"
+      "title": "整数"
     }
   },
   "534": {
@@ -2770,7 +2770,7 @@
     },
     "class_type": "easy int",
     "_meta": {
-      "title": "Int"
+      "title": "整数"
     }
   },
   "537": {
@@ -2818,7 +2818,7 @@
     },
     "class_type": "easy forLoopEnd",
     "_meta": {
-      "title": "For Loop End"
+      "title": "For循环-结束"
     }
   },
   "539": {
@@ -2835,7 +2835,7 @@
     },
     "class_type": "easy compare",
     "_meta": {
-      "title": "Compare"
+      "title": "比较"
     }
   },
   "541": {
@@ -2852,7 +2852,7 @@
     },
     "class_type": "easy forLoopStart",
     "_meta": {
-      "title": "For Loop Start"
+      "title": "For循环-开始"
     }
   },
   "542": {
@@ -2935,7 +2935,7 @@
     },
     "class_type": "easy compare",
     "_meta": {
-      "title": "Compare"
+      "title": "比较"
     }
   },
   "554": {
@@ -2952,7 +2952,7 @@
     },
     "class_type": "easy compare",
     "_meta": {
-      "title": "Compare"
+      "title": "比较"
     }
   },
   "556": {
@@ -2981,7 +2981,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "558": {
@@ -3001,7 +3001,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "563": {
@@ -3014,7 +3014,7 @@
     },
     "class_type": "easy forLoopStart",
     "_meta": {
-      "title": "For Loop Start"
+      "title": "For循环-开始"
     }
   },
   "565": {
@@ -3030,7 +3030,7 @@
     },
     "class_type": "easy forLoopEnd",
     "_meta": {
-      "title": "For Loop End"
+      "title": "For循环-结束"
     }
   },
   "566": {
@@ -3039,7 +3039,7 @@
     },
     "class_type": "easy boolean",
     "_meta": {
-      "title": "Boolean"
+      "title": "布尔"
     }
   },
   "568": {
@@ -3104,7 +3104,7 @@
     },
     "class_type": "easy int",
     "_meta": {
-      "title": "Int"
+      "title": "整数"
     }
   },
   "574": {
@@ -3113,7 +3113,7 @@
     },
     "class_type": "easy int",
     "_meta": {
-      "title": "Int"
+      "title": "整数"
     }
   },
   "576": {
@@ -3130,7 +3130,7 @@
     },
     "class_type": "easy compare",
     "_meta": {
-      "title": "Compare"
+      "title": "比较"
     }
   },
   "577": {
@@ -3150,7 +3150,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "578": {
@@ -3170,7 +3170,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "579": {
@@ -3190,7 +3190,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "580": {
@@ -3207,7 +3207,7 @@
     },
     "class_type": "easy compare",
     "_meta": {
-      "title": "Compare"
+      "title": "比较"
     }
   },
   "581": {
@@ -3227,7 +3227,7 @@
     },
     "class_type": "easy anythingIndexSwitch",
     "_meta": {
-      "title": "Any Index Switch"
+      "title": "编号切换"
     }
   },
   "582": {
@@ -3247,7 +3247,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "583": {
@@ -3264,7 +3264,7 @@
     },
     "class_type": "easy forLoopStart",
     "_meta": {
-      "title": "For Loop Start"
+      "title": "For循环-开始"
     }
   },
   "584": {
@@ -3345,7 +3345,7 @@
     },
     "class_type": "easy compare",
     "_meta": {
-      "title": "Compare"
+      "title": "比较"
     }
   },
   "608": {
@@ -3369,7 +3369,7 @@
     },
     "class_type": "easy int",
     "_meta": {
-      "title": "Int"
+      "title": "整数"
     }
   },
   "620": {
@@ -3410,7 +3410,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "634": {
@@ -3427,7 +3427,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "638": {
@@ -3486,7 +3486,7 @@
     },
     "class_type": "easy anythingIndexSwitch",
     "_meta": {
-      "title": "Any Index Switch"
+      "title": "编号切换"
     }
   },
   "643": {
@@ -3503,7 +3503,7 @@
     },
     "class_type": "easy compare",
     "_meta": {
-      "title": "Compare"
+      "title": "比较"
     }
   },
   "645": {
@@ -3520,7 +3520,7 @@
     },
     "class_type": "easy compare",
     "_meta": {
-      "title": "Compare"
+      "title": "比较"
     }
   },
   "649": {
@@ -3565,7 +3565,7 @@
     },
     "class_type": "KSampler",
     "_meta": {
-      "title": "KSampler"
+      "title": "K采样器"
     }
   },
   "652": {
@@ -3589,7 +3589,7 @@
     },
     "class_type": "easy anythingIndexSwitch",
     "_meta": {
-      "title": "Any Index Switch"
+      "title": "编号切换"
     }
   },
   "655": {
@@ -3633,7 +3633,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "659": {
@@ -3754,7 +3754,7 @@
     },
     "class_type": "KSampler",
     "_meta": {
-      "title": "KSampler"
+      "title": "K采样器"
     }
   },
   "664": {
@@ -3767,7 +3767,7 @@
     },
     "class_type": "DifferentialDiffusion",
     "_meta": {
-      "title": "Differential Diffusion"
+      "title": "差异扩散DifferentialDiffusion"
     }
   },
   "666": {
@@ -3787,7 +3787,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "668": {
@@ -3837,7 +3837,7 @@
     },
     "class_type": "easy compare",
     "_meta": {
-      "title": "Compare"
+      "title": "比较"
     }
   },
   "671": {
@@ -3854,7 +3854,7 @@
     },
     "class_type": "easy compare",
     "_meta": {
-      "title": "Compare"
+      "title": "比较"
     }
   },
   "672": {
@@ -3874,7 +3874,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "673": {
@@ -3887,7 +3887,7 @@
     },
     "class_type": "ImageToMask",
     "_meta": {
-      "title": "Convert Image to Mask"
+      "title": "图像转换为遮罩"
     }
   },
   "674": {
@@ -3937,7 +3937,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "676": {
@@ -3946,7 +3946,7 @@
     },
     "class_type": "easy int",
     "_meta": {
-      "title": "Int"
+      "title": "整数"
     }
   },
   "677": {
@@ -3979,7 +3979,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "679": {
@@ -3999,7 +3999,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "680": {
@@ -4060,7 +4060,7 @@
     },
     "class_type": "KSampler",
     "_meta": {
-      "title": "KSampler"
+      "title": "K采样器"
     }
   },
   "683": {
@@ -4076,7 +4076,7 @@
     },
     "class_type": "VAEDecode",
     "_meta": {
-      "title": "VAE Decode"
+      "title": "VAE解码"
     }
   },
   "692": {
@@ -4109,7 +4109,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "694": {
@@ -4129,7 +4129,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "696": {
@@ -4149,7 +4149,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "697": {
@@ -4167,7 +4167,7 @@
     },
     "class_type": "easy promptReplace",
     "_meta": {
-      "title": "PromptReplace"
+      "title": "提示词替换"
     }
   },
   "698": {
@@ -4185,7 +4185,7 @@
     },
     "class_type": "easy promptReplace",
     "_meta": {
-      "title": "PromptReplace"
+      "title": "提示词替换"
     }
   },
   "699": {
@@ -4214,7 +4214,7 @@
     },
     "class_type": "ImageUpscaleWithModel",
     "_meta": {
-      "title": "Upscale Image (using Model)"
+      "title": "使用模型放大图像"
     }
   },
   "701": {
@@ -4223,7 +4223,7 @@
     },
     "class_type": "UpscaleModelLoader",
     "_meta": {
-      "title": "Load Upscale Model"
+      "title": "加载放大模型"
     }
   },
   "702": {
@@ -4240,7 +4240,7 @@
     },
     "class_type": "easy compare",
     "_meta": {
-      "title": "Compare"
+      "title": "比较"
     }
   },
   "703": {
@@ -4276,7 +4276,7 @@
     },
     "class_type": "easy anythingIndexSwitch",
     "_meta": {
-      "title": "Any Index Switch"
+      "title": "编号切换"
     }
   },
   "705": {
@@ -4296,7 +4296,7 @@
     },
     "class_type": "easy anythingIndexSwitch",
     "_meta": {
-      "title": "Any Index Switch"
+      "title": "编号切换"
     }
   },
   "706": {
@@ -4305,7 +4305,7 @@
     },
     "class_type": "easy string",
     "_meta": {
-      "title": "String"
+      "title": "字符串"
     }
   },
   "707": {
@@ -4322,7 +4322,7 @@
     },
     "class_type": "easy compare",
     "_meta": {
-      "title": "Compare"
+      "title": "比较"
     }
   },
   "708": {
@@ -4339,7 +4339,7 @@
     },
     "class_type": "easy compare",
     "_meta": {
-      "title": "Compare"
+      "title": "比较"
     }
   },
   "709": {
@@ -4359,7 +4359,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "710": {
@@ -4421,7 +4421,7 @@
     },
     "class_type": "easy forLoopEnd",
     "_meta": {
-      "title": "For Loop End"
+      "title": "For循环-结束"
     }
   },
   "714": {
@@ -4445,7 +4445,7 @@
     },
     "class_type": "easy anythingIndexSwitch",
     "_meta": {
-      "title": "Any Index Switch"
+      "title": "编号切换"
     }
   },
   "715": {
@@ -4469,7 +4469,7 @@
     },
     "class_type": "easy anythingIndexSwitch",
     "_meta": {
-      "title": "Any Index Switch"
+      "title": "编号切换"
     }
   },
   "716": {
@@ -4493,7 +4493,7 @@
     },
     "class_type": "easy anythingIndexSwitch",
     "_meta": {
-      "title": "Any Index Switch"
+      "title": "编号切换"
     }
   },
   "717": {
@@ -4517,7 +4517,7 @@
     },
     "class_type": "easy anythingIndexSwitch",
     "_meta": {
-      "title": "Any Index Switch"
+      "title": "编号切换"
     }
   },
   "718": {
@@ -4541,7 +4541,7 @@
     },
     "class_type": "easy anythingIndexSwitch",
     "_meta": {
-      "title": "Any Index Switch"
+      "title": "编号切换"
     }
   },
   "719": {
@@ -4565,7 +4565,7 @@
     },
     "class_type": "easy anythingIndexSwitch",
     "_meta": {
-      "title": "Any Index Switch"
+      "title": "编号切换"
     }
   },
   "720": {
@@ -4589,7 +4589,7 @@
     },
     "class_type": "easy anythingIndexSwitch",
     "_meta": {
-      "title": "Any Index Switch"
+      "title": "编号切换"
     }
   },
   "721": {
@@ -4607,7 +4607,7 @@
     },
     "class_type": "easy promptReplace",
     "_meta": {
-      "title": "PromptReplace"
+      "title": "提示词替换"
     }
   },
   "722": {
@@ -4620,7 +4620,7 @@
     },
     "class_type": "easy forLoopStart",
     "_meta": {
-      "title": "For Loop Start"
+      "title": "For循环-开始"
     }
   },
   "725": {
@@ -4628,7 +4628,7 @@
       "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
       "strength_model": 0,
       "model": [
-        "587",
+        "1006",
         0
       ]
     },
@@ -4682,7 +4682,7 @@
     },
     "class_type": "easy compare",
     "_meta": {
-      "title": "Compare"
+      "title": "比较"
     }
   },
   "755": {
@@ -4691,7 +4691,7 @@
     },
     "class_type": "easy int",
     "_meta": {
-      "title": "Int"
+      "title": "整数"
     }
   },
   "756": {
@@ -4716,7 +4716,7 @@
     },
     "class_type": "easy string",
     "_meta": {
-      "title": "String"
+      "title": "字符串"
     }
   },
   "760": {
@@ -4732,7 +4732,7 @@
     },
     "class_type": "ImageUpscaleWithModel",
     "_meta": {
-      "title": "Upscale Image (using Model)"
+      "title": "使用模型放大图像"
     }
   },
   "761": {
@@ -4741,7 +4741,7 @@
     },
     "class_type": "UpscaleModelLoader",
     "_meta": {
-      "title": "Load Upscale Model"
+      "title": "加载放大模型"
     }
   },
   "764": {
@@ -4782,7 +4782,7 @@
     },
     "class_type": "ModelSamplingSD3",
     "_meta": {
-      "title": "ModelSamplingSD3"
+      "title": "采样算法（SD3）"
     }
   },
   "768": {
@@ -4798,7 +4798,7 @@
     },
     "class_type": "CLIPTextEncode",
     "_meta": {
-      "title": "CLIP Text Encode (Prompt)"
+      "title": "CLIP文本编码"
     }
   },
   "769": {
@@ -4814,7 +4814,7 @@
     },
     "class_type": "CLIPTextEncode",
     "_meta": {
-      "title": "CLIP Text Encode (Prompt)"
+      "title": "CLIP文本编码"
     }
   },
   "776": {
@@ -4832,7 +4832,7 @@
     },
     "class_type": "EmptyHunyuanLatentVideo",
     "_meta": {
-      "title": "EmptyHunyuanLatentVideo"
+      "title": "空Latent视频（混元）"
     }
   },
   "782": {
@@ -4892,7 +4892,7 @@
     },
     "class_type": "RepeatImageBatch",
     "_meta": {
-      "title": "RepeatImageBatch"
+      "title": "复制图像批次"
     }
   },
   "814": {
@@ -4928,7 +4928,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "817": {
@@ -4959,7 +4959,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "823": {
@@ -4976,7 +4976,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "839": {
@@ -5113,7 +5113,7 @@
     },
     "class_type": "easy int",
     "_meta": {
-      "title": "Int"
+      "title": "整数"
     }
   },
   "868": {
@@ -5130,7 +5130,7 @@
     },
     "class_type": "easy compare",
     "_meta": {
-      "title": "Compare"
+      "title": "比较"
     }
   },
   "869": {
@@ -5150,7 +5150,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "871": {
@@ -5179,7 +5179,7 @@
     },
     "class_type": "VAEEncode",
     "_meta": {
-      "title": "VAE Encode"
+      "title": "VAE编码"
     }
   },
   "876": {
@@ -5195,7 +5195,7 @@
     },
     "class_type": "SetLatentNoiseMask",
     "_meta": {
-      "title": "Set Latent Noise Mask"
+      "title": "设置Latent噪波遮罩"
     }
   },
   "878": {
@@ -5295,7 +5295,7 @@
     },
     "class_type": "KSampler",
     "_meta": {
-      "title": "KSampler"
+      "title": "K采样器"
     }
   },
   "888": {
@@ -5334,7 +5334,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "894": {
@@ -5354,7 +5354,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "895": {
@@ -5374,7 +5374,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "896": {
@@ -5394,7 +5394,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "897": {
@@ -5410,7 +5410,7 @@
     },
     "class_type": "easy forLoopEnd",
     "_meta": {
-      "title": "For Loop End"
+      "title": "For循环-结束"
     }
   },
   "898": {
@@ -5423,7 +5423,7 @@
     },
     "class_type": "easy forLoopStart",
     "_meta": {
-      "title": "For Loop Start"
+      "title": "For循环-开始"
     }
   },
   "902": {
@@ -5447,7 +5447,7 @@
     },
     "class_type": "easy anythingIndexSwitch",
     "_meta": {
-      "title": "Any Index Switch"
+      "title": "编号切换"
     }
   },
   "903": {
@@ -5456,7 +5456,7 @@
     },
     "class_type": "easy boolean",
     "_meta": {
-      "title": "Boolean"
+      "title": "布尔"
     }
   },
   "904": {
@@ -5476,7 +5476,7 @@
     },
     "class_type": "easy ifElse",
     "_meta": {
-      "title": "If else"
+      "title": "是否判断"
     }
   },
   "905": {
@@ -5493,7 +5493,7 @@
     },
     "class_type": "easy compare",
     "_meta": {
-      "title": "Compare"
+      "title": "比较"
     }
   },
   "906": {
@@ -5510,7 +5510,7 @@
     },
     "class_type": "easy compare",
     "_meta": {
-      "title": "Compare"
+      "title": "比较"
     }
   },
   "907": {
@@ -5527,7 +5527,7 @@
     },
     "class_type": "easy compare",
     "_meta": {
-      "title": "Compare"
+      "title": "比较"
     }
   },
   "908": {
@@ -5544,7 +5544,7 @@
     },
     "class_type": "easy compare",
     "_meta": {
-      "title": "Compare"
+      "title": "比较"
     }
   },
   "910": {
@@ -5553,7 +5553,7 @@
     },
     "class_type": "easy int",
     "_meta": {
-      "title": "Int"
+      "title": "整数"
     }
   },
   "911": {
@@ -5562,7 +5562,7 @@
     },
     "class_type": "easy int",
     "_meta": {
-      "title": "Int"
+      "title": "整数"
     }
   },
   "912": {
@@ -5571,7 +5571,7 @@
     },
     "class_type": "easy int",
     "_meta": {
-      "title": "Int"
+      "title": "整数"
     }
   },
   "919": {
@@ -5639,7 +5639,7 @@
     },
     "class_type": "CLIPTextEncode",
     "_meta": {
-      "title": "CLIP Text Encode (Prompt)"
+      "title": "CLIP文本编码"
     }
   },
   "945": {
@@ -5691,7 +5691,7 @@
     },
     "class_type": "CLIPTextEncode",
     "_meta": {
-      "title": "CLIP Text Encode (Prompt)"
+      "title": "CLIP文本编码"
     }
   },
   "950": {
@@ -5707,7 +5707,7 @@
     },
     "class_type": "VAEEncode",
     "_meta": {
-      "title": "VAE Encode"
+      "title": "VAE编码"
     }
   },
   "951": {
@@ -5723,7 +5723,7 @@
     },
     "class_type": "SetLatentNoiseMask",
     "_meta": {
-      "title": "Set Latent Noise Mask"
+      "title": "设置Latent噪波遮罩"
     }
   },
   "979": {
@@ -5732,7 +5732,7 @@
     },
     "class_type": "UpscaleModelLoader",
     "_meta": {
-      "title": "Load Upscale Model"
+      "title": "加载放大模型"
     }
   },
   "980": {
@@ -5823,7 +5823,7 @@
     },
     "class_type": "CLIPTextEncode",
     "_meta": {
-      "title": "CLIP Text Encode (Prompt)"
+      "title": "CLIP文本编码"
     }
   },
   "985": {
@@ -5910,7 +5910,7 @@
     },
     "class_type": "UpscaleModelLoader",
     "_meta": {
-      "title": "Load Upscale Model"
+      "title": "加载放大模型"
     }
   },
   "988": {
@@ -6069,7 +6069,7 @@
     },
     "class_type": "VAEEncode",
     "_meta": {
-      "title": "VAE Encode"
+      "title": "VAE编码"
     }
   },
   "1001": {
@@ -6100,7 +6100,7 @@
     },
     "class_type": "VAEEncode",
     "_meta": {
-      "title": "VAE Encode"
+      "title": "VAE编码"
     }
   },
   "1003": {
@@ -6143,6 +6143,19 @@
     "class_type": "LoraLoaderModelOnly",
     "_meta": {
       "title": "lora_8"
+    }
+  },
+  "1006": {
+    "inputs": {
+      "enable_fp16_accumulation": true,
+      "model": [
+        "587",
+        0
+      ]
+    },
+    "class_type": "ModelPatchTorchSettings",
+    "_meta": {
+      "title": "Model Patch Torch Settings"
     }
   }
 }

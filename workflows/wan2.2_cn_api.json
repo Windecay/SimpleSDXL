@@ -414,7 +414,7 @@
       "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
       "strength_model": 0,
       "model": [
-        "32",
+        "98",
         0
       ]
     },
@@ -456,7 +456,7 @@
       "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
       "strength_model": 0,
       "model": [
-        "26",
+        "99",
         0
       ]
     },
@@ -632,6 +632,32 @@
     "class_type": "easy compare",
     "_meta": {
       "title": "Compare"
+    }
+  },
+  "98": {
+    "inputs": {
+      "enable_fp16_accumulation": true,
+      "model": [
+        "32",
+        0
+      ]
+    },
+    "class_type": "ModelPatchTorchSettings",
+    "_meta": {
+      "title": "Model Patch Torch Settings"
+    }
+  },
+  "99": {
+    "inputs": {
+      "enable_fp16_accumulation": true,
+      "model": [
+        "26",
+        0
+      ]
+    },
+    "class_type": "ModelPatchTorchSettings",
+    "_meta": {
+      "title": "Model Patch Torch Settings"
     }
   }
 }

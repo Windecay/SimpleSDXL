@@ -530,7 +530,7 @@
   "57": {
     "inputs": {
       "lora_name": "wan2.2_i2v_A14b_low_noise_lora_rank64_lightx2v_4step_1022.safetensors",
-      "strength_model": 1.20,
+      "strength_model": 1.2,
       "model": [
         "79",
         0
@@ -829,7 +829,7 @@
       "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
       "strength_model": 0,
       "model": [
-        "26",
+        "93",
         0
       ]
     },
@@ -843,7 +843,7 @@
       "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
       "strength_model": 0,
       "model": [
-        "32",
+        "94",
         0
       ]
     },
@@ -1091,6 +1091,32 @@
     "class_type": "KSampler",
     "_meta": {
       "title": "KSampler"
+    }
+  },
+  "93": {
+    "inputs": {
+      "enable_fp16_accumulation": true,
+      "model": [
+        "26",
+        0
+      ]
+    },
+    "class_type": "ModelPatchTorchSettings",
+    "_meta": {
+      "title": "Model Patch Torch Settings"
+    }
+  },
+  "94": {
+    "inputs": {
+      "enable_fp16_accumulation": true,
+      "model": [
+        "32",
+        0
+      ]
+    },
+    "class_type": "ModelPatchTorchSettings",
+    "_meta": {
+      "title": "Model Patch Torch Settings"
     }
   }
 }

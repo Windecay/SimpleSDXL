@@ -26,7 +26,7 @@ from comfy_api import feature_flags
 setup_logger(log_level=args.verbose, use_stdout=args.log_stdout)
 
 if __name__ == "__main__":
-    #NOTE: These do not do anything on core ComfyUI, they are for custom nodes.
+    os.environ['TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL'] = '1'
     os.environ['HF_HUB_DISABLE_TELEMETRY'] = '1'
     os.environ['DO_NOT_TRACK'] = '1'
 
@@ -124,6 +124,7 @@ if os.name == "nt":
     os.environ['MIMALLOC_PURGE_DELAY'] = '0'
 
 if __name__ == "__main__":
+    os.environ['TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL'] = '1'
     if args.default_device is not None:
         default_dev = args.default_device
         devices = list(range(32))
@@ -136,6 +137,7 @@ if __name__ == "__main__":
     if args.cuda_device is not None:
         os.environ['CUDA_VISIBLE_DEVICES'] = str(args.cuda_device)
         os.environ['HIP_VISIBLE_DEVICES'] = str(args.cuda_device)
+        os.environ["ASCEND_RT_VISIBLE_DEVICES"] = str(args.cuda_device)
         logging.info("Set cuda device to: {}".format(args.cuda_device))
 
     if args.oneapi_device_selector is not None:
@@ -179,10 +181,12 @@ def prompt_worker(q, server_instance):
     cache_type = execution.CacheType.CLASSIC
     if args.cache_lru > 0:
         cache_type = execution.CacheType.LRU
+    elif args.cache_ram > 0:
+        cache_type = execution.CacheType.RAM_PRESSURE
     elif args.cache_none:
-        cache_type = execution.CacheType.DEPENDENCY_AWARE
+        cache_type = execution.CacheType.NONE
 
-    e = execution.PromptExecutor(server_instance, cache_type=cache_type, cache_size=args.cache_lru)
+    e = execution.PromptExecutor(server_instance, cache_type=cache_type, cache_args={ "lru" : args.cache_lru, "ram" : args.cache_ram } )
     last_gc_collect = 0
     need_gc = False
     gc_collect_interval = 10.0
@@ -199,14 +203,21 @@ def prompt_worker(q, server_instance):
             prompt_id = item[1]
             server_instance.last_prompt_id = prompt_id
 
-            e.execute(item[2], prompt_id, item[3], item[4])
+            sensitive = item[5]
+            extra_data = item[3].copy()
+            for k in sensitive:
+                extra_data[k] = sensitive[k]
+
+            e.execute(item[2], prompt_id, extra_data, item[4])
             need_gc = True
+
+            remove_sensitive = lambda prompt: prompt[:5] + prompt[6:]
             q.task_done(item_id,
                         e.history_result,
                         status=execution.PromptQueue.ExecutionStatus(
                             status_str='success' if e.success else 'error',
                             completed=e.success,
-                            messages=e.status_messages))
+                            messages=e.status_messages), process_item=remove_sensitive)
             if server_instance.client_id is not None:
                 server_instance.send_sync("executing", {"node": None, "prompt_id": prompt_id}, server_instance.client_id)
 

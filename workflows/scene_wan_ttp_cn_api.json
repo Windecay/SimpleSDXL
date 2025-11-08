@@ -120,7 +120,7 @@
       "lora_name": "lightx2v_T2V_14B_cfg_step_distill_v2_lora_rank64_bf16.safetensors",
       "strength_model": 1.1,
       "model": [
-        "149",
+        "195",
         0
       ]
     },
@@ -569,6 +569,32 @@
       "title": "If else"
     }
   },
+  "194": {
+    "inputs": {
+      "sage_attention": "auto",
+      "model": [
+        "149",
+        0
+      ]
+    },
+    "class_type": "PathchSageAttentionKJ",
+    "_meta": {
+      "title": "Patch Sage Attention KJ"
+    }
+  },
+  "195": {
+    "inputs": {
+      "enable_fp16_accumulation": true,
+      "model": [
+        "194",
+        0
+      ]
+    },
+    "class_type": "ModelPatchTorchSettings",
+    "_meta": {
+      "title": "Model Patch Torch Settings"
+    }
+  },
   "166:122": {
     "inputs": {
       "upscale_model": [
@@ -585,6 +611,18 @@
       "title": "Upscale Image (using Model)"
     }
   },
+  "166:112": {
+    "inputs": {
+      "anything": [
+        "190",
+        0
+      ]
+    },
+    "class_type": "easy cleanGpuUsed",
+    "_meta": {
+      "title": "Clean VRAM Used"
+    }
+  },
   "166:139": {
     "inputs": {
       "shift": 8,
@@ -596,18 +634,6 @@
     "class_type": "ModelSamplingSD3",
     "_meta": {
       "title": "ModelSamplingSD3"
-    }
-  },
-  "166:112": {
-    "inputs": {
-      "anything": [
-        "190",
-        0
-      ]
-    },
-    "class_type": "easy cleanGpuUsed",
-    "_meta": {
-      "title": "Clean VRAM Used"
     }
   },
   "166:153": {
