@@ -1642,6 +1642,7 @@ def restart(self):
         cmds = [sys.executable] + sys_argv
 
     print(f"Command: {cmds}", flush=True)
+
     return os.execv(sys.executable, cmds)
 
 
