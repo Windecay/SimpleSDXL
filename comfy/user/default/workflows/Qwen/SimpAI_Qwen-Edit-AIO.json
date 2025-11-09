@@ -1,8 +1,8 @@
 {
   "id": "b058853e-412f-4f02-95e2-abe2a40ebc2e",
   "revision": 0,
-  "last_node_id": 251,
-  "last_link_id": 2810,
+  "last_node_id": 261,
+  "last_link_id": 2890,
   "nodes": [
     {
       "id": 2,
@@ -18,7 +18,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 93,
+      "order": 98,
       "mode": 0,
       "inputs": [
         {
@@ -95,7 +95,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 110,
+      "order": 115,
       "mode": 0,
       "inputs": [
         {
@@ -170,13 +170,13 @@
         -80
       ],
       "size": [
-        383.0845642089844,
+        383.0845703125,
         220
       ],
       "flags": {
         "pinned": true
       },
-      "order": 89,
+      "order": 94,
       "mode": 0,
       "inputs": [
         {
@@ -257,7 +257,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 94,
+      "order": 99,
       "mode": 0,
       "inputs": [
         {
@@ -308,7 +308,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 91,
+      "order": 96,
       "mode": 0,
       "inputs": [
         {
@@ -347,7 +347,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 92,
+      "order": 97,
       "mode": 0,
       "inputs": [
         {
@@ -379,11 +379,6 @@
             "name": "A",
             "selected": true,
             "url": ""
-          },
-          {
-            "name": "B",
-            "selected": true,
-            "url": ""
           }
         ]
       ]
@@ -400,8 +395,8 @@
         65
       ],
       "flags": {
-        "allow_interaction": false,
-        "pinned": true
+        "pinned": true,
+        "allow_interaction": false
       },
       "order": 0,
       "mode": 0,
@@ -437,8 +432,8 @@
         20
       ],
       "flags": {
-        "allow_interaction": false,
-        "pinned": true
+        "pinned": true,
+        "allow_interaction": false
       },
       "order": 1,
       "mode": 0,
@@ -508,7 +503,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 85,
+      "order": 91,
       "mode": 4,
       "inputs": [
         {
@@ -637,13 +632,13 @@
         700
       ],
       "size": [
-        170.60995483398438,
+        170.6099609375,
         90
       ],
       "flags": {
         "pinned": true
       },
-      "order": 121,
+      "order": 128,
       "mode": 4,
       "inputs": [
         {
@@ -691,7 +686,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 108,
+      "order": 114,
       "mode": 4,
       "inputs": [
         {
@@ -736,7 +731,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 87,
+      "order": 92,
       "mode": 4,
       "inputs": [
         {
@@ -792,7 +787,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 111,
+      "order": 116,
       "mode": 4,
       "inputs": [
         {
@@ -828,7 +823,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 122,
+      "order": 129,
       "mode": 4,
       "inputs": [
         {
@@ -1080,7 +1075,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 118,
+      "order": 124,
       "mode": 0,
       "inputs": [
         {
@@ -1178,7 +1173,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 74,
+      "order": 80,
       "mode": 0,
       "inputs": [
         {
@@ -1459,13 +1454,13 @@
         60
       ],
       "size": [
-        166.72030639648438,
+        166.7203125,
         106
       ],
       "flags": {
         "pinned": true
       },
-      "order": 100,
+      "order": 106,
       "mode": 0,
       "inputs": [
         {
@@ -1528,13 +1523,13 @@
         270
       ],
       "size": [
-        166.72030639648438,
+        166.7203125,
         106
       ],
       "flags": {
         "pinned": true
       },
-      "order": 75,
+      "order": 81,
       "mode": 0,
       "inputs": [
         {
@@ -1597,13 +1592,13 @@
         440
       ],
       "size": [
-        166.72030639648438,
+        166.7203125,
         110
       ],
       "flags": {
         "pinned": true
       },
-      "order": 76,
+      "order": 82,
       "mode": 0,
       "inputs": [
         {
@@ -1673,7 +1668,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 144,
+      "order": 152,
       "mode": 0,
       "inputs": [
         {
@@ -1758,8 +1753,8 @@
         30
       ],
       "flags": {
-        "allow_interaction": false,
-        "pinned": true
+        "pinned": true,
+        "allow_interaction": false
       },
       "order": 16,
       "mode": 0,
@@ -1798,7 +1793,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 127,
+      "order": 134,
       "mode": 0,
       "inputs": [
         {
@@ -1974,14 +1969,14 @@
         400
       ],
       "size": [
-        172.18905639648438,
+        172.1890625,
         46
       ],
       "flags": {
         "collapsed": true,
         "pinned": true
       },
-      "order": 101,
+      "order": 107,
       "mode": 0,
       "inputs": [
         {
@@ -2026,14 +2021,14 @@
         580
       ],
       "size": [
-        172.18905639648438,
+        172.1890625,
         66
       ],
       "flags": {
         "collapsed": true,
         "pinned": true
       },
-      "order": 102,
+      "order": 108,
       "mode": 0,
       "inputs": [
         {
@@ -2084,7 +2079,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 147,
+      "order": 155,
       "mode": 4,
       "inputs": [
         {
@@ -2135,7 +2130,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 161,
+      "order": 169,
       "mode": 4,
       "inputs": [
         {
@@ -2194,7 +2189,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 139,
+      "order": 147,
       "mode": 4,
       "inputs": [
         {
@@ -2254,7 +2249,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 133,
+      "order": 141,
       "mode": 4,
       "inputs": [
         {
@@ -2321,7 +2316,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 125,
+      "order": 131,
       "mode": 4,
       "inputs": [
         {
@@ -2449,7 +2444,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 160,
+      "order": 168,
       "mode": 4,
       "inputs": [
         {
@@ -2510,7 +2505,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 156,
+      "order": 164,
       "mode": 4,
       "inputs": [
         {
@@ -2581,7 +2576,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 157,
+      "order": 165,
       "mode": 4,
       "inputs": [
         {
@@ -2631,7 +2626,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 148,
+      "order": 156,
       "mode": 4,
       "inputs": [
         {
@@ -2687,7 +2682,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 116,
+      "order": 121,
       "mode": 4,
       "inputs": [
         {
@@ -2736,7 +2731,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 153,
+      "order": 161,
       "mode": 4,
       "inputs": [
         {
@@ -2789,7 +2784,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 159,
+      "order": 167,
       "mode": 4,
       "inputs": [
         {
@@ -2846,7 +2841,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 114,
+      "order": 119,
       "mode": 4,
       "inputs": [
         {
@@ -2908,7 +2903,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 143,
+      "order": 151,
       "mode": 4,
       "inputs": [
         {
@@ -2989,7 +2984,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 95,
+      "order": 100,
       "mode": 4,
       "inputs": [
         {
@@ -3066,7 +3061,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 90,
+      "order": 95,
       "mode": 4,
       "inputs": [
         {
@@ -3183,7 +3178,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 96,
+      "order": 101,
       "mode": 4,
       "inputs": [
         {
@@ -3239,7 +3234,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 72,
+      "order": 78,
       "mode": 0,
       "inputs": [
         {
@@ -3285,7 +3280,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 73,
+      "order": 79,
       "mode": 0,
       "inputs": [
         {
@@ -3379,7 +3374,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 78,
+      "order": 84,
       "mode": 0,
       "inputs": [
         {
@@ -3427,7 +3422,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 79,
+      "order": 85,
       "mode": 0,
       "inputs": [
         {
@@ -3462,65 +3457,6 @@
       },
       "color": "#323",
       "bgcolor": "#535"
-    },
-    {
-      "id": 120,
-      "type": "EmptyLatentImage",
-      "pos": [
-        4290,
-        340
-      ],
-      "size": [
-        210,
-        106
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 109,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "width",
-          "type": "INT",
-          "widget": {
-            "name": "width"
-          },
-          "link": 194
-        },
-        {
-          "name": "height",
-          "type": "INT",
-          "widget": {
-            "name": "height"
-          },
-          "link": 195
-        }
-      ],
-      "outputs": [
-        {
-          "name": "LATENT",
-          "type": "LATENT",
-          "links": [
-            691
-          ]
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.3.59",
-        "Node name for S&R": "EmptyLatentImage",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.3"
-        }
-      },
-      "widgets_values": [
-        512,
-        512,
-        1
-      ]
     },
     {
       "id": 121,
@@ -3697,7 +3633,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 81,
+      "order": 87,
       "mode": 4,
       "inputs": [
         {
@@ -3738,7 +3674,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 104,
+      "order": 110,
       "mode": 4,
       "inputs": [
         {
@@ -3779,7 +3715,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 103,
+      "order": 109,
       "mode": 4,
       "inputs": [
         {
@@ -3834,7 +3770,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 119,
+      "order": 125,
       "mode": 4,
       "inputs": [
         {
@@ -3889,7 +3825,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 120,
+      "order": 126,
       "mode": 4,
       "inputs": [
         {
@@ -3930,7 +3866,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 129,
+      "order": 136,
       "mode": 4,
       "inputs": [
         {
@@ -4119,8 +4055,8 @@
         20
       ],
       "flags": {
-        "allow_interaction": false,
-        "pinned": true
+        "pinned": true,
+        "allow_interaction": false
       },
       "order": 28,
       "mode": 0,
@@ -4145,52 +4081,6 @@
       "bgcolor": "#fff0"
     },
     {
-      "id": 137,
-      "type": "SetNode",
-      "pos": [
-        -370,
-        10
-      ],
-      "size": [
-        210,
-        34
-      ],
-      "flags": {
-        "collapsed": true,
-        "pinned": true
-      },
-      "order": 106,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "link": 184
-        }
-      ],
-      "outputs": [
-        {
-          "name": "*",
-          "type": "*",
-          "links": null
-        }
-      ],
-      "title": "Set_image1",
-      "properties": {
-        "previousName": "",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "version": "7.3",
-          "input_ue_unconnectable": {}
-        }
-      },
-      "widgets_values": [
-        "image1"
-      ],
-      "color": "#2a363b",
-      "bgcolor": "#3f5159"
-    },
-    {
       "id": 138,
       "type": "SetNode",
       "pos": [
@@ -4205,7 +4095,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 105,
+      "order": 111,
       "mode": 4,
       "inputs": [
         {
@@ -4251,7 +4141,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 107,
+      "order": 113,
       "mode": 4,
       "inputs": [
         {
@@ -4297,7 +4187,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 83,
+      "order": 89,
       "mode": 0,
       "inputs": [
         {
@@ -4355,7 +4245,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 82,
+      "order": 88,
       "mode": 4,
       "inputs": [
         {
@@ -4413,7 +4303,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 84,
+      "order": 90,
       "mode": 4,
       "inputs": [
         {
@@ -4499,60 +4389,6 @@
       "bgcolor": "#3f5159"
     },
     {
-      "id": 144,
-      "type": "GetImageSize+",
-      "pos": [
-        4290,
-        210
-      ],
-      "size": [
-        160,
-        80
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 86,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "image",
-          "type": "IMAGE",
-          "link": 193
-        }
-      ],
-      "outputs": [
-        {
-          "name": "width",
-          "type": "INT",
-          "links": [
-            194
-          ]
-        },
-        {
-          "name": "height",
-          "type": "INT",
-          "links": [
-            195
-          ]
-        },
-        {
-          "name": "count",
-          "type": "INT",
-          "links": []
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "GetImageSize+",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.3"
-        }
-      },
-      "widgets_values": []
-    },
-    {
       "id": 145,
       "type": "GetNode",
       "pos": [
@@ -4575,8 +4411,7 @@
           "name": "IMAGE",
           "type": "IMAGE",
           "links": [
-            190,
-            193
+            190
           ]
         }
       ],
@@ -4842,7 +4677,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 132,
+      "order": 133,
       "mode": 0,
       "inputs": [
         {
@@ -5011,7 +4846,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 88,
+      "order": 93,
       "mode": 4,
       "inputs": [
         {
@@ -5061,7 +4896,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 71,
+      "order": 77,
       "mode": 0,
       "inputs": [
         {
@@ -5440,7 +5275,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 130,
+      "order": 139,
       "mode": 0,
       "inputs": [
         {
@@ -5551,7 +5386,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 131,
+      "order": 140,
       "mode": 0,
       "inputs": [
         {
@@ -5597,7 +5432,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 163,
+      "order": 171,
       "mode": 0,
       "inputs": [
         {
@@ -5684,7 +5519,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 138,
+      "order": 146,
       "mode": 0,
       "inputs": [
         {
@@ -5812,7 +5647,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 124,
+      "order": 130,
       "mode": 0,
       "inputs": [
         {
@@ -5858,7 +5693,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 113,
+      "order": 118,
       "mode": 0,
       "inputs": [
         {
@@ -5916,7 +5751,7 @@
           ]
         }
       ],
-      "title": "Get_positive",
+      "title": "Get_positive_conditioning",
       "properties": {
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -5957,7 +5792,7 @@
           ]
         }
       ],
-      "title": "Get_negative",
+      "title": "Get_negative_conditioning",
       "properties": {
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -5986,7 +5821,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 115,
+      "order": 120,
       "mode": 0,
       "inputs": [
         {
@@ -6073,7 +5908,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 112,
+      "order": 117,
       "mode": 4,
       "inputs": [
         {
@@ -6201,7 +6036,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 154,
+      "order": 162,
       "mode": 4,
       "inputs": [
         {
@@ -6288,7 +6123,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 77,
+      "order": 83,
       "mode": 4,
       "inputs": [
         {
@@ -6334,7 +6169,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 158,
+      "order": 166,
       "mode": 4,
       "inputs": [
         {
@@ -6461,7 +6296,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 150,
+      "order": 158,
       "mode": 4,
       "inputs": [
         {
@@ -6510,7 +6345,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 151,
+      "order": 159,
       "mode": 4,
       "inputs": [
         {
@@ -6557,7 +6392,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 155,
+      "order": 163,
       "mode": 4,
       "inputs": [
         {
@@ -6635,7 +6470,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 152,
+      "order": 160,
       "mode": 4,
       "inputs": [
         {
@@ -6683,7 +6518,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 162,
+      "order": 170,
       "mode": 4,
       "inputs": [
         {
@@ -6734,7 +6569,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 135,
+      "order": 143,
       "mode": 0,
       "inputs": [
         {
@@ -6789,7 +6624,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 140,
+      "order": 148,
       "mode": 0,
       "inputs": [
         {
@@ -6846,7 +6681,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 80,
+      "order": 86,
       "mode": 4,
       "inputs": [
         {
@@ -6903,8 +6738,8 @@
         25
       ],
       "flags": {
-        "allow_interaction": false,
-        "pinned": true
+        "pinned": true,
+        "allow_interaction": false
       },
       "order": 59,
       "mode": 0,
@@ -6984,7 +6819,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 117,
+      "order": 122,
       "mode": 0,
       "inputs": [
         {
@@ -7056,7 +6891,7 @@
         2048,
         64,
         2,
-        860,
+        654,
         "randomize"
       ]
     },
@@ -7116,7 +6951,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 97,
+      "order": 102,
       "mode": 0,
       "inputs": [
         {
@@ -7172,7 +7007,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 134,
+      "order": 142,
       "mode": 0,
       "inputs": [
         {
@@ -7258,7 +7093,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 98,
+      "order": 103,
       "mode": 0,
       "inputs": [
         {
@@ -7466,7 +7301,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 126,
+      "order": 132,
       "mode": 0,
       "inputs": [
         {
@@ -7564,7 +7399,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 136,
+      "order": 144,
       "mode": 4,
       "inputs": [
         {
@@ -7623,7 +7458,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 141,
+      "order": 149,
       "mode": 4,
       "inputs": [
         {
@@ -7682,7 +7517,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 128,
+      "order": 135,
       "mode": 4,
       "inputs": [
         {
@@ -7741,7 +7576,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 145,
+      "order": 153,
       "mode": 4,
       "inputs": [
         {
@@ -7798,7 +7633,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 137,
+      "order": 145,
       "mode": 4,
       "inputs": [
         {
@@ -7839,7 +7674,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 149,
+      "order": 157,
       "mode": 4,
       "inputs": [
         {
@@ -7880,7 +7715,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 146,
+      "order": 154,
       "mode": 4,
       "inputs": [
         {
@@ -7921,7 +7756,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 142,
+      "order": 150,
       "mode": 4,
       "inputs": [
         {
@@ -7963,7 +7798,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 70,
+      "order": 68,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -7995,7 +7830,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 99,
+      "order": 104,
       "mode": 0,
       "inputs": [
         {
@@ -8041,7 +7876,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 68,
+      "order": 69,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -8079,10 +7914,10 @@
         15
       ],
       "flags": {
-        "allow_interaction": false,
-        "pinned": true
+        "pinned": true,
+        "allow_interaction": false
       },
-      "order": 69,
+      "order": 70,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -8103,6 +7938,485 @@
       },
       "color": "#fff0",
       "bgcolor": "#fff0"
+    },
+    {
+      "id": 144,
+      "type": "GetImageSize+",
+      "pos": [
+        -510,
+        40
+      ],
+      "size": [
+        160,
+        80
+      ],
+      "flags": {
+        "collapsed": true,
+        "pinned": true
+      },
+      "order": 127,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 2835
+        }
+      ],
+      "outputs": [
+        {
+          "name": "width",
+          "type": "INT",
+          "links": [
+            2836
+          ]
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "links": [
+            2837
+          ]
+        },
+        {
+          "name": "count",
+          "type": "INT",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "GetImageSize+",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 252,
+      "type": "SetNode",
+      "pos": [
+        -400,
+        40
+      ],
+      "size": [
+        210,
+        60
+      ],
+      "flags": {
+        "collapsed": true,
+        "pinned": true
+      },
+      "order": 137,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "INT",
+          "type": "INT",
+          "link": 2836
+        }
+      ],
+      "outputs": [
+        {
+          "name": "*",
+          "type": "*",
+          "links": null
+        }
+      ],
+      "title": "Set_width",
+      "properties": {
+        "previousName": "width",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.3",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "width"
+      ],
+      "color": "#1b4669",
+      "bgcolor": "#29699c"
+    },
+    {
+      "id": 253,
+      "type": "SetNode",
+      "pos": [
+        -360,
+        40
+      ],
+      "size": [
+        210,
+        58
+      ],
+      "flags": {
+        "collapsed": true,
+        "pinned": true
+      },
+      "order": 138,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "INT",
+          "type": "INT",
+          "link": 2837
+        }
+      ],
+      "outputs": [
+        {
+          "name": "*",
+          "type": "*",
+          "links": null
+        }
+      ],
+      "title": "Set_height",
+      "properties": {
+        "previousName": "height",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.3",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "height"
+      ],
+      "color": "#1b4669",
+      "bgcolor": "#29699c"
+    },
+    {
+      "id": 254,
+      "type": "GetNode",
+      "pos": [
+        4390,
+        330
+      ],
+      "size": [
+        210,
+        58
+      ],
+      "flags": {
+        "collapsed": true,
+        "pinned": true
+      },
+      "order": 71,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "INT",
+          "type": "INT",
+          "links": [
+            2865
+          ]
+        }
+      ],
+      "title": "Get_width",
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.3",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "width"
+      ],
+      "color": "#1b4669",
+      "bgcolor": "#29699c"
+    },
+    {
+      "id": 255,
+      "type": "GetNode",
+      "pos": [
+        4280,
+        330
+      ],
+      "size": [
+        210,
+        58
+      ],
+      "flags": {
+        "collapsed": true,
+        "pinned": true
+      },
+      "order": 72,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "INT",
+          "type": "INT",
+          "links": [
+            2866
+          ]
+        }
+      ],
+      "title": "Get_height",
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.3",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "height"
+      ],
+      "color": "#1b4669",
+      "bgcolor": "#29699c"
+    },
+    {
+      "id": 120,
+      "type": "EmptyLatentImage",
+      "pos": [
+        4290,
+        360
+      ],
+      "size": [
+        220,
+        106
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 105,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "width",
+          "type": "INT",
+          "widget": {
+            "name": "width"
+          },
+          "link": 2865
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "widget": {
+            "name": "height"
+          },
+          "link": 2866
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            691
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.59",
+        "Node name for S&R": "EmptyLatentImage",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        1024,
+        1024,
+        1
+      ]
+    },
+    {
+      "id": 137,
+      "type": "SetNode",
+      "pos": [
+        -371.81114998442433,
+        10.60370622124615
+      ],
+      "size": [
+        210,
+        50
+      ],
+      "flags": {
+        "collapsed": true,
+        "pinned": true
+      },
+      "order": 112,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "link": 184
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            2835
+          ]
+        }
+      ],
+      "title": "Set_image1",
+      "properties": {
+        "previousName": "",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.3",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "image1"
+      ],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 258,
+      "type": "Label (rgthree)",
+      "pos": [
+        190,
+        540
+      ],
+      "size": [
+        90.673828125,
+        12
+      ],
+      "flags": {
+        "pinned": true,
+        "allow_interaction": false
+      },
+      "order": 73,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "没打开图1会报错",
+      "properties": {
+        "fontSize": 12,
+        "fontFamily": "Arial",
+        "fontColor": "#ffffff",
+        "textAlign": "left",
+        "backgroundColor": "transparent",
+        "padding": 0,
+        "borderRadius": 0,
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "color": "#fff0",
+      "bgcolor": "#fff0"
+    },
+    {
+      "id": 259,
+      "type": "Label (rgthree)",
+      "pos": [
+        190,
+        660
+      ],
+      "size": [
+        90.673828125,
+        12
+      ],
+      "flags": {
+        "pinned": true,
+        "allow_interaction": false
+      },
+      "order": 74,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "没打开图2会报错",
+      "properties": {
+        "fontSize": 12,
+        "fontFamily": "Arial",
+        "fontColor": "#ffffff",
+        "textAlign": "left",
+        "backgroundColor": "transparent",
+        "padding": 0,
+        "borderRadius": 0,
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "color": "#fff0",
+      "bgcolor": "#fff0"
+    },
+    {
+      "id": 261,
+      "type": "Label (rgthree)",
+      "pos": [
+        3180,
+        -530
+      ],
+      "size": [
+        113.34228515625,
+        15
+      ],
+      "flags": {
+        "pinned": true,
+        "allow_interaction": false
+      },
+      "order": 75,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "按数字2到此区域",
+      "properties": {
+        "fontSize": 15,
+        "fontFamily": "Arial",
+        "fontColor": "#ffffff",
+        "textAlign": "left",
+        "backgroundColor": "transparent",
+        "padding": 0,
+        "borderRadius": 0,
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "color": "#fff0",
+      "bgcolor": "#fff0"
+    },
+    {
+      "id": 260,
+      "type": "easy bookmark",
+      "pos": [
+        3180,
+        -480
+      ],
+      "size": [
+        210,
+        82
+      ],
+      "flags": {
+        "collapsed": true,
+        "pinned": true
+      },
+      "order": 76,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "🔖 2",
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.3",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "2",
+        1
+      ]
     }
   ],
   "links": [
@@ -8553,30 +8867,6 @@
       3,
       4,
       "IMAGE"
-    ],
-    [
-      193,
-      145,
-      0,
-      144,
-      0,
-      "IMAGE"
-    ],
-    [
-      194,
-      144,
-      0,
-      120,
-      0,
-      "INT"
-    ],
-    [
-      195,
-      144,
-      1,
-      120,
-      1,
-      "INT"
     ],
     [
       201,
@@ -9193,6 +9483,46 @@
       236,
       2,
       "BOOLEAN"
+    ],
+    [
+      2835,
+      137,
+      0,
+      144,
+      0,
+      "IMAGE"
+    ],
+    [
+      2836,
+      144,
+      0,
+      252,
+      0,
+      "*"
+    ],
+    [
+      2837,
+      144,
+      1,
+      253,
+      0,
+      "*"
+    ],
+    [
+      2865,
+      254,
+      0,
+      120,
+      0,
+      "INT"
+    ],
+    [
+      2866,
+      255,
+      0,
+      120,
+      1,
+      "INT"
     ]
   ],
   "groups": [
@@ -9398,7 +9728,7 @@
         -510,
         -430,
         270,
-        440
+        470
       ],
       "color": "#A88",
       "font_size": 24,
@@ -9485,10 +9815,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 1.6105100000000008,
+      "scale": 0.289664379736688,
       "offset": [
-        1539.031493381664,
-        904.7000036341816
+        2722.388385256624,
+        2434.431478081842
       ]
     },
     "ue_links": [
@@ -9589,24 +9919,24 @@
         "type": "VAE"
       }
     ],
-    "frontendVersion": "1.26.13",
+    "frontendVersion": "1.28.8",
     "VHS_latentpreview": true,
     "VHS_latentpreviewrate": 8,
-    "VHS_MetadataImage": false,
+    "VHS_MetadataImage": true,
     "VHS_KeepIntermediate": true,
     "links_added_by_ue": [
-      2797,
-      2798,
-      2799,
-      2800,
-      2801,
-      2802,
-      2803,
-      2804,
-      2805,
-      2806,
-      2807,
-      2808
+      2879,
+      2880,
+      2881,
+      2882,
+      2883,
+      2884,
+      2885,
+      2886,
+      2887,
+      2888,
+      2889,
+      2890
     ]
   },
   "version": 0.4
