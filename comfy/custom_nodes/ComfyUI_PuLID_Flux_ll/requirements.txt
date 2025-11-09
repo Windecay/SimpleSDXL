@@ -5,3 +5,5 @@ onnxruntime
 onnxruntime-gpu; sys_platform != 'darwin' and (platform_machine == 'x86_64' or platform_machine == 'AMD64')
 ftfy
 timm
+# facenet-pytorch limits torch<2.3.0, so use command: pip install facenet-pytorch --no-deps
+# facenet-pytorch

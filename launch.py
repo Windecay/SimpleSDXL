@@ -122,7 +122,9 @@ def check_base_environment():
                 success = install_package_with_retry(update_pkg_name, update_pkg_version)
                 if not success:
                     logger.error(f"无法安装{update_pkg_name}，请检查网络状态")
-
+        if not is_installed_version("facenet-pytorch", "2.6.0"):
+            logger.info("Installing facenet-pytorch==2.6.0 with --no-deps")
+            run_pip(f"install -U facenet-pytorch==2.6.0 --no-deps", "facenet-pytorch==2.6.0")
         try:
             if platform.system() == 'Windows':
                 # 检查是否安装了nunchaku

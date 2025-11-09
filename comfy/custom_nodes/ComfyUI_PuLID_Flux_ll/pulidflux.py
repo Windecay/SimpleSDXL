@@ -23,6 +23,12 @@ from .encoders_flux import IDFormer, PerceiverAttentionCA
 from .PulidFluxHook import pulid_forward_orig, set_model_dit_patch_replace, pulid_enter, pulid_patch_double_blocks_after
 from .patch_util import PatchKeys, add_model_patch_option, set_model_patch
 
+# facenet implementation
+import numpy as np
+from PIL import Image
+from facenet_pytorch import MTCNN, InceptionResnetV1
+def tensor2pil(image):
+    return Image.fromarray(np.clip(255. * image.cpu().numpy().squeeze(), 0, 255).astype(np.uint8))
 
 def set_extra_config_model_path(extra_config_models_dir_key, models_dir_name:str):
     models_dir_default = os.path.join(folder_paths.models_dir, models_dir_name)
@@ -40,6 +46,8 @@ set_extra_config_model_path("insightface", "insightface")
 
 INSIGHTFACE_DIR = folder_paths.get_folder_paths("insightface")[0]
 FACEXLIB_DIR = folder_paths.get_folder_paths("controlnet")[0]
+
+#FACENET_DIR = folder_paths.get_folder_paths("facenet")[0]
 
 # MODELS_DIR = os.path.join(folder_paths.models_dir, "pulid")
 # if "pulid" not in folder_paths.folder_names_and_paths:
@@ -303,7 +311,11 @@ class ApplyPulidFlux:
 
             if input_face_align_mode == 1:
                 image_size = 512
-                M = face_align.estimate_norm(face_info.kps, image_size=image_size)
+                #M = face_align.estimate_norm(face_info.kps, image_size=image_size)
+                kps = np.array(face_info.kps, dtype=np.float64)
+                if kps.dtype != np.float64:
+                    kps = kps.astype(np.float64)
+                M = face_align.estimate_norm(kps, image_size=image_size)
                 align_face = cv2.warpAffine(image[i], M, (image_size, image_size), borderMode=cv2.BORDER_CONSTANT,
                                             borderValue=(135, 133, 132))
                 # align_face = face_align.norm_crop(image[i], landmark=face_info.kps, image_size=image_size)
@@ -602,7 +614,7 @@ def clean_hook(diffusion_model):
         diffusion_model.forward_orig = diffusion_model.old_forward_orig_for_pulid
         del diffusion_model.old_forward_orig_for_pulid
 
-def pulid_outer_sample_wrappers_with_override(wrapper_executor, noise, latent_image, sampler, sigmas, denoise_mask=None, callback=None, disable_pbar=False, seed=None):
+def pulid_outer_sample_wrappers_with_override(wrapper_executor, noise, latent_image, sampler, sigmas, denoise_mask=None, callback=None, disable_pbar=False, seed=None, **kwargs):
     cfg_guider = wrapper_executor.class_obj
     PULID_model_patch = add_model_patch_option(cfg_guider, PatchKeys.pulid_patch_key_attrs)
     PULID_model_patch['latent_image_shape'] = latent_image.shape
@@ -610,7 +622,7 @@ def pulid_outer_sample_wrappers_with_override(wrapper_executor, noise, latent_im
     diffusion_model = cfg_guider.model_patcher.model.diffusion_model
     set_hook(diffusion_model, pulid_forward_orig)
     try :
-        out = wrapper_executor(noise, latent_image, sampler, sigmas, denoise_mask, callback, disable_pbar, seed)
+        out = wrapper_executor(noise, latent_image, sampler, sigmas, denoise_mask, callback, disable_pbar, seed, **kwargs)
     finally:
         del PULID_model_patch['latent_image_shape']
         clean_hook(diffusion_model)
@@ -618,12 +630,12 @@ def pulid_outer_sample_wrappers_with_override(wrapper_executor, noise, latent_im
 
     return out
 
-def pulid_outer_sample_wrappers(wrapper_executor, noise, latent_image, sampler, sigmas, denoise_mask=None, callback=None, disable_pbar=False, seed=None):
+def pulid_outer_sample_wrappers(wrapper_executor, noise, latent_image, sampler, sigmas, denoise_mask=None, callback=None, disable_pbar=False, seed=None, **kwargs):
     cfg_guider = wrapper_executor.class_obj
     PULID_model_patch = add_model_patch_option(cfg_guider, PatchKeys.pulid_patch_key_attrs)
     PULID_model_patch['latent_image_shape'] = latent_image.shape
     try:
-        out = wrapper_executor(noise, latent_image, sampler, sigmas, denoise_mask, callback, disable_pbar, seed)
+        out = wrapper_executor(noise, latent_image, sampler, sigmas, denoise_mask, callback, disable_pbar, seed, **kwargs)
     finally:
         del PULID_model_patch['latent_image_shape']
 
@@ -643,6 +655,206 @@ def pulid_apply_model_wrappers(wrapper_executor, x, t, c_concat=None, c_crossatt
 
     return out
 
+#facenet implementation
+# ──────────────────────── 2. Model caches ──────────────────────────
+MTCNN_CACHE = {}
+RESNET_CACHE = {}
+
+def get_models(device: torch.device):
+    """Lazy-load / cache MTCNN + InceptionResnetV1 for the chosen device."""
+    if device not in MTCNN_CACHE:
+        MTCNN_CACHE[device] = MTCNN(
+            image_size=160, 
+            margin=14, 
+            keep_all=True,  # Keep all faces for compatibility
+            post_process=False, 
+            device=device
+        )
+    if device not in RESNET_CACHE:
+        RESNET_CACHE[device] = (
+            InceptionResnetV1(pretrained='vggface2')
+            .eval()
+            .to(device)
+        )
+    return MTCNN_CACHE[device], RESNET_CACHE[device]
+
+# ──────────────────────── 3. Face Info compatibility class ─────────────────────────
+class FaceNetFaceInfo:
+    """Compatible face info object that mimics InsightFace's face structure"""
+    def __init__(self, bbox, kps, embedding, det_score=0.9):
+        self.bbox = bbox  # [x1, y1, x2, y2]
+        self.kps = kps    # 5 keypoints: [[x1,y1], [x2,y2], ...]
+        self.embedding = embedding  # 512-D embedding
+        self.det_score = det_score
+
+# ──────────────────────── 4. Detection Model compatibility class ─────────────────────────
+class FaceNetDetModel:
+    """Mimics InsightFace's det_model interface"""
+    def __init__(self):
+        self.input_size = (640, 640)  # Default size, will be modified by pipeline
+
+# ──────────────────────── 5. Main FaceAnalysis compatibility class ─────────────────────────
+class FaceNetAnalysis:
+    """
+    FaceNet-based face analysis that mimics InsightFace's FaceAnalysis interface
+    """
+    def __init__(self, device):
+        self.device = device
+        self.det_model = FaceNetDetModel()
+        self.mtcnn = None
+        self.resnet = None
+        self._prepared = False
+    
+    def prepare(self, ctx_id=0, det_size=(640, 640)):
+        """Initialize models - called by downstream nodes"""
+        self.det_model.input_size = det_size
+        self._prepared = True
+        
+    def get(self, image):
+        """
+        Main face detection and embedding method - must return list of face objects
+        Compatible with: face_info = face_analysis.get(image[i])
+        """
+        if not self._prepared:
+            self.prepare()
+            
+        # Lazy load models
+        if self.mtcnn is None or self.resnet is None:
+            self.mtcnn, self.resnet = get_models(self.device)
+        
+        # Handle numpy array input (from ComfyUI)
+        if isinstance(image, np.ndarray):
+            # Convert from BGR to RGB if needed
+            if image.shape[-1] == 3:
+                image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            pil_img = Image.fromarray(image)
+        else:
+            pil_img = image
+            
+        # Ensure RGB
+        if pil_img.mode != 'RGB':
+            pil_img = pil_img.convert('RGB')
+        
+        # Resize image based on current input_size setting
+        input_size = self.det_model.input_size
+        if isinstance(input_size, (list, tuple)):
+            target_size = input_size[0] if input_size[0] == input_size[1] else min(input_size)
+        else:
+            target_size = input_size
+            
+        # Resize image for detection
+        original_size = pil_img.size
+        if original_size[0] != target_size or original_size[1] != target_size:
+            pil_img_resized = pil_img.resize((target_size, target_size), Image.Resampling.LANCZOS)
+        else:
+            pil_img_resized = pil_img
+        
+        # Detect faces and get aligned crops
+        try:
+            # MTCNN returns: boxes, probs, landmarks (if keep_all=True, returns lists)
+            boxes, probs, landmarks = self.mtcnn.detect(pil_img_resized, landmarks=True)
+            
+            if boxes is None or len(boxes) == 0:
+                return []  # No faces detected
+            
+            # Get face crops for embedding
+            aligned_faces = []
+            face_tensors = []
+            
+            for i, (box, landmark, prob) in enumerate(zip(boxes, landmarks, probs)):
+                if prob < 0.9:  # Skip low confidence faces
+                    continue
+                    
+                # Extract and align face
+                try:
+                    face_tensor = self.mtcnn.extract(pil_img_resized, [box], save_path=None)
+                    if face_tensor is not None and len(face_tensor) > 0:
+                        face_tensors.append(face_tensor[0])
+                        aligned_faces.append((box, landmark, prob))
+                except:
+                    continue
+            
+            if not face_tensors:
+                return []
+            
+            # Get embeddings for all faces
+            face_tensors = torch.stack(face_tensors).to(self.device)
+            with torch.no_grad():
+                embeddings = self.resnet(face_tensors)
+                embeddings = torch.nn.functional.normalize(embeddings, p=2, dim=1)
+            
+            # Create FaceInfo objects compatible with InsightFace
+            face_infos = []
+            scale_x = original_size[0] / target_size
+            scale_y = original_size[1] / target_size
+            
+            for i, ((box, landmark, prob), embedding) in enumerate(zip(aligned_faces, embeddings)):
+                # Scale bbox back to original image size
+                scaled_bbox = [
+                    box[0] * scale_x,  # x1
+                    box[1] * scale_y,  # y1
+                    box[2] * scale_x,  # x2
+                    box[3] * scale_y   # y2
+                ]
+                
+                # Scale landmarks back to original image size
+                scaled_kps = landmark.copy()
+                scaled_kps[:, 0] *= scale_x  # x coordinates
+                scaled_kps[:, 1] *= scale_y  # y coordinates
+                
+                # Convert embedding to numpy for compatibility
+                embedding_np = embedding.cpu().numpy()
+                
+                face_info = FaceNetFaceInfo(
+                    bbox=np.array(scaled_bbox),
+                    kps=scaled_kps,
+                    embedding=embedding_np,
+                    det_score=float(prob)
+                )
+                
+                face_infos.append(face_info)
+            
+            return face_infos
+            
+        except Exception as e:
+            logging.warning(f"FaceNet face detection failed: {str(e)}")
+            return []
+
+# ──────────────────────── 6. ComfyUI Node ──────────────────────────
+class PulidFluxFaceNetLoader:
+    """
+    FaceNet-based face analysis loader compatible with PuLID-Flux pipeline
+    """
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "provider": (["CPU", "CUDA"],),
+            }
+        }
+
+    RETURN_TYPES = ("FACEANALYSIS",)
+    FUNCTION = "load_facenet"
+    CATEGORY = "pulid"
+
+    def load_facenet(self, provider: str):
+        # Map provider to torch device
+        if provider == "CPU":
+            device = torch.device("cpu")
+        elif provider in ["CUDA"]:
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        else:
+            device = torch.device("cpu")
+        
+        # Create FaceNet analysis object
+        face_analysis = FaceNetAnalysis(device)
+        
+        # Pre-initialize with default settings
+        face_analysis.prepare(ctx_id=0, det_size=(640, 640))
+        
+        return (face_analysis,)
+
+
 NODE_CLASS_MAPPINGS = {
     "PulidFluxModelLoader": PulidFluxModelLoader,
     "PulidFluxInsightFaceLoader": PulidFluxInsightFaceLoader,
@@ -651,11 +863,13 @@ NODE_CLASS_MAPPINGS = {
     "FixPulidFluxPatch": FixPulidFluxPatch,
     "PulidFluxOptions": PulidFluxOptions,
     "PulidFluxFaceDetector": PulidFluxFaceDetector,
+    "PulidFluxFaceNetLoader": PulidFluxFaceNetLoader,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
     "PulidFluxModelLoader": "Load PuLID Flux Model",
     "PulidFluxInsightFaceLoader": "Load InsightFace (PuLID Flux)",
+    "PulidFluxFaceNetLoader": "Load FaceNet (PuLID Flux)",
     "PulidFluxEvaClipLoader": "Load Eva Clip (PuLID Flux)",
     "ApplyPulidFlux": "Apply PuLID Flux",
     "FixPulidFluxPatch": "Fix PuLID Flux Patch",
