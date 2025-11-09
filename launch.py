@@ -235,8 +235,8 @@ def prepare_environment():
             import torch
             current_torch_ver = torch.__version__.split('+')[0]  # 获取主版本号
             if current_torch_ver != '2.9.0':
-                logger.info(f'当前使用的PyTorch版本为{current_torch_ver}')
-                # logger.info(f'请注意：系统不会自动为您更新PyTorch，您可以自行选择是否升级。')
+                logger.info(f'当前使用的PyTorch版本为{current_torch_ver}，可尝试使用一键部署升级为PyTorch 2.9.0获得更好的显存利用效率和速度。')
+                logger.info(f'请注意：系统不会自动为您更新PyTorch，您可以自行选择是否升级。')
         except Exception as e:
             logger.error(f'检测PyTorch版本时发生错误: {str(e)}')
     if shared.sysinfo['gpu_brand'] == 'NVIDIA':
