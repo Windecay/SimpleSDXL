@@ -438,7 +438,7 @@ def reset_env_args():
     from enhanced.simpleai import reset_simpleai_args
     reset_simpleai_args()
 
-ready_checker()
+# ready_checker()
 shared.args = ini_args()
 shared.token, shared.sysinfo = check_base_environment()
 
