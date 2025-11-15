@@ -2343,6 +2343,7 @@ with shared.gradio_root:
     for i in range(shared.BUTTON_NUM):
         bar_buttons[i].click(topbar.check_absent_model, inputs=[bar_buttons[i], state_topbar]) \
                .then(topbar.reset_layout_params, inputs=reset_preset_inputs, outputs=reset_layout_params, show_progress=False) \
+               .then(fn=lambda: [None, None, None], inputs=[], outputs=[scene_canvas_image, scene_input_image1, scene_input_image2], queue=False, show_progress=False) \
                .then(fn=lambda: ["None"]*4 + [False], inputs=[], outputs=[scene_lora_model, scene_lora_model_2, scene_lora_model_3, scene_lora_model_4, scene_use_lora], queue=False, show_progress=False) \
                .then(fn=lambda x: None, inputs=system_params, _js='(x)=>{refresh_topbar_status_js(x);}') \
                .then(lambda: None, _js='()=>{refresh_style_localization();}') \

@@ -63,7 +63,7 @@
       "cfg": 4,
       "sampler_name": "dpmpp_2m_sde_gpu",
       "scheduler": "karras",
-      "denoise": 0.9000000000000001,
+      "denoise": 0.9,
       "model": [
         "37",
         0
@@ -141,7 +141,7 @@
   },
   "44": {
     "inputs": {
-      "multiplier": 0.18215,
+      "multiplier": 0.182,
       "positive": [
         "4",
         0
@@ -223,6 +223,7 @@
       "save_prefix": "ComfyUI",
       "torchscript_jit": false,
       "add_background": "none",
+      "refine_foreground": false,
       "images": [
         "39",
         0
@@ -944,7 +945,6 @@
   },
   "220": {
     "inputs": {
-      "text": "8",
       "anything": [
         "221",
         0
@@ -957,8 +957,8 @@
   },
   "221": {
     "inputs": {
-      "min_value": 1.0000000000000002,
-      "max_value": 9.000000000000002,
+      "min_value": 1,
+      "max_value": 9,
       "least": 0,
       "float_decimal_places": 1,
       "seed": [
@@ -978,7 +978,8 @@
         "135",
         0
       ],
-      "max_rows": 1
+      "max_rows": 1,
+      "remove_empty_lines": true
     },
     "class_type": "easy promptLine",
     "_meta": {
@@ -987,7 +988,6 @@
   },
   "236": {
     "inputs": {
-      "text": "Bottom Light",
       "anything": [
         "235",
         0
