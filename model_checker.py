@@ -66,37 +66,77 @@ def load_model_paths():
                     for p in ([config.get("path_vae")] if isinstance(config.get("path_vae"), str)
                             else config.get("path_vae", []))],
             "upscale_models": [os.path.abspath(os.path.join(script_dir, p))
-                            for p in ([config.get("path_upscale_models")] if isinstance(config.get("path_upscale_models"), str)
-                                    else config.get("path_upscale_models", []))],
+                        for p in ([config.get("path_upscale_models")] if isinstance(config.get("path_upscale_models"), str)
+                            else config.get("path_upscale_models", []))],
             "inpaint": [os.path.abspath(os.path.join(script_dir, p)) if not os.path.isabs(p) else p
-                    for p in config.get("path_inpaint", [])],
+                        for p in config.get("path_inpaint", [])],
             "clip": [os.path.abspath(os.path.join(script_dir, p))
-                    for p in ([config.get("path_clip")] if isinstance(config.get("path_clip"), str)
+                        for p in ([config.get("path_clip")] if isinstance(config.get("path_clip"), str)
                             else config.get("path_clip", []))],
             "clip_vision": [os.path.abspath(os.path.join(script_dir, p))
-                            for p in ([config.get("path_clip_vision")] if isinstance(config.get("path_clip_vision"), str)
-                                    else config.get("path_clip_vision", []))],
+                        for p in ([config.get("path_clip_vision")] if isinstance(config.get("path_clip_vision"), str)
+                            else config.get("path_clip_vision", []))],
             "fooocus_expansion": [os.path.abspath(os.path.join(script_dir, config.get("path_fooocus_expansion", "")))],
             "llms": [os.path.abspath(os.path.join(script_dir, p)) if not os.path.isabs(p) else p
-                    for p in config.get("path_llms", [])],
-            "safety_checker": [os.path.abspath(os.path.join(script_dir, config.get("path_safety_checker", "")))],
-            "unet": [os.path.abspath(os.path.join(script_dir, config.get("path_unet", "")))],
-            "rembg": [os.path.abspath(os.path.join(script_dir, config.get("path_rembg", "")))],
-            "layer_model": [os.path.abspath(os.path.join(script_dir, config.get("path_layer_model", "")))],
+                        for p in config.get("path_llms", [])],
+            "safety_checker": [os.path.abspath(os.path.join(script_dir, p)) if not os.path.isabs(p) else p
+                        for p in (config.get("path_safety_checker", [])
+                            if isinstance(config.get("path_safety_checker"), list)
+                            else [config.get("path_safety_checker", "")])],
+            "unet": [os.path.abspath(os.path.join(script_dir, p)) if not os.path.isabs(p) else p
+                        for p in (config.get("path_unet", [])
+                            if isinstance(config.get("path_unet"), list)
+                            else [config.get("path_unet", "")])],
+            "rembg": [os.path.abspath(os.path.join(script_dir, p)) if not os.path.isabs(p) else p
+                        for p in (config.get("path_rembg", [])
+                            if isinstance(config.get("path_rembg"), list)
+                            else [config.get("path_rembg", "")])],
+            "layer_model": [os.path.abspath(os.path.join(script_dir, p)) if not os.path.isabs(p) else p
+                        for p in (config.get("path_layer_model", [])
+                                if isinstance(config.get("path_layer_model"), list)
+                                else [config.get("path_layer_model", "")])],
             "diffusers": [os.path.abspath(os.path.join(script_dir, p)) if not os.path.isabs(p) else p
                         for p in config.get("path_diffusers", [])],
-            "ipadapter": [os.path.abspath(os.path.join(script_dir, config.get("path_ipadapter", "")))],
-            "pulid": [os.path.abspath(os.path.join(script_dir, config.get("path_pulid", "")))],
-            "insightface": [os.path.abspath(os.path.join(script_dir, config.get("path_insightface", "")))],
-            "style_models": [os.path.abspath(os.path.join(script_dir, config.get("path_style_models", "")))],
+            "ipadapter": [os.path.abspath(os.path.join(script_dir, p)) if not os.path.isabs(p) else p
+                        for p in (config.get("path_ipadapter", [])
+                            if isinstance(config.get("path_ipadapter"), list)
+                            else [config.get("path_ipadapter", "")])],
+            "pulid": [os.path.abspath(os.path.join(script_dir, p)) if not os.path.isabs(p) else p
+                        for p in (config.get("path_pulid", [])
+                        if isinstance(config.get("path_pulid"), list)
+                        else [config.get("path_pulid", "")])],
+            "insightface": [os.path.abspath(os.path.join(script_dir, p)) if not os.path.isabs(p) else p
+                        for p in (config.get("path_insightface", [])
+                                if isinstance(config.get("path_insightface"), list)
+                                else [config.get("path_insightface", "")])],
+            "style_models": [os.path.abspath(os.path.join(script_dir, p)) if not os.path.isabs(p) else p
+                        for p in (config.get("path_style_models", [])
+                                if isinstance(config.get("path_style_models"), list)
+                                else [config.get("path_style_models", "")])],
             "configs": [os.path.abspath(os.path.join(simplemodels_root, "configs"))],
             "prompt_expansion": [os.path.abspath(os.path.join(simplemodels_root, "prompt_expansion"))],
-            "model_patches": [os.path.abspath(os.path.join(script_dir, config.get("path_model_patches", "")))],
-            "audio_encoders": [os.path.abspath(os.path.join(script_dir, config.get("path_audio_encoders", "")))],
-            "text_encoders": [os.path.abspath(os.path.join(script_dir, config.get("path_text_encoders", "")))],
+            "model_patches": [os.path.abspath(os.path.join(script_dir, p)) if not os.path.isabs(p) else p
+                        for p in (config.get("path_model_patches", [])
+                                if isinstance(config.get("path_model_patches"), list)
+                                else [config.get("path_model_patches", "")])],
+            "audio_encoders": [os.path.abspath(os.path.join(script_dir, p)) if not os.path.isabs(p) else p
+                        for p in (config.get("path_audio_encoders", [])
+                                    if isinstance(config.get("path_audio_encoders"), list)
+                                    else [config.get("path_audio_encoders", "")])],
+            "text_encoders": [os.path.abspath(os.path.join(script_dir, p)) if not os.path.isabs(p) else p
+                        for p in (config.get("path_text_encoders", [])
+                                if isinstance(config.get("path_text_encoders"), list)
+                                else [config.get("path_text_encoders", "")])],
             "lsnet": [os.path.join(simplemodels_root, "lsnet")],
             "kaloscope": [os.path.join(simplemodels_root, "lsnet", "kaloscope")],
-            "detection": [os.path.abspath(os.path.join(script_dir, config.get("path_detection", "")))],
+            "detection": [os.path.abspath(os.path.join(script_dir, p)) if not os.path.isabs(p) else p
+                        for p in (config.get("path_detection", [])
+                                if isinstance(config.get("path_detection"), list)
+                                else [config.get("path_detection", "")])],
+            "diffusion_models": [os.path.abspath(os.path.join(script_dir, p)) if not os.path.isabs(p) else p
+                        for p in (config.get("path_diffusion_models", [])
+                                if isinstance(config.get("path_diffusion_models"), list)
+                                else [config.get("path_diffusion_models", "")])],
             "ultralytics": [os.path.join(simplemodels_root, "ultralytics")],
             "bbox": [os.path.join(simplemodels_root, "ultralytics", "bbox")],
             "segm": [os.path.join(simplemodels_root, "ultralytics", "segm")],
@@ -2010,7 +2050,7 @@ packages = {
             ("clip/qwen_2.5_vl_7b_fp8_scaled.safetensors", 9384670680),
             ("vae/qwen_image_vae.safetensors", 253806246),
             ("loras/sd_xl_offset_example-lora_1.0.safetensors", 49553604),
-            ("loras/Qwen-Image-Lightning-8steps-V1.1-bf16.safetensors", 849608296),
+            ("loras/https://www.modelscope.cn/models/lightx2v/Qwen-Image-Lightning/resolve/master/Qwen-Image-Lightning-8steps-V2.0-bf16.safetensors", 849608296),
             ("upscale_models/4xNomosUniDAT_bokeh_jpg.safetensors", 154152604),
             ("controlnet/Qwen-Image-InstantX-ControlNet-Inpainting.safetensors", 4234599432)
         ],
@@ -2159,6 +2199,7 @@ OBSOLETE_MODELS = [
     "clip-vit-h-14-laion2B-s32B-b79K.safetensors",
     "fill_remove.safetensors",
     "Qwen-Image-Lightning-8steps-V1.0.safetensors",
+    "Qwen-Image-Lightning-8steps-V1.1-bf16.safetensors",
     "hunyuan_dit_1.2.safetensors",
     "playground-v2.5-1024px.safetensors",
     "ponyDiffusionV6XL.safetensors",
