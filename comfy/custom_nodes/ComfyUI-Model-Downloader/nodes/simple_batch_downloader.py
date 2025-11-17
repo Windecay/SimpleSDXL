@@ -170,9 +170,14 @@ def attempt_download(url, file_path, overwrite=False):
 
                 filename = os.path.basename(file_path)
                 with tqdm(total=total_size, unit='B', unit_scale=True, unit_divisor=1024,
-                          desc=f"下载 {filename}", ascii=True) as pbar:
+                          desc=f"下载 {filename}", ascii=True, miniters=10, bar_format='{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}] {postfix}') as pbar:
 
                     with open(partial_file_path, 'wb') as f:
+                        start_time = time.time()
+                        downloaded_size = 0
+                        last_update_time = 0
+                        update_interval = 0.5
+
                         for chunk in response.iter_content(chunk_size=8192):
                             if chunk:
                                 f.write(chunk)
@@ -181,10 +186,14 @@ def attempt_download(url, file_path, overwrite=False):
 
                                 pbar.update(chunk_size)
 
-                                elapsed_time = time.time() - start_time
-                                if elapsed_time > 0:
-                                    speed = downloaded_size / elapsed_time / 1024 / 1024  # MB/s
-                                    pbar.set_postfix(speed=f"{speed:.2f} MB/s")
+                                current_time = time.time()
+                                if current_time - last_update_time >= update_interval:
+                                    elapsed_time = current_time - start_time
+                                    if elapsed_time > 0.5:
+                                        speed = downloaded_size / elapsed_time / 1024 / 1024  # MB/s
+                                        pbar.set_postfix(speed=f"{speed:.2f} MB/s")
+                                    last_update_time = current_time
+
         except Exception as e:
             if os.path.exists(partial_file_path):
                 try:
