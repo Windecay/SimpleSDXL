@@ -145,11 +145,11 @@ def check_base_environment():
                         has_update_whl = download_if_updated(pkg_url, pkg_path)
                         is_version_ok = is_installed_version('nunchaku', '1.0.2+torch2.9')
                     else:
-                        pkg_url = 'https://www.modelscope.cn/models/nunchaku-tech/nunchaku/resolve/master/nunchaku-1.0.0%2Btorch2.7-cp310-cp310-win_amd64.whl'
-                        pkg_path = os.path.abspath(os.path.join(root, 'nunchaku-1.0.0+torch2.7-cp310-cp310-win_amd64.whl'))
+                        pkg_url = 'https://www.modelscope.cn/models/nunchaku-tech/nunchaku/resolve/master/nunchaku-1.0.2%2Btorch2.7-cp310-cp310-win_amd64.whl'
+                        pkg_path = os.path.abspath(os.path.join(root, 'nunchaku-1.0.2+torch2.7-cp310-cp310-win_amd64.whl'))
                         print('check nunchaku...')
                         has_update_whl = download_if_updated(pkg_url, pkg_path)
-                        is_version_ok = is_installed_version('nunchaku', '1.0.0+torch2.7')
+                        is_version_ok = is_installed_version('nunchaku', '1.0.2+torch2.7')
 
                     if has_update_whl or not is_version_ok:
                         print(f'ready to install {pkg_path}')

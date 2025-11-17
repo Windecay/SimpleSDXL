@@ -1,8 +1,8 @@
 {
   "id": "b058853e-412f-4f02-95e2-abe2a40ebc2e",
   "revision": 0,
-  "last_node_id": 261,
-  "last_link_id": 2890,
+  "last_node_id": 264,
+  "last_link_id": 2899,
   "nodes": [
     {
       "id": 2,
@@ -18,7 +18,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 98,
+      "order": 95,
       "mode": 0,
       "inputs": [
         {
@@ -85,7 +85,7 @@
       "id": 3,
       "type": "TextEncodeQwenImageEditPlus",
       "pos": [
-        4290,
+        4370,
         -340
       ],
       "size": [
@@ -95,7 +95,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 115,
+      "order": 113,
       "mode": 0,
       "inputs": [
         {
@@ -166,7 +166,7 @@
       "id": 4,
       "type": "TextEncodeQwenImageEditPlus",
       "pos": [
-        4290,
+        4370,
         -80
       ],
       "size": [
@@ -176,7 +176,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 94,
+      "order": 91,
       "mode": 0,
       "inputs": [
         {
@@ -247,7 +247,7 @@
       "id": 5,
       "type": "VAEDecode",
       "pos": [
-        4470,
+        4550,
         240
       ],
       "size": [
@@ -257,7 +257,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 99,
+      "order": 96,
       "mode": 0,
       "inputs": [
         {
@@ -308,7 +308,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 96,
+      "order": 93,
       "mode": 0,
       "inputs": [
         {
@@ -347,7 +347,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 97,
+      "order": 94,
       "mode": 0,
       "inputs": [
         {
@@ -411,6 +411,7 @@
         "backgroundColor": "transparent",
         "padding": 0,
         "borderRadius": 0,
+        "angle": 0,
         "ue_properties": {
           "widget_ue_connectable": {},
           "input_ue_unconnectable": {},
@@ -448,6 +449,7 @@
         "backgroundColor": "transparent",
         "padding": 0,
         "borderRadius": 0,
+        "angle": 0,
         "ue_properties": {
           "widget_ue_connectable": {},
           "input_ue_unconnectable": {},
@@ -493,7 +495,7 @@
       "id": 25,
       "type": "ImageResizeKJv2",
       "pos": [
-        4300,
+        4380,
         580
       ],
       "size": [
@@ -503,7 +505,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 91,
+      "order": 88,
       "mode": 4,
       "inputs": [
         {
@@ -628,7 +630,7 @@
       "id": 27,
       "type": "ImageCropByMask",
       "pos": [
-        4610,
+        4690,
         700
       ],
       "size": [
@@ -638,7 +640,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 128,
+      "order": 129,
       "mode": 4,
       "inputs": [
         {
@@ -676,7 +678,7 @@
       "id": 30,
       "type": "InvertMask",
       "pos": [
-        4620,
+        4700,
         590
       ],
       "size": [
@@ -686,7 +688,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 114,
+      "order": 112,
       "mode": 4,
       "inputs": [
         {
@@ -721,7 +723,7 @@
       "id": 33,
       "type": "DWPreprocessor",
       "pos": [
-        4710,
+        4790,
         -360
       ],
       "size": [
@@ -731,7 +733,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 92,
+      "order": 89,
       "mode": 4,
       "inputs": [
         {
@@ -777,7 +779,7 @@
       "id": 34,
       "type": "PreviewImage",
       "pos": [
-        4710,
+        4790,
         -100
       ],
       "size": [
@@ -787,7 +789,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 116,
+      "order": 114,
       "mode": 4,
       "inputs": [
         {
@@ -813,7 +815,7 @@
       "id": 46,
       "type": "ImageAndMaskPreview",
       "pos": [
-        4810,
+        4890,
         580
       ],
       "size": [
@@ -823,7 +825,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 129,
+      "order": 130,
       "mode": 4,
       "inputs": [
         {
@@ -943,361 +945,6 @@
       "bgcolor": "#533"
     },
     {
-      "id": 62,
-      "type": "CLIPLoader",
-      "pos": [
-        3200,
-        430
-      ],
-      "size": [
-        330,
-        110
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 6,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "label": "CLIP",
-          "name": "CLIP",
-          "type": "CLIP",
-          "slot_index": 0,
-          "links": [
-            111
-          ]
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.3.48",
-        "Node name for S&R": "CLIPLoader",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "version": "7.0.1"
-        },
-        "hasSecondTab": false,
-        "models": [
-          {
-            "name": "qwen_2.5_vl_7b_fp8_scaled.safetensors",
-            "directory": "text_encoders",
-            "url": "https://hf-mirror.com/Comfy-Org/Qwen-Image_ComfyUI/resolve/main/split_files/text_encoders/qwen_2.5_vl_7b_fp8_scaled.safetensors"
-          }
-        ],
-        "secondTabOffset": 80,
-        "tabWidth": 65,
-        "secondTabWidth": 65,
-        "widget_ue_connectable": {},
-        "secondTabText": "Send Back",
-        "enableTabs": false,
-        "tabXOffset": 10
-      },
-      "widgets_values": [
-        "qwen_2.5_vl_7b_fp8_scaled.safetensors",
-        "qwen_image",
-        "default"
-      ],
-      "color": "#432",
-      "bgcolor": "#653"
-    },
-    {
-      "id": 63,
-      "type": "VAELoader",
-      "pos": [
-        3200,
-        580
-      ],
-      "size": [
-        330,
-        60
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 7,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "label": "VAE",
-          "name": "VAE",
-          "type": "VAE",
-          "slot_index": 0,
-          "links": [
-            113
-          ]
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.3.48",
-        "Node name for S&R": "VAELoader",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "version": "7.0.1"
-        },
-        "hasSecondTab": false,
-        "models": [
-          {
-            "name": "qwen_image_vae.safetensors",
-            "directory": "vae",
-            "url": "https://hf-mirror.com/Comfy-Org/Qwen-Image_ComfyUI/resolve/main/split_files/vae/qwen_image_vae.safetensors"
-          }
-        ],
-        "secondTabOffset": 80,
-        "tabWidth": 65,
-        "secondTabWidth": 65,
-        "widget_ue_connectable": {},
-        "secondTabText": "Send Back",
-        "enableTabs": false,
-        "tabXOffset": 10
-      },
-      "widgets_values": [
-        "qwen_image_vae.safetensors"
-      ],
-      "color": "#322",
-      "bgcolor": "#533"
-    },
-    {
-      "id": 64,
-      "type": "ModelPatchTorchSettings",
-      "pos": [
-        3610,
-        200
-      ],
-      "size": [
-        307.443359375,
-        58
-      ],
-      "flags": {
-        "collapsed": true,
-        "pinned": true
-      },
-      "order": 124,
-      "mode": 0,
-      "inputs": [
-        {
-          "label": "model",
-          "name": "model",
-          "type": "MODEL",
-          "link": 104
-        }
-      ],
-      "outputs": [
-        {
-          "label": "MODEL",
-          "name": "MODEL",
-          "type": "MODEL",
-          "links": [
-            115
-          ]
-        }
-      ],
-      "title": "Model Patch Torch",
-      "properties": {
-        "Node name for S&R": "ModelPatchTorchSettings",
-        "ue_properties": {
-          "version": "7.3",
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {}
-        },
-        "ttNbgOverride": {
-          "bgcolor": "#3f5159",
-          "groupcolor": "#3f789e",
-          "color": "#2a363b"
-        }
-      },
-      "widgets_values": [
-        true
-      ],
-      "color": "#2a363b",
-      "bgcolor": "#3f5159"
-    },
-    {
-      "id": 65,
-      "type": "UNETLoader",
-      "pos": [
-        3810,
-        -350
-      ],
-      "size": [
-        420,
-        130
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 8,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "MODEL",
-          "type": "MODEL",
-          "links": [
-            105
-          ]
-        }
-      ],
-      "title": "官方版本fp8的模型",
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.3.59",
-        "Node name for S&R": "UNETLoader",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.3"
-        }
-      },
-      "widgets_values": [
-        "qwen_image_edit_2509_fp8_e4m3fn.safetensors",
-        "default"
-      ],
-      "color": "#223",
-      "bgcolor": "#335"
-    },
-    {
-      "id": 66,
-      "type": "LoraLoaderModelOnly",
-      "pos": [
-        3810,
-        -160
-      ],
-      "size": [
-        420,
-        110
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 80,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "model",
-          "type": "MODEL",
-          "link": 105
-        }
-      ],
-      "outputs": [
-        {
-          "name": "MODEL",
-          "type": "MODEL",
-          "links": [
-            108
-          ]
-        }
-      ],
-      "title": "4step-lora",
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.3.59",
-        "Node name for S&R": "LoraLoaderModelOnly",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.3"
-        }
-      },
-      "widgets_values": [
-        "Qwen-Image-Edit-2509-Lightning-4steps-V1.0-bf16.safetensors",
-        1
-      ],
-      "color": "#223",
-      "bgcolor": "#335"
-    },
-    {
-      "id": 67,
-      "type": "NunchakuQwenImageDiTLoader",
-      "pos": [
-        3210,
-        -350
-      ],
-      "size": [
-        320,
-        130
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 9,
-      "mode": 2,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "MODEL",
-          "type": "MODEL",
-          "links": [
-            106
-          ]
-        }
-      ],
-      "title": "50系专用fp4双截棍",
-      "properties": {
-        "Node name for S&R": "NunchakuQwenImageDiTLoader",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.3"
-        }
-      },
-      "widgets_values": [
-        "svdq-fp4_r128-qwen-image-edit-2509-lightningv2.0-4steps.safetensors",
-        "auto",
-        1,
-        "disable"
-      ],
-      "color": "#223",
-      "bgcolor": "#335"
-    },
-    {
-      "id": 68,
-      "type": "NunchakuQwenImageDiTLoader",
-      "pos": [
-        3210,
-        -140
-      ],
-      "size": [
-        320.1197204589844,
-        130
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 10,
-      "mode": 2,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "MODEL",
-          "type": "MODEL",
-          "links": [
-            107
-          ]
-        }
-      ],
-      "title": "30/40系用int4双截棍",
-      "properties": {
-        "Node name for S&R": "NunchakuQwenImageDiTLoader",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.3"
-        }
-      },
-      "widgets_values": [
-        "svdq-int4_r128-qwen-image-edit-2509-lightningv2.0-4steps.safetensors",
-        "auto",
-        1,
-        "disable"
-      ],
-      "color": "#223",
-      "bgcolor": "#335"
-    },
-    {
       "id": 69,
       "type": "Note",
       "pos": [
@@ -1311,7 +958,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 11,
+      "order": 6,
       "mode": 2,
       "inputs": [],
       "outputs": [],
@@ -1329,336 +976,11 @@
       "bgcolor": "#653"
     },
     {
-      "id": 70,
-      "type": "Note",
-      "pos": [
-        3540,
-        -140
-      ],
-      "size": [
-        210,
-        88
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 12,
-      "mode": 2,
-      "inputs": [],
-      "outputs": [],
-      "properties": {
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "version": "7.3",
-          "input_ue_unconnectable": {}
-        }
-      },
-      "widgets_values": [
-        "30/40系接这个双截棍（如果你有）\n\n不用接4steps-lora"
-      ],
-      "color": "#432",
-      "bgcolor": "#653"
-    },
-    {
-      "id": 71,
-      "type": "Note",
-      "pos": [
-        3240,
-        250
-      ],
-      "size": [
-        210,
-        88
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 13,
-      "mode": 2,
-      "inputs": [],
-      "outputs": [],
-      "properties": {
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "version": "7.3",
-          "input_ue_unconnectable": {}
-        }
-      },
-      "widgets_values": [
-        "你也可以选择只下载一个\n\nQwen-Rapid-AIO模型"
-      ],
-      "color": "#432",
-      "bgcolor": "#653"
-    },
-    {
-      "id": 72,
-      "type": "CheckpointLoaderSimple",
-      "pos": [
-        3230,
-        110
-      ],
-      "size": [
-        270,
-        98
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 14,
-      "mode": 2,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "MODEL",
-          "type": "MODEL",
-          "links": [
-            109
-          ]
-        },
-        {
-          "name": "CLIP",
-          "type": "CLIP",
-          "links": [
-            110
-          ]
-        },
-        {
-          "name": "VAE",
-          "type": "VAE",
-          "links": [
-            112
-          ]
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.3.59",
-        "Node name for S&R": "CheckpointLoaderSimple",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.3"
-        }
-      },
-      "widgets_values": [
-        "Qwen-Rapid-AIO-NSFW-v5.3.safetensors"
-      ],
-      "color": "#223",
-      "bgcolor": "#335"
-    },
-    {
-      "id": 73,
-      "type": "Any Switch (rgthree)",
-      "pos": [
-        3600,
-        60
-      ],
-      "size": [
-        166.7203125,
-        106
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 106,
-      "mode": 0,
-      "inputs": [
-        {
-          "dir": 3,
-          "name": "any_01",
-          "type": "MODEL",
-          "link": 106
-        },
-        {
-          "dir": 3,
-          "name": "any_02",
-          "type": "MODEL",
-          "link": 107
-        },
-        {
-          "dir": 3,
-          "name": "any_03",
-          "type": "MODEL",
-          "link": 108
-        },
-        {
-          "dir": 3,
-          "name": "any_04",
-          "type": "MODEL",
-          "link": 109
-        },
-        {
-          "dir": 3,
-          "name": "any_05",
-          "type": "MODEL",
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "dir": 4,
-          "label": "MODEL",
-          "name": "*",
-          "shape": 3,
-          "type": "MODEL",
-          "links": [
-            104
-          ]
-        }
-      ],
-      "properties": {
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.3"
-        }
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 74,
-      "type": "Any Switch (rgthree)",
-      "pos": [
-        3600,
-        270
-      ],
-      "size": [
-        166.7203125,
-        106
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 81,
-      "mode": 0,
-      "inputs": [
-        {
-          "dir": 3,
-          "name": "any_01",
-          "type": "CLIP",
-          "link": 110
-        },
-        {
-          "dir": 3,
-          "name": "any_02",
-          "type": "CLIP",
-          "link": 111
-        },
-        {
-          "dir": 3,
-          "name": "any_03",
-          "type": "CLIP",
-          "link": null
-        },
-        {
-          "dir": 3,
-          "name": "any_04",
-          "type": "CLIP",
-          "link": null
-        },
-        {
-          "dir": 3,
-          "name": "any_05",
-          "type": "CLIP",
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "dir": 4,
-          "label": "CLIP",
-          "name": "*",
-          "shape": 3,
-          "type": "CLIP",
-          "links": [
-            118
-          ]
-        }
-      ],
-      "properties": {
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.3"
-        }
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 75,
-      "type": "Any Switch (rgthree)",
-      "pos": [
-        3600,
-        440
-      ],
-      "size": [
-        166.7203125,
-        110
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 82,
-      "mode": 0,
-      "inputs": [
-        {
-          "dir": 3,
-          "name": "any_01",
-          "type": "VAE",
-          "link": 112
-        },
-        {
-          "dir": 3,
-          "name": "any_02",
-          "type": "VAE",
-          "link": 113
-        },
-        {
-          "dir": 3,
-          "name": "any_03",
-          "type": "VAE",
-          "link": null
-        },
-        {
-          "dir": 3,
-          "name": "any_04",
-          "type": "VAE",
-          "link": null
-        },
-        {
-          "dir": 3,
-          "name": "any_05",
-          "type": "VAE",
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "dir": 4,
-          "label": "VAE",
-          "name": "*",
-          "shape": 3,
-          "type": "VAE",
-          "links": [
-            119
-          ]
-        }
-      ],
-      "properties": {
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.3"
-        }
-      },
-      "widgets_values": []
-    },
-    {
       "id": 76,
       "type": "SetNode",
       "pos": [
-        3400,
-        870
+        3710,
+        900
       ],
       "size": [
         210,
@@ -1668,7 +990,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 152,
+      "order": 164,
       "mode": 0,
       "inputs": [
         {
@@ -1700,227 +1022,6 @@
       "bgcolor": "#335"
     },
     {
-      "id": 77,
-      "type": "Fast Groups Muter (rgthree)",
-      "pos": [
-        3800,
-        720
-      ],
-      "size": [
-        450,
-        180
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 15,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "OPT_CONNECTION",
-          "type": "*",
-          "links": null
-        }
-      ],
-      "title": "单选打开一个！",
-      "properties": {
-        "matchColors": "",
-        "matchTitle": "加载区域",
-        "showNav": true,
-        "showAllGraphs": true,
-        "sort": "position",
-        "customSortAlphabet": "",
-        "toggleRestriction": "default",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.3"
-        }
-      },
-      "color": "#223",
-      "bgcolor": "#335"
-    },
-    {
-      "id": 78,
-      "type": "Label (rgthree)",
-      "pos": [
-        3810,
-        640
-      ],
-      "size": [
-        420,
-        30
-      ],
-      "flags": {
-        "pinned": true,
-        "allow_interaction": false
-      },
-      "order": 16,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [],
-      "title": "加载器仅可单选，选你有的模型",
-      "properties": {
-        "fontSize": 30,
-        "fontFamily": "Arial",
-        "fontColor": "#ffffff",
-        "textAlign": "left",
-        "backgroundColor": "transparent",
-        "padding": 0,
-        "borderRadius": 0,
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "version": "7.0.1"
-        },
-        "widget_ue_connectable": {}
-      },
-      "color": "#fff0",
-      "bgcolor": "#fff0",
-      "shape": 1
-    },
-    {
-      "id": 79,
-      "type": "ZmlPowerLoraLoader",
-      "pos": [
-        3790,
-        70
-      ],
-      "size": [
-        460,
-        510
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 134,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "model",
-          "shape": 7,
-          "type": "MODEL",
-          "link": 115
-        },
-        {
-          "name": "clip",
-          "shape": 7,
-          "type": "CLIP",
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "name": "MODEL",
-          "type": "MODEL",
-          "links": [
-            2453
-          ]
-        },
-        {
-          "name": "CLIP",
-          "type": "CLIP",
-          "links": null
-        },
-        {
-          "name": "lora名称列表",
-          "type": "STRING",
-          "links": null
-        },
-        {
-          "name": "预览_图",
-          "shape": 6,
-          "type": "IMAGE",
-          "links": null
-        },
-        {
-          "name": "触发词",
-          "type": "STRING",
-          "links": null
-        },
-        {
-          "name": "自定义文本",
-          "type": "STRING",
-          "links": null
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "ZmlPowerLoraLoader",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.3"
-        }
-      },
-      "widgets_values": [
-        "{\"entries\":[{\"id\":\"lora1\",\"item_type\":\"lora\",\"display_name\":\"\",\"custom_text\":\"\",\"lora_name\":\"None\",\"weight\":1,\"enabled\":true,\"parent_id\":null},{\"id\":\"lora1761940351590\",\"item_type\":\"lora\",\"display_name\":\"\",\"custom_text\":\"\",\"lora_name\":\"None\",\"weight\":1,\"enabled\":true,\"parent_id\":null},{\"id\":\"lora1761940382454\",\"item_type\":\"lora\",\"display_name\":\"\",\"custom_text\":\"\",\"lora_name\":\"None\",\"weight\":1,\"enabled\":true,\"parent_id\":null},{\"id\":\"lora1761940383208\",\"item_type\":\"lora\",\"display_name\":\"\",\"custom_text\":\"\",\"lora_name\":\"None\",\"weight\":1,\"enabled\":true,\"parent_id\":null},{\"id\":\"lora1761940385286\",\"item_type\":\"lora\",\"display_name\":\"\",\"custom_text\":\"\",\"lora_name\":\"None\",\"weight\":1,\"enabled\":true,\"parent_id\":null}]}",
-        ""
-      ],
-      "color": "#223",
-      "bgcolor": "#335",
-      "powerLoraLoader_data": {
-        "entries": [
-          {
-            "id": "lora1",
-            "item_type": "lora",
-            "display_name": "",
-            "custom_text": "",
-            "lora_name": "None",
-            "weight": 1,
-            "enabled": true,
-            "parent_id": null
-          },
-          {
-            "id": "lora1761940351590",
-            "item_type": "lora",
-            "display_name": "",
-            "custom_text": "",
-            "lora_name": "None",
-            "weight": 1,
-            "enabled": true,
-            "parent_id": null
-          },
-          {
-            "id": "lora1761940382454",
-            "item_type": "lora",
-            "display_name": "",
-            "custom_text": "",
-            "lora_name": "None",
-            "weight": 1,
-            "enabled": true,
-            "parent_id": null
-          },
-          {
-            "id": "lora1761940383208",
-            "item_type": "lora",
-            "display_name": "",
-            "custom_text": "",
-            "lora_name": "None",
-            "weight": 1,
-            "enabled": true,
-            "parent_id": null
-          },
-          {
-            "id": "lora1761940385286",
-            "item_type": "lora",
-            "display_name": "",
-            "custom_text": "",
-            "lora_name": "None",
-            "weight": 1,
-            "enabled": true,
-            "parent_id": null
-          }
-        ]
-      },
-      "isLocked": false,
-      "viewMode": "normal",
-      "loraNameWidth": 65,
-      "customTextWidth": 80,
-      "folderColor": "#30353c",
-      "loraEntryColor": "#3a3a3a",
-      "enabledStateColor": "#4CAF50"
-    },
-    {
       "id": 80,
       "type": "GetNode",
       "pos": [
@@ -1935,7 +1036,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 17,
+      "order": 7,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -1962,109 +1063,6 @@
       "bgcolor": "#335"
     },
     {
-      "id": 81,
-      "type": "Anything Everywhere",
-      "pos": [
-        3600,
-        400
-      ],
-      "size": [
-        172.1890625,
-        46
-      ],
-      "flags": {
-        "collapsed": true,
-        "pinned": true
-      },
-      "order": 107,
-      "mode": 0,
-      "inputs": [
-        {
-          "color_on": "#FFD500",
-          "label": "CLIP",
-          "name": "anything",
-          "shape": 7,
-          "type": "CLIP",
-          "link": 118
-        },
-        {
-          "label": "anything",
-          "name": "anything11",
-          "type": "*",
-          "link": null
-        }
-      ],
-      "outputs": [],
-      "properties": {
-        "Node name for S&R": "Anything Everywhere",
-        "ue_properties": {
-          "version": "7.3",
-          "group_restricted": 0,
-          "color_restricted": 0,
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "title_regex": null,
-          "input_regex": null,
-          "group_regex": null,
-          "repeated_type_rule": 0,
-          "string_to_combo": 0,
-          "next_input_index": 11
-        }
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 82,
-      "type": "Anything Everywhere",
-      "pos": [
-        3600,
-        580
-      ],
-      "size": [
-        172.1890625,
-        66
-      ],
-      "flags": {
-        "collapsed": true,
-        "pinned": true
-      },
-      "order": 108,
-      "mode": 0,
-      "inputs": [
-        {
-          "color_on": "#FF6E6E",
-          "label": "VAE",
-          "name": "anything11",
-          "type": "VAE",
-          "link": 119
-        },
-        {
-          "label": "anything",
-          "name": "anything12",
-          "type": "*",
-          "link": null
-        }
-      ],
-      "outputs": [],
-      "properties": {
-        "Node name for S&R": "Anything Everywhere",
-        "ue_properties": {
-          "version": "7.3",
-          "group_restricted": 0,
-          "color_restricted": 0,
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "title_regex": null,
-          "input_regex": null,
-          "group_regex": null,
-          "repeated_type_rule": 0,
-          "string_to_combo": 0,
-          "next_input_index": 12
-        }
-      },
-      "widgets_values": []
-    },
-    {
       "id": 83,
       "type": "easy compare",
       "pos": [
@@ -2079,7 +1077,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 155,
+      "order": 156,
       "mode": 4,
       "inputs": [
         {
@@ -2130,7 +1128,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 169,
+      "order": 172,
       "mode": 4,
       "inputs": [
         {
@@ -2189,7 +1187,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 147,
+      "order": 148,
       "mode": 4,
       "inputs": [
         {
@@ -2249,7 +1247,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 141,
+      "order": 142,
       "mode": 4,
       "inputs": [
         {
@@ -2316,7 +1314,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 131,
+      "order": 132,
       "mode": 4,
       "inputs": [
         {
@@ -2406,7 +1404,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 18,
+      "order": 8,
       "mode": 4,
       "inputs": [],
       "outputs": [
@@ -2444,7 +1442,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 168,
+      "order": 171,
       "mode": 4,
       "inputs": [
         {
@@ -2505,7 +1503,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 164,
+      "order": 167,
       "mode": 4,
       "inputs": [
         {
@@ -2576,7 +1574,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 165,
+      "order": 168,
       "mode": 4,
       "inputs": [
         {
@@ -2626,7 +1624,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 156,
+      "order": 157,
       "mode": 4,
       "inputs": [
         {
@@ -2682,7 +1680,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 121,
+      "order": 119,
       "mode": 4,
       "inputs": [
         {
@@ -2731,7 +1729,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 161,
+      "order": 163,
       "mode": 4,
       "inputs": [
         {
@@ -2784,7 +1782,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 167,
+      "order": 170,
       "mode": 4,
       "inputs": [
         {
@@ -2841,7 +1839,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 119,
+      "order": 117,
       "mode": 4,
       "inputs": [
         {
@@ -2903,7 +1901,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 151,
+      "order": 152,
       "mode": 4,
       "inputs": [
         {
@@ -2984,7 +1982,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 100,
+      "order": 97,
       "mode": 4,
       "inputs": [
         {
@@ -3061,7 +2059,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 95,
+      "order": 92,
       "mode": 4,
       "inputs": [
         {
@@ -3108,7 +2106,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 19,
+      "order": 9,
       "mode": 4,
       "inputs": [
         {
@@ -3178,7 +2176,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 101,
+      "order": 98,
       "mode": 4,
       "inputs": [
         {
@@ -3325,7 +2323,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 20,
+      "order": 10,
       "mode": 2,
       "inputs": [],
       "outputs": [
@@ -3374,7 +2372,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 84,
+      "order": 81,
       "mode": 0,
       "inputs": [
         {
@@ -3422,7 +2420,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 85,
+      "order": 82,
       "mode": 0,
       "inputs": [
         {
@@ -3472,7 +2470,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 21,
+      "order": 11,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -3514,7 +2512,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 22,
+      "order": 12,
       "mode": 4,
       "inputs": [],
       "outputs": [],
@@ -3546,7 +2544,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 23,
+      "order": 13,
       "mode": 4,
       "inputs": [],
       "outputs": [],
@@ -3578,7 +2576,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 24,
+      "order": 14,
       "mode": 4,
       "inputs": [
         {
@@ -3633,7 +2631,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 87,
+      "order": 84,
       "mode": 4,
       "inputs": [
         {
@@ -3674,7 +2672,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 110,
+      "order": 108,
       "mode": 4,
       "inputs": [
         {
@@ -3715,7 +2713,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 109,
+      "order": 107,
       "mode": 4,
       "inputs": [
         {
@@ -3770,7 +2768,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 125,
+      "order": 126,
       "mode": 4,
       "inputs": [
         {
@@ -3825,7 +2823,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 126,
+      "order": 127,
       "mode": 4,
       "inputs": [
         {
@@ -3866,7 +2864,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 136,
+      "order": 137,
       "mode": 4,
       "inputs": [
         {
@@ -3908,7 +2906,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 25,
+      "order": 15,
       "mode": 4,
       "inputs": [],
       "outputs": [
@@ -3958,7 +2956,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 26,
+      "order": 16,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4008,7 +3006,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 27,
+      "order": 17,
       "mode": 4,
       "inputs": [],
       "outputs": [
@@ -4058,11 +3056,11 @@
         "pinned": true,
         "allow_interaction": false
       },
-      "order": 28,
+      "order": 18,
       "mode": 0,
       "inputs": [],
       "outputs": [],
-      "title": " 此工作流于SimpAI_comfyd后端发布ver1.0 Design by 冰華",
+      "title": " 此工作流于SimpAI_comfyd后端发布ver1.1 Design by 冰華",
       "properties": {
         "fontSize": 20,
         "fontFamily": "Arial",
@@ -4071,6 +3069,7 @@
         "backgroundColor": "transparent",
         "padding": 0,
         "borderRadius": 0,
+        "angle": 0,
         "ue_properties": {
           "widget_ue_connectable": {},
           "input_ue_unconnectable": {},
@@ -4095,7 +3094,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 111,
+      "order": 109,
       "mode": 4,
       "inputs": [
         {
@@ -4141,7 +3140,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 113,
+      "order": 111,
       "mode": 4,
       "inputs": [
         {
@@ -4187,7 +3186,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 89,
+      "order": 86,
       "mode": 0,
       "inputs": [
         {
@@ -4245,7 +3244,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 88,
+      "order": 85,
       "mode": 4,
       "inputs": [
         {
@@ -4303,7 +3302,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 90,
+      "order": 87,
       "mode": 4,
       "inputs": [
         {
@@ -4360,7 +3359,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 29,
+      "order": 19,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4392,7 +3391,7 @@
       "id": 145,
       "type": "GetNode",
       "pos": [
-        4290,
+        4370,
         -400
       ],
       "size": [
@@ -4403,7 +3402,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 30,
+      "order": 20,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4433,7 +3432,7 @@
       "id": 146,
       "type": "GetNode",
       "pos": [
-        4550,
+        4630,
         -400
       ],
       "size": [
@@ -4444,7 +3443,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 31,
+      "order": 21,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4474,7 +3473,7 @@
       "id": 147,
       "type": "GetNode",
       "pos": [
-        4420,
+        4500,
         -400
       ],
       "size": [
@@ -4485,7 +3484,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 32,
+      "order": 22,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4515,7 +3514,7 @@
       "id": 149,
       "type": "GetNode",
       "pos": [
-        4540,
+        4620,
         320
       ],
       "size": [
@@ -4526,7 +3525,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 33,
+      "order": 23,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4567,7 +3566,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 34,
+      "order": 24,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4597,7 +3596,7 @@
       "id": 151,
       "type": "Any Switch (rgthree)",
       "pos": [
-        4540,
+        4620,
         350
       ],
       "size": [
@@ -4607,7 +3606,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 123,
+      "order": 121,
       "mode": 0,
       "inputs": [
         {
@@ -4666,7 +3665,7 @@
       "id": 152,
       "type": "SetNode",
       "pos": [
-        4590,
+        4670,
         490
       ],
       "size": [
@@ -4677,7 +3676,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 133,
+      "order": 134,
       "mode": 0,
       "inputs": [
         {
@@ -4723,7 +3722,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 35,
+      "order": 25,
       "mode": 4,
       "inputs": [],
       "outputs": [
@@ -4753,7 +3752,7 @@
       "id": 159,
       "type": "GetNode",
       "pos": [
-        4290,
+        4370,
         -370
       ],
       "size": [
@@ -4764,7 +3763,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 36,
+      "order": 26,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4794,7 +3793,7 @@
       "id": 160,
       "type": "GetNode",
       "pos": [
-        4290,
+        4370,
         -110
       ],
       "size": [
@@ -4805,7 +3804,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 37,
+      "order": 27,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4846,7 +3845,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 93,
+      "order": 90,
       "mode": 4,
       "inputs": [
         {
@@ -4942,7 +3941,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 38,
+      "order": 28,
       "mode": 4,
       "inputs": [],
       "outputs": [
@@ -4981,7 +3980,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 39,
+      "order": 29,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -5022,7 +4021,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 40,
+      "order": 30,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -5063,7 +4062,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 41,
+      "order": 31,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -5106,7 +4105,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 42,
+      "order": 32,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -5149,7 +4148,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 43,
+      "order": 33,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -5192,7 +4191,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 44,
+      "order": 34,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -5223,7 +4222,7 @@
       "id": 173,
       "type": "EmptyLatentImage",
       "pos": [
-        4310,
+        4390,
         960
       ],
       "size": [
@@ -5233,7 +4232,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 45,
+      "order": 35,
       "mode": 4,
       "inputs": [],
       "outputs": [
@@ -5265,7 +4264,7 @@
       "id": 174,
       "type": "Any Switch (rgthree)",
       "pos": [
-        4730,
+        4810,
         350
       ],
       "size": [
@@ -5275,7 +4274,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 139,
+      "order": 140,
       "mode": 0,
       "inputs": [
         {
@@ -5345,7 +4344,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 46,
+      "order": 36,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -5375,7 +4374,7 @@
       "id": 177,
       "type": "SetNode",
       "pos": [
-        4870,
+        4950,
         1120
       ],
       "size": [
@@ -5386,7 +4385,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 140,
+      "order": 141,
       "mode": 0,
       "inputs": [
         {
@@ -5432,7 +4431,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 171,
+      "order": 174,
       "mode": 0,
       "inputs": [
         {
@@ -5467,7 +4466,7 @@
       "id": 179,
       "type": "GetNode",
       "pos": [
-        4730,
+        4810,
         320
       ],
       "size": [
@@ -5478,7 +4477,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 47,
+      "order": 37,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -5508,7 +4507,7 @@
       "id": 180,
       "type": "SetNode",
       "pos": [
-        4740,
+        4820,
         490
       ],
       "size": [
@@ -5519,7 +4518,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 146,
+      "order": 147,
       "mode": 0,
       "inputs": [
         {
@@ -5565,7 +4564,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 48,
+      "order": 38,
       "mode": 4,
       "inputs": [],
       "outputs": [
@@ -5606,7 +4605,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 49,
+      "order": 39,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -5636,7 +4635,7 @@
       "id": 184,
       "type": "SetNode",
       "pos": [
-        4480,
+        4560,
         -120
       ],
       "size": [
@@ -5647,7 +4646,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 130,
+      "order": 131,
       "mode": 0,
       "inputs": [
         {
@@ -5682,7 +4681,7 @@
       "id": 185,
       "type": "SetNode",
       "pos": [
-        4470,
+        4550,
         170
       ],
       "size": [
@@ -5693,7 +4692,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 118,
+      "order": 116,
       "mode": 0,
       "inputs": [
         {
@@ -5739,7 +4738,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 50,
+      "order": 40,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -5780,7 +4779,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 51,
+      "order": 41,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -5821,7 +4820,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 120,
+      "order": 118,
       "mode": 0,
       "inputs": [
         {
@@ -5856,7 +4855,7 @@
       "id": 189,
       "type": "GetNode",
       "pos": [
-        4470,
+        4550,
         210
       ],
       "size": [
@@ -5867,7 +4866,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 52,
+      "order": 42,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -5908,7 +4907,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 117,
+      "order": 115,
       "mode": 4,
       "inputs": [
         {
@@ -5954,7 +4953,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 53,
+      "order": 43,
       "mode": 4,
       "inputs": [],
       "outputs": [
@@ -5995,7 +4994,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 54,
+      "order": 44,
       "mode": 4,
       "inputs": [],
       "outputs": [
@@ -6036,7 +5035,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 162,
+      "order": 165,
       "mode": 4,
       "inputs": [
         {
@@ -6082,7 +5081,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 55,
+      "order": 45,
       "mode": 4,
       "inputs": [],
       "outputs": [
@@ -6123,7 +5122,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 83,
+      "order": 80,
       "mode": 4,
       "inputs": [
         {
@@ -6169,7 +5168,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 166,
+      "order": 169,
       "mode": 4,
       "inputs": [
         {
@@ -6215,7 +5214,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 56,
+      "order": 46,
       "mode": 4,
       "inputs": [],
       "outputs": [
@@ -6256,7 +5255,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 57,
+      "order": 47,
       "mode": 4,
       "inputs": [],
       "outputs": [
@@ -6296,7 +5295,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 158,
+      "order": 160,
       "mode": 4,
       "inputs": [
         {
@@ -6345,7 +5344,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 159,
+      "order": 161,
       "mode": 4,
       "inputs": [
         {
@@ -6392,7 +5391,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 163,
+      "order": 166,
       "mode": 4,
       "inputs": [
         {
@@ -6430,7 +5429,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 58,
+      "order": 48,
       "mode": 4,
       "inputs": [],
       "outputs": [
@@ -6470,7 +5469,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 160,
+      "order": 162,
       "mode": 4,
       "inputs": [
         {
@@ -6518,7 +5517,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 170,
+      "order": 173,
       "mode": 4,
       "inputs": [
         {
@@ -6556,66 +5555,11 @@
       ]
     },
     {
-      "id": 219,
-      "type": "ModelSamplingAuraFlow",
-      "pos": [
-        3200,
-        680
-      ],
-      "size": [
-        330,
-        60
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 143,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "model",
-          "type": "MODEL",
-          "link": 2453
-        }
-      ],
-      "outputs": [
-        {
-          "name": "MODEL",
-          "type": "MODEL",
-          "links": [
-            2452
-          ]
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.3.48",
-        "Node name for S&R": "ModelSamplingAuraFlow",
-        "ue_properties": {
-          "version": "7.3",
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {}
-        },
-        "enableTabs": false,
-        "tabWidth": 65,
-        "tabXOffset": 10,
-        "hasSecondTab": false,
-        "secondTabText": "Send Back",
-        "secondTabOffset": 80,
-        "secondTabWidth": 65
-      },
-      "widgets_values": [
-        3
-      ],
-      "color": "#223",
-      "bgcolor": "#335"
-    },
-    {
       "id": 220,
       "type": "CFGNorm",
       "pos": [
-        3200,
-        780
+        3510,
+        800
       ],
       "size": [
         330,
@@ -6624,7 +5568,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 148,
+      "order": 158,
       "mode": 0,
       "inputs": [
         {
@@ -6681,7 +5625,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 86,
+      "order": 83,
       "mode": 4,
       "inputs": [
         {
@@ -6741,7 +5685,7 @@
         "pinned": true,
         "allow_interaction": false
       },
-      "order": 59,
+      "order": 49,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -6754,6 +5698,7 @@
         "backgroundColor": "transparent",
         "padding": 0,
         "borderRadius": 0,
+        "angle": 0,
         "ue_properties": {
           "widget_ue_connectable": {},
           "input_ue_unconnectable": {},
@@ -6777,7 +5722,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 60,
+      "order": 50,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -6819,7 +5764,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 122,
+      "order": 120,
       "mode": 0,
       "inputs": [
         {
@@ -6910,7 +5855,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 61,
+      "order": 51,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -6951,7 +5896,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 102,
+      "order": 99,
       "mode": 0,
       "inputs": [
         {
@@ -7007,7 +5952,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 142,
+      "order": 143,
       "mode": 0,
       "inputs": [
         {
@@ -7053,7 +5998,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 62,
+      "order": 52,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -7093,7 +6038,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 103,
+      "order": 100,
       "mode": 0,
       "inputs": [
         {
@@ -7138,7 +6083,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 63,
+      "order": 53,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -7179,7 +6124,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 64,
+      "order": 54,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -7220,7 +6165,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 65,
+      "order": 55,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -7261,7 +6206,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 66,
+      "order": 56,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -7301,7 +6246,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 132,
+      "order": 133,
       "mode": 0,
       "inputs": [
         {
@@ -7358,7 +6303,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 67,
+      "order": 57,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -7399,7 +6344,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 144,
+      "order": 145,
       "mode": 4,
       "inputs": [
         {
@@ -7458,7 +6403,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 149,
+      "order": 150,
       "mode": 4,
       "inputs": [
         {
@@ -7517,7 +6462,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 135,
+      "order": 136,
       "mode": 4,
       "inputs": [
         {
@@ -7576,7 +6521,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 153,
+      "order": 154,
       "mode": 4,
       "inputs": [
         {
@@ -7633,7 +6578,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 145,
+      "order": 146,
       "mode": 4,
       "inputs": [
         {
@@ -7674,7 +6619,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 157,
+      "order": 159,
       "mode": 4,
       "inputs": [
         {
@@ -7715,7 +6660,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 154,
+      "order": 155,
       "mode": 4,
       "inputs": [
         {
@@ -7756,7 +6701,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 150,
+      "order": 151,
       "mode": 4,
       "inputs": [
         {
@@ -7798,7 +6743,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 68,
+      "order": 58,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -7830,7 +6775,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 104,
+      "order": 101,
       "mode": 0,
       "inputs": [
         {
@@ -7876,7 +6821,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 69,
+      "order": 59,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -7917,7 +6862,7 @@
         "pinned": true,
         "allow_interaction": false
       },
-      "order": 70,
+      "order": 60,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -7930,6 +6875,7 @@
         "backgroundColor": "transparent",
         "padding": 0,
         "borderRadius": 0,
+        "angle": 0,
         "ue_properties": {
           "widget_ue_connectable": {},
           "input_ue_unconnectable": {},
@@ -7954,7 +6900,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 127,
+      "order": 128,
       "mode": 0,
       "inputs": [
         {
@@ -8009,7 +6955,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 137,
+      "order": 138,
       "mode": 0,
       "inputs": [
         {
@@ -8055,7 +7001,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 138,
+      "order": 139,
       "mode": 0,
       "inputs": [
         {
@@ -8090,7 +7036,7 @@
       "id": 254,
       "type": "GetNode",
       "pos": [
-        4390,
+        4470,
         330
       ],
       "size": [
@@ -8101,7 +7047,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 71,
+      "order": 61,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -8131,7 +7077,7 @@
       "id": 255,
       "type": "GetNode",
       "pos": [
-        4280,
+        4360,
         330
       ],
       "size": [
@@ -8142,7 +7088,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 72,
+      "order": 62,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -8172,7 +7118,7 @@
       "id": 120,
       "type": "EmptyLatentImage",
       "pos": [
-        4290,
+        4370,
         360
       ],
       "size": [
@@ -8182,7 +7128,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 105,
+      "order": 102,
       "mode": 0,
       "inputs": [
         {
@@ -8242,7 +7188,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 112,
+      "order": 110,
       "mode": 0,
       "inputs": [
         {
@@ -8290,7 +7236,7 @@
         "pinned": true,
         "allow_interaction": false
       },
-      "order": 73,
+      "order": 63,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -8303,6 +7249,7 @@
         "backgroundColor": "transparent",
         "padding": 0,
         "borderRadius": 0,
+        "angle": 0,
         "ue_properties": {
           "widget_ue_connectable": {},
           "input_ue_unconnectable": {},
@@ -8327,7 +7274,7 @@
         "pinned": true,
         "allow_interaction": false
       },
-      "order": 74,
+      "order": 64,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -8340,6 +7287,7 @@
         "backgroundColor": "transparent",
         "padding": 0,
         "borderRadius": 0,
+        "angle": 0,
         "ue_properties": {
           "widget_ue_connectable": {},
           "input_ue_unconnectable": {},
@@ -8364,7 +7312,7 @@
         "pinned": true,
         "allow_interaction": false
       },
-      "order": 75,
+      "order": 65,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -8377,6 +7325,7 @@
         "backgroundColor": "transparent",
         "padding": 0,
         "borderRadius": 0,
+        "angle": 0,
         "ue_properties": {
           "widget_ue_connectable": {},
           "input_ue_unconnectable": {},
@@ -8401,7 +7350,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 76,
+      "order": 66,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -8417,6 +7366,1262 @@
         "2",
         1
       ]
+    },
+    {
+      "id": 72,
+      "type": "CheckpointLoaderSimple",
+      "pos": [
+        3200,
+        480
+      ],
+      "size": [
+        270,
+        98
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 67,
+      "mode": 2,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            2893
+          ]
+        },
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            110
+          ]
+        },
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            112
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.59",
+        "Node name for S&R": "CheckpointLoaderSimple",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        "Qwen-Rapid-AIO-NSFW-v5.3.safetensors"
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 71,
+      "type": "Note",
+      "pos": [
+        3200,
+        620
+      ],
+      "size": [
+        210,
+        88
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 68,
+      "mode": 2,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.3",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "你也可以选择只下载一个\n\nQwen-Rapid-AIO模型"
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
+      "id": 66,
+      "type": "LoraLoaderModelOnly",
+      "pos": [
+        3200,
+        270
+      ],
+      "size": [
+        290,
+        100
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 103,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 105
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            2894
+          ]
+        }
+      ],
+      "title": "4step-lora",
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.59",
+        "Node name for S&R": "LoraLoaderModelOnly",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        "Qwen-Image-Edit-2509-Lightning-4steps-V1.0-bf16.safetensors",
+        1
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 65,
+      "type": "UNETLoader",
+      "pos": [
+        3200,
+        120
+      ],
+      "size": [
+        290,
+        110
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 69,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            105
+          ]
+        }
+      ],
+      "title": "官方版本fp8的模型",
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.59",
+        "Node name for S&R": "UNETLoader",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        "qwen_image_edit_2509_fp8_e4m3fn.safetensors",
+        "default"
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 64,
+      "type": "ModelPatchTorchSettings",
+      "pos": [
+        3190,
+        800
+      ],
+      "size": [
+        307.443359375,
+        58
+      ],
+      "flags": {
+        "collapsed": false,
+        "pinned": true
+      },
+      "order": 149,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "model",
+          "name": "model",
+          "type": "MODEL",
+          "link": 2896
+        }
+      ],
+      "outputs": [
+        {
+          "label": "MODEL",
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            2897
+          ]
+        }
+      ],
+      "title": "Model Patch Torch",
+      "properties": {
+        "Node name for S&R": "ModelPatchTorchSettings",
+        "ue_properties": {
+          "version": "7.3",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "ttNbgOverride": {
+          "bgcolor": "#3f5159",
+          "groupcolor": "#3f789e",
+          "color": "#2a363b"
+        }
+      },
+      "widgets_values": [
+        true
+      ],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 264,
+      "type": "NunchakuQwenImageLoraStack",
+      "pos": [
+        3780,
+        -400
+      ],
+      "size": [
+        490,
+        300
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 125,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 2899
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            2898
+          ]
+        }
+      ],
+      "title": "双截棍的Lora在这加载",
+      "properties": {
+        "Node name for S&R": "NunchakuQwenImageLoraStack",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        "None",
+        1,
+        "None",
+        1,
+        "None",
+        1,
+        "None",
+        1,
+        "None",
+        1
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 78,
+      "type": "Label (rgthree)",
+      "pos": [
+        3890,
+        640
+      ],
+      "size": [
+        420,
+        30
+      ],
+      "flags": {
+        "pinned": true,
+        "allow_interaction": false
+      },
+      "order": 70,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "加载器仅可单选，选你有的模型",
+      "properties": {
+        "fontSize": 30,
+        "fontFamily": "Arial",
+        "fontColor": "#ffffff",
+        "textAlign": "left",
+        "backgroundColor": "transparent",
+        "padding": 0,
+        "borderRadius": 0,
+        "angle": 0,
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.0.1"
+        },
+        "widget_ue_connectable": {}
+      },
+      "color": "#fff0",
+      "bgcolor": "#fff0",
+      "shape": 1
+    },
+    {
+      "id": 263,
+      "type": "Any Switch (rgthree)",
+      "pos": [
+        3510,
+        80
+      ],
+      "size": [
+        166.7203125,
+        106
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 122,
+      "mode": 0,
+      "inputs": [
+        {
+          "dir": 3,
+          "name": "any_01",
+          "type": "MODEL",
+          "link": 2893
+        },
+        {
+          "dir": 3,
+          "name": "any_02",
+          "type": "MODEL",
+          "link": 2894
+        },
+        {
+          "dir": 3,
+          "name": "any_03",
+          "type": "MODEL",
+          "link": null
+        },
+        {
+          "dir": 3,
+          "name": "any_04",
+          "type": "MODEL",
+          "link": null
+        },
+        {
+          "dir": 3,
+          "name": "any_05",
+          "type": "MODEL",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": 4,
+          "label": "MODEL",
+          "name": "*",
+          "shape": 3,
+          "type": "MODEL",
+          "links": [
+            2895
+          ]
+        }
+      ],
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 262,
+      "type": "Any Switch (rgthree)",
+      "pos": [
+        3510,
+        230
+      ],
+      "size": [
+        166.7203125,
+        106
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 144,
+      "mode": 0,
+      "inputs": [
+        {
+          "dir": 3,
+          "name": "any_01",
+          "type": "MODEL",
+          "link": 2898
+        },
+        {
+          "dir": 3,
+          "name": "any_02",
+          "type": "MODEL",
+          "link": 2891
+        },
+        {
+          "dir": 3,
+          "name": "any_03",
+          "type": "MODEL",
+          "link": null
+        },
+        {
+          "dir": 3,
+          "name": "any_04",
+          "type": "MODEL",
+          "link": null
+        },
+        {
+          "dir": 3,
+          "name": "any_05",
+          "type": "MODEL",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": 4,
+          "label": "MODEL",
+          "name": "*",
+          "shape": 3,
+          "type": "MODEL",
+          "links": [
+            2896
+          ]
+        }
+      ],
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 74,
+      "type": "Any Switch (rgthree)",
+      "pos": [
+        3690,
+        80
+      ],
+      "size": [
+        166.7203125,
+        106
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 104,
+      "mode": 0,
+      "inputs": [
+        {
+          "dir": 3,
+          "name": "any_01",
+          "type": "CLIP",
+          "link": 110
+        },
+        {
+          "dir": 3,
+          "name": "any_02",
+          "type": "CLIP",
+          "link": 111
+        },
+        {
+          "dir": 3,
+          "name": "any_03",
+          "type": "CLIP",
+          "link": null
+        },
+        {
+          "dir": 3,
+          "name": "any_04",
+          "type": "CLIP",
+          "link": null
+        },
+        {
+          "dir": 3,
+          "name": "any_05",
+          "type": "CLIP",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": 4,
+          "label": "CLIP",
+          "name": "*",
+          "shape": 3,
+          "type": "CLIP",
+          "links": [
+            118
+          ]
+        }
+      ],
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 75,
+      "type": "Any Switch (rgthree)",
+      "pos": [
+        3690,
+        260
+      ],
+      "size": [
+        166.7203125,
+        110
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 105,
+      "mode": 0,
+      "inputs": [
+        {
+          "dir": 3,
+          "name": "any_01",
+          "type": "VAE",
+          "link": 112
+        },
+        {
+          "dir": 3,
+          "name": "any_02",
+          "type": "VAE",
+          "link": 113
+        },
+        {
+          "dir": 3,
+          "name": "any_03",
+          "type": "VAE",
+          "link": null
+        },
+        {
+          "dir": 3,
+          "name": "any_04",
+          "type": "VAE",
+          "link": null
+        },
+        {
+          "dir": 3,
+          "name": "any_05",
+          "type": "VAE",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": 4,
+          "label": "VAE",
+          "name": "*",
+          "shape": 3,
+          "type": "VAE",
+          "links": [
+            119
+          ]
+        }
+      ],
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 81,
+      "type": "Anything Everywhere",
+      "pos": [
+        3690,
+        220
+      ],
+      "size": [
+        172.1890625,
+        46
+      ],
+      "flags": {
+        "collapsed": true,
+        "pinned": true
+      },
+      "order": 123,
+      "mode": 0,
+      "inputs": [
+        {
+          "color_on": "#FFD500",
+          "label": "CLIP",
+          "name": "anything",
+          "shape": 7,
+          "type": "CLIP",
+          "link": 118
+        },
+        {
+          "label": "anything",
+          "name": "anything11",
+          "type": "*",
+          "link": null
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "Anything Everywhere",
+        "ue_properties": {
+          "version": "7.3",
+          "group_restricted": 0,
+          "color_restricted": 0,
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "title_regex": null,
+          "input_regex": null,
+          "group_regex": null,
+          "repeated_type_rule": 0,
+          "string_to_combo": 0,
+          "next_input_index": 11
+        }
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 62,
+      "type": "CLIPLoader",
+      "pos": [
+        3510,
+        450
+      ],
+      "size": [
+        330,
+        110
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 71,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "label": "CLIP",
+          "name": "CLIP",
+          "type": "CLIP",
+          "slot_index": 0,
+          "links": [
+            111
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.48",
+        "Node name for S&R": "CLIPLoader",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.0.1"
+        },
+        "hasSecondTab": false,
+        "models": [
+          {
+            "name": "qwen_2.5_vl_7b_fp8_scaled.safetensors",
+            "directory": "text_encoders",
+            "url": "https://hf-mirror.com/Comfy-Org/Qwen-Image_ComfyUI/resolve/main/split_files/text_encoders/qwen_2.5_vl_7b_fp8_scaled.safetensors"
+          }
+        ],
+        "secondTabOffset": 80,
+        "tabWidth": 65,
+        "secondTabWidth": 65,
+        "widget_ue_connectable": {},
+        "secondTabText": "Send Back",
+        "enableTabs": false,
+        "tabXOffset": 10
+      },
+      "widgets_values": [
+        "qwen_2.5_vl_7b_fp8_scaled.safetensors",
+        "qwen_image",
+        "default"
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
+      "id": 63,
+      "type": "VAELoader",
+      "pos": [
+        3510,
+        600
+      ],
+      "size": [
+        330,
+        60
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 72,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "label": "VAE",
+          "name": "VAE",
+          "type": "VAE",
+          "slot_index": 0,
+          "links": [
+            113
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.48",
+        "Node name for S&R": "VAELoader",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.0.1"
+        },
+        "hasSecondTab": false,
+        "models": [
+          {
+            "name": "qwen_image_vae.safetensors",
+            "directory": "vae",
+            "url": "https://hf-mirror.com/Comfy-Org/Qwen-Image_ComfyUI/resolve/main/split_files/vae/qwen_image_vae.safetensors"
+          }
+        ],
+        "secondTabOffset": 80,
+        "tabWidth": 65,
+        "secondTabWidth": 65,
+        "widget_ue_connectable": {},
+        "secondTabText": "Send Back",
+        "enableTabs": false,
+        "tabXOffset": 10
+      },
+      "widgets_values": [
+        "qwen_image_vae.safetensors"
+      ],
+      "color": "#322",
+      "bgcolor": "#533"
+    },
+    {
+      "id": 219,
+      "type": "ModelSamplingAuraFlow",
+      "pos": [
+        3510,
+        700
+      ],
+      "size": [
+        330,
+        60
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 153,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 2897
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            2452
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.48",
+        "Node name for S&R": "ModelSamplingAuraFlow",
+        "ue_properties": {
+          "version": "7.3",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "enableTabs": false,
+        "tabWidth": 65,
+        "tabXOffset": 10,
+        "hasSecondTab": false,
+        "secondTabText": "Send Back",
+        "secondTabOffset": 80,
+        "secondTabWidth": 65
+      },
+      "widgets_values": [
+        3
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 79,
+      "type": "ZmlPowerLoraLoader",
+      "pos": [
+        3870,
+        80
+      ],
+      "size": [
+        460,
+        510
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 135,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "shape": 7,
+          "type": "MODEL",
+          "link": 2895
+        },
+        {
+          "name": "clip",
+          "shape": 7,
+          "type": "CLIP",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            2891
+          ]
+        },
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": null
+        },
+        {
+          "name": "lora名称列表",
+          "type": "STRING",
+          "links": null
+        },
+        {
+          "name": "预览_图",
+          "shape": 6,
+          "type": "IMAGE",
+          "links": null
+        },
+        {
+          "name": "触发词",
+          "type": "STRING",
+          "links": null
+        },
+        {
+          "name": "自定义文本",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ZmlPowerLoraLoader",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        "{\"entries\":[{\"id\":\"lora1\",\"item_type\":\"lora\",\"display_name\":\"\",\"custom_text\":\"\",\"lora_name\":\"None\",\"weight\":1,\"enabled\":true,\"parent_id\":null},{\"id\":\"lora1761940351590\",\"item_type\":\"lora\",\"display_name\":\"\",\"custom_text\":\"\",\"lora_name\":\"None\",\"weight\":1,\"enabled\":true,\"parent_id\":null},{\"id\":\"lora1761940382454\",\"item_type\":\"lora\",\"display_name\":\"\",\"custom_text\":\"\",\"lora_name\":\"None\",\"weight\":1,\"enabled\":true,\"parent_id\":null},{\"id\":\"lora1761940383208\",\"item_type\":\"lora\",\"display_name\":\"\",\"custom_text\":\"\",\"lora_name\":\"None\",\"weight\":1,\"enabled\":true,\"parent_id\":null},{\"id\":\"lora1761940385286\",\"item_type\":\"lora\",\"display_name\":\"\",\"custom_text\":\"\",\"lora_name\":\"None\",\"weight\":1,\"enabled\":true,\"parent_id\":null}]}",
+        ""
+      ],
+      "color": "#223",
+      "bgcolor": "#335",
+      "powerLoraLoader_data": {
+        "entries": [
+          {
+            "id": "lora1",
+            "item_type": "lora",
+            "display_name": "",
+            "custom_text": "",
+            "lora_name": "None",
+            "weight": 1,
+            "enabled": true,
+            "parent_id": null
+          },
+          {
+            "id": "lora1761940351590",
+            "item_type": "lora",
+            "display_name": "",
+            "custom_text": "",
+            "lora_name": "None",
+            "weight": 1,
+            "enabled": true,
+            "parent_id": null
+          },
+          {
+            "id": "lora1761940382454",
+            "item_type": "lora",
+            "display_name": "",
+            "custom_text": "",
+            "lora_name": "None",
+            "weight": 1,
+            "enabled": true,
+            "parent_id": null
+          },
+          {
+            "id": "lora1761940383208",
+            "item_type": "lora",
+            "display_name": "",
+            "custom_text": "",
+            "lora_name": "None",
+            "weight": 1,
+            "enabled": true,
+            "parent_id": null
+          },
+          {
+            "id": "lora1761940385286",
+            "item_type": "lora",
+            "display_name": "",
+            "custom_text": "",
+            "lora_name": "None",
+            "weight": 1,
+            "enabled": true,
+            "parent_id": null
+          }
+        ]
+      },
+      "isLocked": false,
+      "viewMode": "normal",
+      "loraNameWidth": 65,
+      "customTextWidth": 80,
+      "folderColor": "#30353c",
+      "loraEntryColor": "#3a3a3a",
+      "enabledStateColor": "#4CAF50"
+    },
+    {
+      "id": 82,
+      "type": "Anything Everywhere",
+      "pos": [
+        3690,
+        400
+      ],
+      "size": [
+        172.1890625,
+        66
+      ],
+      "flags": {
+        "collapsed": true,
+        "pinned": true
+      },
+      "order": 124,
+      "mode": 0,
+      "inputs": [
+        {
+          "color_on": "#FF6E6E",
+          "label": "VAE",
+          "name": "anything11",
+          "type": "VAE",
+          "link": 119
+        },
+        {
+          "label": "anything",
+          "name": "anything12",
+          "type": "*",
+          "link": null
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "Anything Everywhere",
+        "ue_properties": {
+          "version": "7.3",
+          "group_restricted": 0,
+          "color_restricted": 0,
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "title_regex": null,
+          "input_regex": null,
+          "group_regex": null,
+          "repeated_type_rule": 0,
+          "string_to_combo": 0,
+          "next_input_index": 12
+        }
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 73,
+      "type": "Any Switch (rgthree)",
+      "pos": [
+        3780,
+        -60
+      ],
+      "size": [
+        166.7203125,
+        106
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 106,
+      "mode": 0,
+      "inputs": [
+        {
+          "dir": 3,
+          "name": "any_01",
+          "type": "MODEL",
+          "link": 106
+        },
+        {
+          "dir": 3,
+          "name": "any_02",
+          "type": "MODEL",
+          "link": 107
+        },
+        {
+          "dir": 3,
+          "name": "any_03",
+          "type": "MODEL",
+          "link": null
+        },
+        {
+          "dir": 3,
+          "name": "any_04",
+          "type": "MODEL",
+          "link": null
+        },
+        {
+          "dir": 3,
+          "name": "any_05",
+          "type": "MODEL",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": 4,
+          "label": "MODEL",
+          "name": "*",
+          "shape": 3,
+          "type": "MODEL",
+          "links": [
+            2899
+          ]
+        }
+      ],
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 77,
+      "type": "Fast Groups Muter (rgthree)",
+      "pos": [
+        3880,
+        710
+      ],
+      "size": [
+        450,
+        180
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 73,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "OPT_CONNECTION",
+          "type": "*",
+          "links": null
+        }
+      ],
+      "title": "单选打开一个！",
+      "properties": {
+        "matchColors": "",
+        "matchTitle": "加载区域",
+        "showNav": true,
+        "showAllGraphs": true,
+        "sort": "position",
+        "customSortAlphabet": "",
+        "toggleRestriction": "default",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 70,
+      "type": "Note",
+      "pos": [
+        3540,
+        -100
+      ],
+      "size": [
+        210,
+        88
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 74,
+      "mode": 2,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.3",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "30/40系接这个双截棍（如果你有）\n\n不用接4steps-lora"
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
+      "id": 67,
+      "type": "NunchakuQwenImageDiTLoader",
+      "pos": [
+        3200,
+        -360
+      ],
+      "size": [
+        320,
+        154
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 75,
+      "mode": 2,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            106
+          ]
+        }
+      ],
+      "title": "50系专用fp4双截棍",
+      "properties": {
+        "Node name for S&R": "NunchakuQwenImageDiTLoader",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        "svdq-fp4_r128-qwen-image-edit-2509-lightningv2.0-4steps.safetensors",
+        "auto",
+        4,
+        10,
+        "disable"
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 68,
+      "type": "NunchakuQwenImageDiTLoader",
+      "pos": [
+        3200,
+        -120
+      ],
+      "size": [
+        320.1197204589844,
+        154
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 76,
+      "mode": 2,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            107
+          ]
+        }
+      ],
+      "title": "30/40系用int4双截棍",
+      "properties": {
+        "Node name for S&R": "NunchakuQwenImageDiTLoader",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        "svdq-int4_r128-qwen-image-edit-2509-lightningv2.0-4steps.safetensors",
+        "auto",
+        4,
+        10,
+        "disable"
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
     }
   ],
   "links": [
@@ -8461,14 +8666,6 @@
       "MASK"
     ],
     [
-      104,
-      73,
-      0,
-      64,
-      0,
-      "MODEL"
-    ],
-    [
       105,
       65,
       0,
@@ -8490,22 +8687,6 @@
       0,
       73,
       1,
-      "MODEL"
-    ],
-    [
-      108,
-      66,
-      0,
-      73,
-      2,
-      "MODEL"
-    ],
-    [
-      109,
-      72,
-      0,
-      73,
-      3,
       "MODEL"
     ],
     [
@@ -8539,14 +8720,6 @@
       75,
       1,
       "VAE"
-    ],
-    [
-      115,
-      64,
-      0,
-      79,
-      0,
-      "MODEL"
     ],
     [
       117,
@@ -9245,14 +9418,6 @@
       "MODEL"
     ],
     [
-      2453,
-      79,
-      0,
-      219,
-      0,
-      "MODEL"
-    ],
-    [
       2454,
       220,
       0,
@@ -9523,6 +9688,70 @@
       120,
       1,
       "INT"
+    ],
+    [
+      2891,
+      79,
+      0,
+      262,
+      1,
+      "*"
+    ],
+    [
+      2893,
+      72,
+      0,
+      263,
+      0,
+      "*"
+    ],
+    [
+      2894,
+      66,
+      0,
+      263,
+      1,
+      "MODEL"
+    ],
+    [
+      2895,
+      263,
+      0,
+      79,
+      0,
+      "MODEL"
+    ],
+    [
+      2896,
+      262,
+      0,
+      64,
+      0,
+      "MODEL"
+    ],
+    [
+      2897,
+      64,
+      0,
+      219,
+      0,
+      "MODEL"
+    ],
+    [
+      2898,
+      264,
+      0,
+      262,
+      0,
+      "MODEL"
+    ],
+    [
+      2899,
+      73,
+      0,
+      264,
+      0,
+      "MODEL"
     ]
   ],
   "groups": [
@@ -9530,7 +9759,7 @@
       "id": 6,
       "title": "逻辑区",
       "bounding": [
-        4270,
+        4350,
         -470,
         790,
         2130
@@ -9545,31 +9774,27 @@
       "id": 3,
       "title": "姿势预处理",
       "bounding": [
-        4700,
+        4780,
         -430,
         310,
         600
       ],
       "color": "#3f789e",
       "font_size": 24,
-      "flags": {
-        "pinned": true
-      }
+      "flags": {}
     },
     {
       "id": 5,
       "title": "图1增强一致性方案",
       "bounding": [
-        4280,
+        4360,
         510,
         770,
         580
       ],
       "color": "#3f789e",
       "font_size": 24,
-      "flags": {
-        "pinned": true
-      }
+      "flags": {}
     },
     {
       "id": 8,
@@ -9622,7 +9847,7 @@
       "bounding": [
         3180,
         -470,
-        1080,
+        1160,
         1380
       ],
       "color": "#3f789e",
@@ -9635,10 +9860,10 @@
       "id": 13,
       "title": "官方千问+4steps加载区域",
       "bounding": [
-        3780,
-        -430,
-        470,
-        450
+        3190,
+        50,
+        310,
+        350
       ],
       "color": "#3f789e",
       "font_size": 24,
@@ -9653,7 +9878,7 @@
         3190,
         -430,
         580,
-        220
+        230
       ],
       "color": "#3f789e",
       "font_size": 24,
@@ -9666,9 +9891,9 @@
       "title": "Rapid-AIO加载区域",
       "bounding": [
         3190,
-        30,
-        400,
-        360
+        410,
+        310,
+        310
       ],
       "color": "#3f789e",
       "font_size": 24,
@@ -9681,9 +9906,9 @@
       "title": "双截棍int4加载区域-RTX30/40系",
       "bounding": [
         3190,
-        -200,
+        -190,
         580,
-        220
+        230
       ],
       "color": "#3f789e",
       "font_size": 24,
@@ -9802,7 +10027,7 @@
       "bounding": [
         3180,
         920,
-        1080,
+        1160,
         740
       ],
       "color": "#3f789e",
@@ -9815,10 +10040,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.289664379736688,
+      "scale": 0.6209213230591554,
       "offset": [
-        2722.388385256624,
-        2434.431478081842
+        -1609.128514052958,
+        -556.4659857310205
       ]
     },
     "ue_links": [
@@ -9861,14 +10086,6 @@
         "upstream_slot": 0,
         "controller": 82,
         "type": "VAE"
-      },
-      {
-        "downstream": 79,
-        "downstream_slot": 1,
-        "upstream": "74",
-        "upstream_slot": 0,
-        "controller": 81,
-        "type": "CLIP"
       },
       {
         "downstream": 91,
@@ -9917,6 +10134,14 @@
         "upstream_slot": 0,
         "controller": 82,
         "type": "VAE"
+      },
+      {
+        "downstream": 79,
+        "downstream_slot": 1,
+        "upstream": "74",
+        "upstream_slot": 0,
+        "controller": 81,
+        "type": "CLIP"
       }
     ],
     "frontendVersion": "1.28.8",

@@ -63,7 +63,7 @@
     "inputs": {
       "shift": 3,
       "model": [
-        "34",
+        "129",
         0
       ]
     },
@@ -139,62 +139,6 @@
     "class_type": "ImageSmartSharpen+",
     "_meta": {
       "title": "🔧 Image Smart Sharpen"
-    }
-  },
-  "31": {
-    "inputs": {
-      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
-      "strength_model": 0,
-      "model": [
-        "33",
-        0
-      ]
-    },
-    "class_type": "LoraLoaderModelOnly",
-    "_meta": {
-      "title": "lora_2"
-    }
-  },
-  "32": {
-    "inputs": {
-      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
-      "strength_model": 0,
-      "model": [
-        "31",
-        0
-      ]
-    },
-    "class_type": "LoraLoaderModelOnly",
-    "_meta": {
-      "title": "lora_3"
-    }
-  },
-  "33": {
-    "inputs": {
-      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
-      "strength_model": 0,
-      "model": [
-        "128",
-        0
-      ]
-    },
-    "class_type": "LoraLoaderModelOnly",
-    "_meta": {
-      "title": "lora_1"
-    }
-  },
-  "34": {
-    "inputs": {
-      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
-      "strength_model": 0,
-      "model": [
-        "32",
-        0
-      ]
-    },
-    "class_type": "LoraLoaderModelOnly",
-    "_meta": {
-      "title": "lora_4"
     }
   },
   "36": {
@@ -1056,12 +1000,35 @@
     "inputs": {
       "model_name": "svdq-int4_r128-qwen-image-edit-2509-lightningv2.0-4steps.safetensors",
       "cpu_offload": "enable",
+      "vram_margin_gb": 4,
       "num_blocks_on_gpu": 20,
       "use_pin_memory": "disable"
     },
     "class_type": "NunchakuQwenImageDiTLoader",
     "_meta": {
       "title": "Nunchaku Qwen-Image DiT Loader"
+    }
+  },
+  "129": {
+    "inputs": {
+      "lora_name_1": "None",
+      "lora_strength_1": 1,
+      "lora_name_2": "None",
+      "lora_strength_2": 1,
+      "lora_name_3": "None",
+      "lora_strength_3": 1,
+      "lora_name_4": "None",
+      "lora_strength_4": 1,
+      "lora_name_5": "None",
+      "lora_strength_5": 1,
+      "model": [
+        "128",
+        0
+      ]
+    },
+    "class_type": "NunchakuQwenImageLoraStack",
+    "_meta": {
+      "title": "Nunchaku Qwen Image LoRA Stack"
     }
   }
 }
