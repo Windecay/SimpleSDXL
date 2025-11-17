@@ -8137,7 +8137,7 @@
       },
       "widgets_values": [
         "https://www.modelscope.cn/models/lightx2v/Qwen-Image-Lightning/resolve/master/Qwen-Image-Lightning-8steps-V2.0-bf16.safetensors",
-        "https://www.modelscope.cn/models/AI-ModelScope/Qwen-Edit-2509-Upscale-LoRA/resolve/master/qwen-edit-enhance_64-v3_000001500.safetensors",
+        "https://www.modelscope.cn/models/AI-ModelScope/Qwen-Edit-2509-Upscale-LoRA/resolve/master/archive/qwen-edit-enhance_64-v3_000001500.safetensors",
         "https://hf-mirror.com/uriel353/Anime2Realism/resolve/main/Anime2Realism.safetensors",
         "https://www.modelscope.cn/models/lrzjasonai/rebalance_r64_lora/resolve/master/Rebalance_v1_lora_r64.safetensors",
         "",

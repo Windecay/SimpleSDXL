@@ -6717,7 +6717,7 @@
       },
       "widgets_values": [
         "https://www.modelscope.cn/models/windecay/my_favorite_loras/resolve/master/Qwen-Image-Edit-2509-Lightning-4steps-V1.0-bf16.safetensors",
-        "https://www.modelscope.cn/models/AI-ModelScope/Qwen-Edit-2509-Upscale-LoRA/resolve/master/qwen-edit-enhance_64-v3_000001500.safetensors",
+        "https://www.modelscope.cn/models/AI-ModelScope/Qwen-Edit-2509-Upscale-LoRA/resolve/master/archive/qwen-edit-enhance_64-v3_000001500.safetensors",
         "",
         "",
         "",
