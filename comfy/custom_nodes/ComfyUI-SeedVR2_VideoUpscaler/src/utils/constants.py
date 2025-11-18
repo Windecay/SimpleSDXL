@@ -5,11 +5,12 @@ Only includes constants actually used in the codebase
 
 import os
 import warnings
+import inspect
 from typing import Optional
 
 # Model folder names
-SEEDVR2_FOLDER_NAME = "SEEDVR2"  # Physical folder name on disk
-SEEDVR2_MODEL_TYPE = "seedvr2"   # Model type identifier for ComfyUI
+SEEDVR2_FOLDER_NAME = "SEEDVR2" # Physical folder name on disk
+SEEDVR2_MODEL_TYPE = "seedvr2" # Model type identifier for ComfyUI
 
 # Supported model file formats
 SUPPORTED_MODEL_EXTENSIONS = {'.safetensors', '.gguf'}
@@ -32,15 +33,21 @@ def get_script_directory() -> str:
 
 
 def get_base_cache_dir() -> str:
-    """Get or create the model cache directory"""
+    """
+    Get the default model cache directory path.
+    
+    Returns the path without creating the directory.
+    
+    Returns:
+        str: Path to default cache directory
+    """
     try:
-        import folder_paths # only works if comfyui is available
+        import folder_paths  # Only works if ComfyUI is available
         cache_dir = os.path.join(folder_paths.models_dir, SEEDVR2_FOLDER_NAME)
         folder_paths.add_model_folder_path(SEEDVR2_MODEL_TYPE, cache_dir)
     except:
-        cache_dir = f"./{SEEDVR2_MODEL_TYPE}_models"
+        cache_dir = f"./models/{SEEDVR2_FOLDER_NAME}"
     
-    os.makedirs(cache_dir, exist_ok=True)
     return cache_dir
 
 
@@ -103,9 +110,18 @@ def find_model_file(filename: str, fallback_dir: Optional[str] = None) -> str:
         return os.path.join(get_base_cache_dir(), filename)
 
 
-def get_validation_cache_path() -> str:
-    """Get path to model validation cache file"""
-    cache_dir = get_base_cache_dir()
+def get_validation_cache_path(cache_dir: Optional[str] = None) -> str:
+    """
+    Get path to model validation cache file.
+    
+    Args:
+        cache_dir: Optional directory for cache file. If None, uses default base cache dir.
+        
+    Returns:
+        Full path to validation cache JSON file
+    """
+    if cache_dir is None:
+        cache_dir = get_base_cache_dir()
     return os.path.join(cache_dir, ".validation_cache.json")
 
 

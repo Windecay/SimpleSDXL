@@ -45,6 +45,7 @@ class NaMMAttention(nn.Module):
         rope_type: Optional[str],
         rope_dim: int,
         shared_weights: bool,
+        attention_mode: str = 'sdpa',
         **kwargs,
     ):
         super().__init__()
@@ -72,7 +73,7 @@ class NaMMAttention(nn.Module):
         )
 
         self.rope = get_na_rope(rope_type=rope_type, dim=rope_dim)
-        self.attn = FlashAttentionVarlen()
+        self.attn = FlashAttentionVarlen(attention_mode=attention_mode)
 
     def forward(
         self,
@@ -121,14 +122,15 @@ class NaMMAttention(nn.Module):
 
         concat, unconcat = cache("mm_pnp", lambda: na.concat_idx(vid_len, txt_len))
 
+        # Attention handles dtype conversion internally using pipeline compute_dtype
         attn = self.attn(
-            q=concat(vid_q, txt_q).bfloat16(),
-            k=concat(vid_k, txt_k).bfloat16(),
-            v=concat(vid_v, txt_v).bfloat16(),
+            q=concat(vid_q, txt_q),
+            k=concat(vid_k, txt_k),
+            v=concat(vid_v, txt_v),
             cu_seqlens_q=cache("mm_seqlens", lambda: safe_pad_operation(all_len.cumsum(0), (1, 0)).int()),
             cu_seqlens_k=cache("mm_seqlens", lambda: safe_pad_operation(all_len.cumsum(0), (1, 0)).int()),
-            max_seqlen_q=cache("mm_maxlen", lambda: all_len.max().item()),
-            max_seqlen_k=cache("mm_maxlen", lambda: all_len.max().item()),
+            max_seqlen_q=cache("mm_maxlen", lambda: all_len.max()),
+            max_seqlen_k=cache("mm_maxlen", lambda: all_len.max()),
         ).type_as(vid_q)
 
         attn = rearrange(attn, "l h d -> l (h d)")
@@ -146,9 +148,10 @@ class NaSwinAttention(NaMMAttention):
         *args,
         window: Union[int, Tuple[int, int, int]],
         window_method: str,
+        attention_mode: str = 'sdpa',
         **kwargs,
     ):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, attention_mode=attention_mode, **kwargs)
         self.window = _triple(window)
         self.window_method = window_method
         assert all(map(lambda v: isinstance(v, int) and v >= 0, self.window))
@@ -238,18 +241,19 @@ class NaSwinAttention(NaMMAttention):
             else:
                 vid_q, vid_k = self.rope(vid_q, vid_k, window_shape, cache_win)
             
+        # Attention handles dtype conversion internally using pipeline compute_dtype
         out = self.attn(
-            q=concat_win(vid_q, txt_q).bfloat16(),
-            k=concat_win(vid_k, txt_k).bfloat16(),
-            v=concat_win(vid_v, txt_v).bfloat16(),
+            q=concat_win(vid_q, txt_q),
+            k=concat_win(vid_k, txt_k),
+            v=concat_win(vid_v, txt_v),
             cu_seqlens_q=cache_win(
                 "vid_seqlens_q", lambda: safe_pad_operation(all_len_win.cumsum(0), (1, 0)).int()
             ),
             cu_seqlens_k=cache_win(
                 "vid_seqlens_k", lambda: safe_pad_operation(all_len_win.cumsum(0), (1, 0)).int()
             ),
-            max_seqlen_q=cache_win("vid_max_seqlen_q", lambda: all_len_win.max().item()),
-            max_seqlen_k=cache_win("vid_max_seqlen_k", lambda: all_len_win.max().item()),
+            max_seqlen_q=cache_win("vid_max_seqlen_q", lambda: all_len_win.max()),
+            max_seqlen_k=cache_win("vid_max_seqlen_k", lambda: all_len_win.max()),
         ).type_as(vid_q)
 
         # text pooling

@@ -98,7 +98,7 @@ def import_item(path: str, name: str) -> Any:
         
     Returns:
         Imported object
-    """    
+    """
     # Simple lookup with path as key
     if path in MODEL_CLASSES:
         return MODEL_CLASSES[path]

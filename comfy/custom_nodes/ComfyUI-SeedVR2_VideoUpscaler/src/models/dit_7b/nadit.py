@@ -70,6 +70,7 @@ class NaDiT(nn.Module):
         window_method: Optional[Tuple[str]] = None,
         temporal_window_size: int = None,
         temporal_shifted: bool = False,
+        attention_mode: str = 'sdpa',
         **kwargs,
     ):
         ada = get_ada_layer(ada)
@@ -127,6 +128,7 @@ class NaDiT(nn.Module):
                     window_method=window_method[i],
                     temporal_window_size=temporal_window_size[i],
                     temporal_shifted=temporal_shifted[i],
+                    attention_mode=attention_mode,
                     **kwargs,
                 )
                 for i in range(num_layers)
@@ -285,6 +287,7 @@ class NaDiTUpscaler(nn.Module):
                     window_method=window_method[i],
                     temporal_window_size=temporal_window_size[i],
                     temporal_shifted=temporal_shifted[i],
+                    attention_mode=attention_mode,
                     **kwargs,
                 )
                 for i in range(num_layers)

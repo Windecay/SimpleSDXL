@@ -91,10 +91,19 @@ class NaRotaryEmbedding3d(RotaryEmbedding3d):
         k = rearrange(k, "h L d -> L h d")
         return q, k
 
+    @torch._dynamo.disable  # Disable compilation: shape.tolist() is data-dependent and causes graph breaks
     def get_freqs(
         self,
         shape: torch.LongTensor,
     ) -> torch.Tensor:
+        """
+        Generate RoPE frequencies for video and text with adaptive dimensions.
+    
+        Note: This method uses @torch._dynamo.disable because it requires
+        data-dependent control flow (.tolist()) that cannot be symbolically
+        traced by torch.compile. The cache() wrapper in the forward pass memoizes
+        results to reduce recomputation overhead.
+        """
         freq_list = []
         for f, h, w in shape.tolist():
             freqs = self.get_axial_freqs(f, h, w)

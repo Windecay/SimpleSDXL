@@ -62,16 +62,22 @@ def optimized_channels_to_second(tensor):
         return tensor.permute(*dims)
 
 class VideoDiffusionInfer():
-    def __init__(self, config: DictConfig, debug=None,  vae_tiling_enabled: bool = False, 
-                 vae_tile_size: Tuple[int, int] = (512, 512), vae_tile_overlap: Tuple[int, int] = (64, 64)):
-        # Check if debug instance is available
-        if debug is None:
-            raise ValueError("Debug instance must be provided to VideoDiffusionInfer")
+    def __init__(self, config: DictConfig, debug: 'Debug',
+                 encode_tiled: bool = False, encode_tile_size: Tuple[int, int] = (512, 512), 
+                 encode_tile_overlap: Tuple[int, int] = (64, 64),
+                 decode_tiled: bool = False, decode_tile_size: Tuple[int, int] = (512, 512),
+                 decode_tile_overlap: Tuple[int, int] = (64, 64),
+                 tile_debug: str = "false"):
         self.config = config
         self.debug = debug
-        self.vae_tiling_enabled = vae_tiling_enabled
-        self.vae_tile_size = vae_tile_size
-        self.vae_tile_overlap = vae_tile_overlap
+        # Store separate encode and decode tiling parameters
+        self.encode_tiled = encode_tiled
+        self.encode_tile_size = encode_tile_size
+        self.encode_tile_overlap = encode_tile_overlap
+        self.decode_tiled = decode_tiled
+        self.decode_tile_size = decode_tile_size
+        self.decode_tile_overlap = decode_tile_overlap
+        self.tile_debug = tile_debug
         
     def get_condition(self, latent: Tensor, latent_blur: Tensor, task: str) -> Tensor:
         t, h, w, c = latent.shape
@@ -99,16 +105,29 @@ class VideoDiffusionInfer():
             return cond
         raise NotImplementedError
     
-    def configure_diffusion(self, dtype=torch.float32):
+    def configure_diffusion(self, device: Optional[torch.device] = None, dtype=torch.float32):
+        """
+        Configure diffusion schedule and sampler.
+        
+        Args:
+            device: Device for schedule tensors. If None, uses get_device()
+            dtype: Data type for computations
+        """
+        # Use provided device or fallback to standard detection
+        if device is None:
+            device = get_device()
+        elif not isinstance(device, torch.device):
+            device = torch.device(device)
+            
         self.schedule = create_schedule_from_config(
             config=self.config.diffusion.schedule,
-            device=get_device(),
+            device=device,
             dtype=dtype,
         )
         self.sampling_timesteps = create_sampling_timesteps_from_config(
             config=self.config.diffusion.timesteps.sampling,
             schedule=self.schedule,
-            device=get_device(),
+            device=device,
             dtype=dtype,
         )
         self.sampler = create_sampler_from_config(
@@ -123,12 +142,19 @@ class VideoDiffusionInfer():
     # -------------------------------- Helper ------------------------------- #
 
     @torch.no_grad()
-    def vae_encode(self, samples: List[Tensor], preserve_vram: bool = False) -> List[Tensor]:
+    def vae_encode(self, samples: List[Tensor]) -> List[Tensor]:
         """VAE encode with configured dtype - converts samples to latents with optional tiling"""
         use_sample = self.config.vae.get("use_sample", True)
         latents = []
         if len(samples) > 0:
-            device = get_device()
+            # Use VAE model's current device
+            # This ensures consistency with where the VAE model is loaded
+            try:
+                device = next(self.vae.parameters()).device
+            except StopIteration:
+                # Fallback if VAE has no parameters (shouldn't happen)
+                device = get_device()
+            
             dtype = getattr(torch, self.config.vae.dtype)
             scale = self.config.vae.scaling_factor
             shift = self.config.vae.get("shifting_factor", 0.0)
@@ -144,26 +170,35 @@ class VideoDiffusionInfer():
             else:
                 batches = [sample.unsqueeze(0) for sample in samples]
 
-            use_tiling = (hasattr(self, 'vae_tiling_enabled') and self.vae_tiling_enabled)
-            if use_tiling:
-                self.debug.log(f"Using VAE tiled encoding (Tile: {self.vae_tile_size}, Overlap: {self.vae_tile_overlap})", category="vae", force=True)
-
             # VAE process by each group.
             for sample in batches:
-                sample = sample.to(device, dtype)
-
                 if hasattr(self.vae, "preprocess"):
                     sample = self.vae.preprocess(sample)
 
-                if use_sample:
-                    latent = self.vae.encode(sample, preserve_vram=preserve_vram, 
-                                             tiled=use_tiling, tile_size=self.vae_tile_size, 
-                                             tile_overlap=self.vae_tile_overlap).latent
+                # Detect VAE model dtype
+                try:
+                    vae_dtype = next(self.vae.parameters()).dtype
+                except StopIteration:
+                    vae_dtype = dtype  # Fallback
+
+                # Use autocast if VAE dtype differs from input dtype
+                if vae_dtype != sample.dtype:
+                    with torch.autocast(str(device), sample.dtype, enabled=True):
+                        if use_sample:
+                            latent = self.vae.encode(sample, tiled=self.encode_tiled, tile_size=self.encode_tile_size, 
+                                                    tile_overlap=self.encode_tile_overlap).latent
+                        else:
+                            # Deterministic vae encode, only used for i2v inference (optionally)
+                            latent = self.vae.encode(sample, tiled=self.encode_tiled, tile_size=self.encode_tile_size,
+                                                tile_overlap=self.encode_tile_overlap).posterior.mode().squeeze(2)
                 else:
-                    # Deterministic vae encode, only used for i2v inference (optionally)
-                    latent = self.vae.encode(sample, preserve_vram=preserve_vram, 
-                                             tiled=use_tiling, tile_size=self.vae_tile_size,
-                                             tile_overlap=self.vae_tile_overlap).posterior.mode().squeeze(2)
+                    if use_sample:
+                        latent = self.vae.encode(sample, tiled=self.encode_tiled, tile_size=self.encode_tile_size, 
+                                                tile_overlap=self.encode_tile_overlap).latent
+                    else:
+                        # Deterministic vae encode, only used for i2v inference (optionally)
+                        latent = self.vae.encode(sample, tiled=self.encode_tiled, tile_size=self.encode_tile_size,
+                                            tile_overlap=self.encode_tile_overlap).posterior.mode().squeeze(2)
 
                 latent = latent.unsqueeze(2) if latent.ndim == 4 else latent
                 latent = rearrange(latent, "b c ... -> b ... c")
@@ -176,17 +211,24 @@ class VideoDiffusionInfer():
             else:
                 latents = [latent.squeeze(0) for latent in latents]
             
-            self.debug.log(f"Latents shape: {latents[0].shape}", category="info")
+            self.debug.log(f"Latents shape: {latents[0].shape}", category="info", indent_level=1)
 
         return latents
     
 
     @torch.no_grad()
-    def vae_decode(self, latents: List[Tensor], preserve_vram: bool = False) -> List[Tensor]:
+    def vae_decode(self, latents: List[Tensor]) -> List[Tensor]:
         """VAE decode with configured dtype - converts latents to samples with optional tiling"""
         samples = []
         if len(latents) > 0:
-            device = get_device()
+            # Use VAE model's current device
+            # This ensures consistency with where the VAE model is loaded
+            try:
+                device = next(self.vae.parameters()).device
+            except StopIteration:
+                # Fallback if VAE has no parameters (shouldn't happen)
+                device = get_device()
+            
             dtype = getattr(torch, self.config.vae.dtype)
             scale = self.config.vae.scaling_factor
             shift = self.config.vae.get("shifting_factor", 0.0)
@@ -202,22 +244,33 @@ class VideoDiffusionInfer():
             else:
                 latents = [latent.unsqueeze(0) for latent in latents]
 
-            use_tiling = (hasattr(self, 'vae_tiling_enabled') and self.vae_tiling_enabled)
-            if use_tiling:
-                self.debug.log(f"Using VAE tiled decoding (Tile: {self.vae_tile_size}, Overlap: {self.vae_tile_overlap})", category="vae", force=True)
-
-            self.debug.log(f"Latents shape: {latents[0].shape}", category="info")
+            self.debug.log(f"Latents shape: {latents[0].shape}", category="info", indent_level=1)
 
             for i, latent in enumerate(latents):
-                latent = latent.to(device, dtype, non_blocking=False)
                 latent = latent / scale + shift
                 latent = rearrange(latent, "b ... c -> b c ...")
                 latent = latent.squeeze(2)
 
-                sample = self.vae.decode(
-                    latent, preserve_vram=preserve_vram,
-                    tiled=use_tiling, tile_size=self.vae_tile_size,
-                    tile_overlap=self.vae_tile_overlap).sample
+                # Detect VAE model dtype
+                try:
+                    vae_dtype = next(self.vae.parameters()).dtype
+                except StopIteration:
+                    vae_dtype = dtype  # Fallback
+
+                # Use autocast if VAE dtype differs from latent dtype
+                if vae_dtype != latent.dtype:
+                    with torch.autocast(str(device), latent.dtype, enabled=True):
+                        sample = self.vae.decode(
+                            latent,
+                            tiled=self.decode_tiled, tile_size=self.decode_tile_size,
+                            tile_overlap=self.decode_tile_overlap
+                        ).sample
+                else:
+                    sample = self.vae.decode(
+                        latent,
+                        tiled=self.decode_tiled, tile_size=self.decode_tile_size,
+                        tile_overlap=self.decode_tile_overlap
+                    ).sample
 
                 if hasattr(self.vae, "postprocess"):
                     sample = self.vae.postprocess(sample)

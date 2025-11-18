@@ -47,6 +47,7 @@ class NaMMSRTransformerBlock(nn.Module):
         rope_type: str,
         rope_dim: int,
         is_last_layer: bool,
+        attention_mode: str = 'sdpa',
         **kwargs,
     ):
         super().__init__()
@@ -64,6 +65,7 @@ class NaMMSRTransformerBlock(nn.Module):
             rope_type=rope_type,
             rope_dim=rope_dim,
             shared_weights=shared_weights,
+            attention_mode=attention_mode,
             window=kwargs.pop("window", None),
             window_method=kwargs.pop("window_method", None),
         )

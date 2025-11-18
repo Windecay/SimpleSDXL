@@ -11,7 +11,6 @@ import gc
 from typing import Optional, List, Dict, Any, Union
 from datetime import datetime
 from ..optimization.memory_manager import get_vram_usage, get_basic_vram_info, get_ram_usage, reset_vram_peak
-from contextlib import contextmanager
 
 
 class Debug:
@@ -31,31 +30,32 @@ class Debug:
     # Icon mapping for different categories
     CATEGORY_ICONS = {
         "general": "🔄",      # General operations/processing
-        "timing": "⚡",       # Performance timing
+        "timing": "⚡",        # Performance timing
         "memory": "📊",       # Memory usage tracking
         "cache": "💾",        # Cache operations
         "cleanup": "🧹",      # Cleanup operations
         "setup": "🔧",        # Configuration/setup
         "generation": "🎬",   # Generation process
-        "dit": "🚀",        # Model loading/operations
+        "dit": "🚀",          # Model loading/operations
         "blockswap": "🔀",    # BlockSwap operations
         "download": "📥",     # Download operations
         "success": "✅",      # Successful completion
         "warning": "⚠️",      # Warnings
         "error": "❌",        # Errors
         "info": "ℹ️",         # Statistics/info
-        "tip" :"💡",           # Tip/suggestion
+        "tip" :"💡",          # Tip/suggestion
         "video": "📹",        # Video/sequence info
         "reuse": "♻️",        # Reusing/recycling
         "runner": "🏃",       # Runner operations
-        "vae": "🎨",          # VAE operations
-        "store": "📦",        # Storing
+        "vae": "🎨",          # VAE operations\
         "precision": "🎯",    # Precision
         "device": "🖥️",       # Device info
         "file": "📂",         # File operations
+        "alpha": "👻",        # Alpha operations
+        "star": "⭐",         # Star
+        "dialogue": "💬",     # Dialogue
         "none" : "",
     }
-    
     
     def __init__(self, enabled: bool = False, show_timestamps: bool = True):
         self.enabled = enabled
@@ -67,20 +67,23 @@ class Debug:
         self.timer_durations: Dict[str, float] = {}
         self.timer_messages: Dict[str, str] = {} 
         self.swap_times: List[Dict[str, Any]] = []
+        self.current_phase: Optional[str] = None
         self.vram_history: List[float] = []
         self.active_timer_stack: List[str] = [] 
         self.timer_namespace: str = ""
+        self.phase_peaks: Dict[str, float] = {}
         
-
-    def log(self, message: str, level: str = "INFO", category: str = "general", force: bool = False) -> None:
+    @torch._dynamo.disable  # Skip tracing to avoid datetime.now() warnings
+    def log(self, message: str, level: str = "INFO", category: str = "general", force: bool = False, indent_level: int = 0) -> None:
         """
-        Log a categorized message with optional timestamp
+        Log a categorized message with optional timestamp and indentation
         
         Args:
             message: Message to log
             level: Log level (INFO, WARN, ERROR)
             category: Category for the message
             force: If True, always log regardless of enabled state (for critical messages)
+            indent_level: Indentation level (0=no indent, 1=2 spaces, 2=4 spaces, etc.)
         """
         # Always log forced messages or if debugging is enabled - early return if not
         if not (self.enabled or force):
@@ -105,9 +108,37 @@ class Debug:
         if level != "INFO":
             prefix += f" [{level}]"
         
-        print(f"{prefix} {message}")
+        # Add indentation
+        indent = " " * (indent_level * 2)
+        
+        print(f"{prefix} {indent}{message}")
 
+    def print_header(self, cli: bool = False) -> None:
+        """Print the header with banner - always displayed"""
+        # Intro logo
+        self.log("", category="none", force=True)
+        self.log(" ╔══════════════════════════════════════════════════════════╗", category="none", force=True)
+        self.log(" ║ ███████ ███████ ███████ ██████  ██    ██ ██████  ███████ ║", category="none", force=True)
+        self.log(" ║ ██      ██      ██      ██   ██ ██    ██ ██   ██      ██ ║", category="none", force=True)
+        self.log(" ║ ███████ █████   █████   ██   ██ ██    ██ ██████  █████   ║", category="none", force=True)
+        self.log(" ║      ██ ██      ██      ██   ██  ██  ██  ██   ██ ██      ║", category="none", force=True)
+        self.log(" ║ ███████ ███████ ███████ ██████    ████   ██   ██ ███████ ║", category="none", force=True)
+        if cli:
+            self.log(" ║ 💻 CLI mode             © ByteDance Seed · NumZ · AInVFX ║", category="none", force=True)
+        else:
+            self.log(" ║                         © ByteDance Seed · NumZ · AInVFX ║", category="none", force=True)
+        self.log(" ╚══════════════════════════════════════════════════════════╝", category="none", force=True)
+        self.log("", category="none", force=True)
 
+    def print_footer(self) -> None:
+        """Print the footer with links - always displayed"""
+        self.log("", category="none", force=True)
+        self.log("────────────────────────", category="none", force=True)
+        self.log("Questions? Updates? Watch the videos, star the repo & join us!", category="dialogue", force=True)
+        self.log("https://www.youtube.com/@AInVFX", category="generation", force=True)
+        self.log("https://github.com/numz/ComfyUI-SeedVR2_VideoUpscaler", category="star", force=True)
+    
+    @torch._dynamo.disable  # Skip tracing to avoid time.time() warnings
     def start_timer(self, name: str, force: bool = False) -> None:
         """
         Start a named timer
@@ -123,6 +154,12 @@ class Debug:
 
             self.timers[name] = time.time()
             
+            # Track phase for memory peak monitoring
+            if name.startswith("phase") and name.endswith(("_encoding", "_upscaling", "_decoding", "_postprocessing")):
+                # Extract phase number (e.g., "phase3_decoding" -> "3")
+                phase_num = name.split("_")[0].replace("phase", "")
+                self.current_phase = f"phase{phase_num}"
+                
             # Auto-hierarchy: if there's an active timer, this is a child
             if self.active_timer_stack:
                 parent = self.active_timer_stack[-1]
@@ -135,7 +172,7 @@ class Debug:
             # Push to stack
             self.active_timer_stack.append(name)
     
-
+    @torch._dynamo.disable  # Skip tracing to avoid time.time() warnings
     def end_timer(self, name: str, message: Optional[str] = None, 
               force: bool = False, show_breakdown: bool = False,
               custom_children: Optional[Dict[str, float]] = None) -> float:
@@ -190,7 +227,7 @@ class Debug:
                 
                 for child_name, child_duration in sorted_children:
                     if child_duration >= 0.01:  # Only show if >= 10ms
-                        self.log(f"  └─ {child_name}: {child_duration:.2f}s", category="timing", force=force)
+                        self.log(f"└─ {child_name}: {child_duration:.2f}s", category="timing", force=force, indent_level=1)
             else:
                 # Use automatic hierarchy tracking
                 children = self.timer_hierarchy.get(name, [])
@@ -206,7 +243,7 @@ class Debug:
                     child_duration = self.timer_durations.get(child, 0)
                     if child_duration >= 0.01:  # Only show if >= 10ms
                         child_message = self.timer_messages.get(child, child)
-                        self.log(f"  └─ {child_message}: {child_duration:.2f}s", category="timing", force=force)
+                        self.log(f"└─ {child_message}: {child_duration:.2f}s", category="timing", force=force, indent_level=1)
                         
                         # Recursively show grandchildren
                         if child in self.timer_hierarchy:
@@ -217,13 +254,12 @@ class Debug:
                                 grandchild_duration = self.timer_durations.get(grandchild, 0)
                                 if grandchild_duration >= 0.01:  # Only show if >= 10ms
                                     grandchild_message = self.timer_messages.get(grandchild, grandchild)
-                                    self.log(f"      └─ {grandchild_message}: {grandchild_duration:.2f}s", category="timing", force=force)
+                                    self.log(f"└─ {grandchild_message}: {grandchild_duration:.2f}s", category="timing", force=force, indent_level=2)
             
             if unaccounted > 0.01:  # Show if more than 10ms unaccounted
-                self.log(f"  └─ (other operations): {unaccounted:.2f}s", category="timing", force=force)
+                self.log(f"└─ (other operations): {unaccounted:.2f}s", category="timing", force=force, indent_level=1)
         
         return duration
-
 
     def log_memory_state(self, label: str, show_diff: bool = True, show_tensors: bool = False, 
                         detailed_tensors: bool = False, force: bool = False) -> None:
@@ -270,10 +306,16 @@ class Debug:
         # Store checkpoint with memory limit
         self._store_checkpoint(label, memory_info)
 
-        # Reset PyTorch's peak memory stats for next interval
-        reset_vram_peak(debug=self)
-    
+        # Update phase peak if we're in an active phase
+        if self.current_phase and memory_info['vram_peak_since_last'] > 0:
+            self.phase_peaks[self.current_phase] = max(
+                self.phase_peaks.get(self.current_phase, 0),
+                memory_info['vram_peak_since_last']
+            )
 
+        # Reset PyTorch's peak memory stats for next interval
+        reset_vram_peak(device=None, debug=self)
+    
     def _collect_memory_metrics(self) -> Dict[str, Any]:
         """Collect current memory metrics efficiently."""
         metrics = {
@@ -292,13 +334,13 @@ class Debug:
         
         # VRAM metrics
         if torch.cuda.is_available() or torch.mps.is_available():
-            metrics['vram_allocated'], metrics['vram_reserved'], current_global_peak = get_vram_usage(debug=self)
-            
+            metrics['vram_allocated'], metrics['vram_reserved'], current_global_peak = get_vram_usage(device=None, debug=self)
+
             # Calculate peak since last log_memory_state
             # This captures the actual peak that occurred between calls
             metrics['vram_peak_since_last'] = current_global_peak
             
-            vram_info = get_basic_vram_info()
+            vram_info = get_basic_vram_info(device=None)
             
             if "error" not in vram_info:
                 metrics['vram_free'] = vram_info["free_gb"]
@@ -332,7 +374,6 @@ class Debug:
         
         return metrics
     
-
     def _collect_tensor_stats(self, detailed: bool = False) -> Dict[str, Any]:
         """Collect tensor statistics with minimal overhead."""
         stats = {
@@ -396,50 +437,48 @@ class Debug:
         
         return stats
     
-
     def _log_detailed_tensor_analysis(self, details: Dict[str, Any], force: bool = False) -> None:
         """Log detailed tensor analysis when requested."""
         
         # GPU tensors
         if details['gpu_tensors']:
             gpu_total_gb = sum(t['size_mb'] for t in details['gpu_tensors']) / 1024
-            self.log(f"  GPU tensors: {len(details['gpu_tensors'])} using {gpu_total_gb:.2f}GB", category="memory", force=force)
+            self.log(f"GPU tensors: {len(details['gpu_tensors'])} using {gpu_total_gb:.2f}GB", category="memory", force=force, indent_level=1)
             
             # Show top 5 largest
             largest = sorted(details['gpu_tensors'], key=lambda x: x['size_mb'], reverse=True)[:5]
             for t in largest:
-                self.log(f"    {t['shape']}: {t['size_mb']:.2f}MB, {t['dtype']}", category="memory", force=force)
+                self.log(f"{t['shape']}: {t['size_mb']:.2f}MB, {t['dtype']}", category="memory", force=force, indent_level=1)
         
         # Large CPU tensors
         if details['large_cpu_tensors']:
             cpu_large_gb = sum(t['size_mb'] for t in details['large_cpu_tensors']) / 1024
-            self.log(f"  Large CPU tensors (>10MB):", category="memory", force=force)
-            self.log(f"    {len(details['large_cpu_tensors'])} using {cpu_large_gb:.2f}GB", category="memory", force=force)
+            self.log(f"Large CPU tensors (>10MB):", category="memory", force=force, indent_level=1)
+            self.log(f"{len(details['large_cpu_tensors'])} using {cpu_large_gb:.2f}GB", category="memory", force=force, indent_level=1)
             
             # Show top 3 largest
             largest = sorted(details['large_cpu_tensors'], key=lambda x: x['size_mb'], reverse=True)[:3]
             for t in largest:
-                self.log(f"    {t['shape']}: {t['size_mb']:.2f}MB, {t['dtype']}", category="memory", force=force)
+                self.log(f"{t['shape']}: {t['size_mb']:.2f}MB, {t['dtype']}", category="memory", force=force, indent_level=1)
         
         # Common shape patterns
         if details['shape_patterns']:
             common_shapes = sorted(details['shape_patterns'].items(), 
                                   key=lambda x: x[1], reverse=True)[:5]
             if len(common_shapes) > 0:
-                self.log("  Common tensor shapes:", category="memory", force=force)
+                self.log("Common tensor shapes:", category="memory", force=force, indent_level=1)
                 for shape, count in common_shapes:
                     if count > 1:
-                        self.log(f"    {shape}: {count} instances", category="memory", force=force)
+                        self.log(f"{shape}: {count} instances", category="memory", force=force, indent_level=1)
         
         # Module instances
         if details['module_types']:
             multi_instance = [(k, v) for k, v in details['module_types'].items() if v > 1]
             if multi_instance:
-                self.log("  Multiple module instances:", category="memory", force=force)
+                self.log("Multiple module instances:", category="memory", force=force, indent_level=1)
                 for mtype, count in sorted(multi_instance, key=lambda x: x[1], reverse=True)[:5]:
-                    self.log(f"    {mtype}: {count} instances", category="memory", force=force)
+                    self.log(f"{mtype}: {count} instances", category="memory", force=force, indent_level=1)
     
-
     def _log_memory_diff(self, current_metrics: Dict[str, Any], force: bool = False) -> None:
         """Log memory changes from last checkpoint."""
         last = self.memory_checkpoints[-1]
@@ -456,9 +495,33 @@ class Debug:
             diffs.append(f"RAM {sign}{ram_diff:.2f}GB")
         
         if diffs:
-            self.log(f"  Memory changes: {', '.join(diffs)}", category="memory", force=force)
+            self.log(f"Memory changes: {', '.join(diffs)}", category="memory", force=force, indent_level=1)
     
-
+    def log_peak_vram_summary(self, force: bool = True) -> None:
+        """Display peak VRAM usage across all phases"""
+        if not self.phase_peaks:
+            return
+        
+        phase_names = {
+            'phase1': 'VAE encoding',
+            'phase2': 'DiT upscaling', 
+            'phase3': 'VAE decoding',
+            'phase4': 'Post-processing'
+        }
+        
+        self.log("", category="none", force=force)
+        self.log("────────────────────────", category="none", force=force)
+        self.log("Peak VRAM by Phase:", category="memory", force=force)
+        
+        for phase_key in sorted(self.phase_peaks.keys()):
+            phase_num = phase_key[-1]
+            self.log(f"  Phase {phase_num}: {phase_names[phase_key]}: {self.phase_peaks[phase_key]:.2f}GB", 
+                    category="memory", force=force)
+        
+        overall_max = max(self.phase_peaks.values())
+        self.log(f"Overall Peak VRAM: {overall_max:.2f}GB", category="memory", force=force)
+    
+    @torch._dynamo.disable  # Skip tracing to avoid time.time() warnings
     def _store_checkpoint(self, label: str, metrics: Dict[str, Any]) -> None:
         """Store checkpoint with memory limit to prevent leaks."""
         checkpoint = {
@@ -481,7 +544,6 @@ class Debug:
             self.memory_checkpoints = (self.memory_checkpoints[:mid] + 
                                       self.memory_checkpoints[-mid:])
     
-
     def log_swap_time(self, component_id: Union[int, str], duration: float, 
                  component_type: str = "block", force: bool = False) -> None:
         """
@@ -508,7 +570,6 @@ class Debug:
                 message = f"{component_type} {component_id} swap: {duration*1000:.2f}ms"
             
             self.log(message, category="blockswap", force=force)
-    
     
     def get_swap_summary(self) -> Dict[str, Any]:
         """Get summary of swap operations for analysis"""
@@ -558,7 +619,6 @@ class Debug:
         
         return summary
     
-    
     def clear_history(self) -> None:
         """Clear all history tracking"""
         self.timers.clear()
@@ -569,3 +629,5 @@ class Debug:
         self.timer_durations.clear()
         self.timer_messages.clear()
         self.active_timer_stack.clear()
+        self.phase_peaks.clear()
+        self.current_phase = None

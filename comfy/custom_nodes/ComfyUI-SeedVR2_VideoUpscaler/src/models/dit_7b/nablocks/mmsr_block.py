@@ -45,6 +45,7 @@ class NaSwinAttention(MMWindowAttention):
         window: Union[int, Tuple[int, int, int]],
         window_method: str,
         shared_qkv: bool,
+        attention_mode: str = 'sdpa',
         **kwargs,
     ):
         super().__init__(
@@ -61,7 +62,7 @@ class NaSwinAttention(MMWindowAttention):
             shared_qkv=shared_qkv,
         )
         self.rope = NaRotaryEmbedding3d(dim=head_dim // 2) if qk_rope else None
-        self.attn = FlashAttentionVarlen()
+        self.attn = FlashAttentionVarlen(attention_mode=attention_mode)
         self.window_op = get_window_op(window_method)
 
     def forward(
@@ -126,18 +127,19 @@ class NaSwinAttention(MMWindowAttention):
         if self.rope:
             vid_q, vid_k = self.rope(vid_q, vid_k, window_shape, cache_win)
 
+        # Attention handles dtype conversion internally using pipeline compute_dtype
         out = self.attn(
-            q=concat_win(vid_q, txt_q).bfloat16(),
-            k=concat_win(vid_k, txt_k).bfloat16(),
-            v=concat_win(vid_v, txt_v).bfloat16(),
+            q=concat_win(vid_q, txt_q),
+            k=concat_win(vid_k, txt_k),
+            v=concat_win(vid_v, txt_v),
             cu_seqlens_q=cache_win(
                 "vid_seqlens_q", lambda: safe_pad_operation(all_len_win.cumsum(0), (1, 0)).int()
             ),
             cu_seqlens_k=cache_win(
                 "vid_seqlens_k", lambda: safe_pad_operation(all_len_win.cumsum(0), (1, 0)).int()
             ),
-            max_seqlen_q=cache_win("vid_max_seqlen_q", lambda: all_len_win.max().item()),
-            max_seqlen_k=cache_win("vid_max_seqlen_k", lambda: all_len_win.max().item()),
+            max_seqlen_q=cache_win("vid_max_seqlen_q", lambda: all_len_win.max()),
+            max_seqlen_k=cache_win("vid_max_seqlen_k", lambda: all_len_win.max()),
         ).type_as(vid_q)
 
         # text pooling

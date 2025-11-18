@@ -6,21 +6,15 @@ Optimized for SeedVR2 with proper debug logging and error handling
 import torch
 import traceback
 from typing import Optional, Tuple, List
-from ..utils.debug import Debug
 from ..utils.constants import QK_K, K_SCALE_SIZE, suppress_tensor_warnings
+from ..optimization.compatibility import GGUF_AVAILABLE, validate_gguf_availability
 
-# Import GGUF with fallback
-try:
-    import gguf
-    GGUF_AVAILABLE = True
-except ImportError:
-    GGUF_AVAILABLE = False
-    gguf = None
-
-# Only define if GGUF is available
+# Import GGUF library
 if GGUF_AVAILABLE:
+    import gguf
     TORCH_COMPATIBLE_QTYPES = (None, gguf.GGMLQuantizationType.F32, gguf.GGMLQuantizationType.F16)
 else:
+    gguf = None
     TORCH_COMPATIBLE_QTYPES = (None,)
 
 
@@ -32,9 +26,10 @@ def is_quantized(tensor: torch.Tensor) -> bool:
     return not is_torch_compatible(tensor)
 
 
+@torch._dynamo.disable
 def dequantize_tensor(tensor: torch.Tensor, dtype: Optional[torch.dtype] = None, 
                      dequant_dtype: Optional[torch.dtype] = None, 
-                     debug: Optional[Debug] = None) -> torch.Tensor:
+                     debug: Optional['Debug'] = None) -> torch.Tensor:
     """
     Fast dequantization using optimized PyTorch operations
     Returns regular PyTorch tensors to avoid infinite loops
@@ -72,9 +67,10 @@ def dequantize_tensor(tensor: torch.Tensor, dtype: Optional[torch.dtype] = None,
         raise NotImplementedError(f"No dequantization for {qtype}")
 
 
+@torch._dynamo.disable
 def dequantize(data: torch.Tensor, qtype: 'gguf.GGMLQuantizationType', 
               oshape: Tuple[int, ...], dtype: Optional[torch.dtype] = None, 
-              debug: Optional[Debug] = None) -> torch.Tensor:
+              debug: Optional['Debug'] = None) -> torch.Tensor:
     """
     Dequantize tensor back to usable shape/dtype using fast operations
     
@@ -93,7 +89,7 @@ def dequantize(data: torch.Tensor, qtype: 'gguf.GGMLQuantizationType',
         RuntimeError: If dequantization fails
     """
     if not GGUF_AVAILABLE:
-        raise RuntimeError("GGUF not available but dequantize was called")
+        validate_gguf_availability("dequantize GGUF tensor", debug)
         
     if dtype is None:
         dtype = torch.float16
@@ -173,7 +169,7 @@ def get_scale_min(scales: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
 
 
 def dequantize_blocks_Q4_K(blocks: torch.Tensor, block_size: int, type_size: int, 
-                           dtype: Optional[torch.dtype] = None, debug: Optional[Debug] = None) -> torch.Tensor:
+                           dtype: Optional[torch.dtype] = None, debug: Optional['Debug'] = None) -> torch.Tensor:
     """Q4_K dequantization"""
     n_blocks = blocks.shape[0]
     d, dmin, scales, qs = split_block_dims(blocks, 2, 2, K_SCALE_SIZE)
@@ -188,7 +184,7 @@ def dequantize_blocks_Q4_K(blocks: torch.Tensor, block_size: int, type_size: int
 
 
 def dequantize_blocks_Q8_0(blocks: torch.Tensor, block_size: int, type_size: int, 
-                           dtype: Optional[torch.dtype] = None, debug: Optional[Debug] = None) -> torch.Tensor:
+                           dtype: Optional[torch.dtype] = None, debug: Optional['Debug'] = None) -> torch.Tensor:
     """Fast Q8_0 dequantization"""
     d, x = split_block_dims(blocks, 2)
     d = d.view(torch.float16).to(dtype)
@@ -197,13 +193,13 @@ def dequantize_blocks_Q8_0(blocks: torch.Tensor, block_size: int, type_size: int
 
 
 def dequantize_blocks_BF16(blocks: torch.Tensor, block_size: int, type_size: int, 
-                           dtype: Optional[torch.dtype] = None, debug: Optional[Debug] = None) -> torch.Tensor:
+                           dtype: Optional[torch.dtype] = None, debug: Optional['Debug'] = None) -> torch.Tensor:
     """BF16 dequantization"""
     return (blocks.view(torch.int16).to(torch.int32) << 16).view(torch.float32)
 
 
 def dequantize_blocks_Q5_1(blocks: torch.Tensor, block_size: int, type_size: int, 
-                           dtype: Optional[torch.dtype] = None, debug: Optional[Debug] = None) -> torch.Tensor:
+                           dtype: Optional[torch.dtype] = None, debug: Optional['Debug'] = None) -> torch.Tensor:
     """Q5_1 dequantization"""
     n_blocks = blocks.shape[0]
     d, m, qh, qs = split_block_dims(blocks, 2, 2, 4)
@@ -219,7 +215,7 @@ def dequantize_blocks_Q5_1(blocks: torch.Tensor, block_size: int, type_size: int
 
 
 def dequantize_blocks_Q5_0(blocks: torch.Tensor, block_size: int, type_size: int, 
-                           dtype: Optional[torch.dtype] = None, debug: Optional[Debug] = None) -> torch.Tensor:
+                           dtype: Optional[torch.dtype] = None, debug: Optional['Debug'] = None) -> torch.Tensor:
     """Q5_0 dequantization"""
     n_blocks = blocks.shape[0]
     d, qh, qs = split_block_dims(blocks, 2, 4)
@@ -234,7 +230,7 @@ def dequantize_blocks_Q5_0(blocks: torch.Tensor, block_size: int, type_size: int
 
 
 def dequantize_blocks_Q4_1(blocks: torch.Tensor, block_size: int, type_size: int, 
-                           dtype: Optional[torch.dtype] = None, debug: Optional[Debug] = None) -> torch.Tensor:
+                           dtype: Optional[torch.dtype] = None, debug: Optional['Debug'] = None) -> torch.Tensor:
     """Q4_1 dequantization"""
     n_blocks = blocks.shape[0]
     d, m, qs = split_block_dims(blocks, 2, 2)
@@ -246,7 +242,7 @@ def dequantize_blocks_Q4_1(blocks: torch.Tensor, block_size: int, type_size: int
 
 
 def dequantize_blocks_Q4_0(blocks: torch.Tensor, block_size: int, type_size: int, 
-                           dtype: Optional[torch.dtype] = None, debug: Optional[Debug] = None) -> torch.Tensor:
+                           dtype: Optional[torch.dtype] = None, debug: Optional['Debug'] = None) -> torch.Tensor:
     """Q4_0 dequantization"""
     n_blocks = blocks.shape[0]
     d, qs = split_block_dims(blocks, 2)
@@ -257,7 +253,7 @@ def dequantize_blocks_Q4_0(blocks: torch.Tensor, block_size: int, type_size: int
 
 
 def dequantize_blocks_Q6_K(blocks: torch.Tensor, block_size: int, type_size: int, 
-                           dtype: Optional[torch.dtype] = None, debug: Optional[Debug] = None) -> torch.Tensor:
+                           dtype: Optional[torch.dtype] = None, debug: Optional['Debug'] = None) -> torch.Tensor:
     """Q6_K dequantization"""
     n_blocks = blocks.shape[0]
     ql, qh, scales, d, = split_block_dims(blocks, QK_K // 2, QK_K // 4, QK_K // 16)
@@ -274,7 +270,7 @@ def dequantize_blocks_Q6_K(blocks: torch.Tensor, block_size: int, type_size: int
 
 
 def dequantize_blocks_Q5_K(blocks: torch.Tensor, block_size: int, type_size: int, 
-                           dtype: Optional[torch.dtype] = None, debug: Optional[Debug] = None) -> torch.Tensor:
+                           dtype: Optional[torch.dtype] = None, debug: Optional['Debug'] = None) -> torch.Tensor:
     """Q5_K dequantization"""
     n_blocks = blocks.shape[0]
     d, dmin, scales, qh, qs = split_block_dims(blocks, 2, 2, K_SCALE_SIZE, QK_K // 8)
@@ -292,7 +288,7 @@ def dequantize_blocks_Q5_K(blocks: torch.Tensor, block_size: int, type_size: int
 
 
 def dequantize_blocks_Q3_K(blocks: torch.Tensor, block_size: int, type_size: int, 
-                           dtype: Optional[torch.dtype] = None, debug: Optional[Debug] = None) -> torch.Tensor:
+                           dtype: Optional[torch.dtype] = None, debug: Optional['Debug'] = None) -> torch.Tensor:
     """Q3_K dequantization"""
     n_blocks = blocks.shape[0]
     hmask, qs, scales, d = split_block_dims(blocks, QK_K // 8, QK_K // 4, 12)
@@ -314,7 +310,7 @@ def dequantize_blocks_Q3_K(blocks: torch.Tensor, block_size: int, type_size: int
 
 
 def dequantize_blocks_Q2_K(blocks: torch.Tensor, block_size: int, type_size: int, 
-                           dtype: Optional[torch.dtype] = None, debug: Optional[Debug] = None) -> torch.Tensor:
+                           dtype: Optional[torch.dtype] = None, debug: Optional['Debug'] = None) -> torch.Tensor:
     """Q2_K dequantization"""
     n_blocks = blocks.shape[0]
     scales, qs, d, dmin = split_block_dims(blocks, QK_K // 16, QK_K // 4, 2)

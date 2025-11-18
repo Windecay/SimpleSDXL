@@ -75,7 +75,7 @@ class AdaSingle(nn.Module):
             emb = cache(
                 f"emb_repeat_{idx}_{branch_tag}",
                 lambda: slice_inputs(
-                    torch.cat([e.repeat(l, *([1] * e.ndim)) for e, l in zip(emb, hid_len)]),
+                    torch.repeat_interleave(emb, hid_len, dim=0),
                     dim=0,
                 ),
             )
@@ -87,17 +87,19 @@ class AdaSingle(nn.Module):
             getattr(self, f"{layer}_gate"),
         )
         
-        # Handle potential FP8 parameters - convert to computation dtype
+        # Handle potential FP8 parameters - convert to input computation dtype
         if hasattr(torch, 'float8_e4m3fn'):
             fp8_types = (torch.float8_e4m3fn, torch.float8_e5m2)
+            # Use input tensor's dtype as target (respects pipeline precision)
+            target_dtype = hid.dtype
             
-            # Convert FP8 parameters to BFloat16 for arithmetic operations
-            if shiftB.dtype in fp8_types:
-                shiftB = shiftB.to(torch.bfloat16)
-            if scaleB.dtype in fp8_types:
-                scaleB = scaleB.to(torch.bfloat16)
-            if gateB.dtype in fp8_types:
-                gateB = gateB.to(torch.bfloat16)
+            # Convert FP8 parameters to match input dtype for arithmetic operations
+            if shiftB is not None and shiftB.dtype in fp8_types:
+                shiftB = shiftB.to(target_dtype)
+            if scaleB is not None and scaleB.dtype in fp8_types:
+                scaleB = scaleB.to(target_dtype)
+            if gateB is not None and gateB.dtype in fp8_types:
+                gateB = gateB.to(target_dtype)
 
         if mode == "in":
             return hid.mul_(scaleA + scaleB).add_(shiftA + shiftB)

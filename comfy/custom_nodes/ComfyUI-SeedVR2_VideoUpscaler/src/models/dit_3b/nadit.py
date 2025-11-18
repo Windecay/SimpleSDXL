@@ -75,6 +75,7 @@ class NaDiT(nn.Module):
         txt_in_norm_scale_factor: int = 0.01,
         txt_proj_type: Optional[str] = "linear",
         vid_out_norm: Optional[str] = None,
+        attention_mode: str = 'sdpa',
         **kwargs,
     ):
         ada = get_ada_layer(ada)
@@ -156,6 +157,7 @@ class NaDiT(nn.Module):
                     rope_type=rope_type,
                     rope_dim=rope_dim,
                     is_last_layer=(i == num_layers - 1),
+                    attention_mode=attention_mode,
                     **kwargs,
                 )
                 for i in range(num_layers)

@@ -15,31 +15,31 @@
 import torch
 import torch.nn.functional as F
 
-#from flash_attn import flash_attn_varlen_func
+# Import flash_attn with automatic fallback from compatibility layer
+from ...optimization.compatibility import flash_attn_varlen_func, FLASH_ATTN_AVAILABLE
 
 from torch import nn
 
 
-def pytorch_varlen_attention(q, k, v, cu_seqlens_q, cu_seqlens_k, max_seqlen_q, max_seqlen_k, dropout_p=0.0, softmax_scale=None, causal=False, deterministic=False):
+def pytorch_varlen_attention(q, k, v, cu_seqlens_q, cu_seqlens_k, max_seqlen_q=None, max_seqlen_k=None, dropout_p=0.0, softmax_scale=None, causal=False, deterministic=False):
     """
     A PyTorch-based implementation of variable-length attention to replace flash_attn_varlen_func.
     It processes each sequence in the batch individually.
+    
+    NOTE: max_seqlen_q and max_seqlen_k are accepted for API compatibility but not used.
+    PyTorch's scaled_dot_product_attention automatically handles variable sequence lengths.
+    
+    COMPILE OPTIMIZATION: Uses torch.tensor_split to avoid .item() graph breaks
     """
-    # Create an empty tensor to store the output.
-    output = torch.empty_like(q)
+    # Split q, k, v using cumulative sequence lengths
+    # NOTE: torch.tensor_split requires int64 dtype and CPU device (PyTorch requirements)
+    q_splits = list(torch.tensor_split(q, cu_seqlens_q[1:-1].long().cpu(), dim=0))
+    k_splits = list(torch.tensor_split(k, cu_seqlens_k[1:-1].long().cpu(), dim=0))
+    v_splits = list(torch.tensor_split(v, cu_seqlens_k[1:-1].long().cpu(), dim=0))
 
-    # Iterate over each sequence in the batch. The batch size is the number of sequences.
-    for i in range(len(cu_seqlens_q) - 1):
-        # Determine the start and end indices for the current sequence.
-        start_q, end_q = cu_seqlens_q[i], cu_seqlens_q[i+1]
-        start_k, end_k = cu_seqlens_k[i], cu_seqlens_k[i+1]
-
-        # Slice the q, k, and v tensors to get the data for the current sequence.
-        # The shape is (seq_len, heads, head_dim).
-        q_i = q[start_q:end_q]
-        k_i = k[start_k:end_k]
-        v_i = v[start_k:end_k]
-
+    # Process each sequence
+    output_splits = []
+    for q_i, k_i, v_i in zip(q_splits, k_splits, v_splits):
         # Reshape for torch's scaled_dot_product_attention which expects (batch, heads, seq, dim).
         # Here, we treat each sequence as a batch of 1.
         q_i = q_i.permute(1, 0, 2).unsqueeze(0) # (1, heads, seq_len_q, head_dim)
@@ -55,11 +55,41 @@ def pytorch_varlen_attention(q, k, v, cu_seqlens_q, cu_seqlens_k, max_seqlen_q, 
 
         # Reshape the output back to the original format (seq_len, heads, head_dim)
         output_i = output_i.squeeze(0).permute(1, 0, 2)
+        output_splits.append(output_i)
+    
+    # Concatenate all outputs
+    return torch.cat(output_splits, dim=0)
 
-        # Place the result for the current sequence into the main output tensor.
-        output[start_q:end_q] = output_i
-        
-    return output
+
+@torch._dynamo.disable
+def _call_flash_attn_varlen_func(q, k, v, cu_seqlens_q, cu_seqlens_k, max_seqlen_q, max_seqlen_k, **kwargs):
+    """
+    Wrapper for flash_attn_varlen_func that handles tensor-to-scalar conversion.
+    
+    This function is excluded from torch.compile because:
+    1. flash_attn is a C++ extension that can't be compiled anyway
+    2. It requires Python int scalars for max_seqlen parameters
+    3. Disabling compilation here keeps the rest of the model compilable
+    """
+    if not FLASH_ATTN_AVAILABLE:
+        raise ImportError("flash_attn is not available")
+    
+    # Convert tensor max_seqlen to Python int if needed
+    if torch.is_tensor(max_seqlen_q):
+        max_seqlen_q = int(max_seqlen_q.item())
+    if torch.is_tensor(max_seqlen_k):
+        max_seqlen_k = int(max_seqlen_k.item())
+    
+    return flash_attn_varlen_func(
+        q=q,
+        k=k,
+        v=v,
+        cu_seqlens_q=cu_seqlens_q,
+        cu_seqlens_k=cu_seqlens_k,
+        max_seqlen_q=max_seqlen_q,
+        max_seqlen_k=max_seqlen_k,
+        **kwargs
+    )
 
 
 class TorchAttention(nn.Module):
@@ -72,11 +102,31 @@ class TorchAttention(nn.Module):
         return b * h * (4 * d * (sq / 1e6) * (sk / 1e6))
 
     def forward(self, *args, **kwargs):
-        #return pytorch_varlen_attention(*args, **kwargs)
         return F.scaled_dot_product_attention(*args, **kwargs)
 
 
 class FlashAttentionVarlen(nn.Module):
+    """
+    Variable-length attention with configurable backend (Flash Attention or PyTorch SDPA).
+    
+    Backend selection is validated during model configuration.
+    Compilation behavior:
+    - SDPA: Fully compilable, optimal performance
+    - Flash Attention: Uses @torch._dynamo.disable wrapper (C++ extension)
+    """
+
+    def __init__(self, attention_mode: str = 'sdpa', compute_dtype: torch.dtype = None):
+        """
+        Initialize with specified attention backend.
+        
+        Args:
+            attention_mode: 'flash_attn' or 'sdpa' (validated externally by validate_flash_attention_availability)
+            compute_dtype: Compute dtype for attention (set by pipeline, defaults to None for auto-detection)
+        """
+        super().__init__()
+        self.attention_mode = attention_mode
+        self.compute_dtype = compute_dtype
+
     def tflops(self, args, kwargs, output) -> float:
         cu_seqlens_q = kwargs["cu_seqlens_q"]
         cu_seqlens_k = kwargs["cu_seqlens_k"]
@@ -85,10 +135,23 @@ class FlashAttentionVarlen(nn.Module):
         seqlens_k = (cu_seqlens_k[1:] - cu_seqlens_k[:-1]) / 1e6
         return h * (4 * d * (seqlens_q * seqlens_k).sum())
 
-    def forward(self, *args, **kwargs):
+    def forward(self, q, k, v, cu_seqlens_q, cu_seqlens_k, max_seqlen_q, max_seqlen_k, **kwargs):
         kwargs["deterministic"] = torch.are_deterministic_algorithms_enabled()
-        try:
-            from flash_attn import flash_attn_varlen_func
-            return flash_attn_varlen_func(*args, **kwargs)
-        except ImportError:
-            return pytorch_varlen_attention(*args, **kwargs)
+        
+        # Convert to pipeline compute_dtype if configured (handles FP8 → fp16/bf16)
+        if self.compute_dtype is not None and q.dtype != self.compute_dtype:
+            q = q.to(self.compute_dtype)
+            k = k.to(self.compute_dtype)
+            v = v.to(self.compute_dtype)
+        
+        if self.attention_mode == 'flash_attn':
+            return _call_flash_attn_varlen_func(
+                q, k, v, cu_seqlens_q, cu_seqlens_k, 
+                max_seqlen_q, max_seqlen_k, **kwargs
+            )
+        else:
+            # PyTorch SDPA
+            return pytorch_varlen_attention(
+                q, k, v, cu_seqlens_q, cu_seqlens_k,
+                max_seqlen_q, max_seqlen_k, **kwargs
+            )

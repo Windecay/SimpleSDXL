@@ -1,3 +1,8 @@
-from .src.interfaces.comfyui_node import NODE_CLASS_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS
+"""
+ComfyUI-SeedVR2_VideoUpscaler
+Official SeedVR2 integration for ComfyUI
+"""
 
-__all__ = ["NODE_CLASS_MAPPINGS", "NODE_DISPLAY_NAME_MAPPINGS"]
+from .src.interfaces import comfy_entrypoint, SeedVR2Extension
+
+__all__ = ["comfy_entrypoint", "SeedVR2Extension"]

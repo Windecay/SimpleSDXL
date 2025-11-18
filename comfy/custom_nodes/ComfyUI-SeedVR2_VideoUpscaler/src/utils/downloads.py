@@ -22,9 +22,14 @@ from .constants import (
     DOWNLOAD_RETRY_DELAY
 )
 
-def load_validation_cache():
-    """Load validation cache"""
-    cache_path = get_validation_cache_path()
+def load_validation_cache(cache_dir: Optional[str] = None):
+    """
+    Load validation cache.
+    
+    Args:
+        cache_dir: Optional directory containing cache file. If None, uses default.
+    """
+    cache_path = get_validation_cache_path(cache_dir)
     if os.path.exists(cache_path):
         try:
             with open(cache_path, 'r') as f:
@@ -34,22 +39,36 @@ def load_validation_cache():
     return {}
 
 
-def save_validation_cache(cache):
-    """Save validation cache"""
-    cache_path = get_validation_cache_path()
+def save_validation_cache(cache, cache_dir: Optional[str] = None):
+    """
+    Save validation cache.
+    
+    Args:
+        cache: Cache dictionary to save
+        cache_dir: Optional directory for cache file. If None, uses default.
+    """
+    cache_path = get_validation_cache_path(cache_dir)
     try:
+        # Ensure directory exists
+        os.makedirs(os.path.dirname(cache_path), exist_ok=True)
         with open(cache_path, 'w') as f:
             json.dump(cache, f, indent=2)
     except:
         pass
 
 
-def is_file_validated_cached(filepath: str) -> bool:
-    """Check if file is validated using cache (fast)"""
+def is_file_validated_cached(filepath: str, cache_dir: Optional[str] = None) -> bool:
+    """
+    Check if file is validated using cache (fast).
+    
+    Args:
+        filepath: Path to file to check
+        cache_dir: Optional directory containing cache file. If None, uses default.
+    """
     if not os.path.exists(filepath):
         return False
     
-    cache = load_validation_cache()
+    cache = load_validation_cache(cache_dir)
     filename = os.path.basename(filepath)
     
     if filename in cache:
@@ -62,8 +81,15 @@ def is_file_validated_cached(filepath: str) -> bool:
     return False
 
 
-def validate_file(filepath: str, expected_hash: Optional[str] = None) -> bool:
-    """File validation with hash check and cache update"""
+def validate_file(filepath: str, expected_hash: Optional[str] = None, cache_dir: Optional[str] = None) -> bool:
+    """
+    File validation with hash check and cache update.
+    
+    Args:
+        filepath: Path to file to validate
+        expected_hash: Optional SHA256 hash to verify against
+        cache_dir: Optional directory for cache file. If None, uses default.
+    """
     if not os.path.exists(filepath):
         return False
     
@@ -93,13 +119,13 @@ def validate_file(filepath: str, expected_hash: Optional[str] = None) -> bool:
             return False
         
         # Update cache with validated info
-        cache = load_validation_cache()
+        cache = load_validation_cache(cache_dir)
         cache[os.path.basename(filepath)] = {
             "size": os.path.getsize(filepath),
             "mtime": os.path.getmtime(filepath),
             "hash": expected_hash
         }
-        save_validation_cache(cache)
+        save_validation_cache(cache, cache_dir)
     
     return True
 
@@ -136,14 +162,14 @@ def download_with_resume(url: str, filepath: str, debug=None) -> bool:
         return False
 
 
-def download_weight(model: str, model_dir: Optional[str] = None, debug=None) -> bool:
-    """Download SeedVR2 model and VAE with integrity checking"""
+def download_weight(dit_model: str, vae_model: str, model_dir: Optional[str] = None, debug=None) -> bool:
+    """Download SeedVR2 DiT and VAE models with integrity checking"""
     cache_dir = model_dir or get_base_cache_dir()
     os.makedirs(cache_dir, exist_ok=True)
     
     files_to_download = [
-        (model, MODEL_REGISTRY.get(model)),
-        (DEFAULT_VAE, MODEL_REGISTRY.get(DEFAULT_VAE))
+        (dit_model, MODEL_REGISTRY.get(dit_model)),
+        (vae_model, MODEL_REGISTRY.get(vae_model))
     ]
     
     for filename, model_info in files_to_download:
@@ -165,8 +191,8 @@ def download_weight(model: str, model_dir: Optional[str] = None, debug=None) -> 
         expected_hash = model_info.sha256
         repo = model_info.repo
         
-        # Quick cache check first
-        if is_file_validated_cached(filepath):
+        ## Quick cache check first
+        if is_file_validated_cached(filepath, cache_dir):
             continue
         
         # File exists - validate it
@@ -174,7 +200,7 @@ def download_weight(model: str, model_dir: Optional[str] = None, debug=None) -> 
             if debug:
                 debug.log(f"Validating {filename}...", category="setup", force=True)
             
-            if validate_file(filepath, expected_hash):
+            if validate_file(filepath, expected_hash, cache_dir):
                 continue
             else:
                 # File is corrupted
@@ -183,10 +209,10 @@ def download_weight(model: str, model_dir: Optional[str] = None, debug=None) -> 
                             level="WARNING", category="download", force=True)
                 os.remove(filepath)
                 # Clear from cache
-                cache = load_validation_cache()
+                cache = load_validation_cache(cache_dir)
                 if filename in cache:
                     del cache[filename]
-                    save_validation_cache(cache)
+                    save_validation_cache(cache, cache_dir)
         
         # Download file
         url = HUGGINGFACE_BASE_URL.format(repo=repo, filename=filename)
@@ -230,7 +256,7 @@ def download_weight(model: str, model_dir: Optional[str] = None, debug=None) -> 
             if debug:
                 debug.log(f"Failed to download {filename} after {DOWNLOAD_MAX_RETRIES} attempts", 
                          level="ERROR", category="download", force=True)
-                debug.log(f"Manual download: https://modelscope.cn/models/{repo}/resolve/master/{filename}", 
+                debug.log(f"Manual download: https://huggingface.co/{repo}/blob/main/{filename}", 
                          category="info", force=True)
                 debug.log(f"Save to: {filepath}", category="info", force=True)
             return False

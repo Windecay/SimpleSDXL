@@ -1,62 +1,24 @@
 {
   "id": "27decc95-db23-489f-bd36-91f56e7ec825",
   "revision": 0,
-  "last_node_id": 18,
-  "last_link_id": 21,
+  "last_node_id": 24,
+  "last_link_id": 28,
   "nodes": [
-    {
-      "id": 8,
-      "type": "LoadVideo",
-      "pos": [
-        820,
-        130
-      ],
-      "size": [
-        280,
-        500
-      ],
-      "flags": {},
-      "order": 3,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "label": "VIDEO",
-          "name": "VIDEO",
-          "type": "VIDEO",
-          "links": [
-            10
-          ]
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.3.50",
-        "Node name for S&R": "LoadVideo",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "version": "7.3",
-          "input_ue_unconnectable": {}
-        }
-      },
-      "widgets_values": [
-        "example.mp4",
-        "image"
-      ]
-    },
     {
       "id": 12,
       "type": "GetVideoComponents",
       "pos": [
-        1160,
-        130
+        1120,
+        30
       ],
       "size": [
-        185.17733764648438,
+        185.17734375,
         70
       ],
-      "flags": {},
-      "order": 4,
+      "flags": {
+        "pinned": true
+      },
+      "order": 6,
       "mode": 0,
       "inputs": [
         {
@@ -72,7 +34,7 @@
           "name": "images",
           "type": "IMAGE",
           "links": [
-            15
+            27
           ]
         },
         {
@@ -105,178 +67,78 @@
       "widgets_values": []
     },
     {
-      "id": 13,
-      "type": "SeedVR2BlockSwap",
+      "id": 22,
+      "type": "SeedVR2LoadDiTModel",
       "pos": [
-        1160,
-        260
+        1130,
+        200
       ],
       "size": [
-        270,
-        110
-      ],
-      "flags": {},
-      "order": 1,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "label": "block_swap_config",
-          "name": "block_swap_config",
-          "type": "block_swap_config",
-          "links": [
-            16
-          ]
-        }
-      ],
-      "properties": {
-        "aux_id": "numz/ComfyUI-SeedVR2_VideoUpscaler",
-        "Node name for S&R": "SeedVR2BlockSwap",
-        "ver": "12aefc08bb302fa595a5938e1520522dc7246d7c",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "version": "7.3",
-          "input_ue_unconnectable": {}
-        }
-      },
-      "widgets_values": [
-        32,
-        false
-      ]
-    },
-    {
-      "id": 14,
-      "type": "SeedVR2ExtraArgs",
-      "pos": [
-        1160,
-        430
-      ],
-      "size": [
-        270,
+        307.6646484375,
         202
       ],
-      "flags": {},
-      "order": 0,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "label": "extra_args",
-          "name": "extra_args",
-          "type": "extra_args",
-          "links": [
-            17
-          ]
-        }
-      ],
-      "properties": {
-        "aux_id": "numz/ComfyUI-SeedVR2_VideoUpscaler",
-        "Node name for S&R": "SeedVR2ExtraArgs",
-        "ver": "12aefc08bb302fa595a5938e1520522dc7246d7c",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "version": "7.3",
-          "input_ue_unconnectable": {}
-        }
+      "flags": {
+        "pinned": true
       },
-      "widgets_values": [
-        true,
-        512,
-        64,
-        false,
-        false,
-        false,
-        "cuda:0"
-      ]
-    },
-    {
-      "id": 15,
-      "type": "SeedVR2",
-      "pos": [
-        1490,
-        130
-      ],
-      "size": [
-        270,
-        266
-      ],
-      "flags": {},
-      "order": 5,
+      "order": 4,
       "mode": 0,
       "inputs": [
         {
-          "label": "images",
-          "name": "images",
-          "type": "IMAGE",
-          "link": 15
-        },
-        {
-          "label": "block_swap_config",
-          "name": "block_swap_config",
+          "name": "torch_compile_args",
           "shape": 7,
-          "type": "block_swap_config",
-          "link": 16
-        },
-        {
-          "label": "extra_args",
-          "name": "extra_args",
-          "shape": 7,
-          "type": "extra_args",
-          "link": 17
+          "type": "TORCH_COMPILE_ARGS",
+          "link": 25
         }
       ],
       "outputs": [
         {
-          "label": "image",
-          "name": "image",
-          "type": "IMAGE",
+          "name": "SEEDVR2_DIT",
+          "type": "SEEDVR2_DIT",
           "links": [
-            20
+            24
           ]
         }
       ],
       "properties": {
-        "aux_id": "numz/ComfyUI-SeedVR2_VideoUpscaler",
-        "Node name for S&R": "SeedVR2",
-        "ver": "12aefc08bb302fa595a5938e1520522dc7246d7c",
+        "Node name for S&R": "SeedVR2LoadDiTModel",
         "ue_properties": {
           "widget_ue_connectable": {},
-          "version": "7.3",
-          "input_ue_unconnectable": {}
+          "input_ue_unconnectable": {},
+          "version": "7.3"
         }
       },
       "widgets_values": [
         "seedvr2_ema_7b_fp8_e4m3fn_mixed_block35_fp16.safetensors",
-        100,
-        "randomize",
-        1024,
-        37,
-        "wavelet",
-        0,
-        0
+        "cuda:0",
+        32,
+        false,
+        "cpu",
+        false,
+        "flash_attn"
       ]
     },
     {
       "id": 16,
       "type": "VHS_VideoCombine",
       "pos": [
-        1859.097412109375,
-        131.6251678466797
+        1820,
+        40
       ],
       "size": [
-        214.7587890625,
-        334
+        470,
+        1018
       ],
       "flags": {
-        "collapsed": false
+        "collapsed": false,
+        "pinned": true
       },
-      "order": 6,
+      "order": 8,
       "mode": 0,
       "inputs": [
         {
           "name": "images",
           "type": "IMAGE",
-          "link": 20
+          "link": 28
         },
         {
           "name": "audio",
@@ -339,18 +201,64 @@
       }
     },
     {
+      "id": 23,
+      "type": "SeedVR2TorchCompileSettings",
+      "pos": [
+        780,
+        600
+      ],
+      "size": [
+        280,
+        190
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 0,
+      "mode": 4,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "TORCH_COMPILE_ARGS",
+          "type": "TORCH_COMPILE_ARGS",
+          "links": [
+            25,
+            26
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SeedVR2TorchCompileSettings",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        "inductor",
+        "default",
+        false,
+        false,
+        64,
+        128
+      ]
+    },
+    {
       "id": 18,
       "type": "Note",
       "pos": [
-        1491.3359375,
-        439.5550231933594
+        1490,
+        540
       ],
       "size": [
         263.35546875,
         250.76280212402344
       ],
-      "flags": {},
-      "order": 2,
+      "flags": {
+        "pinned": true
+      },
+      "order": 1,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -362,10 +270,211 @@
         }
       },
       "widgets_values": [
-        "选择模型会自动下载到SeedVR2文件夹\n\n低配选择3b_fp8\n\n高配选择7b_fp8或以上\n\n显存越大resolution分辨率能开越高，\n\n显存越大batch_size能开越高，更连贯，闪烁和变化会减少。"
+        "选择模型会自动下载到SeedVR2文件夹\n\n低配选择3b_fp8\n\n高配选择7b_fp8或以上\n\n显存越大resolution分辨率能开越高，\n\n显存越大batch_size能开越高，更连贯，闪烁和变化会减少。\n\nencode_tiled和decode_tiled建议打开否则可能会导致解码卡显存"
       ],
       "color": "#432",
       "bgcolor": "#653"
+    },
+    {
+      "id": 21,
+      "type": "SeedVR2LoadVAEModel",
+      "pos": [
+        1130,
+        490
+      ],
+      "size": [
+        312.866796875,
+        298
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "torch_compile_args",
+          "shape": 7,
+          "type": "TORCH_COMPILE_ARGS",
+          "link": 26
+        }
+      ],
+      "outputs": [
+        {
+          "name": "SEEDVR2_VAE",
+          "type": "SEEDVR2_VAE",
+          "links": [
+            23
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SeedVR2LoadVAEModel",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        "ema_vae_fp16.safetensors",
+        "cuda:0",
+        true,
+        512,
+        128,
+        true,
+        512,
+        128,
+        "false",
+        "none",
+        false
+      ]
+    },
+    {
+      "id": 24,
+      "type": "Label (rgthree)",
+      "pos": [
+        760,
+        -120
+      ],
+      "size": [
+        538.24951171875,
+        65
+      ],
+      "flags": {
+        "pinned": true,
+        "allow_interaction": false
+      },
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "SeedVR2视频放大",
+      "properties": {
+        "fontSize": 65,
+        "fontFamily": "Arial",
+        "fontColor": "#ffffff",
+        "textAlign": "left",
+        "backgroundColor": "transparent",
+        "padding": 0,
+        "borderRadius": 0,
+        "angle": 0,
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "color": "#fff0",
+      "bgcolor": "#fff0"
+    },
+    {
+      "id": 19,
+      "type": "SeedVR2VideoUpscaler",
+      "pos": [
+        1490,
+        50
+      ],
+      "size": [
+        290,
+        440
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 27
+        },
+        {
+          "name": "dit",
+          "type": "SEEDVR2_DIT",
+          "link": 24
+        },
+        {
+          "name": "vae",
+          "type": "SEEDVR2_VAE",
+          "link": 23
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            28
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SeedVR2VideoUpscaler",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        42,
+        "randomize",
+        1080,
+        0,
+        37,
+        false,
+        "lab",
+        0,
+        0,
+        0,
+        0,
+        "cpu",
+        false
+      ]
+    },
+    {
+      "id": 8,
+      "type": "LoadVideo",
+      "pos": [
+        780,
+        30
+      ],
+      "size": [
+        280,
+        500
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 3,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "label": "VIDEO",
+          "name": "VIDEO",
+          "type": "VIDEO",
+          "links": [
+            10
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.50",
+        "Node name for S&R": "LoadVideo",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.3",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "example.mp4",
+        "image"
+      ]
     }
   ],
   "links": [
@@ -378,30 +487,6 @@
       "VIDEO"
     ],
     [
-      15,
-      12,
-      0,
-      15,
-      0,
-      "IMAGE"
-    ],
-    [
-      16,
-      13,
-      0,
-      15,
-      1,
-      "block_swap_config"
-    ],
-    [
-      17,
-      14,
-      0,
-      15,
-      2,
-      "extra_args"
-    ],
-    [
       19,
       12,
       2,
@@ -410,50 +495,92 @@
       "FLOAT"
     ],
     [
-      20,
-      15,
-      0,
-      16,
-      0,
-      "IMAGE"
-    ],
-    [
       21,
       12,
       1,
       16,
       1,
       "AUDIO"
+    ],
+    [
+      23,
+      21,
+      0,
+      19,
+      2,
+      "SEEDVR2_VAE"
+    ],
+    [
+      24,
+      22,
+      0,
+      19,
+      1,
+      "SEEDVR2_DIT"
+    ],
+    [
+      25,
+      23,
+      0,
+      22,
+      0,
+      "TORCH_COMPILE_ARGS"
+    ],
+    [
+      26,
+      23,
+      0,
+      21,
+      0,
+      "TORCH_COMPILE_ARGS"
+    ],
+    [
+      27,
+      12,
+      0,
+      19,
+      0,
+      "IMAGE"
+    ],
+    [
+      28,
+      19,
+      0,
+      16,
+      0,
+      "IMAGE"
     ]
   ],
   "groups": [
     {
       "id": 1,
-      "title": "SeedVR2视频放大流",
+      "title": "SeedVR2视频放大流v1.1",
       "bounding": [
         760,
         -40,
-        1372.53076171875,
-        762.010009765625
+        1630,
+        1140
       ],
       "color": "#3f789e",
       "font_size": 24,
-      "flags": {}
+      "flags": {
+        "pinned": true
+      }
     }
   ],
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.7794327131622598,
+      "scale": 1.037424941218973,
       "offset": [
-        -347.3290731141177,
-        56.39888462684676
+        115.60528125183097,
+        544.4536883545529
       ]
     },
-    "frontendVersion": "1.26.13",
+    "frontendVersion": "1.28.8",
     "VHS_latentpreview": true,
     "VHS_latentpreviewrate": 8,
-    "VHS_MetadataImage": false,
+    "VHS_MetadataImage": true,
     "VHS_KeepIntermediate": true,
     "ue_links": [],
     "links_added_by_ue": []

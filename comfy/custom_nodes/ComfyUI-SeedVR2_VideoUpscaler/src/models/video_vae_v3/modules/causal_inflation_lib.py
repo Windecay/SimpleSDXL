@@ -26,7 +26,8 @@ from .context_parallel_lib import cache_send_recv, get_cache_size
 from .global_config import get_norm_limit
 from .types import MemoryState, _inflation_mode_t, _memory_device_t
 from ....common.half_precision_fixes import safe_pad_operation
-from ....optimization.memory_manager import clear_memory, retry_on_oom
+from ....optimization.memory_manager import retry_on_oom
+from ....optimization.compatibility import NVIDIA_CONV3D_MEMORY_BUG_WORKAROUND
 
 # Single GPU inference - no distributed processing needed
 #print("Warning: Using single GPU inference mode - distributed features disabled in causal_inflation_lib")
@@ -46,6 +47,7 @@ def get_next_sequence_parallel_rank():
 
 def get_prev_sequence_parallel_rank():
     return 0
+
 
 @contextmanager
 def ignore_padding(model):
@@ -78,6 +80,29 @@ class InflatedCausalConv3d(Conv3d):
 
     def set_memory_device(self, memory_device: _memory_device_t):
         self.memory_device = memory_device
+    
+    def _conv_forward(self, input, weight, bias, *args, **kwargs):
+        """
+        Override _conv_forward to work around NVIDIA Conv3d memory bug.
+        
+        Bug: PyTorch 2.9-2.10 with cuDNN >= 91002 uses 3x memory for Conv3d 
+        with fp16/bfloat16 weights due to buggy dispatch layer.
+        
+        Workaround: Call torch.cudnn_convolution directly to bypass buggy layer.
+        Status is logged at startup in compatibility.py.
+        """
+        if NVIDIA_CONV3D_MEMORY_BUG_WORKAROUND and weight.dtype in (torch.float16, torch.bfloat16):
+            # Direct cuDNN call bypasses buggy PyTorch dispatch layer
+            out = torch.cudnn_convolution(
+                input, weight, self.padding, self.stride, self.dilation, self.groups,
+                benchmark=False, deterministic=False, allow_tf32=True
+            )
+            if bias is not None:
+                out += bias.reshape((1, -1) + (1,) * (out.ndim - 2))
+            return out
+        else:
+            # Use standard path for unaffected configurations
+            return super()._conv_forward(input, weight, bias, *args, **kwargs)
 
     def memory_limit_conv(
         self,
@@ -86,7 +111,6 @@ class InflatedCausalConv3d(Conv3d):
         split_dim=3,
         padding=(0, 0, 0, 0, 0, 0),
         prev_cache=None,
-        preserve_vram = False,
     ):
         # Compatible with no limit.
         if math.isinf(self.memory_limit):
@@ -163,8 +187,7 @@ class InflatedCausalConv3d(Conv3d):
                 x[idx],
                 split_dim=split_dim + 1,
                 padding=padding,
-                prev_cache=cache,
-                preserve_vram=preserve_vram
+                prev_cache=cache
             )
 
             # Update cache.
@@ -182,8 +205,7 @@ class InflatedCausalConv3d(Conv3d):
     def forward(
         self,
         input: Union[Tensor, List[Tensor]],
-        memory_state: MemoryState = MemoryState.UNSET,
-        preserve_vram: bool = False,
+        memory_state: MemoryState = MemoryState.UNSET
     ) -> Tensor:
         assert memory_state != MemoryState.UNSET
         if memory_state != MemoryState.ACTIVE:
@@ -194,7 +216,7 @@ class InflatedCausalConv3d(Conv3d):
             and get_sequence_parallel_group() is None
         ):
             return self.basic_forward(input, memory_state)
-        return self.slicing_forward(input, memory_state, preserve_vram)
+        return self.slicing_forward(input, memory_state)
 
     def basic_forward(self, input: Tensor, memory_state: MemoryState = MemoryState.UNSET):
         mem_size = self.stride[0] - self.kernel_size[0]
@@ -221,7 +243,6 @@ class InflatedCausalConv3d(Conv3d):
         self,
         input: Union[Tensor, List[Tensor]],
         memory_state: MemoryState = MemoryState.UNSET,
-        preserve_vram: bool = False,
     ) -> Tensor:
         squeeze_out = False
         if torch.is_tensor(input):
@@ -267,8 +288,7 @@ class InflatedCausalConv3d(Conv3d):
             input[i] = self.memory_limit_conv(
                 input[i],
                 padding=padding,
-                prev_cache=cache,
-                preserve_vram=preserve_vram
+                prev_cache=cache
             )
 
             # Update cache.
@@ -323,22 +343,21 @@ def init_causal_conv3d(
     return InflatedCausalConv3d(*args, inflation_mode=inflation_mode, **kwargs)
 
 
-def causal_norm_wrapper(norm_layer: nn.Module, x: torch.Tensor, preserve_vram: bool = False) -> torch.Tensor:
-    input_dtype = x.dtype
+def causal_norm_wrapper(norm_layer: nn.Module, x: torch.Tensor) -> torch.Tensor:
     if isinstance(norm_layer, (nn.LayerNorm, RMSNorm)):
         if x.ndim == 4:
             x = rearrange(x, "b c h w -> b h w c")
             x = norm_layer(x)
             x = rearrange(x, "b h w c -> b c h w")
-            return x.to(input_dtype)
+            return x
         if x.ndim == 5:
             x = rearrange(x, "b c t h w -> b t h w c")
             x = norm_layer(x)
             x = rearrange(x, "b t h w c -> b c t h w")
-            return x.to(input_dtype)
+            return x
     if isinstance(norm_layer, (nn.GroupNorm, nn.BatchNorm2d, nn.SyncBatchNorm)):
         if x.ndim <= 4:
-            return norm_layer(x).to(input_dtype)
+            return norm_layer(x)
         if x.ndim == 5:
             t = x.size(2)
             x = rearrange(x, "b c t h w -> (b t) c h w")
@@ -361,7 +380,7 @@ def causal_norm_wrapper(norm_layer: nn.Module, x: torch.Tensor, preserve_vram: b
                         debug=getattr(norm_layer, 'debug', None),
                         operation_name=f"GroupNorm.chunk_{i}"
                     )
-                    x[i] = x[i].to(input_dtype)
+                    x[i] = x[i]
                 
                 x = retry_on_oom(
                     torch.cat,
@@ -378,7 +397,7 @@ def causal_norm_wrapper(norm_layer: nn.Module, x: torch.Tensor, preserve_vram: b
                     operation_name="GroupNorm.direct"
                 )
             x = rearrange(x, "(b t) c h w -> b c t h w", t=t)
-            return x.to(input_dtype)
+            return x
     raise NotImplementedError
 
 

@@ -21,7 +21,6 @@ from typing import Callable
 import torch
 from einops import rearrange
 from torch.nn import functional as F
-from ....optimization.memory_manager import clear_memory
 
 from ..types import PredictionType
 from ..utils import expand_dims
@@ -43,54 +42,26 @@ class EulerSampler(Sampler):
         progress = self.get_progress_bar()
         i = 0
         
-        # VRAM optimizations
-        original_dtype = x.dtype
-        device = x.device
-        
-        # Force FP16 to save VRAM
-        if x.dtype != torch.float16:
-            x = x.half()
-        
+        # Keep native dtype throughout sampling
+        # The DiT model already handles dtype internally via compatibility wrapper
         for t, s in zip(timesteps[:-1], timesteps[1:]):
-            # Force FP16 for timesteps
-            if t.dtype != torch.float16:
-                t = t.half()
-            if s.dtype != torch.float16:
-                s = s.half()
-                
-            # Model call with monitoring
             pred = f(SamplerModelArgs(x, t, i))
-            
-            # Force FP16 for prediction
-            if pred.dtype != torch.float16:
-                pred = pred.half()
             
             # Next step
             x = self.step_to(pred, x, t, s)
             
             # Clean up temporary tensors
             del pred
-
-            # Clear memory - only when model is configured with sampling step > 1
-            clear_memory(debug=getattr(self, 'debug', None), deep=False, force=True, timer_name="EulerSampler")
             
             i += 1
             progress.update()
 
         if self.return_endpoint:
             t = timesteps[-1]
-            if t.dtype != torch.float16:
-                t = t.half()
             pred = f(SamplerModelArgs(x, t, i))
-            if pred.dtype != torch.float16:
-                pred = pred.half()
             x = self.get_endpoint(pred, x, t)
             del pred
             progress.update()
-        
-        # Restore original dtype if necessary
-        if original_dtype != torch.float16:
-            x = x.to(original_dtype)
             
         return x
 
