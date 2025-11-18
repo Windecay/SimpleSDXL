@@ -198,7 +198,7 @@ class AudioProjModel(nn.Module):
         context_tokens = self.proj3(audio_embeds_c).reshape(batch_size_c*N_t, self.context_tokens, self.output_dim)
 
         # normalization and reshape
-        context_tokens = self.norm(context_tokens)
+        context_tokens = self.norm(context_tokens.to(self.norm.weight.dtype)).to(context_tokens.dtype)
         context_tokens = rearrange(context_tokens, "(bz f) m c -> bz f m c", f=video_length)
 
         return context_tokens

@@ -127,13 +127,28 @@ def check_base_environment():
             run_pip(f"install -U facenet-pytorch==2.6.0 --no-deps", "facenet-pytorch==2.6.0")
         try:
             if platform.system() == 'Windows':
-                # 检查是否安装了nunchaku
                 if is_installed('nunchaku'):
+                    current_version = importlib.metadata.version('nunchaku') if is_installed('nunchaku') else 'unknown'
                     is_torch29_version = is_installed_version('nunchaku', '1.0.2+torch2.9')
-                    if not is_torch29_version:
-                        current_version = importlib.metadata.version('nunchaku') if is_installed('nunchaku') else 'unknown'
-                        # logger.info(f'检测到您当前使用的nunchaku版本为{current_version}，推荐使用一键部署新包到2.9.0版本以获得更好的性能和兼容性。')
-                        # logger.info(f'请注意：系统不会自动为您更新nunchaku，您可以自行选择是否升级。')
+                    is_torch27_version = is_installed_version('nunchaku', '1.0.2+torch2.7')
+
+                    if not is_torch29_version and not is_torch27_version:
+                        print('检测到nunchaku版本不满足要求，需要更新')
+                        import torch
+                        torch_version = torch.__version__
+                        print(f'当前PyTorch版本: {torch_version}')
+
+                        if '2.9' in torch_version:
+                            pkg_url = 'https://www.modelscope.cn/models/nunchaku-tech/nunchaku/resolve/master/nunchaku-1.0.2%2Btorch2.9-cp310-cp310-win_amd64.whl'
+                            pkg_path = os.path.abspath(os.path.join(root, 'nunchaku-1.0.2+torch2.9-cp310-cp310-win_amd64.whl'))
+                            print(f'准备更新nunchaku for torch 2.9，URL: {pkg_url}')
+                        else:
+                            pkg_url = 'https://www.modelscope.cn/models/nunchaku-tech/nunchaku/resolve/master/nunchaku-1.0.2%2Btorch2.7-cp310-cp310-win_amd64.whl'
+                            pkg_path = os.path.abspath(os.path.join(root, 'nunchaku-1.0.2+torch2.7-cp310-cp310-win_amd64.whl'))
+                            print(f'准备更新nunchaku for torch 2.7，URL: {pkg_url}')
+
+                        has_update_whl = download_if_updated(pkg_url, pkg_path)
+                        run(f'"{python}" -m pip install -U {pkg_path}', f'Install {pkg_path}', live=True)
                 else:
                     import torch
                     torch_version = torch.__version__

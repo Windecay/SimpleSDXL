@@ -16,11 +16,11 @@ from einops import rearrange
 from ..enhance_a_video.globals import disable_enhance
 
 import comfy.model_management as mm
-from comfy.utils import load_torch_file, ProgressBar, common_upscale
-from comfy.clip_vision import clip_preprocess, ClipVisionModel
+from comfy.utils import ProgressBar
 from comfy.cli_args import args, LatentPreviewMethod
 from ..nodes_model_loading import load_weights
-from ..nodes_sampler import offload_transformer
+from ..nodes_sampler import offload_transformer, init_blockswap
+from ..custom_linear import remove_lora_from_module, set_lora_params, _replace_linear
 
 device = mm.get_torch_device()
 offload_device = mm.unet_offload_device()
@@ -171,14 +171,17 @@ class WanVideoDiffusionForcingSampler:
         vae_upscale_factor = 16 if is_5b else 8
 
         # Load weights
-        if transformer.patched_linear and gguf_reader is None:
+        if not transformer.patched_linear and patcher.model["sd"] is not None and len(patcher.patches) != 0:
+            transformer = _replace_linear(transformer, dtype, patcher.model["sd"], compile_args=model["compile_args"])
+            transformer.patched_linear = True
+        if patcher.model["sd"] is not None and gguf_reader is None:
             load_weights(patcher.model.diffusion_model, patcher.model["sd"], weight_dtype, base_dtype=dtype, transformer_load_device=device, block_swap_args=block_swap_args)
 
         if gguf_reader is not None: #handle GGUF
             load_weights(transformer, patcher.model["sd"], base_dtype=dtype, transformer_load_device=device, patcher=patcher, gguf=True, reader=gguf_reader, block_swap_args=block_swap_args)
             set_lora_params_gguf(transformer, patcher.patches)
             transformer.patched_linear = True
-        elif len(patcher.patches) != 0 and transformer.patched_linear: #handle patched linear layers (unmerged loras, fp8 scaled)
+        elif len(patcher.patches) != 0: #handle patched linear layers (unmerged loras, fp8 scaled)
             log.info(f"Using {len(patcher.patches)} LoRA weight patches for WanVideo model")
             if not merge_loras and fp8_matmul:
                 raise NotImplementedError("FP8 matmul with unmerged LoRAs is not supported")
@@ -389,40 +392,8 @@ class WanVideoDiffusionForcingSampler:
             from ..latent_preview import prepare_callback #custom for tiny VAE previews
         callback = prepare_callback(patcher, steps)
 
-        #blockswap init        
         #blockswap init
-        if not transformer.patched_linear:
-            if block_swap_args is not None:
-                transformer.use_non_blocking = block_swap_args.get("use_non_blocking", False)
-                for name, param in transformer.named_parameters():
-                    if "block" not in name:
-                        param.data = param.data.to(device)
-                    if "control_adapter" in name:
-                        param.data = param.data.to(device)
-                    elif block_swap_args["offload_txt_emb"] and "txt_emb" in name:
-                        param.data = param.data.to(offload_device)
-                    elif block_swap_args["offload_img_emb"] and "img_emb" in name:
-                        param.data = param.data.to(offload_device)
-
-                transformer.block_swap(
-                    block_swap_args["blocks_to_swap"] - 1 ,
-                    block_swap_args["offload_txt_emb"],
-                    block_swap_args["offload_img_emb"],
-                    vace_blocks_to_swap = block_swap_args.get("vace_blocks_to_swap", None),
-                    prefetch_blocks = block_swap_args.get("prefetch_blocks", 0),
-                    block_swap_debug = block_swap_args.get("block_swap_debug", False),
-                )
-            elif model["auto_cpu_offload"]:
-                for module in transformer.modules():
-                    if hasattr(module, "offload"):
-                        module.offload()
-                    if hasattr(module, "onload"):
-                        module.onload()
-                for block in transformer.blocks:
-                    block.modulation = torch.nn.Parameter(block.modulation.to(device))
-                transformer.head.modulation = torch.nn.Parameter(transformer.head.modulation.to(device))
-            else:
-                transformer.to(device)
+        init_blockswap(transformer, block_swap_args, model)
 
         # Initialize Cache if enabled
         transformer.enable_teacache = transformer.enable_magcache = False
@@ -515,7 +486,7 @@ class WanVideoDiffusionForcingSampler:
 
                 
                 #cond
-                noise_pred_cond, teacache_state_cond = transformer(
+                noise_pred_cond, _, teacache_state_cond = transformer(
                     [z], context=positive_embeds, y=[image_cond_input] if image_cond_input is not None else None,
                     clip_fea=clip_fea, is_uncond=False, current_step_percentage=current_step_percentage,
                     pred_id=teacache_state[0] if teacache_state else None,
@@ -532,7 +503,7 @@ class WanVideoDiffusionForcingSampler:
                         )
                     return noise_pred_cond, [teacache_state_cond]
                 #uncond
-                noise_pred_uncond, teacache_state_uncond = transformer(
+                noise_pred_uncond, _, teacache_state_uncond = transformer(
                     [z], context=negative_embeds, clip_fea=clip_fea_neg if clip_fea_neg is not None else clip_fea,
                     y=[image_cond_input] if image_cond_input is not None else None, 
                     is_uncond=True, current_step_percentage=current_step_percentage,

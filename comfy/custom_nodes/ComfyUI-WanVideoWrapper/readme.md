@@ -1,5 +1,29 @@
 # ComfyUI wrapper nodes for [WanVideo](https://github.com/Wan-Video/Wan2.1) and related models.
 
+## Update notification that can affect memory use in old workflows
+
+In a recent update I changed how unmerged LoRA weights are handled:
+
+Previously mostly due to my laziness they were always loaded from RAM when used, this was of course inefficient and also made using torch.compile for LoRA applying difficult, thus forcing a graph break when using unmerged LoRAs.
+
+Now the LoRA weights are assigned as buffers to the corresponding modules, so they are part of the blocks and obey the block swapping unifying the offloading and allowing LoRA weights to benefit from the prefetch feature for async offoading. Downside is that this means if you did not use block swap, you will see increased memory use as the LoRAs are part of the model and all on VRAM.
+
+If you use block swap, the LoRAs are swapped along the rest of the block, but the block size is now larger, this means you may have to compensate with couple of more blocks swapped.
+
+Example situation: you use 1GB LoRA unmerged and swap 20 blocks on 14B model, we can divide the LoRA size by block count, single block grows by 25MB, 20 blocks grow by 500MB, so your VRAM usage would be 500MB more than before, to compensate you swap 2 more blocks.
+
+### Unrelated other VRAM issue with torch.compile
+
+After any update that modifies the model code and when using torch.compile it's common to run into issues with VRAM, this can be caused by using older pytorch/triton version without latest compile fixes, and/or from old triton caches, mostly in Windows. This manifests in the issue that first run of new input size may have drastically increased memory use, which can clear from simply running it again, and once cached, not manifest again. Again I've only seen this happen in Windows.
+
+To clear your Triton cache you can delete the contents of following (default) folders:
+
+`C:\Users\<username>\.triton`
+`C:\Users\<username>\AppData\Local\Temp\torchinductor_<username>`
+
+
+## Note: Due to the stupid amount of bots or people thinking this is some of video generation service, I've blocked new accounts from posting issues for now.
+
 # WORK IN PROGRESS (perpetually)
 
 # Why should I use custom nodes when WanVideo works natively?
@@ -71,6 +95,23 @@ Stand-In: https://github.com/WeChatCV/Stand-In
 HuMo: https://github.com/Phantom-video/HuMo
 
 WanAnimate: https://github.com/Wan-Video/Wan2.2/tree/main/wan/modules/animate
+
+Lynx: https://github.com/bytedance/lynx
+
+MoCha: https://github.com/Orange-3DV-Team/MoCha
+
+UniLumos: https://github.com/alibaba-damo-academy/Lumos-Custom
+
+Bindweave: https://github.com/bytedance/BindWeave
+
+Training free techniques:
+
+TimeToMove: https://github.com/time-to-move/TTM
+
+
+Not exactly Wan model, but close enough to work with the code base:
+
+LongCat-Video: https://meituan-longcat.github.io/LongCat-Video/
 
 
 Examples:

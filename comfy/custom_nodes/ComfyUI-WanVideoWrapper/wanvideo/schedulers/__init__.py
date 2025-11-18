@@ -6,6 +6,7 @@ from .flowmatch_pusa import FlowMatchSchedulerPusa
 from .flowmatch_res_multistep import FlowMatchSchedulerResMultistep
 from .scheduling_flow_match_lcm import FlowMatchLCMScheduler
 from .fm_sa_ode import FlowMatchSAODEStableScheduler
+from .fm_rcm import rCMFlowMatchScheduler
 from ...utils import log
 
 try:
@@ -19,6 +20,7 @@ scheduler_list = [
     "dpm++", "dpm++/beta",
     "dpm++_sde", "dpm++_sde/beta",
     "euler", "euler/beta",
+    "longcat_distill_euler",
     "deis",
     "lcm", "lcm/beta",
     "res_multistep",
@@ -26,7 +28,8 @@ scheduler_list = [
     "flowmatch_distill",
     "flowmatch_pusa",
     "multitalk",
-    "sa_ode_stable"
+    "sa_ode_stable",
+    "rcm"
 ]
 
 def get_scheduler(scheduler, steps, start_step, end_step, shift, device, transformer_dim=5120, flowedit_args=None, denoise_strength=1.0, sigmas=None, log_timesteps=False, **kwargs):
@@ -40,12 +43,24 @@ def get_scheduler(scheduler, steps, start_step, end_step, shift, device, transfo
             sample_scheduler.timesteps = (sample_scheduler.sigmas[:-1] * 1000).to(torch.int64).to(device)
             sample_scheduler.num_inference_steps = len(sample_scheduler.timesteps)
 
-    elif scheduler in ['euler/beta', 'euler']:
-        sample_scheduler = FlowMatchEulerDiscreteScheduler(shift=shift, use_beta_sigmas=(scheduler == 'euler/beta'))
-        if flowedit_args: #seems to work better
-            timesteps, _ = retrieve_timesteps(sample_scheduler, device=device, sigmas=get_sampling_sigmas(steps, shift))
+    elif scheduler in ['euler/beta', 'euler', 'longcat_distill_euler']:
+        if 'longcat' in scheduler:
+            num_distill_sample_steps = 50
+            sample_scheduler = FlowMatchEulerDiscreteScheduler(shift=shift, time_shift_type="linear")
+            distill_indices = torch.arange(1, num_distill_sample_steps + 1, dtype=torch.float32)
+            distill_indices = (distill_indices * (1000 // num_distill_sample_steps)).round().long()
+
+            inference_indices = torch.linspace(0, num_distill_sample_steps, steps+1)[:-1]
+            inference_indices = torch.floor(inference_indices).to(torch.int64)
+
+            sigmas = torch.flip(distill_indices, [0])[inference_indices].float() / 1000
+            sample_scheduler.set_timesteps(steps, device=device, sigmas=sigmas)
         else:
-            sample_scheduler.set_timesteps(steps, device=device, sigmas=sigmas[:-1].tolist() if sigmas is not None else None)
+            sample_scheduler = FlowMatchEulerDiscreteScheduler(shift=shift, use_beta_sigmas=(scheduler == 'euler/beta'))
+            if flowedit_args: #seems to work better
+                timesteps, _ = retrieve_timesteps(sample_scheduler, device=device, sigmas=get_sampling_sigmas(steps, shift))
+            else:
+                sample_scheduler.set_timesteps(steps, device=device, sigmas=sigmas[:-1].tolist() if sigmas is not None else None)
     elif 'dpm' in scheduler:
         if 'sde' in scheduler:
             algorithm_type = "sde-dpmsolver++"
@@ -105,6 +120,10 @@ def get_scheduler(scheduler, steps, start_step, end_step, shift, device, transfo
     elif "sa_ode_stable" in scheduler:
         sample_scheduler = FlowMatchSAODEStableScheduler(shift=shift, **kwargs)
         sample_scheduler.set_timesteps(steps, device=device, sigmas=sigmas[:-1].tolist() if sigmas is not None else None)
+    elif 'rcm' in scheduler:
+        sample_scheduler = rCMFlowMatchScheduler()
+        sample_scheduler.set_timesteps(steps, sigma_max=120)
+
     if timesteps is None:
         timesteps = sample_scheduler.timesteps
 
@@ -137,6 +156,7 @@ def get_scheduler(scheduler, steps, start_step, end_step, shift, device, transfo
             end_idx = end_step - 1
 
     # Slice timesteps and sigmas once, based on indices
+    all_timesteps = timesteps
     timesteps = timesteps[start_idx:end_idx+1]
     sample_scheduler.full_sigmas = sample_scheduler.sigmas.clone()
     sample_scheduler.sigmas = sample_scheduler.sigmas[start_idx:start_idx+len(timesteps)+1]  # always one longer
@@ -148,5 +168,6 @@ def get_scheduler(scheduler, steps, start_step, end_step, shift, device, transfo
 
     if hasattr(sample_scheduler, 'timesteps'):
         sample_scheduler.timesteps = timesteps
+    setattr(sample_scheduler, 'all_timesteps', all_timesteps)
 
     return sample_scheduler, timesteps, start_idx, end_idx

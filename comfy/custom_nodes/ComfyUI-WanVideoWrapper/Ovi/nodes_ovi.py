@@ -8,6 +8,8 @@ from .vae.autoencoder import AutoEncoderModule
 from .vae.distributions import DiagonalGaussianDistribution
 import torchaudio
 
+from ..utils import log
+
 from comfy import model_management as mm
 device = mm.get_torch_device()
 offload_device = mm.unet_offload_device()
@@ -216,9 +218,11 @@ class WanVideoOviCFG:
     def INPUT_TYPES(s):
         return {"required": {
             "original_text_embeds": ("WANVIDEOTEXTEMBEDS",),
-            "ovi_negative_text_embeds": ("WANVIDEOTEXTEMBEDS",),
             "ovi_audio_cfg": ("FLOAT", {"default": 3.0, "min": 0.0, "max": 100.0, "step": 0.01}),
             },
+            "optional": {
+                "ovi_negative_text_embeds": ("WANVIDEOTEXTEMBEDS",),
+            }
         }
 
     RETURN_TYPES = ("WANVIDEOTEXTEMBEDS", )
@@ -227,10 +231,16 @@ class WanVideoOviCFG:
     CATEGORY = "WanVideoWrapper/Ovi"
     DESCRIPTION = "Adds Ovi negative text embeddings and audio CFG scale to the text embeddings dictionary"
 
-    def process(self, original_text_embeds, ovi_negative_text_embeds, ovi_audio_cfg):
-        negative_text_embeds = ovi_negative_text_embeds.get("negative_prompt_embeds", None)
+    def process(self, original_text_embeds, ovi_audio_cfg, ovi_negative_text_embeds=None):
+        negative_text_embeds = None
+        if ovi_negative_text_embeds is not None:
+            negative_text_embeds = ovi_negative_text_embeds.get("prompt_embeds", None)
         if negative_text_embeds is None:
             negative_text_embeds = original_text_embeds["prompt_embeds"]
+            log.info("WanVideoOviCFG: Ovi negative text embeddings not provided, using original prompt embeddings as negative embeddings")
+        else:
+            log.info("WanVideoOviCFG: Using provided Ovi audio negative text embeddings")
+        log.info("WanVideoOviCFG: negative text embedding shape: {}".format(negative_text_embeds[0].shape))
 
         prompt_embeds_dict_copy = original_text_embeds.copy()
         prompt_embeds_dict_copy.update({

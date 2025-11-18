@@ -16,10 +16,10 @@ class WanRMSNorm(nn.Module):
         Args:
             x(Tensor): Shape [B, L, C]
         """
-        return self._norm(x.float()).type_as(x) * self.weight
+        return self._norm(x.to(self.weight.dtype)) * self.weight
 
     def _norm(self, x):
-        return x * torch.rsqrt(x.pow(2).mean(dim=-1, keepdim=True) + self.eps)
+        return x * (torch.rsqrt(x.pow(2).mean(dim=-1, keepdim=True) + self.eps)).to(x.dtype)
 
 
 class DummyAdapterLayer(nn.Module):
@@ -81,7 +81,7 @@ class AudioProjModel(nn.Module):
 
         context_tokens = self.audio_proj_glob_3(audio_embeds).reshape(batch_size, self.context_tokens, self.output_dim)
 
-        context_tokens = self.audio_proj_glob_norm(context_tokens)
+        context_tokens = self.audio_proj_glob_norm(context_tokens.to(self.audio_proj_glob_norm.layer.weight.dtype)).to(audio_embeds.dtype)
         context_tokens = rearrange(context_tokens, "(bz f) m c -> bz f m c", f=video_length)
 
         return context_tokens

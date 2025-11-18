@@ -88,7 +88,7 @@
         "Node name for S&R": "WanVideoTextEncode"
       },
       "widgets_values": [
-        "people talking",
+        "Cinematic, High Contrast, highly detailed, taken using a Canon EOS R camera, hyper detailed photo-realistic maximum detail, 32k, Color Grading, ultra HD, extreme meticulous detailing, skin pore detailing, hyper sharpness, perfect without deformations.",
         "Bright tones, overexposed, static, blurred details, subtitles, style, works, paintings, images, static, overall gray, worst quality, low quality, JPEG compression residue, ugly, incomplete, extra fingers, poorly drawn hands, poorly drawn faces, deformed, disfigured, misshapen limbs, fused fingers, still picture, messy background, three legs, many people in the background, walking backwards\"",
         true,
         true,
@@ -922,7 +922,7 @@
       "title": "Note: WIP",
       "properties": {},
       "widgets_values": [
-        "This is a barebones implementation of FlashVSR:\n\nhttps://huggingface.co/JunhaoZhuang/FlashVSR\n\nNone of the sparse attention and streaming stuff is implemented, however it still gives results like this and may be useful"
+        "This is a barebones implementation of FlashVSR:\n\nhttps://huggingface.co/JunhaoZhuang/FlashVSR\n\nNone of the sparse attention and streaming stuff is implemented, however it still gives results like this and may be useful. DOES NOT MATCH ORIGINAL CODE RESULTS CURRENTLY"
       ],
       "color": "#432",
       "bgcolor": "#653"

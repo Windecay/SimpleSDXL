@@ -1,6 +1,8 @@
 import torch
 import numpy as np
 from comfy.utils import common_upscale
+from comfy import model_management
+from tqdm import tqdm
 from .utils import log
 from einops import rearrange
 
@@ -11,6 +13,9 @@ except:
 
 VAE_STRIDE = (4, 8, 8)
 PATCH_SIZE = (1, 2, 2)
+
+main_device = model_management.get_torch_device()
+offload_device = model_management.unet_offload_device()
 
 class WanVideoImageResizeToClosest:
     @classmethod
@@ -660,6 +665,96 @@ class FaceMaskFromPoseKeypoints:
                     cv2.fillPoly(canvas, pts=[outer_contour], color=part_color)
             
         return canvas
+
+
+class DrawGaussianNoiseOnImage:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": {
+                    "image": ("IMAGE", ),
+                    "mask": ("MASK", ),
+                  },
+                  "optional": {
+                    "device": (["cpu", "gpu"], {"default": "cpu", "tooltip": "Device to use for processing"}),
+                    "seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
+                }
+        }
+    
+    RETURN_TYPES = ("IMAGE", )
+    RETURN_NAMES = ("images",)
+    FUNCTION = "apply"
+    CATEGORY = "KJNodes/masking"
+    DESCRIPTION = "Fills the background (masked area) with Gaussian noise sampled using the mean and variance of the subject (unmasked) region."
+
+    def apply(self, image, mask, device="cpu", seed=0):
+        B, H, W, C = image.shape
+        BM, HM, WM = mask.shape
+
+        processing_device = main_device if device == "gpu" else torch.device("cpu")
+
+        in_masks = mask.clone().to(processing_device)
+        in_images = image.clone().to(processing_device)
+        
+        # Resize mask to match image dimensions
+        if HM != H or WM != W:
+            in_masks = F.interpolate(mask.unsqueeze(1), size=(H, W), mode='nearest-exact').squeeze(1)
+        
+        # Match batch sizes
+        if B > BM:
+            in_masks = in_masks.repeat((B + BM - 1) // BM, 1, 1)[:B]
+        elif BM > B:
+            in_masks = in_masks[:B]
+        
+        output_images = []
+        
+        # Set random seed for reproducibility
+        generator = torch.Generator(device=processing_device).manual_seed(seed)
+        
+        for i in tqdm(range(B), desc="DrawGaussianNoiseOnImage batch"):
+            curr_mask = in_masks[i]
+            img_idx = min(i, B - 1)
+            curr_image = in_images[img_idx]
+            
+            # Expand mask to 3 channels
+            mask_expanded = curr_mask.unsqueeze(-1).expand(-1, -1, 3)
+            
+            # Calculate mean and std per channel from the subject region (where mask is 1)
+            subject_mask = mask_expanded > 0.5
+            
+            # Initialize noise tensor
+            noise = torch.zeros_like(curr_image)
+            
+            for c in range(C):
+                channel = curr_image[:, :, c]
+                channel_mask = subject_mask[:, :, c]
+                
+                if channel_mask.sum() > 0:
+                    # Get subject pixels
+                    subject_pixels = channel[channel_mask]
+                    
+                    # Calculate statistics
+                    mean = subject_pixels.mean()
+                    std = subject_pixels.std()
+                    
+                    # Generate Gaussian noise for this channel
+                    noise[:, :, c] = torch.normal(mean=mean.item(), std=std.item(), 
+                                                  size=(H, W), generator=generator, 
+                                                  device=processing_device)
+            
+            # Clamp noise to valid range
+            noise = torch.clamp(noise, 0.0, 1.0)
+            
+            # Apply: keep subject, fill background with noise
+            masked_image = curr_image * mask_expanded + noise * (1 - mask_expanded)
+            output_images.append(masked_image)
+        
+        # If no masks were processed, return empty tensor
+        if not output_images:
+            return (torch.zeros((0, H, W, 3), dtype=image.dtype),)
+
+        out_rgb = torch.stack(output_images, dim=0).cpu()
+        
+        return (out_rgb, )
     
 NODE_CLASS_MAPPINGS = {
     "WanVideoImageResizeToClosest": WanVideoImageResizeToClosest,
@@ -673,6 +768,7 @@ NODE_CLASS_MAPPINGS = {
     "NormalizeAudioLoudness": NormalizeAudioLoudness,
     "WanVideoPassImagesFromSamples": WanVideoPassImagesFromSamples,
     "FaceMaskFromPoseKeypoints": FaceMaskFromPoseKeypoints,
+    "DrawGaussianNoiseOnImage": DrawGaussianNoiseOnImage,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
     "WanVideoImageResizeToClosest": "WanVideo Image Resize To Closest",
@@ -686,4 +782,5 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "NormalizeAudioLoudness": "Normalize Audio Loudness",
     "WanVideoPassImagesFromSamples": "WanVideo Pass Images From Samples",
     "FaceMaskFromPoseKeypoints": "Face Mask From Pose Keypoints",
+    "DrawGaussianNoiseOnImage": "Draw Gaussian Noise On Image",
 }
