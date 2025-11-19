@@ -203,6 +203,21 @@ def check_base_environment():
             print(f'Error installing mmcv: {str(e)}')
             print('Skipping mmcv installation and continuing...')
 
+        try:
+            if not is_installed_version('llama_cpp_python', '0.3.16'):
+                llama_url = 'https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/llama/llama_cpp_python-0.3.16-cp310-cp310-win_amd64.whl'
+                llama_path = os.path.abspath(os.path.join(root, 'llama_cpp_python-0.3.16-cp310-cp310-win_amd64.whl'))
+                print('check llama_cpp_python...')
+                has_update_llama = download_if_updated(llama_url, llama_path)
+                is_llama_version_ok = is_installed_version('llama_cpp_python', '0.3.16')
+
+                if has_update_llama or not is_llama_version_ok:
+                    print(f'ready to install {llama_path}')
+                    run(f'"{python}" -m pip install -U {llama_path}', f'Install {llama_path}', live=True)
+        except Exception as e:
+            print(f'Error installing llama_cpp_python: {str(e)}')
+            print('Skipping llama_cpp_python installation and continuing...')
+
         if platform.system() == 'Windows' and is_installed("rembg") and not is_installed("facexlib") and not is_installed("insightface"):
             logger.info(f'Due to Windows restrictions, The new version of SimpleSDXL requires downloading a new installation package, updating the system environment, and then running it. Download URL: https://hf-mirror.com/metercai/SimpleSDXL2/')
             logger.info(f'受组件安装限制，SimpleSDXL2新版本(增加对混元、可图和SD3支持)需要下载新的程序包和基本模型包。具体操作详见：https://hf-mirror.com/metercai/SimpleSDXL2/')

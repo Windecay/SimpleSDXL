@@ -1,0 +1,2496 @@
+{
+  "id": "8496a8b1-17bc-4ead-a31e-e70ff8fa3d6e",
+  "revision": 0,
+  "last_node_id": 103,
+  "last_link_id": 159,
+  "nodes": [
+    {
+      "id": 71,
+      "type": "MaskToImage",
+      "pos": [
+        690,
+        400
+      ],
+      "size": [
+        184.6236328125,
+        26
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 41,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 113
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            114
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.68",
+        "Node name for S&R": "MaskToImage",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 41,
+      "type": "ImageResize+",
+      "pos": [
+        30,
+        -540
+      ],
+      "size": [
+        270,
+        218
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 19,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 46
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            47,
+            48,
+            49,
+            118
+          ]
+        },
+        {
+          "name": "width",
+          "type": "INT",
+          "links": null
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ImageResize+",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        2048,
+        2048,
+        "lanczos",
+        "keep proportion",
+        "upscale if smaller",
+        32
+      ]
+    },
+    {
+      "id": 13,
+      "type": "LoadImage",
+      "pos": [
+        -400,
+        -730
+      ],
+      "size": [
+        420,
+        620
+      ],
+      "flags": {
+        "collapsed": false,
+        "pinned": true
+      },
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            45,
+            46
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.68",
+        "Node name for S&R": "LoadImage",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        "example.png",
+        "image"
+      ],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 32,
+      "type": "Sam2Segmentation",
+      "pos": [
+        350,
+        340
+      ],
+      "size": [
+        320,
+        182
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 33,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "sam2_model",
+          "type": "SAM2MODEL",
+          "link": 37
+        },
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 49
+        },
+        {
+          "name": "coordinates_positive",
+          "shape": 7,
+          "type": "STRING",
+          "link": null
+        },
+        {
+          "name": "coordinates_negative",
+          "shape": 7,
+          "type": "STRING",
+          "link": null
+        },
+        {
+          "name": "bboxes",
+          "shape": 7,
+          "type": "BBOX",
+          "link": 36
+        },
+        {
+          "name": "mask",
+          "shape": 7,
+          "type": "MASK",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "mask",
+          "type": "MASK",
+          "links": [
+            115
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Sam2Segmentation",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        false,
+        true
+      ]
+    },
+    {
+      "id": 21,
+      "type": "PreviewImage",
+      "pos": [
+        1000,
+        -730
+      ],
+      "size": [
+        410,
+        620
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 35,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 23
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.68",
+        "Node name for S&R": "PreviewImage",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 75,
+      "type": "GrowMaskWithBlur",
+      "pos": [
+        360,
+        560
+      ],
+      "size": [
+        292.748046875,
+        246
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 36,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 115
+        }
+      ],
+      "outputs": [
+        {
+          "name": "mask",
+          "type": "MASK",
+          "links": [
+            116
+          ]
+        },
+        {
+          "name": "mask_inverted",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "GrowMaskWithBlur",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        3,
+        0,
+        true,
+        false,
+        0,
+        1,
+        1,
+        true
+      ]
+    },
+    {
+      "id": 34,
+      "type": "MaskPreview+",
+      "pos": [
+        690,
+        470
+      ],
+      "size": [
+        270,
+        330
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 40,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 55
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "MaskPreview+",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 70,
+      "type": "SaveImage",
+      "pos": [
+        970,
+        170
+      ],
+      "size": [
+        430,
+        630
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 42,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 114
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.68",
+        "Node name for S&R": "SaveImage",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        "mask\\ComfyUI"
+      ]
+    },
+    {
+      "id": 17,
+      "type": "easy showAnything",
+      "pos": [
+        720,
+        -590
+      ],
+      "size": [
+        260,
+        460
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 30,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "anything",
+          "shape": 7,
+          "type": "*",
+          "link": 18
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "*",
+          "links": [
+            25
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "easy showAnything",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        "```json\n[\n    {\"bbox_2d\": [435, 353, 519, 380], \"label\": \"mouth\"},\n    {\"bbox_2d\": [434, 279, 491, 339], \"label\": \"eye\"},\n    {\"bbox_2d\": [515, 279, 576, 340], \"label\": \"eye\"}\n]\n```"
+      ]
+    },
+    {
+      "id": 39,
+      "type": "GetImageSize",
+      "pos": [
+        30,
+        -730
+      ],
+      "size": [
+        270,
+        136
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 18,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 45
+        }
+      ],
+      "outputs": [
+        {
+          "name": "width",
+          "type": "INT",
+          "links": [
+            52
+          ]
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "links": [
+            53
+          ]
+        },
+        {
+          "name": "batch_size",
+          "type": "INT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.68",
+        "Node name for S&R": "GetImageSize",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 18,
+      "type": "json_to_bbox",
+      "pos": [
+        720,
+        -730
+      ],
+      "size": [
+        270,
+        102
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 32,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "json",
+          "type": "STRING",
+          "link": 25
+        },
+        {
+          "name": "image",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 48
+        }
+      ],
+      "outputs": [
+        {
+          "name": "bboxes",
+          "type": "BBOX",
+          "links": [
+            36,
+            119
+          ]
+        },
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            23
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "json_to_bbox",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        "Qwen3-VL",
+        ""
+      ]
+    },
+    {
+      "id": 80,
+      "type": "SimpleModelDownloader",
+      "pos": [
+        -1420,
+        -130
+      ],
+      "size": [
+        210,
+        150
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 1,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "anything",
+          "shape": 7,
+          "type": "*",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "model_name",
+          "type": "*",
+          "links": null
+        },
+        {
+          "name": "download_message",
+          "type": "STRING",
+          "links": [
+            117
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SimpleModelDownloader",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        "https://modelscope.cn/models/Kijai/sam2-safetensors/resolve/master/sam2.1_hiera_large-fp16.safetensors",
+        "sam2",
+        true,
+        false
+      ]
+    },
+    {
+      "id": 81,
+      "type": "ShowText|pysssss",
+      "pos": [
+        -1200,
+        -130
+      ],
+      "size": [
+        260,
+        150
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 20,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 117
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "shape": 6,
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ShowText|pysssss",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 44,
+      "type": "ResizeMask",
+      "pos": [
+        690,
+        170
+      ],
+      "size": [
+        270,
+        194
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 38,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 116
+        },
+        {
+          "name": "width",
+          "type": "INT",
+          "widget": {
+            "name": "width"
+          },
+          "link": 52
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "widget": {
+            "name": "height"
+          },
+          "link": 53
+        }
+      ],
+      "outputs": [
+        {
+          "name": "mask",
+          "type": "MASK",
+          "links": [
+            55,
+            113
+          ]
+        },
+        {
+          "name": "width",
+          "type": "INT",
+          "links": null
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ResizeMask",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        512,
+        512,
+        false,
+        "lanczos",
+        "disabled"
+      ]
+    },
+    {
+      "id": 83,
+      "type": "SegsToCombinedMask",
+      "pos": [
+        -120,
+        170
+      ],
+      "size": [
+        290,
+        60
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 37,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "segs",
+          "type": "SEGS",
+          "link": 120
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": [
+            121
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SegsToCombinedMask",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 82,
+      "type": "bbox_to_segs",
+      "pos": [
+        -360,
+        170
+      ],
+      "size": [
+        210,
+        102
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 34,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "bboxes",
+          "type": "BBOX",
+          "link": 119
+        },
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 118
+        }
+      ],
+      "outputs": [
+        {
+          "name": "SEGS",
+          "type": "SEGS",
+          "links": [
+            120
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "bbox_to_segs",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": 76,
+      "type": "Label (rgthree)",
+      "pos": [
+        -410,
+        -950
+      ],
+      "size": [
+        751.21337890625,
+        65
+      ],
+      "flags": {
+        "pinned": true,
+        "allow_interaction": false
+      },
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "Llama-cpp-vlm示例工作流",
+      "properties": {
+        "fontSize": 65,
+        "fontFamily": "Arial",
+        "fontColor": "#ffffff",
+        "textAlign": "left",
+        "backgroundColor": "transparent",
+        "padding": 0,
+        "borderRadius": 0,
+        "angle": 0,
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "color": "#fff0",
+      "bgcolor": "#fff0"
+    },
+    {
+      "id": 85,
+      "type": "Label (rgthree)",
+      "pos": [
+        -410,
+        -870
+      ],
+      "size": [
+        660,
+        26
+      ],
+      "flags": {
+        "pinned": true,
+        "allow_interaction": false
+      },
+      "order": 3,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "注意：工作流模板会随自动更新刷新，如需长期自定义参数请另存为新文件",
+      "properties": {
+        "fontSize": 20,
+        "fontFamily": "Arial",
+        "fontColor": "#ffffff",
+        "textAlign": "left",
+        "backgroundColor": "transparent",
+        "padding": 0,
+        "borderRadius": 0,
+        "angle": 0,
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "color": "#fff0",
+      "bgcolor": "#fff0"
+    },
+    {
+      "id": 86,
+      "type": "Label (rgthree)",
+      "pos": [
+        -220,
+        -830
+      ],
+      "size": [
+        521.240234375,
+        26
+      ],
+      "flags": {
+        "pinned": true,
+        "allow_interaction": false
+      },
+      "order": 4,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": " 此工作流于SimpAI_comfyd后端发布ver1.0 Design by 冰華",
+      "properties": {
+        "fontSize": 20,
+        "fontFamily": "Arial",
+        "fontColor": "#ffffff",
+        "textAlign": "left",
+        "backgroundColor": "transparent",
+        "padding": 0,
+        "borderRadius": 0,
+        "angle": 0,
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "color": "#fff0",
+      "bgcolor": "#fff0"
+    },
+    {
+      "id": 12,
+      "type": "llama_cpp_instruct_adv",
+      "pos": [
+        310,
+        -730
+      ],
+      "size": [
+        400,
+        600
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 26,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "llmamodel",
+          "type": "LLAMACPPMODEL",
+          "link": null
+        },
+        {
+          "name": "parameters",
+          "type": "LLAMACPPARAMS",
+          "link": null
+        },
+        {
+          "name": "images",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 47
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "STRING",
+          "links": [
+            18
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "llama_cpp_instruct_adv",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        "Vision - *Bounding Box",
+        "mouth, eye",
+        "",
+        false,
+        24,
+        256,
+        1082745008381004,
+        "randomize"
+      ]
+    },
+    {
+      "id": 84,
+      "type": "MaskPreview+",
+      "pos": [
+        -120,
+        270
+      ],
+      "size": [
+        290,
+        340
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 39,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 121
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "MaskPreview+",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 33,
+      "type": "DownloadAndLoadSAM2Model",
+      "pos": [
+        350,
+        170
+      ],
+      "size": [
+        330,
+        130
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 5,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "sam2_model",
+          "type": "SAM2MODEL",
+          "links": [
+            37
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "DownloadAndLoadSAM2Model",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        "sam2.1_hiera_large.safetensors",
+        "single_image",
+        "cuda",
+        "fp16"
+      ]
+    },
+    {
+      "id": 11,
+      "type": "llama_cpp_model_loader",
+      "pos": [
+        -910,
+        150
+      ],
+      "size": [
+        480,
+        230
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 6,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "llamamodel",
+          "type": "LLAMACPPMODEL",
+          "links": [
+            132
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "llama_cpp_model_loader",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        "Qwen3-VL-4B-Instruct-GGUF\\Qwen3VL-4B-Instruct-Q8_0.gguf",
+        "Qwen3-VL-4B-Instruct-GGUF\\mmproj-Qwen3VL-4B-Instruct-Q8_0.gguf",
+        "Qwen3-VL",
+        false,
+        8192,
+        -1,
+        false
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 96,
+      "type": "Anything Everywhere",
+      "pos": [
+        -600,
+        420
+      ],
+      "size": [
+        172.1890625,
+        70
+      ],
+      "flags": {
+        "collapsed": true,
+        "pinned": true
+      },
+      "order": 21,
+      "mode": 0,
+      "inputs": [
+        {
+          "color_on": "",
+          "label": "LLAMACPPMODEL",
+          "name": "anything",
+          "shape": 7,
+          "type": "LLAMACPPMODEL",
+          "link": 132
+        },
+        {
+          "color_on": "",
+          "label": "LLAMACPPARAMS",
+          "name": "anything11",
+          "type": "LLAMACPPARAMS",
+          "link": 134
+        },
+        {
+          "label": "anything",
+          "name": "anything12",
+          "type": "*",
+          "link": null
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "Anything Everywhere",
+        "ue_properties": {
+          "version": "7.3",
+          "group_restricted": 0,
+          "color_restricted": 0,
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "title_regex": null,
+          "input_regex": null,
+          "group_regex": null,
+          "repeated_type_rule": 0,
+          "string_to_combo": 0,
+          "next_input_index": 12
+        }
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 10,
+      "type": "llama_cpp_parameters",
+      "pos": [
+        -910,
+        450
+      ],
+      "size": [
+        480,
+        330
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 7,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "parameters",
+          "type": "LLAMACPPARAMS",
+          "links": [
+            134
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "llama_cpp_parameters",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        1024,
+        30,
+        0.9,
+        0.05,
+        1,
+        0.8,
+        1,
+        0,
+        1,
+        0,
+        0.1,
+        5
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 87,
+      "type": "Label (rgthree)",
+      "pos": [
+        340,
+        -790
+      ],
+      "size": [
+        240,
+        26
+      ],
+      "flags": {
+        "pinned": true,
+        "allow_interaction": false
+      },
+      "order": 8,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "↓↓↓于此处填入检测目标↓↓↓",
+      "properties": {
+        "fontSize": 20,
+        "fontFamily": "Arial",
+        "fontColor": "#ffffff",
+        "textAlign": "left",
+        "backgroundColor": "transparent",
+        "padding": 0,
+        "borderRadius": 0,
+        "angle": 0,
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "color": "#fff0",
+      "bgcolor": "#fff0"
+    },
+    {
+      "id": 102,
+      "type": "Label (rgthree)",
+      "pos": [
+        1902.0077321929125,
+        -788.7036075922889
+      ],
+      "size": [
+        260,
+        26
+      ],
+      "flags": {
+        "pinned": true,
+        "allow_interaction": false
+      },
+      "order": 9,
+      "mode": 4,
+      "inputs": [],
+      "outputs": [],
+      "title": "↓↓↓下拉选择更多反推模式↓↓↓",
+      "properties": {
+        "fontSize": 20,
+        "fontFamily": "Arial",
+        "fontColor": "#ffffff",
+        "textAlign": "left",
+        "backgroundColor": "transparent",
+        "padding": 0,
+        "borderRadius": 0,
+        "angle": 0,
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "color": "#fff0",
+      "bgcolor": "#fff0"
+    },
+    {
+      "id": 88,
+      "type": "llama_cpp_instruct_adv",
+      "pos": [
+        1900,
+        -730
+      ],
+      "size": [
+        410,
+        326
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 22,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "llmamodel",
+          "type": "LLAMACPPMODEL",
+          "link": null
+        },
+        {
+          "name": "parameters",
+          "type": "LLAMACPPARAMS",
+          "link": null
+        },
+        {
+          "name": "images",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 125
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "STRING",
+          "links": [
+            126
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "llama_cpp_instruct_adv",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        "Prompt Style - Detailed",
+        "",
+        "",
+        false,
+        24,
+        256,
+        920578735460986,
+        "randomize"
+      ]
+    },
+    {
+      "id": 90,
+      "type": "ShowText|pysssss",
+      "pos": [
+        2320,
+        -730
+      ],
+      "size": [
+        800,
+        320
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 27,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 126
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "shape": 6,
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ShowText|pysssss",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        "A poised, youthful woman with dark hair elegantly pulled into a high bun sits gracefully on a dark wooden table, her slender form draped in a form-fitting, deep burgundy one-shoulder dress that accentuates her curves with soft, luxurious fabric; beside her rests a single glass of rich red wine, catching the ambient light as she gazes directly at the viewer with an intimate, serene expression, bathed in the cool, diffused glow filtering through horizontal window blinds behind her, creating a mood of quiet sophistication and tranquil elegance."
+      ]
+    },
+    {
+      "id": 92,
+      "type": "llama_cpp_instruct_adv",
+      "pos": [
+        1900,
+        -350
+      ],
+      "size": [
+        410,
+        326
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 23,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "llmamodel",
+          "type": "LLAMACPPMODEL",
+          "link": null
+        },
+        {
+          "name": "parameters",
+          "type": "LLAMACPPARAMS",
+          "link": null
+        },
+        {
+          "name": "images",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 127
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "STRING",
+          "links": [
+            128
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "llama_cpp_instruct_adv",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        "Creative - Refine & Expand Prompt",
+        "",
+        "使用中文输出结果",
+        false,
+        24,
+        256,
+        795203637759747,
+        "randomize"
+      ]
+    },
+    {
+      "id": 93,
+      "type": "ShowText|pysssss",
+      "pos": [
+        2320,
+        -350
+      ],
+      "size": [
+        800,
+        320
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 28,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 128
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "shape": 6,
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ShowText|pysssss",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        "一位身着深红色单肩修身连衣裙的优雅女性，黑色秀发高高盘起，姿态慵懒迷人地倚靠在深色木质桌边，桌上静置一杯红酒，背景是透出柔和光线的百叶窗，整体氛围奢华而私密，光影交错间流露精致与诱惑，细节处尽显高级质感与艺术美感。"
+      ]
+    },
+    {
+      "id": 89,
+      "type": "LoadImage",
+      "pos": [
+        1450,
+        -760
+      ],
+      "size": [
+        430,
+        650
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 10,
+      "mode": 4,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            125,
+            127
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.68",
+        "Node name for S&R": "LoadImage",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        "example.jpg",
+        "image"
+      ],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 98,
+      "type": "LoadVideo",
+      "pos": [
+        1460,
+        130
+      ],
+      "size": [
+        274.080078125,
+        548.3108018663195
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 11,
+      "mode": 4,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "VIDEO",
+          "type": "VIDEO",
+          "links": [
+            141
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.68",
+        "Node name for S&R": "LoadVideo",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        "example.mp4",
+        "image"
+      ],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 100,
+      "type": "GetVideoComponents",
+      "pos": [
+        1750,
+        130
+      ],
+      "size": [
+        185.17734375,
+        66
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 24,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "video",
+          "type": "VIDEO",
+          "link": 141
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": [
+            142
+          ]
+        },
+        {
+          "name": "audio",
+          "type": "AUDIO",
+          "links": null
+        },
+        {
+          "name": "fps",
+          "type": "FLOAT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.68",
+        "Node name for S&R": "GetVideoComponents",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 99,
+      "type": "llama_cpp_instruct_adv",
+      "pos": [
+        1750,
+        250
+      ],
+      "size": [
+        410,
+        326
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 29,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "llmamodel",
+          "type": "LLAMACPPMODEL",
+          "link": null
+        },
+        {
+          "name": "parameters",
+          "type": "LLAMACPPARAMS",
+          "link": null
+        },
+        {
+          "name": "images",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 142
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "STRING",
+          "links": [
+            143
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "llama_cpp_instruct_adv",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        "Creative - Summarize Video",
+        "",
+        "使用中文输出结果",
+        true,
+        81,
+        256,
+        518495057532410,
+        "randomize"
+      ]
+    },
+    {
+      "id": 101,
+      "type": "ShowText|pysssss",
+      "pos": [
+        2170,
+        160
+      ],
+      "size": [
+        1000,
+        460
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 31,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 143
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "shape": 6,
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ShowText|pysssss",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        "该视频呈现了一位女性在夜晚户外的静态摄影场景，整体氛围浪漫而梦幻。以下是关键事件和叙事要点的总结：\n\n1. **场景设定**：  \n   - 视频拍摄于夜晚，背景为城市夜景，远处灯火模糊可见，营造出宁静而迷人的都市夜色。\n   - 女性坐在户外的石阶或平台上，旁边有装饰性的白色花束和玻璃瓶，增添了一丝优雅与自然的气息。\n\n2. **人物造型**：  \n   - 女性身着白色蕾丝内衣套装，搭配长款透明手套和头戴花朵发饰，整体造型精致、唯美，带有童话或古典风格。\n   - 她的妆容精致，尤其是眼妆和唇色，强化了画面的视觉美感。\n\n3. **动态变化**：  \n   - 视频中，女性从初始坐姿逐渐调整姿势，从双腿交叉到双手轻抚身体、托住脸颊或轻触胸腹，动作缓慢而优雅。\n   - 她的视线主要面向镜头，眼神温柔而自信，偶尔轻微调整头颈角度，展现不同角度的轮廓。\n\n4. **情绪与氛围**：  \n   - 整个视频传达出一种宁静、优雅且略带神秘感的氛围，仿佛在演绎一个童话故事中的女主角。\n   - 虽然没有明显的剧情发展，但通过细微的动作和表情变化，构建了一种“静态中蕴含动感”的叙事张力。\n\n5. **摄影手法**：  \n   - 视频使用了柔和的灯光（可能是柔光灯或夜景补光），突出了人物的肌肤和服装细节。\n   - 镜头保持稳定，专注于人物，背景虚化处理，强化主体突出。\n\n6. **主题与象征**：  \n   - 花环、白裙、夜景等元素共同构建出“自然与都市交融”的浪漫意境。\n   - 可能象征着“纯真”、“优雅”或“梦幻时刻”，适合用于艺术摄影、时尚宣传或情感表达。\n\n综上，这段视频虽无动态情节推进，但通过精心构图、氛围营造和人物表现，成功塑造了一个充满诗意与美感的视觉叙事，旨在传递一种静谧而优美的情绪体验。"
+      ]
+    },
+    {
+      "id": 91,
+      "type": "Fast Groups Bypasser (rgthree)",
+      "pos": [
+        -890,
+        -740
+      ],
+      "size": [
+        450,
+        490
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 12,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "OPT_CONNECTION",
+          "type": "*",
+          "links": null
+        }
+      ],
+      "title": "功能选择",
+      "properties": {
+        "matchColors": "",
+        "matchTitle": "功能",
+        "showNav": true,
+        "showAllGraphs": true,
+        "sort": "position",
+        "customSortAlphabet": "",
+        "toggleRestriction": "default",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
+      "id": 38,
+      "type": "ShowText|pysssss",
+      "pos": [
+        -1200,
+        -500
+      ],
+      "size": [
+        260,
+        330
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 25,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 44
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "shape": 6,
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ShowText|pysssss",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        "文件已存在于 G:\\SimpleAI\\SimpleModels\\LLM\\Qwen3-VL-4B-Instruct-GGUF\\mmproj-Qwen3VL-4B-Instruct-Q8_0.gguf，跳过下载。\n文件已存在于 G:\\SimpleAI\\SimpleModels\\LLM\\Qwen3-VL-4B-Instruct-GGUF\\Qwen3VL-4B-Instruct-Q8_0.gguf，跳过下载。"
+      ]
+    },
+    {
+      "id": 37,
+      "type": "SimpleBatchDownloader",
+      "pos": [
+        -1420,
+        -500
+      ],
+      "size": [
+        210,
+        330
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 13,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "anything",
+          "shape": 7,
+          "type": "*",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "*",
+          "links": null
+        },
+        {
+          "name": "system_message",
+          "type": "STRING",
+          "links": [
+            44
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SimpleBatchDownloader",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        "https://www.modelscope.cn/models/Qwen/Qwen3-VL-4B-Instruct-GGUF/resolve/master/mmproj-Qwen3VL-4B-Instruct-Q8_0.gguf",
+        "https://www.modelscope.cn/models/Qwen/Qwen3-VL-4B-Instruct-GGUF/resolve/master/Qwen3VL-4B-Instruct-Q8_0.gguf",
+        "",
+        "",
+        "",
+        "LLM\\Qwen3-VL-4B-Instruct-GGUF",
+        true,
+        false
+      ]
+    },
+    {
+      "id": 78,
+      "type": "Fast Groups Bypasser (rgthree)",
+      "pos": [
+        -1430,
+        -640
+      ],
+      "size": [
+        500,
+        58
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 14,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "OPT_CONNECTION",
+          "type": "*",
+          "links": null
+        }
+      ],
+      "title": "模型下载总开关",
+      "properties": {
+        "matchColors": "",
+        "matchTitle": "模型下载",
+        "showNav": true,
+        "showAllGraphs": true,
+        "sort": "position",
+        "customSortAlphabet": "",
+        "toggleRestriction": "default",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 77,
+      "type": "MarkdownNote",
+      "pos": [
+        -1430,
+        -810
+      ],
+      "size": [
+        500,
+        130
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 15,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "模型下载",
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.3",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "若第一次使用提示缺失模型时，请开启开关。 关闭开关跳过整组可以完全关闭模型下载功能\n\n不想下载某些模型可以手动设置run_download为False\n\n模型下载节点:https://github.com/Windecay/ComfyUI-Model-Downloader-plus"
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
+      "id": 79,
+      "type": "Label (rgthree)",
+      "pos": [
+        -1290,
+        -870
+      ],
+      "size": [
+        250,
+        26
+      ],
+      "flags": {
+        "pinned": true,
+        "allow_interaction": false
+      },
+      "order": 16,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "↓↓↓首次运行先看这↓↓↓",
+      "properties": {
+        "fontSize": 25,
+        "fontFamily": "Arial",
+        "fontColor": "#ffffff",
+        "textAlign": "left",
+        "backgroundColor": "transparent",
+        "padding": 0,
+        "borderRadius": 0,
+        "angle": 0,
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "color": "#fff0",
+      "bgcolor": "#fff0"
+    },
+    {
+      "id": 103,
+      "type": "MarkdownNote",
+      "pos": [
+        -1430,
+        110
+      ],
+      "size": [
+        260,
+        88
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 17,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "其他版本模型",
+      "properties": {},
+      "widgets_values": [
+        "- LLM\\\\Qwen3-VL-4B-Instruct-GGUF\n\n[Qwen3-VL-4B-Instruct-GGUF](https://www.modelscope.cn/models/Qwen/Qwen3-VL-4B-Instruct-GGUF/files)"
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    }
+  ],
+  "links": [
+    [
+      18,
+      12,
+      0,
+      17,
+      0,
+      "*"
+    ],
+    [
+      23,
+      18,
+      1,
+      21,
+      0,
+      "IMAGE"
+    ],
+    [
+      25,
+      17,
+      0,
+      18,
+      0,
+      "STRING"
+    ],
+    [
+      36,
+      18,
+      0,
+      32,
+      4,
+      "BBOX"
+    ],
+    [
+      37,
+      33,
+      0,
+      32,
+      0,
+      "SAM2MODEL"
+    ],
+    [
+      44,
+      37,
+      1,
+      38,
+      0,
+      "STRING"
+    ],
+    [
+      45,
+      13,
+      0,
+      39,
+      0,
+      "IMAGE"
+    ],
+    [
+      46,
+      13,
+      0,
+      41,
+      0,
+      "IMAGE"
+    ],
+    [
+      47,
+      41,
+      0,
+      12,
+      2,
+      "IMAGE"
+    ],
+    [
+      48,
+      41,
+      0,
+      18,
+      1,
+      "IMAGE"
+    ],
+    [
+      49,
+      41,
+      0,
+      32,
+      1,
+      "IMAGE"
+    ],
+    [
+      52,
+      39,
+      0,
+      44,
+      1,
+      "INT"
+    ],
+    [
+      53,
+      39,
+      1,
+      44,
+      2,
+      "INT"
+    ],
+    [
+      55,
+      44,
+      0,
+      34,
+      0,
+      "MASK"
+    ],
+    [
+      113,
+      44,
+      0,
+      71,
+      0,
+      "MASK"
+    ],
+    [
+      114,
+      71,
+      0,
+      70,
+      0,
+      "IMAGE"
+    ],
+    [
+      115,
+      32,
+      0,
+      75,
+      0,
+      "MASK"
+    ],
+    [
+      116,
+      75,
+      0,
+      44,
+      0,
+      "MASK"
+    ],
+    [
+      117,
+      80,
+      1,
+      81,
+      0,
+      "STRING"
+    ],
+    [
+      118,
+      41,
+      0,
+      82,
+      1,
+      "IMAGE"
+    ],
+    [
+      119,
+      18,
+      0,
+      82,
+      0,
+      "BBOX"
+    ],
+    [
+      120,
+      82,
+      0,
+      83,
+      0,
+      "SEGS"
+    ],
+    [
+      121,
+      83,
+      0,
+      84,
+      0,
+      "MASK"
+    ],
+    [
+      125,
+      89,
+      0,
+      88,
+      2,
+      "IMAGE"
+    ],
+    [
+      126,
+      88,
+      0,
+      90,
+      0,
+      "STRING"
+    ],
+    [
+      127,
+      89,
+      0,
+      92,
+      2,
+      "IMAGE"
+    ],
+    [
+      128,
+      92,
+      0,
+      93,
+      0,
+      "STRING"
+    ],
+    [
+      132,
+      11,
+      0,
+      96,
+      0,
+      "LLAMACPPMODEL"
+    ],
+    [
+      134,
+      10,
+      0,
+      96,
+      1,
+      "LLAMACPPARAMS"
+    ],
+    [
+      141,
+      98,
+      0,
+      100,
+      0,
+      "VIDEO"
+    ],
+    [
+      142,
+      100,
+      0,
+      99,
+      2,
+      "IMAGE"
+    ],
+    [
+      143,
+      99,
+      0,
+      101,
+      0,
+      "STRING"
+    ]
+  ],
+  "groups": [
+    {
+      "id": 1,
+      "title": "模型下载区",
+      "bounding": [
+        -1430,
+        -570,
+        500,
+        640
+      ],
+      "color": "#88A",
+      "font_size": 24,
+      "flags": {
+        "pinned": true
+      }
+    },
+    {
+      "id": 2,
+      "title": "功能：图像识别",
+      "bounding": [
+        -410,
+        -840,
+        1840,
+        1730
+      ],
+      "color": "#b58b2a",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "id": 3,
+      "title": "遮罩分割",
+      "bounding": [
+        -400,
+        90,
+        1820,
+        790
+      ],
+      "color": "#8A8",
+      "font_size": 24,
+      "flags": {
+        "pinned": true
+      }
+    },
+    {
+      "id": 4,
+      "title": "功能：提示词反推、扩展",
+      "bounding": [
+        1440,
+        -840,
+        1750,
+        880
+      ],
+      "color": "#88A",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "id": 5,
+      "title": "模型与参数",
+      "bounding": [
+        -920,
+        80,
+        500,
+        800
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "id": 6,
+      "title": "功能：视频总结",
+      "bounding": [
+        1440,
+        50,
+        1750,
+        840
+      ],
+      "color": "#8AA",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "id": 7,
+      "title": "选择",
+      "bounding": [
+        -920,
+        -840,
+        500,
+        910
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {
+        "pinned": true
+      }
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 2.176291357901559,
+      "offset": [
+        1556.2079020510803,
+        107.41306094182383
+      ]
+    },
+    "ue_links": [
+      {
+        "downstream": 12,
+        "downstream_slot": 0,
+        "upstream": "11",
+        "upstream_slot": 0,
+        "controller": 96,
+        "type": "LLAMACPPMODEL"
+      },
+      {
+        "downstream": 12,
+        "downstream_slot": 1,
+        "upstream": "10",
+        "upstream_slot": 0,
+        "controller": 96,
+        "type": "LLAMACPPARAMS"
+      },
+      {
+        "downstream": 88,
+        "downstream_slot": 0,
+        "upstream": "11",
+        "upstream_slot": 0,
+        "controller": 96,
+        "type": "LLAMACPPMODEL"
+      },
+      {
+        "downstream": 88,
+        "downstream_slot": 1,
+        "upstream": "10",
+        "upstream_slot": 0,
+        "controller": 96,
+        "type": "LLAMACPPARAMS"
+      },
+      {
+        "downstream": 92,
+        "downstream_slot": 0,
+        "upstream": "11",
+        "upstream_slot": 0,
+        "controller": 96,
+        "type": "LLAMACPPMODEL"
+      },
+      {
+        "downstream": 92,
+        "downstream_slot": 1,
+        "upstream": "10",
+        "upstream_slot": 0,
+        "controller": 96,
+        "type": "LLAMACPPARAMS"
+      },
+      {
+        "downstream": 99,
+        "downstream_slot": 0,
+        "upstream": "11",
+        "upstream_slot": 0,
+        "controller": 96,
+        "type": "LLAMACPPMODEL"
+      },
+      {
+        "downstream": 99,
+        "downstream_slot": 1,
+        "upstream": "10",
+        "upstream_slot": 0,
+        "controller": 96,
+        "type": "LLAMACPPARAMS"
+      }
+    ],
+    "links_added_by_ue": [
+      152,
+      153,
+      154,
+      155,
+      156,
+      157,
+      158,
+      159
+    ],
+    "frontendVersion": "1.28.8",
+    "VHS_latentpreview": true,
+    "VHS_latentpreviewrate": 8,
+    "VHS_MetadataImage": true,
+    "VHS_KeepIntermediate": true
+  },
+  "version": 0.4
+}

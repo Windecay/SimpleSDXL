@@ -89,7 +89,6 @@ wd-v1-4-moat-tagger-v2.csv
 /models/hydit
 /client.toml
 /models
-/comfy/input/
 /comfy/output/
 /comfy/temp/
 /comfy/extra_model_paths.yaml
