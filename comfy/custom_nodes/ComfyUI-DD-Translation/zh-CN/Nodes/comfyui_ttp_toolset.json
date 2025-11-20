@@ -1,0 +1,135 @@
+{
+    "TTPlanet_Tile_Preprocessor_Simple": {
+        "title": "TTP_瓦片预处理器（简易版）",
+        "inputs": {
+            "image": "图像"
+        },
+        "widgets": {
+            "scale_factor": "缩放因子",
+            "blur_strength": "模糊强度"
+        },
+        "outputs": {
+            "image_output": "图像输出"
+        }
+    },
+    "TTP_Image_Tile_Batch": {
+        "title": "TTP_图像瓦片批处理",
+        "inputs": {
+            "image": "图像"
+        },
+        "widgets": {
+            "tile_width": "瓦片宽度",
+            "tile_height": "瓦片高度"
+        },
+        "outputs": {
+            "IMAGES": "图像",
+            "POSITIONS": "位置",
+            "ORIGINAL_SIZE": "原始尺寸",
+            "GRID_SIZE": "网格大小"
+        }
+    },
+    "TTP_Image_Assy": {
+        "title": "TTP_图像拼接/重组",
+        "inputs": {
+            "tiles": "瓦片图像",
+            "positions": "位置",
+            "original_size": "原始尺寸",
+            "grid_size": "网格大小"
+        },
+        "widgets": {
+            "padding": "填充值"
+        },
+        "outputs": {
+            "RECONSTRUCTED_IMAGE": "拼接/重组后的图像"
+        }
+    },
+    "TTP_Tile_image_size": {
+        "title": "TTP_瓦片图像尺寸",
+        "inputs": {
+            "image": "图像"
+        },
+        "widgets": {
+            "width_factor": "宽度因子",
+            "height_factor": "高度因子",
+            "overlap_rate": "重叠率"
+        },
+        "outputs": {
+            "tile_width": "瓦片宽度",
+            "tile_height": "瓦片高度"
+        }
+    },
+    "TTP_Expand_And_Mask": {
+        "title": "TTP_扩展与遮罩",
+        "inputs": {
+            "image": "图像"
+        },
+        "widgets": {
+            "fill_mode": "填充模式",
+            "fill_alpha_decision": "填充透明度决策",
+            "fill_color": "填充颜色",
+            "expand_left": "向左扩展",
+            "expand_right": "向右扩展",
+            "expand_top": "向上扩展",
+            "expand_bottom": "向下扩展",
+            "num_blocks_left": "左侧块数量",
+            "num_blocks_right": "右侧块数量",
+            "num_blocks_top": "顶部块数量",
+            "num_blocks_bottom": "底部块数量"
+        },
+        "outputs": {
+            "EXPANDED_IMAGE": "扩展后的图像"
+        }
+    },
+    "TTP_text_mix": {
+        "title": "TTP_文本混合",
+        "inputs": {},
+        "widgets": {},
+        "outputs": {
+            "text1": "文本1",
+            "text2": "文本2",
+            "text3": "文本3",
+            "final_text": "输出文本"
+        }
+    },
+    "TTP_CoordinateSplitter": {
+        "title": "TTP_坐标拆分器",
+        "inputs": {
+            "Positions": "位置"
+        },
+        "widgets": {},
+        "outputs": {
+            "Coordinates": "坐标"
+        }
+    },
+    "TTP_condtobatch": {
+        "title": "TTP_条件转批次",
+        "inputs": {
+            "conditionings": "条件"
+        },
+        "widgets": {},
+        "outputs": {}
+    },
+    "TTP_condsetarea_merge": {
+        "title": "TTP_条件集区域合并",
+        "inputs": {
+            "conditioning_batch": "条件批次",
+            "coordinates": "坐标"
+        },
+        "widgets": {
+            "strength": "强度"
+        },
+        "outputs": {}
+    },
+    "TTP_condsetarea_merge_test": {
+        "title": "TTP_条件集区域合并测试",
+        "inputs": {
+            "conditioning_batch": "条件批次",
+            "coordinates": "坐标"
+        },
+        "widgets": {
+            "group_size": "组大小",
+            "strength": "强度"
+        },
+        "outputs": {}
+    }
+}

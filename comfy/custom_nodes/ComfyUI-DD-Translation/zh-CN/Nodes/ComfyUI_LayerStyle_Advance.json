@@ -1,0 +1,62 @@
+{
+    "LayerUtility: JoyCaptionBeta1ExtraOptions": {
+        "title": "JoyCaption Beta 扩展选项（高级）",
+        "widgets": {
+            "refer_character_name": "参考角色名称",
+            "exclude_people_info": "排除人物信息",
+            "include_lighting": "包含光照",
+            "include_camera_angle": "包含相机角度",
+            "include_watermark": "包含水印",
+            "include_JPEG_artifacts": "包含JPEG伪影",
+            "include_exif": "包含EXIF信息",
+            "exclude_sexual": "排除性内容",
+            "exclude_image_resolution": "排除图像分辨率",
+            "include_aesthetic_quality": "包含美学质量",
+            "include_composition_style": "包含构图风格",
+            "exclude_text": "排除文本",
+            "specify_depth_field": "指定景深",
+            "specify_lighting_sources": "指定光源",
+            "do_not_use_ambiguous_language": "不要使用模糊语言",
+            "include_nsfw": "包含不适宜内容",
+            "only_describe_most_important_elements": "只描述最重要的元素",
+            "do_not_include_artist_name_or_title": "不包含艺术家姓名或标题",
+            "identify_image_orientation": "识别图像方向",
+            "use_vulgar_slang_and_profanity": "使用粗俗俚语和亵渎词语",
+            "do_not_use_polite_euphemisms": "不要使用礼貌的委婉说法",
+            "include_character_age": "包含角色年龄",
+            "include_camera_shot_type": "包含相机拍摄类型",
+            "exclude_mood_feeling": "排除情绪感觉",
+            "include_camera_vantage_height": "包含相机拍摄高度",
+            "mention_watermark": "提及水印",
+            "avoid_meta_descriptive_phrases": "避免使用元描述短语",
+            "character_name": "角色名称"
+        },
+        "outputs": {
+            "extra_option": "额外选项"
+        }
+    },
+    "LayerUtility: LoadJoyCaptionBeta1Model": {
+        "title": "加载 JoyCaption Beta One 模型",
+        "widgets": {
+            "model": "模型",
+            "quantization_mode": "量化模式",
+            "device": "设备"
+        }
+    },
+    "LayerUtility: JoyCaptionBeta1": {
+        "title": "JoyCaption Beta 1",
+        "inputs": {
+            "image": "图像",
+            "joycaption_beta1_model": "JoyCaption Beta1 模型",
+            "extra_options": "高级选项",
+            "user_prompt": "用户提示词"
+        },
+        "widgets": {
+            "caption_length": "描述长度",
+            "max_new_tokens": "最大新标记数",
+            "top_p": "Top-P采样",
+            "top_k": "Top-K采样",
+            "temperature": "温度系数"
+        }
+    }
+}

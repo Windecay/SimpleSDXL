@@ -1,0 +1,26 @@
+{
+    "LoadLBMModel": {
+        "title": "加载LBM模型",
+        "widgets": {
+            "model": "模型",
+            "base_precision": "基础精度",
+            "load_device": "加载设备"
+        },
+        "outputs": {
+            "model": "模型"
+        }
+    },
+    "LBMSampler": {
+        "title": "LBM采样器",
+        "inputs": {
+            "model": "模型",
+            "image": "图像"
+        },
+        "widgets": {
+            "steps": "步数"
+        },
+        "outputs": {
+            "image": "图像"
+        }
+    }
+}

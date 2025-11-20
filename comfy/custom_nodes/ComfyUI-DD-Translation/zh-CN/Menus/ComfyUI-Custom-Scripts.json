@@ -1,0 +1,100 @@
+{
+    "pysssss": "🐍自定义脚本",
+    "AutoCompleter": "自动补全",
+
+    "🐍 Text Autocomplete": "🐍 文本自动补全",
+    "🐍 Text Autocomplete Enabled": "🐍 启用文本自动补全",
+    "Loras enabled": "启用 LoRA 提示",
+    "Auto-insert comma": "自动插入逗号",
+    "Replace _ with space": "将下划线替换为空格",
+    "Insert suggestion on:": "插入建议时使用:",
+    "Tab": "Tab键",
+    "Enter": "回车键",
+    "Max suggestions:": "最大建议数量",
+    "Manage Custom Words": "管理自定义词汇",
+
+    "Combo++": "Combo++",
+    "🐍 Lora & Checkpoint loader display mode": "🐍 LoRA 与模型加载器显示模式",
+
+    "ImageFeed": "图像流",
+    "🐍 Image Feed Display 'SaveImage' Only": "🐍 图像流仅显示'保存图像'",
+    "🐍 Image Feed Max Images": "🐍 图像流最大图像数量",
+    "🐍 Image Feed Deduplication": "🐍 图像流去重",
+    "🐍 Image Feed Direction": "🐍 图像流方向",
+    "🐍 Image Feed Location": "🐍 图像流位置",
+    "🐍 Image Feed Direction:": "🐍 图像流方向:",
+    "🐍 Image Feed Location:": "🐍 图像流位置:",
+    "left": "左侧",
+    "top": "顶部",
+    "right": "右侧",
+    "bottom": "底部",
+    "hidden": "隐藏",
+    "Image Feed Direction": "图像流方向",
+    "Image Feed Location": "图像流位置",
+    "oldest first": "最早优先",
+    "newest first": "最新优先",
+    "disabled": "禁用",
+    "enabled (slow)": "启用 (慢速)",
+    "enabled (performance)": "启用 (性能优先)",
+    "enabled (max performance)": "启用 (最高性能)",
+
+    "LinkRenderMode": "连接线渲染模式",
+    "🐍 Link Render Mode": "🐍 连接线渲染模式",
+    "🐍 Link Render Mode:": "🐍 连接线渲染模式:",
+    "Linear": "线性",
+    "Spline": "曲线",
+    "Straight": "直线",
+
+    "MiddleClickAddDefaultNode": "中键添加默认节点",
+    "🐍 Middle click slot to add": "🐍 中键点击槽位添加",
+
+    "ModelInfo": "模型信息",
+    "🐍 Model Info - Image Preview Max NSFW Level": "🐍 模型信息 - 图像预览最高NSFW级别",
+    "🐍 Model Info - Checkpoint Nodes/Widgets": "🐍 模型信息 - 模型节点/小部件",
+    "🐍 Model Info - Lora Nodes/Widgets": "🐍 模型信息 - LoRA节点/小部件",
+
+    "PresetText": "预设文本",
+    "🐍 Preset Text Replacement Regex": "🐍 预设文本替换正则表达式",
+
+    "ShowImageOnMenu": "菜单显示图像",
+    "🐍 Show Image On Menu": "🐍 在菜单中显示图像",
+
+    "SnapToGrid": "对齐网格",
+    "🐍 Display drag-and-drop guides": "🐍 显示拖放参考线",
+    "🐍 Lines:": "🐍 线条:",
+    "🐍 Block:": "🐍 方块:",
+
+    "UseNumberInputPrompt": "使用数字输入提示",
+    "🐍 Use number input on value entry": "🐍 在数值输入时使用数字输入框",
+
+    "WidgetDefaults": "小部件默认值",
+    "🐍 Widget Defaults": "🐍 小部件默认设置",
+    "Widget Defaults": "小部件默认设置",
+    "🐍 Widget & Property Defaults:": "🐍 小部件和属性默认值:",
+    "🐍 Manage": "🐍 管理",
+
+    "Workflows": "工作流",
+    "🐍 Default Workflow": "🐍 默认工作流",
+    
+    "List (normal)": "列表 (普通)",
+    "Tree (subfolders)": "树形 (子文件夹)",
+    "Thumbnails (grid)": "缩略图 (网格)",
+    
+    "LayerUtility: AnyRerouter": "层级工具: 任意转接点",
+    "ReroutePrimitive": "基础转接点",
+    "[None]": "[无]",
+
+    "The regex should return two named capture groups: id (the name of the preset text to use), replace (the matched text to replace)": "正则表达式应返回两个命名捕获组：id（要使用的预设文本名称）和replace（要替换的匹配文本）",
+    
+    "Comma separated list of NodeTypeName or NodeTypeName.WidgetName that contain Lora node names that should have the View Info option available.\nIf no widget name is specifed the first widget will be used. Regex matches (e.g. NodeName..*lora_\\d+) are supported in the widget name.": "以逗号分隔的NodeTypeName或NodeTypeName.WidgetName列表，包含应该提供查看信息选项的LoRA节点名称。\n如果未指定小部件名称，将使用第一个小部件。小部件名称支持正则表达式匹配（例如NodeName..*lora_\\d+）。",
+    
+    "Comma separated list of NodeTypeName or NodeTypeName.WidgetName that contain Checkpoint node names that should have the View Info option available.\nIf no widget name is specifed the first widget will be used. Regex matches (e.g. NodeName..*lora_\\d+) are supported in the widget name.": "以逗号分隔的NodeTypeName或NodeTypeName.WidgetName列表，包含应该提供查看信息选项的模型节点名称。\n如果未指定小部件名称，将使用第一个小部件。小部件名称支持正则表达式匹配（例如NodeName..*lora_\\d+）。",
+    
+    "Hides preview images that are tagged as a higher NSFW level": "隐藏标记为较高NSFW级别的预览图像",
+    
+    "Limits the number of images in the feed to a maximum, removing the oldest images as new ones are added.": "限制图像流中的最大图像数量，添加新图像时会删除最老的图像",
+    
+    "Only show images from 'SaveImage' nodes. This prevents 'PreviewImage' node outputs from appearing in the feed.": "仅显示来自'保存图像'节点的图像。这将阻止'预览图像'节点的输出出现在图像流中。",
+    
+    "Show Image Feed 🐍": "显示图像流 🐍"
+}

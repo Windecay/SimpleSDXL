@@ -1,0 +1,13 @@
+{
+    "Nunchaku FLUX DiT Loader": "Nunchaku FluxDiT 加载器",
+    "Nunchaku FLUX.1 LoRA Loader": "Nunchaku FluxLora 加载器",
+    "Nunchaku Text Encoder Loader (Deprecated)": "Nunchaku 文本编码加载器 (已弃用)",
+    "Nunchaku Text Encoder Loader V2": "Nunchaku 文本编码加载器 V2",
+    "FLUX.1 Depth Preprocessor (Deprecated)": "Nunchaku 深度预处理器 (已弃用)",
+    "Nunchaku Pulid Apply (Deprecated)": "Nunchaku Pulid 应用 (已弃用)",
+    "Nunchaku Pulid Loader (Deprecated)": "Nunchaku Pulid 加载器 (已弃用)",
+    "Nunchaku PuLID Loader V2": "Nunchaku Pulid 加载器 V2",
+    "Nunchaku FLUX PuLID Apply V2": "Nunchaku FluxPuLID 应用 V2",
+    "Merge Nunchaku Model": "Nunchaku 模型合并器",
+    "Nunchaku Wheel Installer": "Nunchaku Wheel 安装器"
+}

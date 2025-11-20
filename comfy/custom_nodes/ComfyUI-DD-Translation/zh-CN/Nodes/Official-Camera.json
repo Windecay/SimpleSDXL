@@ -1,0 +1,22 @@
+{
+    "WanCameraEmbedding": {
+        "title": "Wan相机嵌入",
+        "widgets": {
+            "camera_pose": "相机位姿",
+            "width": "宽度",
+            "height": "高度",
+            "length": "长度",
+            "speed": "速度",
+            "fx": "焦距x",
+            "fy": "焦距y",
+            "cx": "光心x",
+            "cy": "光心y"
+        },
+        "outputs": {
+            "camera_embedding": "相机嵌入",
+            "width": "宽度",
+            "height": "高度",
+            "length": "长度"
+        }
+    }
+}

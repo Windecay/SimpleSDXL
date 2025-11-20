@@ -1,0 +1,13 @@
+{
+    "FreSca": {
+        "title": "FreSca",
+        "inputs": {
+            "model": "模型"
+        },
+        "widgets": {
+            "scale_low": "尺度下限",
+            "scale_high": "尺度上限",
+            "freq_cutoff": "频率截止值"
+        }
+    }
+}

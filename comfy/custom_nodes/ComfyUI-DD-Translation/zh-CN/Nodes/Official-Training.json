@@ -1,0 +1,37 @@
+{
+    "TrainLoraNode": {
+        "title": "训练LoRA",
+        "inputs": {
+            "model": "模型",
+            "latents": "Latents",
+            "positive": "正面条件"
+        },
+        "widgets": {
+            "batch_size": "批量大小",
+            "steps": "步数",
+            "learning_rate": "学习率",
+            "rank": "低秩分解的秩参数",
+            "optimizer": "优化器",
+            "loss_function": "损失函数",
+            "seed": "种子",
+            "training_dtype": "训练数据类型",
+            "lora_dtype": "LoRA数据类型",
+            "existing_lora": "已有LoRA"
+        },
+        "outputs": {
+            "model_with_lora": "带LoRA的模型",
+            "lora": "LoRA",
+            "loss": "损失",
+            "steps": "步数"
+        }
+    },
+    "LossGraphNode": {
+        "title": "绘制损失曲线",
+        "inputs": {
+            "loss": "损失"
+        },
+        "widgets": {
+            "filename_prefix": "文件名前缀"
+        }
+    }
+}

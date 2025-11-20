@@ -1,0 +1,14 @@
+{
+    "string": "字符串",
+    "Concatenate": "拼接",
+    "Substring": "子字符串",
+    "Length": "长度",
+    "Case Converter": "大小写转换",
+    "Trim": "修剪",
+    "Replace": "替换",
+    "Contains": "包含",
+    "Compare": "比较",
+    "Regex Match": "正则匹配",
+    "Regex Extract": "正则提取",
+    "Regex Replace": "正则替换"
+}

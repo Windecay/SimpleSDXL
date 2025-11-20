@@ -1,0 +1,10 @@
+{       
+"u2net: general purpose": "u2net: 通用",
+"u2netp: lightweight general purpose": "u2netp: 轻量通用",
+"u2net_human_seg: human segmentation": "u2net_human_seg: 人体分割",
+"u2net_cloth_seg: cloths Parsing": "u2net_cloth_seg: 服装解析",
+"silueta: very small u2net": "silueta: 超小u2net",
+"isnet-general-use: general purpose": "isnet-general-use: 通用",
+"isnet-anime: anime illustrations": "isnet-anime: 动漫插画",
+"sam: general purpose": "sam: 通用"
+}

@@ -1,0 +1,65 @@
+{
+    "QuadrupleCLIPLoader": {
+        "title": "四重CLIP加载器",
+        "widgets": {
+            "clip_name1": "CLIP名称1",
+            "clip_name2": "CLIP名称2",
+            "clip_name3": "CLIP名称3",
+            "clip_name4": "CLIP名称4"
+        }
+    },
+    "CLIPTextEncodePixArtAlpha": {
+        "title": "CLIP文本编码PixArt-Alpha"
+    },
+    "FluxDisableGuidance": {
+        "title": "Flux禁用指导",
+        "inputs": {
+            "conditioning": "条件"
+        }
+    },
+    "CLIPTextEncodeHiDream": {
+        "title": "CLIP文本编码HiDream"
+    },
+    "ModelMergeCosmos7B": {
+        "title": "模型融合（Cosmos7B）"
+    },
+    "ModelMergeCosmos14B": {
+        "title": "模型融合（Cosmos14B）"
+    },
+    "ModelMergeWAN2_1": {
+        "title": "模型融合（WAN2_1）",
+        "inputs": {
+            "model1": "模型1",
+            "model2": "模型2"
+        },
+        "widgets": {
+            "patch_embedding": "patch嵌入",
+            "time_embedding": "时间嵌入",
+            "time_projection": "时间投影",
+            "text_embedding": "文本嵌入",
+            "img_emb": "图像嵌入"
+        }
+    },
+    "RenormCFG": {
+        "title": "RenormCFG",
+        "widgets": {
+            "cfg_trunc": "配置截断",
+            "renorm_cfg": "重归一化配置系数"
+        }
+    },
+    "ModelComputeDtype": {
+        "title": "模型计算Dtype",
+        "widgets": {
+            "dtype": "数据类型"
+        }
+    },
+    "CFGZeroStar": {
+        "title": "CFGZeroStar",
+        "inputs": {
+            "model": "模型"
+        },
+        "outputs": {
+            "patched_model": "优化后的模型"
+        }
+    }
+}

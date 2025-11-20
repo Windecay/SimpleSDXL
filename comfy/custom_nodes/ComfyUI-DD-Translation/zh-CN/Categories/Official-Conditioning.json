@@ -1,0 +1,13 @@
+{
+    "CosmosPredict2ImageToVideoLatent": "Cosmos预测转图像到视频潜变量",
+    "LotusConditioning": "Lotus条件编码",
+    "TextEncodeAceStepAudio": "文本编码（结合ACE步骤与音频 ）",
+    "WanFunControlToVideo": "WanFun控制转视频",
+    "WanFunInpaintToVideo": "WanFun修复转视频",
+    "WanFirstLastFrameToVideo": "Wan首尾帧转视频",
+    "WanVaceToVideo": "WanVace转视频",
+    "WanCameraImageToVideo": "Wan相机图像转视频",
+    "WanPhantomSubjectToVideo": "Wan虚拟主体转视频",
+    "Hunyuan3Dv2Conditioning": "Hunyuan3Dv2条件编码",
+    "Hunyuan3Dv2ConditioningMultiView": "Hunyuan3Dv2多视角条件编码"
+}

@@ -1,0 +1,26 @@
+{
+  "EsesImageEffectBloom": {
+    "title": "图像柔光效果",
+    "description": "给图像增加唯美的柔光效果",
+    "inputs": {
+      "image": "图像",
+      "mask": "遮罩"
+    },
+    "widgets": {
+      "low_threshold": "低阈值",
+      "high_threshold": "高阈值",
+      "effect_type": "效果类型",
+      "blur_radius": "模糊半径",
+      "highlights_brightness": "高光强度",
+      "blend_mode": "混合模式",
+      "fade": "不透明度",
+      "blur_resolution_limit_px": "模糊像素限制"
+    },
+    "outputs": {
+      "image": "图像",
+      "mask": "遮罩",
+      "modified_image": "柔光图像",
+      "highlights_image": "高光图像"
+    }
+  }
+}

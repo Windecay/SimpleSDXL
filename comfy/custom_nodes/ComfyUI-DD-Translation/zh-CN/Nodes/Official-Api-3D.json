@@ -1,0 +1,186 @@
+{
+    "TripoTextToModelNode": {
+        "title": "Tripo：文本转模型",
+        "widgets": {
+            "model_version": "模型版本",
+            "style": "风格",
+            "texture": "纹理",
+            "pbr": "基于物理的渲染",
+            "image_seed": "图像种子",
+            "model_seed": "模型种子",
+            "texture_seed": "纹理种子",
+            "texture_quality": "纹理质量",
+            "face_limit": "面部限制",
+            "quad": "四边面"
+        },
+        "outputs": {
+            "model_file": "模型文件",
+            "model task_id": "模型任务 ID"
+        }
+    },
+    "TripoImageToModelNode": {
+        "title": "Tripo：图像转模型",
+        "inputs": {
+            "image": "图像"
+        },
+        "widgets": {
+            "model_version": "模型版本",
+            "style": "风格",
+            "texture": "纹理",
+            "pbr": "基于物理的渲染",
+            "model_seed": "模型种子",
+            "orientation": "方向",
+            "texture_seed": "纹理种子",
+            "texture_quality": "纹理质量",
+            "texture_alignment": "纹理对齐",
+            "face_limit": "面部限制",
+            "quad": "四边面"
+        },
+        "outputs": {
+            "model_file": "模型文件",
+            "model task_id": "模型任务 ID"
+        }
+    },
+    "TripoMultiviewToModelNode": {
+        "title": "Tripo：多视图转模型",
+        "inputs": {
+            "image": "图像",
+            "image_left": "左侧图像",
+            "image_back": "背部图像",
+            "image_right": "右侧图像"
+        },
+        "widgets": {
+            "model_version": "模型版本",
+            "orientation": "方向",
+            "texture": "纹理",
+            "pbr": "基于物理的渲染",
+            "model_seed": "模型种子",
+            "texture_seed": "纹理种子",
+            "texture_quality": "纹理质量",
+            "texture_alignment": "纹理对齐",
+            "face_limit": "面部限制",
+            "quad": "四边面"
+        },
+        "outputs": {
+            "model_file": "模型文件",
+            "model task_id": "模型任务 ID"
+        }
+    },
+    "TripoTextureNode": {
+        "title": "Tripo：纹理模型",
+        "inputs": {
+            "model_task_id": "模型任务 ID"
+        },
+        "widgets": {
+            "texture": "纹理",
+            "pbr": "基于物理的渲染",
+            "texture_seed": "纹理种子",
+            "texture_quality": "纹理质量",
+            "texture_alignment": "纹理对齐"
+        },
+        "outputs": {
+            "model_file": "模型文件",
+            "model task_id": "模型任务 ID"
+        }
+    },
+    "TripoRefineNode": {
+        "title": "Tripo：优化草稿模型",
+        "inputs": {
+            "model_task_id": "模型任务 ID"
+        },
+        "outputs": {
+            "model_file": "模型文件",
+            "model task_id": "模型任务 ID"
+        }
+    },
+    "TripoRigNode": {
+        "title": "Tripo：绑定模型",
+        "inputs": {
+            "original_model_task_id": "原始模型任务 ID"
+        },
+        "outputs": {
+            "model_file": "模型文件",
+            "rig task_id": "绑定任务 ID"
+        }
+    },
+    "TripoRetargetNode": {
+        "title": "Tripo：重定向",
+        "inputs": {
+            "original_model_task_id": "原始模型任务 ID"
+        },
+        "widgets": {
+            "animation": "动画"
+        },
+        "outputs": {
+            "model_file": "模型文件",
+            "retarget task_id": "重定向任务 ID"
+        }
+    },
+    "Rodin3D_Regular": {
+        "title": "Rodin3D（常规生成）",
+        "inputs": {
+            "Images": "图像"
+        },
+        "widgets": {
+            "Seed": "随机种子",
+            "Material_Type": "材质类型",
+            "Polygon_count": "多边形数量"
+        },
+        "outputs": {
+            "3D Model Path": "3D 模型路径"
+        }
+    },
+    "Rodin3D_Detail": {
+        "title": "Rodin3D（细节生成）",
+        "inputs": {
+            "Images": "图像"
+        },
+        "widgets": {
+            "Seed": "随机种子",
+            "Material_Type": "材质类型",
+            "Polygon_count": "多边形数量"
+        },
+        "outputs": {
+            "3D Model Path": "3D 模型路径"
+        }
+    },
+    "Rodin3D_Smooth": {
+        "title": "Rodin3D（平滑生成）",
+        "inputs": {
+            "Images": "图像"
+        },
+        "widgets": {
+            "Seed": "随机种子",
+            "Material_Type": "材质类型",
+            "Polygon_count": "多边形数量"
+        },
+        "outputs": {
+            "3D Model Path": "3D 模型路径"
+        }
+    },
+    "Rodin3D_Sketch": {
+        "title": "Rodin3D（草图生成）",
+        "inputs": {
+            "Images": "图像"
+        },
+        "widgets": {
+            "Seed": "随机种子"
+        },
+        "outputs": {
+            "3D Model Path": "3D 模型路径"
+        }
+    },
+    "TripoConversionNode": {
+        "title": "Tripo：转换模型",
+        "inputs": {
+            "original_model_task_id": "原始模型任务 ID"
+        },
+        "widgets": {
+            "format": "格式",
+            "quad": "四边面",
+            "face_limit": "面部限制",
+            "texture_size": "纹理尺寸",
+            "texture_format": "纹理格式"
+        }
+    }
+}

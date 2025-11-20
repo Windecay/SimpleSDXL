@@ -1,0 +1,22 @@
+{
+    "SaveAudioMP3": {
+        "title": "保存音频（MP3）",
+        "inputs": {
+            "audio": "音频"
+        },
+        "widgets": {
+            "filename_prefix": "文件名前缀",
+            "quality": "品质"
+        }
+    },
+    "SaveAudioOpus": {
+        "title": "保存音频（Opus）",
+        "inputs": {
+            "audio": "音频"
+        },
+        "widgets": {
+            "filename_prefix": "文件名前缀",
+            "quality": "品质"
+        }
+    }
+}

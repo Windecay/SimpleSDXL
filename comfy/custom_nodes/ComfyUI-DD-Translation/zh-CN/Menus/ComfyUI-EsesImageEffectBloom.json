@@ -1,0 +1,11 @@
+{
+    "gaussian": "高斯",
+    "box": "方形",
+    "light_streaks": "条状",
+    "screen": "屏幕",
+    "add": "添加",
+    "multiply": "正片叠底",
+    "overlay": "叠加",
+    "soft_light": "柔光",
+    "hard_light": "硬光"
+}

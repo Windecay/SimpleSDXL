@@ -1,0 +1,17 @@
+{
+    "PrimitiveNode": {
+        "title": "原始数据",
+        "outputs": {
+            "connect to widget input": "连接到小部件输入"
+        }
+    },
+    "Note": {
+        "title": "注释"
+    },
+    "MarkdownNote": {
+        "title": "Markdown注释"
+    },
+    "Reroute": {
+        "title": "转接点"
+    }
+}

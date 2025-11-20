@@ -1,0 +1,46 @@
+{
+  "MagCache": {
+    "title": "模型加速缓存",
+    "inputs": {
+      "model": "模型"
+    },
+    "widgets": {
+      "model_type": "模型类型",
+      "magcache_thresh": "缓存阈值",
+      "retention_ratio": "保留比例",
+      "magcache_K": "最大跳过步数",
+      "start_step": "起始步骤",
+      "end_step": "结束步骤"
+    },
+    "outputs": {
+      "model": "模型"
+    }
+  },
+  "CompileModel": {
+    "title": "编译模型",
+    "inputs": {
+      "model": "模型"
+    },
+    "widgets": {
+      "mode": "模式",
+      "backend": "后端",
+      "fullgraph": "完整图模式",
+      "dynamic": "动态模式"
+    },
+    "outputs": {
+      "model": "模型"
+    }
+  },
+  "MagCacheCalibration": {
+    "title": "模型加速缓存校准",
+    "inputs": {
+      "model": "模型"
+    },
+    "widgets": {
+      "model_type": "模型类型"
+    },
+    "outputs": {
+      "model": "模型"
+    }
+  }
+}

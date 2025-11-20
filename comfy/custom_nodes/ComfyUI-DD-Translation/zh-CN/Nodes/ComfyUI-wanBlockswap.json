@@ -1,0 +1,15 @@
+{
+    "wanBlockSwap": {
+        "title": "Wan2.1块交换",
+        "description": "这是一个用于 ComfyUI 原生节点的简单Wan2.1块交换节点，通过将最多 40 个块交换到 CPU 来减少 VRAM。",
+        "inputs": {
+            "model": "模型"
+        },
+        "widgets": {
+            "blocks_to_swap": "要交换的块",
+            "offload_img_emb": "卸载图像嵌入",
+            "offload_txt_emb": "卸载文本嵌入",
+            "use_non_blocking": "使用非阻塞模式"
+        }
+    }
+}

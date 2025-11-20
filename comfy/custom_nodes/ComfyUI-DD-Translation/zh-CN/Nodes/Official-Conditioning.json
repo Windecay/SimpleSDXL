@@ -1,0 +1,93 @@
+{
+    "CosmosPredict2ImageToVideoLatent": {
+        "title": "Cosmos预测转图像到视频潜变量",
+        "inputs": {
+            "start_image": "开始图像",
+            "end_image": "结束图像"
+        },
+        "widgets": {
+            "width": "宽度",
+            "height": "高度",
+            "length": "帧数",
+            "batch_size": "批量大小"
+        }
+    },
+    "LotusConditioning": {
+        "title": "Lotus条件编码"
+    },
+    "TextEncodeAceStepAudio": {
+        "title": "文本编码（结合ACE步骤与音频 ）",
+        "widgets": {
+            "lyrics_strength": "歌词强度"
+        }
+    },
+    "WanFunControlToVideo": {
+        "title": "WanFun控制转视频",
+        "inputs": {
+            "clip_vision_output": "clip 视觉输出"
+        }
+    },
+    "WanFunInpaintToVideo": {
+        "title": "WanFun修复转视频",
+        "inputs": {
+            "clip_vision_output": "clip 视觉输出"
+        }
+    },
+    "WanFirstLastFrameToVideo": {
+        "title": "Wan首尾帧转视频"
+    },
+    "WanVaceToVideo": {
+        "title": "WanVace转视频"
+    },
+    "WanCameraImageToVideo": {
+        "title": "Wan相机图像转视频",
+        "inputs": {
+            "positive": "正向",
+            "negative": "负向",
+            "clip_vision_output": "clip 视觉输出",
+            "start_image": "起始图像",
+            "camera_conditions": "相机条件"
+        },
+        "widgets": {
+            "width": "宽度",
+            "height": "高度",
+            "length": "帧数",
+            "batch_size": "批量大小"
+        },
+        "outputs": {
+            "positive": "正向",
+            "negative": "负向"
+        }
+    },
+    "WanPhantomSubjectToVideo": {
+        "title": "Wan虚拟主体转视频",
+        "inputs": {
+            "positive": "正向",
+            "negative": "负向",
+            "images": "图像"
+        },
+        "widgets": {
+            "width": "宽度",
+            "height": "高度",
+            "length": "帧数",
+            "batch_size": "批量大小"
+        },
+        "outputs": {
+            "positive": "正向文本提示",
+            "negative_text": "负向文本提示",
+            "negative_img_text": "负向图像文本提示"
+        }
+    },
+    "Hunyuan3Dv2Conditioning": {
+        "title": "Hunyuan3Dv2条件编码"
+    },
+    "Hunyuan3Dv2ConditioningMultiView": {
+        "title": "Hunyuan3Dv2多视角条件编码"
+    },
+    "CLIPTextEncodeLumina2": {
+        "title": "Lumina2的CLIP文本编码",
+        "widgets": {
+            "system_prompt": "系统提示词"
+        }
+    }
+}

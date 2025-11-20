@@ -1,0 +1,28 @@
+{
+    "RBGImageStitchPlus": {
+        "title": " 图像拼接 RBG Plus 🧩",
+        "description": "高级图像拼接节点",
+        "inputs": {
+            "image1": "图像1",
+            "image2": "图像2",
+            "image3": "图像3"
+        },
+        "widgets": {
+            "direction": "方向",
+            "keep_proportion": "保持比例",
+            "crop_position": "裁剪位置",
+            "spacing_width": "间距宽度",
+            "spacing_color": "间距颜色",
+            "fill_ transparent_background": "填充透明背景",
+            "final_resize_mode": "最终调整大小模式",
+            "final_target_size": "最终目标尺寸",
+            "resample_filter": "重采样滤镜",
+            "supersample_factor": "超采样因子",
+            "final_downsample_interpolation": "最终下采样插值",
+            "clarity_strength": "清晰度强度"
+        },
+        "outputs": {
+            "IMAGE": "图像"
+        }
+    }
+}

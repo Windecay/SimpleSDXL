@@ -1,0 +1,259 @@
+{
+    "IdeogramV1": {
+        "title": "Ideogram V1",
+        "widgets": {
+            "turbo": "加速模式",
+            "aspect_ratio": "宽高比",
+            "magic_prompt_option": "魔法提示词选项",
+            "seed": "随机种子",
+            "num_images": "生成图像数量"
+        }
+    },
+    "IdeogramV2": {
+        "title": "Ideogram V2",
+        "widgets": {
+            "turbo": "加速模式",
+            "aspect_ratio": "宽高比",
+            "resolution": "分辨率",
+            "magic_prompt_option": "魔法提示词选项",
+            "seed": "随机种子",
+            "style_type": "风格类型",
+            "num_images": "生成图像数量"
+        }
+    },
+    "IdeogramV3": {
+        "title": "Ideogram V3",
+        "inputs": {
+            "image": "图像",
+            "mask": "遮罩"
+        },
+        "widgets": {
+            "aspect_ratio": "宽高比",
+            "resolution": "分辨率",
+            "magic_prompt_option": "魔法提示词选项",
+            "seed": "随机种子",
+            "num_images": "生成图像数量",
+            "rendering_speed": "渲染速度"
+        }
+    },
+    "OpenAIGPTImage1": {
+        "title": "OpenAI GPT Image 1",
+        "inputs": {
+            "mask": "遮罩"
+        }
+    },
+    "KlingVirtualTryOnNode": {
+        "title": "Kling 虚拟试穿",
+        "inputs": {
+            "human_image": "人物图像",
+            "cloth_image": "衣物图像"
+        },
+        "widgets": {
+            "model_name": "模型名称"
+        }
+    },
+    "KlingImageGenerationNode": {
+        "title": "Kling 图像生成",
+        "inputs": {
+            "image": "图像"
+        },
+        "widgets": {
+            "image_type": "图像类型",
+            "image_fidelity": "图像保真度",
+            "human_fidelity": "人物保真度",
+            "model_name": "模型名称",
+            "aspect_ratio": "宽高比",
+            "n": "生成数量"
+        }
+    },
+    "FluxKontextProImageNode": {
+        "title": "Flux.1 Kontext [pro] Image",
+        "inputs": {
+            "input_image": "输入图像"
+        },
+        "widgets": {
+            "aspect_ratio": "宽高比",
+            "guidance": "引导系数",
+            "steps": "生成步数",
+            "seed": "随机种子",
+            "prompt_upsampling": "提示词上采样"
+        }
+    },
+    "FluxKontextMaxImageNode": {
+        "title": "Flux.1 Kontext [max] Image",
+        "inputs": {
+            "input_image": "输入图像"
+        },
+        "widgets": {
+            "aspect_ratio": "宽高比",
+            "guidance": "引导系数",
+            "steps": "生成步数",
+            "seed": "随机种子",
+            "prompt_upsampling": "提示词上采样"
+        }
+    },
+    "FluxProCannyNode": {
+        "title": "Flux.1 Canny 控制图像",
+        "inputs": {
+            "control_image": "控制图像"
+        },
+        "widgets": {
+            "prompt_upsampling": "提示词上采样",
+            "canny_low_threshold": "Canny低阈值",
+            "canny_high_threshold": "Canny高阈值",
+            "skip_preprocessing": "跳过预处理",
+            "guidance": "引导系数",
+            "steps": "生成步数",
+            "seed": "随机种子"
+        }
+    },
+    "FluxProDepthNode": {
+        "title": "Flux.1 深度控制图像",
+        "inputs": {
+            "control_image": "控制图像"
+        },
+        "widgets": {
+            "prompt_upsampling": "提示词上采样",
+            "skip_preprocessing": "跳过预处理",
+            "guidance": "引导系数",
+            "steps": "生成步数",
+            "seed": "随机种子"
+        }
+    },
+    "LumaImageModifyNode": {
+        "title": "Luma 图像到图像",
+        "inputs": {
+            "image": "图像"
+        },
+        "widgets": {
+            "image_weight": "图像权重",
+            "model": "模型",
+            "seed": "随机种子"
+        }
+    },
+    "LumaReferenceNode": {
+        "title": "Luma 参考",
+        "inputs": {
+            "luma_ref": "Luma 参考"
+        },
+        "outputs": {
+            "luma_ref": "Luma 参考"
+        }
+    },
+    "RecraftTextToImageNode": {
+        "title": "Recraft 文本转图像",
+        "inputs": {
+            "recraft_style": "Recraft 风格",
+            "negative_prompt": "负面提示词",
+            "recraft_controls": "Recraft 控制"
+        },
+        "widgets": {
+            "size": "图像尺寸",
+            "n": "生成数量",
+            "seed": "随机种子"
+        }
+    },
+    "RecraftImageToImageNode": {
+        "title": "Recraft 图像到图像",
+        "inputs": {
+            "image": "图像",
+            "recraft_style": "Recraft 风格",
+            "recraft_controls": "Recraft 控制"
+        }
+    },
+    "RecraftImageInpaintingNode": {
+        "title": "Recraft 图像修复",
+        "inputs": {
+            "image": "图像",
+            "mask": "遮罩",
+            "recraft_style": "Recraft 风格"
+        }
+    },
+    "RecraftStyleV3RealisticImage": {
+        "title": "Recraft 风格 - 真实图像",
+        "outputs": {
+            "recraft_style": "Recraft 风格"
+        }
+    },
+    "RecraftStyleV3DigitalIllustration": {
+        "title": "Recraft 风格 - 数字插画",
+        "outputs": {
+            "recraft_style": "Recraft 风格"
+        }
+    },
+    "RecraftStyleV3LogoRaster": {
+        "title": "Recraft 风格 - 标志光栅图",
+        "outputs": {
+            "recraft_style": "Recraft 风格"
+        }
+    },
+    "RecraftStyleV3InfiniteStyleLibrary": {
+        "title": "Recraft 风格 - 无限风格库",
+        "outputs": {
+            "recraft_style": "Recraft 风格",
+            "style_id": "风格标识"
+        }
+    },
+    "RecraftColorRGB": {
+        "title": "Recraft 颜色 RGB",
+        "inputs": {
+            "recraft_color": "Recraft 颜色"
+        },
+        "outputs": {
+            "recraft_color": "Recraft 颜色"
+        }
+    },
+    "RecraftControls": {
+        "title": "Recraft 控件",
+        "inputs": {
+            "colors": "颜色",
+            "background_color": "背景色"
+        },
+        "outputs": {
+            "recraft_controls": "Recraft 控件"
+        }
+    },
+    "StabilityStableImageUltraNode": {
+        "title": "Stability AI Stable Image Ultra",
+        "inputs": {
+            "image": "图像",
+            "negative_prompt": "负面提示词"
+        },
+        "widgets": {
+            "aspect_ratio": "宽高比",
+            "style_preset": "风格预设",
+            "seed": "随机种子",
+            "image_denoise": "图像去噪"
+        }
+    },
+    "StabilityStableImageSD_3_5Node": {
+        "title": "Stability AI Stable Diffusion 3.5 图像",
+        "inputs": {
+            "image": "图像",
+            "negative_prompt": "负面提示词"
+        },
+        "widgets": {
+            "model": "模型",
+            "aspect_ratio": "宽高比",
+            "style_preset": "风格预设",
+            "cfg_scale": "CFG引导系数",
+            "seed": "随机种子",
+            "image_denoise": "图像去噪"
+        }
+    },
+    "StabilityUpscaleConservativeNode": {
+        "title": "Stability AI 保守放大",
+        "inputs": {
+            "image": "图像"
+        }
+    },
+    "RunwayTextToImageNode": {
+        "title": "Runway 文本转图像",
+        "inputs": {
+            "reference_image": "参考图像"
+        },
+        "widgets": {
+            "ratio": "宽高比"
+        }
+    }
+}

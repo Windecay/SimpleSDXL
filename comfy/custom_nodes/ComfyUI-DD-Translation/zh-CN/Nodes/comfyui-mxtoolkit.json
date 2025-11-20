@@ -1,0 +1,36 @@
+{
+    "mxReroute": {
+        "title": "mx 连线🌈",
+        "inputs": {},
+        "widgets": {},
+        "outputs": {}
+    },
+    "mxSeed": {
+        "title": "mx 随机种子🌈",
+        "inputs": {
+            "In": "任意"
+        },
+        "widgets": {},
+        "outputs": {
+            "*": "任意"
+        }
+    },
+    "mxStop": {
+        "title": "mx 停止🌈",
+        "inputs": {},
+        "widgets": {},
+        "outputs": {}
+    },
+    "mxSlider": {
+        "title": "mx 滑块🌈",
+        "inputs": {},
+        "widgets": {},
+        "outputs": {}
+    },
+    "mxSlider2D": {
+        "title": "mx 滑块2D🌈",
+        "inputs": {},
+        "widgets": {},
+        "outputs": {}
+    }
+}

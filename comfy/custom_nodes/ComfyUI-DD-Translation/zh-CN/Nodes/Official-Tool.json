@@ -1,0 +1,79 @@
+{
+    "StringConcatenate": {
+        "title": "字符串拼接",
+        "widgets": {
+            "delimiter": "分隔符"
+        }
+    },
+    "StringSubstring": {
+        "title": "字符串子串",
+        "widgets": {
+            "start": "开始",
+            "end": "结束"
+        }
+    },
+    "StringLength": {
+        "title": "字符串长度",
+        "outputs": {
+            "length": "长度"
+        }
+    },
+    "CaseConverter": {
+        "title": "大小写转换",
+        "widgets": {
+            "mode": "模式"
+        }
+    },
+    "StringTrim": {
+        "title": "字符串修剪",
+        "widgets": {
+            "mode": "模式"
+        }
+    },
+    "StringReplace": {
+        "title": "字符串替换"
+    },
+    "StringContains": {
+        "title": "字符串包含",
+        "widgets": {
+            "case_sensitive": "区分大小写"
+        }
+    },
+    "StringCompare": {
+        "title": "字符串比较",
+        "widgets": {
+            "mode": "模式",
+            "case_sensitive": "区分大小写"
+        }
+    },
+    "RegexMatch": {
+        "title": "正则匹配",
+        "widgets": {
+            "case_insensitive": "不区分大小写",
+            "multiline": "多行",
+            "dotall": "点匹配全部"
+        },
+        "outputs": {
+            "matches": "匹配结果"
+        }
+    },
+    "RegexExtract": {
+        "title": "正则提取",
+        "widgets": {
+            "mode": "模式",
+            "case_insensitive": "不区分大小写",
+            "multiline": "多行",
+            "dotall": "点匹配全部",
+            "group_index": "组索引"
+        }
+    },
+    "RegexReplace": {
+        "title": "正则替换",
+        "widgets": {
+            "case_insensitive": "不区分大小写",
+            "multiline": "多行",
+            "dotall": "点匹配全部",
+            "count": "数量"
+        }
+    }
+}

@@ -1,0 +1,100 @@
+{
+    "ApplyFBCacheOnModel": {
+        "title": "应用FB缓存",
+        "inputs": {
+            "model": "模型"
+        },
+        "widgets": {
+            "object_to_patch": "待修补对象",
+            "residual_diff_threshold": "残差差异阈值",
+            "start": "起始值",
+            "end": "结束值",
+            "max_consecutive_cache_hits": "最大连续缓存命中数"
+        }
+    },
+    "EnhancedLoadDiffusionModel": {
+        "title": "加载扩散模型（增强版）",
+        "widgets": {
+            "unet_name": "UNet名称",
+            "weight_dtype": "权重数据类型"
+        }
+    },
+    "EnhancedCompileModel": {
+        "title": "编译模型（增强版）",
+        "inputs": {
+            "model": "模型"
+        },
+        "widgets": {
+            "is_patcher": "是否为修补器",
+            "object_to_patch": "待修补对象",
+            "compiler": "编译器",
+            "fullgraph": "全图模式",
+            "dynamic": "动态模式",
+            "mode": "模式",
+            "options": "选项",
+            "disable": "禁用",
+            "backend": "后端"
+        }
+    },
+    "VelocatorLoadAndQuantizeDiffusionModel": {
+        "title": "🚀加载并量化扩散模型",
+        "widgets": {
+            "unet_name": "UNet 名称",
+            "weight_dtype": "权重数据类型",
+            "lowvram": "低显存模式",
+            "full_load": "完全加载",
+            "quantize": "量化",
+            "quantize_on_load_device": "加载设备上量化",
+            "quant_type": "量化类型",
+            "filter_fn": "过滤函数",
+            "pattern": "匹配模式",
+            "kwargs": "额外参数"
+        }
+    },
+    "VelocatorLoadAndQuantizeClip": {
+        "title": "🚀加载并量化CLIP模型",
+        "widgets": {
+            "clip_name1": "CLIP名称1",
+            "clip_name2": "CLIP名称2",
+            "clip_name3": "CLIP名称3",
+            "type": "模型类型",
+            "weight_dtype": "权重数据类型",
+            "lowvram": "低显存模式",
+            "full_load": "完全加载",
+            "quantize": "量化",
+            "quantize_on_load_device": "加载设备量化",
+            "quant_type": "量化类型",
+            "filter_fn": "过滤函数"
+        }
+    },
+    "VelocatorQuantizeModel": {
+        "title": "🚀量化模型",
+        "inputs": {
+            "model": "模型"
+        },
+        "widgets": {
+            "object_to_patch": "待修补对象",
+            "quant_type": "量化类型",
+            "filter_fn": "过滤函数",
+            "pattern": "匹配模式",
+            "kwargs": "额外参数"
+        }
+    },
+    "VelocatorCompileModel": {
+        "title": "🚀编译模型",
+        "inputs": {
+            "model": "模型"
+        },
+        "widgets": {
+            "is_patcher": "是否为修补器",
+            "object_to_patch": "待修补对象",
+            "memory_format": "内存格式",
+            "fullgraph": "全图模式",
+            "dynamic": "动态模式",
+            "cache-all:max-autotune:low-precision": "缓存及自动调优配置",
+            "options": "选项",
+            "disable": "禁用",
+            "backend": "后端"
+        }
+    }
+}

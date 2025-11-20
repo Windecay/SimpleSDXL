@@ -1,0 +1,260 @@
+{
+    "MinimaxTextToVideoNode": {
+        "title": "MiniMax 文本转视频",
+        "widgets": {
+            "model": "模型",
+            "seed": "随机种子"
+        }
+    },
+    "MinimaxImageToVideoNode": {
+        "title": "MiniMax 图像转视频",
+        "inputs": {
+            "image": "图像"
+        },
+        "widgets": {
+            "model": "模型",
+            "seed": "随机种子"
+        }
+    },
+    "VeoVideoGenerationNode": {
+        "title": "Google Veo2 视频生成",
+        "inputs": {
+            "image": "图像"
+        },
+        "widgets": {
+            "aspect_ratio": "宽高比",
+            "duration_seconds": "时长（秒 ）",
+            "enhance_prompt": "增强提示词",
+            "person_generation": "人物生成",
+            "seed": "随机种子"
+        }
+    },
+    "KlingCameraControls": {
+        "title": "Kling 相机控制",
+        "widgets": {
+            "camera_control_type": "相机控制类型",
+            "horizontal_movement:": "水平移动",
+            "vertical_movement:": "垂直移动",
+            "pan:": "摇移",
+            "tilt:": "俯仰",
+            "roll:": "横滚",
+            "zoom:": "缩放"
+        },
+        "outputs": {
+            "camera_control": "相机控制"
+        }
+    },
+    "KlingTextToVideoNode": {
+        "title": "Kling 文本转视频",
+        "widgets": {
+            "cfg_scale": "CFG缩放",
+            "aspect_ratio": "宽高比",
+            "mode": "模式"
+        },
+        "outputs": {
+            "video_id": "视频ID",
+            "duration": "时长"
+        }
+    },
+    "KlingImage2VideoNode": {
+        "title": "Kling 图像转视频",
+        "inputs": {
+            "start_frame": "起始帧"
+        },
+        "widgets": {
+            "model_name": "模型名称",
+            "cfg_scale": "CFG缩放",
+            "mode": "模式",
+            "aspect_ratio": "宽高比",
+            "duration": "时长"
+        },
+        "outputs": {
+            "video_id": "视频ID",
+            "duration": "时长"
+        }
+    },
+    "KlingCameraControlI2VNode": {
+        "title": "Kling 图像转视频（摄像机控制）",
+        "inputs": {
+            "start_frame": "起始帧",
+            "camera_control": "摄像机控制"
+        },
+        "widgets": {
+            "cfg_scale": "CFG缩放",
+            "aspect_ratio": "宽高比"
+        },
+        "outputs": {
+            "video_id": "视频ID",
+            "duration": "时长"
+        }
+    },
+    "KlingCameraControlT2VNode": {
+        "title": "Kling 文本转视频（摄像机控制）",
+        "inputs": {
+            "camera_control": "摄像机控制"
+        },
+        "widgets": {
+            "cfg_scale": "CFG缩放",
+            "aspect_ratio": "宽高比"
+        },
+        "outputs": {
+            "video_id": "视频ID",
+            "duration": "时长"
+        }
+    },
+    "KlingStartEndFrameNode": {
+        "title": "Kling 起止帧生成视频",
+        "inputs": {
+            "start_frame": "起始帧",
+            "end_frame": "结束帧"
+        },
+        "widgets": {
+            "cfg_scale": "CFG缩放",
+            "aspect_ratio": "宽高比",
+            "mode": "模式"
+        },
+        "outputs": {
+            "video_id": "视频ID",
+            "duration": "时长"
+        }
+    },
+    "KlingVideoExtendNode": {
+        "title": "Kling 视频扩展",
+        "inputs": {
+            "video_id": "视频ID"
+        },
+        "widgets": {
+            "cfg_scale": "CFG缩放"
+        },
+        "outputs": {
+            "video_id": "视频ID",
+            "duration": "时长"
+        }
+    },
+    "KlingSingleImageVideoEffectNode": {
+        "title": "Kling 视频特效",
+        "inputs": {
+            "image": "图像"
+        },
+        "widgets": {
+            "effect_scene": "特效场景",
+            "model_name": "模型名称",
+            "duration": "时长"
+        },
+        "outputs": {
+            "video_id": "视频ID",
+            "duration": "时长"
+        }
+    },
+    "KlingDualCharacterVideoEffectNode": {
+        "title": "Kling 双角色视频特效",
+        "inputs": {
+            "image_left": "左侧图像",
+            "image_right": "右侧图像"
+        },
+        "widgets": {
+            "effect_scene": "特效场景",
+            "model_name": "模型名称",
+            "mode": "模式",
+            "duration": "时长"
+        },
+        "outputs": {
+            "duration": "时长"
+        }
+    },
+    "LumaVideoNode": {
+        "title": "Luma 文本转视频",
+        "inputs": {
+            "luma_concepts": "Luma 概念"
+        }
+    },
+    "LumaImageToVideoNode": {
+        "title": "Luma 图像转视频",
+        "inputs": {
+            "luma_concepts": "Luma 概念"
+        }
+    },
+    "LumaConceptsNode": {
+        "title": "Luma 概念",
+        "inputs": {
+            "luma_concepts": "Luma 概念"
+        },
+        "widgets": {
+            "concept1": "概念1",
+            "concept2": "概念2",
+            "concept3": "概念3",
+            "concept4": "概念4"
+        },
+        "outputs": {
+            "luma_concepts": "Luma 概念"
+        }
+    },
+    "Pikaswaps": {
+        "title": "Pika Swaps（视频对象替换）",
+        "inputs": {
+            "mask": "遮罩"
+        }
+    },
+    "Pikaffects": {
+        "title": "Pikaffects（视频特效）",
+        "inputs": {
+            "image": "图像"
+        },
+        "widgets": {
+            "seed": "随机种子",
+            "pikaffect": "视频特效"
+        }
+    },
+    "PikaStartEndFrameNode2_2": {
+        "title": "Pika 首尾帧合成视频",
+        "inputs": {
+            "image_start": "起始帧图像",
+            "image_end": "结束帧图像"
+        },
+        "widgets": {
+            "seed": "随机种子",
+            "resolution": "分辨率",
+            "duration": "时长"
+        }
+    },
+    "RunwayFirstLastFrameNode": {
+        "title": "Runway 首尾帧转视频",
+        "inputs": {
+            "start_frame": "起始帧",
+            "end_frame": "结束帧"
+        },
+        "widgets": {
+            "duration": "时长",
+            "ratio": "比例",
+            "seed": "随机种子"
+        }
+    },
+    "RunwayImageToVideoNodeGen3a": {
+        "title": "Runway 图像转视频（Gen3a Turbo）",
+        "inputs": {
+            "start_frame": "起始帧"
+        },
+        "widgets": {
+            "duration": "时长",
+            "ratio": "比例",
+            "seed": "随机种子"
+        }
+    },
+    "RunwayImageToVideoNodeGen4": {
+        "title": "Runway 图像转视频（Gen4）",
+        "inputs": {
+            "start_frame": "起始帧"
+        },
+        "widgets": {
+            "duration": "时长",
+            "ratio": "比例",
+            "seed": "随机种子"
+        }
+    },
+    "PixverseTemplateNode": {
+        "title": "PixVerse 模板",
+        "outputs": {
+            "pixverse_template": "PixVerse 模板"
+        }
+    }
+}

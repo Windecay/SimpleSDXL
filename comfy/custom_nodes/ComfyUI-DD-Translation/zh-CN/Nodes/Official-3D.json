@@ -1,0 +1,41 @@
+{
+    "Load3D": {
+        "title": "加载3D",
+        "widgets": {
+            "upload 3d model": "上传3D模型",
+            "clear": "清除"
+        },
+        "outputs": {
+            "image": "图像",
+            "mask": "遮罩",
+            "mesh_path": "网格路径",
+            "normal": "法线",
+            "lineart": "线条画",
+            "camera_info": "相机信息",
+            "recording_video": "录制视频"
+        }
+    },
+    "Load3DAnimation": {
+        "title": "加载3D动画",
+        "widgets": {
+            "upload 3d model": "上传3D模型",
+            "clear": "清除"
+        },
+        "outputs": {
+            "mesh_path": "网格路径",
+            "recording_video": "录制视频"
+        }
+    },
+    "VoxelToMeshBasic": {
+        "title": "体素转网格基础版"
+    },
+    "VoxelToMesh": {
+        "title": "体素转网格",
+        "inputs": {
+            "voxel": "体素"
+        }
+    },
+    "SaveGLB": {
+        "title": "保存GLB文件"
+    }
+}

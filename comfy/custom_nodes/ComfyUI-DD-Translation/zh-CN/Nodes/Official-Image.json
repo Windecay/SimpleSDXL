@@ -1,0 +1,60 @@
+{
+    "LoadImageOutput": {
+        "title": "加载图像（来自输出）",
+        "widgets": {
+            "refresh": "刷新"
+        }
+    },
+    "ImageRGBToYUV": {
+        "title": "图像RGB转YUV"
+    },
+    "ImageYUVToRGB": {
+        "title": "图像YUV转RGB"
+    },
+    "ImageAddNoise": {
+        "title": "图像添加噪声",
+        "inputs": {
+            "image": "图像"
+        },
+        "widgets": {
+            "seed": "种子",
+            "strength": "强度"
+        }
+    },
+    "ImageStitch": {
+        "title": "图像拼接",
+        "inputs": {
+            "image1": "图像1",
+            "image2": "图像2"
+        },
+        "widgets": {
+            "direction": "方向",
+            "match_image_size": "匹配图像尺寸",
+            "spacing_width": "间距宽度",
+            "spacing_color": "间距颜色"
+        }
+    },
+    "SaveSVGNode": {
+        "title": "保存SVG节点",
+        "widgets": {
+            "filename_prefix": "文件名前缀"
+        }
+    },
+    "GetImageSize": {
+        "title": "获取图像尺寸",
+        "inputs": {
+            "image": "图像"
+        },
+        "outputs": {
+            "width": "宽度",
+            "height": "高度",
+            "batch_size": "批量大小"
+        }
+    },
+    "WebcamCapture": {
+        "title": "网络摄像头捕获",
+        "widgets": {
+            "waiting for camera...": "等待相机..."
+        }
+    }
+}

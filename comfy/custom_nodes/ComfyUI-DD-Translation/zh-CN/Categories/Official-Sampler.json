@@ -1,0 +1,6 @@
+{
+    "OptimalStepsScheduler": "优化步数调度器",
+    "DPMAdaptative采样器": "DPM自适应采样器",
+    "ExtendIntermediateSigmas": "扩展中间噪声标准差",
+    "Adaptive Projected Guidance": "自适应投影引导"
+}

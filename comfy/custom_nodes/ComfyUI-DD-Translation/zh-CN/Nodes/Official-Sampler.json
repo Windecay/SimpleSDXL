@@ -1,0 +1,72 @@
+{
+    "OptimalStepsScheduler": {
+        "title": "优化步数调度器",
+        "widgets": {
+            "model_type": "模型类型"
+        }
+    },
+    "SamplerDPMAdaptative": {
+        "title": "DPM自适应采样器",
+        "widgets": {
+            "order": "采样阶数",
+            "rtol": "相对误差容限",
+            "atol": "绝对误差容限",
+            "h_init": "初始步长",
+            "pcoeff": "概率系数",
+            "icoeff": "积分系数",
+            "accept_safety": "接受安全阈值",
+            "eta": "噪声缩放系数",
+            "s_noise": "噪声缩放",
+            "dcoeff": "微分系数"
+        }
+    },
+    "APG": {
+        "title": "自适应投影引导",
+        "inputs": {
+            "model": "模型"
+        },
+        "widgets": {
+            "eta": "噪声缩放系数",
+            "norm_threshold": "范数阈值",
+            "momentum": "动量"
+        }
+    },
+    "KarrasScheduler": {
+        "title": "Karras调度器",
+        "widgets": {
+            "sigma_max": "sigma最大值",
+            "sigma_min": "sigma最小值"
+        }
+    },
+    "LaplaceScheduler": {
+        "title": "Laplace调度器",
+        "widgets": {
+            "sigma_max": "sigma最大值",
+            "sigma_min": "sigma最小值"
+        }
+    },
+    "SamplerDPMPP_3M_SDE": {
+        "title": "DPMPP_3M_SDE采样器",
+        "widgets": {
+            "s_noise": "s噪波"
+        }
+    },
+    "SamplerDPMPP_2M_SDE": {
+        "title": "DPMPP_2M_SDE采样器",
+        "widgets": {
+            "s_noise": "s噪波"
+        }
+    },
+    "SamplerDPMPP_SDE": {
+        "title": "DPMPP_SDE采样器",
+        "widgets": {
+            "s_noise": "s噪波"
+        }
+    },
+    "SamplerDPMPP_2S_Ancestral": {
+        "title": "DPMPP_2S_Ancestral采样器",
+        "widgets": {
+            "s_noise": "s噪波"
+        }
+    }
+}

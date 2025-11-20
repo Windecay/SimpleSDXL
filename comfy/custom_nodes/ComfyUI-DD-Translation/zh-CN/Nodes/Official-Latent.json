@@ -1,0 +1,15 @@
+{
+    "EmptyAceStepLatentAudio": {
+        "title": "空Latent音频（AceStep）",
+        "widgets": {
+            "seconds": "时长",
+            "batch_sze": "批量大小"
+        }
+    },
+    "TrimVideoLatent": {
+        "title": "视频潜在数据裁剪",
+        "widgets": {
+            "trim_amount": "裁剪量"
+        }
+    }
+}

@@ -1,0 +1,8 @@
+{
+    "ImageRGBToYUV": "图像RGB转YUV",
+    "ImageYUVToRGB": "图像YUV转RGB",
+    "ImageAddNoise": "图像添加噪声",
+    "Image Stitch": "图像拼接",
+    "SaveSVGNode": "保存SVG节点",
+    "Get Image Size": "获取图像尺寸"
+}

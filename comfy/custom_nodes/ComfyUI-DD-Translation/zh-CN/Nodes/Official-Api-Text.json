@@ -1,0 +1,61 @@
+{
+    "OpenAIChatNode": {
+        "title": "OpenAI 对话",
+        "inputs": {
+            "images": "图像输入",
+            "files": "文件输入",
+            "advanced_options": "高级选项"
+        },
+        "widgets": {
+            "persist_context": "上下文保持",
+            "model": "模型"
+        }
+    },
+    "OpenAIInputFiles": {
+        "title": "OpenAI 对话输入文件",
+        "inputs": {
+            "OPENAI_INPUT_FILES": "OpenAI 输入文件"
+        },
+        "widgets": {
+            "file": "文件"
+        },
+        "outputs": {
+            "OPENAI_INPUT_FILES": "OpenAI 输入文件"
+        }
+    },
+    "OpenAIChatConfig": {
+        "title": "OpenAI 对话高级选项",
+        "widgets": {
+            "truncation": "截断",
+            "max_output_tokens": "最大输出 tokens"
+        },
+        "outputs": {
+            "OPENAI_CHAT_CONFIG": "OpenAI 对话配置"
+        }
+    },
+    "GeminiNode": {
+        "title": "Google Gemini",
+        "inputs": {
+            "images": "图像",
+            "audio": "音频",
+            "video": "视频",
+            "files": "文件"
+        },
+        "widgets": {
+            "model": "模型",
+            "seed": "随机种子"
+        }
+    },
+    "GeminiInputFiles": {
+        "title": "Gemini 输入文件",
+        "inputs": {
+            "GEMINI_INPUT_FILES": "Gemini 输入文件"
+        },
+        "widgets": {
+            "file": "文件"
+        },
+        "outputs": {
+            "GEMINI_INPUT_FILES": "Gemini 输入文件"
+        }
+    }
+}

@@ -1,0 +1,40 @@
+{
+    "FK_Node": {
+        "title": "FK图片编码转换",
+        "inputs": {
+            "background": "背景",
+            "Depth": "深度",
+            "Texture": "纹理",
+            "TextureMask": "纹理遮罩"
+        },
+        "widgets": {},
+        "outputs": {
+            "background": "背景",
+            "Depth": "深度",
+            "Texture": "纹理"
+        }
+    },
+    "FK_3dpose": {
+        "title": "FK 3D姿态编辑器(3D Openpose Editor)",
+        "inputs": {},
+        "widgets": {},
+        "outputs": {
+            "OpenPose": "姿态",
+            "Depth": "深度",
+            "Normal": "法线贴图",
+            "Canny": "Canny线边缘检测",
+            "Width": "宽度",
+            "Height": "高度"
+        }
+    },
+    "FK_ShowBaseNode": {
+        "title": "FK高级贴图编辑器",
+        "inputs": {
+            "background": "背景",
+            "depth": "深度",
+            "Texture": "纹理"
+        },
+        "widgets": {},
+        "outputs": {}
+    }
+}
