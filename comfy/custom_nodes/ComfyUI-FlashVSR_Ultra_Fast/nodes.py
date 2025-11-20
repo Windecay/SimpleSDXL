@@ -418,7 +418,7 @@ def flashvsr(pipe, frames, scale, color_fix, tiled_vae, tiled_dit, tile_size, ti
         
         final_output_canvas = torch.zeros(
             (N, H * scale, W * scale, C), 
-            dtype=dtype, 
+            dtype=torch.float16, 
             device="cpu"
         )
         weight_sum_canvas = torch.zeros_like(final_output_canvas)

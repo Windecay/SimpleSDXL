@@ -3549,7 +3549,7 @@
       "widgets_values": [
         "Wan2_1-I2V-14B-480P_fp8_e4m3fn.safetensors",
         "fp16",
-        "fp8_e4m3fn_scaled",
+        "fp8_e4m3fn",
         "offload_device",
         "sageattn",
         "default"
