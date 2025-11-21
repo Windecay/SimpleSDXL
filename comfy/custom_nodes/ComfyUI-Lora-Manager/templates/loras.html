@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t('header.appTitle') }}{% endblock %}
+{% block page_id %}loras{% endblock %}
+
+{% block init_title %}{{ t('initialization.loras.title') }}{% endblock %}
+{% block init_message %}{{ t('initialization.loras.message') }}{% endblock %}
+{% block init_check_url %}/api/loras/list?page=1&page_size=1{% endblock %}
+
+{% block content %}
+    {% include 'components/controls.html' %}
+    {% include 'components/duplicates_banner.html' %}
+    {% include 'components/folder_sidebar.html' %}
+
+    <!-- Lora card container -->
+    <div class="card-grid" id="modelGrid">
+        <!-- Cards will be dynamically inserted here -->
+    </div>
+{% endblock %}
+
+{% block overlay %}
+<div class="bulk-mode-overlay"></div>
+{% endblock %}
+
+{% block main_script %}
+{% if not is_initializing %}
+<script type="module" src="/loras_static/js/loras.js"></script>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,27 @@
+<!-- Example Images Access Modal -->
+<div id="exampleAccessModal" class="modal">
+    <div class="modal-content example-access-modal">
+        <button class="close" onclick="modalManager.closeModal('exampleAccessModal')">&times;</button>
+        <h2>{{ t('modals.exampleAccess.title') }}</h2>
+        <p>{{ t('modals.exampleAccess.message') }}</p>
+
+        <div class="example-access-options">
+            <button id="downloadExamplesBtn" class="example-option-btn">
+                <i class="fas fa-cloud-download-alt"></i>
+                <span class="option-title">{{ t('modals.exampleAccess.downloadOption.title') }}</span>
+                <span class="option-desc">{{ t('modals.exampleAccess.downloadOption.description') }}</span>
+            </button>
+
+            <button id="importExamplesBtn" class="example-option-btn">
+                <i class="fas fa-file-import"></i>
+                <span class="option-title">{{ t('modals.exampleAccess.importOption.title') }}</span>
+                <span class="option-desc">{{ t('modals.exampleAccess.importOption.description') }}</span>
+            </button>
+        </div>
+
+        <div class="modal-footer-note">
+            <i class="fas fa-info-circle"></i>
+            <span>{{ t('modals.exampleAccess.footerNote') }}</span>
+        </div>
+    </div>
+</div>

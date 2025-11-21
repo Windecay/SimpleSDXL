@@ -1,0 +1,91 @@
+<!-- Initialization Component -->
+<div class="initialization-container" id="initializationContainer">
+    <div class="initialization-content">
+        <div class="initialization-header">
+            <h2 id="initTitle">{% block init_title %}{{ t('initialization.title') }}{% endblock %}</h2>
+            <p class="init-subtitle" id="initSubtitle">{% block init_message %}{{ t('initialization.message') }}{% endblock %}
+            </p>
+        </div>
+
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div class="loading-status" id="progressStatus">{{ t('initialization.status') }}</div>
+            <!-- Use initialization-specific classes for the progress bar -->
+            <div class="init-progress-container">
+                <div class="init-progress-bar" id="initProgressBar"></div>
+            </div>
+            <div class="progress-details">
+                <span id="progressPercentage">0%</span>
+                <span id="remainingTime">{{ t('initialization.estimatingTime') }}</span>
+            </div>
+        </div>
+
+        <div class="tips-container">
+            <div class="tips-header">
+                <i class="fas fa-lightbulb"></i>
+                <h3>{{ t('initialization.tips.title') }}</h3>
+            </div>
+            <div class="tips-content">
+                <div class="tip-carousel" id="tipCarousel">
+                    <div class="tip-item active">
+                        <div class="tip-image">
+                            <img src="/loras_static/images/tips/civitai-api.png" alt="{{ t('initialization.tips.civitai.alt') }}"
+                                onerror="this.src='/loras_static/images/no-preview.png'">
+                        </div>
+                        <div class="tip-text">
+                            <h4>{{ t('initialization.tips.civitai.title') }}</h4>
+                            <p>{{ t('initialization.tips.civitai.description') }}</p>
+                        </div>
+                    </div>
+                    <div class="tip-item">
+                        <div class="tip-image">
+                            <img src="/loras_static/images/tips/civitai-download.png" alt="{{ t('initialization.tips.download.alt') }}"
+                                onerror="this.src='/loras_static/images/no-preview.png'">
+                        </div>
+                        <div class="tip-text">
+                            <h4>{{ t('initialization.tips.download.title') }}</h4>
+                            <p>{{ t('initialization.tips.download.description') }}</p>
+                        </div>
+                    </div>
+                    <div class="tip-item">
+                        <div class="tip-image">
+                            <img src="/loras_static/images/tips/recipes.png" alt="{{ t('initialization.tips.recipes.alt') }}"
+                                onerror="this.src='/loras_static/images/no-preview.png'">
+                        </div>
+                        <div class="tip-text">
+                            <h4>{{ t('initialization.tips.recipes.title') }}</h4>
+                            <p>{{ t('initialization.tips.recipes.description') }}</p>
+                        </div>
+                    </div>
+                    <div class="tip-item">
+                        <div class="tip-image">
+                            <img src="/loras_static/images/tips/filter.png" alt="{{ t('initialization.tips.filter.alt') }}"
+                                onerror="this.src='/loras_static/images/no-preview.png'">
+                        </div>
+                        <div class="tip-text">
+                            <h4>{{ t('initialization.tips.filter.title') }}</h4>
+                            <p>{{ t('initialization.tips.filter.description') }}</p>
+                        </div>
+                    </div>
+                    <div class="tip-item">
+                        <div class="tip-image">
+                            <img src="/loras_static/images/tips/search.webp" alt="{{ t('initialization.tips.search.alt') }}"
+                                onerror="this.src='/loras_static/images/no-preview.png'">
+                        </div>
+                        <div class="tip-text">
+                            <h4>{{ t('initialization.tips.search.title') }}</h4>
+                            <p>{{ t('initialization.tips.search.description') }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="tip-navigation">
+                    <span class="tip-dot active" data-index="0"></span>
+                    <span class="tip-dot" data-index="1"></span>
+                    <span class="tip-dot" data-index="2"></span>
+                    <span class="tip-dot" data-index="3"></span>
+                    <span class="tip-dot" data-index="4"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

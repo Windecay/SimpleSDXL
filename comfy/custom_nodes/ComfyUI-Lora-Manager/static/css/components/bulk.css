@@ -1,0 +1,81 @@
+/* Style for selected cards */
+.model-card.selected {
+    box-shadow: 0 0 0 2px var(--lora-accent);
+    position: relative;
+}
+
+.model-card.selected::after {
+    content: "✓";
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 24px;
+    height: 24px;
+    background: var(--lora-accent);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    z-index: 1;
+}
+
+/* Marquee selection styles */
+.marquee-selection {
+    position: fixed;
+    border: 2px dashed var(--lora-accent, #007bff);
+    background: rgba(0, 123, 255, 0.1);
+    pointer-events: none;
+    z-index: 9999;
+    border-radius: 2px;
+}
+
+/* Visual feedback when marquee selecting */
+.marquee-selecting {
+    cursor: crosshair;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+/* Prevent text selection during marquee */
+.marquee-selecting * {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+/* Remove bulk base model modal specific styles - now using shared components */
+/* Use shared metadata editing styles instead */
+
+/* Override for bulk base model select to ensure proper width */
+.bulk-base-model-select {
+    width: 100%;
+    max-width: 100%;
+    padding: 6px 10px;
+    border-radius: var(--border-radius-xs);
+    border: 1px solid var(--border-color);
+    background-color: var(--lora-surface);
+    color: var(--text-color);
+    font-size: 0.95em;
+    height: 32px;
+}
+
+.bulk-base-model-select:focus {
+    border-color: var(--lora-accent);
+    outline: none;
+}
+
+/* Dark theme support for bulk base model select */
+[data-theme="dark"] .bulk-base-model-select {
+    background-color: rgba(30, 30, 30, 0.9);
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .bulk-base-model-select option {
+    background-color: #2d2d2d;
+    color: var(--text-color);
+}

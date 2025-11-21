@@ -1,0 +1,96 @@
+<!-- Unified Download Modal for all model types -->
+<div id="downloadModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <button class="close" id="closeDownloadModal">&times;</button>
+            <h2 id="downloadModalTitle">{{ t('modals.download.title') }}</h2>
+        </div>
+        
+        <!-- Step 1: URL Input -->
+        <div class="download-step" id="urlStep">
+            <div class="input-group">
+                <label for="modelUrl" id="modelUrlLabel">{{ t('modals.download.url') }}:</label>
+                <input type="text" id="modelUrl" placeholder="{{ t('modals.download.placeholder') }}" />
+                <div class="error-message" id="urlError"></div>
+            </div>
+            <div class="modal-actions">
+                <button class="primary-btn" id="nextFromUrl">{{ t('common.actions.next') }}</button>
+            </div>
+        </div>
+
+        <!-- Step 2: Version Selection -->
+        <div class="download-step" id="versionStep" style="display: none;">
+            <div class="version-list" id="versionList">
+                <!-- Versions will be inserted here dynamically -->
+            </div>
+            <div class="modal-actions">
+                <button class="secondary-btn" id="backToUrlBtn">{{ t('common.actions.back') }}</button>
+                <button class="primary-btn" id="nextFromVersion">{{ t('common.actions.next') }}</button>
+            </div>
+        </div>
+
+        <!-- Step 3: Location Selection -->
+        <div class="download-step" id="locationStep" style="display: none;">
+            <div class="location-selection">
+                <!-- Path preview with inline toggle -->
+                <div class="path-preview">
+                    <div class="path-preview-header">
+                        <label>{{ t('modals.download.locationPreview') }}:</label>
+                        <div class="inline-toggle-container" title="{{ t('modals.download.useDefaultPathTooltip') }}">
+                            <span class="inline-toggle-label">{{ t('modals.download.useDefaultPath') }}</span>
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="useDefaultPath">
+                                <label for="useDefaultPath" class="toggle-slider"></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="path-display" id="targetPathDisplay">
+                        <span class="path-text">{{ t('modals.download.selectRootDirectory') }}</span>
+                    </div>
+                </div>
+
+                <!-- Model Root Selection (always visible) -->
+                <div class="input-group">
+                    <label for="modelRoot" id="modelRootLabel">{{ t('modals.download.selectModelRoot') }}</label>
+                    <select id="modelRoot"></select>
+                </div>
+
+                <!-- Manual Path Selection (hidden when using default path) -->
+                <div class="manual-path-selection" id="manualPathSelection">
+                    <!-- Path input with autocomplete -->
+                    <div class="input-group">
+                        <label for="folderPath">{{ t('modals.download.targetFolderPath') }}</label>
+                        <div class="path-input-container">
+                            <input type="text" id="folderPath" placeholder="{{ t('modals.download.pathPlaceholder') }}" autocomplete="off" />
+                            <button type="button" id="createFolderBtn" class="create-folder-btn" title="{{ t('modals.download.createNewFolder') }}">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        <div class="path-suggestions" id="pathSuggestions" style="display: none;"></div>
+                    </div>
+                    
+                    <!-- Breadcrumb navigation -->
+                    <div class="breadcrumb-nav" id="breadcrumbNav">
+                        <span class="breadcrumb-item root" data-path="">
+                            <i class="fas fa-home"></i> {{ t('modals.download.root') }}
+                        </span>
+                    </div>
+                    
+                    <!-- Hierarchical folder tree -->
+                    <div class="input-group">
+                        <label>{{ t('modals.download.browseFolders') }}</label>
+                        <div class="folder-tree-container">
+                            <div class="folder-tree" id="folderTree">
+                                <!-- Tree will be loaded dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="secondary-btn" id="backToVersionsBtn">{{ t('common.actions.back') }}</button>
+                <button class="primary-btn" id="startDownloadBtn">{{ t('modals.download.download') }}</button>
+            </div>
+        </div>
+    </div>
+</div>

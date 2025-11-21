@@ -1,0 +1,1468 @@
+{
+    "common": {
+        "actions": {
+            "save": "Save",
+            "cancel": "Cancel",
+            "delete": "Delete",
+            "move": "Move",
+            "refresh": "Refresh",
+            "back": "Back",
+            "next": "Next",
+            "backToTop": "Back to top",
+            "settings": "Settings",
+            "help": "Help"
+        },
+        "status": {
+            "loading": "Loading...",
+            "unknown": "Unknown",
+            "date": "Date",
+            "version": "Version",
+            "enabled": "Enabled",
+            "disabled": "Disabled"
+        },
+        "language": {
+            "select": "Language",
+            "select_help": "Choose your preferred language for the interface",
+            "english": "English",
+            "chinese_simplified": "中文（简体）",
+            "chinese_traditional": "中文（繁体）",
+            "russian": "Русский",
+            "german": "Deutsch",
+            "japanese": "日本語",
+            "korean": "한국어",
+            "french": "Français",
+            "spanish": "Español",
+			"Hebrew": "עברית"
+        },
+        "fileSize": {
+            "zero": "0 Bytes",
+            "bytes": "Bytes",
+            "kb": "KB",
+            "mb": "MB",
+            "gb": "GB",
+            "tb": "TB"
+        }
+    },
+    "onboarding": {
+        "languageSelection": {
+            "title": "Welcome to LoRA Manager",
+            "continue": "Continue",
+            "changeFailed": "Failed to change language: {message}"
+        },
+        "tutorial": {
+            "skipTutorial": "Skip Tutorial",
+            "back": "Back",
+            "next": "Next",
+            "finish": "Finish"
+        },
+        "steps": {
+            "fetch": {
+                "title": "Fetch Models Metadata",
+                "content": "Click the <strong>Fetch</strong> button to download model metadata and preview images from Civitai."
+            },
+            "download": {
+                "title": "Download New Models",
+                "content": "Use the <strong>Download</strong> button to download models directly from Civitai URLs."
+            },
+            "bulk": {
+                "title": "Bulk Operations",
+                "content": "Enter bulk mode by clicking this button or pressing <span class=\"onboarding-shortcut\">B</span>. Select multiple models and perform batch operations. Use <span class=\"onboarding-shortcut\">Ctrl+A</span> to select all visible models."
+            },
+            "searchOptions": {
+                "title": "Search Options",
+                "content": "Click this button to configure what fields to search in: filename, model name, tags, or creator name. Customize your search scope."
+            },
+            "filter": {
+                "title": "Filter Models",
+                "content": "Use filters to narrow down models by base model type (SD1.5, SDXL, Flux, etc.) or by specific tags."
+            },
+            "breadcrumb": {
+                "title": "Breadcrumb Navigation",
+                "content": "The breadcrumb navigation shows your current path and allows quick navigation between folders. Click any folder name to jump directly there."
+            },
+            "modelCards": {
+                "title": "Model Cards",
+                "content": "<strong>Single-click</strong> a model card to view detailed information and edit metadata. Look for the pencil icon when hovering over editable fields."
+            },
+            "contextMenu": {
+                "title": "Context Menu",
+                "content": "<strong>Right-click</strong> any model card for a context menu with additional actions."
+            }
+        }
+    },
+    "modelCard": {
+        "actions": {
+            "addToFavorites": "Add to favorites",
+            "removeFromFavorites": "Remove from favorites",
+            "viewOnCivitai": "View on Civitai",
+            "notAvailableFromCivitai": "Not available from Civitai",
+            "sendToWorkflow": "Send to ComfyUI (Click: Append, Shift+Click: Replace)",
+            "copyLoRASyntax": "Copy LoRA Syntax",
+            "checkpointNameCopied": "Checkpoint name copied",
+            "toggleBlur": "Toggle blur",
+            "show": "Show",
+            "openExampleImages": "Open Example Images Folder",
+            "replacePreview": "Replace Preview",
+            "copyCheckpointName": "Copy checkpoint name",
+            "copyEmbeddingName": "Copy embedding name",
+            "sendCheckpointToWorkflow": "Send to ComfyUI",
+            "sendEmbeddingToWorkflow": "Send to ComfyUI"
+        },
+        "nsfw": {
+            "matureContent": "Mature Content",
+            "xxxRated": "XXX-rated Content",
+            "xRated": "X-rated Content",
+            "rRated": "R-rated Content"
+        },
+        "favorites": {
+            "added": "Added to favorites",
+            "removed": "Removed from favorites",
+            "updateFailed": "Failed to update favorite status"
+        },
+        "sendToWorkflow": {
+            "checkpointNotImplemented": "Send checkpoint to workflow - feature to be implemented",
+            "missingPath": "Unable to determine model path for this card"
+        },
+        "exampleImages": {
+            "checkError": "Error checking for example images",
+            "missingHash": "Missing model hash information.",
+            "noRemoteImagesAvailable": "No remote example images available for this model on Civitai"
+        },
+        "badges": {
+            "update": "Update",
+            "updateAvailable": "Update available"
+        }
+    },
+    "globalContextMenu": {
+        "downloadExampleImages": {
+            "label": "Download example images",
+            "missingPath": "Set a download location before downloading example images.",
+            "unavailable": "Example image downloads aren't available yet. Try again after the page finishes loading."
+        },
+        "checkModelUpdates": {
+            "label": "Check for updates",
+            "loading": "Checking for {type} updates...",
+            "success": "Found {count} update(s) for {type}s",
+            "none": "All {type}s are up to date",
+            "error": "Failed to check for {type} updates: {message}"
+        },
+        "cleanupExampleImages": {
+            "label": "Clean up example image folders",
+            "success": "Moved {count} folder(s) to the deleted folder",
+            "none": "No example image folders needed cleanup",
+            "partial": "Cleanup completed with {failures} folder(s) skipped",
+            "error": "Failed to clean example image folders: {message}"
+        },
+        "fetchMissingLicenses": {
+            "label": "Refresh license metadata",
+            "loading": "Refreshing license metadata for {typePlural}...",
+            "success": "Updated license metadata for {count} {typePlural}",
+            "none": "All {typePlural} already have license metadata",
+            "error": "Failed to refresh license metadata for {typePlural}: {message}"
+        }
+    },
+    "header": {
+        "appTitle": "LoRA Manager",
+        "navigation": {
+            "loras": "LoRAs",
+            "recipes": "Recipes",
+            "checkpoints": "Checkpoints",
+            "embeddings": "Embeddings",
+            "statistics": "Stats"
+        },
+        "search": {
+            "placeholder": "Search...",
+            "placeholders": {
+                "loras": "Search LoRAs...",
+                "recipes": "Search recipes...",
+                "checkpoints": "Search checkpoints...",
+                "embeddings": "Search embeddings..."
+            },
+            "options": "Search Options",
+            "searchIn": "Search In:",
+            "notAvailable": "Search not available on statistics page",
+            "filters": {
+                "filename": "Filename",
+                "modelname": "Model Name",
+                "tags": "Tags",
+                "creator": "Creator",
+                "title": "Recipe Title",
+                "loraName": "LoRA Filename",
+                "loraModel": "LoRA Model Name"
+            }
+        },
+        "filter": {
+            "title": "Filter Models",
+            "baseModel": "Base Model",
+            "modelTags": "Tags (Top 20)",
+            "modelTypes": "Model Types",
+            "license": "License",
+            "noCreditRequired": "No Credit Required",
+            "allowSellingGeneratedContent": "Allow Selling",
+            "clearAll": "Clear All Filters"
+        },
+        "theme": {
+            "toggle": "Toggle theme",
+            "switchToLight": "Switch to light theme",
+            "switchToDark": "Switch to dark theme",
+            "switchToAuto": "Switch to auto theme"
+        },
+        "actions": {
+            "checkUpdates": "Check Updates",
+            "notifications": "Notifications",
+            "support": "Support"
+        }
+    },
+    "settings": {
+        "civitaiApiKey": "Civitai API Key",
+        "civitaiApiKeyPlaceholder": "Enter your Civitai API key",
+        "civitaiApiKeyHelp": "Used for authentication when downloading models from Civitai",
+        "openSettingsFileLocation": {
+            "label": "Open settings folder",
+            "tooltip": "Open the folder containing settings.json",
+            "success": "Opened settings.json folder",
+            "failed": "Failed to open settings.json folder"
+        },
+        "sections": {
+            "contentFiltering": "Content Filtering",
+            "videoSettings": "Video Settings",
+            "layoutSettings": "Layout Settings",
+            "folderSettings": "Folder Settings",
+            "priorityTags": "Priority Tags",
+            "downloadPathTemplates": "Download Path Templates",
+            "exampleImages": "Example Images",
+            "updateFlags": "Update Flags",
+            "autoOrganize": "Auto-organize",
+            "misc": "Misc.",
+            "metadataArchive": "Metadata Archive Database",
+            "storageLocation": "Settings Location",
+            "proxySettings": "Proxy Settings"
+        },
+        "storage": {
+            "locationLabel": "Portable mode",
+            "locationHelp": "Enable to keep settings.json inside the repository; disable to store it in your user config directory."
+        },
+        "contentFiltering": {
+            "blurNsfwContent": "Blur NSFW Content",
+            "blurNsfwContentHelp": "Blur mature (NSFW) content preview images",
+            "showOnlySfw": "Show Only SFW Results",
+            "showOnlySfwHelp": "Filter out all NSFW content when browsing and searching"
+        },
+        "videoSettings": {
+            "autoplayOnHover": "Autoplay Videos on Hover",
+            "autoplayOnHoverHelp": "Only play video previews when hovering over them"
+        },
+        "autoOrganizeExclusions": {
+            "label": "Auto-organize exclusions",
+            "placeholder": "Example: curated/*, */backups/*; *_temp.safetensors",
+            "help": "Skip moving files that match these wildcard patterns. Separate multiple patterns with commas or semicolons.",
+            "validation": {
+                "noPatterns": "Enter at least one pattern separated by commas or semicolons.",
+                "saveFailed": "Unable to save exclusions: {message}"
+            }
+        },
+        "layoutSettings": {
+            "displayDensity": "Display Density",
+            "displayDensityOptions": {
+                "default": "Default",
+                "medium": "Medium",
+                "compact": "Compact"
+            },
+            "displayDensityHelp": "Choose how many cards to display per row:",
+            "displayDensityDetails": {
+                "default": "5 (1080p), 6 (2K), 8 (4K)",
+                "medium": "6 (1080p), 7 (2K), 9 (4K)",
+                "compact": "7 (1080p), 8 (2K), 10 (4K)"
+            },
+            "displayDensityWarning": "Warning: Higher densities may cause performance issues on systems with limited resources.",
+            "showFolderSidebar": "Show Folder Sidebar",
+            "showFolderSidebarHelp": "Toggle the folder navigation sidebar on model pages. When disabled, the sidebar and hover area stay hidden.",
+            "cardInfoDisplay": "Card Info Display",
+            "cardInfoDisplayOptions": {
+                "always": "Always Visible",
+                "hover": "Reveal on Hover"
+            },
+            "cardInfoDisplayHelp": "Choose when to display model information and action buttons",
+            "modelCardFooterAction": "Model Card Button Action",
+            "modelCardFooterActionOptions": {
+                "exampleImages": "Open Example Images",
+                "replacePreview": "Replace Preview"
+            },
+            "modelCardFooterActionHelp": "Choose what the bottom-right card button does",
+            "modelNameDisplay": "Model Name Display",
+            "modelNameDisplayOptions": {
+                "modelName": "Model Name",
+                "fileName": "File Name"
+            },
+            "modelNameDisplayHelp": "Choose what to display in the model card footer"
+        },
+        "folderSettings": {
+            "activeLibrary": "Active Library",
+            "activeLibraryHelp": "Switch between configured libraries to update default folders. Changing the selection reloads the page.",
+            "loadingLibraries": "Loading libraries...",
+            "noLibraries": "No libraries configured",
+            "defaultLoraRoot": "Default LoRA Root",
+            "defaultLoraRootHelp": "Set the default LoRA root directory for downloads, imports and moves",
+            "defaultCheckpointRoot": "Default Checkpoint Root",
+            "defaultCheckpointRootHelp": "Set the default checkpoint root directory for downloads, imports and moves",
+            "defaultEmbeddingRoot": "Default Embedding Root",
+            "defaultEmbeddingRootHelp": "Set the default embedding root directory for downloads, imports and moves",
+            "noDefault": "No Default"
+        },
+        "priorityTags": {
+            "title": "Priority Tags",
+            "description": "Customize the tag priority order for each model type (e.g., character, concept, style(toon|toon_style))",
+            "placeholder": "character, concept, style(toon|toon_style)",
+            "helpLinkLabel": "Open priority tags help",
+            "modelTypes": {
+                "lora": "LoRA",
+                "checkpoint": "Checkpoint",
+                "embedding": "Embedding"
+            },
+            "saveSuccess": "Priority tags updated.",
+            "saveError": "Failed to update priority tags.",
+            "loadingSuggestions": "Loading suggestions...",
+            "validation": {
+                "missingClosingParen": "Entry {index} is missing a closing parenthesis.",
+                "missingCanonical": "Entry {index} must include a canonical tag name.",
+                "duplicateCanonical": "The canonical tag \"{tag}\" appears more than once.",
+                "unknown": "Invalid priority tag configuration."
+            }
+        },
+        "downloadPathTemplates": {
+            "title": "Download Path Templates",
+            "help": "Configure folder structures for different model types when downloading from Civitai.",
+            "availablePlaceholders": "Available placeholders:",
+            "templateOptions": {
+                "flatStructure": "Flat Structure",
+                "byBaseModel": "By Base Model",
+                "byAuthor": "By Author", 
+                "byFirstTag": "By First Tag",
+                "baseModelFirstTag": "Base Model + First Tag",
+                "baseModelAuthor": "Base Model + Author",
+                "authorFirstTag": "Author + First Tag",
+                "baseModelAuthorFirstTag": "Base Model + Author + First Tag",
+                "customTemplate": "Custom Template"
+            },
+            "customTemplatePlaceholder": "Enter custom template (e.g., {base_model}/{author}/{first_tag})",
+            "modelTypes": {
+                "lora": "LoRA",
+                "checkpoint": "Checkpoint", 
+                "embedding": "Embedding"
+            },
+            "baseModelPathMappings": "Base Model Path Mappings",
+            "baseModelPathMappingsHelp": "Customize folder names for specific base models (e.g., \"Flux.1 D\" → \"flux\")",
+            "addMapping": "Add Mapping",
+            "selectBaseModel": "Select Base Model",
+            "customPathPlaceholder": "Custom path (e.g., flux)",
+            "removeMapping": "Remove mapping",
+            "validation": {
+                "validFlat": "Valid (flat structure)",
+                "invalidChars": "Invalid characters detected",
+                "doubleSlashes": "Double slashes not allowed",
+                "leadingTrailingSlash": "Cannot start or end with slash",
+                "invalidPlaceholder": "Invalid placeholder: {placeholder}",
+                "validTemplate": "Valid template"
+            }
+        },
+        "exampleImages": {
+            "downloadLocation": "Download Location",
+            "downloadLocationPlaceholder": "Enter folder path for example images",
+            "downloadLocationHelp": "Enter the folder path where example images from Civitai will be saved",
+            "autoDownload": "Auto Download Example Images",
+            "autoDownloadHelp": "Automatically download example images for models that don't have them (requires download location to be set)",
+            "optimizeImages": "Optimize Downloaded Images",
+            "optimizeImagesHelp": "Optimize example images to reduce file size and improve loading speed (metadata will be preserved)",
+            "download": "Download",
+            "restartRequired": "Requires restart"
+        },
+        "updateFlagStrategy": {
+            "label": "Update Flag Strategy",
+            "help": "Decide whether update badges should only appear when a new release shares the same base model as your local files or whenever any newer version exists for that model.",
+            "options": {
+                "sameBase": "Match updates by base model",
+                "any": "Flag any available update"
+            }
+        },
+        "misc": {
+            "includeTriggerWords": "Include Trigger Words in LoRA Syntax",
+            "includeTriggerWordsHelp": "Include trained trigger words when copying LoRA syntax to clipboard"
+        },
+        "metadataArchive": {
+            "enableArchiveDb": "Enable Metadata Archive Database",
+            "enableArchiveDbHelp": "Use a local database to access metadata for models that have been deleted from Civitai.",
+            "status": "Status",
+            "statusAvailable": "Available",
+            "statusUnavailable": "Not Available",
+            "enabled": "Enabled",
+            "management": "Database Management",
+            "managementHelp": "Download or remove the metadata archive database",
+            "downloadButton": "Download Database",
+            "downloadingButton": "Downloading...",
+            "downloadedButton": "Downloaded",
+            "removeButton": "Remove Database",
+            "removingButton": "Removing...",
+            "downloadSuccess": "Metadata archive database downloaded successfully",
+            "downloadError": "Failed to download metadata archive database",
+            "removeSuccess": "Metadata archive database removed successfully",
+            "removeError": "Failed to remove metadata archive database",
+            "removeConfirm": "Are you sure you want to remove the metadata archive database? This will delete the local database file and you'll need to download it again to use this feature.",
+            "preparing": "Preparing download...",
+            "connecting": "Connecting to download server...",
+            "completed": "Completed",
+            "downloadComplete": "Download completed successfully"
+        },
+        "proxySettings": {
+            "enableProxy": "Enable App-level Proxy",
+            "enableProxyHelp": "Enable custom proxy settings for this application, overriding system proxy settings",
+            "proxyType": "Proxy Type",
+            "proxyTypeHelp": "Select the type of proxy server (HTTP, HTTPS, SOCKS4, SOCKS5)",
+            "proxyHost": "Proxy Host",
+            "proxyHostPlaceholder": "proxy.example.com",
+            "proxyHostHelp": "The hostname or IP address of your proxy server",
+            "proxyPort": "Proxy Port", 
+            "proxyPortPlaceholder": "8080",
+            "proxyPortHelp": "The port number of your proxy server",
+            "proxyUsername": "Username (Optional)",
+            "proxyUsernamePlaceholder": "username", 
+            "proxyUsernameHelp": "Username for proxy authentication (if required)",
+            "proxyPassword": "Password (Optional)",
+            "proxyPasswordPlaceholder": "password",
+            "proxyPasswordHelp": "Password for proxy authentication (if required)"
+        }
+    },
+    "loras": {
+        "controls": {
+            "sort": {
+                "title": "Sort models by...",
+                "name": "Name",
+                "nameAsc": "A - Z",
+                "nameDesc": "Z - A",
+                "date": "Date Added",
+                "dateDesc": "Newest",
+                "dateAsc": "Oldest",
+                "size": "File Size",
+                "sizeDesc": "Largest",
+                "sizeAsc": "Smallest"
+            },
+            "refresh": {
+                "title": "Refresh model list",
+                "quick": "Sync Changes",
+                "quickTooltip": "Scan for new or missing model files so the list stays current.",
+                "full": "Rebuild Cache",
+                "fullTooltip": "Reload all model details from metadata files—use if the library looks out of date or after manual edits."
+            },
+            "fetch": {
+                "title": "Fetch metadata from Civitai",
+                "action": "Fetch"
+            },
+            "download": {
+                "title": "Download from URL",
+                "action": "Download"
+            },
+            "bulk": {
+                "title": "Bulk Operations",
+                "action": "Bulk"
+            },
+            "duplicates": {
+                "title": "Find Duplicates",
+                "action": "Duplicates"
+            },
+            "favorites": {
+                "title": "Show Favorites Only",
+                "action": "Favorites"
+            },
+            "updates": {
+                "title": "Show models with updates available",
+                "action": "Updates",
+                "menuLabel": "Show update options",
+                "check": "Check updates",
+                "checkTooltip": "Checking updates may take a while."
+            }
+        },
+        "bulkOperations": {
+            "selected": "{count} selected",
+            "selectedSuffix": "selected",
+            "viewSelected": "View Selected",
+            "addTags": "Add Tags to Selected",
+            "setBaseModel": "Set Base Model for Selected",
+            "setContentRating": "Set Content Rating for Selected",
+            "copyAll": "Copy Selected Syntax",
+            "refreshAll": "Refresh Selected Metadata",
+            "checkUpdates": "Check Updates for Selected",
+            "moveAll": "Move Selected to Folder",
+            "autoOrganize": "Auto-Organize Selected",
+            "deleteAll": "Delete Selected Models",
+            "clear": "Clear Selection",
+            "autoOrganizeProgress": {
+                "initializing": "Initializing auto-organize...",
+                "starting": "Starting auto-organize for {type}...",
+                "processing": "Processing ({processed}/{total}) - {success} moved, {skipped} skipped, {failures} failed",
+                "cleaning": "Cleaning up empty directories...",
+                "completed": "Completed: {success} moved, {skipped} skipped, {failures} failed",
+                "complete": "Auto-organize complete",
+                "error": "Error: {error}"
+            }
+        },
+        "contextMenu": {
+            "refreshMetadata": "Refresh Civitai Data",
+            "checkUpdates": "Check Updates",
+            "relinkCivitai": "Re-link to Civitai",
+            "copySyntax": "Copy LoRA Syntax",
+            "copyFilename": "Copy Model Filename",
+            "copyRecipeSyntax": "Copy Recipe Syntax",
+            "sendToWorkflowAppend": "Send to Workflow (Append)",
+            "sendToWorkflowReplace": "Send to Workflow (Replace)",
+            "openExamples": "Open Examples Folder",
+            "downloadExamples": "Download Example Images",
+            "replacePreview": "Replace Preview",
+            "setContentRating": "Set Content Rating",
+            "moveToFolder": "Move to Folder",
+            "excludeModel": "Exclude Model",
+            "deleteModel": "Delete Model",
+            "shareRecipe": "Share Recipe",
+            "viewAllLoras": "View All LoRAs",
+            "downloadMissingLoras": "Download Missing LoRAs",
+            "deleteRecipe": "Delete Recipe"
+        }
+    },
+    "recipes": {
+        "title": "LoRA Recipes",
+        "controls": {
+            "import": {
+                "action": "Import",
+                "title": "Import a recipe from image or URL",
+                "urlLocalPath": "URL / Local Path",
+                "uploadImage": "Upload Image",
+                "urlSectionDescription": "Input a Civitai image URL or local file path to import as a recipe.",
+                "imageUrlOrPath": "Image URL or File Path:",
+                "urlPlaceholder": "https://civitai.com/images/... or C:/path/to/image.png",
+                "fetchImage": "Fetch Image",
+                "uploadSectionDescription": "Upload an image with LoRA metadata to import as a recipe.",
+                "selectImage": "Select Image",
+                "recipeName": "Recipe Name",
+                "recipeNamePlaceholder": "Enter recipe name",
+                "tagsOptional": "Tags (optional)",
+                "addTagPlaceholder": "Add a tag",
+                "addTag": "Add",
+                "noTagsAdded": "No tags added",
+                "lorasInRecipe": "LoRAs in this Recipe",
+                "downloadLocationPreview": "Download Location Preview:",
+                "useDefaultPath": "Use Default Path",
+                "useDefaultPathTooltip": "When enabled, files are automatically organized using configured path templates",
+                "selectLoraRoot": "Select a LoRA root directory",
+                "targetFolderPath": "Target Folder Path:",
+                "folderPathPlaceholder": "Type folder path or select from tree below...",
+                "createNewFolder": "Create new folder",
+                "root": "Root",
+                "browseFolders": "Browse Folders:",
+                "downloadAndSaveRecipe": "Download & Save Recipe",
+                "downloadMissingLoras": "Download Missing LoRAs",
+                "saveRecipe": "Save Recipe",
+                "loraCountInfo": "({existing}/{total} in library)",
+                "processingInput": "Processing input...",
+                "analyzingMetadata": "Analyzing image metadata...",
+                "downloadingLoras": "Downloading LoRAs...",
+                "savingRecipe": "Saving recipe...",
+                "startingDownload": "Starting download for LoRA {current}/{total}",
+                "deletedFromCivitai": "Deleted from Civitai",
+                "inLibrary": "In Library",
+                "notInLibrary": "Not in Library",
+                "earlyAccessRequired": "This LoRA requires early access payment to download.",
+                "earlyAccessEnds": "Early access ends on {date}.",
+                "earlyAccess": "Early Access",
+                "verifyEarlyAccess": "Verify that you have purchased early access before downloading.",
+                "duplicateRecipesFound": "{count} identical recipe(s) found in your library",
+                "duplicateRecipesDescription": "These recipes contain the same LoRAs with identical weights.",
+                "showDuplicates": "Show duplicates",
+                "hideDuplicates": "Hide duplicates",
+                "loraCount": "{count} LoRAs",
+                "recipePreviewAlt": "Recipe preview",
+                "loraPreviewAlt": "LoRA preview",
+                "errors": {
+                    "selectImageFile": "Please select an image file",
+                    "enterUrlOrPath": "Please enter a URL or file path",
+                    "selectLoraRoot": "Please select a LoRA root directory"
+                }
+            },
+            "refresh": {
+                "title": "Refresh recipe list"
+            },
+            "filteredByLora": "Filtered by LoRA"
+        },
+        "duplicates": {
+            "found": "Found {count} duplicate groups",
+            "keepLatest": "Keep Latest Versions",
+            "deleteSelected": "Delete Selected"
+        },
+        "contextMenu": {
+            "copyRecipe": {
+                "missingId": "Cannot copy recipe: Missing recipe ID",
+                "failed": "Failed to copy recipe syntax"
+            },
+            "sendRecipe": {
+                "missingId": "Cannot send recipe: Missing recipe ID",
+                "failed": "Failed to send recipe to workflow"
+            },
+            "viewLoras": {
+                "missingId": "Cannot view LoRAs: Missing recipe ID",
+                "noLorasFound": "No LoRAs found in this recipe",
+                "loadError": "Error loading recipe LoRAs: {message}"
+            },
+            "downloadMissing": {
+                "missingId": "Cannot download LoRAs: Missing recipe ID",
+                "noMissingLoras": "No missing LoRAs to download",
+                "getInfoFailed": "Failed to get information for missing LoRAs",
+                "prepareError": "Error preparing LoRAs for download: {message}"
+            }
+        }
+    },
+    "checkpoints": {
+        "title": "Checkpoint Models"
+    },
+    "embeddings": {
+        "title": "Embedding Models"
+    },
+    "sidebar": {
+        "modelRoot": "Root",
+        "collapseAll": "Collapse All Folders",
+        "pinSidebar": "Pin Sidebar",
+        "unpinSidebar": "Unpin Sidebar",
+        "switchToListView": "Switch to List View",
+        "switchToTreeView": "Switch to Tree View",
+        "recursiveOn": "Search subfolders",
+        "recursiveOff": "Search current folder only",
+        "recursiveUnavailable": "Recursive search is available in tree view only",
+        "collapseAllDisabled": "Not available in list view",
+        "dragDrop": {
+            "unableToResolveRoot": "Unable to determine destination path for move."
+        }
+    },
+    "statistics": {
+        "title": "Statistics",
+        "tabs": {
+            "overview": "Overview",
+            "usage": "Usage Analysis",
+            "collection": "Collection",
+            "storage": "Storage",
+            "insights": "Insights"
+        },
+        "usage": {
+            "mostUsedLoras": "Most Used LoRAs",
+            "mostUsedCheckpoints": "Most Used Checkpoints",
+            "mostUsedEmbeddings": "Most Used Embeddings"
+        },
+        "collection": {
+            "popularTags": "Popular Tags",
+            "modelTypes": "Model Types",
+            "collectionAnalysis": "Collection Analysis"
+        },
+        "storage": {
+            "storageUsage": "Storage Usage",
+            "largestModels": "Largest Models",
+            "storageEfficiency": "Storage vs Usage Efficiency"
+        },
+        "insights": {
+            "smartInsights": "Smart Insights",
+            "recommendations": "Recommendations"
+        },
+        "charts": {
+            "collectionOverview": "Collection Overview",
+            "baseModelDistribution": "Base Model Distribution",
+            "usageTrends": "Usage Trends (Last 30 Days)",
+            "usageDistribution": "Usage Distribution"
+        }
+    },
+    "modals": {
+        "exclude": {
+            "confirm": "Exclude"
+        },
+        "download": {
+            "title": "Download Model from URL",
+            "titleWithType": "Download {type} from URL",
+            "url": "Civitai URL",
+            "civitaiUrl": "Civitai URL:",
+            "placeholder": "https://civitai.com/models/...",
+            "locationPreview": "Download Location Preview",
+            "useDefaultPath": "Use Default Path",
+            "useDefaultPathTooltip": "When enabled, files are automatically organized using configured path templates",
+            "selectRootDirectory": "Select a root directory",
+            "selectModelRoot": "Select Model Root:",
+            "selectTypeRoot": "Select {type} Root:",
+            "targetFolderPath": "Target Folder Path:",
+            "browseFolders": "Browse Folders:",
+            "createNewFolder": "Create new folder",
+            "pathPlaceholder": "Type folder path or select from tree below...",
+            "root": "Root",
+            "download": "Download",
+            "fetchingVersions": "Fetching model versions...",
+            "versionPreview": "Version preview",
+            "earlyAccess": "Early Access",
+            "earlyAccessTooltip": "Early access required",
+            "inLibrary": "In Library",
+            "alreadyInLibrary": "Already in Library",
+            "autoOrganizedPath": "[Auto-organized by path template]",
+            "errors": {
+                "invalidUrl": "Invalid Civitai URL format",
+                "noVersions": "No versions available for this model"
+            },
+            "status": {
+                "preparing": "Preparing download...",
+                "downloadedPreview": "Downloaded preview image",
+                "downloadingFile": "Downloading {type} file",
+                "finalizing": "Finalizing download..."
+            },
+            "progress": {
+                "currentFile": "Current file:",
+                "downloading": "Downloading: {name}",
+                "transferred": "Transferred: {downloaded} / {total}",
+                "transferredSimple": "Transferred: {downloaded}",
+                "transferredUnknown": "Transferred: --",
+                "speed": "Speed: {speed}"
+            }
+        },
+        "move": {
+            "title": "Move Models"
+        },
+        "contentRating": {
+            "title": "Set Content Rating",
+            "current": "Current",
+            "multiple": "Multiple values",
+            "levels": {
+                "pg": "PG",
+                "pg13": "PG13",
+                "r": "R",
+                "x": "X",
+                "xxx": "XXX"
+            }
+        },
+        "deleteModel": {
+            "title": "Delete Model",
+            "message": "Are you sure you want to delete this model and all associated files?"
+        },
+        "excludeModel": {
+            "title": "Exclude Model",
+            "message": "Are you sure you want to exclude this model? Excluded models won't appear in searches or model lists."
+        },
+        "deleteDuplicateRecipes": {
+            "title": "Delete Duplicate Recipes",
+            "message": "Are you sure you want to delete the selected duplicate recipes?",
+            "countMessage": "recipes will be permanently deleted."
+        },
+        "deleteDuplicateModels": {
+            "title": "Delete Duplicate Models",
+            "message": "Are you sure you want to delete the selected duplicate models?",
+            "countMessage": "models will be permanently deleted."
+        },
+        "clearCache": {
+            "title": "Clear Cache Files",
+            "message": "Are you sure you want to clear all cache files?",
+            "description": "This will remove all cached model data. The system will need to rebuild the cache on next startup, which may take some time depending on your model collection size.",
+            "action": "Clear Cache"
+        },
+        "bulkDelete": {
+            "title": "Delete Multiple Models",
+            "message": "Are you sure you want to delete all selected models and their associated files?",
+            "countMessage": "models will be permanently deleted.",
+            "action": "Delete All"
+        },
+        "checkUpdates": {
+            "title": "Check updates for all {typePlural}?",
+            "message": "This checks every {typePlural} in your library for updates. Large collections may take a little longer.",
+            "tip": "To work in smaller batches, switch to bulk mode, choose the ones you need, then use \"Check Updates for Selected\".",
+            "action": "Check All"
+        },
+        "bulkAddTags": {
+            "title": "Add Tags to Multiple Models",
+            "description": "Add tags to",
+            "models": "models",
+            "tagsToAdd": "Tags to Add",
+            "placeholder": "Enter tag and press Enter...",
+            "appendTags": "Append Tags",
+            "replaceTags": "Replace Tags",
+            "saveChanges": "Save changes"
+        },
+        "bulkBaseModel": {
+            "title": "Set Base Model for Multiple Models",
+            "description": "Set base model for",
+            "models": "models",
+            "selectBaseModel": "Select Base Model",
+            "save": "Update Base Model",
+            "cancel": "Cancel"
+        },
+        "exampleAccess": {
+            "title": "Local Example Images",
+            "message": "No local example images found for this model. View options:",
+            "downloadOption": {
+                "title": "Download from Civitai",
+                "description": "Save remote examples locally for offline use and faster loading"
+            },
+            "importOption": {
+                "title": "Import Your Own",
+                "description": "Add your own custom examples for this model"
+            },
+            "footerNote": "Remote examples are still viewable in the model details even without local copies"
+        },
+        "moveModel": {
+            "targetLocationPreview": "Target Location Preview:",
+            "selectModelRoot": "Select Model Root:",
+            "targetFolderPath": "Target Folder Path:",
+            "browseFolders": "Browse Folders:",
+            "createNewFolder": "Create new folder",
+            "pathPlaceholder": "Type folder path or select from tree below...",
+            "root": "Root"
+        },
+        "relinkCivitai": {
+            "title": "Re-link to Civitai",
+            "warning": "Warning:",
+            "warningText": "This is a potentially destructive operation. Re-linking will:",
+            "warningList": {
+                "overrideMetadata": "Override existing metadata",
+                "modifyHash": "Potentially modify the model hash",
+                "unintendedConsequences": "May have other unintended consequences"
+            },
+            "proceedText": "Only proceed if you're sure this is what you want.",
+            "urlLabel": "Civitai Model URL:",
+            "urlPlaceholder": "https://civitai.com/models/649516/model-name?modelVersionId=726676",
+            "helpText": {
+                "title": "Paste any Civitai model URL. Supported formats:",
+                "format1": "https://civitai.com/models/649516",
+                "format2": "https://civitai.com/models/649516?modelVersionId=726676",
+                "format3": "https://civitai.com/models/649516/model-name?modelVersionId=726676",
+                "note": "Note: If no modelVersionId is provided, the latest version will be used."
+            },
+            "confirmAction": "Confirm Re-link"
+        },
+        "model": {
+            "actions": {
+                "editModelName": "Edit model name",
+                "editFileName": "Edit file name",
+                "editBaseModel": "Edit base model",
+                "viewOnCivitai": "View on Civitai",
+                "viewOnCivitaiText": "View on Civitai",
+                "viewCreatorProfile": "View Creator Profile",
+                "openFileLocation": "Open File Location"
+            },
+            "openFileLocation": {
+                "success": "File location opened successfully",
+                "failed": "Failed to open file location"
+            },
+            "metadata": {
+                "version": "Version",
+                "fileName": "File Name",
+                "location": "Location",
+                "baseModel": "Base Model",
+                "size": "Size",
+                "unknown": "Unknown",
+                "usageTips": "Usage Tips",
+                "additionalNotes": "Additional Notes",
+                "notesHint": "Press Enter to save, Shift+Enter for new line",
+                "addNotesPlaceholder": "Add your notes here...",
+                "aboutThisVersion": "About this version"
+            },
+            "notes": {
+                "saved": "Notes saved successfully",
+                "saveFailed": "Failed to save notes"
+            },
+            "usageTips": {
+                "addPresetParameter": "Add preset parameter...",
+                "strengthMin": "Strength Min",
+                "strengthMax": "Strength Max",
+                "strength": "Strength",
+                "clipStrength": "Clip Strength",
+                "clipSkip": "Clip Skip",
+                "valuePlaceholder": "Value",
+                "add": "Add"
+            },
+            "triggerWords": {
+                "label": "Trigger Words",
+                "noTriggerWordsNeeded": "No trigger word needed",
+                "edit": "Edit trigger words",
+                "cancel": "Cancel editing",
+                "save": "Save changes",
+                "addPlaceholder": "Type to add or click suggestions below",
+                "copyWord": "Copy trigger word",
+                "deleteWord": "Delete trigger word",
+                "suggestions": {
+                    "noSuggestions": "No suggestions available",
+                    "noTrainedWords": "No trained words or class tokens found in this model. You can manually enter trigger words.",
+                    "classToken": "Class Token",
+                    "classTokenDescription": "Add to your prompt for best results",
+                    "wordSuggestions": "Word Suggestions",
+                    "wordsFound": "{count} words found",
+                    "loading": "Loading suggestions..."
+                }
+            },
+            "description": {
+                "noDescription": "No model description available",
+                "failedToLoad": "Failed to load model description",
+                "editTitle": "Edit model description",
+                "validation": {
+                    "cannotBeEmpty": "Description cannot be empty"
+                },
+                "messages": {
+                    "updated": "Model description updated",
+                    "updateFailed": "Failed to update model description"
+                }
+            },
+            "tabs": {
+                "examples": "Examples",
+                "description": "Model Description",
+                "recipes": "Recipes",
+                "versions": "Versions"
+            },
+            "license": {
+                "noImageSell": "No selling generated content",
+                "noRentCivit": "No Civitai generation",
+                "noRent": "No generation services",
+                "noSell": "No selling models",
+                "creditRequired": "Creator credit required",
+                "noDerivatives": "No sharing merges",
+                "noReLicense": "Same permissions required",
+                "restrictionsLabel": "License restrictions"
+            },
+            "loading": {
+                "exampleImages": "Loading example images...",
+                "description": "Loading model description...",
+                "recipes": "Loading recipes...",
+                "examples": "Loading examples...",
+                "versions": "Loading versions..."
+            },
+            "versions": {
+                "heading": "Model versions",
+                "copy": "Track and manage every version of this model in one place.",
+                "media": {
+                    "placeholder": "No preview"
+                },
+                "labels": {
+                    "unnamed": "Untitled Version",
+                    "noDetails": "No additional details"
+                },
+                "badges": {
+                    "current": "Current Version",
+                    "inLibrary": "In Library",
+                    "newer": "Newer Version",
+                    "ignored": "Ignored"
+                },
+                "actions": {
+                    "download": "Download",
+                    "delete": "Delete",
+                    "ignore": "Ignore",
+                    "unignore": "Unignore",
+                    "resumeModelUpdates": "Resume updates for this model",
+                    "ignoreModelUpdates": "Ignore updates for this model",
+                    "viewLocalVersions": "View all local versions",
+                    "viewLocalTooltip": "Coming soon"
+                },
+                "filters": {
+                    "label": "Base filter",
+                    "state": {
+                        "showAll": "All versions",
+                        "showSameBase": "Same base"
+                    },
+                    "tooltip": {
+                        "showAllVersions": "Switch to showing all versions",
+                        "showSameBaseVersions": "Switch to showing only versions that match the current base model"
+                    },
+                    "empty": "No versions match the current base model filter."
+                },
+                "empty": "No version history available for this model yet.",
+                "error": "Failed to load versions.",
+                "missingModelId": "This model is missing a Civitai model id.",
+                "confirm": {
+                    "delete": "Delete this version from your library?"
+                },
+                "toast": {
+                    "modelIgnored": "Updates ignored for this model",
+                    "modelResumed": "Update tracking resumed",
+                    "versionIgnored": "Updates ignored for this version",
+                    "versionUnignored": "Version re-enabled",
+                    "versionDeleted": "Version deleted"
+                }
+            }
+        }
+    },
+    "modelTags": {
+        "messages": {
+            "updated": "Tags updated successfully",
+            "updateFailed": "Failed to update tags"
+        },
+        "validation": {
+            "maxLength": "Tag should not exceed 30 characters",
+            "maxCount": "Maximum 30 tags allowed",
+            "duplicate": "This tag already exists"
+        }
+    },
+    "keyboard": {
+        "navigation": "Keyboard Navigation:",
+        "shortcuts": {
+            "pageUp": "Scroll up one page",
+            "pageDown": "Scroll down one page",
+            "home": "Jump to top",
+            "end": "Jump to bottom"
+        }
+    },
+    "initialization": {
+        "title": "Initializing",
+        "message": "Preparing your workspace...",
+        "status": "Initializing...",
+        "estimatingTime": "Estimating time...",
+        "loras": {
+            "title": "Initializing LoRA Manager",
+            "message": "Scanning and building LoRA cache. This may take a few minutes..."
+        },
+        "checkpoints": {
+            "title": "Initializing Checkpoint Manager",
+            "message": "Scanning and building checkpoint cache. This may take a few minutes..."
+        },
+        "embeddings": {
+            "title": "Initializing Embedding Manager",
+            "message": "Scanning and building embedding cache. This may take a few minutes..."
+        },
+        "recipes": {
+            "title": "Initializing Recipe Manager",
+            "message": "Loading and processing recipes. This may take a few minutes..."
+        },
+        "statistics": {
+            "title": "Initializing Statistics",
+            "message": "Processing model data for statistics. This may take a few minutes..."
+        },
+        "tips": {
+            "title": "Tips & Tricks",
+            "civitai": {
+                "title": "Civitai Integration",
+                "description": "Connect your Civitai account: Visit Profile Avatar → Settings → API Keys → Add API Key, then paste it in Lora Manager settings.",
+                "alt": "Civitai API Setup"
+            },
+            "download": {
+                "title": "Easy Download",
+                "description": "Use Civitai URLs to quickly download and install new models.",
+                "alt": "Civitai Download"
+            },
+            "recipes": {
+                "title": "Save Recipes",
+                "description": "Create recipes to save your favorite model combinations for future use.",
+                "alt": "Recipes"
+            },
+            "filter": {
+                "title": "Fast Filtering",
+                "description": "Filter models by tags or base model type using the filter button in the header.",
+                "alt": "Filter Models"
+            },
+            "search": {
+                "title": "Quick Search",
+                "description": "Press Ctrl+F (Cmd+F on Mac) to quickly search within your current view.",
+                "alt": "Quick Search"
+            }
+        }
+    },
+    "duplicates": {
+        "found": "Found {count} duplicate groups",
+        "showNotification": "Show Duplicates Notification",
+        "deleteSelected": "Delete Selected",
+        "exitMode": "Exit Mode",
+        "help": {
+            "identicalHashes": "Identical hashes mean identical model files, even if they have different names or previews.",
+            "keepOne": "Keep only one version (preferably with better metadata/previews) and safely delete the others."
+        }
+    },
+    "uiHelpers": {
+        "clipboard": {
+            "copied": "Copied to clipboard",
+            "copyFailed": "Copy failed"
+        },
+        "lora": {
+            "syntaxCopied": "LoRA syntax copied to clipboard",
+            "syntaxCopiedNoTriggerWords": "LoRA syntax copied to clipboard (no trigger words found)",
+            "syntaxCopiedWithTriggerWords": "LoRA syntax with trigger words copied to clipboard",
+            "syntaxCopiedWithTriggerWordGroups": "LoRA syntax with trigger word groups copied to clipboard"
+        },
+        "workflow": {
+            "noSupportedNodes": "No supported target nodes found in workflow",
+            "communicationFailed": "Failed to communicate with ComfyUI",
+            "loraAdded": "LoRA appended to workflow",
+            "loraReplaced": "LoRA replaced in workflow",
+            "loraFailedToSend": "Failed to send LoRA to workflow",
+            "recipeAdded": "Recipe appended to workflow",
+            "recipeReplaced": "Recipe replaced in workflow",
+            "recipeFailedToSend": "Failed to send recipe to workflow",
+            "noMatchingNodes": "No compatible nodes available in the current workflow",
+            "noTargetNodeSelected": "No target node selected"
+        },
+        "nodeSelector": {
+            "recipe": "Recipe",
+            "lora": "LoRA",
+            "replace": "Replace",
+            "append": "Append",
+            "selectTargetNode": "Select target node",
+            "sendToAll": "Send to All"
+        },
+        "exampleImages": {
+            "opened": "Example images folder opened",
+            "openingFolder": "Opening example images folder",
+            "failedToOpen": "Failed to open example images folder"
+        }
+    },
+    "help": {
+        "title": "Help & Tutorials",
+        "tabs": {
+            "gettingStarted": "Getting Started",
+            "updateVlogs": "Update Vlogs",
+            "documentation": "Documentation"
+        },
+        "gettingStarted": {
+            "title": "Getting Started with LoRA Manager"
+        },
+        "updateVlogs": {
+            "title": "Latest Updates",
+            "watchOnYouTube": "Watch on YouTube",
+            "playlistTitle": "LoRA Manager Updates Playlist",
+            "playlistDescription": "Watch all update videos showcasing the latest features and improvements."
+        },
+        "documentation": {
+            "title": "Documentation",
+            "general": "General",
+            "troubleshooting": "Troubleshooting",
+            "modelManagement": "Model Management",
+            "recipes": "Recipes",
+            "settings": "Settings & Configuration",
+            "extensions": "Extensions",
+            "newBadge": "NEW"
+        }
+    },
+    "update": {
+        "title": "Check for Updates",
+        "notificationsTitle": "Notifications",
+        "tabs": {
+            "updates": "Updates",
+            "messages": "Messages"
+        },
+        "updateAvailable": "Update Available",
+        "noChangelogAvailable": "No detailed changelog available. Check GitHub for more information.",
+        "currentVersion": "Current Version",
+        "newVersion": "New Version",
+        "commit": "Commit",
+        "viewOnGitHub": "View on GitHub",
+        "updateNow": "Update Now",
+        "preparingUpdate": "Preparing update...",
+        "changelog": "Changelog",
+        "checkingUpdates": "Checking for updates...",
+        "checkingMessage": "Please wait while we check for the latest version.",
+        "showNotifications": "Show update notifications",
+        "updateProgress": {
+            "preparing": "Preparing update...",
+            "installing": "Installing update...",
+            "completed": "Update completed successfully!",
+            "failed": "Update failed: {error}"
+        },
+        "status": {
+            "updating": "Updating...",
+            "updated": "Updated!",
+            "updateFailed": "Update Failed"
+        },
+        "completion": {
+            "successMessage": "Successfully updated to {version}!",
+            "restartMessage": "Please restart ComfyUI or LoRA Manager to apply update.",
+            "reloadMessage": "Make sure to reload your browser for both LoRA Manager and ComfyUI."
+        },
+        "nightly": {
+            "warning": "Warning: Nightly builds may contain experimental features and could be unstable.",
+            "enable": "Enable Nightly Updates"
+        },
+        "banners": {
+            "recent": "Recent messages",
+            "empty": "No recent banners yet.",
+            "shown": "Shown {time}",
+            "dismissed": "Dismissed {time}",
+            "active": "Active"
+        }
+    },
+    "support": {
+        "title": "Support the Project",
+        "message": "If you find LoRA Manager useful, I'd really appreciate your support! 🙌",
+        "feedback": {
+            "title": "Provide Feedback",
+            "description": "Your feedback helps shape future updates! Share your thoughts:"
+        },
+        "links": {
+            "submitGithubIssue": "Submit GitHub Issue",
+            "joinDiscord": "Join Discord",
+            "youtubeChannel": "YouTube Channel",
+            "civitaiProfile": "Civitai Profile",
+            "supportKofi": "Support on Ko-fi",
+            "supportPatreon": "Support on Patreon"
+        },
+        "sections": {
+            "followUpdates": "Follow for Updates",
+            "buyMeCoffee": "Buy me a coffee",
+            "coffeeDescription": "If you'd like to support my work directly:",
+            "becomePatron": "Become a Patron",
+            "patronDescription": "Support ongoing development with monthly contributions:",
+            "wechatSupport": "WeChat Support",
+            "wechatDescription": "For users in China, you can support via WeChat:",
+            "showWechatQR": "Show WeChat QR Code",
+            "hideWechatQR": "Hide WeChat QR Code"
+        },
+        "footer": "Thank you for using LoRA Manager! ❤️"
+    },
+    "toast": {
+        "general": {
+            "cannotInteractStandalone": "Cannot interact with ComfyUI in standalone mode",
+            "failedWorkflowInfo": "Failed to get workflow information",
+            "pageInitFailed": "Failed to initialize {pageType} page. Please reload.",
+            "statisticsLoadFailed": "Failed to load statistics data"
+        },
+        "loras": {
+            "copyOnlyForLoras": "Copy syntax is only available for LoRAs",
+            "noLorasSelected": "No LoRAs selected",
+            "missingDataForLoras": "Missing data for {count} LoRAs",
+            "noValidLorasToCopy": "No valid LoRAs to copy",
+            "sendOnlyForLoras": "Send to workflow is only available for LoRAs",
+            "noValidLorasToSend": "No valid LoRAs to send",
+            "downloadSuccessful": "LoRAs downloaded successfully",
+            "allDownloadSuccessful": "All {count} LoRAs downloaded successfully",
+            "downloadPartialSuccess": "Downloaded {completed} of {total} LoRAs",
+            "downloadPartialWithAccess": "Downloaded {completed} of {total} LoRAs. {accessFailures} failed due to access restrictions. Check your API key in settings or early access status.",
+            "pleaseSelectVersion": "Please select a version",
+            "versionExists": "This version already exists in your library",
+            "downloadCompleted": "Download completed successfully",
+            "autoOrganizeSuccess": "Auto-organize completed successfully for {count} {type}",
+            "autoOrganizePartialSuccess": "Auto-organize completed with {success} moved, {failures} failed out of {total} models",
+            "autoOrganizeFailed": "Auto-organize failed: {error}",
+            "noModelsSelected": "No models selected"
+        },
+        "recipes": {
+            "fetchFailed": "Failed to fetch recipes: {message}",
+            "reloadFailed": "Failed to reload {modelType}s: {message}",
+            "loadFailed": "Failed to load {modelType}s: {message}",
+            "refreshComplete": "Refresh complete",
+            "refreshFailed": "Failed to refresh recipes: {message}",
+            "updateFailed": "Failed to update recipe: {error}",
+            "updateError": "Error updating recipe: {message}",
+            "nameSaved": "Recipe \"{name}\" saved successfully",
+            "nameUpdated": "Recipe name updated successfully",
+            "tagsUpdated": "Recipe tags updated successfully",
+            "sourceUrlUpdated": "Source URL updated successfully",
+            "noRecipeId": "No recipe ID available",
+            "copyFailed": "Error copying recipe syntax: {message}",
+            "noMissingLoras": "No missing LoRAs to download",
+            "missingLorasInfoFailed": "Failed to get information for missing LoRAs",
+            "preparingForDownloadFailed": "Error preparing LoRAs for download",
+            "enterLoraName": "Please enter a LoRA name or syntax",
+            "reconnectedSuccessfully": "LoRA reconnected successfully",
+            "reconnectFailed": "Error reconnecting LoRA: {message}",
+            "cannotSend": "Cannot send recipe: Missing recipe ID",
+            "sendFailed": "Failed to send recipe to workflow",
+            "sendError": "Error sending recipe to workflow",
+            "cannotDelete": "Cannot delete recipe: Missing recipe ID",
+            "deleteConfirmationError": "Error showing delete confirmation",
+            "deletedSuccessfully": "Recipe deleted successfully",
+            "deleteFailed": "Error deleting recipe: {message}",
+            "cannotShare": "Cannot share recipe: Missing recipe ID",
+            "preparingForSharing": "Preparing recipe for sharing...",
+            "downloadStarted": "Recipe download started",
+            "shareError": "Error sharing recipe: {message}",
+            "sharePreparationError": "Error preparing recipe for sharing",
+            "selectImageFirst": "Please select an image first",
+            "enterRecipeName": "Please enter a recipe name",
+            "processingError": "Processing error: {message}",
+            "folderBrowserError": "Error loading folder browser: {message}",
+            "recipeSaveFailed": "Failed to save recipe: {error}",
+            "importFailed": "Import failed: {message}",
+            "folderTreeFailed": "Failed to load folder tree",
+            "folderTreeError": "Error loading folder tree"
+        },
+        "models": {
+            "noModelsSelected": "No models selected",
+            "deletedSuccessfully": "Successfully deleted {count} {type}(s)",
+            "deleteFailed": "Error: {error}",
+            "deleteFailedGeneral": "Failed to delete models",
+            "selectedAdditional": "Selected {count} additional {type}(s)",
+            "marqueeSelectionComplete": "Selected {count} {type}(s) with marquee selection",
+            "refreshMetadataFailed": "Failed to refresh metadata",
+            "nameCannotBeEmpty": "Model name cannot be empty",
+            "nameUpdatedSuccessfully": "Model name updated successfully",
+            "nameUpdateFailed": "Failed to update model name",
+            "baseModelUpdated": "Base model updated successfully",
+            "baseModelUpdateFailed": "Failed to update base model",
+            "baseModelNotSelected": "Please select a base model",
+            "bulkBaseModelUpdating": "Updating base model for {count} model(s)...",
+            "bulkBaseModelUpdateSuccess": "Successfully updated base model for {count} model(s)",
+            "bulkBaseModelUpdatePartial": "Updated {success} model(s), failed {failed} model(s)",
+            "bulkBaseModelUpdateFailed": "Failed to update base model for selected models",
+            "bulkContentRatingUpdating": "Updating content rating for {count} model(s)...",
+            "bulkContentRatingSet": "Set content rating to {level} for {count} model(s)",
+            "bulkContentRatingPartial": "Set content rating to {level} for {success} model(s), {failed} failed",
+            "bulkContentRatingFailed": "Failed to update content rating for selected models",
+            "bulkUpdatesChecking": "Checking selected {type}(s) for updates...",
+            "bulkUpdatesSuccess": "Updates available for {count} selected {type}(s)",
+            "bulkUpdatesNone": "No updates found for selected {type}(s)",
+            "bulkUpdatesMissing": "Selected {type}(s) are not linked to Civitai updates",
+            "bulkUpdatesPartialMissing": "Skipped {missing} selected {type}(s) without Civitai links",
+            "bulkUpdatesFailed": "Failed to check updates for selected {type}(s): {message}",
+            "invalidCharactersRemoved": "Invalid characters removed from filename",
+            "filenameCannotBeEmpty": "File name cannot be empty",
+            "renameFailed": "Failed to rename file: {message}",
+            "moveFailed": "Failed to move model(s): {message}",
+            "pleaseSelectRoot": "Please select a {type} root directory",
+            "nameTooLong": "Model name is limited to 100 characters",
+            "verificationAlreadyDone": "This group has already been verified",
+            "verificationCompleteMismatch": "Verification complete. {count} file(s) have different actual hashes.",
+            "verificationCompleteSuccess": "Verification complete. All files are confirmed duplicates.",
+            "verificationFailed": "Failed to verify hashes: {message}",
+            "noTagsToAdd": "No tags to add",
+            "tagsAddedSuccessfully": "Successfully added {tagCount} tag(s) to {count} {type}(s)",
+            "tagsReplacedSuccessfully": "Successfully replaced tags for {count} {type}(s) with {tagCount} tag(s)",
+            "tagsAddFailed": "Failed to add tags to {count} model(s)",
+            "tagsReplaceFailed": "Failed to replace tags for {count} model(s)",
+            "bulkTagsAddFailed": "Failed to add tags to models",
+            "bulkTagsReplaceFailed": "Failed to replace tags for models"
+        },
+        "search": {
+            "atLeastOneOption": "At least one search option must be selected"
+        },
+        "settings": {
+            "loraRootsFailed": "Failed to load LoRA roots: {message}",
+            "checkpointRootsFailed": "Failed to load checkpoint roots: {message}",
+            "embeddingRootsFailed": "Failed to load embedding roots: {message}",
+            "mappingsUpdated": "Base model path mappings updated ({count} mapping{plural})",
+            "mappingsCleared": "Base model path mappings cleared",
+            "mappingSaveFailed": "Failed to save base model mappings: {message}",
+            "downloadTemplatesUpdated": "Download path templates updated",
+            "downloadTemplatesFailed": "Failed to save download path templates: {message}",
+            "settingsUpdated": "Settings updated: {setting}",
+            "compactModeToggled": "Compact Mode {state}",
+            "settingSaveFailed": "Failed to save setting: {message}",
+            "displayDensitySet": "Display Density set to {density}",
+            "libraryLoadFailed": "Failed to load libraries: {message}",
+            "libraryActivateFailed": "Failed to activate library: {message}",
+            "languageChangeFailed": "Failed to change language: {message}",
+            "cacheCleared": "Cache files have been cleared successfully. Cache will rebuild on next action.",
+            "cacheClearFailed": "Failed to clear cache: {error}",
+            "cacheClearError": "Error clearing cache: {message}"
+        },
+        "filters": {
+            "applied": "{message}",
+            "cleared": "Filters cleared",
+            "noCustomFilterToClear": "No custom filter to clear"
+        },
+        "downloads": {
+            "imagesCompleted": "Example images {action} completed",
+            "imagesFailed": "Example images {action} failed",
+            "loadError": "Error loading downloads: {message}",
+            "downloadError": "Download error: {message}"
+        },
+        "import": {
+            "folderTreeFailed": "Failed to load folder tree",
+            "folderTreeError": "Error loading folder tree",
+            "imagesImported": "Example images imported successfully",
+            "importFailed": "Failed to import example images: {message}"
+        },
+        "triggerWords": {
+            "loadFailed": "Could not load trained words",
+            "tooLong": "Trigger word should not exceed 100 words",
+            "tooMany": "Maximum 30 trigger words allowed",
+            "alreadyExists": "This trigger word already exists",
+            "updateSuccess": "Trigger words updated successfully",
+            "updateFailed": "Failed to update trigger words",
+            "copyFailed": "Copy failed"
+        },
+        "virtual": {
+            "loadFailed": "Failed to load items",
+            "loadMoreFailed": "Failed to load more items",
+            "loadPositionFailed": "Failed to load items at this position"
+        },
+        "bulk": {
+            "unableToSelectAll": "Unable to select all items"
+        },
+        "duplicates": {
+            "findFailed": "Failed to find duplicates: {message}",
+            "noDuplicatesFound": "No duplicate {type} found",
+            "noItemsSelected": "No {type} selected for deletion",
+            "deleteError": "Error: {message}",
+            "deleteSuccess": "Successfully deleted {count} {type}",
+            "deleteFailed": "Failed to delete {type}: {message}"
+        },
+        "controls": {
+            "reloadFailed": "Failed to reload {pageType}: {message}",
+            "refreshFailed": "Failed to {action} {pageType}: {message}",
+            "fetchMetadataFailed": "Failed to fetch metadata: {message}",
+            "clearFilterFailed": "Failed to clear custom filter: {message}"
+        },
+        "contextMenu": {
+            "contentRatingSet": "Content rating set to {level}",
+            "contentRatingFailed": "Failed to set content rating: {message}",
+            "relinkSuccess": "Model successfully re-linked to Civitai",
+            "relinkFailed": "Error: {message}",
+            "fetchMetadataFirst": "Please fetch metadata from CivitAI first",
+            "noCivitaiInfo": "No CivitAI information available",
+            "missingHash": "Model hash not available"
+        },
+        "exampleImages": {
+            "pathUpdated": "Example images path updated successfully",
+            "pathUpdateFailed": "Failed to update example images path: {message}",
+            "downloadInProgress": "Download already in progress",
+            "enterLocationFirst": "Please enter a download location first",
+            "downloadStarted": "Example images download started",
+            "downloadStartFailed": "Failed to start download: {error}",
+            "downloadPaused": "Download paused",
+            "pauseFailed": "Failed to pause download: {error}",
+            "downloadResumed": "Download resumed",
+            "resumeFailed": "Failed to resume download: {error}",
+            "downloadStopped": "Download cancelled",
+            "stopFailed": "Failed to cancel download: {error}",
+            "deleted": "Example image deleted",
+            "deleteFailed": "Failed to delete example image",
+            "setPreviewFailed": "Failed to set preview image"
+        },
+        "api": {
+            "fetchFailed": "Failed to fetch {type}s: {message}",
+            "reloadFailed": "Failed to reload {type}s: {message}",
+            "deleteSuccess": "{type} deleted successfully",
+            "deleteFailed": "Failed to delete {type}: {message}",
+            "excludeSuccess": "{type} excluded successfully",
+            "excludeFailed": "Failed to exclude {type}: {message}",
+            "fileNameUpdated": "File name updated successfully",
+            "fileRenameFailed": "Failed to rename file: {error}",
+            "previewUpdated": "Preview updated successfully",
+            "previewUploadFailed": "Failed to upload preview image",
+            "refreshComplete": "{action} complete",
+            "refreshFailed": "Failed to {action} {type}s",
+            "metadataRefreshed": "Metadata refreshed successfully",
+            "metadataRefreshFailed": "Failed to refresh metadata: {message}",
+            "metadataUpdateComplete": "Metadata update complete",
+            "metadataFetchFailed": "Failed to fetch metadata: {message}",
+            "bulkMetadataCompleteAll": "Successfully refreshed all {count} {type}s",
+            "bulkMetadataCompletePartial": "Refreshed {success} of {total} {type}s",
+            "bulkMetadataCompleteNone": "Failed to refresh metadata for any {type}s",
+            "bulkMetadataFailureDetails": "Failed refreshes:\n{failures}",
+            "bulkMetadataFailed": "Failed to refresh metadata: {message}",
+            "moveNotSupported": "Moving {type}s is not supported",
+            "alreadyInFolder": "{type} is already in the selected folder",
+            "moveInfo": "{message}",
+            "moveSuccess": "{type} moved successfully",
+            "bulkMoveNotSupported": "Moving {type}s is not supported",
+            "allAlreadyInFolder": "All selected {type}s are already in the target folder",
+            "bulkMovePartial": "Moved {successCount} {type}s, {failureCount} failed",
+            "bulkMoveFailures": "Failed moves:\n{failures}",
+            "bulkMoveSuccess": "Successfully moved {successCount} {type}s",
+            "exampleImagesDownloadSuccess": "Successfully downloaded example images!",
+            "exampleImagesDownloadFailed": "Failed to download example images: {message}"
+        }
+    },
+    "banners": {
+        "versionMismatch": {
+            "title": "Application Update Detected",
+            "content": "Your browser is running an outdated version of LoRA Manager ({storedVersion}). The server has been updated to version {currentVersion}. Please refresh to ensure proper functionality.",
+            "refreshNow": "Refresh Now",
+            "refreshingIn": "Refreshing in",
+            "seconds": "seconds"
+        },
+        "communitySupport": {
+            "title": "Keep LoRA Manager Thriving with Your Support ❤️",
+            "content": "LoRA Manager is a passion project maintained full-time by a solo developer. Your support on Ko-fi helps cover development costs, keeps new updates coming, and unlocks a license key for the LM Civitai Extension as a thank-you gift. Every contribution truly makes a difference.",
+            "supportCta": "Support on Ko-fi",
+            "learnMore": "LM Civitai Extension Tutorial"
+        }
+    }
+}

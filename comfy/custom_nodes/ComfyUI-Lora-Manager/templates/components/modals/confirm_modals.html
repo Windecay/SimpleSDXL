@@ -1,0 +1,83 @@
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal delete-modal">
+    <div class="modal-content delete-modal-content">
+        <h2>{{ t('modals.deleteModel.title') }}</h2>
+        <p class="delete-message">{{ t('modals.deleteModel.message') }}</p>
+        <div class="delete-model-info"></div>
+        <div class="modal-actions">
+            <button class="cancel-btn" onclick="closeDeleteModal()">{{ t('common.actions.cancel') }}</button>
+            <button class="delete-btn" onclick="confirmDelete()">{{ t('common.actions.delete') }}</button>
+        </div>
+    </div>
+</div>
+
+<!-- Exclude Confirmation Modal -->
+<div id="excludeModal" class="modal delete-modal">
+    <div class="modal-content delete-modal-content">
+        <h2>{{ t('modals.excludeModel.title') }}</h2>
+        <p class="delete-message">{{ t('modals.excludeModel.message') }}</p>
+        <div class="exclude-model-info"></div>
+        <div class="modal-actions">
+            <button class="cancel-btn" onclick="closeExcludeModal()">{{ t('common.actions.cancel') }}</button>
+            <button class="exclude-btn" onclick="confirmExclude()">{{ t('modals.exclude.confirm') }}</button>
+        </div>
+    </div>
+</div>
+
+<!-- Recipes Duplicate Delete Confirmation Modal -->
+<div id="duplicateDeleteModal" class="modal delete-modal">
+    <div class="modal-content delete-modal-content">
+        <h2>{{ t('modals.deleteDuplicateRecipes.title') }}</h2>
+        <p class="delete-message">{{ t('modals.deleteDuplicateRecipes.message') }}</p>
+        <div class="delete-model-info">
+            <p><span id="duplicateDeleteCount">0</span> {{ t('modals.deleteDuplicateRecipes.countMessage') }}</p>
+        </div>
+        <div class="modal-actions">
+            <button class="cancel-btn" onclick="modalManager.closeModal('duplicateDeleteModal')">{{ t('common.actions.cancel') }}</button>
+            <button class="delete-btn" onclick="recipeManager.confirmDeleteDuplicates()">{{ t('common.actions.delete') }}</button>
+        </div>
+    </div>
+</div>
+
+<!-- Models Duplicate Delete Confirmation Modal -->
+<div id="modelDuplicateDeleteModal" class="modal delete-modal">
+    <div class="modal-content delete-modal-content">
+        <h2>{{ t('modals.deleteDuplicateModels.title') }}</h2>
+        <p class="delete-message">{{ t('modals.deleteDuplicateModels.message') }}</p>
+        <div class="delete-model-info">
+            <p><span id="modelDuplicateDeleteCount">0</span> {{ t('modals.deleteDuplicateModels.countMessage') }}</p>
+        </div>
+        <div class="modal-actions">
+            <button class="cancel-btn" onclick="modalManager.closeModal('modelDuplicateDeleteModal')">{{ t('common.actions.cancel') }}</button>
+            <button class="delete-btn" onclick="modelDuplicatesManager.confirmDeleteDuplicates()">{{ t('common.actions.delete') }}</button>
+        </div>
+    </div>
+</div>
+
+<!-- Bulk Delete Confirmation Modal -->
+<div id="bulkDeleteModal" class="modal delete-modal">
+    <div class="modal-content delete-modal-content">
+        <h2>{{ t('modals.bulkDelete.title') }}</h2>
+        <p class="delete-message">{{ t('modals.bulkDelete.message') }}</p>
+        <div class="delete-model-info">
+            <p><span id="bulkDeleteCount">0</span> {{ t('modals.bulkDelete.countMessage') }}</p>
+        </div>
+        <div class="modal-actions">
+            <button class="cancel-btn" onclick="modalManager.closeModal('bulkDeleteModal')">{{ t('common.actions.cancel') }}</button>
+            <button class="delete-btn" onclick="bulkManager.confirmBulkDelete()">{{ t('modals.bulkDelete.action') }}</button>
+        </div>
+    </div>
+</div>
+
+<!-- Check Updates Confirmation Modal -->
+<div id="checkUpdatesConfirmModal" class="modal delete-modal">
+    <div class="modal-content delete-modal-content">
+        <h2 data-role="title"></h2>
+        <p class="confirmation-message" data-role="message"></p>
+        <p class="confirmation-tip" data-role="tip"></p>
+        <div class="modal-actions">
+            <button class="cancel-btn" data-action="cancel-check-updates">{{ t('common.actions.cancel') }}</button>
+            <button class="primary-btn" data-action="confirm-check-updates">{{ t('modals.checkUpdates.action') }}</button>
+        </div>
+    </div>
+</div>

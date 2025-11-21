@@ -94,29 +94,29 @@ def get_facemodels():
     return models
 
 def get_restorers():
-    models_path = os.path.join(models_dir, "controlnet", "facerestore_models/*")
-    models = glob.glob(models_path)
-    models = [x for x in models if (x.endswith(".pth") or x.endswith(".onnx"))]
-    if len(models) == 0:
-        fr_urls = [
-            "https://huggingface.co/datasets/Gourieff/ReActor/resolve/main/models/facerestore_models/GFPGANv1.3.pth",
-            "https://huggingface.co/datasets/Gourieff/ReActor/resolve/main/models/facerestore_models/GFPGANv1.4.pth",
-            "https://huggingface.co/datasets/Gourieff/ReActor/resolve/main/models/facerestore_models/codeformer-v0.1.0.pth",
-            "https://huggingface.co/datasets/Gourieff/ReActor/resolve/main/models/facerestore_models/GPEN-BFR-512.onnx",
-        ]
-        for model_url in fr_urls:
-            model_name = os.path.basename(model_url)
-            model_path = os.path.join(dir_facerestore_models, model_name)
-            download(model_url, model_path, model_name)
-        models = glob.glob(models_path)
-        models = [x for x in models if (x.endswith(".pth") or x.endswith(".onnx"))]
+    models = []
+
+    controlnet_paths = []
+    if "controlnet" in folder_paths.folder_names_and_paths:
+        controlnet_paths = folder_paths.folder_names_and_paths["controlnet"][0]
+
+    for controlnet_path in controlnet_paths:
+        facerestore_path = os.path.join(controlnet_path, "facerestore_models")
+        if os.path.exists(facerestore_path):
+            models_path = os.path.join(facerestore_path, "*")
+            found_models = glob.glob(models_path)
+            found_models = [x for x in found_models if (x.endswith(".pth") or x.endswith(".onnx"))]
+            models.extend(found_models)
+
     return models
 
-def get_model_names(get_models):
-    models = get_models()
+def get_model_names(get_models_func):
+    models = get_models_func()
     names = []
     for x in models:
         names.append(os.path.basename(x))
+
+    names = list(set(names))
     names.sort(key=str.lower)
     names.insert(0, "none")
     return names
@@ -194,6 +194,21 @@ class reactor:
 
             model_path = folder_paths.get_full_path("facerestore_models", face_restore_model)
 
+            if model_path is None:
+                controlnet_paths = []
+                if "controlnet" in folder_paths.folder_names_and_paths:
+                    controlnet_paths = folder_paths.folder_names_and_paths["controlnet"][0]
+
+                for controlnet_path in controlnet_paths:
+                    candidate_path = os.path.join(controlnet_path, "facerestore_models", face_restore_model)
+                    if os.path.exists(candidate_path):
+                        model_path = candidate_path
+                        break
+
+            if model_path is None:
+                logger.error(f"Model not found: {face_restore_model}")
+                return input_image
+
             device = model_management.get_torch_device()
 
             if "codeformer" in face_restore_model.lower():
@@ -205,21 +220,34 @@ class reactor:
                     n_layers=9,
                     connect_list=["32", "64", "128", "256"],
                 ).to(device)
-                checkpoint = torch.load(model_path)["params_ema"]
-                codeformer_net.load_state_dict(checkpoint)
-                facerestore_model = codeformer_net.eval()
+
+                if os.path.exists(model_path):
+                    checkpoint = torch.load(model_path)["params_ema"]
+                    codeformer_net.load_state_dict(checkpoint)
+                    facerestore_model = codeformer_net.eval()
+                else:
+                    logger.error(f"Model file not found: {model_path}")
+                    return input_image
 
             elif ".onnx" in face_restore_model:
 
-                ort_session = set_ort_session(model_path, providers=providers)
-                ort_session_inputs = {}
-                facerestore_model = ort_session
+                if os.path.exists(model_path):
+                    ort_session = set_ort_session(model_path, providers=providers)
+                    ort_session_inputs = {}
+                    facerestore_model = ort_session
+                else:
+                    logger.error(f"Model file not found: {model_path}")
+                    return input_image
 
             else:
 
-                sd = comfy.utils.load_torch_file(model_path, safe_load=True)
-                facerestore_model = model_loading.load_state_dict(sd).eval()
-                facerestore_model.to(device)
+                if os.path.exists(model_path):
+                    sd = comfy.utils.load_torch_file(model_path, safe_load=True)
+                    facerestore_model = model_loading.load_state_dict(sd).eval()
+                    facerestore_model.to(device)
+                else:
+                    logger.error(f"Model file not found: {model_path}")
+                    return input_image
 
             if faceSize != FACE_SIZE or self.face_helper is None:
                 self.face_helper = FaceRestoreHelper(1, face_size=faceSize, crop_ratio=(1, 1), det_model=facedetection, save_ext='png', use_parse=True, device=device)
