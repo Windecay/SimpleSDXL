@@ -4635,7 +4635,7 @@
         }
       },
       "widgets_values": [
-        "umt5-xxl-encoder-Q8_0.gguf",
+        "umt5_xxl_fp8_e4m3fn_scaled.safetensors",
         "wan",
         "default"
       ],
