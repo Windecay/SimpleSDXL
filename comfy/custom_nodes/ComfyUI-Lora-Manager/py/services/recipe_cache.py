@@ -2,7 +2,14 @@ import asyncio
 from typing import Iterable, List, Dict, Optional
 from dataclasses import dataclass
 from operator import itemgetter
-from natsort import natsorted
+try:
+    from natsort import natsorted
+except ImportError:
+    # 提供一个简单的排序替代方案
+    def natsorted(items, key=None, reverse=False):
+        if key:
+            return sorted(items, key=key, reverse=reverse)
+        return sorted(items, reverse=reverse)
 
 @dataclass
 class RecipeCache:

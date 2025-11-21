@@ -11,7 +11,14 @@ from .lora_scanner import LoraScanner
 from .metadata_service import get_default_metadata_provider
 from .recipes.errors import RecipeNotFoundError
 from ..utils.utils import calculate_recipe_fingerprint, fuzzy_match
-from natsort import natsorted
+try:
+    from natsort import natsorted
+except ImportError:
+    # 提供一个简单的排序替代方案
+    def natsorted(items, key=None, reverse=False):
+        if key:
+            return sorted(items, key=key, reverse=reverse)
+        return sorted(items, reverse=reverse)
 import sys
 
 logger = logging.getLogger(__name__)

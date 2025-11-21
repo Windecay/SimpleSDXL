@@ -2,7 +2,14 @@ import asyncio
 from typing import Any, Dict, List, Optional, Tuple
 from dataclasses import dataclass, field
 from operator import itemgetter
-from natsort import natsorted
+try:
+    from natsort import natsorted
+except ImportError:
+    # 提供一个简单的排序替代方案
+    def natsorted(items, key=None, reverse=False):
+        if key:
+            return sorted(items, key=key, reverse=reverse)
+        return sorted(items, reverse=reverse)
 
 # Supported sort modes: (sort_key, order)
 # order: 'asc' for ascending, 'desc' for descending
