@@ -60,7 +60,7 @@ def sync_intput_reserved():
     comfyd_images_path = os.path.join(shared.path_userhome, 'guest_user')
     comfyd_intput = os.path.join(comfyd_images_path, 'comfyd_inputs')
     comfyd_intput_reserved = os.path.join(shared.root, 'presets/input_reserved')
-    image_extensions = {'.jpg', '.png', '.jpeg', '.webp', '.mp4'}
+    image_extensions = {'.jpg', '.png', '.jpeg', '.webp', '.mp4', '.mp3'}
 
     default_image_path = os.path.join(shared.root, 'presets/welcome/welcome.png')
     if not os.path.exists(os.path.join(comfyd_intput, 'welcome.png')):

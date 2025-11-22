@@ -792,7 +792,7 @@
     },
     {
       "id": 72,
-      "type": "PromptSelector",
+      "type": "Wan22PromptSelector",
       "pos": [
         -560,
         40

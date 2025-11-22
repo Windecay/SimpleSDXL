@@ -116,9 +116,9 @@ class PromptSelector:
 
 # 节点注册
 NODE_CLASS_MAPPINGS = {
-    "PromptSelector": PromptSelector
+    "Wan22PromptSelector": PromptSelector
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "PromptSelector": "Prompt Selector"
+    "Wan22PromptSelector": "Wan2.2 Prompt Selector"
 }
