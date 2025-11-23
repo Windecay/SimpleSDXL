@@ -1,8 +1,8 @@
 {
   "id": "8496a8b1-17bc-4ead-a31e-e70ff8fa3d6e",
   "revision": 0,
-  "last_node_id": 103,
-  "last_link_id": 159,
+  "last_node_id": 107,
+  "last_link_id": 169,
   "nodes": [
     {
       "id": 71,
@@ -76,10 +76,10 @@
           "name": "IMAGE",
           "type": "IMAGE",
           "links": [
-            47,
             48,
             49,
-            118
+            118,
+            161
           ]
         },
         {
@@ -102,8 +102,8 @@
         }
       },
       "widgets_values": [
-        2048,
-        2048,
+        1536,
+        1536,
         "lanczos",
         "keep proportion",
         "upscale if smaller",
@@ -419,16 +419,14 @@
           "name": "anything",
           "shape": 7,
           "type": "*",
-          "link": 18
+          "link": 162
         }
       ],
       "outputs": [
         {
           "name": "output",
           "type": "*",
-          "links": [
-            25
-          ]
+          "links": []
         }
       ],
       "properties": {
@@ -440,7 +438,7 @@
         }
       },
       "widgets_values": [
-        "```json\n[\n    {\"bbox_2d\": [435, 353, 519, 380], \"label\": \"mouth\"},\n    {\"bbox_2d\": [434, 279, 491, 339], \"label\": \"eye\"},\n    {\"bbox_2d\": [515, 279, 576, 340], \"label\": \"eye\"}\n]\n```"
+        ""
       ]
     },
     {
@@ -513,13 +511,13 @@
       "flags": {
         "pinned": true
       },
-      "order": 32,
+      "order": 31,
       "mode": 0,
       "inputs": [
         {
           "name": "json",
           "type": "STRING",
-          "link": 25
+          "link": 163
         },
         {
           "name": "image",
@@ -866,7 +864,7 @@
       ],
       "size": [
         660,
-        26
+        20
       ],
       "flags": {
         "pinned": true,
@@ -904,7 +902,7 @@
       ],
       "size": [
         521.240234375,
-        26
+        20
       ],
       "flags": {
         "pinned": true,
@@ -932,68 +930,6 @@
       },
       "color": "#fff0",
       "bgcolor": "#fff0"
-    },
-    {
-      "id": 12,
-      "type": "llama_cpp_instruct_adv",
-      "pos": [
-        310,
-        -730
-      ],
-      "size": [
-        400,
-        600
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 26,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "llmamodel",
-          "type": "LLAMACPPMODEL",
-          "link": null
-        },
-        {
-          "name": "parameters",
-          "type": "LLAMACPPARAMS",
-          "link": null
-        },
-        {
-          "name": "images",
-          "shape": 7,
-          "type": "IMAGE",
-          "link": 47
-        }
-      ],
-      "outputs": [
-        {
-          "name": "output",
-          "type": "STRING",
-          "links": [
-            18
-          ]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "llama_cpp_instruct_adv",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.3"
-        }
-      },
-      "widgets_values": [
-        "Vision - *Bounding Box",
-        "mouth, eye",
-        "",
-        false,
-        24,
-        256,
-        1082745008381004,
-        "randomize"
-      ]
     },
     {
       "id": 84,
@@ -1184,7 +1120,7 @@
       ],
       "size": [
         480,
-        330
+        370
       ],
       "flags": {
         "pinned": true
@@ -1221,7 +1157,9 @@
         1,
         0,
         0.1,
-        5
+        5,
+        0,
+        0
       ],
       "color": "#223",
       "bgcolor": "#335"
@@ -1235,7 +1173,7 @@
       ],
       "size": [
         240,
-        26
+        20
       ],
       "flags": {
         "pinned": true,
@@ -1273,7 +1211,7 @@
       ],
       "size": [
         260,
-        26
+        20
       ],
       "flags": {
         "pinned": true,
@@ -1303,68 +1241,6 @@
       "bgcolor": "#fff0"
     },
     {
-      "id": 88,
-      "type": "llama_cpp_instruct_adv",
-      "pos": [
-        1900,
-        -730
-      ],
-      "size": [
-        410,
-        326
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 22,
-      "mode": 4,
-      "inputs": [
-        {
-          "name": "llmamodel",
-          "type": "LLAMACPPMODEL",
-          "link": null
-        },
-        {
-          "name": "parameters",
-          "type": "LLAMACPPARAMS",
-          "link": null
-        },
-        {
-          "name": "images",
-          "shape": 7,
-          "type": "IMAGE",
-          "link": 125
-        }
-      ],
-      "outputs": [
-        {
-          "name": "output",
-          "type": "STRING",
-          "links": [
-            126
-          ]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "llama_cpp_instruct_adv",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.3"
-        }
-      },
-      "widgets_values": [
-        "Prompt Style - Detailed",
-        "",
-        "",
-        false,
-        24,
-        256,
-        920578735460986,
-        "randomize"
-      ]
-    },
-    {
       "id": 90,
       "type": "ShowText|pysssss",
       "pos": [
@@ -1384,7 +1260,7 @@
         {
           "name": "text",
           "type": "STRING",
-          "link": 126
+          "link": 165
         }
       ],
       "outputs": [
@@ -1404,69 +1280,7 @@
         }
       },
       "widgets_values": [
-        "A poised, youthful woman with dark hair elegantly pulled into a high bun sits gracefully on a dark wooden table, her slender form draped in a form-fitting, deep burgundy one-shoulder dress that accentuates her curves with soft, luxurious fabric; beside her rests a single glass of rich red wine, catching the ambient light as she gazes directly at the viewer with an intimate, serene expression, bathed in the cool, diffused glow filtering through horizontal window blinds behind her, creating a mood of quiet sophistication and tranquil elegance."
-      ]
-    },
-    {
-      "id": 92,
-      "type": "llama_cpp_instruct_adv",
-      "pos": [
-        1900,
-        -350
-      ],
-      "size": [
-        410,
-        326
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 23,
-      "mode": 4,
-      "inputs": [
-        {
-          "name": "llmamodel",
-          "type": "LLAMACPPMODEL",
-          "link": null
-        },
-        {
-          "name": "parameters",
-          "type": "LLAMACPPARAMS",
-          "link": null
-        },
-        {
-          "name": "images",
-          "shape": 7,
-          "type": "IMAGE",
-          "link": 127
-        }
-      ],
-      "outputs": [
-        {
-          "name": "output",
-          "type": "STRING",
-          "links": [
-            128
-          ]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "llama_cpp_instruct_adv",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.3"
-        }
-      },
-      "widgets_values": [
-        "Creative - Refine & Expand Prompt",
-        "",
-        "使用中文输出结果",
-        false,
-        24,
-        256,
-        795203637759747,
-        "randomize"
+        ""
       ]
     },
     {
@@ -1489,7 +1303,7 @@
         {
           "name": "text",
           "type": "STRING",
-          "link": 128
+          "link": 167
         }
       ],
       "outputs": [
@@ -1509,7 +1323,7 @@
         }
       },
       "widgets_values": [
-        "一位身着深红色单肩修身连衣裙的优雅女性，黑色秀发高高盘起，姿态慵懒迷人地倚靠在深色木质桌边，桌上静置一杯红酒，背景是透出柔和光线的百叶窗，整体氛围奢华而私密，光影交错间流露精致与诱惑，细节处尽显高级质感与艺术美感。"
+        ""
       ]
     },
     {
@@ -1534,8 +1348,8 @@
           "name": "IMAGE",
           "type": "IMAGE",
           "links": [
-            125,
-            127
+            164,
+            166
           ]
         },
         {
@@ -1632,7 +1446,7 @@
           "name": "images",
           "type": "IMAGE",
           "links": [
-            142
+            168
           ]
         },
         {
@@ -1659,68 +1473,6 @@
       "widgets_values": []
     },
     {
-      "id": 99,
-      "type": "llama_cpp_instruct_adv",
-      "pos": [
-        1750,
-        250
-      ],
-      "size": [
-        410,
-        326
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 29,
-      "mode": 4,
-      "inputs": [
-        {
-          "name": "llmamodel",
-          "type": "LLAMACPPMODEL",
-          "link": null
-        },
-        {
-          "name": "parameters",
-          "type": "LLAMACPPARAMS",
-          "link": null
-        },
-        {
-          "name": "images",
-          "shape": 7,
-          "type": "IMAGE",
-          "link": 142
-        }
-      ],
-      "outputs": [
-        {
-          "name": "output",
-          "type": "STRING",
-          "links": [
-            143
-          ]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "llama_cpp_instruct_adv",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.3"
-        }
-      },
-      "widgets_values": [
-        "Creative - Summarize Video",
-        "",
-        "使用中文输出结果",
-        true,
-        81,
-        256,
-        518495057532410,
-        "randomize"
-      ]
-    },
-    {
       "id": 101,
       "type": "ShowText|pysssss",
       "pos": [
@@ -1734,13 +1486,13 @@
       "flags": {
         "pinned": true
       },
-      "order": 31,
+      "order": 32,
       "mode": 4,
       "inputs": [
         {
           "name": "text",
           "type": "STRING",
-          "link": 143
+          "link": 169
         }
       ],
       "outputs": [
@@ -1760,7 +1512,7 @@
         }
       },
       "widgets_values": [
-        "该视频呈现了一位女性在夜晚户外的静态摄影场景，整体氛围浪漫而梦幻。以下是关键事件和叙事要点的总结：\n\n1. **场景设定**：  \n   - 视频拍摄于夜晚，背景为城市夜景，远处灯火模糊可见，营造出宁静而迷人的都市夜色。\n   - 女性坐在户外的石阶或平台上，旁边有装饰性的白色花束和玻璃瓶，增添了一丝优雅与自然的气息。\n\n2. **人物造型**：  \n   - 女性身着白色蕾丝内衣套装，搭配长款透明手套和头戴花朵发饰，整体造型精致、唯美，带有童话或古典风格。\n   - 她的妆容精致，尤其是眼妆和唇色，强化了画面的视觉美感。\n\n3. **动态变化**：  \n   - 视频中，女性从初始坐姿逐渐调整姿势，从双腿交叉到双手轻抚身体、托住脸颊或轻触胸腹，动作缓慢而优雅。\n   - 她的视线主要面向镜头，眼神温柔而自信，偶尔轻微调整头颈角度，展现不同角度的轮廓。\n\n4. **情绪与氛围**：  \n   - 整个视频传达出一种宁静、优雅且略带神秘感的氛围，仿佛在演绎一个童话故事中的女主角。\n   - 虽然没有明显的剧情发展，但通过细微的动作和表情变化，构建了一种“静态中蕴含动感”的叙事张力。\n\n5. **摄影手法**：  \n   - 视频使用了柔和的灯光（可能是柔光灯或夜景补光），突出了人物的肌肤和服装细节。\n   - 镜头保持稳定，专注于人物，背景虚化处理，强化主体突出。\n\n6. **主题与象征**：  \n   - 花环、白裙、夜景等元素共同构建出“自然与都市交融”的浪漫意境。\n   - 可能象征着“纯真”、“优雅”或“梦幻时刻”，适合用于艺术摄影、时尚宣传或情感表达。\n\n综上，这段视频虽无动态情节推进，但通过精心构图、氛围营造和人物表现，成功塑造了一个充满诗意与美感的视觉叙事，旨在传递一种静谧而优美的情绪体验。"
+        ""
       ]
     },
     {
@@ -1845,7 +1597,7 @@
         }
       },
       "widgets_values": [
-        "文件已存在于 G:\\SimpleAI\\SimpleModels\\LLM\\Qwen3-VL-4B-Instruct-GGUF\\mmproj-Qwen3VL-4B-Instruct-Q8_0.gguf，跳过下载。\n文件已存在于 G:\\SimpleAI\\SimpleModels\\LLM\\Qwen3-VL-4B-Instruct-GGUF\\Qwen3VL-4B-Instruct-Q8_0.gguf，跳过下载。"
+        ""
       ]
     },
     {
@@ -1988,7 +1740,7 @@
       ],
       "size": [
         250,
-        26
+        25
       ],
       "flags": {
         "pinned": true,
@@ -2036,23 +1788,258 @@
       "inputs": [],
       "outputs": [],
       "title": "其他版本模型",
-      "properties": {},
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.3",
+          "input_ue_unconnectable": {}
+        }
+      },
       "widgets_values": [
         "- LLM\\\\Qwen3-VL-4B-Instruct-GGUF\n\n[Qwen3-VL-4B-Instruct-GGUF](https://www.modelscope.cn/models/Qwen/Qwen3-VL-4B-Instruct-GGUF/files)"
       ],
       "color": "#432",
       "bgcolor": "#653"
+    },
+    {
+      "id": 106,
+      "type": "llama_cpp_instruct_adv",
+      "pos": [
+        1900,
+        -350
+      ],
+      "size": [
+        410,
+        346
+      ],
+      "flags": {},
+      "order": 23,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "llamamodel",
+          "type": "LLAMACPPMODEL",
+          "link": null
+        },
+        {
+          "name": "parameters",
+          "type": "LLAMACPPARAMS",
+          "link": null
+        },
+        {
+          "name": "images",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 166
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "STRING",
+          "links": [
+            167
+          ]
+        }
+      ],
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "Node name for S&R": "llama_cpp_instruct_adv"
+      },
+      "widgets_values": [
+        "Creative - Refine & Expand Prompt",
+        "",
+        "使用中文输出结果",
+        "one by one",
+        24,
+        256,
+        0,
+        "randomize"
+      ]
+    },
+    {
+      "id": 105,
+      "type": "llama_cpp_instruct_adv",
+      "pos": [
+        1900,
+        -730
+      ],
+      "size": [
+        410,
+        346
+      ],
+      "flags": {},
+      "order": 22,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "llamamodel",
+          "type": "LLAMACPPMODEL",
+          "link": null
+        },
+        {
+          "name": "parameters",
+          "type": "LLAMACPPARAMS",
+          "link": null
+        },
+        {
+          "name": "images",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 164
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "STRING",
+          "links": [
+            165
+          ]
+        }
+      ],
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "Node name for S&R": "llama_cpp_instruct_adv"
+      },
+      "widgets_values": [
+        "Prompt Style - Detailed",
+        "",
+        "",
+        "one by one",
+        24,
+        256,
+        0,
+        "randomize"
+      ]
+    },
+    {
+      "id": 107,
+      "type": "llama_cpp_instruct_adv",
+      "pos": [
+        1750,
+        250
+      ],
+      "size": [
+        410,
+        346
+      ],
+      "flags": {},
+      "order": 29,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "llamamodel",
+          "type": "LLAMACPPMODEL",
+          "link": null
+        },
+        {
+          "name": "parameters",
+          "type": "LLAMACPPARAMS",
+          "link": null
+        },
+        {
+          "name": "images",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 168
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "STRING",
+          "links": [
+            169
+          ]
+        }
+      ],
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "Node name for S&R": "llama_cpp_instruct_adv"
+      },
+      "widgets_values": [
+        "Creative - Summarize Video",
+        "",
+        "使用中文输出结果",
+        "video",
+        81,
+        256,
+        0,
+        "randomize"
+      ]
+    },
+    {
+      "id": 104,
+      "type": "llama_cpp_instruct_adv",
+      "pos": [
+        310,
+        -730
+      ],
+      "size": [
+        400,
+        600
+      ],
+      "flags": {},
+      "order": 26,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "llamamodel",
+          "type": "LLAMACPPMODEL",
+          "link": null
+        },
+        {
+          "name": "parameters",
+          "type": "LLAMACPPARAMS",
+          "link": null
+        },
+        {
+          "name": "images",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 161
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "STRING",
+          "links": [
+            162,
+            163
+          ]
+        }
+      ],
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "Node name for S&R": "llama_cpp_instruct_adv"
+      },
+      "widgets_values": [
+        "Vision - *Bounding Box",
+        "mouth, eye",
+        "",
+        "one by one",
+        24,
+        256,
+        0,
+        "randomize"
+      ]
     }
   ],
   "links": [
-    [
-      18,
-      12,
-      0,
-      17,
-      0,
-      "*"
-    ],
     [
       23,
       18,
@@ -2060,14 +2047,6 @@
       21,
       0,
       "IMAGE"
-    ],
-    [
-      25,
-      17,
-      0,
-      18,
-      0,
-      "STRING"
     ],
     [
       36,
@@ -2107,14 +2086,6 @@
       0,
       41,
       0,
-      "IMAGE"
-    ],
-    [
-      47,
-      41,
-      0,
-      12,
-      2,
       "IMAGE"
     ],
     [
@@ -2230,38 +2201,6 @@
       "MASK"
     ],
     [
-      125,
-      89,
-      0,
-      88,
-      2,
-      "IMAGE"
-    ],
-    [
-      126,
-      88,
-      0,
-      90,
-      0,
-      "STRING"
-    ],
-    [
-      127,
-      89,
-      0,
-      92,
-      2,
-      "IMAGE"
-    ],
-    [
-      128,
-      92,
-      0,
-      93,
-      0,
-      "STRING"
-    ],
-    [
       132,
       11,
       0,
@@ -2286,16 +2225,72 @@
       "VIDEO"
     ],
     [
-      142,
-      100,
+      161,
+      41,
       0,
-      99,
+      104,
       2,
       "IMAGE"
     ],
     [
-      143,
-      99,
+      162,
+      104,
+      0,
+      17,
+      0,
+      "*"
+    ],
+    [
+      163,
+      104,
+      0,
+      18,
+      0,
+      "STRING"
+    ],
+    [
+      164,
+      89,
+      0,
+      105,
+      2,
+      "IMAGE"
+    ],
+    [
+      165,
+      105,
+      0,
+      90,
+      0,
+      "STRING"
+    ],
+    [
+      166,
+      89,
+      0,
+      106,
+      2,
+      "IMAGE"
+    ],
+    [
+      167,
+      106,
+      0,
+      93,
+      0,
+      "STRING"
+    ],
+    [
+      168,
+      100,
+      0,
+      107,
+      2,
+      "IMAGE"
+    ],
+    [
+      169,
+      107,
       0,
       101,
       0,
@@ -2404,15 +2399,15 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 2.176291357901559,
+      "scale": 0.47362440744768536,
       "offset": [
-        1556.2079020510803,
-        107.41306094182383
+        1464.7422284425038,
+        940.4495253853099
       ]
     },
     "ue_links": [
       {
-        "downstream": 12,
+        "downstream": 106,
         "downstream_slot": 0,
         "upstream": "11",
         "upstream_slot": 0,
@@ -2420,7 +2415,7 @@
         "type": "LLAMACPPMODEL"
       },
       {
-        "downstream": 12,
+        "downstream": 106,
         "downstream_slot": 1,
         "upstream": "10",
         "upstream_slot": 0,
@@ -2428,7 +2423,7 @@
         "type": "LLAMACPPARAMS"
       },
       {
-        "downstream": 88,
+        "downstream": 105,
         "downstream_slot": 0,
         "upstream": "11",
         "upstream_slot": 0,
@@ -2436,7 +2431,7 @@
         "type": "LLAMACPPMODEL"
       },
       {
-        "downstream": 88,
+        "downstream": 105,
         "downstream_slot": 1,
         "upstream": "10",
         "upstream_slot": 0,
@@ -2444,7 +2439,7 @@
         "type": "LLAMACPPARAMS"
       },
       {
-        "downstream": 92,
+        "downstream": 107,
         "downstream_slot": 0,
         "upstream": "11",
         "upstream_slot": 0,
@@ -2452,7 +2447,7 @@
         "type": "LLAMACPPMODEL"
       },
       {
-        "downstream": 92,
+        "downstream": 107,
         "downstream_slot": 1,
         "upstream": "10",
         "upstream_slot": 0,
@@ -2460,7 +2455,7 @@
         "type": "LLAMACPPARAMS"
       },
       {
-        "downstream": 99,
+        "downstream": 104,
         "downstream_slot": 0,
         "upstream": "11",
         "upstream_slot": 0,
@@ -2468,7 +2463,7 @@
         "type": "LLAMACPPMODEL"
       },
       {
-        "downstream": 99,
+        "downstream": 104,
         "downstream_slot": 1,
         "upstream": "10",
         "upstream_slot": 0,
