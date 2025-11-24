@@ -1,8 +1,8 @@
 {
   "id": "80ca770b-81d2-44ed-8997-3cec2c0c5eff",
   "revision": 0,
-  "last_node_id": 401,
-  "last_link_id": 4480,
+  "last_node_id": 403,
+  "last_link_id": 4487,
   "nodes": [
     {
       "id": 16,
@@ -57,7 +57,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 66,
+      "order": 64,
       "mode": 0,
       "inputs": [
         {
@@ -147,7 +147,7 @@
       ],
       "size": [
         660,
-        20
+        26
       ],
       "flags": {
         "pinned": true,
@@ -228,7 +228,7 @@
       ],
       "size": [
         521.240234375,
-        20
+        26
       ],
       "flags": {
         "pinned": true,
@@ -266,7 +266,7 @@
       ],
       "size": [
         250,
-        25
+        26
       ],
       "flags": {
         "pinned": true,
@@ -335,8 +335,8 @@
         -530
       ],
       "size": [
-        113.34228515625,
-        15
+        145.6861328125,
+        26
       ],
       "flags": {
         "pinned": true,
@@ -449,7 +449,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 60,
+      "order": 58,
       "mode": 0,
       "inputs": [
         {
@@ -640,7 +640,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 68,
+      "order": 65,
       "mode": 0,
       "inputs": [
         {
@@ -698,7 +698,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 87,
+      "order": 88,
       "mode": 0,
       "inputs": [
         {
@@ -928,53 +928,6 @@
       "bgcolor": "#3f5159"
     },
     {
-      "id": 351,
-      "type": "JWImageResizeByFactor",
-      "pos": [
-        2850,
-        -70
-      ],
-      "size": [
-        210,
-        82
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 59,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "image",
-          "type": "IMAGE",
-          "link": 4475
-        }
-      ],
-      "outputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            4133
-          ]
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfyui-various",
-        "ver": "5bd85aaf7616878471469c4ec7e11bbd0cef3bf2",
-        "Node name for S&R": "JWImageResizeByFactor",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.3"
-        }
-      },
-      "widgets_values": [
-        3,
-        "bicubic"
-      ]
-    },
-    {
       "id": 348,
       "type": "Switch any [Crystools]",
       "pos": [
@@ -988,13 +941,13 @@
       "flags": {
         "pinned": true
       },
-      "order": 97,
+      "order": 99,
       "mode": 0,
       "inputs": [
         {
           "name": "on_true",
           "type": "*",
-          "link": 4133
+          "link": 4485
         },
         {
           "name": "on_false",
@@ -1166,7 +1119,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 85,
+      "order": 86,
       "mode": 0,
       "inputs": [
         {
@@ -1380,8 +1333,8 @@
         450
       ],
       "size": [
-        96,
-        12
+        151.9,
+        26
       ],
       "flags": {
         "pinned": true,
@@ -1630,7 +1583,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 86,
+      "order": 87,
       "mode": 0,
       "inputs": [
         {
@@ -1677,7 +1630,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 114,
+      "order": 116,
       "mode": 0,
       "inputs": [
         {
@@ -1867,7 +1820,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 67,
+      "order": 70,
       "mode": 0,
       "inputs": [
         {
@@ -1875,14 +1828,14 @@
           "label": "图像_A",
           "name": "image_a",
           "type": "IMAGE",
-          "link": 4122
+          "link": 4487
         },
         {
           "dir": 3,
           "label": "图像_B",
           "name": "image_b",
           "type": "IMAGE",
-          "link": 4238
+          "link": 4486
         }
       ],
       "outputs": [],
@@ -1911,47 +1864,6 @@
       ]
     },
     {
-      "id": 376,
-      "type": "GetNode",
-      "pos": [
-        1680,
-        1090
-      ],
-      "size": [
-        210,
-        50
-      ],
-      "flags": {
-        "collapsed": true,
-        "pinned": true
-      },
-      "order": 21,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            4238
-          ]
-        }
-      ],
-      "title": "Get_result_image",
-      "properties": {
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "version": "7.3",
-          "input_ue_unconnectable": {}
-        }
-      },
-      "widgets_values": [
-        "result_image"
-      ],
-      "color": "#2a363b",
-      "bgcolor": "#3f5159"
-    },
-    {
       "id": 362,
       "type": "TTP_Image_Tile_Batch",
       "pos": [
@@ -1965,7 +1877,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 102,
+      "order": 104,
       "mode": 0,
       "inputs": [
         {
@@ -2047,7 +1959,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 112,
+      "order": 114,
       "mode": 0,
       "inputs": [
         {
@@ -2130,7 +2042,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 115,
+      "order": 117,
       "mode": 0,
       "inputs": [
         {
@@ -2190,7 +2102,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 117,
+      "order": 119,
       "mode": 0,
       "inputs": [
         {
@@ -2236,7 +2148,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 110,
+      "order": 112,
       "mode": 0,
       "inputs": [
         {
@@ -2310,7 +2222,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 22,
+      "order": 21,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -2352,7 +2264,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 23,
+      "order": 22,
       "mode": 0,
       "inputs": [
         {
@@ -2466,49 +2378,6 @@
       ]
     },
     {
-      "id": 343,
-      "type": "GetNode",
-      "pos": [
-        2840,
-        -110
-      ],
-      "size": [
-        210,
-        58
-      ],
-      "flags": {
-        "collapsed": true,
-        "pinned": true
-      },
-      "order": 24,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            4473,
-            4474,
-            4475
-          ]
-        }
-      ],
-      "title": "Get_flash_result",
-      "properties": {
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "version": "7.3",
-          "input_ue_unconnectable": {}
-        }
-      },
-      "widgets_values": [
-        "flash_result"
-      ],
-      "color": "#2a363b",
-      "bgcolor": "#3f5159"
-    },
-    {
       "id": 361,
       "type": "TTP_Tile_image_size",
       "pos": [
@@ -2522,7 +2391,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 111,
+      "order": 113,
       "mode": 0,
       "inputs": [
         {
@@ -2576,7 +2445,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 91,
+      "order": 93,
       "mode": 0,
       "inputs": [
         {
@@ -2662,7 +2531,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 25,
+      "order": 23,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -2704,7 +2573,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 108,
+      "order": 110,
       "mode": 0,
       "inputs": [
         {
@@ -2749,7 +2618,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 101,
+      "order": 103,
       "mode": 0,
       "inputs": [
         {
@@ -2845,7 +2714,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 26,
+      "order": 24,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -2885,7 +2754,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 104,
+      "order": 106,
       "mode": 0,
       "inputs": [
         {
@@ -2944,7 +2813,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 27,
+      "order": 25,
       "mode": 0,
       "inputs": [
         {
@@ -2994,7 +2863,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 88,
+      "order": 89,
       "mode": 0,
       "inputs": [
         {
@@ -3086,7 +2955,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 93,
+      "order": 95,
       "mode": 0,
       "inputs": [
         {
@@ -3131,7 +3000,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 92,
+      "order": 94,
       "mode": 0,
       "inputs": [
         {
@@ -3182,7 +3051,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 100,
+      "order": 102,
       "mode": 0,
       "inputs": [
         {
@@ -3242,7 +3111,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 94,
+      "order": 96,
       "mode": 0,
       "inputs": [
         {
@@ -3293,7 +3162,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 58,
+      "order": 71,
       "mode": 0,
       "inputs": [
         {
@@ -3347,7 +3216,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 61,
+      "order": 59,
       "mode": 0,
       "inputs": [
         {
@@ -3398,7 +3267,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 103,
+      "order": 105,
       "mode": 0,
       "inputs": [
         {
@@ -3441,7 +3310,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 105,
+      "order": 107,
       "mode": 0,
       "inputs": [
         {
@@ -3491,7 +3360,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 107,
+      "order": 109,
       "mode": 0,
       "inputs": [
         {
@@ -3537,7 +3406,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 28,
+      "order": 26,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -3578,7 +3447,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 113,
+      "order": 115,
       "mode": 0,
       "inputs": [
         {
@@ -3634,7 +3503,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 116,
+      "order": 118,
       "mode": 0,
       "inputs": [
         {
@@ -3684,7 +3553,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 118,
+      "order": 120,
       "mode": 0,
       "inputs": [
         {
@@ -3730,7 +3599,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 29,
+      "order": 27,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -3770,7 +3639,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 30,
+      "order": 28,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -3811,7 +3680,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 31,
+      "order": 29,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -3844,7 +3713,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 99,
+      "order": 101,
       "mode": 0,
       "inputs": [
         {
@@ -3923,7 +3792,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 32,
+      "order": 30,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4011,7 +3880,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 33,
+      "order": 31,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -4043,7 +3912,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 34,
+      "order": 32,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -4075,7 +3944,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 69,
+      "order": 66,
       "mode": 0,
       "inputs": [
         {
@@ -4142,7 +4011,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 35,
+      "order": 33,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4185,7 +4054,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 63,
+      "order": 61,
       "mode": 0,
       "inputs": [
         {
@@ -4230,7 +4099,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 36,
+      "order": 34,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -4262,7 +4131,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 37,
+      "order": 35,
       "mode": 0,
       "inputs": [
         {
@@ -4303,7 +4172,7 @@
       "widgets_values": [
         0.6,
         "manual",
-        940106397747341,
+        42,
         "fixed",
         0,
         true
@@ -4324,7 +4193,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 38,
+      "order": 36,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4373,7 +4242,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 98,
+      "order": 100,
       "mode": 4,
       "inputs": [
         {
@@ -4415,7 +4284,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 39,
+      "order": 37,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -4448,7 +4317,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 40,
+      "order": 38,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4488,7 +4357,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 41,
+      "order": 39,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4533,7 +4402,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 42,
+      "order": 40,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4591,7 +4460,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 43,
+      "order": 41,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4637,7 +4506,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 44,
+      "order": 42,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -4669,7 +4538,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 106,
+      "order": 108,
       "mode": 0,
       "inputs": [
         {
@@ -4721,7 +4590,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 62,
+      "order": 60,
       "mode": 0,
       "inputs": [
         {
@@ -4768,7 +4637,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 45,
+      "order": 43,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4810,7 +4679,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 46,
+      "order": 44,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4851,7 +4720,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 109,
+      "order": 111,
       "mode": 0,
       "inputs": [
         {
@@ -4895,7 +4764,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 65,
+      "order": 63,
       "mode": 0,
       "inputs": [
         {
@@ -4941,7 +4810,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 47,
+      "order": 45,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4949,8 +4818,8 @@
           "name": "*",
           "type": "*",
           "links": [
-            4122,
-            4438
+            4438,
+            4486
           ]
         }
       ],
@@ -4983,7 +4852,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 48,
+      "order": 46,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -5024,7 +4893,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 49,
+      "order": 47,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -5063,7 +4932,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 50,
+      "order": 48,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -5102,7 +4971,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 70,
+      "order": 67,
       "mode": 0,
       "inputs": [
         {
@@ -5209,7 +5078,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 71,
+      "order": 68,
       "mode": 4,
       "inputs": [
         {
@@ -5264,7 +5133,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 96,
+      "order": 98,
       "mode": 4,
       "inputs": [
         {
@@ -5403,7 +5272,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 90,
+      "order": 91,
       "mode": 4,
       "inputs": [
         {
@@ -5445,7 +5314,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 89,
+      "order": 90,
       "mode": 4,
       "inputs": [
         {
@@ -5500,7 +5369,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 95,
+      "order": 97,
       "mode": 4,
       "inputs": [
         {
@@ -5554,7 +5423,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 51,
+      "order": 49,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -5562,7 +5431,8 @@
           "name": "IMAGE",
           "type": "IMAGE",
           "links": [
-            4467
+            4467,
+            4482
           ]
         }
       ],
@@ -5594,7 +5464,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 52,
+      "order": 50,
       "mode": 4,
       "inputs": [
         {
@@ -5649,7 +5519,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 72,
+      "order": 69,
       "mode": 4,
       "inputs": [
         {
@@ -5732,7 +5602,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 53,
+      "order": 51,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -5811,7 +5681,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 64,
+      "order": 62,
       "mode": 0,
       "inputs": [
         {
@@ -5832,16 +5702,293 @@
       ],
       "title": "动态内存清理",
       "properties": {
+        "Node name for S&R": "DynamicRAMCacheControl",
         "ue_properties": {
           "widget_ue_connectable": {},
           "input_ue_unconnectable": {},
           "version": "7.3"
-        },
-        "Node name for S&R": "DynamicRAMCacheControl"
+        }
       },
       "widgets_values": [
         "CLASSIC (No Eviction)",
         2
+      ]
+    },
+    {
+      "id": 402,
+      "type": "GetImageSize",
+      "pos": [
+        3060,
+        -110
+      ],
+      "size": [
+        140,
+        66
+      ],
+      "flags": {
+        "collapsed": true,
+        "pinned": true
+      },
+      "order": 85,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 4481
+        }
+      ],
+      "outputs": [
+        {
+          "name": "width",
+          "type": "INT",
+          "links": [
+            4483
+          ]
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "links": [
+            4484
+          ]
+        },
+        {
+          "name": "batch_size",
+          "type": "INT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.70",
+        "Node name for S&R": "GetImageSize",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 403,
+      "type": "ImageResizeKJv2",
+      "pos": [
+        3060,
+        -80
+      ],
+      "size": [
+        270,
+        336
+      ],
+      "flags": {
+        "collapsed": true,
+        "pinned": true
+      },
+      "order": 92,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 4482
+        },
+        {
+          "name": "mask",
+          "shape": 7,
+          "type": "MASK",
+          "link": null
+        },
+        {
+          "name": "width",
+          "type": "INT",
+          "widget": {
+            "name": "width"
+          },
+          "link": 4483
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "widget": {
+            "name": "height"
+          },
+          "link": 4484
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            4485
+          ]
+        },
+        {
+          "name": "width",
+          "type": "INT",
+          "links": []
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "links": null
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ImageResizeKJv2",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        512,
+        512,
+        "lanczos",
+        "stretch",
+        "0, 0, 0",
+        "center",
+        2,
+        "cpu"
+      ]
+    },
+    {
+      "id": 376,
+      "type": "GetNode",
+      "pos": [
+        1680,
+        1090
+      ],
+      "size": [
+        210,
+        50
+      ],
+      "flags": {
+        "collapsed": true,
+        "pinned": true
+      },
+      "order": 52,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            4487
+          ]
+        }
+      ],
+      "title": "Get_result_image",
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.3",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "result_image"
+      ],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 343,
+      "type": "GetNode",
+      "pos": [
+        2840,
+        -110
+      ],
+      "size": [
+        210,
+        58
+      ],
+      "flags": {
+        "collapsed": true,
+        "pinned": true
+      },
+      "order": 53,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            4473,
+            4474,
+            4475
+          ]
+        }
+      ],
+      "title": "Get_flash_result",
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.3",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "flash_result"
+      ],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 351,
+      "type": "JWImageResizeByFactor",
+      "pos": [
+        2840,
+        -80
+      ],
+      "size": [
+        210,
+        82
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 72,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 4475
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            4481
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-various",
+        "ver": "5bd85aaf7616878471469c4ec7e11bbd0cef3bf2",
+        "Node name for S&R": "JWImageResizeByFactor",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        3,
+        "bicubic"
       ]
     }
   ],
@@ -6167,14 +6314,6 @@
       "IMAGE"
     ],
     [
-      4122,
-      338,
-      0,
-      299,
-      0,
-      "IMAGE"
-    ],
-    [
       4125,
       348,
       0,
@@ -6213,14 +6352,6 @@
       348,
       2,
       "BOOLEAN"
-    ],
-    [
-      4133,
-      351,
-      0,
-      348,
-      0,
-      "*"
     ],
     [
       4150,
@@ -6421,14 +6552,6 @@
       272,
       3,
       "INT"
-    ],
-    [
-      4238,
-      376,
-      0,
-      299,
-      1,
-      "IMAGE"
     ],
     [
       4256,
@@ -6669,6 +6792,62 @@
       162,
       0,
       "INT"
+    ],
+    [
+      4481,
+      351,
+      0,
+      402,
+      0,
+      "IMAGE"
+    ],
+    [
+      4482,
+      342,
+      0,
+      403,
+      0,
+      "IMAGE"
+    ],
+    [
+      4483,
+      402,
+      0,
+      403,
+      2,
+      "INT"
+    ],
+    [
+      4484,
+      402,
+      1,
+      403,
+      3,
+      "INT"
+    ],
+    [
+      4485,
+      403,
+      0,
+      348,
+      0,
+      "*"
+    ],
+    [
+      4486,
+      338,
+      0,
+      299,
+      1,
+      "IMAGE"
+    ],
+    [
+      4487,
+      376,
+      0,
+      299,
+      0,
+      "IMAGE"
     ]
   ],
   "groups": [
@@ -6856,10 +7035,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.3234918430760678,
+      "scale": 0.6303940863128502,
       "offset": [
-        1122.2781664074414,
-        844.2277602730003
+        -2027.2519203031652,
+        544.5043238655717
       ]
     },
     "ue_links": [

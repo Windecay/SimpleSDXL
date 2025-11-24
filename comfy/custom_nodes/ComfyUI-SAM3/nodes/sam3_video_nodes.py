@@ -9,8 +9,9 @@ from pathlib import Path
 import torch
 import numpy as np
 import folder_paths
+from .utils import get_comfy_models_dir
 
-from ..sam3_lib.model_builder import build_sam3_video_predictor
+from .sam3_lib.model_builder import build_sam3_video_predictor
 
 
 class SAM3VideoModelLoader:
@@ -22,54 +23,57 @@ class SAM3VideoModelLoader:
             "required": {
                 "checkpoint_path": ("STRING", {
                     "default": "",
-                    "multiline": False
-                }),
-                "bpe_path": ("STRING", {
-                    "default": "",
-                    "multiline": False
+                    "multiline": False,
+                    "tooltip": "Path to SAM3 video checkpoint file (sam3.pt). Leave empty to auto-download from HuggingFace (requires hf_token)."
                 }),
                 "hf_token": ("STRING", {
                     "default": "",
-                    "multiline": False
+                    "multiline": False,
+                    "tooltip": "HuggingFace authentication token for downloading gated models. Get from https://huggingface.co/settings/tokens. Required if checkpoint_path is empty."
                 }),
                 "use_gpu_cache": ("BOOLEAN", {
                     "default": True,
                     "tooltip": "Keep model on GPU between inferences (faster but uses more VRAM). Set to False to offload to CPU after each inference."
                 }),
-            },
-            "optional": {
-                "use_multi_gpu": ("BOOLEAN", {"default": False}),
-                "gpu_ids": ("STRING", {
-                    "default": "0",
-                    "multiline": False
-                }),
             }
         }
+
+    @classmethod
+    def IS_CHANGED(cls, **kwargs):
+        # Always reload model fresh to avoid dtype/state issues - return unique value each time
+        import random
+        return random.random()
 
     RETURN_TYPES = ("SAM3_VIDEO_MODEL",)
     RETURN_NAMES = ("video_model",)
     FUNCTION = "load_model"
     CATEGORY = "SAM3/video"
 
-    def load_model(self, checkpoint_path, bpe_path, hf_token, use_gpu_cache=True, use_multi_gpu=False, gpu_ids="0"):
+    def load_model(self, checkpoint_path, hf_token, use_gpu_cache=True):
         """Load the SAM3 video model"""
         import os
         if hf_token:
             os.environ["HF_TOKEN"] = hf_token
 
-        # Parse GPU IDs if using multi-GPU
-        gpus_to_use = None
-        if use_multi_gpu:
-            gpus_to_use = [int(x.strip()) for x in gpu_ids.split(",")]
+        # Hardcoded BPE path - using vendored tokenizer vocabulary
+        bpe_path = Path(__file__).parent / "sam3_lib" / "bpe_simple_vocab_16e6.txt.gz"
+        bpe_path = str(bpe_path)
 
-        print(f"[SAM3 Video] Loading video model from {checkpoint_path}")
+        if not checkpoint_path or not checkpoint_path.strip():
+            default_checkpoint_path = os.path.join(get_comfy_models_dir(), "sam3.pt")
+            if Path(default_checkpoint_path).exists():
+                checkpoint_path = default_checkpoint_path
+
+        print(f"[SAM3 Video] Loading video model from {checkpoint_path if checkpoint_path else 'HuggingFace'}")
+        print(f"[SAM3 Video] Using BPE tokenizer: {bpe_path}")
         print(f"[SAM3 Video] GPU cache: {'enabled' if use_gpu_cache else 'disabled (will offload to CPU after inference)'}")
 
-        # Build the video predictor
+        # Build the video predictor (single GPU only)
         predictor = build_sam3_video_predictor(
             checkpoint_path=checkpoint_path if checkpoint_path else None,
-            bpe_path=bpe_path if bpe_path else None,
-            gpus_to_use=gpus_to_use,
+            bpe_path=bpe_path,
+            hf_token=hf_token if hf_token else None,
+            gpus_to_use=None,  # Single GPU mode
         )
 
         print(f"[SAM3 Video] Model loaded successfully")
@@ -81,30 +85,258 @@ class SAM3VideoModelLoader:
 
 
 class SAM3InitVideoSession:
-    """Initialize a video tracking session"""
+    """Initialize a video tracking session (Simplified - use Advanced node for full control)"""
 
     @classmethod
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "video_model": ("SAM3_VIDEO_MODEL",),
-                "video_frames": ("IMAGE",),  # ComfyUI video frames [B, H, W, C]
+                "video_model": ("SAM3_VIDEO_MODEL", {
+                    "tooltip": "SAM3 video model loaded from SAM3VideoModelLoader node"
+                }),
+                "video_frames": ("IMAGE", {
+                    "tooltip": "Video frames as a batch of images (e.g., from LoadVideo node). Frames will be temporarily saved to disk for processing."
+                }),
             },
             "optional": {
                 "session_id": ("STRING", {
                     "default": "",
-                    "multiline": False
+                    "multiline": False,
+                    "tooltip": "Optional custom session identifier. Leave empty to auto-generate. Useful for managing multiple video tracking sessions."
+                }),
+                "score_threshold_detection": ("FLOAT", {
+                    "default": 0.3,
+                    "min": 0.0,
+                    "max": 1.0,
+                    "step": 0.05,
+                    "tooltip": "Minimum confidence score for detections (0.0-1.0). Lower = more detections but more false positives."
+                }),
+                "new_det_thresh": ("FLOAT", {
+                    "default": 0.4,
+                    "min": 0.0,
+                    "max": 1.0,
+                    "step": 0.05,
+                    "tooltip": "Minimum confidence for new object tracking (0.0-1.0). Higher = only track high-confidence objects."
                 }),
             }
         }
+
+    @classmethod
+    def IS_CHANGED(cls, **kwargs):
+        # Always reinitialize session - return unique value each time to prevent caching
+        import random
+        return random.random()
 
     RETURN_TYPES = ("SAM3_VIDEO_SESSION", "STRING")
     RETURN_NAMES = ("session", "session_id")
     FUNCTION = "init_session"
     CATEGORY = "SAM3/video"
 
-    def init_session(self, video_model, video_frames, session_id=""):
+    def init_session(self, video_model, video_frames, session_id="",
+                     score_threshold_detection=0.3, new_det_thresh=0.4):
+        """Initialize a tracking session with video frames (simplified with optimal defaults)"""
+        # Use optimal defaults for advanced parameters (model defaults for robust tracking)
+        fill_hole_area = 16
+        assoc_iou_thresh = 0.1
+        det_nms_thresh = 0.1
+        hotstart_unmatch_thresh = 8  # Model default (was 3)
+        hotstart_dup_thresh = 8  # Model default (was 3)
+        init_trk_keep_alive = 30  # Model default - MUCH better than 0 for handling occlusions
+        hotstart_delay = 15  # Model default - enables hotstart stabilization (was 0 = disabled)
+        decrease_keep_alive_empty = False  # Model default (was True)
+        suppress_unmatched_globally = False  # Model default: suppress only within hotstart (was True)
+
+        # Configure detection/tracking thresholds by modifying model attributes
+        print(f"[SAM3 Video] Detection thresholds: det={score_threshold_detection}, new_det={new_det_thresh}")
+        print(f"[SAM3 Video] Using optimal defaults: fill_holes={fill_hole_area}px, assoc_iou={assoc_iou_thresh}, det_nms={det_nms_thresh}")
+        print(f"[SAM3 Video] Hotstart params: unmatch={hotstart_unmatch_thresh}, dup={hotstart_dup_thresh}, keep_alive={init_trk_keep_alive}, delay={hotstart_delay}")
+        print(f"[SAM3 Video] Track lifecycle: decrease_empty={decrease_keep_alive_empty}, suppress_globally={suppress_unmatched_globally}")
+
+        video_model.model.score_threshold_detection = score_threshold_detection
+        video_model.model.new_det_thresh = new_det_thresh
+        video_model.model.fill_hole_area = fill_hole_area
+        video_model.model.assoc_iou_thresh = assoc_iou_thresh
+        video_model.model.det_nms_thresh = det_nms_thresh
+        video_model.model.hotstart_unmatch_thresh = hotstart_unmatch_thresh
+        video_model.model.hotstart_dup_thresh = hotstart_dup_thresh
+        video_model.model.init_trk_keep_alive = init_trk_keep_alive
+        video_model.model.hotstart_delay = hotstart_delay
+        video_model.model.decrease_trk_keep_alive_for_empty_masklets = decrease_keep_alive_empty
+        # NOTE: Inverted logic - suppress_unmatched_globally=True means suppress_unmatched_only_within_hotstart=False
+        video_model.model.suppress_unmatched_only_within_hotstart = not suppress_unmatched_globally
+
+        # Convert ComfyUI frames to temporary directory
+        import tempfile
+        import os
+        from PIL import Image
+
+        # Create a temporary directory for frames
+        temp_dir = tempfile.mkdtemp(prefix="sam3_video_")
+
+        # Save frames as JPEG
+        num_frames = video_frames.shape[0]
+        for i in range(num_frames):
+            frame = video_frames[i].cpu().numpy()
+            # Convert from [H, W, C] float32 0-1 to uint8 0-255
+            frame = (frame * 255).astype(np.uint8)
+            img = Image.fromarray(frame)
+            img.save(os.path.join(temp_dir, f"{i:05d}.jpg"))
+
+        print(f"[SAM3 Video] Saved {num_frames} frames to {temp_dir}")
+
+        # Start the session
+        response = video_model.start_session(
+            resource_path=temp_dir,
+            session_id=session_id if session_id else None
+        )
+
+        actual_session_id = response["session_id"]
+
+        session_data = {
+            "model": video_model,
+            "session_id": actual_session_id,
+            "temp_dir": temp_dir,
+            "num_frames": num_frames,
+            "height": video_frames.shape[1],
+            "width": video_frames.shape[2],
+        }
+
+        print(f"[SAM3 Video] Initialized session {actual_session_id}")
+
+        return (session_data, actual_session_id)
+
+
+class SAM3InitVideoSessionAdvanced:
+    """Initialize a video tracking session (Advanced mode with all parameters)"""
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "video_model": ("SAM3_VIDEO_MODEL", {
+                    "tooltip": "SAM3 video model loaded from SAM3VideoModelLoader node"
+                }),
+                "video_frames": ("IMAGE", {
+                    "tooltip": "Video frames as a batch of images (e.g., from LoadVideo node). Frames will be temporarily saved to disk for processing."
+                }),
+            },
+            "optional": {
+                "session_id": ("STRING", {
+                    "default": "",
+                    "multiline": False,
+                    "tooltip": "Optional custom session identifier. Leave empty to auto-generate. Useful for managing multiple video tracking sessions."
+                }),
+                "score_threshold_detection": ("FLOAT", {
+                    "default": 0.3,
+                    "min": 0.0,
+                    "max": 1.0,
+                    "step": 0.05,
+                    "tooltip": "Minimum confidence score for detections (0.0-1.0). Lower = more detections but more false positives. Default was 0.5, lowered to 0.3 for better recall."
+                }),
+                "new_det_thresh": ("FLOAT", {
+                    "default": 0.4,
+                    "min": 0.0,
+                    "max": 1.0,
+                    "step": 0.05,
+                    "tooltip": "Minimum confidence for new object tracking (0.0-1.0). Higher = only track high-confidence objects. Default was 0.7, lowered to 0.4 for more objects."
+                }),
+                "fill_hole_area": ("INT", {
+                    "default": 16,
+                    "min": 0,
+                    "max": 1000,
+                    "step": 1,
+                    "tooltip": "Maximum area (in pixels) of holes to fill in masks. 0 disables hole filling. Useful for cleaning up mask interiors."
+                }),
+                "assoc_iou_thresh": ("FLOAT", {
+                    "default": 0.1,
+                    "min": 0.0,
+                    "max": 1.0,
+                    "step": 0.05,
+                    "tooltip": "IOU threshold for detection-to-track association (0.0-1.0). Lower = more lenient matching for maintaining track continuity."
+                }),
+                "det_nms_thresh": ("FLOAT", {
+                    "default": 0.1,
+                    "min": 0.0,
+                    "max": 1.0,
+                    "step": 0.05,
+                    "tooltip": "IOU threshold for Non-Maximum Suppression (0.0-1.0). Lower = more aggressive duplicate removal. 0.0 disables NMS."
+                }),
+                "hotstart_unmatch_thresh": ("INT", {
+                    "default": 3,
+                    "min": 0,
+                    "max": 999,
+                    "step": 1,
+                    "tooltip": "Number of unmatched frames before removing a track (hotstart heuristic). Higher = more tolerant of temporary occlusions. Set to 999 to effectively disable."
+                }),
+                "hotstart_dup_thresh": ("INT", {
+                    "default": 3,
+                    "min": 0,
+                    "max": 999,
+                    "step": 1,
+                    "tooltip": "Number of overlapping frames before removing duplicate tracks. Higher = more tolerant of temporary overlaps. Set to 999 to effectively disable."
+                }),
+                "init_trk_keep_alive": ("INT", {
+                    "default": 0,
+                    "min": -10,
+                    "max": 50,
+                    "step": 1,
+                    "tooltip": "Initial keep-alive counter for new tracks. Higher = tracks survive longer without matching detections. Recommended: 5-20 for robust tracking."
+                }),
+                "hotstart_delay": ("INT", {
+                    "default": 0,
+                    "min": 0,
+                    "max": 200,
+                    "step": 1,
+                    "tooltip": "Delay (in frames) before applying hotstart removal heuristics. Useful to let tracks stabilize in early frames. Set to 999 to disable hotstart entirely."
+                }),
+                "decrease_keep_alive_empty": ("BOOLEAN", {
+                    "default": True,
+                    "tooltip": "Whether empty masks (zero area predictions) decrease the keep-alive counter. Disable for more lenient tracking."
+                }),
+                "suppress_unmatched_globally": ("BOOLEAN", {
+                    "default": True,
+                    "tooltip": "Whether to suppress tracks with keep_alive <= 0 globally (True) or only during hotstart period (False). CRITICAL: Set to True to actually remove dead tracks!"
+                }),
+            }
+        }
+
+    @classmethod
+    def IS_CHANGED(cls, **kwargs):
+        # Always reinitialize session - return unique value each time to prevent caching
+        import random
+        return random.random()
+
+    RETURN_TYPES = ("SAM3_VIDEO_SESSION", "STRING")
+    RETURN_NAMES = ("session", "session_id")
+    FUNCTION = "init_session"
+    CATEGORY = "SAM3/video"
+
+    def init_session(self, video_model, video_frames, session_id="",
+                     score_threshold_detection=0.3, new_det_thresh=0.4,
+                     fill_hole_area=16, assoc_iou_thresh=0.1, det_nms_thresh=0.1,
+                     hotstart_unmatch_thresh=3, hotstart_dup_thresh=3,
+                     init_trk_keep_alive=0, hotstart_delay=0,
+                     decrease_keep_alive_empty=True, suppress_unmatched_globally=True):
         """Initialize a tracking session with video frames"""
+        # Configure detection/tracking thresholds by modifying model attributes
+        print(f"[SAM3 Video] Detection thresholds: det={score_threshold_detection}, new_det={new_det_thresh}")
+        print(f"[SAM3 Video] Association/NMS: assoc_iou={assoc_iou_thresh}, det_nms={det_nms_thresh}, fill_holes={fill_hole_area}px")
+        print(f"[SAM3 Video] Hotstart params: unmatch_thresh={hotstart_unmatch_thresh}, dup_thresh={hotstart_dup_thresh}, init_keep_alive={init_trk_keep_alive}, delay={hotstart_delay}")
+        print(f"[SAM3 Video] Track lifecycle: decrease_empty={decrease_keep_alive_empty}, suppress_globally={suppress_unmatched_globally}")
+
+        video_model.model.score_threshold_detection = score_threshold_detection
+        video_model.model.new_det_thresh = new_det_thresh
+        video_model.model.fill_hole_area = fill_hole_area
+        video_model.model.assoc_iou_thresh = assoc_iou_thresh
+        video_model.model.det_nms_thresh = det_nms_thresh
+        video_model.model.hotstart_unmatch_thresh = hotstart_unmatch_thresh
+        video_model.model.hotstart_dup_thresh = hotstart_dup_thresh
+        video_model.model.init_trk_keep_alive = init_trk_keep_alive
+        video_model.model.hotstart_delay = hotstart_delay
+        video_model.model.decrease_trk_keep_alive_for_empty_masklets = decrease_keep_alive_empty
+        # NOTE: Inverted logic - suppress_unmatched_globally=True means suppress_unmatched_only_within_hotstart=False
+        video_model.model.suppress_unmatched_only_within_hotstart = not suppress_unmatched_globally
+
         # Convert ComfyUI frames to temporary directory
         import tempfile
         import os
@@ -153,27 +385,36 @@ class SAM3AddVideoPrompt:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "session": ("SAM3_VIDEO_SESSION",),
+                "session": ("SAM3_VIDEO_SESSION", {
+                    "tooltip": "Active video tracking session from SAM3InitVideoSession node"
+                }),
                 "frame_index": ("INT", {
                     "default": 0,
                     "min": 0,
                     "max": 10000,
-                    "step": 1
+                    "step": 1,
+                    "tooltip": "Frame number (0-based) to add the prompt to. The prompt will be used as the starting point for tracking through the video."
                 }),
             },
             "optional": {
                 "text_prompt": ("STRING", {
                     "default": "",
-                    "multiline": False
+                    "multiline": False,
+                    "tooltip": "Describe the object to track using natural language (e.g., 'person in red shirt', 'car'). Can be combined with box/point prompts."
                 }),
                 "obj_id": ("INT", {
                     "default": 1,
                     "min": 1,
                     "max": 100,
-                    "step": 1
+                    "step": 1,
+                    "tooltip": "Unique identifier for this tracked object (1-100). Use different IDs to track multiple objects simultaneously in the same video."
                 }),
-                "boxes": ("SAM3_BOXES_PROMPT",),
-                "points": ("SAM3_POINTS_PROMPT",),
+                "boxes": ("SAM3_BOXES_PROMPT", {
+                    "tooltip": "Optional box prompts to specify object location on this frame. Connect from SAM3CombineBoxes node."
+                }),
+                "points": ("SAM3_POINTS_PROMPT", {
+                    "tooltip": "Optional point prompts to specify object location on this frame. Connect from SAM3CombinePoints node."
+                }),
             }
         }
 
@@ -209,6 +450,21 @@ class SAM3AddVideoPrompt:
             point_coords = points["points"]
             point_labels = points["labels"]
 
+        # Validate that at least one type of prompt is provided
+        has_text = text_prompt and len(text_prompt.strip()) > 0
+        has_points = point_coords is not None and len(point_coords) > 0
+        has_boxes = bounding_boxes is not None and len(bounding_boxes) > 0
+
+        if not (has_text or has_points or has_boxes):
+            raise ValueError(
+                "[SAM3 Video] No prompt provided! Please provide at least one of:\n"
+                "  • Text prompt (e.g., 'person', 'car', etc.)\n"
+                "  • Points (use SAM3 Point Collector node)\n"
+                "  • Bounding boxes (use SAM3 BBox Collector node)\n"
+                "\n"
+                "Empty prompts cannot be used for tracking."
+            )
+
         print(f"[SAM3 Video] Adding prompt on frame {frame_index}: text='{text_prompt}', obj_id={obj_id}")
 
         # Add the prompt
@@ -235,27 +491,34 @@ class SAM3PropagateVideo:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "session": ("SAM3_VIDEO_SESSION",),
+                "session": ("SAM3_VIDEO_SESSION", {
+                    "tooltip": "Video session with prompts added via SAM3AddVideoPrompt node"
+                }),
             },
             "optional": {
-                "propagation_direction": (["both", "forward", "backward"], {"default": "both"}),
+                "propagation_direction": (["both", "forward", "backward"], {
+                    "default": "both",
+                    "tooltip": "Direction to propagate masks: 'both' (bidirectional from start frame), 'forward' (from start to end), 'backward' (from start to beginning)"
+                }),
                 "start_frame_index": ("INT", {
                     "default": 0,
                     "min": 0,
                     "max": 10000,
-                    "step": 1
+                    "step": 1,
+                    "tooltip": "Frame index to start propagation from (usually the frame where you added prompts). Default 0."
                 }),
                 "max_frames": ("INT", {
                     "default": -1,
                     "min": -1,
                     "max": 10000,
-                    "step": 1
+                    "step": 1,
+                    "tooltip": "Maximum number of frames to track. -1 to process all frames in the video."
                 }),
             }
         }
 
-    RETURN_TYPES = ("SAM3_VIDEO_MASKS",)
-    RETURN_NAMES = ("video_masks",)
+    RETURN_TYPES = ("SAM3_VIDEO_MASKS", "SAM3_VIDEO_SESSION")
+    RETURN_NAMES = ("video_masks", "session")
     FUNCTION = "propagate"
     CATEGORY = "SAM3/video"
 
@@ -306,7 +569,7 @@ class SAM3PropagateVideo:
             "num_frames": num_frames,
         }
 
-        return (video_masks,)
+        return (video_masks, session)
 
 
 class SAM3VideoOutput:
@@ -316,14 +579,17 @@ class SAM3VideoOutput:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "video_masks": ("SAM3_VIDEO_MASKS",),
+                "video_masks": ("SAM3_VIDEO_MASKS", {
+                    "tooltip": "Video tracking results from SAM3PropagateVideo node"
+                }),
             },
             "optional": {
                 "obj_id_filter": ("INT", {
                     "default": -1,
                     "min": -1,
                     "max": 100,
-                    "step": 1
+                    "step": 1,
+                    "tooltip": "Filter output to specific object ID (1-100). Use -1 to combine all tracked objects into a single mask per frame."
                 }),
             }
         }
@@ -362,13 +628,32 @@ class SAM3VideoOutput:
                             mode="bilinear",
                             align_corners=False,
                         )
+                elif "out_binary_masks" in frame_output:
+                    # Binary masks from postprocessed output
+                    frame_masks = torch.from_numpy(frame_output["out_binary_masks"])
+                    if frame_masks.ndim == 3:
+                        # Add channel dimension if needed: [N, H, W] -> [N, 1, H, W]
+                        frame_masks = frame_masks.unsqueeze(1)
+                    if frame_masks.shape[-2:] != (height, width):
+                        frame_masks = torch.nn.functional.interpolate(
+                            frame_masks.float(),
+                            size=(height, width),
+                            mode="bilinear",
+                            align_corners=False,
+                        ) > 0.5
                 else:
                     continue
+
+                # Get frame-specific object IDs
+                frame_obj_ids = frame_output.get("obj_ids", [])
 
                 # Filter by object ID if specified
                 if obj_id_filter > 0:
                     try:
-                        obj_idx = obj_ids.index(obj_id_filter)
+                        # Convert numpy array to list if needed
+                        if hasattr(frame_obj_ids, 'tolist'):
+                            frame_obj_ids = frame_obj_ids.tolist()
+                        obj_idx = frame_obj_ids.index(obj_id_filter)
                         mask = frame_masks[obj_idx, 0] > 0.0
                     except (ValueError, IndexError):
                         mask = torch.zeros((height, width), dtype=torch.bool)
@@ -388,7 +673,6 @@ class SAM3VideoOutput:
                 if "cuda" in str(current_device):
                     print(f"[SAM3 Video] Offloading model to CPU to free VRAM")
                     video_model.model.to("cpu")
-                    import torch
                     torch.cuda.empty_cache()
                     import gc
                     gc.collect()
@@ -403,11 +687,14 @@ class SAM3CloseVideoSession:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "session": ("SAM3_VIDEO_SESSION",),
+                "session": ("SAM3_VIDEO_SESSION", {
+                    "tooltip": "Video session to close. Cleans up temporary files and releases resources. Always use at the end of video processing workflows."
+                }),
             },
         }
 
-    RETURN_TYPES = ()
+    RETURN_TYPES = ("STRING",)
+    RETURN_NAMES = ("status",)
     OUTPUT_NODE = True
     FUNCTION = "close_session"
     CATEGORY = "SAM3/video"
@@ -430,13 +717,14 @@ class SAM3CloseVideoSession:
 
         print(f"[SAM3 Video] Closed session {session_id}")
 
-        return ()
+        return (f"Session {session_id} closed",)
 
 
 # Node class mappings
 NODE_CLASS_MAPPINGS = {
     "SAM3VideoModelLoader": SAM3VideoModelLoader,
     "SAM3InitVideoSession": SAM3InitVideoSession,
+    "SAM3InitVideoSessionAdvanced": SAM3InitVideoSessionAdvanced,
     "SAM3AddVideoPrompt": SAM3AddVideoPrompt,
     "SAM3PropagateVideo": SAM3PropagateVideo,
     "SAM3VideoOutput": SAM3VideoOutput,
@@ -447,6 +735,7 @@ NODE_CLASS_MAPPINGS = {
 NODE_DISPLAY_NAME_MAPPINGS = {
     "SAM3VideoModelLoader": "SAM3 Load Video Model",
     "SAM3InitVideoSession": "SAM3 Init Video Session",
+    "SAM3InitVideoSessionAdvanced": "SAM3 Init Video Session (Advanced)",
     "SAM3AddVideoPrompt": "SAM3 Add Video Prompt",
     "SAM3PropagateVideo": "SAM3 Propagate Video",
     "SAM3VideoOutput": "SAM3 Video Output",

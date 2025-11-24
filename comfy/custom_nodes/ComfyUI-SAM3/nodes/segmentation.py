@@ -26,28 +26,43 @@ class SAM3Segmentation:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "sam3_model": ("SAM3_MODEL",),
-                "image": ("IMAGE",),
+                "sam3_model": ("SAM3_MODEL", {
+                    "tooltip": "SAM3 model loaded from LoadSAM3Model node"
+                }),
+                "image": ("IMAGE", {
+                    "tooltip": "Input image to perform segmentation on"
+                }),
                 "confidence_threshold": ("FLOAT", {
                     "default": 0.2,
                     "min": 0.0,
                     "max": 1.0,
                     "step": 0.05,
                     "display": "slider",
-                    "tooltip": "Lower threshold (0.2) works better with SAM3's presence scoring"
+                    "tooltip": "Minimum confidence score to keep detections. Lower threshold (0.2) works better with SAM3's presence scoring"
                 }),
             },
             "optional": {
                 "text_prompt": ("STRING", {
                     "default": "",
                     "multiline": False,
-                    "placeholder": "e.g., 'cat', 'person in red', 'car'"
+                    "placeholder": "e.g., 'cat', 'person in red', 'car'",
+                    "tooltip": "Describe what to segment using natural language (e.g., 'person', 'cat', 'red car', 'shoes'). Supports attributes, spatial relations, and multiple objects."
                 }),
-                "positive_boxes": ("SAM3_BOXES_PROMPT",),
-                "negative_boxes": ("SAM3_BOXES_PROMPT",),
-                "positive_points": ("SAM3_POINTS_PROMPT",),
-                "negative_points": ("SAM3_POINTS_PROMPT",),
-                "mask_prompt": ("MASK",),
+                "positive_boxes": ("SAM3_BOXES_PROMPT", {
+                    "tooltip": "Optional box prompts to include specific regions. Connect from SAM3CombineBoxes node."
+                }),
+                "negative_boxes": ("SAM3_BOXES_PROMPT", {
+                    "tooltip": "Optional box prompts to exclude specific regions. Connect from SAM3CombineBoxes node."
+                }),
+                "positive_points": ("SAM3_POINTS_PROMPT", {
+                    "tooltip": "Optional point prompts marking foreground pixels. Connect from SAM3CombinePoints or SAM3PointCollector node."
+                }),
+                "negative_points": ("SAM3_POINTS_PROMPT", {
+                    "tooltip": "Optional point prompts marking background pixels. Connect from SAM3CombinePoints or SAM3PointCollector node."
+                }),
+                "mask_prompt": ("MASK", {
+                    "tooltip": "Optional mask to refine the segmentation. Useful for iterative refinement."
+                }),
                 "max_detections": ("INT", {
                     "default": -1,
                     "min": -1,
@@ -218,15 +233,29 @@ class SAM3Segmentation:
 
         print(f"[SAM3] Found {len(masks)} detections above threshold {confidence_threshold}")
 
+        # always sort by score
+        if scores is not None and len(scores) > 0:
+            print(f"[SAM3] Sorting {len(scores)} detections by score...")
+            
+            sorted_indices = torch.argsort(scores, descending=True)
+            
+            masks = masks[sorted_indices]
+            boxes = boxes[sorted_indices] if boxes is not None else None
+            scores = scores[sorted_indices] if scores is not None else None
+        
         # Limit number of detections if specified
         if max_detections > 0 and len(masks) > max_detections:
             print(f"[SAM3] Limiting to top {max_detections} detections")
+            # take top k since already sorted
+            masks = masks[:max_detections]
+            boxes = boxes[:max_detections] if boxes is not None else None
+            scores = scores[:max_detections] if scores is not None else None
             # Sort by score and take top k
-            if scores is not None:
-                top_indices = torch.argsort(scores, descending=True)[:max_detections]
-                masks = masks[top_indices]
-                boxes = boxes[top_indices] if boxes is not None else None
-                scores = scores[top_indices] if scores is not None else None
+            # if scores is not None:
+                # top_indices = torch.argsort(scores, descending=True)[:max_detections]
+                # masks = masks[top_indices]
+                # boxes = boxes[top_indices] if boxes is not None else None
+                # scores = scores[top_indices] if scores is not None else None
 
         # Convert masks to ComfyUI format
         comfy_masks = masks_to_comfy_mask(masks)
@@ -386,11 +415,21 @@ class SAM3CombineBoxes:
         return {
             "required": {},
             "optional": {
-                "box_1": ("SAM3_BOX_PROMPT",),
-                "box_2": ("SAM3_BOX_PROMPT",),
-                "box_3": ("SAM3_BOX_PROMPT",),
-                "box_4": ("SAM3_BOX_PROMPT",),
-                "box_5": ("SAM3_BOX_PROMPT",),
+                "box_1": ("SAM3_BOX_PROMPT", {
+                    "tooltip": "Connect box prompts from SAM3CreateBox nodes. Combines multiple boxes into a single prompt for SAM3Segmentation."
+                }),
+                "box_2": ("SAM3_BOX_PROMPT", {
+                    "tooltip": "Connect box prompts from SAM3CreateBox nodes. Combines multiple boxes into a single prompt for SAM3Segmentation."
+                }),
+                "box_3": ("SAM3_BOX_PROMPT", {
+                    "tooltip": "Connect box prompts from SAM3CreateBox nodes. Combines multiple boxes into a single prompt for SAM3Segmentation."
+                }),
+                "box_4": ("SAM3_BOX_PROMPT", {
+                    "tooltip": "Connect box prompts from SAM3CreateBox nodes. Combines multiple boxes into a single prompt for SAM3Segmentation."
+                }),
+                "box_5": ("SAM3_BOX_PROMPT", {
+                    "tooltip": "Connect box prompts from SAM3CreateBox nodes. Combines multiple boxes into a single prompt for SAM3Segmentation."
+                }),
             }
         }
 
@@ -430,16 +469,36 @@ class SAM3CombinePoints:
         return {
             "required": {},
             "optional": {
-                "point_1": ("SAM3_POINT_PROMPT",),
-                "point_2": ("SAM3_POINT_PROMPT",),
-                "point_3": ("SAM3_POINT_PROMPT",),
-                "point_4": ("SAM3_POINT_PROMPT",),
-                "point_5": ("SAM3_POINT_PROMPT",),
-                "point_6": ("SAM3_POINT_PROMPT",),
-                "point_7": ("SAM3_POINT_PROMPT",),
-                "point_8": ("SAM3_POINT_PROMPT",),
-                "point_9": ("SAM3_POINT_PROMPT",),
-                "point_10": ("SAM3_POINT_PROMPT",),
+                "point_1": ("SAM3_POINT_PROMPT", {
+                    "tooltip": "Connect point prompts from SAM3CreatePoint nodes. Combines multiple points into a single prompt for SAM3Segmentation."
+                }),
+                "point_2": ("SAM3_POINT_PROMPT", {
+                    "tooltip": "Connect point prompts from SAM3CreatePoint nodes. Combines multiple points into a single prompt for SAM3Segmentation."
+                }),
+                "point_3": ("SAM3_POINT_PROMPT", {
+                    "tooltip": "Connect point prompts from SAM3CreatePoint nodes. Combines multiple points into a single prompt for SAM3Segmentation."
+                }),
+                "point_4": ("SAM3_POINT_PROMPT", {
+                    "tooltip": "Connect point prompts from SAM3CreatePoint nodes. Combines multiple points into a single prompt for SAM3Segmentation."
+                }),
+                "point_5": ("SAM3_POINT_PROMPT", {
+                    "tooltip": "Connect point prompts from SAM3CreatePoint nodes. Combines multiple points into a single prompt for SAM3Segmentation."
+                }),
+                "point_6": ("SAM3_POINT_PROMPT", {
+                    "tooltip": "Connect point prompts from SAM3CreatePoint nodes. Combines multiple points into a single prompt for SAM3Segmentation."
+                }),
+                "point_7": ("SAM3_POINT_PROMPT", {
+                    "tooltip": "Connect point prompts from SAM3CreatePoint nodes. Combines multiple points into a single prompt for SAM3Segmentation."
+                }),
+                "point_8": ("SAM3_POINT_PROMPT", {
+                    "tooltip": "Connect point prompts from SAM3CreatePoint nodes. Combines multiple points into a single prompt for SAM3Segmentation."
+                }),
+                "point_9": ("SAM3_POINT_PROMPT", {
+                    "tooltip": "Connect point prompts from SAM3CreatePoint nodes. Combines multiple points into a single prompt for SAM3Segmentation."
+                }),
+                "point_10": ("SAM3_POINT_PROMPT", {
+                    "tooltip": "Connect point prompts from SAM3CreatePoint nodes. Combines multiple points into a single prompt for SAM3Segmentation."
+                }),
             }
         }
 

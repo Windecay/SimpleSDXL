@@ -7634,7 +7634,7 @@
         }
       },
       "widgets_values": [
-        "umt5-xxl-enc-fp8_e4m3fn.safetensors",
+        "umt5-xxl-enc-fp8_e4m3fn_scaled.safetensors",
         "wan",
         "default"
       ],

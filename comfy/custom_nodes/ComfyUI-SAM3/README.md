@@ -1,226 +1,106 @@
 # ComfyUI-SAM3
 
-ComfyUI integration for Meta's SAM3 (Segment Anything Model 3) - enabling open-vocabulary image segmentation using natural language text prompts.
+ComfyUI integration for Meta's SAM3 (Segment Anything Model 3) - enabling open-vocabulary image and video segmentation using natural language text prompts.
 
-## Features
 
-- **Text-Based Segmentation**: Segment objects using natural language descriptions (e.g., "person in red", "cat", "car")
-- **Automatic Model Download**: Downloads SAM3 model from HuggingFace automatically if not found locally
-- **Geometric Refinement**: Optional box-based prompts for precise control
-- **Visual Outputs**: Generates both masks and visualization overlays
-- **Flexible Configuration**: Adjustable confidence thresholds and max detections
+https://github.com/user-attachments/assets/323df482-1f05-4c69-8681-9bfb4073f766
 
 ## Installation
 
-### 1. Install ComfyUI-SAM3
-
-Clone this repository into your ComfyUI custom nodes directory:
-
+Install via ComfyUI Manager or clone to `ComfyUI/custom_nodes/`:
 ```bash
 cd ComfyUI/custom_nodes/
-git clone https://github.com/YOUR_USERNAME/ComfyUI-SAM3.git
-```
-
-### 2. Install Dependencies
-
-```bash
+git clone https://github.com/PozzettiAndrea/ComfyUI-SAM3.git
 cd ComfyUI-SAM3
-pip install -r requirements.txt
+python install.py
 ```
 
-This will install:
-- SAM3 package from Facebook Research
-- PyTorch (if not already installed)
-- Other required dependencies
+### Optional: GPU Acceleration for Video Tracking
 
-### 3. HuggingFace Authentication
+For 5-10x faster video tracking, install GPU-accelerated CUDA extensions:
+```bash
+python speedup.py        # Auto-detects your GPU, ~3-5 min compilation
+```
 
-SAM3 models are hosted on HuggingFace and require authentication:
+This is **optional** and only benefits video tracking performance. Image segmentation works fine without it. The script will:
+- Auto-detect your GPU architecture and compile only for your specific GPU (75-80% faster than previous versions)
+- Auto-install CUDA toolkit via conda/micromamba if needed
+- Compile GPU-accelerated extensions (torch_generic_nms, cc_torch)
 
-1. Request access to the model at: https://huggingface.co/facebook/sam3
-2. Login via HuggingFace CLI:
-   ```bash
-   huggingface-cli login
-   ```
-3. Enter your HuggingFace token when prompted
+**Requirements:** NVIDIA GPU with compute capability 7.5+ (RTX 2000 series or newer), conda/micromamba environment recommended.
 
-### 4. Restart ComfyUI
+**RTX 50-series (Blackwell):** Experimental support available via `python speedup_blackwell.py` (~45-60 sec compilation). May compile successfully but runtime stability not guaranteed due to PyTorch lacking official sm_120 support. Falls back to CPU mode if compilation fails. Track PyTorch support at [pytorch/pytorch#159207](https://github.com/pytorch/pytorch/issues/159207).
 
-Restart ComfyUI to load the new nodes. The prestartup script will automatically:
-- Copy example images to `ComfyUI/input/sam3_examples/`
-- Copy example workflows to `ComfyUI/user/default/workflows/`
+## Troubleshooting
+
+### SAM3 nodes not appearing in ComfyUI
+
+If SAM3 doesn't load and you see "running in pytest mode - skipping initialization" in the logs, this is a false positive detection.
+
+**Solution:** Set the environment variable before starting ComfyUI:
+```bash
+# Linux/Mac
+export SAM3_FORCE_INIT=1
+
+# Windows
+set SAM3_FORCE_INIT=1
+```
+
+This forces SAM3 to initialize even if pytest is detected in your environment.
+
+### Examples
+
+![bbox](docs/bbox.png)
+
+![point](docs/point.png)
+
+![text_prompt](docs/text_prompt.png)
+
+![video](docs/video.png)
 
 ## Nodes
 
-### LoadSAM3Model
+### Image Segmentation
+- **LoadSAM3Model** - Load SAM3 model for image segmentation
+- **SAM3Segmentation** - Segment objects using text prompts ("person", "cat in red", etc.)
+- **SAM3CreateBox** - Create bounding box prompts (normalized coordinates)
+- **SAM3CreatePoint** - Create point prompts with positive/negative labels
+- **SAM3CombineBoxes** - Combine multiple box prompts
+- **SAM3CombinePoints** - Combine multiple point prompts
 
-Loads the SAM3 model and creates a processor for inference.
+### Video Tracking
+- **SAM3VideoModelLoader** - Load SAM3 model for video tracking
+- **SAM3InitVideoSession** - Initialize video tracking session
+- **SAM3InitVideoSessionAdvanced** - Advanced session initialization with custom settings
+- **SAM3AddVideoPrompt** - Add object prompts to track in video
+- **SAM3PropagateVideo** - Propagate object tracking through video frames
 
-**Inputs:**
-- `device` (auto/cuda/cpu): Device to run the model on (default: auto)
-- `model_path` (optional): Path to custom checkpoint (leave empty to auto-download)
+### Interactive Tools
+- **SAM3PointCollector** - Interactive UI for collecting point prompts
+- **SAM3BBoxCollector** - Interactive UI for drawing bounding boxes
 
-**Outputs:**
-- `sam3_model`: Model object to be used by segmentation nodes
+---
 
-**Notes:**
-- First run will download the model (~3.2GB) from HuggingFace
-- Model is cached in `ComfyUI/models/sam3/sam3.pt`
-- Subsequent loads are instant (uses in-memory cache)
+## Quick Start
 
-### SAM3Segmentation
+1. Add **LoadSAM3Model** node (first run downloads ~3.2GB model from HuggingFace)
+2. Add **SAM3Segmentation** node, connect model
+3. Enter text prompt: `"person"`, `"cat in red"`, `"car on the left"`
+4. Get masks, visualization, boxes, and confidence scores
 
-Performs segmentation using text prompts.
+**Text Prompt Examples:**
+- `"shoe"`, `"cat"`, `"person"` - Single objects
+- `"person in red"`, `"black car"` - With attributes
+- `"person on the left"`, `"car in background"` - Spatial relations
 
-**Inputs:**
-- `sam3_model`: Model from LoadSAM3Model node
-- `image`: Input image (ComfyUI IMAGE format)
-- `text_prompt`: Natural language description of objects to segment
-  - Examples: "person", "cat", "person in red", "car on the left"
-- `confidence_threshold` (0.0-1.0): Minimum confidence score (default: 0.5)
-- `max_detections` (optional): Maximum number of detections to return (-1 for all)
-
-**Outputs:**
-- `masks`: Binary segmentation masks (ComfyUI MASK format)
-- `visualization`: Image with colored mask overlays and bounding boxes
-- `boxes`: JSON string containing bounding box coordinates [[x0, y0, x1, y1], ...]
-- `scores`: JSON string containing confidence scores [0.95, 0.87, ...]
-
-**Example Prompts:**
-- Single object: `"shoe"`, `"cat"`, `"person"`
-- With attributes: `"person in red"`, `"black car"`, `"wooden table"`
-- Spatial relations: `"person on the left"`, `"car in the background"`
-
-### SAM3GeometricRefine
-
-Refines segmentation using geometric box prompts (advanced usage).
-
-**Inputs:**
-- `sam3_model`: Model from LoadSAM3Model node
-- `image`: Input image
-- `box_x`, `box_y`: Box center coordinates (normalized 0-1)
-- `box_w`, `box_h`: Box width and height (normalized 0-1)
-- `is_positive`: True for positive prompt, False for negative
-- `confidence_threshold`: Minimum confidence score
-- `text_prompt` (optional): Combine with text prompt
-
-**Outputs:**
-- Same as SAM3Segmentation
-
-**Notes:**
-- Box coordinates are normalized to [0, 1] range
-- Positive prompts include the box region, negative prompts exclude it
-- Can be combined with text prompts for more precise control
-
-## Usage Examples
-
-### Basic Text Segmentation
-
-1. Load an image with `LoadImage`
-2. Add `LoadSAM3Model` node (leave model_path empty for auto-download)
-3. Add `SAM3Segmentation` node
-4. Connect: Image → SAM3Segmentation, SAM3Model → SAM3Segmentation
-5. Set text prompt (e.g., "person")
-6. Connect `visualization` output to `PreviewImage`
-7. Run the workflow!
-
-### Multiple Object Detection
-
-Use text prompts like:
-- `"person"` - Detects all people
-- `"shoe"` - Detects all shoes
-- Adjust `confidence_threshold` to filter results
-- Use `max_detections` to limit number of outputs
-
-### Advanced: Geometric Refinement
-
-1. Follow basic setup
-2. Add `SAM3GeometricRefine` node
-3. Set box parameters to specify region of interest
-4. Set `is_positive` to True to segment objects in the box
-5. Optionally add `text_prompt` for combined prompting
-
-## Tips and Tricks
-
-### Performance
-- First inference is slow (~10-30 seconds) due to torch compilation
-- Subsequent inferences are fast (~100-300ms on GPU)
-- Model uses ~6-8GB GPU memory
-- Keep the model loaded between runs for best performance
-
-### Prompt Engineering
-- Be specific: "person in red shirt" works better than just "red"
-- Use spatial terms: "car on the left", "person in the background"
-- Try variations if results aren't perfect
-- Adjust confidence threshold if getting too many/few detections
-
-### Troubleshooting
-
-**"SAM3 package not found"**
-- Run `pip install -r requirements.txt` in the ComfyUI-SAM3 directory
-
-**"Failed to download model from HuggingFace"**
-- Request access at https://huggingface.co/facebook/sam3
-- Run `huggingface-cli login` and enter your token
-- Check your internet connection
-
-**"Out of memory"**
-- Try device="cpu" if GPU memory is limited
-- Reduce image size before processing
-- Close other GPU-intensive applications
-
-**No detections found**
-- Lower confidence_threshold
-- Try different text prompts
-- Check if the object is actually in the image
-- Ensure the image is properly loaded
-
-## Model Information
-
-- **Model**: SAM3 (Segment Anything Model 3) by Meta
-- **Size**: ~848M parameters (~3.2GB checkpoint)
-- **Input Resolution**: 1008x1008 pixels
-- **Capabilities**: Open-vocabulary segmentation with 270K+ unique concepts
-- **License**: Check Meta's license at https://huggingface.co/facebook/sam3
-
-## File Structure
-
-```
-ComfyUI-SAM3/
-├── __init__.py                # Main entry point
-├── prestartup_script.py       # Auto-copy assets/workflows
-├── requirements.txt           # Dependencies
-├── README.md                  # This file
-├── nodes/
-│   ├── __init__.py           # Node exports
-│   ├── load_model.py         # LoadSAM3Model node
-│   ├── segmentation.py       # Segmentation nodes
-│   └── utils.py              # Helper functions
-├── assets/
-│   └── example_image.jpg     # Example image
-└── workflows/
-    └── sam3_example.json     # Example workflow
-```
+**Video Tracking:**
+1. Use **SAM3VideoModelLoader** instead of LoadSAM3Model
+2. Initialize session with **SAM3InitVideoSession**
+3. Add prompts with **SAM3AddVideoPrompt**
+4. Propagate with **SAM3PropagateVideo**
 
 ## Credits
 
 - **SAM3**: Meta AI Research (https://github.com/facebookresearch/sam3)
 - **ComfyUI Integration**: ComfyUI-SAM3
 - **Interactive Points Editor**: Adapted from [ComfyUI-KJNodes](https://github.com/kijai/ComfyUI-KJNodes) by kijai (Apache 2.0 License). The SAM3PointsEditor node is based on the PointsEditor implementation from KJNodes, simplified for SAM3-specific point-based segmentation.
-
-## License
-
-MIT License - See LICENSE file for details
-
-## Contributing
-
-Contributions welcome! Please open an issue or PR on GitHub.
-
-## Changelog
-
-### v1.0.0 (2024-01-XX)
-- Initial release
-- LoadSAM3Model node with auto-download
-- SAM3Segmentation node with text prompts
-- SAM3GeometricRefine node for box prompts
-- Example workflows and assets
