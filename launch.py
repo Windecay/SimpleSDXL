@@ -113,7 +113,7 @@ def check_base_environment():
                 pkg_command = f'pip install {extra_pkg_name} -i {index_url}'
                 run(f'"{python}" -m {pkg_command}', f'Installing {extra_pkg_name}', f"Couldn't install {extra_pkg_name}", live=True)
 
-        update_pkgs = [('comfyui_frontend_package', '1.28.8'), ('comfyui_workflow_templates', '0.2.11'), ('comfyui-embedded-docs', '0.3.1'), ('transformers', '4.56.2'), ('bitsandbytes', '0.45.5'), ('accelerate', '1.10.1'), ('av', '14.2.0'), ('yarl', '1.18.0'), ('gguf', '0.14.0'),
+        update_pkgs = [('comfyui_frontend_package', '1.30.6'), ('comfyui_workflow_templates', '0.7.20'), ('comfyui-embedded-docs', '0.3.1'), ('transformers', '4.56.2'), ('bitsandbytes', '0.45.5'), ('accelerate', '1.10.1'), ('av', '14.2.0'), ('yarl', '1.18.0'), ('gguf', '0.14.0'),
                        ('sentencepiece', '0.2.0'), ('diffusers', '0.35.1'), ('huggingface_hub', '0.35.1'), ('peft', '0.17.1'), ('tokenizers', '0.22.1'), ('tiktoken', '0.11.0'), ('librosa', '0.11.0'), ('moviepy', '2.2.1'), ('piexif', '1.1.3'), ('deepdiff', '8.6.0'), ('pydantic', '2.12.2'),
                        ('GitPython', '3.1.45'), ('PyGithub', '2.8.1'), ('matrix-nio', '0.24.0'), ('toml', '0.10.2'), ('uv', '0.9.3'), ('clip-interrogator', '0.6.0'), ('simpleeval', '1.0.3'), ('compel', '2.3.0'), ('rotary-embedding-torch', '0.8.9'), ('hydra-core', '1.3.2'), ('uuid7', '0.1.0'), ('aiosqlite', '0.21.0'), ('configs','3.0.3'),
                        ('mmdet', '3.3.0'), ('mmengine', '0.10.7'), ('munkres', '1.1.4'), ('terminaltables', '3.1.10'), ('color-matcher', '0.6.0'), ('natsort', '8.4.0'), ('olefile', '0.47')]

@@ -43,6 +43,8 @@ def reset_folder_names_and_paths(models_root):
 
     folder_names_and_paths["upscale_models"] = ([os.path.join(models_dir, "upscale_models")], supported_pt_extensions)
 
+    folder_names_and_paths["latent_upscale_models"] = ([os.path.join(models_dir, "latent_upscale_models")], supported_pt_extensions)
+
     folder_names_and_paths["custom_nodes"] = ([os.path.join(base_path, "custom_nodes")], set())
 
     folder_names_and_paths["hypernetworks"] = ([os.path.join(models_dir, "hypernetworks")], supported_pt_extensions)
@@ -50,6 +52,10 @@ def reset_folder_names_and_paths(models_root):
     folder_names_and_paths["photomaker"] = ([os.path.join(models_dir, "photomaker")], supported_pt_extensions)
 
     folder_names_and_paths["classifiers"] = ([os.path.join(models_dir, "classifiers")], {""})
+
+    folder_names_and_paths["model_patches"] = ([os.path.join(models_dir, "model_patches")], supported_pt_extensions)
+
+    folder_names_and_paths["audio_encoders"] = ([os.path.join(models_dir, "audio_encoders")], supported_pt_extensions)
     #print(f'folder_names_and_paths:{folder_names_and_paths}')
     return
 
