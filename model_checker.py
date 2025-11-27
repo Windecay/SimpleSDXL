@@ -2119,6 +2119,17 @@ packages = {
         ],
         "download_links": []
     },
+        "z-image-turbo_package": {
+        "id":31,
+        "name": "[31]通义造相Z-Image-Turbo文生图预置包",
+        "note": "Z-Image-Turbo文生图预置包|显存需求：★★ 速度:★★★",
+        "files": [
+            ("diffusion_models/https://modelscope.cn/models/VerStella/z_image_turbo_comfyui/resolve/master/split_files/diffusion_models/z_image_turbo_bf16.safetensors", 12309866400),
+            ("text_encoders/https://modelscope.cn/models/VerStella/z_image_turbo_comfyui/resolve/master/split_files/text_encoders/qwen_3_4b.safetensors", 8044982048),
+            ("vae/ae.safetensors", 335304388),
+        ],
+        "download_links": []
+    },
 }
 
 MANUAL_DOWNLOAD_MAP = {

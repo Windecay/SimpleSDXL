@@ -1088,10 +1088,14 @@ def get_base_model_list(engine='Fooocus', task_method=None):
     if engine in ['Flux'] and task_method and 'aio' in task_method:
         file_filter = [f + ['!nf4'] for f in file_filter]
     base_model_list = modelsinfo.get_model_names('checkpoints', file_filter)
+    base_model_list.extend(modelsinfo.get_model_names('diffusion_models', file_filter))
     if engine in ['Fooocus', 'Comfy']:
-        base_model_list = modelsinfo.get_model_names('checkpoints', modules.flags.model_file_filter['Fooocus'], reverse=True)
+        fooocus_filter = modules.flags.model_file_filter['Fooocus']
+        base_model_list = modelsinfo.get_model_names('checkpoints', fooocus_filter, reverse=True)
+        base_model_list.extend(modelsinfo.get_model_names('diffusion_models', fooocus_filter, reverse=True))
     elif task_method == 'flux_base2_gguf':
         base_model_list = [f for f in base_model_list if ("hyp8" in f or "hyp16" in f) and f.endswith("gguf")]
+    base_model_list = list(dict.fromkeys(base_model_list))
     return base_model_list
 
 def update_files(engine='Fooocus', task_method=None):

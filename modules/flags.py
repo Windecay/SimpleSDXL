@@ -231,7 +231,7 @@ available_aspect_ratios_list = {
 }
 
 
-backend_engines = ['Fooocus', 'Comfy', 'Kolors', 'SD3x', 'HyDiT', 'Flux', 'Wan', 'Qwen']
+backend_engines = ['Fooocus', 'Comfy', 'Kolors', 'SD3x', 'HyDiT', 'Flux', 'Wan', 'Qwen', 'Z-image']
 
 model_file_filter = {
         'SD3x'   : ['sd3'],
@@ -240,6 +240,7 @@ model_file_filter = {
         'Kolors' : ['kolors'],
         'Wan'    : ['wan'],
         'Qwen'   : ['qwen'],
+        'Z-image': [['z_image'], ['z-image']],
         }
 model_file_filter['Fooocus'] = model_file_filter['SD3x'] + model_file_filter['Flux'] + model_file_filter['HyDiT']
 
@@ -255,6 +256,7 @@ task_class_mapping = {
             'Flux'   : 'Flux.1',
             'Wan'    : 'Wan2.2',
             'Qwen'   : 'Qwen',
+            'Z-image': 'Z-image',
             }
 def get_taskclass_by_fullname(fullname):
     if ':' in fullname:
@@ -264,7 +266,7 @@ def get_taskclass_by_fullname(fullname):
             return taskclass
     return None
 
-comfy_classes = ['Comfy', 'Kolors', 'SD3x', 'HyDiT', 'Flux', 'Wan', 'Qwen']
+comfy_classes = ['Comfy', 'Kolors', 'SD3x', 'HyDiT', 'Flux', 'Wan', 'Qwen', 'Z-image']
 
 default_class_params = {
     'Fooocus': {
@@ -346,6 +348,16 @@ default_class_params = {
         'available_scheduler_name': comfy_scheduler_list,
         'backend_params': {
             "task_method": "qwen_aio_cn",
+            },
+        },
+    'Z-image': {
+        'disvisible': [],
+        'disinteractive': [],
+        'available_aspect_ratios_selection': 'SDXL',
+        'available_sampler_name': comfy_sampler_list,
+        'available_scheduler_name': comfy_scheduler_list,
+        'backend_params': {
+            "task_method": "z_image_turbo_cn",
             },
         },
     }
