@@ -278,11 +278,7 @@ class SimpleBatchDownloader:
             for url in urls:
                 try:
                     file_name = url.split('/')[-1].split('?')[0]
-                    if model_folder == 'diffusion_models' and model_folder in folder_paths.folder_names_and_paths:
-                        paths = folder_paths.get_folder_paths(model_folder)
-                        model_dir = paths[1] if len(paths) > 1 else paths[0]  # 使用第二个路径作为diffusion_models
-                    else:
-                        model_dir = folder_paths.get_folder_paths(model_folder)[0] if model_folder in folder_paths.folder_names_and_paths else os.path.join(folder_paths.models_dir, model_folder)
+                    model_dir = os.path.join(folder_paths.models_dir, model_folder)
                     os.makedirs(model_dir, exist_ok=True)
 
                     file_path = os.path.join(model_dir, file_name)
@@ -336,11 +332,7 @@ class SimpleModelDownloader:
         try:
             model_name_with_ext = model_url.split('/')[-1].split('?')[0]
 
-            if model_folder == 'diffusion_models' and model_folder in folder_paths.folder_names_and_paths:
-                paths = folder_paths.get_folder_paths(model_folder)
-                model_dir = paths[1] if len(paths) > 1 else paths[0]  # 使用第二个路径作为diffusion_models
-            else:
-                model_dir = folder_paths.get_folder_paths(model_folder)[0] if model_folder in folder_paths.folder_names_and_paths else os.path.join(folder_paths.models_dir, model_folder)
+            model_dir = os.path.join(folder_paths.models_dir, model_folder)
             os.makedirs(model_dir, exist_ok=True)
 
             file_path = os.path.join(model_dir, model_name_with_ext)
