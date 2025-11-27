@@ -174,6 +174,7 @@ def load_model_paths():
             "lsnet": [os.path.join(simplemodels_root, "lsnet")],
             "kaloscope": [os.path.join(simplemodels_root, "lsnet", "kaloscope")],
             "detection": [os.path.join(simplemodels_root, "detection")],
+            "diffusion_models": [os.path.join(simplemodels_root, "diffusion_models")],
             "ultralytics": [os.path.join(simplemodels_root, "ultralytics")],
             "bbox": [os.path.join(simplemodels_root, "ultralytics", "bbox")],
             "segm": [os.path.join(simplemodels_root, "ultralytics", "segm")],
