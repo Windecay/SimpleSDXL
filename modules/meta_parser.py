@@ -275,14 +275,21 @@ def switch_layout_template(presetdata: dict | str, state_params, preset_url=''):
     #[output_format, inpaint_advanced_masking_checkbox, mixing_image_prompt_and_vary_upscale, mixing_image_prompt_and_inpaint, backfill_prompt, translation_methods, input_image_checkbox]
     # if default_X in config_prese then update the value to gr.X else update with default value in ads.default[X]
     update_value_if_existed = lambda x: gr.update() if x not in presetdata_dict else presetdata_dict[x]
-    results.append(update_value_if_existed("output_format"))
+    engine_type = enginedata_dict.get('engine_type', '')
+    if engine_type == 'video':
+        results.append(gr.update(visible=False))
+    else:
+        results.append(gr.update(visible=True))
     results.append(update_value_if_existed("inpaint_advanced_masking_checkbox"))
     results.append(update_value_if_existed("mixing_image_prompt_and_vary_upscale"))
     results.append(update_value_if_existed("mixing_image_prompt_and_inpaint"))
     results.append(update_value_if_existed("backfill_prompt"))
     results.append(update_value_if_existed("translation_methods"))
     results.append(False if template_engine not in ['Fooocus', 'Comfy'] and task_method and '_aio' not in task_method else update_value_if_existed("input_image_checkbox"))
-
+    if engine_type == 'video':
+        results.append(gr.update(visible=False))
+    else:
+        results.append(gr.update(visible=True))
     # [prompt_internal_panel, disable_intermediate_results, image_tools_checkbox, scene_panel, scene_theme], [generate_button, load_parameter_button]
     if is_scene_frontend:
         scenes = enginedata_dict.get("scene_frontend",{})

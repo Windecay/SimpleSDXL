@@ -1102,7 +1102,9 @@ with shared.gradio_root:
 
                             overwrite_width.change(overwrite_aspect_ratios, inputs=[overwrite_width, overwrite_height], outputs=aspect_ratios_selection, queue=False, show_progress=False).then(lambda x: x, inputs=aspect_ratios_selection, queue=False, show_progress=False, _js='(x)=>{refresh_aspect_ratios_label(x);}')
                             overwrite_height.change(overwrite_aspect_ratios, inputs=[overwrite_width, overwrite_height], outputs=aspect_ratios_selection, queue=False, show_progress=False).then(lambda x: x, inputs=aspect_ratios_selection, queue=False, show_progress=False, _js='(x)=>{refresh_aspect_ratios_label(x);}')
-
+                        quick_enhance = gr.Checkbox(label='Quick Enhance', value=False)
+                        quick_enhance_uov_strength = gr.Slider(label='Denoising Strength of enhance',
+                                         visible=False, minimum=0, maximum=1.0, step=0.01, value=0.2)
                         output_format = gr.Radio(label='Output Format',
                                          choices=flags.OutputFormat.list(),
                                          value=modules.config.default_output_format)
@@ -1120,6 +1122,9 @@ with shared.gradio_root:
                     seed_random.change(lambda x: [gr.update(value=x), gr.update(visible=not x)], inputs=seed_random, outputs=[scene_seed_random, scene_image_seed], queue=False, show_progress=False)
                     scene_image_seed.change(lambda x: gr.update(value=x), inputs=scene_image_seed, outputs=image_seed, queue=False, show_progress=False)
                     image_seed.change(lambda x: gr.update(value=x), inputs=image_seed, outputs=scene_image_seed, queue=False, show_progress=False)
+                    quick_enhance.change(fn=lambda x: [x, 'Upscale (1.5x)' if x else 'Disabled', gr.update(visible=x, value=0.2)],
+                                        inputs=quick_enhance,outputs=[enhance_checkbox, enhance_uov_method, quick_enhance_uov_strength], queue=False, show_progress=False)
+                    quick_enhance_uov_strength.change(fn=lambda x: x,inputs=quick_enhance_uov_strength,outputs=enhance_uov_strength, queue=False, show_progress=False)
                 with gr.Tab(label="Advanced"):
                     with gr.Group():
                         guidance_scale = gr.Slider(label='Guidance Scale', minimum=0.01, maximum=30.0, step=0.01,
@@ -2100,7 +2105,7 @@ with shared.gradio_root:
 
         image_input_panel_ctrls = [engine_class_display, uov_method, layer_method, layer_input_image, enhance_checkbox, enhance_input_image]
         reset_preset_layout = [params_backend, advanced_checkbox, performance_selection, scheduler_name, sampler_name, input_image_checkbox, prompt_panel_checkbox, enhance_checkbox, base_model, refiner_model, overwrite_step, guidance_scale, negative_prompt, preset_instruction, identity_dialog] + image_input_panel_ctrls + lora_ctrls
-        reset_preset_func = [output_format, inpaint_advanced_masking_checkbox, mixing_image_prompt_and_vary_upscale, mixing_image_prompt_and_inpaint, backfill_prompt, translation_methods, input_image_checkbox]
+        reset_preset_func = [output_format, inpaint_advanced_masking_checkbox, mixing_image_prompt_and_vary_upscale, mixing_image_prompt_and_inpaint, backfill_prompt, translation_methods, input_image_checkbox, quick_enhance]
         scene_frontend_ctrls = [prompt_internal_panel, random_button, super_prompter, disable_intermediate_results, image_tools_checkbox, scene_panel, scene_theme] + [generate_button, load_parameter_button]
 
         metadata_import_button.click(trigger_metadata_import, inputs=[metadata_input_image, state_is_generating, state_topbar], outputs=reset_preset_layout + reset_preset_func + scene_frontend_ctrls + load_data_outputs, queue=False, show_progress=True) \
@@ -2344,7 +2349,7 @@ with shared.gradio_root:
         bar_buttons[i].click(topbar.check_absent_model, inputs=[bar_buttons[i], state_topbar]) \
                .then(topbar.reset_layout_params, inputs=reset_preset_inputs, outputs=reset_layout_params, show_progress=False) \
                .then(fn=lambda: [None, None, None], inputs=[], outputs=[scene_canvas_image, scene_input_image1, scene_input_image2], queue=False, show_progress=False) \
-               .then(fn=lambda: ["None"]*4 + [False], inputs=[], outputs=[scene_lora_model, scene_lora_model_2, scene_lora_model_3, scene_lora_model_4, scene_use_lora], queue=False, show_progress=False) \
+               .then(fn=lambda: ["None"]*4 + [False]*2, inputs=[], outputs=[scene_lora_model, scene_lora_model_2, scene_lora_model_3, scene_lora_model_4, scene_use_lora, quick_enhance], queue=False, show_progress=False) \
                .then(fn=lambda x: None, inputs=system_params, _js='(x)=>{refresh_topbar_status_js(x);}') \
                .then(lambda: None, _js='()=>{refresh_style_localization();}') \
                .then(lambda: None, _js='()=>{refresh_scene_localization();}') \

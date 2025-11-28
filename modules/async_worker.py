@@ -1652,7 +1652,7 @@ def worker():
                     async_task.params_backend['var_number'] = async_task.scene_var_number
                     if async_task.content_type == 'video':
                         async_task.params_backend['display_steps'] = async_task.steps * max(round(async_task.scene_var_number * 5 / 6), 1)
-            if "_aio" in async_task.task_method:
+            if "_aio" in async_task.task_method or "z_image" in async_task.task_method:
                 input_images = comfypipeline.ComfyInputImage([])
                 if '.gguf' in async_task.base_model_name:
                     async_task.params_backend['base_model_gguf'] = async_task.base_model_name

@@ -126,6 +126,7 @@
   "28": {
     "inputs": {
       "sage_attention": "auto",
+      "allow_compile": false,
       "model": [
         "43",
         0
@@ -174,13 +175,13 @@
   "31": {
     "inputs": {
       "images": [
-        "8",
+        "52",
         0
       ]
     },
     "class_type": "SaveImageWebsocket",
     "_meta": {
-      "title": "SaveImageWebsocket"
+      "title": "result_image2"
     }
   },
   "33": {
@@ -314,6 +315,193 @@
     "class_type": "SeedInput",
     "_meta": {
       "title": "SeedInput"
+    }
+  },
+  "45": {
+    "inputs": {
+      "uov_method": "disabled",
+      "uov_denoise": 1,
+      "uov_processing_order": "Before First Enhancement",
+      "uov_prompt_type": "Original Prompts",
+      "uov_multiple": 1,
+      "uov_tiled_width": 512,
+      "uov_tiled_height": 512,
+      "uov_tiled_steps": 1
+    },
+    "class_type": "EnhanceUovInput",
+    "_meta": {
+      "title": "EnhanceUovInput"
+    }
+  },
+  "46": {
+    "inputs": {
+      "upscale_by": [
+        "45",
+        4
+      ],
+      "seed": [
+        "44",
+        0
+      ],
+      "steps": [
+        "45",
+        7
+      ],
+      "cfg": [
+        "30",
+        4
+      ],
+      "sampler_name": [
+        "30",
+        7
+      ],
+      "scheduler": [
+        "30",
+        8
+      ],
+      "denoise": [
+        "45",
+        1
+      ],
+      "mode_type": "Chess",
+      "tile_width": [
+        "45",
+        5
+      ],
+      "tile_height": [
+        "45",
+        6
+      ],
+      "mask_blur": 32,
+      "tile_padding": 128,
+      "seam_fix_mode": "None",
+      "seam_fix_denoise": 1,
+      "seam_fix_width": 64,
+      "seam_fix_mask_blur": 8,
+      "seam_fix_padding": 16,
+      "force_uniform_tiles": true,
+      "tiled_decode": false,
+      "image": [
+        "55",
+        0
+      ],
+      "model": [
+        "29",
+        0
+      ],
+      "positive": [
+        "6",
+        0
+      ],
+      "negative": [
+        "33",
+        0
+      ],
+      "vae": [
+        "17",
+        0
+      ],
+      "upscale_model": [
+        "47",
+        0
+      ]
+    },
+    "class_type": "UltimateSDUpscale",
+    "_meta": {
+      "title": "Ultimate SD Upscale"
+    }
+  },
+  "47": {
+    "inputs": {
+      "model_name": "4x-UltraSharp.pth"
+    },
+    "class_type": "UpscaleModelLoader",
+    "_meta": {
+      "title": "Load Upscale Model"
+    }
+  },
+  "49": {
+    "inputs": {
+      "find1": "disabled",
+      "replace1": "0",
+      "find2": "upscale (1.5x)",
+      "replace2": "1",
+      "find3": "",
+      "replace3": "",
+      "prompt": [
+        "45",
+        0
+      ]
+    },
+    "class_type": "easy promptReplace",
+    "_meta": {
+      "title": "PromptReplace"
+    }
+  },
+  "51": {
+    "inputs": {
+      "value": "a",
+      "a": [
+        "49",
+        0
+      ]
+    },
+    "class_type": "SimpleMath+",
+    "_meta": {
+      "title": "🔧 Simple Math"
+    }
+  },
+  "52": {
+    "inputs": {
+      "index": [
+        "51",
+        0
+      ],
+      "value0": [
+        "8",
+        0
+      ],
+      "value1": [
+        "46",
+        0
+      ]
+    },
+    "class_type": "easy anythingIndexSwitch",
+    "_meta": {
+      "title": "Any Index Switch"
+    }
+  },
+  "53": {
+    "inputs": {
+      "format": "JPEG",
+      "images": [
+        "8",
+        0
+      ]
+    },
+    "class_type": "SaveImageWebsocketLazy",
+    "_meta": {
+      "title": "result_image1"
+    }
+  },
+  "55": {
+    "inputs": {
+      "boolean": [
+        "30",
+        13
+      ],
+      "on_true": [
+        "8",
+        0
+      ],
+      "on_false": [
+        "53",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
     }
   }
 }
