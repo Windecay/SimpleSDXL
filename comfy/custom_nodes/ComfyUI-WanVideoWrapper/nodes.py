@@ -915,6 +915,7 @@ class WanVideoImageToVideoEncode:
                 "extra_latents": ("LATENT", {"tooltip": "Extra latents to add to the input front, used for Skyreels A2 reference images"}),
                 "tiled_vae": ("BOOLEAN", {"default": False, "tooltip": "Use tiled VAE encoding for reduced memory use"}),
                 "add_cond_latents": ("ADD_COND_LATENTS", {"advanced": True, "tooltip": "Additional cond latents WIP"}),
+                "augment_empty_frames": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 10.0, "step": 0.01, "tooltip": "EXPERIMENTAL: Augment empty frames with the difference to the start image to force more motion"}),
             }
         }
 
@@ -925,7 +926,7 @@ class WanVideoImageToVideoEncode:
 
     def process(self, width, height, num_frames, force_offload, noise_aug_strength, 
                 start_latent_strength, end_latent_strength, start_image=None, end_image=None, control_embeds=None, fun_or_fl2v_model=False, 
-                temporal_mask=None, extra_latents=None, clip_embeds=None, tiled_vae=False, add_cond_latents=None, vae=None):
+                temporal_mask=None, extra_latents=None, clip_embeds=None, tiled_vae=False, add_cond_latents=None, vae=None, augment_empty_frames=0.0):
         
         if vae is None:
             raise ValueError("VAE is required for image encoding.")
@@ -1029,6 +1030,9 @@ class WanVideoImageToVideoEncode:
             has_ref = True
         y[:, :1] *= start_latent_strength
         y[:, -1:] *= end_latent_strength
+        if augment_empty_frames > 0.0:
+            frame_is_empty = (mask[0].mean(dim=(-2, -1)) < 0.5).view(1, -1, 1, 1)
+            y = y[:, :1] + (y - y[:, :1]) * ((augment_empty_frames+1) * frame_is_empty + ~frame_is_empty)
 
         # Calculate maximum sequence length
         patches_per_frame = lat_h * lat_w // (PATCH_SIZE[1] * PATCH_SIZE[2])
@@ -2107,12 +2111,16 @@ class WanVideoAddTTMLatents:
         if end_step < max(0, start_step):
             raise ValueError(f"`end_step` ({end_step}) must be >= `start_step` ({start_step}).")
 
-        mask_sampled = mask[::VAE_STRIDE[0]]
+        mask_sampled = mask[::4]
         mask_sampled = mask_sampled.unsqueeze(1).unsqueeze(0)  # [1, T, 1, H, W]
 
+        vae_upscale_factor = 8
+        if reference_latents["samples"].shape[1] == 48:
+            vae_upscale_factor = 16
+
         # Upsample spatially to latent resolution
-        H_latent = mask_sampled.shape[-2] // VAE_STRIDE[1]
-        W_latent = mask_sampled.shape[-1] // VAE_STRIDE[1]
+        H_latent = mask_sampled.shape[-2] // vae_upscale_factor
+        W_latent = mask_sampled.shape[-1] // vae_upscale_factor
         mask_latent = F.interpolate(
             mask_sampled.float(),
             size=(mask_sampled.shape[2], H_latent, W_latent),

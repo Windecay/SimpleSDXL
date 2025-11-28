@@ -755,7 +755,26 @@ class DrawGaussianNoiseOnImage:
         out_rgb = torch.stack(output_images, dim=0).cpu()
         
         return (out_rgb, )
-    
+
+
+class WanVideoPreviewEmbeds:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": {
+                    "embeds": ("WANVIDIMAGE_EMBEDS",),
+                }
+        }
+
+    RETURN_TYPES = ("LATENT", "MASK")
+    RETURN_NAMES = ("image_embeds", "mask",)
+    FUNCTION = "get"
+    CATEGORY = "WanVideoWrapper"
+
+    def get(self, embeds):
+        latents = embeds.get("image_embeds", None)
+        mask = embeds.get("mask", None)
+        return ({"samples": latents.unsqueeze(0)}, mask)
+
 NODE_CLASS_MAPPINGS = {
     "WanVideoImageResizeToClosest": WanVideoImageResizeToClosest,
     "WanVideoVACEStartToEndFrame": WanVideoVACEStartToEndFrame,
@@ -769,6 +788,7 @@ NODE_CLASS_MAPPINGS = {
     "WanVideoPassImagesFromSamples": WanVideoPassImagesFromSamples,
     "FaceMaskFromPoseKeypoints": FaceMaskFromPoseKeypoints,
     "DrawGaussianNoiseOnImage": DrawGaussianNoiseOnImage,
+    "WanVideoPreviewEmbeds": WanVideoPreviewEmbeds,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
     "WanVideoImageResizeToClosest": "WanVideo Image Resize To Closest",

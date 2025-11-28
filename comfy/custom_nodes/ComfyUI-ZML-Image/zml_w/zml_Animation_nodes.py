@@ -1,12 +1,13 @@
 import torch
 import numpy as np
-from PIL import Image, ImageDraw, ImageOps
+from PIL import Image, ImageDraw, ImageOps, PngImagePlugin
 import random
 import math
 import os
 import folder_paths
 from pathlib import Path
 import uuid
+import json
 
 #==========================图像过度动画==========================
 
@@ -626,6 +627,9 @@ class ZML_ImageMemory:
         self.temp_output_dir = folder_paths.get_temp_directory()
         # 本地持久化文件路径
         self.persistence_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "image_memory_cache.png")
+        # 元数据
+        self.prompt = None
+        self.extra_pnginfo = None
 
     @classmethod
     def INPUT_TYPES(cls):
@@ -637,6 +641,11 @@ class ZML_ImageMemory:
             },
             "optional": {
                 "输入图像": ("IMAGE", lazy_options),
+            },
+            "hidden": {
+                "prompt": "PROMPT",
+                "extra_pnginfo": "EXTRA_PNGINFO",
+                "unique_id": "UNIQUE_ID",
             }
         }
 
@@ -655,7 +664,11 @@ class ZML_ImageMemory:
             return ["输入图像"]
         return None
 
-    def store_and_retrieve_image(self, 关闭输入, 关闭输出, 选择输出索引, 输入图像=None):
+    def store_and_retrieve_image(self, 关闭输入, 关闭输出, 选择输出索引, 输入图像=None, prompt=None, extra_pnginfo=None, unique_id=None):
+        # 保存元数据到实例变量
+        self.prompt = prompt
+        self.extra_pnginfo = extra_pnginfo
+        
         image_to_output = None
 
         if 关闭输入:
@@ -702,7 +715,24 @@ class ZML_ImageMemory:
             filename = f"zml_image_memory_batch_{i}_{uuid.uuid4()}.png"
             file_path = os.path.join(subfolder_path, filename)
 
-            pil_image.save(file_path, "PNG")
+            # 创建元数据对象
+            metadata = PngImagePlugin.PngInfo()
+
+            # 添加标准的ComfyUI元数据（工作流等）
+            if self.prompt is not None:
+                try:
+                    metadata.add_text("prompt", json.dumps(self.prompt))
+                except Exception:
+                    pass
+            if self.extra_pnginfo is not None:
+                for key, value in self.extra_pnginfo.items():
+                    try:
+                        metadata.add_text(key, json.dumps(value))
+                    except Exception:
+                        pass
+
+            # 保存图像和元数据
+            pil_image.save(file_path, pnginfo=metadata, compress_level=4)
 
             # 添加到UI数据列表
             ui_image_data.append({"filename": filename, "subfolder": self.temp_subfolder, "type": "temp"})
@@ -802,6 +832,26 @@ class ZML_PromptTokenBalancer:
 
         return (self._join_tags(pos), self._join_tags(neg))
 
+#==========================图像批次到整数==========================
+
+class ZML_ImageBatchToInt:
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "图像批次": ("IMAGE", {"label": "图像批次"}),
+            }
+        }
+
+    RETURN_TYPES = ("INT",)
+    RETURN_NAMES = ("图像数量",)
+    FUNCTION = "count_images"
+    CATEGORY = "image/ZML_图像/整数"
+
+    def count_images(self, 图像批次):
+        # 获取图像批次的长度，即图像数量
+        return (len(图像批次),)
+
 NODE_CLASS_MAPPINGS = {
     "ZML_ImageTransition": ZML_ImageTransition,
     "ZML_ImageEncryption": ZML_ImageEncryption,
@@ -810,6 +860,7 @@ NODE_CLASS_MAPPINGS = {
     "ZML_PreviewImage": ZML_PreviewImage,
     "ZML_ImageMemory": ZML_ImageMemory,
     "ZML_PromptTokenBalancer": ZML_PromptTokenBalancer,
+    "ZML_ImageBatchToInt": ZML_ImageBatchToInt,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -820,4 +871,5 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "ZML_PreviewImage": "ZML_预览图像",
     "ZML_ImageMemory": "ZML_桥接预览图像",
     "ZML_PromptTokenBalancer": "ZML_提示词token统一",
+    "ZML_ImageBatchToInt": "ZML_图像批次到整数",
 }

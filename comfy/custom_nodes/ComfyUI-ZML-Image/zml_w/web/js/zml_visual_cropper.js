@@ -1,5 +1,9 @@
 import { app } from "../../../scripts/app.js";
 
+// ======================= 全局变量和缓存 =======================
+// 存储图像尺寸缓存，key为图像URL，value为缓存的尺寸信息
+const zml_painter_size_cache = {};
+
 // ======================= 通用函数 =======================
 function loadScript(url) {
     return new Promise((resolve, reject) => {
@@ -555,10 +559,14 @@ function showPainterModal(node, widget) {
     // 获取默认宽和默认高参数值
     let defaultWidth = 1024;
     let defaultHeight = 1024;
+    // 获取启用自适应动画参数值，默认为true
+    let enableAdaptiveAnimation = true;
     const widthWidget = node.widgets.find(w => w.name === '默认宽');
     const heightWidget = node.widgets.find(w => w.name === '默认高');
+    const animationWidget = node.widgets.find(w => w.name === '启用自适应动画');
     if (widthWidget) defaultWidth = widthWidget.value || defaultWidth;
     if (heightWidget) defaultHeight = heightWidget.value || defaultHeight;
+    if (animationWidget !== undefined) enableAdaptiveAnimation = animationWidget.value;
     
     // 检查是否有上游图像节点连接
     if (upstreamNode && upstreamNode.imgs && upstreamNode.imgs.length > 0) {
@@ -573,6 +581,10 @@ function showPainterModal(node, widget) {
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         imageUrl = canvas.toDataURL('image/png');
     }
+    
+    // 为这个节点创建一个唯一标识符，用于缓存
+    const nodeId = node.id;
+    const cacheKey = `${nodeId}_${imageUrl}`;
 
     // 检查画笔图像输入
     const brushInput = node.inputs.find(i => i.name === "画笔图像");
@@ -611,6 +623,29 @@ function showPainterModal(node, widget) {
                         color: #E0E0E0; /* 默认字体颜色 */
                         flex-direction: row; /* 主轴方向为行 */
                         align-items: flex-start; /* 顶部对齐 */
+                        position: relative; /* For resize handle */
+                        overflow: hidden; /* Hide overflow, let content handle it */
+                    }
+                    /* Resize Handle Style */
+                    .zml-resize-handle {
+                        position: absolute;
+                        bottom: 0;
+                        right: 0;
+                        width: 20px;
+                        height: 20px;
+                        cursor: se-resize;
+                        z-index: 20; /* Above other content */
+                    }
+                    .zml-resize-handle::after {
+                        content: '';
+                        position: absolute;
+                        right: 3px;
+                        bottom: 3px;
+                        width: 8px;
+                        height: 8px;
+                        border-right: 2px solid #888;
+                        border-bottom: 2px solid #888;
+                        box-sizing: border-box;
                     }
                     /* 主内容区: 包含图像, 提示和底部控制面板 */
                     .zml-main-content-area {
@@ -902,25 +937,28 @@ function showPainterModal(node, widget) {
                 <div class="zml-main-content-area">
                     <div class="zml-editor-main" id="zml-editor-main-container">
                         <canvas id="zml-fabric-canvas" class="zml-hidden-canvas"></canvas>
+                    <div id="zml-painter-brush-preview" style="position: absolute; pointer-events: none; display: none; z-index: 1000; border-radius: 50%; box-sizing: border-box;"></div>
                     </div>
                     <p id="zml-editor-tip" class="zml-editor-tip">按住Ctrl+滚轮缩放, 按住Ctrl+左键拖拽平移，Ctrl+Z撤回。画笔模式：按住鼠标左键绘制。</p>
                     
-                    <div id="zml-painter-bottom-panel" class="zml-painter-bottom-panel">
-                        <div class="zml-control-group">
-                            <label for="zml-color-picker" class="zml-control-label">颜色:</label>
-                            <input type="color" id="zml-color-picker" class="zml-styled-input" value="#FF0000">
+                    <div id="zml-painter-bottom-panel" class="zml-painter-bottom-panel" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: nowrap; gap: 15px;">
+                        <div style="display: flex; gap: 15px; flex: 1; min-width: 0;">
+                            <div class="zml-control-group" style="white-space: nowrap;">
+                                <label for="zml-color-picker" class="zml-control-label">颜色:</label>
+                                <input type="color" id="zml-color-picker" class="zml-styled-input" value="#FF0000">
+                            </div>
+                            <div class="zml-control-group" style="white-space: nowrap; flex: 1; min-width: 120px;">
+                                <label for="zml-opacity-slider" class="zml-control-label">不透明度:</label>
+                                <input type="range" id="zml-opacity-slider" class="zml-styled-input" min="1" max="100" value="100" style="width: 100%;">
+                            </div>
+                            <div class="zml-control-group" style="white-space: nowrap; flex: 1; min-width: 120px;">
+                                <label for="zml-brush-size" class="zml-control-label">大小:</label>
+                                <input type="range" id="zml-brush-size" class="zml-styled-input" min="1" max="100" value="10" style="width: 100%;">
+                            </div>
                         </div>
-                        <div class="zml-control-group">
-                            <label for="zml-opacity-slider" class="zml-control-label">不透明度:</label>
-                            <input type="range" id="zml-opacity-slider" class="zml-styled-input" min="1" max="100" value="100">
-                        </div>
-                        <div class="zml-control-group">
-                            <label for="zml-brush-size" class="zml-control-label">大小:</label>
-                            <input type="range" id="zml-brush-size" class="zml-styled-input" min="1" max="100" value="10">
-                        </div>
-                        <div class="zml-control-group zml-action-buttons">
-                            <button id="zml-confirm-paint-btn" class="zml-editor-btn zml-confirm-btn">确认</button>
-                            <button id="zml-cancel-paint-btn" class="zml-editor-btn zml-cancel-btn">取消</button>
+                        <div style="display: flex; gap: 10px; white-space: nowrap;">
+                            <button id="zml-confirm-paint-btn" class="zml-editor-btn zml-confirm-btn" style="padding: 8px 16px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">确认</button>
+                            <button id="zml-cancel-paint-btn" class="zml-editor-btn zml-cancel-btn" style="padding: 8px 16px; background-color: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer;">取消</button>
                         </div>
                     </div>
                 </div>
@@ -933,6 +971,9 @@ function showPainterModal(node, widget) {
                         </button>
                         <button id="zml-brush-tool" class="zml-tool-btn active" title="画笔">
                             <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                        </button>
+                        <button id="zml-eraser-tool" class="zml-tool-btn" title="橡皮擦">
+                            <svg viewBox="0 0 24 24"><path d="M16.24 3.56l-1.42 1.42 2.82 2.82 1.42-1.42c.39-.39.39-1.02 0-1.41l-1.41-1.41c-.39-.39-1.02-.39-1.41 0zm-12.66 8.61L14.59 21H21v-6.41L9.59 3.56l-6.01 6.01c-.39.39-.39 1.02 0 1.41l1.41 1.41c.39.39 1.02.39 1.41 0z"/></svg>
                         </button>
                         <button id="zml-rect-tool" class="zml-tool-btn" title="绘制矩形">
                             <svg viewBox="0 0 24 24"><path d="M3 3v18h18V3H3zm16 16H5V5h14v14z"/></svg>
@@ -967,6 +1008,8 @@ function showPainterModal(node, widget) {
                     </div>
                 </div>
 
+                <!-- Resize Handle -->
+                <div class="zml-resize-handle"></div>
             </div>
         </div>
     `;
@@ -983,10 +1026,47 @@ function showPainterModal(node, widget) {
     const bottomPanel = modal.querySelector('#zml-painter-bottom-panel');
     const tipElement = modal.querySelector('#zml-editor-tip');
 
+    // --- Window Resizing Logic ---
+    const resizeHandle = modal.querySelector('.zml-resize-handle');
+    if (resizeHandle) {
+        resizeHandle.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const startX = e.clientX;
+            const startY = e.clientY;
+            const startWidth = modalContent.offsetWidth;
+            const startHeight = modalContent.offsetHeight;
+
+            const onMouseMove = (moveE) => {
+                const newWidth = startWidth + (moveE.clientX - startX);
+                const newHeight = startHeight + (moveE.clientY - startY);
+                
+                const minWidth = parseInt(getComputedStyle(modalContent).minWidth, 10) || 0;
+                const minHeight = parseInt(getComputedStyle(modalContent).minHeight, 10) || 0;
+
+                modalContent.style.width = `${Math.max(minWidth, newWidth)}px`;
+                modalContent.style.height = `${Math.max(minHeight, newHeight)}px`;
+            };
+
+            const onMouseUp = () => {
+                window.removeEventListener('mousemove', onMouseMove);
+                window.removeEventListener('mouseup', onMouseUp);
+            };
+
+            window.addEventListener('mousemove', onMouseMove);
+            window.addEventListener('mouseup', onMouseUp);
+        });
+    }
+
     loadScript(extensionBasePath + 'lib/fabric.min.js').then(() => {
         // Initialize canvas
         const canvas = new fabric.Canvas(canvasElement, { stopContextMenu: true });
         let isPanning = false, lastPanPoint = null;
+
+        // MODIFICATION START: 获取画笔预览元素
+        const brushPreview = modal.querySelector('#zml-painter-brush-preview');
+        // MODIFICATION END
         
         // --- State Management ---
         let undoStack = [];
@@ -1010,10 +1090,11 @@ function showPainterModal(node, widget) {
         const starBtn = modal.querySelector('#zml-star-tool');
         const heartBtn = modal.querySelector('#zml-heart-tool');
         const mosaicBtn = modal.querySelector('#zml-mosaic-tool');
+        const eraserBtn = modal.querySelector('#zml-eraser-tool'); // 获取橡皮擦按钮
         const imageStampBtn = modal.querySelector('#zml-image-stamp-tool');
         const arrowBtn = modal.querySelector('#zml-arrow-tool');
         const fillBtn = modal.querySelector('#zml-fill-tool');
-        const toolBtns = [brushBtn, rectBtn, triangleBtn, htriangleBtn, circleBtn, starBtn, heartBtn, mosaicBtn, imageStampBtn, arrowBtn];
+        const toolBtns = [moveBtn, brushBtn, eraserBtn, rectBtn, triangleBtn, htriangleBtn, circleBtn, starBtn, heartBtn, mosaicBtn, imageStampBtn, arrowBtn]; // 更新工具按钮列表
 
         // 辅助函数：将十六进制颜色转换为带透明度的RGBA格式
         function hexToRgba(hex, alpha) {
@@ -1040,17 +1121,87 @@ function showPainterModal(node, widget) {
         let isCtrlKeyPressed = false;
         let isHandToolMode = false; // 抓手模式标志
         
+        // MODIFICATION START: 添加画笔预览更新函数
+        function updateBrushCursorPreview(e) {
+            if (!brushPreview) return;
+
+            // 如果在平移/拖拽窗口，隐藏预览并设置光标
+            if (isPanning || isDragging || isHandToolMode) {
+                brushPreview.style.display = 'none';
+                canvas.defaultCursor = isPanning ? 'grabbing' : 'grab';
+                canvas.freeDrawingCursor = isPanning ? 'grabbing' : 'grab';
+                return;
+            }
+
+            // 仅在画笔或橡皮擦模式下显示预览
+            if (drawingMode === 'brush' || drawingMode === 'eraser') {
+                const zoom = canvas.getZoom();
+                // 画笔大小需要乘以画布的当前缩放级别
+                const displaySize = parseInt(brushSizeSlider.value) * zoom;
+                
+                brushPreview.style.width = `${displaySize}px`;
+                brushPreview.style.height = `${displaySize}px`;
+
+                const opacity = parseInt(opacitySlider.value) / 100;
+                
+                if (drawingMode === 'eraser') {
+                    // 橡皮擦预览：使用反色混合模式的白色圆圈
+                    brushPreview.style.background = 'rgba(255, 255, 255, 0.3)';
+                    brushPreview.style.border = '1px solid white';
+                    brushPreview.style.mixBlendMode = 'difference';
+                } else {
+                    // 画笔预览：匹配颜色和不透明度
+                    const rgbaColor = hexToRgba(colorPicker.value, opacity);
+                    brushPreview.style.background = rgbaColor;
+                    brushPreview.style.border = `1px solid ${colorPicker.value}`;
+                    brushPreview.style.mixBlendMode = 'normal'; // 正常混合
+                }
+
+                // 根据鼠标事件 'e' (如果提供了) 来定位
+                if (e) {
+                    // MODIFICATION START: 修复坐标计算
+                    // 我们需要鼠标相对于 imageDisplayArea (即 zml-editor-main-container) 的位置
+                    const rect = imageDisplayArea.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    // const x = e.offsetX; // [旧代码] 这是错误的，因为 offsetX 是相对于 canvas 的
+                    // const y = e.offsetY; // [旧代码] 这是错误的
+                    // MODIFICATION END
+                    
+                    // 将预览的中心对准鼠标指针
+                    brushPreview.style.left = `${x - displaySize / 2}px`;
+                    brushPreview.style.top = `${y - displaySize / 2}px`;
+                }
+                
+                brushPreview.style.display = 'block';
+                canvas.defaultCursor = 'none'; // 隐藏默认的十字光标
+                canvas.freeDrawingCursor = 'none';
+            } else {
+                // 形状工具、移动工具等，隐藏预览并恢复默认光标
+                brushPreview.style.display = 'none';
+                canvas.defaultCursor = 'default';
+                canvas.freeDrawingCursor = 'default';
+            }
+        }
+                // MODIFICATION END
+
         function onCtrlKeyChange() {
             // Ctrl键释放时，无论当前是什么模式，都退出抓手模式
             if (!isCtrlKeyPressed && !isPanning) {
-                if (drawingMode === 'brush') {
+                if (drawingMode === 'brush' || drawingMode === 'eraser') { // 橡皮擦也使用freeDrawingBrush
                     canvas.isDrawingMode = true;
                     if (!canvas.freeDrawingBrush) {
                         canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
                     }
                     const opacityValue = parseInt(opacitySlider.value) / 100;
                     canvas.freeDrawingBrush.width = parseInt(brushSizeSlider.value);
-                    canvas.freeDrawingBrush.color = hexToRgba(colorPicker.value, opacityValue);
+                    if (drawingMode === 'brush') {
+                        canvas.freeDrawingBrush.color = hexToRgba(colorPicker.value, opacityValue);
+                        canvas.freeDrawingBrush.globalCompositeOperation = 'source-over';
+                    } else { // eraser
+                        canvas.freeDrawingBrush.color = 'rgba(0,0,0,1)'; // 橡皮擦颜色不重要
+                        canvas.freeDrawingBrush.globalCompositeOperation = 'destination-out';
+                    }
                     canvas.freeDrawingBrush.strokeLineJoin = 'round';
                     canvas.freeDrawingBrush.strokeLineCap = 'round';
                     canvas.defaultCursor = 'crosshair';
@@ -1060,6 +1211,9 @@ function showPainterModal(node, widget) {
                 }
                 isHandToolMode = false;
             }
+            // MODIFICATION START: 在Ctrl状态改变时更新光标/预览
+            updateBrushCursorPreview();
+            // MODIFICATION END
         }
         
         document.addEventListener('keydown', (e) => {
@@ -1068,12 +1222,15 @@ function showPainterModal(node, widget) {
                 isHandToolMode = true;
                 // 进入抓手模式：更改光标并禁用画笔
                 canvas.defaultCursor = 'grab';
-                if (drawingMode === 'brush') {
+                if (drawingMode === 'brush' || drawingMode === 'eraser') { // 橡皮擦也需要禁用
                     canvas.isDrawingMode = false;
                     if (canvas.freeDrawingBrush) {
                         canvas.freeDrawingBrush = null;
                     }
                 }
+                // MODIFICATION START: 更新光标/预览
+                updateBrushCursorPreview();
+                // MODIFICATION END
             }
         });
         
@@ -1088,27 +1245,69 @@ function showPainterModal(node, widget) {
         let isDragging = false;
         let dragStart = { x: 0, y: 0 };
         let currentTranslate = { x: 0, y: 0 };
-        moveBtn.addEventListener('mousedown', (e) => { isDragging = true; dragStart.x = e.clientX; dragStart.y = e.clientY; moveBtn.style.cursor = 'grabbing'; e.preventDefault(); });
+        moveBtn.addEventListener('mousedown', (e) => { isDragging = true; dragStart.x = e.clientX; dragStart.y = e.clientY; moveBtn.style.cursor = 'grabbing'; e.preventDefault(); updateBrushCursorPreview(); });
         window.addEventListener('mousemove', (e) => { if (!isDragging) return; const dx = e.clientX - dragStart.x; const dy = e.clientY - dragStart.y; modalContent.style.transform = `translate(${currentTranslate.x + dx}px, ${currentTranslate.y + dy}px)`; });
-        window.addEventListener('mouseup', (e) => { if (!isDragging) return; isDragging = false; moveBtn.style.cursor = 'pointer'; const dx = e.clientX - dragStart.x; const dy = e.clientY - dragStart.y; currentTranslate.x += dx; currentTranslate.y += dy; });
+        window.addEventListener('mouseup', (e) => { if (!isDragging) return; isDragging = false; moveBtn.style.cursor = 'pointer'; const dx = e.clientX - dragStart.x; const dy = e.clientY - dragStart.y; currentTranslate.x += dx; currentTranslate.y += dy; updateBrushCursorPreview(); });
 
         // --- Tool Selection Logic ---
         function setActiveTool(activeBtn) {
             toolBtns.forEach(btn => btn.classList.remove('active'));
             if(activeBtn) activeBtn.classList.add('active');
             const modeMap = {
-                'zml-brush-tool': 'brush', 'zml-rect-tool': 'rect', 'zml-triangle-tool': 'triangle',
-                'zml-htriangle-tool': 'htriangle', 'zml-circle-tool': 'circle', 'zml-star-tool': 'star',
-                'zml-heart-tool': 'heart', 'zml-arrow-tool': 'arrow', 'zml-mosaic-tool': 'mosaic', 'zml-image-stamp-tool': 'imageStamp'
+                'zml-move-tool': 'move', // 添加移动工具模式
+                'zml-brush-tool': 'brush', 
+                'zml-eraser-tool': 'eraser', // 添加橡皮擦模式
+                'zml-rect-tool': 'rect', 
+                'zml-triangle-tool': 'triangle',
+                'zml-htriangle-tool': 'htriangle', 
+                'zml-circle-tool': 'circle', 
+                'zml-star-tool': 'star',
+                'zml-heart-tool': 'heart', 
+                'zml-arrow-tool': 'arrow', 
+                'zml-mosaic-tool': 'mosaic', 
+                'zml-image-stamp-tool': 'imageStamp'
             };
             drawingMode = modeMap[activeBtn.id] || 'brush';
-            canvas.isDrawingMode = (drawingMode === 'brush');
+            canvas.isDrawingMode = (drawingMode === 'brush' || drawingMode === 'eraser'); // 橡皮擦也使用freeDrawingBrush
+            
+            if (drawingMode === 'eraser') {
+                canvas.freeDrawingBrush.color = 'rgba(0,0,0,1)'; // 橡皮擦颜色不重要，但需要设置
+                canvas.freeDrawingBrush.globalCompositeOperation = 'destination-out'; // 擦除模式
+                colorPicker.disabled = true; // 禁用颜色选择器
+                opacitySlider.disabled = true; // 禁用不透明度选择器
+                quickColorBalls.forEach(ball => ball.disabled = true); // 禁用快速颜色球
+            } else if (drawingMode === 'brush') {
+                canvas.freeDrawingBrush.color = hexToRgba(colorPicker.value, parseInt(opacitySlider.value) / 100);
+                canvas.freeDrawingBrush.globalCompositeOperation = 'source-over'; // 正常绘制模式
+                colorPicker.disabled = false; // 启用颜色选择器
+                opacitySlider.disabled = false; // 启用不透明度选择器
+                quickColorBalls.forEach(ball => ball.disabled = false); // 启用快速颜色球
+            } else {
+                // 其他形状工具
+                canvas.freeDrawingBrush.globalCompositeOperation = 'source-over'; // 确保其他工具是正常绘制模式
+                colorPicker.disabled = false; // 启用颜色选择器
+                opacitySlider.disabled = false; // 启用不透明度选择器
+                quickColorBalls.forEach(ball => ball.disabled = false); // 启用快速颜色球
+            }
+
             let tipText = `按住Ctrl+滚轮缩放, 按住Ctrl+左键拖拽平移。当前模式：${activeBtn.title}。`;
             if (drawingMode === 'imageStamp') tipText += " “大小”滑块可控制图章缩放。";
             if (drawingMode === 'mosaic') tipText += " “大小”滑块可控制像素颗粒度。";
             tipElement.textContent = tipText;
+            // MODIFICATION START: 在切换工具后更新光标/预览
+            updateBrushCursorPreview();
+            // MODIFICATION END
         }
-        toolBtns.forEach(btn => btn.onclick = () => setActiveTool(btn));
+        toolBtns.forEach(btn => btn.onclick = () => {
+            if (btn.id === 'zml-move-tool') { // 移动工具不设置active状态，因为它不是绘制工具
+                toolBtns.forEach(b => b.classList.remove('active'));
+                drawingMode = 'move';
+                canvas.isDrawingMode = false;
+                tipElement.textContent = `当前模式：长按拖拽窗口。`;
+            } else {
+                setActiveTool(btn);
+            }
+        });
         fillBtn.onclick = () => { isFillMode = !isFillMode; fillBtn.classList.toggle('active', isFillMode); };
 
         // --- Undo/Redo and Data Management ---        
@@ -1162,47 +1361,81 @@ function showPainterModal(node, widget) {
         img.src = imageUrl;
         
         const setupCanvasAndImage = () => {
-            // 获取模态框内容区的实际尺寸
-            const modalContentRect = modalContent.getBoundingClientRect();
-            const modalContentStyle = getComputedStyle(modalContent);
-            const modalContentPaddingX = parseFloat(modalContentStyle.paddingLeft) + parseFloat(modalContentStyle.paddingRight);
-            const modalContentPaddingY = parseFloat(modalContentStyle.paddingTop) + parseFloat(modalContentStyle.paddingBottom);
-            const modalContentGap = parseFloat(modalContentStyle.columnGap || modalContentStyle.gap);
+            if (enableAdaptiveAnimation) {
+                // 检查是否有缓存的尺寸信息
+                if (zml_painter_size_cache[cacheKey]) {
+                    const cachedSize = zml_painter_size_cache[cacheKey];
+                    // 应用缓存的尺寸
+                    modalContent.style.width = `${cachedSize.modalWidth}px`;
+                    modalContent.style.height = `${cachedSize.modalHeight}px`;
+                    initialDisplayScale = cachedSize.initialDisplayScale;
+                } else {
+                    // 获取模态框内容区的实际尺寸
+                    const modalContentRect = modalContent.getBoundingClientRect();
+                    const modalContentStyle = getComputedStyle(modalContent);
+                    const modalContentPaddingX = parseFloat(modalContentStyle.paddingLeft) + parseFloat(modalContentStyle.paddingRight);
+                    const modalContentPaddingY = parseFloat(modalContentStyle.paddingTop) + parseFloat(modalContentStyle.paddingBottom);
+                    const modalContentGap = parseFloat(modalContentStyle.columnGap || modalContentStyle.gap);
 
-            const sidePanels = modal.querySelectorAll('.zml-side-panel');
-            let totalSidePanelWidth = 0;
-            if (sidePanels.length > 0) {
-                totalSidePanelWidth = Array.from(sidePanels).reduce((sum, panel) => sum + panel.offsetWidth, 0);
-            }
+                    const sidePanels = modal.querySelectorAll('.zml-side-panel');
+                    let totalSidePanelWidth = 0;
+                    if (sidePanels.length > 0) {
+                        totalSidePanelWidth = Array.from(sidePanels).reduce((sum, panel) => sum + panel.offsetWidth, 0);
+                    }
 
-            // 计算主内容区可用的水平空间
-            const availableMainContentAreaWidth = modalContentRect.width - modalContentPaddingX - totalSidePanelWidth - (modalContentGap * (sidePanels.length > 0 ? sidePanels.length : 0));
+                    // 计算主内容区可用的水平空间
+                    const availableMainContentAreaWidth = modalContentRect.width - modalContentPaddingX - totalSidePanelWidth - (modalContentGap * (sidePanels.length > 0 ? sidePanels.length : 0));
 
-            // 获取底部面板和提示的高度
-            const bottomPanelHeight = bottomPanel.offsetHeight + parseFloat(getComputedStyle(bottomPanel).marginTop) + parseFloat(getComputedStyle(bottomPanel).marginBottom);
-            const tipHeight = tipElement.offsetHeight + parseFloat(getComputedStyle(tipElement).marginTop) + parseFloat(getComputedStyle(tipElement).marginBottom);
-            const mainContentAreaStyle = getComputedStyle(mainContentArea);
-            const mainContentAreaGap = parseFloat(mainContentAreaStyle.rowGap || mainContentAreaStyle.gap);
+                    // 获取底部面板和提示的高度
+                    const bottomPanelHeight = bottomPanel.offsetHeight + parseFloat(getComputedStyle(bottomPanel).marginTop) + parseFloat(getComputedStyle(bottomPanel).marginBottom);
+                    const tipHeight = tipElement.offsetHeight + parseFloat(getComputedStyle(tipElement).marginTop) + parseFloat(getComputedStyle(tipElement).marginBottom);
+                    const mainContentAreaStyle = getComputedStyle(mainContentArea);
+                    const mainContentAreaGap = parseFloat(mainContentAreaStyle.rowGap || mainContentAreaStyle.gap);
 
-            // 计算图像区域可用的垂直空间
-            const availableImageHeightForScaler = modalContentRect.height - modalContentPaddingY - bottomPanelHeight - tipHeight - (mainContentAreaGap * 2);
+                    // 计算图像区域可用的垂直空间
+                    const availableImageHeightForScaler = modalContentRect.height - modalContentPaddingY - bottomPanelHeight - tipHeight - (mainContentAreaGap * 2);
 
-            // 计算初始缩放比例
-            initialDisplayScale = Math.min(1, 
-                availableMainContentAreaWidth / img.naturalWidth, 
-                availableImageHeightForScaler / img.naturalHeight
-            );
-            
-            // 可以设置一个最小缩放比例，防止图像过小（可选）
-            const MIN_SCALE = 0.05; 
-            if (initialDisplayScale < MIN_SCALE && (img.naturalWidth * MIN_SCALE) > 100) { // 避免超小图被放大到无意义的尺寸
-                initialDisplayScale = Math.min(1, MIN_SCALE);
-            } else if (initialDisplayScale * img.naturalWidth < 100) { // 确保图像至少有100px宽
-                 initialDisplayScale = 100 / img.naturalWidth;
-                 if (initialDisplayScale * img.naturalHeight > availableImageHeightForScaler) { // 如果按宽放大后高溢出
-                    initialDisplayScale = availableImageHeightForScaler / img.naturalHeight;
-                 }
-                 initialDisplayScale = Math.min(1, initialDisplayScale); // 避免放大到大于原始尺寸
+                    // 计算初始缩放比例
+                    initialDisplayScale = Math.min(1, 
+                        availableMainContentAreaWidth / img.naturalWidth, 
+                        availableImageHeightForScaler / img.naturalHeight
+                    );
+                    
+                    // 可以设置一个最小缩放比例，防止图像过小（可选）
+                    const MIN_SCALE = 0.05; 
+                    if (initialDisplayScale < MIN_SCALE && (img.naturalWidth * MIN_SCALE) > 100) { // 避免超小图被放大到无意义的尺寸
+                        initialDisplayScale = Math.min(1, MIN_SCALE);
+                    } else if (initialDisplayScale * img.naturalWidth < 100) { // 确保图像至少有100px宽
+                         initialDisplayScale = 100 / img.naturalWidth;
+                         if (initialDisplayScale * img.naturalHeight > availableImageHeightForScaler) { // 如果按宽放大后高溢出
+                            initialDisplayScale = availableImageHeightForScaler / img.naturalHeight;
+                         }
+                         initialDisplayScale = Math.min(1, initialDisplayScale); // 避免放大到大于原始尺寸
+                    }
+                }
+            } else {
+                // 不启用自适应动画时，使用默认大小但仍然计算合适的缩放比例
+                // 设置模态框宽度固定，但高度根据内容自适应
+                modalContent.style.minWidth = 'auto';
+                modalContent.style.minHeight = 'auto';
+                modalContent.style.width = '850px';
+                modalContent.style.height = 'auto'; // 改为auto让高度自适应内容
+                modalContent.style.maxHeight = '80vh'; // 添加最大高度限制，避免内容过长时溢出屏幕
+                
+                // 计算合适的缩放比例，确保图像完全可见
+                // 先获取默认尺寸
+                const defaultCanvasWidth = 600;
+                const defaultCanvasHeight = 450;
+                
+                // 计算缩放比例，确保图像完全适应画布
+                const scaleX = defaultCanvasWidth / img.naturalWidth;
+                const scaleY = defaultCanvasHeight / img.naturalHeight;
+                initialDisplayScale = Math.min(scaleX, scaleY, 1.0); // 最大不超过1:1
+                
+                // 确保缩放比例不会太小，图像至少有100px宽
+                if (initialDisplayScale * img.naturalWidth < 100) {
+                    initialDisplayScale = 100 / img.naturalWidth;
+                }
             }
 
 
@@ -1274,16 +1507,20 @@ function showPainterModal(node, widget) {
             closeModal(modal);
         };
 
-        // 为了响应窗口大小变化 (可选但推荐)
-        const resizeObserver = new ResizeObserver(() => {
-            if (modal.isConnected) { // 确保模态框仍然在DOM中
-                setupCanvasAndImage(); // 重新计算并设置尺寸
-                canvas.renderAll(); // 重新渲染以适应新尺寸
-            } else {
-                resizeObserver.disconnect(); // 如果模态框已关闭，断开Observer
-            }
-        });
-        resizeObserver.observe(modalContent); // 监听模态框内容区尺寸变化
+        // 根据是否启用自适应动画来决定是否添加ResizeObserver
+        let resizeObserver = null;
+        if (enableAdaptiveAnimation) {
+            // 为了响应窗口大小变化 (可选但推荐)
+            resizeObserver = new ResizeObserver(() => {
+                if (modal.isConnected) { // 确保模态框仍然在DOM中
+                    setupCanvasAndImage(); // 重新计算并设置尺寸
+                    canvas.renderAll(); // 重新渲染以适应新尺寸
+                } else {
+                    resizeObserver.disconnect(); // 如果模态框已关闭，断开Observer
+                }
+            });
+            resizeObserver.observe(modalContent); // 监听模态框内容区尺寸变化
+        }
 
         
         function renderAllDrawings() {
@@ -1336,7 +1573,8 @@ function showPainterModal(node, widget) {
                     objectCaching: false, 
                     strokeLineJoin: 'round', 
                     strokeLineCap: 'round', 
-                    isNotBackground: true 
+                    isNotBackground: true,
+                    globalCompositeOperation: pathData.isEraser ? 'destination-out' : 'source-over' // 根据isEraser设置混合模式
                 });
                 
                 canvas.add(fabricPath);
@@ -1407,7 +1645,8 @@ function showPainterModal(node, widget) {
                     points: scaledPathPoints, 
                     color: path.stroke || '#ff0000', 
                     width: Math.max(0.1, path.strokeWidth / initialDisplayScale), 
-                    isFill: false
+                    isFill: false,
+                    isEraser: (drawingMode === 'eraser') // 添加isEraser标志
                 };
                 drawPaths.push(pathData);
                 // 在这里保存状态，而不是在其他地方重复保存
@@ -1423,7 +1662,6 @@ function showPainterModal(node, widget) {
                 // 保存当前画笔大小和模式
                 const currentBrushWidth = canvas.freeDrawingBrush ? canvas.freeDrawingBrush.width : parseInt(brushSizeSlider.value);
                 const currentBrushColor = canvas.freeDrawingBrush ? canvas.freeDrawingBrush.color : '#ff0000';
-                const wasDrawingMode = canvas.isDrawingMode;
                 
                 zoom *= 0.999 ** delta; 
                 // 限制缩放范围，防止过大或过小
@@ -1431,16 +1669,26 @@ function showPainterModal(node, widget) {
                 if (zoom < 0.1) zoom = 0.1; // 允许缩小到更小比例
                 
                 canvas.zoomToPoint({ x: opt.e.offsetX, y: opt.e.offsetY }, zoom); 
-                
+
+                // MODIFICATION START: 缩放后更新预览大小
+                updateBrushCursorPreview();
+                // MODIFICATION END
+
                 // 更彻底地重置画笔状态，确保它适应新的缩放
-                if (canvas.freeDrawingBrush && drawingMode === 'brush') {
+                if (canvas.freeDrawingBrush && (drawingMode === 'brush' || drawingMode === 'eraser')) {
                     // 临时关闭再重新打开画笔模式，强制重新初始化
                     canvas.isDrawingMode = false;
                     // 完全重置画笔属性
                     const opacityValue = parseInt(opacitySlider.value) / 100;
                     canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
                     canvas.freeDrawingBrush.width = currentBrushWidth;
-                    canvas.freeDrawingBrush.color = hexToRgba(currentBrushColor, opacityValue);
+                    if (drawingMode === 'brush') {
+                        canvas.freeDrawingBrush.color = hexToRgba(colorPicker.value, opacityValue);
+                        canvas.freeDrawingBrush.globalCompositeOperation = 'source-over';
+                    } else { // eraser
+                        canvas.freeDrawingBrush.color = 'rgba(0,0,0,1)';
+                        canvas.freeDrawingBrush.globalCompositeOperation = 'destination-out';
+                    }
                     canvas.freeDrawingBrush.strokeLineJoin = 'round';
                     canvas.freeDrawingBrush.strokeLineCap = 'round';
                     canvas.isDrawingMode = true;
@@ -1484,6 +1732,11 @@ function showPainterModal(node, widget) {
                 }
                 lastPanPoint = new fabric.Point(opt.e.clientX, opt.e.clientY); 
                 this.defaultCursor = 'grabbing'; 
+
+                // MODIFICATION START: 更新光标/预览
+                updateBrushCursorPreview();
+                // MODIFICATION END
+
                 return; 
             }
             if (drawingMode === 'imageStamp') {
@@ -1519,6 +1772,8 @@ function showPainterModal(node, widget) {
                 }
             }
             
+            updateBrushCursorPreview(opt.e);
+
             // 只有在isPanning为true时才进行平移，确保需要按住鼠标左键
             if (isPanning) { 
                 // 仍然检查Ctrl键状态，确保在平移过程中必须按住Ctrl键
@@ -1548,6 +1803,7 @@ function showPainterModal(node, widget) {
                 lastPanPoint = currentPoint; 
                 return; 
             }
+
             if (!isDrawingShape || !currentShape) return;
             const pointer = canvas.getPointer(opt.e);
             switch(drawingMode) {
@@ -1577,14 +1833,20 @@ function showPainterModal(node, widget) {
             if (isPanning) { 
                 isPanning = false; 
                 // 完整恢复画笔模式和属性，但仅在Ctrl键未按下时
-                if (drawingMode === 'brush' && !isCtrlKeyPressed) {
+                if ((drawingMode === 'brush' || drawingMode === 'eraser') && !isCtrlKeyPressed) {
                     canvas.isDrawingMode = true;
                     // 重新创建画笔对象，确保画笔功能完全恢复
                     if (!canvas.freeDrawingBrush) {
                         const opacityValue = parseInt(opacitySlider.value) / 100;
                         canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
                         canvas.freeDrawingBrush.width = parseInt(brushSizeSlider.value);
-                        canvas.freeDrawingBrush.color = hexToRgba(colorPicker.value, opacityValue);
+                        if (drawingMode === 'brush') {
+                            canvas.freeDrawingBrush.color = hexToRgba(colorPicker.value, opacityValue);
+                            canvas.freeDrawingBrush.globalCompositeOperation = 'source-over';
+                        } else { // eraser
+                            canvas.freeDrawingBrush.color = 'rgba(0,0,0,1)';
+                            canvas.freeDrawingBrush.globalCompositeOperation = 'destination-out';
+                        }
                         canvas.freeDrawingBrush.strokeLineJoin = 'round';
                         canvas.freeDrawingBrush.strokeLineCap = 'round';
                     }
@@ -1593,6 +1855,9 @@ function showPainterModal(node, widget) {
                 }
                 // 只有在Ctrl键未按下时才恢复为十字光标
                 this.defaultCursor = isCtrlKeyPressed ? 'grab' : 'crosshair'; 
+                // MODIFICATION START: 停止平移后更新光标/预览
+                updateBrushCursorPreview();
+                // MODIFICATION END
                 return; 
             }
             if (isDrawingShape && currentShape) {
@@ -1607,7 +1872,7 @@ function showPainterModal(node, widget) {
                         pixelSize: parseInt(brushSizeSlider.value) 
                     });
                 } else {
-                    let pathData = { points: [], color: currentShape.stroke, width: currentShape.strokeWidth, isFill: isFillMode };
+                    let pathData = { points: [], color: currentShape.stroke, width: currentShape.strokeWidth, isFill: isFillMode, isEraser: (drawingMode === 'eraser') }; // 添加isEraser标志
                     if (drawingMode === 'rect') { 
                         pathData.points = [ 
                             [currentShape.left, currentShape.top], 
@@ -1644,6 +1909,18 @@ function showPainterModal(node, widget) {
             }
         });
 
+        // MODIFICATION START: 添加 mouse:over 和 mouse:out 事件
+        canvas.on('mouse:over', function(opt) {
+            updateBrushCursorPreview(opt.e);
+        });
+
+        canvas.on('mouse:out', function() {
+            if (brushPreview) {
+                brushPreview.style.display = 'none';
+            }
+        });
+        // MODIFICATION END
+
         modal.querySelector('#zml-undo-paint-btn').onclick = () => { 
             if (undoStack.length > 1) { 
                 // 一次性完成撤销操作，避免中间状态被显示
@@ -1670,8 +1947,11 @@ function showPainterModal(node, widget) {
             canvas.freeDrawingBrush.color = hexToRgba(newColor, opacityValue);
             updateActiveColorBall(newColor); // 更新颜色球的激活状态
             updateDisplayBorderColor(newColor); // 更新图像显示区域的边框颜色
+            // MODIFICATION START: 更新预览
+            updateBrushCursorPreview(e);
+            // MODIFICATION END
         };
-        brushSizeSlider.oninput = (e) => { canvas.freeDrawingBrush.width = parseInt(e.target.value); };
+        brushSizeSlider.oninput = (e) => { canvas.freeDrawingBrush.width = parseInt(e.target.value); updateBrushCursorPreview(); };
         // 不透明度滑块事件监听
         opacitySlider.oninput = (e) => {
             const opacityValue = parseInt(e.target.value) / 100; // 将0-100转换为0-1
@@ -1687,6 +1967,9 @@ function showPainterModal(node, widget) {
                 canvas.freeDrawingBrush.color = hexToRgba(selectedColor, opacityValue); // 更新画笔颜色
                 updateActiveColorBall(selectedColor); // 更新颜色球的激活状态
                 updateDisplayBorderColor(selectedColor); // 更新图像显示区域的边框颜色
+                // MODIFICATION START: 更新预览
+                updateBrushCursorPreview();
+                // MODIFICATION END
             };
         });
 
@@ -1721,6 +2004,14 @@ function showPainterModal(node, widget) {
         // 确保在模态框关闭时移除事件监听器，防止内存泄漏
         const originalCloseModal = closeModal;
         closeModal = function(modalElement) {
+            // 保存当前窗口尺寸到缓存
+            if (enableAdaptiveAnimation && modalElement === modal) {
+                zml_painter_size_cache[cacheKey] = {
+                    modalWidth: modalContent.offsetWidth,
+                    modalHeight: modalContent.offsetHeight,
+                    initialDisplayScale: initialDisplayScale
+                };
+            }
             document.removeEventListener('keydown', handleKeyDown);
             originalCloseModal(modalElement);
         };

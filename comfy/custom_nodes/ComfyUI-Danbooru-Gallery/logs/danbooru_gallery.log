@@ -1,0 +1,276 @@
+[2025-11-28 09:56:19] [INFO] [logger] ============================================================
+[2025-11-28 09:56:19] [INFO] [logger] ComfyUI-Danbooru-Gallery 简化日志系统已初始化
+[2025-11-28 09:56:19] [INFO] [logger] 日志级别: INFO
+[2025-11-28 09:56:19] [INFO] [logger] 日志文件: danbooru_gallery.log
+[2025-11-28 09:56:19] [INFO] [logger] 日志策略: 单文件覆写 | 超过20MB自动清空 | 仅ERROR输出到控制台
+[2025-11-28 09:56:19] [INFO] [logger] ============================================================
+[2025-11-28 09:56:19] [INFO] [metadata_hook] Detected existing metadata hook (possibly from another plugin)
+[2025-11-28 09:56:19] [INFO] [metadata_hook] Detected async ComfyUI execution, installing async metadata hooks with chain support
+[2025-11-28 09:56:19] [INFO] [metadata_hook] ✓ Metadata collection hooks installed successfully
+[2025-11-28 09:56:19] [INFO] [config_manager] [ConfigManager] 初始化，配置文件路径: G:\SimpleAI\SimpleAI.FluxAIO_1215\SimpleSDXL\comfy\custom_nodes\ComfyUI-Danbooru-Gallery\config.json
+[2025-11-28 09:56:19] [INFO] [config_api] [ConfigAPI] 配置管理API端点已注册
+[2025-11-28 09:56:19] [INFO] [simple_notify] 简易通知节点已加载
+[2025-11-28 09:56:19] [INFO] [parameter_control_panel] ======================================================================
+[2025-11-28 09:56:19] [INFO] [parameter_control_panel] 🔥 PARAMETER CONTROL PANEL MODULE RELOADING!
+[2025-11-28 09:56:19] [INFO] [parameter_control_panel] 📅 Reload time: 2025-11-28 09:56:19
+[2025-11-28 09:56:19] [INFO] [parameter_control_panel] ======================================================================
+[2025-11-28 09:56:19] [INFO] [parameter_control_panel] API 路由已注册
+[2025-11-28 09:56:19] [INFO] [parameter_break] API 路由已注册
+[2025-11-28 09:56:19] [INFO] [simple_string_split] 简易字符串分隔节点已加载
+[2025-11-28 09:56:19] [INFO] [save_image_plus] 哈希缓存管理器已加载
+[2025-11-28 09:56:19] [INFO] [save_image_plus] 本地元数据收集模块已加载
+[2025-11-28 09:56:19] [INFO] [save_image_plus] 保存图像增强版节点已加载
+[2025-11-28 09:56:19] [INFO] [simple_value_switch] 简易值切换节点已加载
+[2025-11-28 09:56:19] [INFO] [execution_coordinator] [GlobalExecutionCoordinator] ✅ 全局执行协调器已初始化
+[2025-11-28 09:56:19] [INFO] [group_executor_manager] ✅ GroupExecutorManager模块导入成功
+[2025-11-28 09:56:19] [INFO] [quick_group_navigation] 快速组导航器 v1.0.0 已加载（JavaScript扩展）
+[2025-11-28 09:56:19] [INFO] [G:\SimpleAI\SimpleAI_x_FluxAIO_1215\SimpleSDXL\comfy\custom_nodes\ComfyUI-Danbooru-Gallery] ======================================================================
+[2025-11-28 09:56:19] [INFO] [G:\SimpleAI\SimpleAI_x_FluxAIO_1215\SimpleSDXL\comfy\custom_nodes\ComfyUI-Danbooru-Gallery] ✅ 节点加载完成:
+[2025-11-28 09:56:19] [INFO] [G:\SimpleAI\SimpleAI_x_FluxAIO_1215\SimpleSDXL\comfy\custom_nodes\ComfyUI-Danbooru-Gallery]    📦 成功加载模块: 23 个
+[2025-11-28 09:56:19] [INFO] [G:\SimpleAI\SimpleAI_x_FluxAIO_1215\SimpleSDXL\comfy\custom_nodes\ComfyUI-Danbooru-Gallery]    🎯 成功注册节点: 26 个
+[2025-11-28 09:56:19] [INFO] [G:\SimpleAI\SimpleAI_x_FluxAIO_1215\SimpleSDXL\comfy\custom_nodes\ComfyUI-Danbooru-Gallery] ======================================================================
+[2025-11-28 09:56:19] [INFO] [tag_sync_api] [标签同步] 后台同步系统已加载
+[2025-11-28 09:56:19] [INFO] [tag_sync_api] [标签同步] 进度回调已注册
+[2025-11-28 09:56:19] [INFO] [tag_sync_api] [标签同步] 等待前端加载完成...
+[2025-11-28 09:56:19] [INFO] [tag_sync_api] [标签同步] 智能等待已启动 (循环检查前端连接状态,最多等待60秒)
+[2025-11-28 09:56:19] [INFO] [tag_sync_api] [标签同步] API 端点已注册:
+[2025-11-28 09:56:19] [INFO] [tag_sync_api] [标签同步]    POST /danbooru_gallery/sync_start
+[2025-11-28 09:56:19] [INFO] [tag_sync_api] [标签同步]    POST /danbooru_gallery/sync_cancel
+[2025-11-28 09:56:19] [INFO] [tag_sync_api] [标签同步]    GET  /danbooru_gallery/sync_status
+[2025-11-28 09:56:19] [INFO] [G:\SimpleAI\SimpleAI_x_FluxAIO_1215\SimpleSDXL\comfy\custom_nodes\ComfyUI-Danbooru-Gallery] ✓ Tag sync API 已加载
+[2025-11-28 09:56:19] [INFO] [api] [TextCacheAPI] 文本缓存扩展API端点已注册
+[2025-11-28 09:56:19] [INFO] [G:\SimpleAI\SimpleAI_x_FluxAIO_1215\SimpleSDXL\comfy\custom_nodes\ComfyUI-Danbooru-Gallery] ✓ 文本缓存管理器API已注册（支持工作流扫描）
+[2025-11-28 09:56:19] [INFO] [preview_api] ✓ 预览图API已注册
+[2025-11-28 09:56:19] [INFO] [G:\SimpleAI\SimpleAI_x_FluxAIO_1215\SimpleSDXL\comfy\custom_nodes\ComfyUI-Danbooru-Gallery] ✓ Checkpoint预览图API已注册
+[2025-11-28 09:56:19] [INFO] [G:\SimpleAI\SimpleAI_x_FluxAIO_1215\SimpleSDXL\comfy\custom_nodes\ComfyUI-Danbooru-Gallery] [OpenInKrita] 检测到Krita插件未安装，正在自动安装...
+[2025-11-28 09:56:19] [INFO] [plugin_installer] Target directory: C:\Users\Administrator\AppData\Roaming\krita\pykrita
+[2025-11-28 09:56:19] [INFO] [plugin_installer] Copied: open_in_krita.desktop
+[2025-11-28 09:56:19] [INFO] [plugin_installer] Copied: open_in_krita/ directory
+[2025-11-28 09:56:19] [INFO] [plugin_installer] Plugin v1.0.16 installed successfully
+[2025-11-28 09:56:19] [INFO] [plugin_installer] Updated kritarc: C:\Users\Administrator\AppData\Roaming\krita\kritarc
+[2025-11-28 09:56:19] [INFO] [plugin_installer] Plugin auto-enabled in kritarc
+[2025-11-28 09:56:19] [INFO] [G:\SimpleAI\SimpleAI_x_FluxAIO_1215\SimpleSDXL\comfy\custom_nodes\ComfyUI-Danbooru-Gallery] [OpenInKrita] Krita插件安装完成
+[2025-11-28 09:56:19] [INFO] [G:\SimpleAI\SimpleAI_x_FluxAIO_1215\SimpleSDXL\comfy\custom_nodes\ComfyUI-Danbooru-Gallery] ======================================================================
+[2025-11-28 09:56:19] [INFO] [G:\SimpleAI\SimpleAI_x_FluxAIO_1215\SimpleSDXL\comfy\custom_nodes\ComfyUI-Danbooru-Gallery] ✅ API端点注册完成:
+[2025-11-28 09:56:19] [INFO] [G:\SimpleAI\SimpleAI_x_FluxAIO_1215\SimpleSDXL\comfy\custom_nodes\ComfyUI-Danbooru-Gallery]    🌐 成功注册API: 24 个 (含日志接收)
+[2025-11-28 09:56:19] [INFO] [G:\SimpleAI\SimpleAI_x_FluxAIO_1215\SimpleSDXL\comfy\custom_nodes\ComfyUI-Danbooru-Gallery] ======================================================================
+[2025-11-28 09:56:19] [INFO] [G:\SimpleAI\SimpleAI_x_FluxAIO_1215\SimpleSDXL\comfy\custom_nodes\ComfyUI-Danbooru-Gallery] ======================================================================
+[2025-11-28 09:56:19] [INFO] [G:\SimpleAI\SimpleAI_x_FluxAIO_1215\SimpleSDXL\comfy\custom_nodes\ComfyUI-Danbooru-Gallery] 🎉 ComfyUI-Danbooru-Gallery 插件初始化完成!
+[2025-11-28 09:56:19] [INFO] [G:\SimpleAI\SimpleAI_x_FluxAIO_1215\SimpleSDXL\comfy\custom_nodes\ComfyUI-Danbooru-Gallery]    ⏱️  初始化耗时: 0.323 秒
+[2025-11-28 09:56:19] [INFO] [G:\SimpleAI\SimpleAI_x_FluxAIO_1215\SimpleSDXL\comfy\custom_nodes\ComfyUI-Danbooru-Gallery]    📦 已加载模块: 23 个
+[2025-11-28 09:56:19] [INFO] [G:\SimpleAI\SimpleAI_x_FluxAIO_1215\SimpleSDXL\comfy\custom_nodes\ComfyUI-Danbooru-Gallery]    🎯 已注册节点: 26 个
+[2025-11-28 09:56:19] [INFO] [G:\SimpleAI\SimpleAI_x_FluxAIO_1215\SimpleSDXL\comfy\custom_nodes\ComfyUI-Danbooru-Gallery] ======================================================================
+[2025-11-28 09:56:26] [INFO] [config_manager] [ConfigManager] ✅ 配置文件加载成功
+[2025-11-28 09:56:26] [INFO] [config_manager] [ConfigManager] 获取配置项: ui.show_toast_notifications = True
+[2025-11-28 09:56:26] [INFO] [config_api] [ConfigAPI] GET 配置项: ui.show_toast_notifications = True
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [multi_language] [GlobalMultiLanguage] 全局多语言系统已初始化
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [multi_language] [GlobalMultiLanguage] 已注册命名空间: mce ["zh","en"]
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [multi_language] [GlobalMultiLanguage] 已注册命名空间: danbooru ["zh","en"]
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [multi_language] [GlobalMultiLanguage] 已注册命名空间: prompt_selector ["zh","en"]
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [multi_language] [GlobalMultiLanguage] 已注册命名空间: char_swap ["zh","en"]
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [multi_language] [GlobalMultiLanguage] 已注册命名空间: gem ["zh","en"]
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [multi_language] [GlobalMultiLanguage] 已注册命名空间: resolution_simplify ["zh","en"]
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [mask_editor] [mask_editor.js] 文件已加载 - 版本: 2025-10-12-23:50
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [cache_control_events] [CacheControlEvents] 📡 事件监听器已设置
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [cache_control_events] [CacheControlEvents] 🚀 缓存控制事件系统已启动
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [cache_control_events] [CacheControlEvents] 📋 全局实例: window.cacheControlEvents
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [cache_control_events] [CacheControlEvents] ✅ 基于ComfyUI原生机制的缓存控制系统就绪
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [execution_lock] [ExecutionLock] ✅ 执行锁管理器已初始化
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [state_manager] [StateManager] ✅ 状态管理器已初始化
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [error_rate_limiter] [错误频率限制] 模块已加载
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [debug_config] [DebugConfig] 配置加载成功: {"group_executor_manager":false,"group_executor_trigger":false,"image_cache_save":false,"image_cache_get":false,"execution_engine":false,"cache_control_events":false}
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [debug_config] [DebugConfig] Debug配置系统已初始化
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [ToastManager] [ToastManager] 配置加载成功: Toast开关 = true
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [multi_language] [GlobalMultiLanguage] 已注册命名空间: pcp ["zh","en"]
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [parameter_control_panel] [PCP] 参数控制面板已加载
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [group_mute_manager] [GMM] 组静音管理器已加载
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [workflow_description] [WorkflowDescription] 工作流说明节点已加载
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [resolution_master_simplify] [ResolutionMasterSimplify] JS 已加载
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [prompt_cleaning_maid] [PromptCleaningMaid] JS 已加载
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [parameter_break] [PB] 参数展开节点已加载
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [quick_group_navigation] [QGN] 样式文件已加载
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [group_executor_manager] [GEM] 组执行管理器已加载
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [native_execution_init] [OptimizedExecutionSystem] ✅ 统一节点名单制已加载
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [native_execution_init] [OptimizedExecutionSystem] 🌍 全局影响节点名单: easy globalSeed, easy seed
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [native_execution_init] [OptimizedExecutionSystem] 📺 预览显示节点名单: PreviewImage, SaveImage, ShowText, ShowText|pysssss, PreviewAny, SimpleImageCompare, ImageCompare, Show Any
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [native_execution_init] [OptimizedExecutionSystem] Starting initialization
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [native_execution_init] [OptimizedExecutionSystem] Version: 2.0.0
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [native_execution_init] [OptimizedExecutionSystem] Based on LG_GroupExecutor pattern
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [native_execution_init] [OptimizedExecutionSystem] Installing api.queuePrompt hook...
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [native_execution_init] [OptimizedExecutionSystem] api.queuePrompt hook installed successfully
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [native_execution_init] [OptimizedExecutionSystem] Initialization complete
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [native_execution_init] [OptimizedExecutionSystem] Components loaded:
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [native_execution_init] [OptimizedExecutionSystem]   - OptimizedExecutionEngine
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [native_execution_init] [OptimizedExecutionSystem]   - CacheControlEvents
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [native_execution_init] [OptimizedExecutionSystem] Module loaded
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [image_cache_channel_updater] [ImageCacheChannelUpdater] 初始化通道更新器
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [image_cache_channel_updater] [ImageCacheChannelUpdater] 模块加载完成
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [execution_engine] [OptimizedExecutionEngine] 📡 事件监听器已设置
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [execution_engine] [OptimizedExecutionEngine] ✅ 取消处理器已设置
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [execution_engine] [OptimizedExecutionEngine] ✅ 图像过滤器取消监听已设置（监听execution_error和execution_interrupted）
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [execution_engine] [OptimizedExecutionEngine] 🚀 优化执行引擎已启动
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [execution_engine] [OptimizedExecutionEngine] 📋 全局实例: window.optimizedExecutionEngine
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [execution_engine] [OptimizedExecutionEngine] ✅ 基于ComfyUI原生机制的优化执行引擎就绪
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [text_cache_viewer] [TextCacheViewer] 模块加载完成
+[2025-11-28 09:56:26] [INFO] [JS/Chrome] [text_cache_channel_updater] [TextCacheChannelUpdater] 初始化通道更新器
+[2025-11-28 09:56:27] [INFO] [tag_sync_api] [标签同步] 检测到前端连接 (等待 8秒), 再等3秒确保初始化完成...
+[2025-11-28 09:56:30] [INFO] [tag_sync_api] [标签同步] 前端已就绪,开始自动启动检查...
+[2025-11-28 09:56:30] [INFO] [tag_sync_api] [标签同步] 数据库是最新的 (上次同步: 5.9 天前)
+[2025-11-28 09:56:31] [INFO] [JS/Chrome] [text_cache_channel_updater] [TextCacheChannelUpdater] 模块加载完成
+[2025-11-28 09:56:31] [INFO] [JS/Chrome] [fetch_from_krita] [FetchFromKrita] Frontend extension loaded
+[2025-11-28 09:56:31] [INFO] [JS/Chrome] [setup_dialog] [KritaSetupDialog] Module loaded and event listener registered
+[2025-11-28 09:56:31] [INFO] [JS/Chrome] [simple_load_image] [SimpleLoadImage] Frontend extension loaded
+[2025-11-28 09:56:31] [INFO] [JS/Chrome] [mask_editor] [mask_editor.js] 文件已加载 - 版本: 2025-10-12-23:50
+[2025-11-28 09:56:31] [INFO] [JS/Chrome] [image_cache_save] [ImageCacheSave] Toast管理器加载成功
+[2025-11-28 09:56:31] [INFO] [JS/Chrome] [image_cache_save] [ImageCacheSave] JavaScript扩展加载完成
+[2025-11-28 09:56:31] [INFO] [JS/Chrome] [image_cache_get] [ImageCacheGet] Toast管理器加载成功
+[2025-11-28 09:56:31] [INFO] [JS/Chrome] [image_cache_get] [ImageCacheGet] JavaScript扩展加载完成
+[2025-11-28 09:56:31] [INFO] [JS/Chrome] [global_text_cache_get] [GlobalTextCacheGet] Toast管理器加载成功
+[2025-11-28 09:56:31] [INFO] [JS/Chrome] [global_text_cache_get] [GlobalTextCacheGet] JavaScript扩展加载完成
+[2025-11-28 09:56:31] [INFO] [JS/Chrome] [global_text_cache_save] [GlobalTextCacheSave] Toast管理器加载成功
+[2025-11-28 09:56:31] [INFO] [JS/Chrome] [global_text_cache_save] [GlobalTextCacheSave] JavaScript扩展加载完成
+[2025-11-28 09:56:31] [INFO] [JS/Chrome] [parameter_control_panel] [PCP] 初始化参数控制面板
+[2025-11-28 09:56:31] [INFO] [JS/Chrome] [group_mute_manager] [GMM-UI] 初始化组静音管理器
+[2025-11-28 09:56:31] [INFO] [JS/Chrome] [workflow_description] [WorkflowDescription] 初始化工作流说明节点
+[2025-11-28 09:56:31] [INFO] [JS/Chrome] [parameter_break] [PB] 初始化参数展开节点
+[2025-11-28 09:56:31] [INFO] [JS/Chrome] [preview] [CheckpointPreview] ✓ 预览功能已加载（支持图片和视频）
+[2025-11-28 09:56:31] [INFO] [api] [TextCacheAPI] 开始工作流通道同步流程
+[2025-11-28 09:56:31] [INFO] [api] [TextCacheAPI] 步骤1完成: 发现0个节点, 0个唯一通道
+[2025-11-28 09:56:31] [INFO] [api] [TextCacheAPI] 工作流通道同步完成: 成功0/0, 耗时0.00s
+[2025-11-28 09:56:31] [INFO] [JS/Chrome] [global_text_cache_save] [WorkflowSynchronizer] 🚀 ComfyUI启动完成，开始自动工作流通道同步
+[2025-11-28 09:56:31] [INFO] [JS/Chrome] [global_text_cache_save] [WorkflowSynchronizer] 🔄 启动自动同步模式
+[2025-11-28 09:56:31] [INFO] [JS/Chrome] [global_text_cache_save] [WorkflowSynchronizer] 🚀 开始工作流通道同步...
+[2025-11-28 09:56:31] [INFO] [JS/Chrome] [global_text_cache_save] [WorkflowSynchronizer] 🔍 工作流扫描结果: 发现0个Save节点, 0个有名称通道
+[2025-11-28 09:56:31] [INFO] [simple_load_image] 已创建黑色图像文件: G:\SimpleAI\SimpleAI.FluxAIO_1215\SimpleSDXL\comfy\input\simple_none.png
+[2025-11-28 09:56:32] [INFO] [JS/Chrome] [global_text_cache_save] [WorkflowSynchronizer] ✅ 后端同步成功: {"status":"success","sync_result":{"total_nodes_found":0,"unique_channels_found":0,"successful_registrations":0,"failed_registrations":0,"failed_channels":[],"sync_duration":0,"found_nodes":[]},"message":"工作流通道同步完成: 0/0 通道已注册"}
+[2025-11-28 09:56:32] [INFO] [JS/Chrome] [global_text_cache_save] [WorkflowSynchronizer] 🔍 开始验证同步结果...
+[2025-11-28 09:56:32] [INFO] [JS/Chrome] [global_text_cache_save] [WorkflowSynchronizer] ✅ 同步验证完成: 0个成功, 0个失败
+[2025-11-28 09:56:33] [INFO] [config_manager] [ConfigManager] ✅ 配置文件加载成功
+[2025-11-28 09:56:33] [INFO] [config_manager] [ConfigManager] 获取配置项: quick_group_navigation.show_floating_ball = True
+[2025-11-28 09:56:33] [INFO] [config_api] [ConfigAPI] GET 配置项: quick_group_navigation.show_floating_ball = True
+[2025-11-28 09:56:33] [INFO] [JS/Chrome] [image_cache_save] [ImageCacheSave] 注册节点扩展
+[2025-11-28 09:56:33] [INFO] [JS/Chrome] [image_cache_get] [ImageCacheGet] 注册节点扩展
+[2025-11-28 09:56:33] [INFO] [JS/Chrome] [global_text_cache_save] [GlobalTextCacheSave] 注册节点扩展
+[2025-11-28 09:56:33] [INFO] [JS/Chrome] [global_text_cache_get] [GlobalTextCacheGet] 注册节点扩展
+[2025-11-28 09:56:33] [INFO] [JS/Chrome] [parameter_control_panel] [PCP] 参数控制面板节点已完整注册
+[2025-11-28 09:56:33] [INFO] [JS/Chrome] [parameter_break] [PB] 节点名称匹配，开始注册...
+[2025-11-28 09:56:33] [INFO] [JS/Chrome] [parameter_break] [PB] 参数展开节点已完整注册
+[2025-11-28 09:56:33] [INFO] [JS/Chrome] [simple_load_image] [SimpleLoadImage] Registering node extension
+[2025-11-28 09:56:33] [INFO] [JS/Chrome] [simple_load_image] [SimpleLoadImage] Node extension registered successfully
+[2025-11-28 09:56:33] [INFO] [JS/Chrome] [fetch_from_krita] [FetchFromKrita] Registering node extension for FetchFromKrita
+[2025-11-28 09:56:33] [INFO] [JS/Chrome] [fetch_from_krita] [FetchFromKrita] Node extension registered successfully for FetchFromKrita
+[2025-11-28 09:56:33] [INFO] [JS/Chrome] [fetch_from_krita] [FetchFromKrita] Registering node extension for OpenInKrita
+[2025-11-28 09:56:33] [INFO] [JS/Chrome] [fetch_from_krita] [FetchFromKrita] Node extension registered successfully for OpenInKrita
+[2025-11-28 09:56:33] [INFO] [JS/Chrome] [quick_group_navigation] [QGN] 扩展开始设置...
+[2025-11-28 09:56:33] [INFO] [JS/Chrome] [quick_group_navigation] [QGN] 快速组导航管理器已创建
+[2025-11-28 09:56:33] [INFO] [JS/Chrome] [quick_group_navigation] [QGN] 扩展设置完成
+[2025-11-28 09:56:33] [INFO] [JS/Chrome] [image_cache_toast] [ImageCacheToast] 初始化图像缓存Toast监听器
+[2025-11-28 09:56:33] [WARNING] [JS/Chrome] [image_cache_toast] [ImageCacheToast] WebSocket未初始化
+[2025-11-28 09:56:33] [INFO] [JS/Chrome] [image_cache_channel_updater] [ImageCacheChannelUpdater] 设置扩展
+[2025-11-28 09:56:33] [INFO] [JS/Chrome] [image_cache_channel_updater] [ImageCacheChannelUpdater] 扩展设置完成，监听器已注册
+[2025-11-28 09:56:33] [INFO] [JS/Chrome] [text_cache_viewer] [TextCacheViewer] 设置扩展
+[2025-11-28 09:56:33] [INFO] [JS/Chrome] [text_cache_viewer] [TextCacheViewer] 扩展设置完成，监听器已注册
+[2025-11-28 09:56:33] [INFO] [JS/Chrome] [text_cache_channel_updater] [TextCacheChannelUpdater] 设置扩展
+[2025-11-28 09:56:33] [INFO] [JS/Chrome] [text_cache_channel_updater] [TextCacheChannelUpdater] 扩展设置完成，监听器已注册
+[2025-11-28 09:56:33] [INFO] [JS/Chrome] [prompt_selector] [PromptSelector] 注册全局ps-data-synced监听器
+[2025-11-28 09:56:33] [INFO] [JS/Chrome] [prompt_selector] [PromptSelector] 全局监听器注册完成
+[2025-11-28 09:56:33] [INFO] [JS/Chrome] [tag_sync_listener] [标签同步] WebSocket 监听器已加载 (支持状态栏+Toast)
+[2025-11-28 09:56:33] [INFO] [JS/Chrome] [image_cache_get] [ImageCacheGet] 使用动态combo实现通道列表自动更新
+[2025-11-28 09:56:33] [INFO] [JS/Chrome] [global_text_cache_get] [GlobalTextCacheGet] 使用动态combo实现通道列表自动更新
+[2025-11-28 09:56:33] [INFO] [JS/Chrome] [quick_group_navigation] [QGN] 配置加载成功: show_floating_ball = true
+[2025-11-28 09:56:33] [INFO] [JS/Chrome] [floating_navigator] [QGN] 悬浮球导航器初始化完成
+[2025-11-28 09:56:33] [INFO] [JS/Chrome] [quick_group_navigation] [QGN] 全局快捷键监听器已设置
+[2025-11-28 09:56:33] [INFO] [JS/Chrome] [quick_group_navigation] [QGN] 工作流监听器已设置
+[2025-11-28 09:56:33] [INFO] [JS/Chrome] [quick_group_navigation] [QGN] 快速组导航管理器初始化完成
+[2025-11-28 09:56:33] [INFO] [JS/Chrome] [image_cache_channel_updater] [ImageCacheChannelUpdater] 获取到 0 个通道: []
+[2025-11-28 09:56:33] [INFO] [JS/Chrome] [image_cache_channel_updater] [ImageCacheChannelUpdater] 全局缓存已更新: 0个通道
+[2025-11-28 09:56:33] [INFO] [JS/Chrome] [text_cache_channel_updater] [TextCacheChannelUpdater] 获取到 0 个通道: []
+[2025-11-28 09:56:33] [INFO] [JS/Chrome] [text_cache_channel_updater] [TextCacheChannelUpdater] 全局缓存已更新: 0个通道
+[2025-11-28 09:57:00] [INFO] [JS/Chrome] [preview] [CheckpointPreview] 检测到菜单打开
+[2025-11-28 09:57:00] [INFO] [JS/Chrome] [preview] [CheckpointPreview] 当前widget: undefined
+[2025-11-28 09:57:01] [INFO] [JS/Chrome] [preview] [CheckpointPreview] 检测到菜单打开
+[2025-11-28 09:57:01] [INFO] [JS/Chrome] [preview] [CheckpointPreview] 当前widget: undefined
+[2025-11-28 09:57:15] [INFO] [JS/Chrome] [preview] [CheckpointPreview] 检测到菜单打开
+[2025-11-28 09:57:15] [INFO] [JS/Chrome] [preview] [CheckpointPreview] 当前widget: undefined
+[2025-11-28 09:57:20] [INFO] [JS/Chrome] [preview] [CheckpointPreview] 菜单关闭
+[2025-11-28 09:57:20] [INFO] [JS/Chrome] [preview] [CheckpointPreview] 菜单关闭
+[2025-11-28 09:57:20] [INFO] [JS/Chrome] [preview] [CheckpointPreview] 菜单关闭
+[2025-11-28 09:57:29] [INFO] [JS/Chrome] [parameter_break] [PB] 节点已创建: -1
+[2025-11-28 09:57:29] [INFO] [JS/Chrome] [parameter_break] [PB] 序列化: 0 个参数, 映射: 0 条
+[2025-11-28 09:57:29] [INFO] [JS/Chrome] [parameter_break] [PB] 序列化: 0 个参数, 映射: 0 条
+[2025-11-28 09:57:29] [INFO] [api] [TextCacheAPI] 开始工作流通道同步流程
+[2025-11-28 09:57:29] [INFO] [api] [TextCacheAPI] 步骤1完成: 发现0个节点, 0个唯一通道
+[2025-11-28 09:57:29] [INFO] [api] [TextCacheAPI] 工作流通道同步完成: 成功0/0, 耗时0.00s
+[2025-11-28 09:57:30] [INFO] [JS/Chrome] [global_text_cache_save] [WorkflowSynchronizer] 🚀 开始工作流通道同步...
+[2025-11-28 09:57:30] [INFO] [JS/Chrome] [global_text_cache_save] [WorkflowSynchronizer] 🔍 工作流扫描结果: 发现0个Save节点, 0个有名称通道
+[2025-11-28 09:57:30] [INFO] [JS/Chrome] [global_text_cache_save] [WorkflowSynchronizer] ✅ 后端同步成功: {"status":"success","sync_result":{"total_nodes_found":0,"unique_channels_found":0,"successful_registrations":0,"failed_registrations":0,"failed_channels":[],"sync_duration":0,"found_nodes":[]},"message":"工作流通道同步完成: 0/0 通道已注册"}
+[2025-11-28 09:57:30] [INFO] [JS/Chrome] [global_text_cache_save] [WorkflowSynchronizer] 🔍 开始验证同步结果...
+[2025-11-28 09:57:30] [INFO] [JS/Chrome] [global_text_cache_save] [WorkflowSynchronizer] ✅ 同步验证完成: 0个成功, 0个失败
+[2025-11-28 09:57:32] [INFO] [JS/Chrome] [parameter_break] [PB] 序列化: 0 个参数, 映射: 0 条
+[2025-11-28 09:57:32] [INFO] [JS/Chrome] [parameter_break] [PB] 序列化: 0 个参数, 映射: 0 条
+[2025-11-28 09:57:32] [INFO] [JS/Chrome] [parameter_break] [PB] 序列化: 0 个参数, 映射: 0 条
+[2025-11-28 09:57:33] [INFO] [JS/Chrome] [parameter_break] [PB] 序列化: 0 个参数, 映射: 0 条
+[2025-11-28 09:57:40] [INFO] [parameter_break]  节点 11 参数结构已更新: 0 个参数
+[2025-11-28 09:57:40] [INFO] [JS/Chrome] [parameter_break] [PB] 序列化: 0 个参数, 映射: 0 条
+[2025-11-28 09:57:40] [INFO] [JS/Chrome] [parameter_control_panel] [PCP-UI] 开始创建自定义UI: -1
+[2025-11-28 09:57:40] [INFO] [JS/Chrome] [parameter_control_panel] [PCP] 输出引脚已更新: 参数包包含 0 个参数, 连接数: 0
+[2025-11-28 09:57:40] [INFO] [JS/Chrome] [parameter_control_panel] [PCP-UI] 自定义UI创建完成
+[2025-11-28 09:57:40] [INFO] [JS/Chrome] [parameter_control_panel] [PCP] 已注册参数值变化事件监听器, 节点ID: -1 类型: number
+[2025-11-28 09:57:40] [INFO] [JS/Chrome] [parameter_break] [PB] 输入已连接，准备同步参数结构
+[2025-11-28 09:57:40] [INFO] [JS/Chrome] [parameter_break] [PB] 序列化: 0 个参数, 映射: 0 条
+[2025-11-28 09:57:40] [INFO] [JS/Chrome] [parameter_control_panel] [PCP] 序列化: 0 个参数
+[2025-11-28 09:57:40] [INFO] [JS/Chrome] [parameter_break] [PB] 序列化: 0 个参数, 映射: 0 条
+[2025-11-28 09:57:40] [INFO] [JS/Chrome] [parameter_control_panel] [PCP] 序列化: 0 个参数
+[2025-11-28 09:57:40] [INFO] [JS/Chrome] [parameter_break] [PB] 开始同步参数结构...
+[2025-11-28 09:57:40] [INFO] [JS/Chrome] [parameter_break] [PB] 源节点: ParameterControlPanel 12
+[2025-11-28 09:57:40] [INFO] [JS/Chrome] [parameter_break] [PB] 读取到参数结构: 0 个参数
+[2025-11-28 09:57:40] [INFO] [JS/Chrome] [parameter_break] [PB] 参数结构为空，使用占位符输出
+[2025-11-28 09:57:40] [INFO] [JS/Chrome] [parameter_control_panel] [PCP] 全局预设列表已加载: 0
+[2025-11-28 09:57:40] [INFO] [JS/Chrome] [parameter_control_panel] [PCP] 后端无配置，使用默认空列表
+[2025-11-28 09:57:40] [INFO] [JS/Chrome] [parameter_break] [PB] 参数结构已同步到后端
+[2025-11-28 09:57:42] [INFO] [JS/Chrome] [parameter_break] [PB] 序列化: 0 个参数, 映射: 0 条
+[2025-11-28 09:57:42] [INFO] [JS/Chrome] [parameter_control_panel] [PCP] 序列化: 0 个参数
+[2025-11-28 09:57:42] [INFO] [JS/Chrome] [parameter_break] [PB] 序列化: 0 个参数, 映射: 0 条
+[2025-11-28 09:57:42] [INFO] [JS/Chrome] [parameter_control_panel] [PCP] 序列化: 0 个参数
+[2025-11-28 09:57:42] [INFO] [JS/Chrome] [parameter_break] [PB] 序列化: 0 个参数, 映射: 0 条
+[2025-11-28 09:57:42] [INFO] [JS/Chrome] [parameter_control_panel] [PCP] 序列化: 0 个参数
+[2025-11-28 09:57:43] [INFO] [JS/Chrome] [parameter_control_panel] [PCP] 序列化: 0 个参数
+[2025-11-28 09:57:43] [INFO] [JS/Chrome] [parameter_break] [PB] 序列化: 0 个参数, 映射: 0 条
+[2025-11-28 09:57:43] [INFO] [JS/Chrome] [parameter_control_panel] [PCP] 序列化: 0 个参数
+[2025-11-28 09:57:43] [INFO] [JS/Chrome] [parameter_break] [PB] 序列化: 0 个参数, 映射: 0 条
+[2025-11-28 09:57:43] [INFO] [JS/Chrome] [parameter_control_panel] [PCP] 序列化: 0 个参数
+[2025-11-28 09:57:43] [INFO] [JS/Chrome] [parameter_break] [PB] 序列化: 0 个参数, 映射: 0 条
+[2025-11-28 09:57:46] [INFO] [JS/Chrome] [parameter_control_panel] [PCP] 序列化: 0 个参数
+[2025-11-28 09:57:46] [INFO] [JS/Chrome] [parameter_break] [PB] 序列化: 0 个参数, 映射: 0 条
+[2025-11-28 09:57:48] [INFO] [JS/Chrome] [parameter_break] [PB] 序列化: 0 个参数, 映射: 0 条
+[2025-11-28 09:57:48] [INFO] [JS/Chrome] [parameter_control_panel] [PCP] 序列化: 0 个参数
+[2025-11-28 09:57:50] [INFO] [JS/Chrome] [parameter_break] [PB] 序列化: 0 个参数, 映射: 0 条
+[2025-11-28 09:57:50] [INFO] [JS/Chrome] [parameter_control_panel] [PCP] 序列化: 0 个参数
+[2025-11-28 09:57:52] [INFO] [JS/Chrome] [parameter_break] [PB] 序列化: 0 个参数, 映射: 0 条
+[2025-11-28 09:57:52] [INFO] [JS/Chrome] [parameter_control_panel] [PCP] 序列化: 0 个参数
+[2025-11-28 09:57:53] [INFO] [JS/Chrome] [parameter_break] [PB] 序列化: 0 个参数, 映射: 0 条
+[2025-11-28 09:57:53] [INFO] [JS/Chrome] [parameter_control_panel] [PCP] 序列化: 0 个参数
+[2025-11-28 09:57:54] [INFO] [JS/Chrome] [parameter_break] [PB] 序列化: 0 个参数, 映射: 0 条
+[2025-11-28 09:57:54] [INFO] [JS/Chrome] [parameter_control_panel] [PCP] 序列化: 0 个参数
+[2025-11-28 09:57:55] [INFO] [JS/Chrome] [parameter_break] [PB] 序列化: 0 个参数, 映射: 0 条
+[2025-11-28 09:57:55] [INFO] [JS/Chrome] [parameter_control_panel] [PCP] 序列化: 0 个参数
+[2025-11-28 09:57:57] [INFO] [JS/Chrome] [parameter_break] [PB] 序列化: 0 个参数, 映射: 0 条
+[2025-11-28 09:57:57] [INFO] [JS/Chrome] [parameter_control_panel] [PCP] 序列化: 0 个参数
+[2025-11-28 09:57:58] [INFO] [JS/Chrome] [parameter_break] [PB] 序列化: 0 个参数, 映射: 0 条
+[2025-11-28 09:57:58] [INFO] [JS/Chrome] [parameter_control_panel] [PCP] 序列化: 0 个参数
+[2025-11-28 09:57:59] [INFO] [JS/Chrome] [parameter_control_panel] [PCP] 序列化: 0 个参数
+[2025-11-28 09:57:59] [INFO] [JS/Chrome] [parameter_break] [PB] 序列化: 0 个参数, 映射: 0 条
+[2025-11-28 09:57:59] [INFO] [JS/Chrome] [parameter_control_panel] [PCP] 序列化: 0 个参数
+[2025-11-28 09:57:59] [INFO] [JS/Chrome] [parameter_break] [PB] 序列化: 0 个参数, 映射: 0 条
+[2025-11-28 09:57:59] [INFO] [JS/Chrome] [parameter_control_panel] [PCP] 序列化: 0 个参数
+[2025-11-28 09:57:59] [INFO] [JS/Chrome] [parameter_break] [PB] 序列化: 0 个参数, 映射: 0 条
+[2025-11-28 09:57:59] [INFO] [JS/Chrome] [parameter_control_panel] [PCP] 序列化: 0 个参数
+[2025-11-28 09:57:59] [INFO] [JS/Chrome] [parameter_break] [PB] 序列化: 0 个参数, 映射: 0 条
+[2025-11-28 09:58:29] [INFO] [api] [TextCacheAPI] 开始工作流通道同步流程
+[2025-11-28 09:58:29] [INFO] [api] [TextCacheAPI] 步骤1完成: 发现0个节点, 0个唯一通道
+[2025-11-28 09:58:29] [INFO] [api] [TextCacheAPI] 工作流通道同步完成: 成功0/0, 耗时0.00s
+[2025-11-28 09:58:30] [INFO] [JS/Chrome] [global_text_cache_save] [WorkflowSynchronizer] 🚀 开始工作流通道同步...
+[2025-11-28 09:58:30] [INFO] [JS/Chrome] [global_text_cache_save] [WorkflowSynchronizer] 🔍 工作流扫描结果: 发现0个Save节点, 0个有名称通道
+[2025-11-28 09:58:30] [INFO] [JS/Chrome] [global_text_cache_save] [WorkflowSynchronizer] ✅ 后端同步成功: {"status":"success","sync_result":{"total_nodes_found":0,"unique_channels_found":0,"successful_registrations":0,"failed_registrations":0,"failed_channels":[],"sync_duration":0,"found_nodes":[]},"message":"工作流通道同步完成: 0/0 通道已注册"}
+[2025-11-28 09:58:30] [INFO] [JS/Chrome] [global_text_cache_save] [WorkflowSynchronizer] 🔍 开始验证同步结果...
+[2025-11-28 09:58:30] [INFO] [JS/Chrome] [global_text_cache_save] [WorkflowSynchronizer] ✅ 同步验证完成: 0个成功, 0个失败

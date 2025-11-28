@@ -1,0 +1,17 @@
+{
+  "version": "1.0.0",
+  "syntax_mode": "attention_couple",
+  "canvas": {
+    "width": 1024,
+    "height": 1024
+  },
+  "characters": [],
+  "settings": {
+    "language": "zh-CN",
+    "theme": {
+      "primaryColor": "#743795",
+      "backgroundColor": "#2a2a2a",
+      "secondaryColor": "#333333"
+    }
+  }
+}

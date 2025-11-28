@@ -777,7 +777,7 @@ class ZML_DualIntegerV3:
                 "阈值": ("INT", {"default": 0, "min": 0, "max": 16384, "step": 1}),
                 "A小于B": ("STRING", {
                     "multiline": False,
-                    "default": "1216,832"
+                    "default": "832,1216"
                 }),
                 "A等于B": ("STRING", {
                     "multiline": False,
@@ -785,7 +785,7 @@ class ZML_DualIntegerV3:
                 }),
                 "A大于B": ("STRING", {
                     "multiline": False,
-                    "default": "832,1216"
+                    "default": "1216,832"
                 }),
             }
         }
@@ -1021,12 +1021,12 @@ class ZML_PresetResolution:
 
     @classmethod
     def IS_CHANGED(cls, **kwargs):
-        # 每次调用都返回不同的值，强制ComfyUI重新计算节点输出
-        # 只有在随机模式开启时才这样做，否则保持正常缓存
+        # 只有在随机模式开启时才强制重新计算，否则允许缓存
         if kwargs.get("随机模式", False):
             import time
             return time.time()
-        return float("nan")  # 默认行为，允许缓存
+        # 非随机模式下，返回 False 表示节点未更改，允许 ComfyUI 使用缓存
+        return False
 
     def get_resolution(self, 预设, 互换宽高=False, 随机模式=False, 批次数量=1):
         import random

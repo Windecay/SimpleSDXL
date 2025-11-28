@@ -214,7 +214,7 @@ class ZML_TextFormatter:
                     "placeholder": "输入要转换的文本"
                 }),
                 "权重转换": (["禁用", "NAI转SD（精确）", "NAI转SD（一位小数）", "清空权重"], {"default": "NAI转SD（精确）"}),
-                "文本格式化": (["禁用", "下划线转空格", "空格转下划线", "空格隔离标签", "逗号追加换行", "清空换行"], {"default": "下划线转空格"}),
+                "文本格式化": (["禁用", "下划线转空格", "空格转下划线", "空格隔离标签", "逗号追加换行", "清空换行", "括号转义"], {"default": "下划线转空格"}),
                 "格式化标点符号": ("BOOLEAN", {"default": True, "label_on": "启用", "label_off": "禁用"}),
                 "合并相同提示词": ("BOOLEAN", {"default": False, "label_on": "启用", "label_off": "禁用"}),
                 "合并白名单": ("STRING", {"default": " BREAK ", "multiline": False, "placeholder": "不合并的提示词，逗号分隔", "tooltip": "这里的提示词不会被合并，请使用逗号分隔"}),
@@ -459,6 +459,46 @@ class ZML_TextFormatter:
         elif 文本格式化 == "清空换行":
             # 将所有换行符替换为空格
             文本 = 文本.replace('\n', ' ').replace('\r', ' ').strip()
+        elif 文本格式化 == "括号转义":
+            # 括号转义功能：为非权重、非最外层的括号添加转义符
+            # 先找出所有需要保留的括号（权重表达式和最外层括号）
+            # 然后对剩余的括号进行转义
+            def escape_brackets(text):
+                # 匹配权重表达式 (content:weight)
+                weight_pattern = r'\(([^:]+):([\d.]+)\)'
+                # 匹配最外层括号（假设没有嵌套）
+                outer_bracket_pattern = r'^\([^()]*\)$'
+                
+                # 保存所有匹配到的权重表达式位置
+                weight_matches = list(re.finditer(weight_pattern, text))
+                
+                # 创建一个标记数组，标记哪些位置需要保留（不转义）
+                preserve_positions = set()
+                
+                # 标记权重表达式中的括号
+                for match in weight_matches:
+                    start, end = match.span()
+                    for i in range(start, end):
+                        preserve_positions.add(i)
+                
+                # 检查整个文本是否被括号包裹且不是权重表达式
+                if re.match(outer_bracket_pattern, text) and not re.match(weight_pattern, text):
+                    # 标记最外层括号位置
+                    preserve_positions.add(0)  # 开括号
+                    preserve_positions.add(len(text) - 1)  # 闭括号
+                
+                # 逐字符处理并转义未标记的括号
+                result = []
+                for i, char in enumerate(text):
+                    if (char == '(' or char == ')') and i not in preserve_positions:
+                        result.append('\\' + char)
+                    else:
+                        result.append(char)
+                
+                return ''.join(result)
+            
+            # 对文本进行括号转义处理
+            文本 = escape_brackets(文本)
         # 如果为 "禁用", 则不执行任何操作
 
         # 3. 处理合并相同提示词
@@ -933,6 +973,11 @@ class ZML_MultiTextInput5V2:
     def INPUT_TYPES(cls):
         return {
             "required": {
+                "分隔符": ("STRING", {
+                    "multiline": False,
+                    "default": ",\n\n",
+                    "placeholder": "输入分隔符"
+                }),
                 "文本1_输入": ("STRING", {
                     "multiline": False, # 单行输入
                     "default": "",
@@ -966,10 +1011,26 @@ class ZML_MultiTextInput5V2:
     RETURN_NAMES = ("文本1", "文本2", "文本3", "文本4", "文本5", "合并文本",)
     FUNCTION = "passthrough_texts"
 
-    def passthrough_texts(self, 文本1_输入, 文本2_输入, 文本3_输入, 文本4_输入, 文本5_输入):
-        """简单地将五个输入文本作为五个独立输出返回，并新增合并文本输出。"""
-        # 合并所有文本，不需要分隔符和格式化标点符号
-        merged_text = 文本1_输入 + 文本2_输入 + 文本3_输入 + 文本4_输入 + 文本5_输入
+    def passthrough_texts(self, 分隔符, 文本1_输入, 文本2_输入, 文本3_输入, 文本4_输入, 文本5_输入):
+        """将五个输入文本作为五个独立输出返回，并使用分隔符合并文本输出。"""
+        # 安全地将所有文本放入列表
+        texts = [
+            文本1_输入,
+            文本2_输入,
+            文本3_输入,
+            文本4_输入,
+            文本5_输入
+        ]
+        
+        # 过滤掉空文本
+        non_empty_texts = [t for t in texts if t.strip()]
+
+        # 处理分隔符中的换行符写法
+        processed_separator = 分隔符.replace("\\n", "\n")
+
+        # 使用分隔符合并文本
+        merged_text = processed_separator.join(non_empty_texts)
+            
         return (文本1_输入, 文本2_输入, 文本3_输入, 文本4_输入, 文本5_输入, merged_text,)
 
 # ============================== 多文本输入节点（三个输入框）==============================
@@ -1165,32 +1226,56 @@ class ZML_SelectTextV3:
         entries = data.get("entries", [])
         
         final_parts = []
-
-        # 收集所有启用的文本条目
-        enabled_entries = []
-        for entry in entries:
-            if entry.get("enabled", False):
-                content = entry.get("content", "")
-                if content is not None and content != "":
-                    enabled_entries.append(content)
         
-        # 检查是否启用了随机选择
-        random_enabled = data.get("randomEnabled", False)
-        random_count = data.get("randomCount", 1)
+        # 检查是否是folder_select模式
+        lock_mode = data.get("lock_mode", "none")
         
-        if random_enabled and enabled_entries:
-            # 确保randomCount是整数
-            try:
-                count = max(1, min(int(random_count), len(enabled_entries)))
-                # 随机选择指定数量的条目
-                selected_entries = random.sample(enabled_entries, count)
-                final_parts = selected_entries
-            except (ValueError, TypeError):
-                # 如果转换失败，使用所有启用的条目
-                final_parts = enabled_entries
+        if lock_mode == "folder_select":
+            # 在folder_select模式下，只使用选中的文本框
+            selected_entries = []
+            for entry in entries:
+                # 检查是否是文件夹类型的条目（注意使用item_type而不是type）
+                if entry.get("item_type") == "folder" and entry.get("enabled", True):
+                    selected_id = entry.get("selectedTextboxId", None)
+                    # 查找对应的子文本框条目（使用parent_id而不是parentId）
+                    for sub_entry in entries:
+                        if sub_entry.get("parent_id") == entry.get("id") and sub_entry.get("enabled", True):
+                            # 如果有选中的ID，则只匹配选中的文本框；否则使用第一个启用的文本框
+                            if selected_id is None or sub_entry.get("id") == selected_id:
+                                content = sub_entry.get("content", "")
+                                if content is not None and content != "":
+                                    selected_entries.append(content)
+                                    # 如果有选中的ID，找到后就可以跳出循环
+                                    if selected_id is not None:
+                                        break
+            final_parts = selected_entries
         else:
-            # 不启用随机时，使用所有启用的文本条目
-            final_parts = enabled_entries
+            # 原始逻辑：收集所有启用的文本条目
+            enabled_entries = []
+            for entry in entries:
+                # 只处理非文件夹类型的条目
+                if entry.get("type") != "folder" and entry.get("enabled", False):
+                    content = entry.get("content", "")
+                    if content is not None and content != "":
+                        enabled_entries.append(content)
+            
+            # 检查是否启用了随机选择
+            random_enabled = data.get("randomEnabled", False)
+            random_count = data.get("randomCount", 1)
+            
+            if random_enabled and enabled_entries:
+                # 确保randomCount是整数
+                try:
+                    count = max(1, min(int(random_count), len(enabled_entries)))
+                    # 随机选择指定数量的条目
+                    selected_entries = random.sample(enabled_entries, count)
+                    final_parts = selected_entries
+                except (ValueError, TypeError):
+                    # 如果转换失败，使用所有启用的条目
+                    final_parts = enabled_entries
+            else:
+                # 不启用随机时，使用所有启用的文本条目
+                final_parts = enabled_entries
         
         # 如果有可选输入并且不为空，添加到结果中
         if 可选输入 and 可选输入.strip():
@@ -1411,10 +1496,210 @@ class ZML_MergeText:
         combined = format_punctuation_global(combined)
         return (combined,)
 
+# ============================== 筛选提示词V2节点 ==============================
+class ZML_TextFilterV2:
+    """ZML 筛选提示词V2节点：基于十个布尔开关筛选提示词，支持从txt/miaoka/目录下的十个分类文件中加载提示词进行过滤"""
+    
+    def __init__(self):
+        self.node_dir = os.path.dirname(os.path.abspath(__file__))
+        self.miaoka_dir = os.path.join(self.node_dir, "txt", "miaoka")
+        self.category_files = {
+            "二次元角色": "二次元角色.txt",
+            "人物": "人物.txt", 
+            "场景": "场景.txt",
+            "服饰": "服饰.txt",
+            "物品": "物品.txt",
+            "环境": "环境.txt",
+            "画面": "画面.txt",
+            "艺术家": "艺术家.txt",
+            "表情动作": "表情动作.txt",
+            "镜头": "镜头.txt"
+        }
+        self.category_keywords = {}
+        self.category_translations = {}  # 新增：存储英文到中文的翻译映射
+        self._load_category_keywords()
+    
+    def _load_category_keywords(self):
+        """加载所有分类的关键词和翻译"""
+        for category, filename in self.category_files.items():
+            file_path = os.path.join(self.miaoka_dir, filename)
+            keywords = set()
+            translations = {}  # 英文到中文的映射
+            try:
+                if os.path.exists(file_path):
+                    with open(file_path, 'r', encoding='utf-8') as f:
+                        for line in f:
+                            line = line.strip()
+                            if line and ',' in line:
+                                # 分割英文提示词和中文翻译
+                                parts = line.split(',', 1)
+                                english_part = parts[0].strip()
+                                chinese_part = parts[1].strip() if len(parts) > 1 else ""
+                                if english_part:
+                                    keywords.add(english_part)
+                                    if chinese_part:
+                                        translations[english_part] = chinese_part
+                    self.category_keywords[category] = keywords
+                    self.category_translations[category] = translations
+                else:
+                    print(f"ZML_TextFilterV2 [警告]: 分类文件不存在 {file_path}")
+                    self.category_keywords[category] = set()
+                    self.category_translations[category] = {}
+            except Exception as e:
+                print(f"ZML_TextFilterV2 [错误]: 加载分类文件失败 {file_path}: {e}")
+                self.category_keywords[category] = set()
+                self.category_translations[category] = {}
+    
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "输入文本": ("STRING", {"forceInput": True}),
+                "自定义过滤词": ("STRING", {
+                    "multiline": True,
+                    "default": "",
+                    "placeholder": "输入自定义过滤词，用英文逗号分隔"
+                }),
+                "二次元角色": ("BOOLEAN", {"default": False}),
+                "人物": ("BOOLEAN", {"default": False}),
+                "场景": ("BOOLEAN", {"default": False}),
+                "服饰": ("BOOLEAN", {"default": False}),
+                "物品": ("BOOLEAN", {"default": False}),
+                "环境": ("BOOLEAN", {"default": False}),
+                "画面": ("BOOLEAN", {"default": False}),
+                "艺术家": ("BOOLEAN", {"default": False}),
+                "表情动作": ("BOOLEAN", {"default": False}),
+                "镜头": ("BOOLEAN", {"default": False}),
+            }
+        }
+    
+    CATEGORY = "image/ZML_图像/文本"
+    RETURN_TYPES = ("STRING", "STRING", "STRING")
+    RETURN_NAMES = ("筛选后文本", "过滤提示词", "过滤翻译")
+    FUNCTION = "filter_text_v2"
+    
+    def filter_text_v2(self, 输入文本, 自定义过滤词, 二次元角色, 人物, 场景, 服饰, 物品, 环境, 画面, 艺术家, 表情动作, 镜头):
+        """根据开关状态筛选提示词，返回筛选后的文本、被过滤的提示词及其翻译"""
+        if not 输入文本.strip():
+            return ("", "", "")
+        
+        # 确定需要过滤的分类
+        active_categories = []
+        switch_states = {
+            "二次元角色": 二次元角色,
+            "人物": 人物,
+            "场景": 场景, 
+            "服饰": 服饰,
+            "物品": 物品,
+            "环境": 环境,
+            "画面": 画面,
+            "艺术家": 艺术家,
+            "表情动作": 表情动作,
+            "镜头": 镜头
+        }
+        
+        for category, is_active in switch_states.items():
+            if is_active:
+                active_categories.append(category)
+        
+        # 收集所有需要过滤的关键词和翻译
+        keywords_to_filter = set()
+        translations_to_filter = {}  # 被过滤词的英文到中文映射
+        
+        # 添加自定义过滤词
+        if 自定义过滤词.strip():
+            custom_keywords = [kw.strip() for kw in 自定义过滤词.split(',') if kw.strip()]
+            keywords_to_filter.update(custom_keywords)
+        
+        # 添加分类过滤词
+        for category in active_categories:
+            keywords_to_filter.update(self.category_keywords.get(category, set()))
+            translations_to_filter.update(self.category_translations.get(category, {}))
+        
+        # 如果没有需要过滤的关键词，直接返回原文本
+        if not keywords_to_filter:
+            return (输入文本, "", "")
+        
+        # 按行处理，保持原始结构
+        lines = 输入文本.splitlines()
+        filtered_lines = []
+        filtered_keywords = set()  # 被过滤的关键词
+        
+        for line in lines:
+            if not line.strip():
+                filtered_lines.append(line)
+                continue
+                
+            # 分割标签，保持原始格式
+            tags = []
+            current_tag = ""
+            in_tag = False
+            
+            for char in line:
+                if char == ',' and not in_tag:
+                    if current_tag.strip():
+                        tags.append(current_tag.strip())
+                    current_tag = ""
+                else:
+                    current_tag += char
+                    if char == '(':
+                        in_tag = True
+                    elif char == ')':
+                        in_tag = False
+            
+            if current_tag.strip():
+                tags.append(current_tag.strip())
+            
+            # 过滤标签
+            filtered_tags = []
+            for tag in tags:
+                # 提取标签的核心部分（去掉权重）
+                core_tag = tag.split(':')[0].strip('()')
+                if core_tag not in keywords_to_filter:
+                    filtered_tags.append(tag)
+                else:
+                    # 记录被过滤的关键词
+                    filtered_keywords.add(core_tag)
+            
+            # 重新组合行
+            if filtered_tags:
+                filtered_line = ', '.join(filtered_tags)
+                filtered_lines.append(filtered_line)
+        
+        # 重新组合所有行
+        result = '\n'.join(filtered_lines)
+        
+        # 应用全局标点符号格式化
+        result = format_punctuation_global(result)
+        
+        # 生成被过滤词的列表和翻译列表
+        filtered_list = sorted(list(filtered_keywords))
+        filtered_text = ', '.join(filtered_list) if filtered_list else ""
+        
+        # 生成翻译列表（英文/中文/分类格式，每行一个）
+        translation_list = []
+        for keyword in filtered_list:
+            translation = translations_to_filter.get(keyword, "")
+            # 找出这个词属于哪些分类
+            categories_for_word = []
+            for category in active_categories:
+                if keyword in self.category_keywords.get(category, set()):
+                    categories_for_word.append(category)
+            category_str = '/'.join(categories_for_word) if categories_for_word else "未知"
+            
+            if translation:
+                translation_list.append(f"{keyword}/{translation}/{category_str}")
+            else:
+                translation_list.append(f"{keyword}//{category_str}")
+        translation_text = '\n'.join(translation_list) if translation_list else ""
+        
+        return (result, filtered_text, translation_text)
+
 # ============================== 节点注册 ==============================
 NODE_CLASS_MAPPINGS = {
     "ZML_TextFormatter": ZML_TextFormatter,
     "ZML_TextFilter": ZML_TextFilter,
+    "ZML_TextFilterV2": ZML_TextFilterV2,
     "ZML_DeleteText": ZML_DeleteText,
     "ZML_TextLine": ZML_TextLine,
     "ZML_RandomTextWeight": ZML_RandomTextWeight,
@@ -1433,6 +1718,7 @@ NODE_CLASS_MAPPINGS = {
 NODE_DISPLAY_NAME_MAPPINGS = {
     "ZML_TextFormatter": "ZML_文本转格式",
     "ZML_TextFilter": "ZML_筛选提示词",
+    "ZML_TextFilterV2": "ZML_筛选提示词V2",
     "ZML_DeleteText": "ZML_删除文本",
     "ZML_TextLine": "ZML_文本行",
     "ZML_RandomTextWeight": "ZML_随机文本权重",
