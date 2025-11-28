@@ -116,27 +116,27 @@ def load_model_paths():
             "configs": [os.path.abspath(os.path.join(simplemodels_root, "configs"))],
             "prompt_expansion": [os.path.abspath(os.path.join(simplemodels_root, "prompt_expansion"))],
             "model_patches": [os.path.abspath(os.path.join(script_dir, p)) if not os.path.isabs(p) else p
-                        for p in (config.get("path_model_patches", [])
+                        for p in (config.get("path_model_patches", [os.path.join(simplemodels_root, "model_patches")])
                                 if isinstance(config.get("path_model_patches"), list)
-                                else [config.get("path_model_patches", "")])],
+                                else [config.get("path_model_patches") or os.path.join(simplemodels_root, "model_patches")])],
             "audio_encoders": [os.path.abspath(os.path.join(script_dir, p)) if not os.path.isabs(p) else p
-                        for p in (config.get("path_audio_encoders", [])
+                        for p in (config.get("path_audio_encoders", [os.path.join(simplemodels_root, "audio_encoders")])
                                     if isinstance(config.get("path_audio_encoders"), list)
-                                    else [config.get("path_audio_encoders", "")])],
+                                    else [config.get("path_audio_encoders") or os.path.join(simplemodels_root, "audio_encoders")])],
             "text_encoders": [os.path.abspath(os.path.join(script_dir, p)) if not os.path.isabs(p) else p
-                        for p in (config.get("path_text_encoders", [])
+                        for p in (config.get("path_text_encoders", [os.path.join(simplemodels_root, "text_encoders")])
                                 if isinstance(config.get("path_text_encoders"), list)
-                                else [config.get("path_text_encoders", "")])],
+                                else [config.get("path_text_encoders") or os.path.join(simplemodels_root, "text_encoders")])],
             "lsnet": [os.path.join(simplemodels_root, "lsnet")],
             "kaloscope": [os.path.join(simplemodels_root, "lsnet", "kaloscope")],
             "detection": [os.path.abspath(os.path.join(script_dir, p)) if not os.path.isabs(p) else p
-                        for p in (config.get("path_detection", [])
+                        for p in (config.get("path_detection", [os.path.join(simplemodels_root, "detection")])
                                 if isinstance(config.get("path_detection"), list)
-                                else [config.get("path_detection", "")])],
+                                else [config.get("path_detection") or os.path.join(simplemodels_root, "detection")])],
             "diffusion_models": [os.path.abspath(os.path.join(script_dir, p)) if not os.path.isabs(p) else p
-                        for p in (config.get("path_diffusion_models", [])
+                        for p in (config.get("path_diffusion_models", [os.path.join(simplemodels_root, "diffusion_models")])
                                 if isinstance(config.get("path_diffusion_models"), list)
-                                else [config.get("path_diffusion_models", "")])],
+                                else [config.get("path_diffusion_models") or os.path.join(simplemodels_root, "diffusion_models")])],
             "ultralytics": [os.path.join(simplemodels_root, "ultralytics")],
             "bbox": [os.path.join(simplemodels_root, "ultralytics", "bbox")],
             "segm": [os.path.join(simplemodels_root, "ultralytics", "segm")],
