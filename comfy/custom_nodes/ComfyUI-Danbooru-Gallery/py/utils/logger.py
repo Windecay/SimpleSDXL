@@ -295,12 +295,12 @@ def setup_logging():
     # 清除现有的处理器（避免重复）
     plugin_logger.handlers.clear()
 
-    # # 只保留ERROR级别的控制台处理器（输出到 stderr）
-    # # 文件已写入所有日志，控制台只显示ERROR级别的重要信息
-    # error_console_handler = logging.StreamHandler(sys.stderr)
-    # error_console_handler.setLevel(logging.ERROR)  # 只处理ERROR和CRITICAL
-    # error_console_handler.setFormatter(ErrorConsoleFormatter(use_colors=True))
-    # plugin_logger.addHandler(error_console_handler)
+    # 只保留ERROR级别的控制台处理器（输出到 stderr）
+    # 文件已写入所有日志，控制台只显示ERROR级别的重要信息
+    error_console_handler = logging.StreamHandler(sys.stderr)
+    error_console_handler.setLevel(logging.ERROR)  # 只处理ERROR和CRITICAL
+    error_console_handler.setFormatter(ErrorConsoleFormatter(use_colors=True))
+    plugin_logger.addHandler(error_console_handler)
 
     # # 3. 简化文件处理器（每次启动覆写，超过大小自动清空）
     # try:
