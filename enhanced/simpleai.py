@@ -57,24 +57,71 @@ def reset_simpleai_args():
     return
 
 def sync_intput_reserved():
-    comfyd_images_path = os.path.join(shared.path_userhome, 'guest_user')
-    comfyd_intput = os.path.join(comfyd_images_path, 'comfyd_inputs')
-    comfyd_intput_reserved = os.path.join(shared.root, 'presets/input_reserved')
-    image_extensions = {'.jpg', '.png', '.jpeg', '.webp', '.mp4', '.mp3'}
+    try:
+        comfyd_images_path = os.path.join(shared.path_userhome, 'guest_user')
+        comfyd_intput = os.path.join(comfyd_images_path, 'comfyd_inputs')
+        comfyd_intput_reserved = os.path.join(shared.root, 'presets/input_reserved')
+        image_extensions = {'.jpg', '.png', '.jpeg', '.webp', '.mp4', '.mp3'}
 
-    default_image_path = os.path.join(shared.root, 'presets/welcome/welcome.png')
-    if not os.path.exists(os.path.join(comfyd_intput, 'welcome.png')):
-        shutil.copy(default_image_path, comfyd_intput)
-    if not os.path.exists(os.path.join(comfyd_intput_reserved, 'welcome.png')):
-        shutil.copy(default_image_path, comfyd_intput_reserved)
-    for file in os.listdir(comfyd_intput_reserved):
-        source_path = os.path.join(comfyd_intput_reserved, file)
-        if os.path.isfile(source_path):
-            ext = os.path.splitext(file)[1].lower()
-            if ext in image_extensions:
-                target_path = os.path.join(comfyd_intput, file)
-                if not os.path.exists(target_path):
-                    shutil.copy2(source_path, target_path)
+        if not os.path.exists(comfyd_images_path):
+            os.makedirs(comfyd_images_path, exist_ok=True)
+            logger.info(f'创建目录: {comfyd_images_path}')
+
+        if os.path.exists(comfyd_intput) and not os.path.isdir(comfyd_intput):
+            logger.warning(f'检测到comfyd_inputs是文件而非目录，正在修复: {comfyd_intput}')
+            try:
+                os.remove(comfyd_intput)
+                logger.info(f'已删除错误的文件: {comfyd_intput}')
+            except Exception as e:
+                logger.error(f'删除错误文件失败: {e}')
+                import tempfile
+                temp_dir = tempfile.mkdtemp()
+                os.rename(comfyd_intput, os.path.join(temp_dir, 'corrupted_file'))
+                logger.info(f'已将错误文件移至临时目录: {temp_dir}')
+
+        if not os.path.exists(comfyd_intput):
+            os.makedirs(comfyd_intput, exist_ok=True)
+            logger.info(f'创建目录: {comfyd_intput}')
+
+        if not os.path.exists(comfyd_intput_reserved):
+            os.makedirs(comfyd_intput_reserved, exist_ok=True)
+            logger.info(f'创建目录: {comfyd_intput_reserved}')
+
+        default_image_path = os.path.join(shared.root, 'presets/welcome/welcome.png')
+        if os.path.exists(default_image_path):
+            welcome_target = os.path.join(comfyd_intput, 'welcome.png')
+            if not os.path.exists(welcome_target):
+                try:
+                    shutil.copy(default_image_path, welcome_target)
+                except Exception as e:
+                    logger.error(f'复制welcome.png到comfyd_inputs失败: {e}')
+
+            welcome_reserved_target = os.path.join(comfyd_intput_reserved, 'welcome.png')
+            if not os.path.exists(welcome_reserved_target):
+                try:
+                    shutil.copy(default_image_path, welcome_reserved_target)
+                except Exception as e:
+                    logger.error(f'复制welcome.png到input_reserved失败: {e}')
+        else:
+            logger.warning(f'默认welcome.png文件不存在: {default_image_path}')
+
+        try:
+            for file in os.listdir(comfyd_intput_reserved):
+                source_path = os.path.join(comfyd_intput_reserved, file)
+                if os.path.isfile(source_path):
+                    ext = os.path.splitext(file)[1].lower()
+                    if ext in image_extensions:
+                        target_path = os.path.join(comfyd_intput, file)
+                        if not os.path.exists(target_path):
+                            try:
+                                shutil.copy2(source_path, target_path)
+                            except Exception as e:
+                                logger.error(f'复制文件 {file} 失败: {e}')
+        except Exception as e:
+            logger.error(f'遍历input_reserved目录失败: {e}')
+
+    except Exception as e:
+        logger.error(f'sync_intput_reserved执行出错: {e}')
 
 
 def get_path_in_user_dir(filename, user_did=None, catalog=None):

@@ -295,36 +295,36 @@ def setup_logging():
     # 清除现有的处理器（避免重复）
     plugin_logger.handlers.clear()
 
-    # 只保留ERROR级别的控制台处理器（输出到 stderr）
-    # 文件已写入所有日志，控制台只显示ERROR级别的重要信息
-    error_console_handler = logging.StreamHandler(sys.stderr)
-    error_console_handler.setLevel(logging.ERROR)  # 只处理ERROR和CRITICAL
-    error_console_handler.setFormatter(ErrorConsoleFormatter(use_colors=True))
-    plugin_logger.addHandler(error_console_handler)
+    # # 只保留ERROR级别的控制台处理器（输出到 stderr）
+    # # 文件已写入所有日志，控制台只显示ERROR级别的重要信息
+    # error_console_handler = logging.StreamHandler(sys.stderr)
+    # error_console_handler.setLevel(logging.ERROR)  # 只处理ERROR和CRITICAL
+    # error_console_handler.setFormatter(ErrorConsoleFormatter(use_colors=True))
+    # plugin_logger.addHandler(error_console_handler)
 
-    # 3. 简化文件处理器（每次启动覆写，超过大小自动清空）
-    try:
-        file_handler = SimpleFileHandler(
-            LOG_FILE,
-            max_bytes=20 * 1024 * 1024,  # 20MB
-            mode='w',  # 覆写模式
-            encoding='utf-8'
-        )
-        file_handler.setLevel(logging.DEBUG)  # 文件记录所有级别（包括 DEBUG）
-        file_handler.setFormatter(ColoredFormatter(use_colors=False))
-        plugin_logger.addHandler(file_handler)
-        print(f"[Logger] ✅ 日志系统已初始化，文件: {LOG_FILE.name}", file=sys.stderr)
-    except Exception as e:
-        print(f"[Logger] ⚠️ 无法创建日志文件处理器: {e}", file=sys.stderr)
+    # # 3. 简化文件处理器（每次启动覆写，超过大小自动清空）
+    # try:
+    #     file_handler = SimpleFileHandler(
+    #         LOG_FILE,
+    #         max_bytes=20 * 1024 * 1024,  # 20MB
+    #         mode='w',  # 覆写模式
+    #         encoding='utf-8'
+    #     )
+    #     file_handler.setLevel(logging.DEBUG)  # 文件记录所有级别（包括 DEBUG）
+    #     file_handler.setFormatter(ColoredFormatter(use_colors=False))
+    #     plugin_logger.addHandler(file_handler)
+    #     print(f"[Logger] ✅ 日志系统已初始化，文件: {LOG_FILE.name}", file=sys.stderr)
+    # except Exception as e:
+    #     print(f"[Logger] ⚠️ 无法创建日志文件处理器: {e}", file=sys.stderr)
 
-    # 输出简洁的初始化信息（写入文件，不显示在控制台）
-    logger = get_logger(__name__)
-    logger.info("=" * 60)
-    logger.info("ComfyUI-Danbooru-Gallery 简化日志系统已初始化")
-    logger.info(f"日志级别: {logging.getLevelName(level)}")
-    logger.info(f"日志文件: {LOG_FILE.name}")
-    logger.info("日志策略: 单文件覆写 | 超过20MB自动清空 | 仅ERROR输出到控制台")
-    logger.info("=" * 60)
+    # # 输出简洁的初始化信息（写入文件，不显示在控制台）
+    # logger = get_logger(__name__)
+    # logger.info("=" * 60)
+    # logger.info("ComfyUI-Danbooru-Gallery 简化日志系统已初始化")
+    # logger.info(f"日志级别: {logging.getLevelName(level)}")
+    # logger.info(f"日志文件: {LOG_FILE.name}")
+    # logger.info("日志策略: 单文件覆写 | 超过20MB自动清空 | 仅ERROR输出到控制台")
+    # logger.info("=" * 60)
 
 
 def get_logger(name: str) -> logging.Logger:

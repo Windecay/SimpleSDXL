@@ -2,7 +2,7 @@
   "id": "4dca0cd2-cc50-42e7-b1ac-11e022b2586d",
   "revision": 0,
   "last_node_id": 47,
-  "last_link_id": 63,
+  "last_link_id": 64,
   "nodes": [
     {
       "id": 13,
@@ -18,7 +18,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 9,
+      "order": 10,
       "mode": 0,
       "inputs": [
         {
@@ -300,95 +300,6 @@
       "bgcolor": "#653"
     },
     {
-      "id": 11,
-      "type": "VHS_LoadVideo",
-      "pos": [
-        -32.20872116088867,
-        410.459228515625
-      ],
-      "size": [
-        247.455078125,
-        662.6776053138767
-      ],
-      "flags": {},
-      "order": 6,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "meta_batch",
-          "shape": 7,
-          "type": "VHS_BatchManager",
-          "link": null
-        },
-        {
-          "name": "vae",
-          "shape": 7,
-          "type": "VAE",
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            50
-          ]
-        },
-        {
-          "name": "frame_count",
-          "type": "INT",
-          "links": []
-        },
-        {
-          "name": "audio",
-          "type": "AUDIO",
-          "links": []
-        },
-        {
-          "name": "video_info",
-          "type": "VHS_VIDEOINFO",
-          "links": [
-            11
-          ]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "VHS_LoadVideo",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.3"
-        }
-      },
-      "widgets_values": {
-        "video": "example.mp4",
-        "force_rate": 0,
-        "custom_width": 0,
-        "custom_height": 0,
-        "frame_load_cap": 0,
-        "skip_first_frames": 0,
-        "select_every_nth": 1,
-        "format": "AnimateDiff",
-        "choose video to upload": "image",
-        "videopreview": {
-          "hidden": false,
-          "paused": false,
-          "params": {
-            "force_rate": 0,
-            "custom_width": 0,
-            "custom_height": 0,
-            "frame_load_cap": 0,
-            "skip_first_frames": 0,
-            "select_every_nth": 1,
-            "filename": "example.mp4",
-            "type": "input",
-            "format": "video/mp4"
-          }
-        }
-      }
-    },
-    {
       "id": 38,
       "type": "Label (rgthree)",
       "pos": [
@@ -402,7 +313,7 @@
       "flags": {
         "allow_interaction": true
       },
-      "order": 7,
+      "order": 6,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -439,7 +350,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 8,
+      "order": 7,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -485,7 +396,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 10,
+      "order": 9,
       "mode": 0,
       "inputs": [
         {
@@ -548,7 +459,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 13,
+      "order": 14,
       "mode": 0,
       "inputs": [
         {
@@ -561,11 +472,12 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.3.70",
+        "Node name for S&R": "SaveVideo",
         "ue_properties": {
           "widget_ue_connectable": {},
-          "input_ue_unconnectable": {}
-        },
-        "Node name for S&R": "SaveVideo"
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
       },
       "widgets_values": [
         "Upscale\\FlashVSR_Upscale",
@@ -587,7 +499,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 11,
+      "order": 12,
       "mode": 0,
       "inputs": [
         {
@@ -599,7 +511,7 @@
           "name": "audio",
           "shape": 7,
           "type": "AUDIO",
-          "link": null
+          "link": 64
         },
         {
           "name": "fps",
@@ -622,11 +534,12 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.3.70",
+        "Node name for S&R": "CreateVideo",
         "ue_properties": {
           "widget_ue_connectable": {},
-          "input_ue_unconnectable": {}
-        },
-        "Node name for S&R": "CreateVideo"
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
       },
       "widgets_values": [
         30
@@ -646,7 +559,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 12,
+      "order": 11,
       "mode": 0,
       "inputs": [
         {
@@ -683,12 +596,14 @@
         }
       ],
       "properties": {
+        "Node name for S&R": "GetImageSizeAndCount",
         "ue_properties": {
           "widget_ue_connectable": {},
-          "input_ue_unconnectable": {}
-        },
-        "Node name for S&R": "GetImageSizeAndCount"
-      }
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": []
     },
     {
       "id": 47,
@@ -698,13 +613,13 @@
         738.8112664212425
       ],
       "size": [
-        140,
-        76
+        210,
+        88
       ],
       "flags": {
         "pinned": true
       },
-      "order": 14,
+      "order": 13,
       "mode": 0,
       "inputs": [
         {
@@ -722,15 +637,107 @@
         }
       ],
       "properties": {
+        "Node name for S&R": "easy showAnything",
         "ue_properties": {
           "widget_ue_connectable": {},
-          "input_ue_unconnectable": {}
-        },
-        "Node name for S&R": "easy showAnything"
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
       },
       "widgets_values": [
         "81"
       ]
+    },
+    {
+      "id": 11,
+      "type": "VHS_LoadVideo",
+      "pos": [
+        -32.20872116088867,
+        410.459228515625
+      ],
+      "size": [
+        247.455078125,
+        662.6776053138767
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "meta_batch",
+          "shape": 7,
+          "type": "VHS_BatchManager",
+          "link": null
+        },
+        {
+          "name": "vae",
+          "shape": 7,
+          "type": "VAE",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            50
+          ]
+        },
+        {
+          "name": "frame_count",
+          "type": "INT",
+          "links": []
+        },
+        {
+          "name": "audio",
+          "type": "AUDIO",
+          "links": [
+            64
+          ]
+        },
+        {
+          "name": "video_info",
+          "type": "VHS_VIDEOINFO",
+          "links": [
+            11
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VHS_LoadVideo",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": {
+        "video": "example.mp4",
+        "force_rate": 0,
+        "custom_width": 0,
+        "custom_height": 0,
+        "frame_load_cap": 0,
+        "skip_first_frames": 0,
+        "select_every_nth": 1,
+        "format": "AnimateDiff",
+        "choose video to upload": "image",
+        "videopreview": {
+          "hidden": false,
+          "paused": false,
+          "params": {
+            "force_rate": 0,
+            "custom_width": 0,
+            "custom_height": 0,
+            "frame_load_cap": 0,
+            "skip_first_frames": 0,
+            "select_every_nth": 1,
+            "filename": "example.mp4",
+            "type": "input",
+            "format": "video/mp4"
+          }
+        }
+      }
     }
   ],
   "links": [
@@ -797,6 +804,14 @@
       47,
       0,
       "*"
+    ],
+    [
+      64,
+      11,
+      2,
+      44,
+      1,
+      "AUDIO"
     ]
   ],
   "groups": [
@@ -819,17 +834,19 @@
     "ds": {
       "scale": 1.1000000000000005,
       "offset": [
-        463.059177378331,
-        52.74291410364187
+        228.60938156867206,
+        226.9055949896503
       ]
     },
     "ue_links": [],
     "links_added_by_ue": [],
-    "frontendVersion": "1.28.8",
+    "frontendVersion": "1.30.6",
     "VHS_latentpreview": true,
     "VHS_latentpreviewrate": 8,
     "VHS_MetadataImage": true,
-    "VHS_KeepIntermediate": true
+    "VHS_KeepIntermediate": true,
+    "qgn_navigation_groups": [],
+    "qgn_locked": false
   },
   "version": 0.4
 }
