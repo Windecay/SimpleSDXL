@@ -207,7 +207,7 @@
     },
     "class_type": "LoraLoaderModelOnly",
     "_meta": {
-      "title": "lora1"
+      "title": "lora_1"
     }
   },
   "37": {
@@ -221,7 +221,7 @@
     },
     "class_type": "LoraLoaderModelOnly",
     "_meta": {
-      "title": "lora2"
+      "title": "lora_2"
     }
   },
   "38": {
@@ -235,7 +235,7 @@
     },
     "class_type": "LoraLoaderModelOnly",
     "_meta": {
-      "title": "lora3"
+      "title": "lora_3"
     }
   },
   "39": {
@@ -249,7 +249,7 @@
     },
     "class_type": "LoraLoaderModelOnly",
     "_meta": {
-      "title": "lora4"
+      "title": "lora_4"
     }
   },
   "40": {
@@ -263,7 +263,7 @@
     },
     "class_type": "LoraLoaderModelOnly",
     "_meta": {
-      "title": "lora5"
+      "title": "lora_5"
     }
   },
   "41": {
@@ -277,7 +277,7 @@
     },
     "class_type": "LoraLoaderModelOnly",
     "_meta": {
-      "title": "lora6"
+      "title": "lora_6"
     }
   },
   "42": {
@@ -291,7 +291,7 @@
     },
     "class_type": "LoraLoaderModelOnly",
     "_meta": {
-      "title": "lora7"
+      "title": "lora_7"
     }
   },
   "43": {
@@ -305,7 +305,7 @@
     },
     "class_type": "LoraLoaderModelOnly",
     "_meta": {
-      "title": "lora8"
+      "title": "lora_8"
     }
   },
   "44": {
