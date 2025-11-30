@@ -1308,7 +1308,8 @@ class VideoAutoencoderKL(diffusers.AutoencoderKL):
         if H <= tile_h and W <= tile_w:
             return self.slicing_encode(x)
         else:
-            self.debug.log(f"Using VAE tiled encoding (Tile: {tile_size}, Overlap: {tile_overlap})", category="vae", force=True, indent_level=1)
+            if self.debug:
+                self.debug.log(f"Using VAE tiled encoding (Tile: {tile_size}, Overlap: {tile_overlap})", category="vae", force=True, indent_level=1)
 
         # Spatial scale factor (output/latent)
         scale_factor = self.spatial_downsample_factor
@@ -1481,7 +1482,8 @@ class VideoAutoencoderKL(diffusers.AutoencoderKL):
         if H <= latent_tile_h and W <= latent_tile_w:
             return self.slicing_decode(z)
         else:
-            self.debug.log(f"Using VAE tiled decoding (Tile: {tile_size}, Overlap: {tile_overlap})", category="vae", force=True, indent_level=1)
+            if self.debug:
+                self.debug.log(f"Using VAE tiled decoding (Tile: {tile_size}, Overlap: {tile_overlap})", category="vae", force=True, indent_level=1)
         
         latent_overlap_h = max(0, min((overlap_h // scale_factor), latent_tile_h - 1))
         latent_overlap_w = max(0, min((overlap_w // scale_factor), latent_tile_w - 1))

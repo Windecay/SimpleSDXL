@@ -14,6 +14,7 @@ import time
 from .model_registry import MODEL_REGISTRY, DEFAULT_VAE
 from .constants import (
     get_base_cache_dir,
+    get_all_model_paths,
     find_model_file,
     get_validation_cache_path,
     HUGGINGFACE_BASE_URL,
@@ -179,20 +180,36 @@ def download_weight(dit_model: str, vae_model: str, model_dir: Optional[str] = N
                          level="WARNING", category="setup")
             continue
         
+        # Get model type for logging
+        model_type = "VAE" if model_info.category == "vae" else "DiT"
+        
         # Check if file exists in any registered path first
         existing_filepath = find_model_file(filename, fallback_dir=cache_dir)
         
         # Use existing file path if it exists, otherwise download to cache_dir
         if os.path.exists(existing_filepath):
             filepath = existing_filepath
+            # Debug log: Model found
+            if debug:
+                debug.log(f"{model_type} model found: {filepath}", category="setup")
         else:
             filepath = os.path.join(cache_dir, filename)
+            # Debug log: Model not found, will need to download
+            if debug:
+                searched_paths = get_all_model_paths()
+                debug.log(f"{model_type} model not found: {filename}", category="setup")
+                debug.log(f"Searched in {len(searched_paths)} location(s):", category="setup")
+                for i, path in enumerate(searched_paths, 1):
+                    debug.log(f"[{i}] {path}", category="setup", indent_level=1)
             
         expected_hash = model_info.sha256
         repo = model_info.repo
         
         ## Quick cache check first
         if is_file_validated_cached(filepath, cache_dir):
+            # Debug log: Model already validated (using cache)
+            if debug:
+                debug.log(f"{model_type} model already validated (cache): {filepath}", category="setup")
             continue
         
         # File exists - validate it
@@ -201,6 +218,9 @@ def download_weight(dit_model: str, vae_model: str, model_dir: Optional[str] = N
                 debug.log(f"Validating {filename}...", category="setup", force=True)
             
             if validate_file(filepath, expected_hash, cache_dir):
+                # Debug log: Model validated successfully
+                if debug:
+                    debug.log(f"{model_type} model validated successfully: {filepath}", category="setup")
                 continue
             else:
                 # File is corrupted

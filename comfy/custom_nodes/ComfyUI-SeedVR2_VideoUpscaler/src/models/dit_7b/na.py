@@ -400,22 +400,19 @@ def repeat_concat_idx(
         The text features appear multiple times (once per window) and need
         to be averaged to produce a single set of text features.
         
-        COMPILE OPTIMIZATION: Uses split-stack-mean instead of reshape to avoid .item()
+        COMPILE OPTIMIZATION: Uses unflatten with tensor dims (compile-friendly)
         """
         vid_out, txt_out = all[src_idx].split([len(vid_idx), txt_idx_len])
         
-        # Coalesce repeated text using pure tensor operations (no .item())
+        # Coalesce repeated text using unflatten and mean
         txt_splits = _tensor_split(txt_out, repeat_txt_len, dim=0)
         txt_out_coalesced = []
         
-        for txt, base_len in zip(txt_splits, txt_len):
+        for txt in txt_splits:
             # txt has shape (base_len * num_repeats, *other_dims)
-            # Split into num_repeats equal pieces using tensor operations
-            split_lens = base_len.unsqueeze(0).repeat_interleave(num_repeats_tensor.squeeze())
-            pieces = _tensor_split(txt, split_lens, dim=0)
-            # Stack and average across repetitions
-            txt_avg = torch.stack(pieces, dim=0).mean(0)
-            txt_out_coalesced.append(txt_avg)
+            # unflatten to (base_len, num_repeats, *other_dims) then average dim 1
+            txt = txt.unflatten(0, (-1, num_repeats_tensor.squeeze())).mean(1)
+            txt_out_coalesced.append(txt)
         
         return vid_out, torch.cat(txt_out_coalesced)
 

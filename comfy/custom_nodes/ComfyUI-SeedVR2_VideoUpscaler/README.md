@@ -36,6 +36,71 @@ We're actively working on improvements and new features. To stay informed:
 
 ## 🚀 Updates
 
+**2025.11.28 - Version 2.5.12**
+
+- **🐛 Fix: Color artifacts regression** - Reverted in-place tensor operations in video transform pipeline that caused color artifacts on some images
+
+**2025.11.28 - Version 2.5.11**
+
+- **⚡ Feature: CUDNN attention backend** - Added support for PyTorch 2.3+ CUDNN_ATTENTION backend with automatic fallback for older versions (thanks @eadwu)
+- **💾 Fix: Memory spike for long videos** - VAE decode now streams directly to pre-allocated tensor, eliminating OOM errors during long video processing
+- **🎨 Fix: LAB color correction artifacts** - Resolved tile boundary artifacts using wavelet reconstruction preprocessing
+- **🎨 Fix: Color reference misalignment** - Fixed color correction frame alignment with temporal overlap
+- **🍎 Fix: MPS detection reliability** - Switched to canonical `torch.backends.mps.is_available()` API for consistent Apple Silicon detection
+- **🖥️ Fix: Mac subprocess error** - CLI now uses direct processing on Mac to avoid MPS allocator failures in child processes
+- **🖥️ Fix: Multi-GPU device assignment** - CUDA_VISIBLE_DEVICES now set before spawn for proper worker inheritance
+- **📊 Fix: BlockSwap logging** - Now shows effective/total blocks (e.g., 32/32) instead of raw requested value
+- **🔧 Feature: Auto bfloat16 detection** - Automatically detects bfloat16 support to prevent CUBLAS errors on older GPUs
+- **📊 Feature: Peak RAM tracking** - Added RAM usage alongside VRAM in debug summary
+- **⚡ Performance: In-place tensor ops** - Reduced memory allocation overhead with in-place operations throughout pipeline
+- **📖 Docs: Multi-GPU clarification** - Clarified frame-level parallelism behavior expectations for multi-GPU setups
+
+**2025.11.13 - Version 2.5.10**
+
+- **🎯 Fix: Deterministic generation** - Identical images with the same seed now produce identical results across different sessions and batch positions
+- **🔧 Fix: Model caching with BlockSwap** - Resolved issue where cached DiT models wouldn't properly reload when VAE caching state changed
+- **💾 Fix: Runner caching optimization** - Runner templates now correctly cache whenever both DiT and VAE are cached, regardless of caching order
+- **📁 Fix: Case-insensitive model paths** - Extra model paths in YAML config now work regardless of case (seedvr2, SEEDVR2, SeedVR2, etc.)
+- **🐛 Fix: High resolution tile debug crash** - Fixed "NoneType has no attribute log" error when using maximum resolution with VAE tiling
+- **📊 Fix: Temporal overlap logging** - Corrected frame count reporting when temporal overlap is automatically adjusted
+- **🔍 Feature: Enhanced model path debugging** - Added detailed logging to help troubleshoot model loading issues (visible in debug mode)
+
+**2025.11.12 - Version 2.5.9**
+
+- **🐛 Fix: Tile debug visualization crash** - Fixed OpenCV error when using VAE tile debug mode on certain systems.
+- **🍎 Fix: macOS MPS loading error** - Added automatic CPU fallback for MPS allocator issues on certain PyTorch/macOS versions.
+- **🖥️ Fix: Windows log buffering** - Added flush to print statements for real-time log visibility in ComfyUI on Windows
+- **📦 Fix: ComfyUI Registry logo** - Updated icon URL to display properly in ComfyUI node registry
+- **ℹ️ Feature: Version display** - Added version number to node name and CLI/ComfyUI header for better tracking
+- **💝 Feature: GitHub Sponsors** - Added sponsor button to support project development. Thank you everyone for your support!
+- **📜 License: Apache 2.0** - Reverted License from MIT to Apache 2.0 to match ByteDance Seed project
+
+**2025.11.10 - Version 2.5.8**
+
+- **🐛 Fix (CLI): Windows batch processing duplicate files** - Fixed CLI batch mode processing each file twice on Windows due to case-insensitive filesystem. Improved directory scanning performance by 2-3x
+- **📁 Fix(CLI): Output folder location** - Output files now created in sensible locations: batch mode creates `{folder_name}_upscaled/` sibling folder with original filenames preserved; single file mode adds `_upscaled` suffix in same directory. All logs now show absolute paths for clarity
+- **🎨 Fix(CLI): RGBA alpha channel support** - PNG images with transparency are now properly detected and preserved through the upscaling pipeline, matching ComfyUI behavior
+
+**2025.11.10 - Version 2.5.7**
+
+- **🔧 Fix: Conv3d workaround compatibility** - Enhanced platform detection and added graceful fallback to prevent errors on PyTorch dev builds and AMD ROCm systems
+
+**2025.11.09 - Version 2.5.6**
+
+- 🎨 **Fix: Restored natural look for 7b model** - Corrected torch.compile optimization that was causing overly plastic/ high-specular appearance in upscaled videos with 7b model.
+
+- 💾 **Memory: Fixed RAM leak for long videos** - On-demand reconstruction with lightweight batch indices instead of storing full transformed videos, fixed release_tensor_memory to handle CPU/CUDA/MPS consistently, and refactored batch processing helpers
+
+**2025.11.08 - Version 2.5.4**
+
+- 🎨 **Fix: AdaIN color correction** - Replace `.view()` with `.reshape()` to handle non-contiguous tensors after spatial padding, resolving "view size is not compatible with input tensor's size and stride" error
+- 🔴 **Fix: AMD ROCm compatibility** - Add cuDNN availability check in Conv3d workaround to prevent "ATen not compiled with cuDNN support" error on ROCm systems (AMD GPUs on Windows/Linux)
+
+**2025.11.08 - Version 2.5.3**
+
+- 🍎 **Fix: Apple Silicon MPS device handling** - Corrected MPS device enumeration to use `"mps"` instead of `"mps:0"`, resolving invalid device errors on M-series Macs
+- 🪟 **Fix: torch.mps AttributeError on Windows** - Add defensive checks for `torch.mps.is_available()` to handle PyTorch versions where the method doesn't exist on non-Mac platforms
+
 **2025.11.07 - Version 2.5.0** 🎉
 
 ⚠️ **BREAKING CHANGE**: This is a major update requiring workflow recreation. All nodes and CLI parameters have been redesigned for better usability and consistency. Watch the latest video from [AInVFX](https://www.youtube.com/@AInVFX) for a deep dive and check out the [usage](#-usage) section.
@@ -783,26 +848,40 @@ python inference_cli.py media_folder/ \
 
 ### Multi-GPU Processing Explained
 
-The CLI's multi-GPU mode automatically distributes the workload across multiple GPUs with intelligent temporal overlap handling:
+The CLI's multi-GPU mode uses **frame-level parallelism**: the video is split into chunks and each GPU processes its chunk independently through all 4 phases (encode → upscale → decode → postprocess). This is ideal for long videos where you want to reduce total processing time by dividing the workload.
 
 **How it works:**
-1. Video is split into chunks, one per GPU
-2. Each GPU processes its chunk independently
-3. Chunks overlap by `--temporal_overlap` frames
-4. Results are blended together seamlessly using the overlap region
+1. Video frames are split evenly across GPUs (e.g., 100 frames on 2 GPUs → 50 frames each)
+2. Each GPU loads its own copy of the models and processes its chunk independently
+3. When `--temporal_overlap` is set, chunks include overlapping frames for seamless blending
+4. Results are concatenated (and blended at overlap regions) into the final video
 
-**Example for 2 GPUs with temporal_overlap=4:**
+**Example for 100 frames on 2 GPUs with temporal_overlap=4:**
 ```
-GPU 0: Frames 0-50 (includes 4 overlap frames at end)
-GPU 1: Frames 46-100 (includes 4 overlap frames at beginning)
-Result: Frames 0-100 with smooth transition at frame 48
+GPU 0: Frames 0-53 (50 base + 4 overlap at end, processed as independent video)
+GPU 1: Frames 50-99 (50 frames, 4 overlap at start, processed as independent video)
+Result: Frames 0-99 with smooth blending at the transition point
 ```
+
+**Important considerations:**
+- Each GPU processes its chunk as a separate video with its own batch splitting
+- `batch_size` controls batching *within* each GPU's chunk, not across GPUs
+- For short videos (< 100 frames), single GPU is often more efficient due to model loading overhead
+- Multi-GPU doubles VRAM usage (each GPU loads full models) but roughly halves processing time
+
+**When to use multi-GPU:**
+- Long videos (100+ frames) where splitting provides significant time savings
+- When you have multiple GPUs with sufficient VRAM each
+
+**When to use single GPU:**
+- Short videos where model loading overhead outweighs parallel gains
+- When you want all frames processed together for maximum temporal coherence
 
 **Best practices:**
-- Set `--temporal_overlap` to 2-8 frames for smooth blending
+- Set `--temporal_overlap` to 2-4 frames for smooth blending between GPU chunks
 - Higher overlap = smoother transitions but more redundant processing
 - Use `--prepend_frames` to reduce artifacts at video start
-- batch_size should divide evenly into chunk sizes for best results
+- For optimal quality on short videos, use single GPU with `batch_size` matching your shot length
 
 ## ⚠️ Limitations
 
@@ -866,4 +945,4 @@ Special thanks to our community contributors including [benjaminherb](https://gi
 
 ## 📜 License
 
-The code in this repository is released under the MIT license as found in the [LICENSE](LICENSE) file.
+The code in this repository is released under the Apache 2.0 license as found in the [LICENSE](LICENSE) file.

@@ -371,7 +371,7 @@ class UsageStats:
     
     async def process_execution(self, prompt_id):
         """Process a prompt execution immediately (synchronous approach)"""
-        if not prompt_id:
+        if not prompt_id or standalone_mode:
             return
             
         try:

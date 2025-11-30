@@ -36,6 +36,7 @@ from .model_configuration import configure_runner
 from .infer import VideoDiffusionInfer
 from ..data.image.transforms.divisible_crop import DivisiblePad
 from ..data.image.transforms.na_resize import NaResize
+from ..optimization.compatibility import get_supported_compute_dtype
 from ..optimization.memory_manager import manage_tensor
 from ..utils.constants import get_script_directory
 
@@ -371,17 +372,15 @@ def setup_generation_context(
         'dit_offload_device': dit_offload_device,
         'vae_offload_device': vae_offload_device,
         'tensor_offload_device': tensor_offload_device,
-        'compute_dtype': torch.bfloat16, # Hardcoded - gives the best compromise between memory & quality without artifacts
+        'compute_dtype': get_supported_compute_dtype(debug),  # Auto-detect best dtype for hardware
         'interrupt_fn': interrupt_fn,
         'video_transform': None,
         'text_embeds': None,
-        'all_transformed_videos': [],
         'all_latents': [],
         'all_upscaled_latents': [],
         'batch_samples': [],
         'final_video': None,
         'comfyui_available': comfyui_available,
-        'interrupt_fn': interrupt_fn,
     }
     
     if debug:
@@ -403,7 +402,12 @@ def setup_generation_context(
             f"LOCAL_RANK={os.environ['LOCAL_RANK']}",
             category="setup"
         )
-        reason = "quality" if ctx['compute_dtype'] == torch.float32 else "compatibility"
+        if ctx['compute_dtype'] == torch.float32:
+            reason = "quality"
+        elif ctx['compute_dtype'] == torch.float16:
+            reason = "compatibility (GPU does not support bfloat16)"
+        else:
+            reason = "compatibility"
         debug.log(f"Unified compute dtype: {ctx['compute_dtype']} across entire pipeline for maximum {reason}", category="precision")
     
     return ctx
@@ -724,7 +728,7 @@ def _draw_tile_boundaries(image: torch.Tensor, debug: 'Debug', tile_boundaries: 
     annotated_frames = []
     for frame_idx in range(T):
         # Convert frame to numpy (handle RGB and RGBA)
-        img = (image[frame_idx].float().cpu().numpy() * 255).astype(np.uint8)  # [H, W, C]
+        img = np.ascontiguousarray((image[frame_idx].float().cpu().numpy() * 255).astype(np.uint8))  # [H, W, C]
         
         # Draw boundary lines inside each tile
         for idx, tile_info in enumerate(tile_boundaries):

@@ -105,7 +105,21 @@ def _check_conv3d_memory_bug():
     with fp16/bfloat16 due to buggy dispatch layer.
     """
     try:
-        if not (torch.cuda.is_available() and torch.cuda.get_device_capability()[0] >= 3):
+        # Exclude AMD ROCm/HIP builds (they use MIOpen, not cuDNN)
+        if hasattr(torch.version, 'hip') and torch.version.hip is not None:
+            return False
+        
+        # Must have CUDA available
+        if not (hasattr(torch, 'cuda') and torch.cuda.is_available()):
+            return False
+        
+        # Must have cuDNN actually available (not just the attribute)
+        if not (hasattr(torch.backends.cudnn, 'is_available') and 
+                torch.backends.cudnn.is_available()):
+            return False
+        
+        # Check device capability (NVIDIA GPUs)
+        if torch.cuda.get_device_capability()[0] < 3:
             return False
         
         # Parse torch version
@@ -128,6 +142,41 @@ def _check_conv3d_memory_bug():
         return False
 
 NVIDIA_CONV3D_MEMORY_BUG_WORKAROUND = _check_conv3d_memory_bug()
+
+
+def get_supported_compute_dtype(debug=None) -> torch.dtype:
+    """
+    Detect the best supported compute dtype for the current hardware.
+    
+    bfloat16 requires CUDA compute capability 8.0+ (Ampere and newer).
+    Older CUDA GPUs fall back to float16 to avoid CUBLAS_STATUS_NOT_SUPPORTED errors.
+    
+    Args:
+        debug: Optional debug instance for logging warnings
+    
+    Returns:
+        torch.bfloat16 if supported, torch.float16 for older CUDA GPUs
+    """
+    try:
+        # CUDA: Check compute capability
+        if torch.cuda.is_available():
+            major, minor = torch.cuda.get_device_capability()
+            # bfloat16 requires compute capability 8.0+ (Ampere: A100, RTX 30xx)
+            if major < 8:
+                if debug:
+                    gpu_name = torch.cuda.get_device_name()
+                    debug.log(
+                        f"GPU '{gpu_name}' (compute capability {major}.{minor}) does not support bfloat16. "
+                        f"Using float16 instead - 7B models are not supported and will render black, 3B models may have artifacts.",
+                        level="WARNING", category="precision", force=True
+                    )
+                return torch.float16
+        
+        # Default: bfloat16 (MPS, CPU, or CUDA 8.0+)
+        return torch.bfloat16
+        
+    except Exception:
+        return torch.bfloat16
 
 
 # Log all optimization status once globally (cross-process) using environment variable
@@ -207,7 +256,7 @@ class FP8CompatibleDiT(torch.nn.Module):
             self._convert_rope_freqs(target_dtype=self.compute_dtype)
             self.debug.end_timer("_convert_rope_freqs", "RoPE freqs conversion")
             
-            if torch.mps.is_available():
+            if hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
                 self.debug.log(f"Also converting NaDiT parameters/buffers for MPS backend", category="setup", force=True)
                 self.debug.start_timer("_force_nadit_precision")
                 self._force_nadit_precision(target_dtype=self.compute_dtype)
@@ -510,19 +559,24 @@ class FP8CompatibleDiT(torch.nn.Module):
             k = k.view(batch_size, seq_len, num_heads, head_dim).transpose(1, 2)
             v = v.view(batch_size, seq_len, num_heads, head_dim).transpose(1, 2)
             
-            if torch.mps.is_available():
+            if hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
                 attn_output = torch.nn.functional.scaled_dot_product_attention(
                     q, k, v,
                     dropout_p=0.0,
                     is_causal=False
                 )
             else:
-                # Use optimized SDPA
-                with torch.backends.cuda.sdp_kernel(
-                    enable_flash=True,
-                    enable_math=True,
-                    enable_mem_efficient=True
-                ):
+                # Use optimized SDPA - PyTorch 2.3+ API with CUDNN support, fallback for older versions
+                if hasattr(torch.nn.attention, 'sdpa_kernel'):
+                    ctx = torch.nn.attention.sdpa_kernel([
+                        torch.nn.attention.SDPBackend.FLASH_ATTENTION,
+                        torch.nn.attention.SDPBackend.EFFICIENT_ATTENTION,
+                        torch.nn.attention.SDPBackend.CUDNN_ATTENTION,
+                        torch.nn.attention.SDPBackend.MATH])
+                else:
+                    ctx = torch.backends.cuda.sdp_kernel(enable_flash=True, enable_math=True, enable_mem_efficient=True)
+                
+                with ctx:
                     attn_output = torch.nn.functional.scaled_dot_product_attention(
                         q, k, v,
                         dropout_p=0.0,

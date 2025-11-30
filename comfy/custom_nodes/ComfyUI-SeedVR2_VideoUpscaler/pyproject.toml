@@ -1,7 +1,7 @@
 [project]
 name = "seedvr2_videoupscaler"
 description = "SeedVR2 official ComfyUI integration: ByteDance-Seed's one-step diffusion-based video/image upscaling with memory-efficient inference"
-version = "2.5.0"
+version = "2.5.12"
 authors = [
     {name = "numz"},
     {name = "adrientoupet"}
@@ -37,5 +37,5 @@ Forum = "https://github.com/numz/ComfyUI-SeedVR2_VideoUpscaler/discussions"
 [tool.comfy]
 PublisherId = "ainvfx"
 DisplayName = "ComfyUI-SeedVR2_VideoUpscaler"
-Icon = ""
+Icon = "https://raw.githubusercontent.com/numz/ComfyUI-SeedVR2_VideoUpscaler/refs/heads/main/docs/seedvr_logo.png"
 includes = []

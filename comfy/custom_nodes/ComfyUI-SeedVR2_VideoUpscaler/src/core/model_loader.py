@@ -115,7 +115,28 @@ def load_quantized_state_dict(checkpoint_path: str, device: torch.device = torch
                 debug.log("This is a one-time installation that will enable loading of .safetensors files", 
                          level="INFO", category="info", force=True)
             raise ImportError(error_msg)
-        state = load_safetensors_file(checkpoint_path, device=device_str)
+        
+        # Try direct device loading first (optimal path)
+        try:
+            state = load_safetensors_file(checkpoint_path, device=device_str)
+        except RuntimeError as e:
+            # MPS allocator fallback: some PyTorch/macOS versions have issues with
+            # direct MPS loading (allocation failures, watermark errors, etc.)
+            error_msg = str(e).lower()
+            is_mps_alloc_error = device.type == "mps" and any(
+                keyword in error_msg for keyword in ["watermark", "allocat", "memory"]
+            )
+            
+            if is_mps_alloc_error:
+                # Transparent fallback - only log if debug enabled
+                if debug:
+                    debug.log("Using CPU intermediate loading for MPS compatibility", 
+                            category="info", indent_level=1)
+                state = load_safetensors_file(checkpoint_path, device="cpu")
+                # Tensors will be moved to MPS during model.load_state_dict()
+            else:
+                # Re-raise if it's a different error (file corruption, etc.)
+                raise
     elif checkpoint_path.endswith('.gguf'):
         validate_gguf_availability(f"load {os.path.basename(checkpoint_path)}", debug)
         state = _load_gguf_state(

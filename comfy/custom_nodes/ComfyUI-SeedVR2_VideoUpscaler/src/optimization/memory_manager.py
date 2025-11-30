@@ -38,8 +38,8 @@ def get_device_list(include_none: bool = False, include_cpu: bool = False) -> Li
         pass
     
     try:
-        if hasattr(torch, "mps") and hasattr(torch.mps, "is_available") and torch.mps.is_available():
-            devs += [f"mps:{i}" for i in range(torch.mps.device_count())]
+        if hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+            devs.append("mps")  # MPS doesn't use device indices
             has_mps = True
     except Exception:
         pass
@@ -80,7 +80,7 @@ def get_basic_vram_info(device: Optional[torch.device] = None) -> Dict[str, Any]
             elif not isinstance(device, torch.device):
                 device = torch.device(device)
             free_memory, total_memory = torch.cuda.mem_get_info(device)
-        elif torch.mps.is_available():
+        elif hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
             # MPS doesn't support per-device queries or mem_get_info
             # Use system memory as proxy
             mem = psutil.virtual_memory()
@@ -100,7 +100,7 @@ def get_basic_vram_info(device: Optional[torch.device] = None) -> Dict[str, Any]
 # Initial VRAM check at module load
 vram_info = get_basic_vram_info(device=None)
 if "error" not in vram_info:
-    backend = "MPS" if torch.mps.is_available() else "CUDA"
+    backend = "MPS" if (hasattr(torch.backends, 'mps') and torch.backends.mps.is_available()) else "CUDA"
     print(f"📊 Initial {backend} memory: {vram_info['free_gb']:.2f}GB free / {vram_info['total_gb']:.2f}GB total")
 else:
     print(f"⚠️ Memory check failed: {vram_info['error']} - No available backend!")
@@ -129,7 +129,7 @@ def get_vram_usage(device: Optional[torch.device] = None, debug: Optional['Debug
             reserved = torch.cuda.memory_reserved(device) / (1024**3)
             max_allocated = torch.cuda.max_memory_allocated(device) / (1024**3)
             return allocated, reserved, max_allocated
-        elif torch.mps.is_available():
+        elif hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
             # MPS doesn't support per-device queries - uses global memory tracking
             allocated = torch.mps.current_allocated_memory() / (1024**3)
             reserved = torch.mps.driver_allocated_memory() / (1024**3)
@@ -235,11 +235,11 @@ def clear_memory(debug: Optional['Debug'] = None, deep: bool = False, force: boo
             if free_ratio < 0.05:
                 should_clear = True
                 if debug:
-                    backend = "MPS" if torch.mps.is_available() else "VRAM"
+                    backend = "MPS" if (hasattr(torch.backends, 'mps') and torch.backends.mps.is_available()) else "VRAM"
                     debug.log(f"{backend} pressure: {mem_info['free_gb']:.2f}GB free of {mem_info['total_gb']:.2f}GB", category="memory")
         
         # For non-MPS systems, also check system RAM separately
-        if not should_clear and not torch.mps.is_available():
+        if not should_clear and not (hasattr(torch.backends, 'mps') and torch.backends.mps.is_available()):
             mem = psutil.virtual_memory()
             if mem.available < mem.total * 0.05:
                 should_clear = True
@@ -265,7 +265,7 @@ def clear_memory(debug: Optional['Debug'] = None, deep: bool = False, force: boo
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
         torch.cuda.ipc_collect()
-    elif torch.mps.is_available():
+    elif hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
         torch.mps.empty_cache()
     
     if debug:
@@ -302,7 +302,7 @@ def clear_memory(debug: Optional['Debug'] = None, deep: bool = False, force: boo
                 handle = _os_memory_lib.GetCurrentProcess()
                 _os_memory_lib.SetProcessWorkingSetSize(handle, -1, -1)
                 
-            elif torch.mps.is_available():
+            elif hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
                 # macOS with MPS
                 import ctypes  # Import only when needed
                 import ctypes.util
@@ -423,12 +423,11 @@ def clear_rope_lru_caches(model: Optional[torch.nn.Module], debug: Optional['Deb
 
 
 def release_tensor_memory(tensor: Optional[torch.Tensor]) -> None:
-    """Release tensor memory properly without CPU allocation"""
+    """Release tensor memory from any device (CPU/CUDA/MPS)"""
     if tensor is not None and torch.is_tensor(tensor):
-        if tensor.is_cuda or tensor.is_mps:
-            # Release GPU memory directly without CPU transfer
-            if tensor.numel() > 0:
-                tensor.data.set_()
+        # Release storage for all devices (CPU, CUDA, MPS)
+        if tensor.numel() > 0:
+            tensor.data.set_()
         tensor.grad = None
 
 
@@ -763,7 +762,7 @@ def _handle_blockswap_model_movement(runner: Any, model: torch.nn.Module,
     else:
         # Moving to GPU (reload)
         # Check if we're in bypass mode (coming from offload)
-        if not getattr(runner, "_blockswap_bypass_protection", False):
+        if not getattr(model, "_blockswap_bypass_protection", False):
             # Not in bypass mode, blocks are already configured
             if debug:
                 debug.log(f"{model_name} with BlockSwap active - blocks already distributed across devices, skipping movement", category="general")
@@ -788,7 +787,7 @@ def _handle_blockswap_model_movement(runner: Any, model: torch.nn.Module,
         # Restore blocks to their configured devices
         if hasattr(model, "blocks") and hasattr(model, "blocks_to_swap"):
             # Use configured offload_device from BlockSwap config
-            offload_device = runner._block_swap_config.get("offload_device")
+            offload_device = model._block_swap_config.get("offload_device")
             if not offload_device:
                 raise ValueError("BlockSwap config missing offload_device")
             
@@ -802,7 +801,7 @@ def _handle_blockswap_model_movement(runner: Any, model: torch.nn.Module,
                     block.to(offload_device)
             
             # Handle I/O components
-            if not runner._block_swap_config.get("swap_io_components", False):
+            if not model._block_swap_config.get("swap_io_components", False):
                 # I/O components should be on GPU if not offloaded
                 for name, module in model.named_children():
                     if name != "blocks":
@@ -815,10 +814,10 @@ def _handle_blockswap_model_movement(runner: Any, model: torch.nn.Module,
             
             if debug:
                 # Get actual configuration from runner
-                if hasattr(runner, '_block_swap_config'):
-                    blocks_on_gpu = runner._block_swap_config.get('total_blocks', 32) - runner._block_swap_config.get('blocks_swapped', 16)
-                    total_blocks = runner._block_swap_config.get('total_blocks', 32)
-                    main_device = runner._block_swap_config.get('main_device', 'GPU')
+                if hasattr(model, '_block_swap_config'):
+                    blocks_on_gpu = model._block_swap_config.get('total_blocks', 32) - model._block_swap_config.get('blocks_swapped', 16)
+                    total_blocks = model._block_swap_config.get('total_blocks', 32)
+                    main_device = model._block_swap_config.get('main_device', 'GPU')
                     debug.log(f"BlockSwap blocks restored to configured devices ({blocks_on_gpu}/{total_blocks} blocks on {str(main_device).upper()})", category="success")
                 else:
                     debug.log("BlockSwap blocks restored to configured devices", category="success")

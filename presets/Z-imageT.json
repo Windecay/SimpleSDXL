@@ -1,7 +1,7 @@
 { 
     "default_engine": {
 	"backend_engine": "Z-image",
-	"disvisible": ["backend_selection", "performance_selection", "refiner_model"],
+	"disvisible": ["backend_selection", "performance_selection", "refiner_model","negative_prompt"],
 	"disinteractive": ["performance_selection", "negative_prompt", "refiner_model", "layer_method", "layer_input_image", "input_image_checkbox"],
 	"available_aspect_ratios_selection": "Flux",
 	"backend_params": {

@@ -1,6 +1,3 @@
-import os
-os.environ["LORA_MANAGER_STANDALONE"] = "1"
-
 try:  # pragma: no cover - import fallback for pytest collection
     from .py.lora_manager import LoraManager
     from .py.nodes.lora_loader import LoraManagerLoader, LoraManagerTextLoader

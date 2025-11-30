@@ -3,6 +3,9 @@ Shared constants and utilities for SeedVR2
 Only includes constants actually used in the codebase
 """
 
+# Version information
+__version__ = "2.5.12"
+
 import os
 import warnings
 import inspect
@@ -22,7 +25,7 @@ GGUF_BLOCK_SIZE = 32
 GGUF_TYPE_SIZE = 64
 
 # Download configuration
-HUGGINGFACE_BASE_URL = "https://modelscope.cn/models/{repo}/resolve/master/{filename}"
+HUGGINGFACE_BASE_URL = "https://huggingface.co/{repo}/resolve/main/{filename}"
 DOWNLOAD_CHUNK_SIZE = 8192 * 1024  # 8MB chunks for hash calculation
 DOWNLOAD_MAX_RETRIES = 3
 DOWNLOAD_RETRY_DELAY = 2  # seconds
@@ -52,14 +55,33 @@ def get_base_cache_dir() -> str:
 
 
 def get_all_model_paths() -> list:
-    """Get all registered model paths including those from extra_model_paths.yaml"""
+    """Get all registered model paths including those from extra_model_paths.yaml (case-insensitive)"""
     try:
         import folder_paths
         # Ensure default path is registered first
         get_base_cache_dir()
-        # Get all paths registered for seedvr2 model type
-        paths = folder_paths.get_folder_paths(SEEDVR2_MODEL_TYPE)
-        return paths if paths else [get_base_cache_dir()]
+        
+        # Case-insensitive lookup: search through all registered folder types
+        # This handles any case variation users might use in extra_model_paths.yaml
+        all_paths = []
+        target_lower = SEEDVR2_MODEL_TYPE.lower()
+        
+        # folder_paths.folder_names_and_paths is the underlying dict: {type: ([paths], extensions)}
+        if hasattr(folder_paths, 'folder_names_and_paths'):
+            for folder_type, (paths, _) in folder_paths.folder_names_and_paths.items():
+                if folder_type.lower() == target_lower:
+                    all_paths.extend(paths)
+        
+        # Remove duplicates while preserving order (os.path.normpath handles Windows/Linux path differences)
+        seen = set()
+        unique_paths = []
+        for path in all_paths:
+            normalized = os.path.normpath(path.lower())
+            if normalized not in seen:
+                seen.add(normalized)
+                unique_paths.append(path)
+        
+        return unique_paths if unique_paths else [get_base_cache_dir()]
     except:
         return [get_base_cache_dir()]
 

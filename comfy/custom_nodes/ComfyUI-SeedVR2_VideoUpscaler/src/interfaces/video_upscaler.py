@@ -6,7 +6,7 @@ Main ComfyUI node for high-quality video upscaling using diffusion models
 import torch
 from comfy_api.latest import io
 from typing import Tuple, Dict, Any, Optional
-from ..utils.constants import get_base_cache_dir
+from ..utils.constants import get_base_cache_dir, __version__
 from ..utils.downloads import download_weight
 from ..utils.debug import Debug
 from ..core.generation_phases import (
@@ -50,7 +50,7 @@ class SeedVR2VideoUpscaler(io.ComfyNode):
     def define_schema(cls) -> io.Schema:        
         return io.Schema(
             node_id="SeedVR2VideoUpscaler",
-            display_name="SeedVR2 Video Upscaler",
+            display_name=f"SeedVR2 Video Upscaler (v{__version__})",
             category="SEEDVR2",
             description=(
                 "SeedVR2 main upscaling node: processes video frames using DiT and VAE models with diffusion-based enhancement. "
@@ -529,7 +529,7 @@ class SeedVR2VideoUpscaler(io.ComfyNode):
             debug.log_memory_state("After all phases complete", show_tensors=False, detailed_tensors=False)
             
             # Final peak vram summary
-            debug.log_peak_vram_summary()
+            debug.log_peak_memory_summary()
 
             # Final timing summary
             debug.log("", category="none")
