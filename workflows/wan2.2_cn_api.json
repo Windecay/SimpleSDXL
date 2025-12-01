@@ -119,7 +119,7 @@
         0
       ],
       "latent": [
-        "22",
+        "104",
         0
       ]
     },
@@ -178,10 +178,10 @@
       "negative_prompt": "",
       "width": 640,
       "height": 640,
-      "cfg": 3,
-      "steps": 8,
+      "cfg": 3.5,
+      "steps": 6,
       "refiner_step": 16,
-      "sampler": "dpmpp_2m_sde_gpu",
+      "sampler": "euler",
       "scheduler": "simple",
       "denoise": 1,
       "clip_skip": -1,
@@ -218,10 +218,7 @@
         8
       ],
       "start_at_step": 0,
-      "end_at_step": [
-        "53",
-        0
-      ],
+      "end_at_step": 2,
       "return_with_leftover_noise": "enable",
       "model": [
         "13",
@@ -257,6 +254,7 @@
   "26": {
     "inputs": {
       "sage_attention": "auto",
+      "allow_compile": false,
       "model": [
         "94",
         0
@@ -292,6 +290,7 @@
   "32": {
     "inputs": {
       "sage_attention": "auto",
+      "allow_compile": false,
       "model": [
         "93",
         0
@@ -354,7 +353,7 @@
         0
       ],
       "latent_image": [
-        "51",
+        "100",
         0
       ]
     },
@@ -366,7 +365,7 @@
   "51": {
     "inputs": {
       "anything": [
-        "22",
+        "104",
         0
       ]
     },
@@ -377,10 +376,14 @@
   },
   "53": {
     "inputs": {
-      "value": "a/2",
+      "value": "a-b",
       "a": [
         "21",
         5
+      ],
+      "b": [
+        "21",
+        6
       ]
     },
     "class_type": "SimpleMath+",
@@ -488,7 +491,7 @@
       "batch_size": 32,
       "use_fp16": true,
       "images": [
-        "17",
+        "101",
         0
       ]
     },
@@ -658,6 +661,82 @@
     "class_type": "ModelPatchTorchSettings",
     "_meta": {
       "title": "Model Patch Torch Settings"
+    }
+  },
+  "100": {
+    "inputs": {
+      "mode": "RAM_PRESSURE (Auto Purge)",
+      "cleanup_threshold": 2,
+      "any_input": [
+        "51",
+        0
+      ]
+    },
+    "class_type": "DynamicRAMCacheControl",
+    "_meta": {
+      "title": "🔥 Dynamic RAM Cache Control"
+    }
+  },
+  "101": {
+    "inputs": {
+      "mode": "CLASSIC (No Eviction)",
+      "cleanup_threshold": 2,
+      "any_input": [
+        "17",
+        0
+      ]
+    },
+    "class_type": "DynamicRAMCacheControl",
+    "_meta": {
+      "title": "🔥 Dynamic RAM Cache Control"
+    }
+  },
+  "104": {
+    "inputs": {
+      "add_noise": "disable",
+      "noise_seed": [
+        "8",
+        0
+      ],
+      "steps": [
+        "21",
+        5
+      ],
+      "cfg": 1,
+      "sampler_name": [
+        "21",
+        7
+      ],
+      "scheduler": [
+        "21",
+        8
+      ],
+      "start_at_step": 2,
+      "end_at_step": [
+        "53",
+        0
+      ],
+      "return_with_leftover_noise": "enable",
+      "model": [
+        "13",
+        0
+      ],
+      "positive": [
+        "2",
+        0
+      ],
+      "negative": [
+        "5",
+        0
+      ],
+      "latent_image": [
+        "22",
+        0
+      ]
+    },
+    "class_type": "KSamplerAdvanced",
+    "_meta": {
+      "title": "KSampler (Advanced)"
     }
   }
 }

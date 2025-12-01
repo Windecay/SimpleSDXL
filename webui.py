@@ -1543,10 +1543,7 @@ with shared.gradio_root:
                                            .then(fn=None,_js='''(galleryVisible, activeTarget) => {highlightModelDropdown("refiner");}''')
                     model_gallery.select(on_gallery_select, inputs=[current_previews, active_target], outputs=[base_model, refiner_model, model_gallery], show_progress=False, queue=False)
                     refiner_switch = gr.Slider(label='Refiner Switch At', minimum=0.1, maximum=1.0, step=0.0001,
-                                               info='Use 0.4 for SD1.5 realistic models; '
-                                                    'or 0.667 for SD1.5 anime models; '
-                                                    'or 0.8 for XL-refiners; '
-                                                    'or any value for switching two SDXL models.',
+                                               info='Value for switching two models.',
                                                value=modules.config.default_refiner_switch,
                                                visible=modules.config.default_refiner_model_name != 'None')
 

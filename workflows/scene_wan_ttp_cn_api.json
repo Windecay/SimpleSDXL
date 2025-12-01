@@ -572,6 +572,7 @@
   "194": {
     "inputs": {
       "sage_attention": "auto",
+      "allow_compile": false,
       "model": [
         "149",
         0
@@ -593,6 +594,51 @@
     "class_type": "ModelPatchTorchSettings",
     "_meta": {
       "title": "Model Patch Torch Settings"
+    }
+  },
+  "196": {
+    "inputs": {
+      "upscale": -1,
+      "tile": false,
+      "tile_size": 512,
+      "overlap": 64,
+      "temporal_size": 4096,
+      "temporal_overlap": 64,
+      "samples": [
+        "136",
+        0
+      ],
+      "vae": [
+        "197",
+        0
+      ]
+    },
+    "class_type": "VAEUtils_VAEDecodeTiled",
+    "_meta": {
+      "title": "VAE Decode (VAE Utils)"
+    }
+  },
+  "197": {
+    "inputs": {
+      "vae_name": "Wan2.1_VAE_upscale2x_imageonly_real_v1.safetensors"
+    },
+    "class_type": "VAEUtils_CustomVAELoader",
+    "_meta": {
+      "title": "Load VAE (VAE Utils)"
+    }
+  },
+  "198": {
+    "inputs": {
+      "upscale_method": "lanczos",
+      "scale_by": 0.5,
+      "image": [
+        "166:163",
+        0
+      ]
+    },
+    "class_type": "ImageScaleBy",
+    "_meta": {
+      "title": "Upscale Image By"
     }
   },
   "166:122": {
@@ -710,26 +756,10 @@
       "title": "VAE Encode"
     }
   },
-  "166:134": {
-    "inputs": {
-      "samples": [
-        "136",
-        0
-      ],
-      "vae": [
-        "151",
-        0
-      ]
-    },
-    "class_type": "VAEDecode",
-    "_meta": {
-      "title": "VAE Decode"
-    }
-  },
   "166:163": {
     "inputs": {
       "images": [
-        "166:134",
+        "196",
         0
       ]
     },
@@ -741,7 +771,7 @@
   "166:111": {
     "inputs": {
       "anything": [
-        "166:163",
+        "198",
         0
       ]
     },

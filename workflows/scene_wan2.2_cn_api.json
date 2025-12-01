@@ -28,43 +28,6 @@
       "title": "CLIP Text Encode (Prompt)"
     }
   },
-  "4": {
-    "inputs": {
-      "width": [
-        "81",
-        1
-      ],
-      "height": [
-        "81",
-        2
-      ],
-      "length": [
-        "1",
-        0
-      ],
-      "batch_size": 1,
-      "positive": [
-        "2",
-        0
-      ],
-      "negative": [
-        "5",
-        0
-      ],
-      "vae": [
-        "10",
-        0
-      ],
-      "start_image": [
-        "81",
-        0
-      ]
-    },
-    "class_type": "WanImageToVideo",
-    "_meta": {
-      "title": "WanImageToVideo"
-    }
-  },
   "5": {
     "inputs": {
       "text": [
@@ -126,7 +89,7 @@
         0
       ],
       "latent": [
-        "24",
+        "103",
         2
       ]
     },
@@ -156,29 +119,13 @@
         0
       ],
       "latent": [
-        "52",
+        "97",
         0
       ]
     },
     "class_type": "WanVideoEnhanceAVideoKJ",
     "_meta": {
       "title": "WanVideo Enhance A Video (native)"
-    }
-  },
-  "17": {
-    "inputs": {
-      "samples": [
-        "66",
-        0
-      ],
-      "vae": [
-        "10",
-        0
-      ]
-    },
-    "class_type": "VAEDecode",
-    "_meta": {
-      "title": "VAE Decode"
     }
   },
   "18": {
@@ -213,13 +160,13 @@
     "inputs": {
       "prompt": "",
       "negative_prompt": "",
-      "width": 480,
-      "height": 640,
+      "width": 512,
+      "height": 512,
       "cfg": 3,
       "steps": 6,
       "refiner_step": 16,
-      "sampler": "sa_solver",
-      "scheduler": "beta",
+      "sampler": "euler",
+      "scheduler": "simple",
       "denoise": 1,
       "clip_skip": -1,
       "inpaint_disable_initial_latent": false,
@@ -246,8 +193,8 @@
         "21",
         4
       ],
-      "sampler_name": "sa_solver",
-      "scheduler": "beta",
+      "sampler_name": "euler",
+      "scheduler": "simple",
       "start_at_step": 0,
       "end_at_step": [
         "67",
@@ -259,58 +206,21 @@
         0
       ],
       "positive": [
-        "24",
+        "103",
         0
       ],
       "negative": [
-        "24",
+        "103",
         1
       ],
       "latent_image": [
-        "24",
+        "103",
         2
       ]
     },
     "class_type": "KSamplerAdvanced",
     "_meta": {
       "title": "KSampler (Advanced)"
-    }
-  },
-  "24": {
-    "inputs": {
-      "width": [
-        "80",
-        1
-      ],
-      "height": [
-        "80",
-        2
-      ],
-      "length": [
-        "1",
-        0
-      ],
-      "batch_size": 1,
-      "positive": [
-        "2",
-        0
-      ],
-      "negative": [
-        "5",
-        0
-      ],
-      "vae": [
-        "10",
-        0
-      ],
-      "start_image": [
-        "80",
-        0
-      ]
-    },
-    "class_type": "WanImageToVideo",
-    "_meta": {
-      "title": "WanImageToVideo"
     }
   },
   "25": {
@@ -325,6 +235,7 @@
   "26": {
     "inputs": {
       "sage_attention": "auto",
+      "allow_compile": false,
       "model": [
         "25",
         0
@@ -360,6 +271,7 @@
   "32": {
     "inputs": {
       "sage_attention": "auto",
+      "allow_compile": false,
       "model": [
         "31",
         0
@@ -404,92 +316,6 @@
     "class_type": "LoraLoaderModelOnly",
     "_meta": {
       "title": "LoraLoaderModelOnly"
-    }
-  },
-  "45": {
-    "inputs": {
-      "samples": [
-        "22",
-        0
-      ],
-      "vae": [
-        "10",
-        0
-      ]
-    },
-    "class_type": "VAEDecode",
-    "_meta": {
-      "title": "VAE Decode"
-    }
-  },
-  "48": {
-    "inputs": {
-      "width": [
-        "81",
-        1
-      ],
-      "height": [
-        "81",
-        2
-      ],
-      "interpolation": "area",
-      "method": "stretch",
-      "condition": "always",
-      "multiple_of": 0,
-      "image": [
-        "51",
-        0
-      ]
-    },
-    "class_type": "ImageResize+",
-    "_meta": {
-      "title": "🔧 Image Resize"
-    }
-  },
-  "49": {
-    "inputs": {
-      "pixels": [
-        "48",
-        0
-      ],
-      "vae": [
-        "10",
-        0
-      ]
-    },
-    "class_type": "VAEEncode",
-    "_meta": {
-      "title": "VAE Encode"
-    }
-  },
-  "51": {
-    "inputs": {
-      "anything": [
-        "68",
-        0
-      ]
-    },
-    "class_type": "easy cleanGpuUsed",
-    "_meta": {
-      "title": "Clean VRAM Used"
-    }
-  },
-  "52": {
-    "inputs": {
-      "noise_seed": [
-        "8",
-        0
-      ],
-      "noise_strength": 0.65,
-      "normalize": "false",
-      "latent": [
-        "49",
-        0
-      ]
-    },
-    "class_type": "InjectLatentNoise+",
-    "_meta": {
-      "title": "🔧 Inject Latent Noise"
     }
   },
   "54": {
@@ -566,15 +392,15 @@
         0
       ],
       "positive": [
-        "60",
+        "102",
         0
       ],
       "negative": [
-        "60",
+        "102",
         1
       ],
       "latent_image": [
-        "59",
+        "105",
         0
       ]
     },
@@ -608,62 +434,21 @@
         0
       ],
       "positive": [
-        "60",
+        "102",
         0
       ],
       "negative": [
-        "60",
+        "102",
         1
       ],
       "latent_image": [
-        "60",
+        "102",
         2
       ]
     },
     "class_type": "KSamplerAdvanced",
     "_meta": {
       "title": "KSampler (Advanced)"
-    }
-  },
-  "60": {
-    "inputs": {
-      "width": [
-        "62",
-        1
-      ],
-      "height": [
-        "62",
-        2
-      ],
-      "length": [
-        "1",
-        0
-      ],
-      "batch_size": 1,
-      "positive": [
-        "2",
-        0
-      ],
-      "negative": [
-        "5",
-        0
-      ],
-      "vae": [
-        "10",
-        0
-      ],
-      "start_image": [
-        "62",
-        0
-      ],
-      "end_image": [
-        "63",
-        0
-      ]
-    },
-    "class_type": "WanFirstLastFrameToVideo",
-    "_meta": {
-      "title": "WanFirstLastFrameToVideo"
     }
   },
   "61": {
@@ -768,7 +553,7 @@
         0
       ],
       "on_false": [
-        "58",
+        "106",
         0
       ]
     },
@@ -788,26 +573,6 @@
     "class_type": "SimpleMath+",
     "_meta": {
       "title": "🔧 Simple Math"
-    }
-  },
-  "68": {
-    "inputs": {
-      "boolean": [
-        "65",
-        0
-      ],
-      "on_true": [
-        "45",
-        0
-      ],
-      "on_false": [
-        "62",
-        0
-      ]
-    },
-    "class_type": "easy ifElse",
-    "_meta": {
-      "title": "If else"
     }
   },
   "76": {
@@ -868,8 +633,8 @@
   },
   "80": {
     "inputs": {
-      "generation_width": 480,
-      "generation_height": 480,
+      "generation_width": 512,
+      "generation_height": 512,
       "aspect_ratio_preservation": "keep_input",
       "image": [
         "89",
@@ -1035,7 +800,7 @@
       "batch_size": 32,
       "use_fp16": true,
       "images": [
-        "17",
+        "108",
         0
       ]
     },
@@ -1070,21 +835,21 @@
       "cfg": 1,
       "sampler_name": "euler",
       "scheduler": "simple",
-      "denoise": 0.65,
+      "denoise": 0.55,
       "model": [
         "91",
         0
       ],
       "positive": [
-        "4",
+        "104",
         0
       ],
       "negative": [
-        "4",
+        "104",
         1
       ],
       "latent_image": [
-        "52",
+        "97",
         0
       ]
     },
@@ -1131,6 +896,234 @@
     "class_type": "LoraLoaderModelOnly",
     "_meta": {
       "title": "LoraLoaderModelOnly"
+    }
+  },
+  "96": {
+    "inputs": {
+      "model": "Wan 2.1 latent upscale 2x",
+      "samples": [
+        "107",
+        0
+      ]
+    },
+    "class_type": "VAEUtils_LatentUpscale",
+    "_meta": {
+      "title": "Latent Upscale (VAE Utils)"
+    }
+  },
+  "97": {
+    "inputs": {
+      "upscale_method": "bicubic",
+      "width": [
+        "81",
+        1
+      ],
+      "height": [
+        "81",
+        2
+      ],
+      "crop": "disabled",
+      "samples": [
+        "96",
+        0
+      ]
+    },
+    "class_type": "LatentUpscale",
+    "_meta": {
+      "title": "Upscale Latent"
+    }
+  },
+  "102": {
+    "inputs": {
+      "width": [
+        "62",
+        1
+      ],
+      "height": [
+        "62",
+        2
+      ],
+      "length": [
+        "1",
+        0
+      ],
+      "batch_size": 1,
+      "tile_size": 512,
+      "overlap": 64,
+      "temporal_size": 64,
+      "temporal_overlap": 8,
+      "positive": [
+        "2",
+        0
+      ],
+      "negative": [
+        "5",
+        0
+      ],
+      "vae": [
+        "10",
+        0
+      ],
+      "start_image": [
+        "62",
+        0
+      ],
+      "end_image": [
+        "63",
+        0
+      ]
+    },
+    "class_type": "WanFirstLastFrameToVideoTiledVAE",
+    "_meta": {
+      "title": "WanFirstLastFrameToVideo (Tiled VAE encode)"
+    }
+  },
+  "103": {
+    "inputs": {
+      "width": [
+        "80",
+        1
+      ],
+      "height": [
+        "80",
+        2
+      ],
+      "length": [
+        "1",
+        0
+      ],
+      "batch_size": 1,
+      "motion_amplitude": 1.15,
+      "positive": [
+        "2",
+        0
+      ],
+      "negative": [
+        "5",
+        0
+      ],
+      "vae": [
+        "10",
+        0
+      ],
+      "start_image": [
+        "80",
+        0
+      ]
+    },
+    "class_type": "PainterI2V",
+    "_meta": {
+      "title": "PainterI2V"
+    }
+  },
+  "104": {
+    "inputs": {
+      "width": [
+        "81",
+        1
+      ],
+      "height": [
+        "81",
+        2
+      ],
+      "length": [
+        "1",
+        0
+      ],
+      "batch_size": 1,
+      "motion_amplitude": 1.15,
+      "positive": [
+        "2",
+        0
+      ],
+      "negative": [
+        "5",
+        0
+      ],
+      "vae": [
+        "10",
+        0
+      ],
+      "start_image": [
+        "81",
+        0
+      ]
+    },
+    "class_type": "PainterI2V",
+    "_meta": {
+      "title": "PainterI2V"
+    }
+  },
+  "105": {
+    "inputs": {
+      "mode": "RAM_PRESSURE (Auto Purge)",
+      "cleanup_threshold": 2,
+      "any_input": [
+        "59",
+        0
+      ]
+    },
+    "class_type": "DynamicRAMCacheControl",
+    "_meta": {
+      "title": "🔥 Dynamic RAM Cache Control"
+    }
+  },
+  "106": {
+    "inputs": {
+      "mode": "CLASSIC (No Eviction)",
+      "cleanup_threshold": 2,
+      "any_input": [
+        "58",
+        0
+      ]
+    },
+    "class_type": "DynamicRAMCacheControl",
+    "_meta": {
+      "title": "🔥 Dynamic RAM Cache Control"
+    }
+  },
+  "107": {
+    "inputs": {
+      "mode": "RAM_PRESSURE (Auto Purge)",
+      "cleanup_threshold": 2,
+      "any_input": [
+        "22",
+        0
+      ]
+    },
+    "class_type": "DynamicRAMCacheControl",
+    "_meta": {
+      "title": "🔥 Dynamic RAM Cache Control"
+    }
+  },
+  "108": {
+    "inputs": {
+      "mode": "CLASSIC (No Eviction)",
+      "cleanup_threshold": 2,
+      "any_input": [
+        "109",
+        0
+      ]
+    },
+    "class_type": "DynamicRAMCacheControl",
+    "_meta": {
+      "title": "🔥 Dynamic RAM Cache Control"
+    }
+  },
+  "109": {
+    "inputs": {
+      "samples": [
+        "66",
+        0
+      ],
+      "vae": [
+        "10",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE Decode"
     }
   }
 }

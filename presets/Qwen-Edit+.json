@@ -6,30 +6,47 @@
             "available_aspect_ratios_selection": "Flux",
             "scene_frontend": {
                 "version": "m1.1",
-                "theme": ["Qwen-Editplus","Qwen-Editplus-fast"],
+                "theme": ["Qwen-Editplus-1024px","Qwen-Editplus-1024px-fast","Qwen-Editplus-1536px","Qwen-Editplus-1536px-fast","Qwen-Editplus-2048px","Qwen-Editplus-2048px-fast"],
                 "theme_title": "Qwen-Edit使用中文指令修改图片(画笔可生成[绿色方框区域]）",
                 "disvisible": ["scene_additional_prompt","scene_additional_prompt_2"],
                 "task_method": {
-                    "Qwen-Editplus": "qwen_editplus_cn",
-                    "Qwen-Editplus-fast": "qwen_editplus_fast_cn"
+                    "Qwen-Editplus-1024px": "qwen_editplus_cn",
+                    "Qwen-Editplus-1024px-fast": "qwen_editplus_fast_cn",
+                    "Qwen-Editplus-1536px": "qwen_editplus_1536_cn",
+                    "Qwen-Editplus-1536px-fast": "qwen_editplus_1536_fast_cn",
+                    "Qwen-Editplus-2048px": "qwen_editplus_2048_cn",
+                    "Qwen-Editplus-2048px-fast": "qwen_editplus_2048_fast_cn"
                 },
                 "scene_steps": {
-                    "Qwen-Editplus": 8,
-                    "Qwen-Editplus-fast": 4
+                    "Qwen-Editplus-1024px": 8,
+                    "Qwen-Editplus-1024px-fast": 4,
+                    "Qwen-Editplus-1536px": 8,
+                    "Qwen-Editplus-1536px-fast": 4,
+                    "Qwen-Editplus-2048px": 8,
+                    "Qwen-Editplus-2048px-fast": 4
                 },
                 "image_preprocessor_method": {
-                    "Qwen-Editplus": [["-normalization"]],
-                    "Qwen-Editplus-fast": [["-normalization"]]
+                    "Qwen-Editplus-1024px": [["-normalization"]],
+                    "Qwen-Editplus-1024px-fast": [["-normalization"]],
+                    "Qwen-Editplus-1536px": [["-normalization"]],
+                    "Qwen-Editplus-1536px-fast": [["-normalization"]],
+                    "Qwen-Editplus-2048px": [["-normalization"]],
+                    "Qwen-Editplus-2048px-fast": [["-normalization"]]
                 },
                 "var_number": {
-                    "Qwen-Editplus": 1,
-                    "Qwen-Edit-fastplus": 1
+                    "Qwen-Editplus-1024px": 1,
+                    "Qwen-Editplus-1024px-fast": 1,
+                    "Qwen-Editplus-1536px": 1,
+                    "Qwen-Editplus-1536px-fast": 1,
+                    "Qwen-Editplus-2048px": 1,
+                    "Qwen-Editplus-2048px-fast": 1
                 },
                 "var_number_title": "1为遵从原图比例，2为下方自定义比例",
                 "var_number_max": 2,
                 "aspect_ratio" : [ "1024|1:1", "756|9:16", "832|2:3", "1216|4:3", "1248|3:2", "1344|16:9"]
             }
     },
+
     "default_model": "qwen_image_edit_2509_fp8_e4m3fn.safetensors",
     "default_refiner": "None",
     "default_refiner_switch": 0.5,

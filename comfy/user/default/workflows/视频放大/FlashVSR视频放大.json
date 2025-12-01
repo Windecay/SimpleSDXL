@@ -1,8 +1,8 @@
 {
   "id": "4dca0cd2-cc50-42e7-b1ac-11e022b2586d",
   "revision": 0,
-  "last_node_id": 47,
-  "last_link_id": 64,
+  "last_node_id": 48,
+  "last_link_id": 67,
   "nodes": [
     {
       "id": 13,
@@ -57,7 +57,7 @@
           "name": "loaded_fps🟦",
           "type": "FLOAT",
           "links": [
-            58
+            65
           ]
         },
         {
@@ -141,7 +141,7 @@
       "mode": 0,
       "inputs": [],
       "outputs": [],
-      "title": " 此工作流于SimpAI_comfyd后端发布ver1.2 Design by 冰華",
+      "title": " 此工作流于SimpAI_comfyd后端发布ver1.3 Design by 冰華",
       "properties": {
         "fontSize": 20,
         "fontFamily": "Arial",
@@ -415,8 +415,8 @@
           "name": "image",
           "type": "IMAGE",
           "links": [
-            57,
-            60
+            60,
+            67
           ]
         }
       ],
@@ -435,115 +435,15 @@
         true,
         256,
         24,
-        true,
+        false,
         2,
         3,
         11,
-        930975102599915,
+        42,
         "ramdomize"
       ],
       "color": "#323",
       "bgcolor": "#535"
-    },
-    {
-      "id": 45,
-      "type": "SaveVideo",
-      "pos": [
-        1231.9740810234218,
-        399.8834694852072
-      ],
-      "size": [
-        476.6666259765625,
-        808.3267367493872
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 14,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "video",
-          "type": "VIDEO",
-          "link": 59
-        }
-      ],
-      "outputs": [],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.3.70",
-        "Node name for S&R": "SaveVideo",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.3"
-        }
-      },
-      "widgets_values": [
-        "Upscale\\FlashVSR_Upscale",
-        "mp4",
-        "h264"
-      ]
-    },
-    {
-      "id": 44,
-      "type": "CreateVideo",
-      "pos": [
-        1239.4691760163198,
-        260.0530452353848
-      ],
-      "size": [
-        270,
-        78
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 12,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 57
-        },
-        {
-          "name": "audio",
-          "shape": 7,
-          "type": "AUDIO",
-          "link": 64
-        },
-        {
-          "name": "fps",
-          "type": "FLOAT",
-          "widget": {
-            "name": "fps"
-          },
-          "link": 58
-        }
-      ],
-      "outputs": [
-        {
-          "name": "VIDEO",
-          "type": "VIDEO",
-          "links": [
-            59
-          ]
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.3.70",
-        "Node name for S&R": "CreateVideo",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.3"
-        }
-      },
-      "widgets_values": [
-        30
-      ]
     },
     {
       "id": 46,
@@ -693,7 +593,7 @@
           "name": "audio",
           "type": "AUDIO",
           "links": [
-            64
+            66
           ]
         },
         {
@@ -738,6 +638,87 @@
           }
         }
       }
+    },
+    {
+      "id": 48,
+      "type": "VHS_VideoCombine",
+      "pos": [
+        1300,
+        240
+      ],
+      "size": [
+        490,
+        410
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 67
+        },
+        {
+          "name": "audio",
+          "shape": 7,
+          "type": "AUDIO",
+          "link": 66
+        },
+        {
+          "name": "meta_batch",
+          "shape": 7,
+          "type": "VHS_BatchManager",
+          "link": null
+        },
+        {
+          "name": "vae",
+          "shape": 7,
+          "type": "VAE",
+          "link": null
+        },
+        {
+          "name": "frame_rate",
+          "type": "FLOAT",
+          "widget": {
+            "name": "frame_rate"
+          },
+          "link": 65
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Filenames",
+          "type": "VHS_FILENAMES",
+          "links": null
+        }
+      ],
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "Node name for S&R": "VHS_VideoCombine"
+      },
+      "widgets_values": {
+        "frame_rate": 8,
+        "loop_count": 0,
+        "filename_prefix": "Upscale\\FlashVSR_Upscale",
+        "format": "video/h264-mp4",
+        "pix_fmt": "yuv420p",
+        "crf": 19,
+        "save_metadata": true,
+        "trim_to_audio": false,
+        "pingpong": false,
+        "save_output": true,
+        "videopreview": {
+          "hidden": false,
+          "paused": false,
+          "params": {}
+        }
+      }
     }
   ],
   "links": [
@@ -766,30 +747,6 @@
       "IMAGE"
     ],
     [
-      57,
-      36,
-      0,
-      44,
-      0,
-      "IMAGE"
-    ],
-    [
-      58,
-      13,
-      5,
-      44,
-      2,
-      "FLOAT"
-    ],
-    [
-      59,
-      44,
-      0,
-      45,
-      0,
-      "VIDEO"
-    ],
-    [
       60,
       36,
       0,
@@ -806,12 +763,28 @@
       "*"
     ],
     [
-      64,
+      65,
+      13,
+      5,
+      48,
+      4,
+      "FLOAT"
+    ],
+    [
+      66,
       11,
       2,
-      44,
+      48,
       1,
       "AUDIO"
+    ],
+    [
+      67,
+      36,
+      0,
+      48,
+      0,
+      "IMAGE"
     ]
   ],
   "groups": [
@@ -832,21 +805,22 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 1.1000000000000005,
+      "scale": 0.7513148009015778,
       "offset": [
-        228.60938156867206,
-        226.9055949896503
+        -62.47581520590887,
+        44.3236135957917
       ]
     },
     "ue_links": [],
     "links_added_by_ue": [],
-    "frontendVersion": "1.30.6",
+    "frontendVersion": "1.32.9",
     "VHS_latentpreview": true,
     "VHS_latentpreviewrate": 8,
     "VHS_MetadataImage": true,
     "VHS_KeepIntermediate": true,
     "qgn_navigation_groups": [],
-    "qgn_locked": false
+    "qgn_locked": false,
+    "workflowRendererVersion": "LG"
   },
   "version": 0.4
 }

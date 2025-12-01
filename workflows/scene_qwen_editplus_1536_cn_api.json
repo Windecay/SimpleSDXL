@@ -59,6 +59,20 @@
       "title": "Load CLIP"
     }
   },
+  "7": {
+    "inputs": {
+      "lora_name": "Qwen-Image-Edit-2509-Lightning-8steps-V1.0-bf16.safetensors",
+      "strength_model": 1,
+      "model": [
+        "90",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "LoraLoaderModelOnly"
+    }
+  },
   "8": {
     "inputs": {
       "shift": 3,
@@ -158,7 +172,7 @@
       "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
       "strength_model": 0,
       "model": [
-        "135",
+        "7",
         0
       ]
     },
@@ -535,6 +549,16 @@
       "title": "If else"
     }
   },
+  "90": {
+    "inputs": {
+      "unet_name": "qwen_image_edit_2509_fp8_e4m3fn.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "base_model"
+    }
+  },
   "91": {
     "inputs": {
       "width": [
@@ -855,7 +879,7 @@
       ],
       "vl_resize_indexs": "1,2,3",
       "main_image_index": 1,
-      "target_size": 1024,
+      "target_size": 1536,
       "target_vl_size": 384,
       "upscale_method": "lanczos",
       "crop_method": "pad",
@@ -886,7 +910,7 @@
       ],
       "vl_resize_indexs": "1,2,3",
       "main_image_index": 1,
-      "target_size": 1024,
+      "target_size": 1536,
       "target_vl_size": 384,
       "upscale_method": "lanczos",
       "crop_method": "pad",
@@ -921,7 +945,7 @@
       ],
       "vl_resize_indexs": "1,2,3",
       "main_image_index": 1,
-      "target_size": 1024,
+      "target_size": 1536,
       "target_vl_size": 384,
       "upscale_method": "lanczos",
       "crop_method": "pad",
@@ -967,7 +991,7 @@
   },
   "132": {
     "inputs": {
-      "value": "a*1.0",
+      "value": "a*1.5",
       "a": [
         "2",
         2
@@ -980,7 +1004,7 @@
   },
   "133": {
     "inputs": {
-      "value": "a*1.0",
+      "value": "a*1.5",
       "a": [
         "2",
         3
@@ -989,41 +1013,6 @@
     "class_type": "SimpleMath+",
     "_meta": {
       "title": "🔧 Simple Math"
-    }
-  },
-  "134": {
-    "inputs": {
-      "model_name": "svdq-int4_r128-qwen-image-edit-2509-lightningv2.0-4steps.safetensors",
-      "cpu_offload": "enable",
-      "vram_margin_gb": 4,
-      "num_blocks_on_gpu": 10,
-      "use_pin_memory": "disable"
-    },
-    "class_type": "NunchakuQwenImageDiTLoader",
-    "_meta": {
-      "title": "Nunchaku Qwen-Image DiT Loader"
-    }
-  },
-  "135": {
-    "inputs": {
-      "lora_name_1": "None",
-      "lora_strength_1": 1,
-      "lora_name_2": "None",
-      "lora_strength_2": 1,
-      "lora_name_3": "None",
-      "lora_strength_3": 1,
-      "lora_name_4": "None",
-      "lora_strength_4": 1,
-      "lora_name_5": "None",
-      "lora_strength_5": 1,
-      "model": [
-        "134",
-        0
-      ]
-    },
-    "class_type": "NunchakuQwenImageLoraStack",
-    "_meta": {
-      "title": "Nunchaku Qwen Image LoRA Stack"
     }
   }
 }

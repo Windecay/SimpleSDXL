@@ -6,20 +6,28 @@
             "available_aspect_ratios_selection": "Flux",
             "scene_frontend": {
                 "version": "m1.1",
-                "theme": ["双截棍Qwen-Editplus-4steps"],
+                "theme": ["双截棍Qwen-Editplus-1024px-4steps","双截棍Qwen-Editplus-1536px-4steps","双截棍Qwen-Editplus-2048px-4steps"],
                 "theme_title": "Qwen-Edit使用中文指令修改图片(画笔可生成[绿色方框区域]）",
                 "disvisible": ["scene_additional_prompt","scene_additional_prompt_2", "scene_use_lora"],
                 "task_method": {
-                    "双截棍Qwen-Editplus-4steps": "nun_fp4_qwen_editplus_cn"
+                    "双截棍Qwen-Editplus-1024px-4steps": "nun_fp4_qwen_editplus_cn",
+                    "双截棍Qwen-Editplus-1536px-4steps": "nun_fp4_qwen_editplus_1536_cn",
+                    "双截棍Qwen-Editplus-2048px-4steps": "nun_fp4_qwen_editplus_2048_cn"
                 },
                 "scene_steps": {
-                    "双截棍Qwen-Editplus-4steps": 4
+                    "双截棍Qwen-Editplus-1024px-4steps": 4,
+                    "双截棍Qwen-Editplus-1536px-4steps": 4,
+                    "双截棍Qwen-Editplus-2048px-4steps": 4
                 },
                 "image_preprocessor_method": {
-                    "双截棍Qwen-Editplus-4steps": [["-normalization"]]
+                    "双截棍Qwen-Editplus-1024px-4steps": [["-normalization"]],
+                    "双截棍Qwen-Editplus-1536px-4steps": [["-normalization"]],
+                    "双截棍Qwen-Editplus-2048px-4steps": [["-normalization"]]
                 },
                 "var_number": {
-                    "双截棍Qwen-Editplus-4steps": 1
+                    "双截棍Qwen-Editplus-1024px-4steps": 1,
+                    "双截棍Qwen-Editplus-1536px-4steps": 1,
+                    "双截棍Qwen-Editplus-2048px-4steps": 1
                 },
                 "var_number_title": "1为遵从原图比例，2为下方自定义比例",
                 "var_number_max": 2,

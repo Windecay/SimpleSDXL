@@ -855,7 +855,7 @@
       ],
       "vl_resize_indexs": "1,2,3",
       "main_image_index": 1,
-      "target_size": 1024,
+      "target_size": 1536,
       "target_vl_size": 384,
       "upscale_method": "lanczos",
       "crop_method": "pad",
@@ -886,7 +886,7 @@
       ],
       "vl_resize_indexs": "1,2,3",
       "main_image_index": 1,
-      "target_size": 1024,
+      "target_size": 1536,
       "target_vl_size": 384,
       "upscale_method": "lanczos",
       "crop_method": "pad",
@@ -921,7 +921,7 @@
       ],
       "vl_resize_indexs": "1,2,3",
       "main_image_index": 1,
-      "target_size": 1024,
+      "target_size": 1536,
       "target_vl_size": 384,
       "upscale_method": "lanczos",
       "crop_method": "pad",
@@ -967,7 +967,7 @@
   },
   "132": {
     "inputs": {
-      "value": "a*1.0",
+      "value": "a*1.5",
       "a": [
         "2",
         2
@@ -980,7 +980,7 @@
   },
   "133": {
     "inputs": {
-      "value": "a*1.0",
+      "value": "a*1.5",
       "a": [
         "2",
         3

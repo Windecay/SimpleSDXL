@@ -118,7 +118,7 @@
   "15": {
     "inputs": {
       "images": [
-        "29",
+        "14",
         0
       ]
     },
@@ -137,22 +137,6 @@
     "class_type": "easy cleanGpuUsed",
     "_meta": {
       "title": "Clean VRAM Used"
-    }
-  },
-  "29": {
-    "inputs": {
-      "noise_radius": 1,
-      "preserve_edges": 0.75,
-      "sharpen": 0.5,
-      "ratio": 0.1,
-      "image": [
-        "14",
-        0
-      ]
-    },
-    "class_type": "ImageSmartSharpen+",
-    "_meta": {
-      "title": "🔧 Image Smart Sharpen"
     }
   },
   "31": {
@@ -345,7 +329,7 @@
       ],
       "denoise": 1,
       "model": [
-        "9",
+        "131",
         0
       ],
       "positive": [
@@ -364,30 +348,6 @@
     "class_type": "KSampler",
     "_meta": {
       "title": "KSampler"
-    }
-  },
-  "65": {
-    "inputs": {
-      "prompt": [
-        "118",
-        0
-      ],
-      "clip": [
-        "6",
-        0
-      ],
-      "vae": [
-        "5",
-        0
-      ],
-      "image1": [
-        "113",
-        0
-      ]
-    },
-    "class_type": "TextEncodeQwenImageEditPlus",
-    "_meta": {
-      "title": "TextEncodeQwenImageEditPlus"
     }
   },
   "68": {
@@ -498,66 +458,6 @@
       "title": "Is Mask Empty"
     }
   },
-  "81": {
-    "inputs": {
-      "prompt": [
-        "118",
-        0
-      ],
-      "clip": [
-        "6",
-        0
-      ],
-      "vae": [
-        "5",
-        0
-      ],
-      "image1": [
-        "113",
-        0
-      ],
-      "image2": [
-        "102",
-        0
-      ]
-    },
-    "class_type": "TextEncodeQwenImageEditPlus",
-    "_meta": {
-      "title": "TextEncodeQwenImageEditPlus"
-    }
-  },
-  "82": {
-    "inputs": {
-      "prompt": [
-        "118",
-        0
-      ],
-      "clip": [
-        "6",
-        0
-      ],
-      "vae": [
-        "5",
-        0
-      ],
-      "image1": [
-        "113",
-        0
-      ],
-      "image2": [
-        "102",
-        0
-      ],
-      "image3": [
-        "103",
-        0
-      ]
-    },
-    "class_type": "TextEncodeQwenImageEditPlus",
-    "_meta": {
-      "title": "TextEncodeQwenImageEditPlus"
-    }
-  },
   "84": {
     "inputs": {
       "index": [
@@ -565,15 +465,15 @@
         0
       ],
       "value0": [
-        "65",
+        "128",
         0
       ],
       "value1": [
-        "81",
+        "129",
         0
       ],
       "value2": [
-        "82",
+        "130",
         0
       ]
     },
@@ -662,60 +562,18 @@
   "91": {
     "inputs": {
       "width": [
-        "94",
+        "132",
         0
       ],
       "height": [
-        "94",
-        1
+        "133",
+        0
       ],
       "batch_size": 1
     },
     "class_type": "EmptyLatentImage",
     "_meta": {
       "title": "Empty Latent Image"
-    }
-  },
-  "92": {
-    "inputs": {
-      "width": [
-        "2",
-        2
-      ],
-      "height": [
-        "2",
-        3
-      ],
-      "batch_size": 1,
-      "color": 0
-    },
-    "class_type": "EmptyImage",
-    "_meta": {
-      "title": "EmptyImage"
-    }
-  },
-  "93": {
-    "inputs": {
-      "image": [
-        "92",
-        0
-      ]
-    },
-    "class_type": "FluxKontextImageScale",
-    "_meta": {
-      "title": "FluxKontextImageScale"
-    }
-  },
-  "94": {
-    "inputs": {
-      "image": [
-        "93",
-        0
-      ]
-    },
-    "class_type": "GetImageSize",
-    "_meta": {
-      "title": "Get Image Size"
     }
   },
   "95": {
@@ -738,8 +596,8 @@
         0
       ],
       "on_false": [
-        "99",
-        0
+        "128",
+        1
       ]
     },
     "class_type": "easy ifElse",
@@ -773,58 +631,6 @@
       "title": "Compare"
     }
   },
-  "99": {
-    "inputs": {
-      "pixels": [
-        "113",
-        0
-      ],
-      "vae": [
-        "5",
-        0
-      ]
-    },
-    "class_type": "VAEEncode",
-    "_meta": {
-      "title": "VAE Encode"
-    }
-  },
-  "100": {
-    "inputs": {
-      "image": [
-        "36",
-        0
-      ]
-    },
-    "class_type": "FluxKontextImageScale",
-    "_meta": {
-      "title": "FluxKontextImageScale"
-    }
-  },
-  "102": {
-    "inputs": {
-      "image": [
-        "40",
-        0
-      ]
-    },
-    "class_type": "FluxKontextImageScale",
-    "_meta": {
-      "title": "FluxKontextImageScale"
-    }
-  },
-  "103": {
-    "inputs": {
-      "image": [
-        "74",
-        0
-      ]
-    },
-    "class_type": "FluxKontextImageScale",
-    "_meta": {
-      "title": "FluxKontextImageScale"
-    }
-  },
   "104": {
     "inputs": {
       "image": "welcome.png"
@@ -837,8 +643,9 @@
   "107": {
     "inputs": {
       "color": "0, 255, 0",
+      "device": "cpu",
       "image": [
-        "100",
+        "36",
         0
       ],
       "mask": [
@@ -867,7 +674,7 @@
     "inputs": {
       "channel": "red",
       "image": [
-        "114",
+        "104",
         0
       ]
     },
@@ -916,7 +723,7 @@
         0
       ],
       "on_true": [
-        "100",
+        "36",
         0
       ],
       "on_false": [
@@ -927,18 +734,6 @@
     "class_type": "easy ifElse",
     "_meta": {
       "title": "If else"
-    }
-  },
-  "114": {
-    "inputs": {
-      "image": [
-        "104",
-        0
-      ]
-    },
-    "class_type": "FluxKontextImageScale",
-    "_meta": {
-      "title": "FluxKontextImageScale"
     }
   },
   "117": {
@@ -1063,7 +858,7 @@
       "grow_left": 0,
       "grow_right": 0,
       "image": [
-        "100",
+        "36",
         0
       ],
       "bboxes": [
@@ -1074,6 +869,150 @@
     "class_type": "LayerMask: DrawBBoxMask",
     "_meta": {
       "title": "LayerMask: Draw BBox Mask"
+    }
+  },
+  "128": {
+    "inputs": {
+      "prompt": [
+        "118",
+        0
+      ],
+      "vl_resize_indexs": "1,2,3",
+      "main_image_index": 1,
+      "target_size": 1024,
+      "target_vl_size": 384,
+      "upscale_method": "lanczos",
+      "crop_method": "pad",
+      "instruction": "Describe the key features of the input image (color, shape, size, texture, objects, background), then explain how the user's text instruction should alter or modify the image. Generate a new image that meets the user's requirements while maintaining consistency with the original input where appropriate.",
+      "clip": [
+        "6",
+        0
+      ],
+      "vae": [
+        "5",
+        0
+      ],
+      "image1": [
+        "113",
+        0
+      ]
+    },
+    "class_type": "TextEncodeQwenImageEditPlusPro_lrzjason",
+    "_meta": {
+      "title": "TextEncodeQwenImageEditPlusPro lrzjason"
+    }
+  },
+  "129": {
+    "inputs": {
+      "prompt": [
+        "118",
+        0
+      ],
+      "vl_resize_indexs": "1,2,3",
+      "main_image_index": 1,
+      "target_size": 1024,
+      "target_vl_size": 384,
+      "upscale_method": "lanczos",
+      "crop_method": "pad",
+      "instruction": "Describe the key features of the input image (color, shape, size, texture, objects, background), then explain how the user's text instruction should alter or modify the image. Generate a new image that meets the user's requirements while maintaining consistency with the original input where appropriate.",
+      "clip": [
+        "6",
+        0
+      ],
+      "vae": [
+        "5",
+        0
+      ],
+      "image1": [
+        "113",
+        0
+      ],
+      "image2": [
+        "40",
+        0
+      ]
+    },
+    "class_type": "TextEncodeQwenImageEditPlusPro_lrzjason",
+    "_meta": {
+      "title": "TextEncodeQwenImageEditPlusPro lrzjason"
+    }
+  },
+  "130": {
+    "inputs": {
+      "prompt": [
+        "118",
+        0
+      ],
+      "vl_resize_indexs": "1,2,3",
+      "main_image_index": 1,
+      "target_size": 1024,
+      "target_vl_size": 384,
+      "upscale_method": "lanczos",
+      "crop_method": "pad",
+      "instruction": "Describe the key features of the input image (color, shape, size, texture, objects, background), then explain how the user's text instruction should alter or modify the image. Generate a new image that meets the user's requirements while maintaining consistency with the original input where appropriate.",
+      "clip": [
+        "6",
+        0
+      ],
+      "vae": [
+        "5",
+        0
+      ],
+      "image1": [
+        "113",
+        0
+      ],
+      "image2": [
+        "40",
+        0
+      ],
+      "image3": [
+        "74",
+        0
+      ]
+    },
+    "class_type": "TextEncodeQwenImageEditPlusPro_lrzjason",
+    "_meta": {
+      "title": "TextEncodeQwenImageEditPlusPro lrzjason"
+    }
+  },
+  "131": {
+    "inputs": {
+      "enable_fp16_accumulation": true,
+      "model": [
+        "9",
+        0
+      ]
+    },
+    "class_type": "ModelPatchTorchSettings",
+    "_meta": {
+      "title": "Model Patch Torch Settings"
+    }
+  },
+  "132": {
+    "inputs": {
+      "value": "a*1.0",
+      "a": [
+        "2",
+        2
+      ]
+    },
+    "class_type": "SimpleMath+",
+    "_meta": {
+      "title": "🔧 Simple Math"
+    }
+  },
+  "133": {
+    "inputs": {
+      "value": "a*1.0",
+      "a": [
+        "2",
+        3
+      ]
+    },
+    "class_type": "SimpleMath+",
+    "_meta": {
+      "title": "🔧 Simple Math"
     }
   }
 }

@@ -2131,6 +2131,23 @@ packages = {
         ],
         "download_links": []
     },
+    "wan_ttp_package": {
+        "id": 32,
+        "name": "[32]Wan2.2_TTP超清放大扩展包",
+        "note": "万相2.2TTP超清放大扩展包|显存需求：★★★ 速度：★★",
+        "files": [
+            ("checkpoints/Wan2.2_T2V_Low_Noise_14B_VACE-Q4_K_M.gguf", 11629612832),
+            ("clip/umt5-xxl-encoder-Q8_0.gguf", 6043068256),
+            ("vae/Wan2_1_VAE_bf16.safetensors", 253806278),
+            ("vae/https://www.modelscope.cn/models/spacepxl/Wan2.1-VAE-upscale2x/resolve/master/Wan2.1_VAE_upscale2x_imageonly_real_v1.safetensors",507684560),
+            ("loras/lightx2v_T2V_14B_cfg_step_distill_v2_lora_rank64_bf16.safetensors", 630697104),
+            ("upscale_models/4xNomos8kSCHAT-L.pth", 331564661)
+        ],
+        "download_links": [
+            "https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/checkpoints/Wan2.2_T2V_Low_Noise_14B_VACE-Q4_K_M.gguf",
+            "https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/clip/umt5-xxl-encoder-Q8_0.gguf"
+        ]
+    },
 }
 
 MANUAL_DOWNLOAD_MAP = {
