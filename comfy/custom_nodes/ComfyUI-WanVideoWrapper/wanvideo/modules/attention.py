@@ -14,18 +14,25 @@ try:
     FLASH_ATTN_2_AVAILABLE = True
 except Exception as e:
     FLASH_ATTN_2_AVAILABLE = False
-        
+
 # Sage Attention imports
 try:
     from sageattention import sageattn
-    @torch.compiler.disable()
-    def sageattn_func(q, k, v, attn_mask=None, dropout_p=0, is_causal=False, tensor_layout="HND"):
+
+    @torch.library.custom_op("wanvideo::sageattn", mutates_args=())
+    def sageattn_func(q: torch.Tensor, k: torch.Tensor, v: torch.Tensor, attn_mask: torch.Tensor | None = None, dropout_p: float = 0.0, is_causal: bool = False, tensor_layout: str = "HND"
+    ) -> torch.Tensor:
         if not (q.dtype == k.dtype == v.dtype):
             return sageattn(q, k.to(q.dtype), v.to(q.dtype), attn_mask=attn_mask, dropout_p=dropout_p, is_causal=is_causal, tensor_layout=tensor_layout)
         elif q.dtype == torch.float32:
             return sageattn(q.to(torch.float16), k.to(torch.float16), v.to(torch.float16), attn_mask=attn_mask, dropout_p=dropout_p, is_causal=is_causal, tensor_layout=tensor_layout).to(torch.float32)
         else:
             return sageattn(q, k, v, attn_mask=attn_mask, dropout_p=dropout_p, is_causal=is_causal, tensor_layout=tensor_layout)
+
+    @sageattn_func.register_fake
+    def _(q, k, v, attn_mask=None, dropout_p=0.0, is_causal=False, tensor_layout="HND"):
+        # Return tensor with same shape as q
+        return q.clone()
 
     def sageattn_func_compiled(q, k, v, attn_mask=None, dropout_p=0, is_causal=False, tensor_layout="HND"):
         if not (q.dtype == k.dtype == v.dtype):
@@ -43,17 +50,11 @@ except Exception as e:
     sageattn_func = None
 
 try:
-    from sageattn3 import sageattn3_blackwell as sageattn_blackwell
-except:
-    try:
-        from sageattn import sageattn_blackwell
-    except:
-        SAGE3_AVAILABLE = False
-
-try: 
     from sageattention import sageattn_varlen
-    @torch.compiler.disable()
-    def sageattn_varlen_func(q, k, v, q_lens, k_lens, max_seqlen_q, max_seqlen_k, dropout_p=0, is_causal=False):
+    from typing import List
+
+    @torch.library.custom_op("wanvideo::sageattn_varlen", mutates_args=())
+    def sageattn_varlen_func(q: torch.Tensor, k: torch.Tensor, v: torch.Tensor, q_lens: List[int], k_lens: List[int], max_seqlen_q: int, max_seqlen_k: int, dropout_p: float = 0.0, is_causal: bool = False) -> torch.Tensor:
         cu_seqlens_q = torch.tensor([0] + list(torch.cumsum(torch.tensor(q_lens), dim=0)), device=q.device, dtype=torch.int32)
         cu_seqlens_k = torch.tensor([0] + list(torch.cumsum(torch.tensor(k_lens), dim=0)), device=q.device, dtype=torch.int32)
         if not (q.dtype == k.dtype == v.dtype):
@@ -62,8 +63,22 @@ try:
             return sageattn_varlen(q.to(torch.float16), k.to(torch.float16), v.to(torch.float16), cu_seqlens_q, cu_seqlens_k, max_seqlen_q, max_seqlen_k, dropout_p=dropout_p, is_causal=is_causal).to(torch.float32)
         else:
             return sageattn_varlen(q, k, v, cu_seqlens_q, cu_seqlens_k, max_seqlen_q, max_seqlen_k, dropout_p=dropout_p, is_causal=is_causal)
-except: 
+
+    @sageattn_varlen_func.register_fake
+    def _(q, k, v, q_lens, k_lens, max_seqlen_q, max_seqlen_k, dropout_p=0.0, is_causal=False):
+        # Return tensor with same shape as q
+        return q.clone()
+except Exception as e:
     sageattn_varlen_func = None
+
+try:
+    from sageattn3 import sageattn3_blackwell as sageattn_blackwell
+except:
+    try:
+        from sageattn import sageattn_blackwell
+    except:
+        SAGE3_AVAILABLE = False
+
 
 __all__ = [
     'flash_attention',
@@ -195,7 +210,7 @@ def attention(
     dtype=torch.bfloat16,
     attention_mode='sdpa',
     attn_mask=None,
-):  
+):
     if "flash" in attention_mode:
         if attention_mode == 'flash_attn_2':
             fa_version = 2
@@ -222,13 +237,13 @@ def attention(
         return torch.nn.functional.scaled_dot_product_attention(q.transpose(1, 2), k.transpose(1, 2), v.transpose(1, 2), attn_mask=attn_mask).transpose(1, 2).contiguous()
     elif attention_mode == 'sageattn_3':
         return sageattn_blackwell(
-            q.transpose(1,2), 
-            k.transpose(1,2), 
-            v.transpose(1,2), 
+            q.transpose(1,2),
+            k.transpose(1,2),
+            v.transpose(1,2),
             per_block_mean=False #seems necessary for reasonable VRAM usage, not sure of other implications
             ).transpose(1,2).contiguous()
     elif attention_mode == 'sageattn_varlen':
-        return sageattn_varlen_func(
+        return torch.ops.wanvideo.sageattn_varlen(
                 q,k,v,
                 q_lens=q_lens,
                 k_lens=k_lens,
@@ -238,4 +253,4 @@ def attention(
     elif attention_mode == 'sageattn_compiled':
         return sageattn_func_compiled(q, k, v, tensor_layout="NHD").contiguous()
     else:
-        return sageattn_func(q, k, v, tensor_layout="NHD").contiguous()
+        return torch.ops.wanvideo.sageattn(q, k, v, tensor_layout="NHD").contiguous()

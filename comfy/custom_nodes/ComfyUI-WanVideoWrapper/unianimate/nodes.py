@@ -9,37 +9,28 @@ from ..utils import log
 import comfy.model_management as mm
 from comfy.utils import ProgressBar
 
+import comfy.ops
+ops = comfy.ops.disable_weight_init
 
 def update_transformer(transformer, state_dict):
-    
+
     concat_dim = 4
     transformer.dwpose_embedding = nn.Sequential(
-                nn.Conv3d(3, concat_dim * 4, (3,3,3), stride=(1,1,1), padding=(1,1,1)),
-                nn.SiLU(),
-                nn.Conv3d(concat_dim * 4, concat_dim * 4, (3,3,3), stride=(1,1,1), padding=(1,1,1)),
-                nn.SiLU(),
-                nn.Conv3d(concat_dim * 4, concat_dim * 4, (3,3,3), stride=(1,1,1), padding=(1,1,1)),
-                nn.SiLU(),
-                nn.Conv3d(concat_dim * 4, concat_dim * 4, (3,3,3), stride=(1,2,2), padding=(1,1,1)),
-                nn.SiLU(),
-                nn.Conv3d(concat_dim * 4, concat_dim * 4, 3, stride=(2,2,2), padding=1),
-                nn.SiLU(),
-                nn.Conv3d(concat_dim * 4, concat_dim * 4, 3, stride=(2,2,2), padding=1),
-                nn.SiLU(),
-                nn.Conv3d(concat_dim * 4, 5120, (1,2,2), stride=(1,2,2), padding=0))
+                ops.Conv3d(3, concat_dim * 4, (3,3,3), stride=(1,1,1), padding=(1,1,1)), nn.SiLU(),
+                ops.Conv3d(concat_dim * 4, concat_dim * 4, (3,3,3), stride=(1,1,1), padding=(1,1,1)), nn.SiLU(),
+                ops.Conv3d(concat_dim * 4, concat_dim * 4, (3,3,3), stride=(1,1,1), padding=(1,1,1)), nn.SiLU(),
+                ops.Conv3d(concat_dim * 4, concat_dim * 4, (3,3,3), stride=(1,2,2), padding=(1,1,1)), nn.SiLU(),
+                ops.Conv3d(concat_dim * 4, concat_dim * 4, 3, stride=(2,2,2), padding=1), nn.SiLU(),
+                ops.Conv3d(concat_dim * 4, concat_dim * 4, 3, stride=(2,2,2), padding=1), nn.SiLU(),
+                ops.Conv3d(concat_dim * 4, 5120, (1,2,2), stride=(1,2,2), padding=0))
 
     randomref_dim = 20
     transformer.randomref_embedding_pose = nn.Sequential(
-                nn.Conv2d(3, concat_dim * 4, 3, stride=1, padding=1),
-                nn.SiLU(),
-                nn.Conv2d(concat_dim * 4, concat_dim * 4, 3, stride=1, padding=1),
-                nn.SiLU(),
-                nn.Conv2d(concat_dim * 4, concat_dim * 4, 3, stride=1, padding=1),
-                nn.SiLU(),
-                nn.Conv2d(concat_dim * 4, concat_dim * 4, 3, stride=2, padding=1),
-                nn.SiLU(),
-                nn.Conv2d(concat_dim * 4, concat_dim * 4, 3, stride=2, padding=1),
-                nn.SiLU(),
+                nn.Conv2d(3, concat_dim * 4, 3, stride=1, padding=1), nn.SiLU(),
+                nn.Conv2d(concat_dim * 4, concat_dim * 4, 3, stride=1, padding=1), nn.SiLU(),
+                nn.Conv2d(concat_dim * 4, concat_dim * 4, 3, stride=1, padding=1), nn.SiLU(),
+                nn.Conv2d(concat_dim * 4, concat_dim * 4, 3, stride=2, padding=1), nn.SiLU(),
+                nn.Conv2d(concat_dim * 4, concat_dim * 4, 3, stride=2, padding=1), nn.SiLU(),
                 nn.Conv2d(concat_dim * 4, randomref_dim, 3, stride=2, padding=1),
                 )
     unianimate_sd = {}
@@ -123,7 +114,7 @@ class DWposeDetector:
             body = candidate[:,:18].copy()
             body = body.reshape(nums*18, locs)
             score = subset[:,:18].copy()
-            
+
             for i in range(len(score)):
                 for j in range(len(score[i])):
                     if score[i][j] > score_threshold:
@@ -142,17 +133,17 @@ class DWposeDetector:
                     else:
                         bodyfoot_score[i][j] = -1
             if -1 not in bodyfoot_score[:,18] and -1 not in bodyfoot_score[:,19]:
-                bodyfoot_score[:,18] = np.array([18.]) 
+                bodyfoot_score[:,18] = np.array([18.])
             else:
                 bodyfoot_score[:,18] = np.array([-1.])
             if -1 not in bodyfoot_score[:,21] and -1 not in bodyfoot_score[:,22]:
-                bodyfoot_score[:,19] = np.array([19.]) 
+                bodyfoot_score[:,19] = np.array([19.])
             else:
                 bodyfoot_score[:,19] = np.array([-1.])
             bodyfoot_score = bodyfoot_score[:, :20]
 
             bodyfoot = candidate[:,:24].copy()
-            
+
             for i in range(nums):
                 if -1 not in bodyfoot[i][18] and -1 not in bodyfoot[i][19]:
                     bodyfoot[i][18] = (bodyfoot[i][18]+bodyfoot[i][19])/2
@@ -162,7 +153,7 @@ class DWposeDetector:
                     bodyfoot[i][19] = (bodyfoot[i][21]+bodyfoot[i][22])/2
                 else:
                     bodyfoot[i][19] = np.array([-1., -1.])
-            
+
             bodyfoot = bodyfoot[:,:20,:]
             bodyfoot = bodyfoot.reshape(nums*20, locs)
 
@@ -172,7 +163,7 @@ class DWposeDetector:
 
             hands = candidate[:,92:113]
             hands = np.vstack([hands, candidate[:,113:]])
-            
+
             # bodies = dict(candidate=body, subset=score)
             bodies = dict(candidate=bodyfoot, subset=bodyfoot_score, score=bodyfoot_score)
             pose = dict(bodies=bodies, hands=hands, faces=faces)
@@ -180,7 +171,7 @@ class DWposeDetector:
             # return draw_pose(pose, H, W)
             return pose
 
-def draw_pose(pose, H, W, stick_width=4,draw_body=True, draw_hands=True, draw_feet=True, 
+def draw_pose(pose, H, W, stick_width=4,draw_body=True, draw_hands=True, draw_feet=True,
               body_keypoint_size=4, hand_keypoint_size=4, draw_head=True):
     from .dwpose.util import draw_body_and_foot, draw_handpose, draw_facepose
     bodies = pose['bodies']
@@ -202,7 +193,7 @@ def draw_pose(pose, H, W, stick_width=4,draw_body=True, draw_hands=True, draw_fe
 def pose_extract(pose_images, ref_image, dwpose_model, height, width, score_threshold, stick_width,
                  draw_body=True, draw_hands=True, hand_keypoint_size=4, draw_feet=True,
                  body_keypoint_size=4, handle_not_detected="repeat", draw_head=True):
-    
+
     results_vis = []
     comfy_pbar = ProgressBar(len(pose_images))
 
@@ -224,7 +215,7 @@ def pose_extract(pose_images, ref_image, dwpose_model, height, width, score_thre
                 pose = np.zeros_like(img)
         results_vis.append(pose)
         comfy_pbar.update(1)
-    
+
     bodies = results_vis[0]['bodies']
     faces = results_vis[0]['faces']
     hands = results_vis[0]['hands']
@@ -268,7 +259,7 @@ def pose_extract(pose_images, ref_image, dwpose_model, height, width, score_thre
         results_vis[0]['faces'][:,:,1] *= y_ratio
         results_vis[0]['hands'][:,:,0] *= x_ratio
         results_vis[0]['hands'][:,:,1] *= y_ratio
-        
+
         ########neck########
         l_neck_ref = ((ref_candidate[0][0] - ref_candidate[1][0]) ** 2 + (ref_candidate[0][1] - ref_candidate[1][1]) ** 2) ** 0.5
         l_neck_0 = ((candidate[0][0] - candidate[1][0]) ** 2 + (candidate[0][1] - candidate[1][1]) ** 2) ** 0.5
@@ -287,7 +278,7 @@ def pose_extract(pose_images, ref_image, dwpose_model, height, width, score_thre
         results_vis[0]['bodies']['candidate'][16,1] += y_offset_neck
         results_vis[0]['bodies']['candidate'][17,0] += x_offset_neck
         results_vis[0]['bodies']['candidate'][17,1] += y_offset_neck
-        
+
         ########shoulder2########
         l_shoulder2_ref = ((ref_candidate[2][0] - ref_candidate[1][0]) ** 2 + (ref_candidate[2][1] - ref_candidate[1][1]) ** 2) ** 0.5
         l_shoulder2_0 = ((candidate[2][0] - candidate[1][0]) ** 2 + (candidate[2][1] - candidate[1][1]) ** 2) ** 0.5
@@ -435,9 +426,9 @@ def pose_extract(pose_images, ref_image, dwpose_model, height, width, score_thre
 
         results_vis[0]['bodies']['candidate'][17,0] += x_offset_head17
         results_vis[0]['bodies']['candidate'][17,1] += y_offset_head17
-        
+
         ########MovingAverage########
-        
+
         ########left leg########
         l_ll1_ref = ((ref_candidate[8][0] - ref_candidate[9][0]) ** 2 + (ref_candidate[8][1] - ref_candidate[9][1]) ** 2) ** 0.5
         l_ll1_0 = ((candidate[8][0] - candidate[9][0]) ** 2 + (candidate[8][1] - candidate[9][1]) ** 2) ** 0.5
@@ -522,7 +513,7 @@ def pose_extract(pose_images, ref_image, dwpose_model, height, width, score_thre
             results_vis[i]['bodies']['candidate'][17,1] += y_offset_neck
 
             ########shoulder2########
-            
+
 
             x_offset_shoulder2 = (results_vis[i]['bodies']['candidate'][1][0]-results_vis[i]['bodies']['candidate'][2][0])*(1.-shoulder2_ratio)
             y_offset_shoulder2 = (results_vis[i]['bodies']['candidate'][1][1]-results_vis[i]['bodies']['candidate'][2][1])*(1.-shoulder2_ratio)
@@ -676,7 +667,7 @@ def pose_extract(pose_images, ref_image, dwpose_model, height, width, score_thre
             results_vis[i]['bodies']['candidate'] += offset[np.newaxis, :]
             results_vis[i]['faces'] += offset[np.newaxis, np.newaxis, :]
             results_vis[i]['hands'] += offset[np.newaxis, np.newaxis, :]
-    
+
     dwpose_woface_list = []
     for i in range(len(results_vis)):
         #try:
@@ -724,11 +715,11 @@ class WanVideoUniAnimateDWPoseDetector:
     FUNCTION = "process"
     CATEGORY = "WanVideoWrapper"
 
-    def process(self, pose_images, score_threshold, stick_width, reference_pose_image=None, draw_body=True, body_keypoint_size=4, 
+    def process(self, pose_images, score_threshold, stick_width, reference_pose_image=None, draw_body=True, body_keypoint_size=4,
                 draw_feet=True, draw_hands=True, hand_keypoint_size=4, colorspace="RGB", handle_not_detected="empty", draw_head=True):
 
         device = mm.get_torch_device()
-        
+
         #model loading
         dw_pose_model = "dw-ll_ucoco_384_bs5.torchscript.pt"
         yolo_model = "yolox_l.torchscript.pt"
@@ -742,27 +733,27 @@ class WanVideoUniAnimateDWPoseDetector:
         if not os.path.exists(model_det):
             log.info(f"Downloading yolo model to: {model_base_path}")
             from huggingface_hub import snapshot_download
-            snapshot_download(repo_id="hr16/yolox-onnx", 
+            snapshot_download(repo_id="hr16/yolox-onnx",
                                 allow_patterns=[f"*{yolo_model}*"],
-                                local_dir=model_base_path, 
+                                local_dir=model_base_path,
                                 local_dir_use_symlinks=False)
-            
+
         if not os.path.exists(model_pose):
             log.info(f"Downloading dwpose model to: {model_base_path}")
             from huggingface_hub import snapshot_download
-            snapshot_download(repo_id="hr16/DWPose-TorchScript-BatchSize5", 
+            snapshot_download(repo_id="hr16/DWPose-TorchScript-BatchSize5",
                                 allow_patterns=[f"*{dw_pose_model}*"],
-                                local_dir=model_base_path, 
+                                local_dir=model_base_path,
                                 local_dir_use_symlinks=False)
 
         if not hasattr(self, "det") or not hasattr(self, "pose"):
             self.det = torch.jit.load(model_det, map_location=device)
             self.pose = torch.jit.load(model_pose, map_location=device)
-            self.dwpose_detector = DWposeDetector(self.det, self.pose) 
+            self.dwpose_detector = DWposeDetector(self.det, self.pose)
 
         #model inference
         height, width = pose_images.shape[1:3]
-        
+
         pose_np = pose_images.cpu().numpy() * 255
         ref_np = None
         if reference_pose_image is not None:
@@ -772,11 +763,11 @@ class WanVideoUniAnimateDWPoseDetector:
         prev_fuser_state = torch._C._jit_texpr_fuser_enabled()
         torch._C._jit_set_texpr_fuser_enabled(False) # removes warmup delay, may want to enable later
         poses, reference_pose = pose_extract(pose_np, ref_np, self.dwpose_detector, height, width, score_threshold, stick_width=stick_width,
-                                             draw_body=draw_body, body_keypoint_size=body_keypoint_size, draw_feet=draw_feet, 
+                                             draw_body=draw_body, body_keypoint_size=body_keypoint_size, draw_feet=draw_feet,
                                              draw_hands=draw_hands, hand_keypoint_size=hand_keypoint_size, handle_not_detected=handle_not_detected, draw_head=draw_head)
         poses = poses / 255.0
         torch._C._jit_set_texpr_fuser_enabled(prev_fuser_state)
-        
+
         if reference_pose_image is not None:
             reference_pose = reference_pose.unsqueeze(0) / 255.0
         else:
@@ -828,11 +819,9 @@ class WanVideoUniAnimatePoseInput:
 NODE_CLASS_MAPPINGS = {
     "WanVideoUniAnimatePoseInput": WanVideoUniAnimatePoseInput,
     "WanVideoUniAnimateDWPoseDetector": WanVideoUniAnimateDWPoseDetector,
- 
+
     }
 NODE_DISPLAY_NAME_MAPPINGS = {
     "WanVideoUniAnimatePoseInput": "WanVideo UniAnimate Pose Input",
     "WanVideoUniAnimateDWPoseDetector": "WanVideo UniAnimate DWPose Detector",
     }
-
-    

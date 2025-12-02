@@ -23,7 +23,8 @@ from ...multitalk.multitalk import get_attn_map_with_target
 from ...echoshot.echoshot import rope_apply_z, rope_apply_c, rope_apply_echoshot
 
 from ...MTV.mtv import apply_rotary_emb
-
+from comfy.ldm.flux.math import apply_rope1 as apply_rope_comfy1
+from comfy.ldm.flux.math import apply_rope as apply_rope_comfy
 from comfy import model_management as mm
 
 __all__ = ['WanModel']
@@ -119,70 +120,6 @@ def torch_dfs(model: nn.Module, parent_name='root'):
         module_names += child_names
         modules += child_modules
     return modules, module_names
-
-#from comfy.ldm.flux.math import apply_rope as apply_rope_comfy
-def apply_rope_comfy(xq, xk, freqs_cis):
-    xq_ = xq.to(dtype=freqs_cis.dtype).reshape(*xq.shape[:-1], -1, 1, 2)
-    xk_ = xk.to(dtype=freqs_cis.dtype).reshape(*xk.shape[:-1], -1, 1, 2)
-    xq_out = freqs_cis[..., 0] * xq_[..., 0] + freqs_cis[..., 1] * xq_[..., 1]
-    xk_out = freqs_cis[..., 0] * xk_[..., 0] + freqs_cis[..., 1] * xk_[..., 1]
-    return xq_out.reshape(*xq.shape).type_as(xq), xk_out.reshape(*xk.shape).type_as(xk)
-
-def apply_rope_comfy_chunked(xq, xk, freqs_cis, num_chunks=4):
-    seq_dim = 1
-    
-    # Initialize output tensors
-    xq_out = torch.empty_like(xq)
-    xk_out = torch.empty_like(xk)
-    
-    # Calculate chunks
-    seq_len = xq.shape[seq_dim]
-    chunk_sizes = [seq_len // num_chunks + (1 if i < seq_len % num_chunks else 0) 
-                  for i in range(num_chunks)]
-    
-    # First pass: process xq completely
-    start_idx = 0
-    for size in chunk_sizes:
-        end_idx = start_idx + size
-        
-        slices = [slice(None)] * len(xq.shape)
-        slices[seq_dim] = slice(start_idx, end_idx)
-        
-        freq_slices = [slice(None)] * len(freqs_cis.shape)
-        if seq_dim < len(freqs_cis.shape):
-            freq_slices[seq_dim] = slice(start_idx, end_idx)
-        freqs_chunk = freqs_cis[tuple(freq_slices)]
-        
-        xq_chunk = xq[tuple(slices)]
-        xq_chunk_ = xq_chunk.to(dtype=freqs_cis.dtype).reshape(*xq_chunk.shape[:-1], -1, 1, 2)
-        xq_out[tuple(slices)] = (freqs_chunk[..., 0] * xq_chunk_[..., 0] + 
-                                freqs_chunk[..., 1] * xq_chunk_[..., 1]).reshape(*xq_chunk.shape).type_as(xq)
-        
-        del xq_chunk, xq_chunk_, freqs_chunk
-        start_idx = end_idx
-    
-    # Second pass: process xk completely
-    start_idx = 0
-    for size in chunk_sizes:
-        end_idx = start_idx + size
-        
-        slices = [slice(None)] * len(xk.shape)
-        slices[seq_dim] = slice(start_idx, end_idx)
-        
-        freq_slices = [slice(None)] * len(freqs_cis.shape)
-        if seq_dim < len(freqs_cis.shape):
-            freq_slices[seq_dim] = slice(start_idx, end_idx)
-        freqs_chunk = freqs_cis[tuple(freq_slices)]
-        
-        xk_chunk = xk[tuple(slices)]
-        xk_chunk_ = xk_chunk.to(dtype=freqs_cis.dtype).reshape(*xk_chunk.shape[:-1], -1, 1, 2)
-        xk_out[tuple(slices)] = (freqs_chunk[..., 0] * xk_chunk_[..., 0] + 
-                                freqs_chunk[..., 1] * xk_chunk_[..., 1]).reshape(*xk_chunk.shape).type_as(xk)
-        
-        del xk_chunk, xk_chunk_, freqs_chunk
-        start_idx = end_idx
-    
-    return xq_out, xk_out
 
 def rope_riflex(pos, dim, i, theta, L_test, k, ntk_factor=1.0):
     assert dim % 2 == 0
@@ -462,21 +399,57 @@ class WanSelfAttention(nn.Module):
             self.norm_q = WanRMSNorm(norm_dim, eps=eps) if qk_norm else nn.Identity()
             self.norm_k = WanRMSNorm(norm_dim, eps=eps) if qk_norm else nn.Identity()
 
-    def qkv_fn(self, x):
+    def qkv_fn(self, x, is_longcat=False):
         b, s, n, d = *x.shape[:2], self.num_heads, self.head_dim
-        q = self.norm_q(self.q(x).to(self.norm_q.weight.dtype)).to(x.dtype).view(b, s, n, d)
-        k = self.norm_k(self.k(x).to(self.norm_k.weight.dtype)).to(x.dtype).view(b, s, n, d)
+        if is_longcat:
+            q = self.q(x).view(b, s, n, d)
+            q = self.norm_q(q.float()).to(x.dtype)
+            k = self.k(x).view(b, s, n, d)
+            k = self.norm_k(k.float()).to(x.dtype)
+        else:
+            q = self.norm_q(self.q(x).to(self.norm_q.weight.dtype)).to(x.dtype).view(b, s, n, d)
+            k = self.norm_k(self.k(x).to(self.norm_k.weight.dtype)).to(x.dtype).view(b, s, n, d)
         v = self.v(x).view(b, s, n, d)
         return q, k, v
-    
-    def qkv_fn_longcat(self, x):
+
+    def _qkv_fn_with_rope(self, x, linear_layer, norm_layer, freqs, num_chunks=1, is_longcat=False):
         b, s, n, d = *x.shape[:2], self.num_heads, self.head_dim
-        q = self.q(x).view(b, s, n, d)
-        q = self.norm_q(q.float()).to(x.dtype)
-        k = self.k(x).view(b, s, n, d)
-        k = self.norm_k(k.float()).to(x.dtype)
-        v = self.v(x).view(b, s, n, d)
-        return q, k, v
+
+        use_chunked = num_chunks > 1
+        if use_chunked:
+            out = torch.empty(b, s, n, d, dtype=x.dtype, device=x.device)
+
+            for i, x_chunk in enumerate(x.chunk(num_chunks, dim=1)):
+                chunk_size = x_chunk.size(1)
+                start_idx = i * (s // num_chunks + (1 if i < s % num_chunks else 0))
+
+                if is_longcat:
+                    chunk = linear_layer(x_chunk).view(b, chunk_size, n, d)
+                    chunk = norm_layer(chunk.float()).to(x.dtype)
+                else:
+                    chunk = norm_layer(linear_layer(x_chunk).to(norm_layer.weight.dtype)).to(x.dtype).view(b, chunk_size, n, d)
+
+                freqs_chunk = freqs[:, start_idx:start_idx + chunk_size] if freqs.shape[1] > 1 else freqs
+                out[:, start_idx:start_idx + chunk_size] = apply_rope_comfy1(chunk, freqs_chunk)
+
+            return out
+        else:
+            if is_longcat:
+                result = linear_layer(x).view(b, s, n, d)
+                result = norm_layer(result.float()).to(x.dtype)
+            else:
+                result = norm_layer(linear_layer(x).to(norm_layer.weight.dtype)).to(x.dtype).view(b, s, n, d)
+            return apply_rope_comfy1(result, freqs)
+
+    def qkv_fn_q_with_rope(self, x, freqs, num_chunks=1, is_longcat=False):
+        return self._qkv_fn_with_rope(x, self.q, self.norm_q, freqs, num_chunks, is_longcat)
+
+    def qkv_fn_k_with_rope(self, x, freqs, num_chunks=1, is_longcat=False):
+        return self._qkv_fn_with_rope(x, self.k, self.norm_k, freqs, num_chunks, is_longcat)
+
+    def qkv_fn_v(self, x):
+        b, s, n, d = *x.shape[:2], self.num_heads, self.head_dim
+        return self.v(x).view(b, s, n, d)
     
     def qkv_fn_ip(self, x):
         b, s, n, d = *x.shape[:2], self.num_heads, self.head_dim
@@ -662,7 +635,7 @@ class WanT2VCrossAttention(WanSelfAttention):
         self.k_fusion = None
 
     def forward(self, x, context, grid_sizes=None, clip_embed=None, audio_proj=None, audio_scale=1.0, 
-                num_latent_frames=21, nag_params={}, nag_context=None, is_uncond=False, rope_func="comfy", 
+                num_latent_frames=21, nag_params={}, nag_context=None, rope_func="comfy", 
                 inner_t=None, inner_c=None, cross_freqs=None,
                 adapter_proj=None, adapter_attn_mask=None, ip_scale=1.0, orig_seq_len=None, lynx_x_ip=None, lynx_ip_scale=1.0, num_cond_latents=None, **kwargs):
         b, n, d = x.size(0), self.num_heads, self.head_dim
@@ -678,7 +651,7 @@ class WanT2VCrossAttention(WanSelfAttention):
         else:
             q = self.norm_q(self.q(x).to(self.norm_q.weight.dtype),num_chunks=2 if rope_func == "comfy_chunked" else 1).to(x.dtype).view(b, -1, n, d)
 
-        if nag_context is not None and not is_uncond:
+        if nag_context is not None:
             x = self.normalized_attention_guidance(b, n, d, q, context, nag_context, nag_params)
         else:
             if is_longcat:
@@ -689,7 +662,7 @@ class WanT2VCrossAttention(WanSelfAttention):
             v = self.v(context).view(b, -1, n, d)
 
             #EchoShot rope
-            if inner_t is not None and cross_freqs is not None and not is_uncond:
+            if inner_t is not None and cross_freqs is not None:
                 q = rope_apply_z(q, grid_sizes, cross_freqs, inner_t).to(q)
                 k = rope_apply_c(k, cross_freqs, inner_c).to(q)
 
@@ -758,7 +731,7 @@ class WanI2VCrossAttention(WanSelfAttention):
         self.attention_mode = attention_mode
 
     def forward(self, x, context, grid_sizes=None, clip_embed=None, audio_proj=None, 
-                audio_scale=1.0, num_latent_frames=21, nag_params={}, nag_context=None, is_uncond=False, rope_func="comfy", 
+                audio_scale=1.0, num_latent_frames=21, nag_params={}, nag_context=None, rope_func="comfy", 
                 adapter_proj=None, adapter_attn_mask=None, ip_scale=1.0, orig_seq_len=None, **kwargs):
         r"""
         Args:
@@ -769,7 +742,7 @@ class WanI2VCrossAttention(WanSelfAttention):
         # compute query
         q = self.norm_q(self.q(x).to(self.norm_q.weight.dtype),num_chunks=2 if rope_func == "comfy_chunked" else 1).view(b, -1, n, d).to(x.dtype)
 
-        if nag_context is not None and not is_uncond:
+        if nag_context is not None:
             x_text = self.normalized_attention_guidance(b, n, d, q, context, nag_context, nag_params)
         else:
             # text attention
@@ -935,9 +908,7 @@ class WanAttentionBlock(nn.Module):
         self.norm2 = WanLayerNorm(self.dim, eps)
 
         if not is_longcat:
-            self.ffn = nn.Sequential(
-                nn.Linear(in_features, ffn_dim), nn.GELU(approximate='tanh'),
-                nn.Linear(ffn2_dim, out_features))
+            self.ffn = nn.Sequential(nn.Linear(in_features, ffn_dim), nn.GELU(approximate='tanh'), nn.Linear(ffn2_dim, out_features))
         else:
             from ...LongCat.layers import FeedForwardSwiGLU
             mlp_ratio = 4
@@ -1002,23 +973,11 @@ class WanAttentionBlock(nn.Module):
         else:
             return torch.addcmul(shift_msa, norm_x, 1 + scale_msa)
     
-    def ffn_chunked(self, x, shift_mlp, scale_mlp, num_chunks=4):
-        modulated_input = torch.addcmul(shift_mlp, self.norm2(x.to(shift_mlp.dtype)), 1 + scale_mlp).to(x.dtype)
-        
-        result = torch.empty_like(x)
-        seq_len = modulated_input.shape[1]
-        
-        chunk_sizes = [seq_len // num_chunks + (1 if i < seq_len % num_chunks else 0) 
-                    for i in range(num_chunks)]
-        
-        start_idx = 0
-        for size in chunk_sizes:
-            end_idx = start_idx + size
-            chunk = modulated_input[:, start_idx:end_idx, :]
-            result[:, start_idx:end_idx, :] = self.ffn(chunk)
-            start_idx = end_idx
-        
-        return result
+    def ffn_chunked(self, mod_x, num_chunks=4):
+        seq_len = mod_x.shape[1]
+        if seq_len <= 8192 or num_chunks <= 1:
+            return self.ffn(mod_x)
+        return torch.cat([self.ffn(chunk.contiguous()) for chunk in mod_x.chunk(num_chunks, dim=1)], dim=1)
 
     #region attention forward
     def forward(
@@ -1033,7 +992,6 @@ class WanAttentionBlock(nn.Module):
         original_seq_len=None,
         enhance_enabled=False, #feta
         nag_params={}, nag_context=None, #normalized attention guidance
-        is_uncond=False,
         multitalk_audio_embedding=None, ref_target_masks=None, human_num=0, #multitalk
         inner_t=None, inner_c=None, cross_freqs=None, #echoshot
         x_ip=None, e_ip=None, freqs_ip=None, ip_scale=1.0, #stand-in
@@ -1099,6 +1057,9 @@ class WanAttentionBlock(nn.Module):
         # self-attention variables
         q_ip = k_ip = v_ip = None
 
+        if lynx_ref_feature is None and self.self_attn.ref_adapter is not None:
+            lynx_ref_feature = input_x
+
         #RoPE and QKV computation
         if inner_t is not None:
             #query, key, value
@@ -1109,33 +1070,35 @@ class WanAttentionBlock(nn.Module):
             # First pass - separate main and IP components
             x_main, x_ip_input = input_x[:, : -self.cond_size], input_x[:, -self.cond_size :]
             # Compute QKV for main content
-            q, k, v = self.self_attn.qkv_fn(x_main)
             if self.rope_func == "comfy":
-                q, k = apply_rope_comfy(q, k, freqs)
+                q = self.self_attn.qkv_fn_q_with_rope(x_main, freqs)
+                k = self.self_attn.qkv_fn_k_with_rope(x_main, freqs)
+                v = self.self_attn.qkv_fn_v(x_main)
             elif self.rope_func == "comfy_chunked":
-                q, k = apply_rope_comfy_chunked(q, k, freqs)
+                q = self.self_attn.qkv_fn_q_with_rope(x_main, freqs, num_chunks=2)
+                k = self.self_attn.qkv_fn_k_with_rope(x_main, freqs, num_chunks=2)
+                v = self.self_attn.qkv_fn_v(x_main)
             # Compute QKV for IP content
-            q_ip, k_ip, v_ip = self.self_attn.qkv_fn_ip(x_ip_input)
-            if self.rope_func == "comfy":
+            if "comfy" in self.rope_func:
+                q_ip, k_ip, v_ip = self.self_attn.qkv_fn_ip(x_ip_input)
                 q_ip, k_ip = apply_rope_comfy(q_ip, k_ip, freqs_ip)
-            elif self.rope_func == "comfy_chunked":
-                q_ip, k_ip = apply_rope_comfy_chunked(q_ip, k_ip, freqs_ip)
         else:
-            if is_longcat:
-                q, k, v = self.self_attn.qkv_fn_longcat(input_x)
+            if "comfy" in self.rope_func:
+                num_chunks = 2 if self.rope_func == "comfy_chunked" else 1
+                q = self.self_attn.qkv_fn_q_with_rope(input_x, freqs, num_chunks=num_chunks, is_longcat=is_longcat)
+                k = self.self_attn.qkv_fn_k_with_rope(input_x, freqs, num_chunks=num_chunks, is_longcat=is_longcat)
+                v = self.self_attn.qkv_fn_v(input_x)
             else:
                 q, k, v = self.self_attn.qkv_fn(input_x)
-            if self.rope_func == "comfy":
-                q, k = apply_rope_comfy(q, k, freqs)
-            elif self.rope_func == "comfy_chunked":
-                q, k = apply_rope_comfy_chunked(q, k, freqs)
-            elif self.rope_func == "mocha":
-                from ...mocha.nodes import rope_apply_mocha
-                q=rope_apply_mocha(q, grid_sizes, freqs)
-                k=rope_apply_mocha(k, grid_sizes, freqs)
-            else:
-                q = rope_apply(q, grid_sizes, freqs, reverse_time=reverse_time)
-                k = rope_apply(k, grid_sizes, freqs, reverse_time=reverse_time)
+                if self.rope_func == "mocha":
+                    from ...mocha.nodes import rope_apply_mocha
+                    q = rope_apply_mocha(q, grid_sizes, freqs)
+                    k = rope_apply_mocha(k, grid_sizes, freqs)
+                else:
+                    q = rope_apply(q, grid_sizes, freqs, reverse_time=reverse_time)
+                    k = rope_apply(k, grid_sizes, freqs, reverse_time=reverse_time)
+
+        del input_x
 
         if x_ovi is not None:
             q_ovi, k_ovi, v_ovi = self.audio_block.self_attn.qkv_fn(input_x_ovi)
@@ -1143,7 +1106,7 @@ class WanAttentionBlock(nn.Module):
             k_ovi = rope_apply(k_ovi, grid_sizes_ovi, freqs_ovi)
             y_ovi = self.audio_block.self_attn.forward(q_ovi, k_ovi, v_ovi, seq_lens_ovi)
             x_ovi = x_ovi.addcmul(y_ovi, gate_msa_ovi)
-
+            del input_x_ovi, y_ovi, gate_msa_ovi
 
         # FETA
         if enhance_enabled:
@@ -1198,9 +1161,8 @@ class WanAttentionBlock(nn.Module):
             y = torch.cat([x_cond, x_noise], dim=1).contiguous()
         else:
             y = self.self_attn.forward(q, k, v, seq_lens, lynx_ref_feature=lynx_ref_feature, lynx_ref_scale=lynx_ref_scale)
-        
-        if lynx_ref_feature is None and self.self_attn.ref_adapter is not None:
-            lynx_ref_feature = input_x
+
+        del q, k, v
 
         # FETA
         if enhance_enabled:
@@ -1259,7 +1221,7 @@ class WanAttentionBlock(nn.Module):
                 return x, x_ip, lynx_ref_feature, x_ovi
             else:
                 x = x + self.cross_attn(self.norm3(x.to(self.norm3.weight.dtype)).to(input_dtype), context, grid_sizes, clip_embed=clip_embed, audio_proj=audio_proj, audio_scale=audio_scale,
-                                    num_latent_frames=num_latent_frames, nag_params=nag_params, nag_context=nag_context, is_uncond=is_uncond,
+                                    num_latent_frames=num_latent_frames, nag_params=nag_params, nag_context=nag_context,
                                     rope_func=self.rope_func, inner_t=inner_t, inner_c=inner_c, cross_freqs=cross_freqs,
                                     adapter_proj=adapter_proj, ip_scale=ip_scale, orig_seq_len=original_seq_len, lynx_x_ip=lynx_x_ip, lynx_ip_scale=lynx_ip_scale, num_cond_latents=num_cond_latents)
                 x = x.to(input_dtype)
@@ -1281,7 +1243,8 @@ class WanAttentionBlock(nn.Module):
 
         # ffn
         if self.rope_func == "comfy_chunked":
-            x_ffn = self.ffn_chunked(x, shift_mlp, scale_mlp)
+            mod_x = torch.addcmul(shift_mlp, self.norm2(x.to(shift_mlp.dtype)), 1 + scale_mlp)
+            x_ffn = self.ffn_chunked(mod_x)
         else:
             if zero_timestep:
                 norm2_x = self.norm2(x)
@@ -1296,8 +1259,9 @@ class WanAttentionBlock(nn.Module):
                     mod_x = torch.addcmul(shift_mlp, self.norm2(x.to(shift_mlp.dtype)), 1 + scale_mlp)
                 else:
                     mod_x = torch.addcmul(shift_mlp, self.norm2(x.view(B, -1, N//T, C).float()), 1 + scale_mlp).view(B, -1, C)
-                x_ffn = self.ffn(mod_x.to(input_dtype))
-            del shift_mlp, scale_mlp
+                del shift_mlp, scale_mlp
+                x_ffn = self.ffn_chunked(mod_x.to(input_dtype), num_chunks=1)
+                del mod_x
         
         # gate_mlp
         if zero_timestep:
@@ -1623,55 +1587,22 @@ class AudioInjector_WAN(nn.Module):
 class WanModel(torch.nn.Module):
     def __init__(self,
                 model_type='t2v',
-                patch_size=(1, 2, 2),
-                text_len=512,
-                in_dim=16,
-                dim=2048,
-                in_features=5120,
-                out_features=5120,
-                ffn_dim=8192,
-                ffn2_dim=8192,
-                freq_dim=256,
-                text_dim=4096,
-                out_dim=16,
-                num_heads=16,
-                num_layers=32,
-                qk_norm=True,
-                cross_attn_norm=True,
-                eps=1e-6,
-                attention_mode='sdpa',
-                rope_func='comfy',
-                rms_norm_function='default',
-                main_device=torch.device('cuda'),
-                offload_device=torch.device('cpu'),
-                dtype=torch.float16,
-                teacache_coefficients=[],
-                magcache_ratios=[],
-                vace_layers=None,
-                vace_in_dim=None,
-                inject_sample_info=False,
-                add_ref_conv=False,
-                in_dim_ref_conv=16,
-                add_control_adapter=False,
-                in_dim_control_adapter=24,
-                use_motion_attn=False,
+                patch_size=(1, 2, 2), text_len=512,
+                in_dim=16, dim=2048, in_features=5120, out_features=5120, ffn_dim=8192, ffn2_dim=8192,
+                freq_dim=256, text_dim=4096, out_dim=16, num_heads=16, num_layers=32, eps=1e-6,
+                qk_norm=True, cross_attn_norm=True,
+                attention_mode='sdpa', rope_func='comfy', rms_norm_function='default',
+                main_device=torch.device('cuda'), offload_device=torch.device('cpu'), dtype=torch.float16,
+                teacache_coefficients=[], magcache_ratios=[], vace_layers=None, vace_in_dim=None,
+                inject_sample_info=False, add_ref_conv=False, in_dim_ref_conv=16, add_control_adapter=False,
+                in_dim_control_adapter=24,  use_motion_attn=False,
                 #s2v
-                cond_dim=0,
-                audio_dim=1024,
-                num_audio_token=4,
-                enable_adain=False,
-                adain_mode="attn_norm",
-                audio_inject_layers=[0, 4, 8, 12, 16, 20, 24, 27, 30, 33, 36, 39],
-                zero_timestep=False,
-                humo_audio=False,
+                cond_dim=0, audio_dim=1024, num_audio_token=4, enable_adain=False, zero_timestep=False,  humo_audio=False,
+                adain_mode="attn_norm", audio_inject_layers=[0, 4, 8, 12, 16, 20, 24, 27, 30, 33, 36, 39],
                 # WanAnimate
-                is_wananimate=False,
-                motion_encoder_dim=512,
+                is_wananimate=False,  motion_encoder_dim=512,
                 # lynx
-                lynx_ip_layers=None,
-                lynx_ref_layers=None,
-                # ovi
-                is_ovi_audio_model=False,
+                lynx_ip_layers=None, lynx_ref_layers=None,
                 # LongCat
                 is_longcat=False,
                 ):
@@ -2190,8 +2121,7 @@ class WanModel(torch.nn.Module):
         self, x, t, context, seq_len,
         is_uncond=False,
         current_step_percentage=0.0, current_step=0, last_step=0, total_steps=50,
-        clip_fea=None,
-        y=None,
+        clip_fea=None, y=None,
         device=torch.device('cuda'),
         freqs=None,
         enhance_enabled=False,
@@ -2203,8 +2133,7 @@ class WanModel(torch.nn.Module):
         fps_embeds=None,
         fun_ref=None, fun_camera=None,
         audio_proj=None, audio_scale=1.0,
-        uni3c_data=None,
-        controlnet=None,
+        uni3c_data=None, controlnet=None,
         add_cond=None, attn_cond=None,
         nag_params={}, nag_context=None,
         multitalk_audio=None,
@@ -2227,6 +2156,7 @@ class WanModel(torch.nn.Module):
         flashvsr_LQ_latent=None, flashvsr_strength=1.0,
         num_cond_latents=None,
         add_text_emb=None,
+        sdancer_input=None  # SteadyDancer
     ):
         r"""
         Forward pass through the diffusion model
@@ -2313,7 +2243,13 @@ class WanModel(torch.nn.Module):
            freqs = freqs.to(device)
 
         _, F, H, W = x[0].shape
+
+        sdancer_enabled = False
+        if sdancer_input is not None and sdancer_input['start_percent'] <= current_step_percentage <= sdancer_input['end_percent']:
+            sdancer_enabled = True
+            x_noise_clone = torch.stack(x)
             
+        # I2V
         if y is not None:
             if hasattr(self, "randomref_embedding_pose") and unianim_data is not None:
                 if unianim_data['start_percent'] <= current_step_percentage <= unianim_data['end_percent']:
@@ -2321,7 +2257,7 @@ class WanModel(torch.nn.Module):
                     if random_ref_emb is not None:
                         y[0].add_(random_ref_emb, alpha=unianim_data["strength"])
             x = [torch.cat([u, v], dim=0) for u, v in zip(x, y)]
-        
+
         #uni3c controlnet
         if uni3c_data is not None:
             render_latent = uni3c_data["render_latent"].to(self.base_dtype)
@@ -2330,13 +2266,27 @@ class WanModel(torch.nn.Module):
                 hidden_states = torch.cat([hidden_states, torch.zeros_like(hidden_states[:, :4])], dim=1)
             render_latent = torch.cat([hidden_states[:, :20], render_latent], dim=1)
 
-        # patch embed
-        if control_lora_enabled:
-            self.expanded_patch_embedding.to(self.main_device)
-            x = [self.expanded_patch_embedding(u.unsqueeze(0).to(torch.float32)).to(x[0].dtype) for u in x]
+        # SteadyDancer
+        if sdancer_enabled:
+            sdancer_cond = sdancer_input["cond_pos"] if not is_uncond else sdancer_input["cond_neg"]
+            condition_temporal = [self.condition_embedding_temporal(c.unsqueeze(0).float()).to(self.base_dtype) for c in [sdancer_cond]] # Temporal Motion Coherence Module.
+            sdancer_cond = sdancer_cond.unsqueeze(0)
+            bs, _, time_steps, _, _ = sdancer_cond.shape
+            condition_reshape = rearrange(sdancer_cond, 'b c t h w -> (b t) c h w')
+            condition_spatial = self.condition_embedding_spatial(condition_reshape.float()).to(self.base_dtype) # Spatial Structure Adaptive Extractor.
+            condition_spatial = rearrange(condition_spatial, '(b t) c h w -> b c t h w', t=time_steps, b=bs)
+            condition_fused = sdancer_cond + condition_temporal[0] * sdancer_input["pose_strength_temporal"] + condition_spatial * sdancer_input["pose_strength_spatial"] # Hierarchical Aggregation (1): condition, temporal condition, spatial condition
+            condition_aligned = self.condition_embedding_align(condition_fused.float(), x_noise_clone).to(self.base_dtype) # Frame-wise Attention Alignment Unit.
         else:
-            self.original_patch_embedding.to(self.main_device)
-            x = [self.original_patch_embedding(u.unsqueeze(0).to(torch.float32)).to(x[0].dtype) for u in x]
+            # patch embed
+            if control_lora_enabled:
+                self.expanded_patch_embedding.to(self.main_device)
+                x = [self.expanded_patch_embedding(u.unsqueeze(0).to(torch.float32)).to(x[0].dtype) for u in x]
+            else:
+                self.original_patch_embedding.to(self.main_device)
+                x = [self.original_patch_embedding(u.unsqueeze(0).to(torch.float32)).to(x[0].dtype) for u in x]
+        
+        orig_frames = x[0].shape[1]
 
         # ovi audio model
         if self.audio_model is not None:
@@ -2365,13 +2315,29 @@ class WanModel(torch.nn.Module):
             fun_camera = self.control_adapter(fun_camera)
             x = [u + v for u, v in zip(x, fun_camera)]
 
+        # SteadyDancer
+        if sdancer_enabled:
+            ref_x = y[0][4:, :1] # reuse I2V input as reference, slice mask off
+            msk = torch.ones(4, 1, H, W, device=ref_x.device) # new mask goes in middle
+            ref_x = [torch.concat([ref_x, msk, ref_x])]
+            ref_c = sdancer_cond[0][:, :1]
+            ref_c = [torch.concat([ref_c, msk * 0, ref_c])] # zero mask for cond ref
+            # Condition Fusion/Injection, Hierarchical Aggregation (2): x, fused condition, aligned condition
+            x = [self.patch_embedding_fuse(torch.cat([u[None], c[None], a[None]], 1)) for u, c, a in zip(x, condition_fused, condition_aligned)]
+            # Condition Augmentation: x_cond, ref_x, ref_c
+            ref_x = [self.patch_embedding(r.unsqueeze(0).float()).to(self.base_dtype) for r in ref_x]
+            ref_c = [self.patch_embedding_ref_c(r[:16].unsqueeze(0).float()).to(self.base_dtype) for r in ref_c]
+            F += ref_x[0].shape[2] + ref_c[0].shape[2] # update frame count for rope
+            x = [torch.cat([r, u, v], dim=2) for r, u, v in zip(x, ref_x, ref_c)]
+            seq_len = torch.tensor([u.flatten(2).transpose(1, 2).size(1) for u in x], dtype=torch.int32).max() # update seq len
+
         # grid sizes and seq len
         grid_sizes = torch.stack([torch.tensor(u.shape[2:], device=device, dtype=torch.long) for u in x])
         original_grid_sizes = grid_sizes.clone()
         x = [u.flatten(2).transpose(1, 2) for u in x]
         self.original_seq_len = x[0].shape[1]
         seq_lens = torch.tensor([u.size(1) for u in x], dtype=torch.int32)
-        assert seq_lens.max() <= seq_len
+        assert seq_lens.max() <= seq_len, f"max seq len {seq_lens.max()} exceeds provided seq_len {seq_len}"
 
         cond_mask_weight = None
         if self.trainable_cond_mask is not None:
@@ -2570,11 +2536,13 @@ class WanModel(torch.nn.Module):
         # clip vision embedding
         clip_embed = None
         if clip_fea is not None and hasattr(self, "img_emb"):
-            clip_fea = clip_fea.to(self.main_device)
             if self.offload_img_emb:
                 self.img_emb.to(self.main_device)
-            clip_embed = self.img_emb(clip_fea)  # bs x 257 x dim
-            #context = torch.concat([context_clip, context], dim=1)
+            clip_embed = self.img_emb(clip_fea.to(self.main_device))  # bs x 257 x dim
+            if sdancer_input is not None:
+                clip_fea_c = sdancer_input.get("clip_fea_c", None)
+                if clip_fea_c is not None:
+                    clip_embed += self.img_emb(clip_fea_c.to(self.main_device))
             if self.offload_img_emb:
                 self.img_emb.to(self.offload_device, non_blocking=self.use_non_blocking)
 
@@ -2824,13 +2792,13 @@ class WanModel(torch.nn.Module):
                 original_seq_len=self.original_seq_len,
                 enhance_enabled=enhance_enabled,
                 audio_scale=audio_scale,
-                nag_params=nag_params, nag_context=nag_context,
-                is_uncond = is_uncond,
+                nag_params=nag_params,
+                nag_context=nag_context if not is_uncond else None,
                 multitalk_audio_embedding=multitalk_audio_embedding if multitalk_audio is not None else None,
                 ref_target_masks=token_ref_target_masks if multitalk_audio is not None else None,
                 human_num=human_num if multitalk_audio is not None else 0,
                 inner_t=inner_t, inner_c=inner_c,
-                cross_freqs=self.cross_freqs if inner_t is not None else None,
+                cross_freqs=self.cross_freqs if inner_t is not None and not is_uncond else None,
                 freqs_ip=freqs_ip if x_ip is not None else None,
                 e_ip=e0_ip if x_ip is not None else None,
                 adapter_proj=adapter_proj,
@@ -3028,7 +2996,7 @@ class WanModel(torch.nn.Module):
             x_ovi = [u.float() for u in x_ovi]
        
         x = self.unpatchify(x, original_grid_sizes) # type: ignore[arg-type]
-        x = [u.float() for u in x]
+        x = [u[:, :orig_frames, ...].float() for u in x]
         return (x, x_ovi, pred_id) if pred_id is not None else (x, x_ovi, None)
 
     def unpatchify(self, x, grid_sizes):

@@ -108,13 +108,13 @@ def check_diffusers_version():
     except importlib.metadata.PackageNotFoundError:
         raise AssertionError("diffusers is not installed.")
 
-def print_memory(device):
+def print_memory(device, process="Sampling"):
     memory = torch.cuda.memory_allocated(device) / 1024**3
     max_memory = torch.cuda.max_memory_allocated(device) / 1024**3
     max_reserved = torch.cuda.max_memory_reserved(device) / 1024**3
-    log.info(f"Allocated memory: {memory=:.3f} GB")
-    log.info(f"Max allocated memory: {max_memory=:.3f} GB")
-    log.info(f"Max reserved memory: {max_reserved=:.3f} GB")
+    log.info(f"[{process}] Allocated memory: {memory=:.3f} GB")
+    log.info(f"[{process}] Max allocated memory: {max_memory=:.3f} GB")
+    log.info(f"[{process}] Max reserved memory: {max_reserved=:.3f} GB")
     #memory_summary = torch.cuda.memory_summary(device=device, abbreviated=False)
     #log.info(f"Memory Summary:\n{memory_summary}")
 
