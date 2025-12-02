@@ -262,19 +262,19 @@ def reset_image_params(state_params, is_generating, inpaint_mode):
 
 def save_preset(*args):    
     args = list(args)
-    
     args.reverse()
     name = args.pop()
     backend_params = dict(args.pop())
     state_params = dict(args.pop())
 
-    input_image_checkbox = args.pop()
-    translation_methods = args.pop()
-    backfill_prompt = args.pop()
-    mixing_image_prompt_and_inpaint = args.pop()
-    mixing_image_prompt_and_vary_upscale = args.pop()
-    inpaint_advanced_masking_checkbox = args.pop()
     output_format = args.pop()
+    inpaint_advanced_masking_checkbox = args.pop()
+    mixing_image_prompt_and_vary_upscale = args.pop()
+    mixing_image_prompt_and_inpaint = args.pop()
+    backfill_prompt = args.pop()
+    translation_methods = args.pop()
+    input_image_checkbox = args.pop()
+    quick_enhance = args.pop()
 
     progress_video = args.pop()
     progress_gallery = args.pop()
