@@ -253,7 +253,8 @@ def switch_layout_template(presetdata: dict | str, state_params, preset_url=''):
     else:
         results.append(get_layout_toggle_visible_inter('input_image_checkbox', visible, inter))
     results.append(get_layout_toggle_visible_inter('prompt_panel_checkbox', visible, inter))
-    results.append(get_layout_toggle_visible_inter('enhance_checkbox', visible, inter))
+    enhance_checkbox_value = presetdata_dict.get('enhance_checkbox', False)
+    results.append(get_layout_update_and_visible_inter(enhance_checkbox_value, 'enhance_checkbox', visible, inter))
     results.append(get_layout_choices_visible_inter(base_model_list, 'base_model', visible, inter))
     results.append(get_layout_visible_inter('refiner_model', visible, inter))
     results.append(get_layout_visible_inter('overwrite_step', visible, inter))
@@ -408,6 +409,12 @@ def load_parameter_button_click(raw_metadata: dict | str, is_generating: bool, i
 
     for i in range(modules.config.default_max_lora_number):
         get_lora(f'lora_combined_{i + 1}', f'LoRA {i + 1}', loaded_parameter_dict, results, performance_filename)
+    results.append(loaded_parameter_dict.get('enhance_checkbox', False))
+    results.append(loaded_parameter_dict.get('enhance_enabled_1', False))
+    results.append(loaded_parameter_dict.get('enhance_enabled_2', False))
+    results.append(loaded_parameter_dict.get('enhance_enabled_3', False))
+    results.append(loaded_parameter_dict.get('enhance_uov_method', 'Disabled'))
+    results.append(loaded_parameter_dict.get('enhance_uov_strength', 0.2))
 
     return results
 
@@ -650,6 +657,19 @@ def parse_meta_from_preset(preset_content):
             preset_prepared[meta_key] = str(preset_prepared[meta_key])
         if settings_key in ["default_model", "default_refiner"]:
             preset_prepared[meta_key] = preset_prepared[meta_key].replace('\\', os.sep).replace('/', os.sep)
+
+    for key, value in items.items():
+        if key in modules.config.possible_preset_keys:
+            continue
+
+        if key.startswith("default_") and value is not None:
+            meta_key = key[8:]
+            preset_prepared[meta_key] = value
+
+            if key in ["default_styles", "default_aspect_ratio"]:
+                preset_prepared[meta_key] = str(preset_prepared[meta_key])
+            elif key in ["default_model", "default_refiner"]:
+                preset_prepared[meta_key] = preset_prepared[meta_key].replace('\\', os.sep).replace('/', os.sep)
 
     return preset_prepared
 

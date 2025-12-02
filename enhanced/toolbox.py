@@ -317,6 +317,12 @@ def save_preset(*args):
     freeu_ctrls = [bool(args.pop()), float(args.pop()), float(args.pop()), float(args.pop()), float(args.pop())]
     loras = [(bool(args.pop()), str(args.pop()), float(args.pop())) for _ in range(config.default_max_lora_number)]
     loras = [[n, w] for (f, n, w) in loras]
+    enhance_checkbox = args.pop()
+    enhance_enabled_1 = args.pop()
+    enhance_enabled_2 = args.pop()
+    enhance_enabled_3 = args.pop()
+    enhance_uov_method = args.pop()
+    enhance_uov_strength = args.pop()
 
     if name:
         preset = {}
@@ -359,6 +365,37 @@ def save_preset(*args):
             preset["default_overwrite_height"] = overwrite_height
         if not seed_random:
             preset["default_image_seed"] = image_seed
+        if ads.default.get("enhance_checkbox", False) != enhance_checkbox:
+            preset["default_enhance_checkbox"] = enhance_checkbox
+        if enhance_enabled_1:
+            preset["default_enhance_enabled_1"] = enhance_enabled_1
+        if enhance_enabled_2:
+            preset["default_enhance_enabled_2"] = enhance_enabled_2
+        if enhance_enabled_3:
+            preset["default_enhance_enabled_3"] = enhance_enabled_3
+        if ads.default.get("enhance_uov_method", 'upscale_15') != enhance_uov_method:
+            preset["default_enhance_uov_method"] = enhance_uov_method
+        if ads.default.get("enhance_uov_strength", 0.2) != enhance_uov_strength:
+            preset["default_enhance_uov_strength"] = enhance_uov_strength
+
+        preset["default_output_format"] = output_format
+        preset["default_inpaint_advanced_masking"] = inpaint_advanced_masking_checkbox
+        preset["default_mixing_image_prompt_and_vary_upscale"] = mixing_image_prompt_and_vary_upscale
+        preset["default_mixing_image_prompt_and_inpaint"] = mixing_image_prompt_and_inpaint
+        preset["default_backfill_prompt"] = backfill_prompt
+        preset["default_translation_methods"] = translation_methods
+        preset["default_input_image_checkbox"] = input_image_checkbox
+
+        preset["default_progress_video"] = progress_video
+        preset["default_progress_gallery"] = progress_gallery
+        preset["default_progress_window"] = progress_window
+
+        preset["default_refiner_swap_method"] = refiner_swap_method
+        preset["default_inpaint_engine_state"] = inpaint_engine_state
+        preset["default_inpaint_mode"] = inpaint_mode
+        preset["default_enhance_inpaint_mode_ctrls"] = enhance_inpaint_mode_ctrls
+
+        preset["default_image_number"] = image_number
 
         preset["checkpoint_downloads"] = {}
         if refiner_model and refiner_model != 'None':

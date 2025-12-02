@@ -905,7 +905,7 @@ with shared.gradio_root:
                                                                        info='Use singular whenever possible',
                                                                        placeholder='Describe what you want to detect.',
                                                                        interactive=True,
-                                                                       value = '' if index not in [0,1] else 'face' if index==0 else 'hand',
+                                                                       value = 'face' if index==0 else 'hand' if index==1 else 'eye' if index==2 else '',
                                                                        visible=modules.config.default_enhance_inpaint_mask_model == 'sam')
                                                 example_enhance_mask_dino_prompt_text = gr.Dataset(
                                                     samples=modules.config.example_enhance_detection_prompts,
@@ -955,7 +955,7 @@ with shared.gradio_root:
 
                                                 with gr.Accordion("Inpaint", visible=True, open=False):
                                                     enhance_inpaint_mode = gr.Dropdown(choices=modules.flags.inpaint_options,
-                                                                   value=modules.config.default_inpaint_method if index not in [0,1] else modules.flags.inpaint_option_detail,
+                                                                   value=modules.config.default_inpaint_method if index not in [0,1,2] else modules.flags.inpaint_option_detail,
                                                                    label='Method', interactive=True)
                                                     enhance_inpaint_disable_initial_latent = gr.Checkbox(
                                                         label='Disable initial latent in inpaint', value=False)
@@ -1954,7 +1954,7 @@ with shared.gradio_root:
                              adm_scaler_negative, adm_scaler_end, refiner_swap_method, adaptive_cfg, clip_skip,
                              base_model, refiner_model, refiner_switch, sampler_name, scheduler_name, vae_name,
                              seed_random, image_seed, inpaint_engine, inpaint_engine_state,
-                             inpaint_mode] + enhance_inpaint_mode_ctrls + freeu_ctrls + lora_ctrls
+                             inpaint_mode] + enhance_inpaint_mode_ctrls + freeu_ctrls + lora_ctrls + [enhance_checkbox, enhance_enabled_1, enhance_enabled_2, enhance_enabled_3, enhance_uov_method, enhance_uov_strength]
 
 
         def inpaint_engine_state_change(inpaint_engine_version, state, *args):
