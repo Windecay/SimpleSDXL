@@ -6,23 +6,28 @@
             "available_aspect_ratios_selection": "Flux",
             "scene_frontend": {
                 "version": "m1.1",
-                "theme": ["Wan_TTP_Hires.Upscale"],
+                "theme": ["Wan_TTP_Hires.Upscale", "Wan_TTP_Hires.Upscale_2X_VAE"],
                 "theme_title": "使用万相模型进行TTP分块放大",
                 "disvisible": ["scene_canvas_image", "scene_additional_prompt","scene_additional_prompt_2","scene_input_image2","scene_aspect_ratio"],
                 "task_method": {
-                    "Wan_TTP_Hires.Upscale": "wan_ttp_cn"
+                    "Wan_TTP_Hires.Upscale": "wan_ttp_cn",
+                    "Wan_TTP_Hires.Upscale_2X_VAE": "wan_ttp_2x_vae_cn"
                 },
                 "prompt": {
-                    "Wan_TTP_Hires.Upscale": "(Masterpiece:1.2), (best quality:1.2), ultra high resolution, (ultra-detailed), (beautiful and aesthetic:1.2), 4K, raw, arw, cr2,"
+                    "Wan_TTP_Hires.Upscale": "(Masterpiece:1.2), (best quality:1.2), ultra high resolution, (ultra-detailed), (beautiful and aesthetic:1.2), 4K, raw, arw, cr2,",
+                    "Wan_TTP_Hires.Upscale_2X_VAE": "(Masterpiece:1.2), (best quality:1.2), ultra high resolution, (ultra-detailed), (beautiful and aesthetic:1.2), 4K, raw, arw, cr2,"
                 },
                 "scene_steps": {
-                    "Wan_TTP_Hires.Upscale": 24
+                    "Wan_TTP_Hires.Upscale": 24,
+                    "Wan_TTP_Hires.Upscale_2X_VAE": 24
                 },
                 "image_preprocessor_method": {
-                    "Wan_TTP_Hires.Upscale": [["-normalization"]]
+                    "Wan_TTP_Hires.Upscale": [["-normalization"]],
+                    "Wan_TTP_Hires.Upscale_2X_VAE": [["-normalization"]]
                 },
                 "var_number": {
-                    "Wan_TTP_Hires.Upscale": 8
+                    "Wan_TTP_Hires.Upscale": 8,
+                    "Wan_TTP_Hires.Upscale_2X_VAE": 8
                 },
                 "var_number_title": "最终像素数量（百万）",
                 "var_number_max": 16,
