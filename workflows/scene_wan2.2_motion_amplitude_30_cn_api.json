@@ -89,7 +89,7 @@
         0
       ],
       "latent": [
-        "110",
+        "103",
         2
       ]
     },
@@ -206,15 +206,15 @@
         0
       ],
       "positive": [
-        "110",
+        "103",
         0
       ],
       "negative": [
-        "110",
+        "103",
         1
       ],
       "latent_image": [
-        "110",
+        "103",
         2
       ]
     },
@@ -841,11 +841,11 @@
         0
       ],
       "positive": [
-        "111",
+        "104",
         0
       ],
       "negative": [
-        "111",
+        "104",
         1
       ],
       "latent_image": [
@@ -978,6 +978,82 @@
       "title": "WanFirstLastFrameToVideo (Tiled VAE encode)"
     }
   },
+  "103": {
+    "inputs": {
+      "width": [
+        "80",
+        1
+      ],
+      "height": [
+        "80",
+        2
+      ],
+      "length": [
+        "1",
+        0
+      ],
+      "batch_size": 1,
+      "motion_amplitude": 1.30,
+      "positive": [
+        "2",
+        0
+      ],
+      "negative": [
+        "5",
+        0
+      ],
+      "vae": [
+        "10",
+        0
+      ],
+      "start_image": [
+        "80",
+        0
+      ]
+    },
+    "class_type": "PainterI2V",
+    "_meta": {
+      "title": "PainterI2V"
+    }
+  },
+  "104": {
+    "inputs": {
+      "width": [
+        "81",
+        1
+      ],
+      "height": [
+        "81",
+        2
+      ],
+      "length": [
+        "1",
+        0
+      ],
+      "batch_size": 1,
+      "motion_amplitude": 1.30,
+      "positive": [
+        "2",
+        0
+      ],
+      "negative": [
+        "5",
+        0
+      ],
+      "vae": [
+        "10",
+        0
+      ],
+      "start_image": [
+        "81",
+        0
+      ]
+    },
+    "class_type": "PainterI2V",
+    "_meta": {
+      "title": "PainterI2V"
+    }
+  },
   "105": {
     "inputs": {
       "mode": "RAM_PRESSURE (Auto Purge)",
@@ -1048,88 +1124,6 @@
     "class_type": "VAEDecode",
     "_meta": {
       "title": "VAE Decode"
-    }
-  },
-  "110": {
-    "inputs": {
-      "width": [
-        "80",
-        1
-      ],
-      "height": [
-        "80",
-        2
-      ],
-      "length": [
-        "1",
-        0
-      ],
-      "batch_size": 1,
-      "tile_size": 512,
-      "overlap": 64,
-      "temporal_size": 64,
-      "temporal_overlap": 8,
-      "positive": [
-        "2",
-        0
-      ],
-      "negative": [
-        "5",
-        0
-      ],
-      "vae": [
-        "10",
-        0
-      ],
-      "start_image": [
-        "80",
-        0
-      ]
-    },
-    "class_type": "WanImageToVideoTiledVAE",
-    "_meta": {
-      "title": "WanImageToVideo (Tiled VAE encode)"
-    }
-  },
-  "111": {
-    "inputs": {
-      "width": [
-        "81",
-        1
-      ],
-      "height": [
-        "81",
-        2
-      ],
-      "length": [
-        "1",
-        0
-      ],
-      "batch_size": 1,
-      "tile_size": 512,
-      "overlap": 64,
-      "temporal_size": 64,
-      "temporal_overlap": 8,
-      "positive": [
-        "2",
-        0
-      ],
-      "negative": [
-        "5",
-        0
-      ],
-      "vae": [
-        "10",
-        0
-      ],
-      "start_image": [
-        "81",
-        0
-      ]
-    },
-    "class_type": "WanImageToVideoTiledVAE",
-    "_meta": {
-      "title": "WanImageToVideo (Tiled VAE encode)"
     }
   }
 }

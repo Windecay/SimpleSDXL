@@ -4,7 +4,7 @@ __pycache__
 *.pth
 *.pt
 *.bin
-
+*.patch
 *.backup
 *.corrupted
 *.partial
