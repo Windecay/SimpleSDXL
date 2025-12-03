@@ -1,8 +1,8 @@
 {
   "id": "92112d97-bb64-4b44-86f2-ea5691ef8f6e",
   "revision": 0,
-  "last_node_id": 39,
-  "last_link_id": 59,
+  "last_node_id": 41,
+  "last_link_id": 63,
   "nodes": [
     {
       "id": 8,
@@ -18,7 +18,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 21,
+      "order": 23,
       "mode": 0,
       "inputs": [
         {
@@ -86,49 +86,6 @@
       "bgcolor": "#653"
     },
     {
-      "id": 13,
-      "type": "EmptySD3LatentImage",
-      "pos": [
-        530,
-        620
-      ],
-      "size": [
-        315,
-        106
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 1,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "LATENT",
-          "type": "LATENT",
-          "slot_index": 0,
-          "links": [
-            17
-          ]
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.3.75",
-        "Node name for S&R": "EmptySD3LatentImage",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "version": "7.3",
-          "input_ue_unconnectable": {}
-        }
-      },
-      "widgets_values": [
-        1024,
-        1024,
-        1
-      ]
-    },
-    {
       "id": 7,
       "type": "CLIPTextEncode",
       "pos": [
@@ -192,7 +149,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 2,
+      "order": 1,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -219,74 +176,6 @@
         "qwen_3_4b.safetensors",
         "lumina2",
         "default"
-      ]
-    },
-    {
-      "id": 3,
-      "type": "KSampler",
-      "pos": [
-        863,
-        186
-      ],
-      "size": [
-        315,
-        262
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 20,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "model",
-          "type": "MODEL",
-          "link": 47
-        },
-        {
-          "name": "positive",
-          "type": "CONDITIONING",
-          "link": 4
-        },
-        {
-          "name": "negative",
-          "type": "CONDITIONING",
-          "link": 6
-        },
-        {
-          "name": "latent_image",
-          "type": "LATENT",
-          "link": 17
-        }
-      ],
-      "outputs": [
-        {
-          "name": "LATENT",
-          "type": "LATENT",
-          "slot_index": 0,
-          "links": [
-            51
-          ]
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.3.75",
-        "Node name for S&R": "KSampler",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "version": "7.3",
-          "input_ue_unconnectable": {}
-        }
-      },
-      "widgets_values": [
-        47447417949230,
-        "randomize",
-        9,
-        1,
-        "euler",
-        "simple",
-        1
       ]
     },
     {
@@ -318,7 +207,7 @@
           "type": "CONDITIONING",
           "slot_index": 0,
           "links": [
-            4
+            60
           ]
         }
       ],
@@ -353,7 +242,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 3,
+      "order": 2,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -389,7 +278,7 @@
       ],
       "size": [
         270,
-        58
+        82
       ],
       "flags": {
         "pinned": true
@@ -421,7 +310,8 @@
         }
       },
       "widgets_values": [
-        "auto"
+        "auto",
+        false
       ]
     },
     {
@@ -438,7 +328,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 15,
+      "order": 17,
       "mode": 0,
       "inputs": [
         {
@@ -482,7 +372,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 4,
+      "order": 3,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -517,13 +407,13 @@
       ],
       "size": [
         250,
-        26
+        25
       ],
       "flags": {
         "pinned": true,
         "allow_interaction": false
       },
-      "order": 5,
+      "order": 4,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -560,7 +450,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 6,
+      "order": 5,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -603,7 +493,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 7,
+      "order": 6,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -635,7 +525,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 18,
+      "order": 20,
       "mode": 4,
       "inputs": [
         {
@@ -682,7 +572,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 22,
+      "order": 24,
       "mode": 0,
       "inputs": [
         {
@@ -721,7 +611,7 @@
         "pinned": true,
         "allow_interaction": false
       },
-      "order": 8,
+      "order": 7,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -799,7 +689,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 9,
+      "order": 8,
       "mode": 4,
       "inputs": [
         {
@@ -909,7 +799,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 17,
+      "order": 19,
       "mode": 4,
       "inputs": [
         {
@@ -950,7 +840,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 19,
+      "order": 21,
       "mode": 4,
       "inputs": [
         {
@@ -991,7 +881,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 16,
+      "order": 18,
       "mode": 4,
       "inputs": [
         {
@@ -1029,17 +919,257 @@
         true,
         false
       ]
+    },
+    {
+      "id": 13,
+      "type": "EmptySD3LatentImage",
+      "pos": [
+        600,
+        830
+      ],
+      "size": [
+        240,
+        140
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "width",
+          "type": "INT",
+          "widget": {
+            "name": "width"
+          },
+          "link": 62
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "widget": {
+            "name": "height"
+          },
+          "link": 63
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "slot_index": 0,
+          "links": [
+            17
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.75",
+        "Node name for S&R": "EmptySD3LatentImage",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.3",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        1024,
+        1024,
+        1
+      ]
+    },
+    {
+      "id": 40,
+      "type": "SeedVarianceEnhancer",
+      "pos": [
+        600,
+        620
+      ],
+      "size": [
+        242.73828125,
+        178
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 16,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "link": 60
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            61
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SeedVarianceEnhancer",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        50,
+        20,
+        "noise on beginning steps",
+        20,
+        1060391547,
+        "randomize"
+      ]
+    },
+    {
+      "id": 41,
+      "type": "mxSlider2D",
+      "pos": [
+        80,
+        720
+      ],
+      "size": [
+        490,
+        440
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 9,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "INT",
+          "links": [
+            62
+          ]
+        },
+        {
+          "name": "",
+          "type": "INT",
+          "links": [
+            63
+          ]
+        }
+      ],
+      "title": "分辨率选择",
+      "properties": {
+        "valueX": 1024,
+        "valueY": 1024,
+        "minX": 0,
+        "minY": 0,
+        "maxX": 2048,
+        "maxY": 2048,
+        "stepX": 64,
+        "stepY": 64,
+        "decimalsX": 0,
+        "decimalsY": 0,
+        "snap": true,
+        "dots": true,
+        "frame": true,
+        "frameAlert": 0,
+        "ue_properties": {
+          "widget_ue_connectable": {
+            "Xi": true,
+            "Xf": true,
+            "Yi": true,
+            "Yf": true,
+            "isfloatX": true,
+            "isfloatY": true
+          },
+          "version": "7.3",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        1024,
+        1024,
+        1024,
+        1024,
+        0,
+        0
+      ]
+    },
+    {
+      "id": 3,
+      "type": "KSampler",
+      "pos": [
+        870,
+        190
+      ],
+      "size": [
+        315,
+        571
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 22,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 47
+        },
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 61
+        },
+        {
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 6
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 17
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "slot_index": 0,
+          "links": [
+            51
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.75",
+        "Node name for S&R": "KSampler",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.3",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        0,
+        "randomize",
+        9,
+        1,
+        "dpmpp_2m_sde_gpu",
+        "sgm_uniform",
+        1
+      ]
     }
   ],
   "links": [
-    [
-      4,
-      6,
-      0,
-      3,
-      1,
-      "CONDITIONING"
-    ],
     [
       6,
       7,
@@ -1167,6 +1297,38 @@
       35,
       0,
       "STRING"
+    ],
+    [
+      60,
+      6,
+      0,
+      40,
+      0,
+      "CONDITIONING"
+    ],
+    [
+      61,
+      40,
+      0,
+      3,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      62,
+      41,
+      0,
+      13,
+      0,
+      "INT"
+    ],
+    [
+      63,
+      41,
+      1,
+      13,
+      1,
+      "INT"
     ]
   ],
   "groups": [
@@ -1189,18 +1351,21 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 1.3513057093104408,
+      "scale": 0.8390545288824316,
       "offset": [
-        -1392.4667466806973,
-        375.2524745999221
+        23.27058034542847,
+        434.8496458832618
       ]
     },
-    "frontendVersion": "1.30.6",
+    "frontendVersion": "1.32.9",
     "ue_links": [],
     "VHS_latentpreview": true,
     "VHS_latentpreviewrate": 8,
     "VHS_MetadataImage": true,
-    "VHS_KeepIntermediate": true
+    "VHS_KeepIntermediate": true,
+    "links_added_by_ue": [],
+    "qgn_navigation_groups": [],
+    "qgn_locked": false
   },
   "version": 0.4
 }

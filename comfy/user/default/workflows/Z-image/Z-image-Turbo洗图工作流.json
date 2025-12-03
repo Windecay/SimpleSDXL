@@ -1,8 +1,8 @@
 {
   "id": "92112d97-bb64-4b44-86f2-ea5691ef8f6e",
   "revision": 0,
-  "last_node_id": 55,
-  "last_link_id": 88,
+  "last_node_id": 56,
+  "last_link_id": 104,
   "nodes": [
     {
       "id": 15,
@@ -825,8 +825,8 @@
           "type": "CONDITIONING",
           "slot_index": 0,
           "links": [
-            4,
-            69
+            69,
+            89
           ]
         }
       ],
@@ -970,7 +970,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 31,
+      "order": 32,
       "mode": 4,
       "inputs": [
         {
@@ -1055,88 +1055,6 @@
       ]
     },
     {
-      "id": 3,
-      "type": "KSampler",
-      "pos": [
-        1520,
-        70
-      ],
-      "size": [
-        430,
-        959.3333333333334
-      ],
-      "flags": {},
-      "order": 32,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "model",
-          "type": "MODEL",
-          "link": 47
-        },
-        {
-          "name": "positive",
-          "type": "CONDITIONING",
-          "link": 4
-        },
-        {
-          "name": "negative",
-          "type": "CONDITIONING",
-          "link": 70
-        },
-        {
-          "name": "latent_image",
-          "type": "LATENT",
-          "link": 67
-        },
-        {
-          "name": "seed",
-          "type": "INT",
-          "widget": {
-            "name": "seed"
-          },
-          "link": 79
-        },
-        {
-          "name": "denoise",
-          "type": "FLOAT",
-          "widget": {
-            "name": "denoise"
-          },
-          "link": 88
-        }
-      ],
-      "outputs": [
-        {
-          "name": "LATENT",
-          "type": "LATENT",
-          "slot_index": 0,
-          "links": [
-            51
-          ]
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.3.75",
-        "Node name for S&R": "KSampler",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "version": "7.3",
-          "input_ue_unconnectable": {}
-        }
-      },
-      "widgets_values": [
-        622029695438788,
-        "randomize",
-        9,
-        1,
-        "euler",
-        "simple",
-        0.65
-      ]
-    },
-    {
       "id": 8,
       "type": "VAEDecode",
       "pos": [
@@ -1148,7 +1066,7 @@
         46
       ],
       "flags": {},
-      "order": 33,
+      "order": 34,
       "mode": 0,
       "inputs": [
         {
@@ -1416,7 +1334,7 @@
         }
       },
       "widgets_values": [
-        622029695438788,
+        115227019619268,
         "randomize"
       ]
     },
@@ -1526,7 +1444,7 @@
         "one by one",
         24,
         256,
-        622029695438788,
+        115227019619268,
         "randomize"
       ]
     },
@@ -1542,7 +1460,7 @@
         1060.9766845703125
       ],
       "flags": {},
-      "order": 34,
+      "order": 35,
       "mode": 0,
       "inputs": [
         {
@@ -1651,19 +1569,142 @@
         }
       },
       "widgets_values": [
-        ""
+        "A poised young woman with dark hair styled in a sleek topknot sits elegantly on a polished wooden table, wearing a form-fitting, deep burgundy one-shoulder dress with a daring cutout detail that accentuates her silhouette; beside her rests a single glass of rich red wine, its liquid catching the soft, diffused light filtering through horizontal blinds in the background, creating a moody, intimate atmosphere where the cool blue tones of the window contrast with the warmth of her attire and the ambient glow, evoking a sense of quiet sophistication and sensual allure."
+      ]
+    },
+    {
+      "id": 56,
+      "type": "SeedVarianceEnhancer",
+      "pos": [
+        1196.861534636453,
+        189.0295091381015
+      ],
+      "size": [
+        242.73828125,
+        178
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 31,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "link": 89
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            90
+          ]
+        }
+      ],
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        },
+        "Node name for S&R": "SeedVarianceEnhancer"
+      },
+      "widgets_values": [
+        50,
+        20,
+        "noise on beginning steps",
+        20,
+        501204378,
+        "randomize"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "KSampler",
+      "pos": [
+        1520,
+        70
+      ],
+      "size": [
+        430,
+        957.4864864864865
+      ],
+      "flags": {},
+      "order": 33,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 47
+        },
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 90
+        },
+        {
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 70
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 67
+        },
+        {
+          "name": "seed",
+          "type": "INT",
+          "widget": {
+            "name": "seed"
+          },
+          "link": 79
+        },
+        {
+          "name": "denoise",
+          "type": "FLOAT",
+          "widget": {
+            "name": "denoise"
+          },
+          "link": 88
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "slot_index": 0,
+          "links": [
+            51
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.75",
+        "Node name for S&R": "KSampler",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.3",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        115227019619268,
+        "randomize",
+        9,
+        1,
+        "dpmpp_2m_sde_gpu",
+        "sgm_uniform",
+        0.65
       ]
     }
   ],
   "links": [
-    [
-      4,
-      6,
-      0,
-      3,
-      1,
-      "CONDITIONING"
-    ],
     [
       16,
       8,
@@ -1911,6 +1952,22 @@
       3,
       5,
       "FLOAT"
+    ],
+    [
+      89,
+      6,
+      0,
+      56,
+      0,
+      "CONDITIONING"
+    ],
+    [
+      90,
+      56,
+      0,
+      3,
+      1,
+      "CONDITIONING"
     ]
   ],
   "groups": [
@@ -1931,13 +1988,13 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.6303940863128761,
+      "scale": 1.2284597357367808,
       "offset": [
-        465.88075278764023,
-        147.16446227126698
+        -66.08899360334888,
+        196.45698739468156
       ]
     },
-    "frontendVersion": "1.30.6",
+    "frontendVersion": "1.32.9",
     "ue_links": [
       {
         "downstream": 42,
@@ -1961,8 +2018,8 @@
     "VHS_MetadataImage": true,
     "VHS_KeepIntermediate": true,
     "links_added_by_ue": [
-      83,
-      84
+      103,
+      104
     ],
     "qgn_navigation_groups": [],
     "qgn_locked": false

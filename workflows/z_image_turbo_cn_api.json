@@ -27,7 +27,7 @@
         0
       ],
       "positive": [
-        "6",
+        "56",
         0
       ],
       "negative": [
@@ -390,7 +390,7 @@
         0
       ],
       "positive": [
-        "6",
+        "56",
         0
       ],
       "negative": [
@@ -453,10 +453,7 @@
   },
   "52": {
     "inputs": {
-      "index": [
-        "51",
-        0
-      ],
+      "index": 0,
       "value0": [
         "8",
         0
@@ -502,6 +499,26 @@
     "class_type": "easy ifElse",
     "_meta": {
       "title": "If else"
+    }
+  },
+  "56": {
+    "inputs": {
+      "randomize_percent": 50,
+      "strength": 20,
+      "noise_insert": "noise on beginning steps",
+      "steps_switchover_percent": 20,
+      "seed": [
+        "44",
+        0
+      ],
+      "conditioning": [
+        "6",
+        0
+      ]
+    },
+    "class_type": "SeedVarianceEnhancer",
+    "_meta": {
+      "title": "SeedVarianceEnhancer"
     }
   }
 }
