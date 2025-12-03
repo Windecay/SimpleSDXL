@@ -968,8 +968,8 @@
         11
       ],
       "on_true": [
-        "784",
-        0
+        "264",
+        2
       ],
       "on_false": [
         "264",
@@ -1541,11 +1541,11 @@
         0
       ],
       "positive": [
-        "790",
+        "264",
         0
       ],
       "negative": [
-        "790",
+        "264",
         1
       ],
       "latent_image": [
@@ -1588,11 +1588,11 @@
   },
   "336": {
     "inputs": {
-      "vae_name": "qwen_image_vae.safetensors"
+      "vae_name": "ae.safetensors"
     },
     "class_type": "VAELoader",
     "_meta": {
-      "title": "Load VAE"
+      "title": "vae_model"
     }
   },
   "337": {
@@ -2880,7 +2880,7 @@
         0
       ],
       "on_true": [
-        "785",
+        "264",
         0
       ],
       "on_false": [
@@ -3048,28 +3048,6 @@
       "title": "Int"
     }
   },
-  "532": {
-    "inputs": {
-      "control_net_name": "Qwen-Image-InstantX-ControlNet-Union.safetensors"
-    },
-    "class_type": "ControlNetLoader",
-    "_meta": {
-      "title": "Load ControlNet Model"
-    }
-  },
-  "533": {
-    "inputs": {
-      "type": "auto",
-      "control_net": [
-        "532",
-        0
-      ]
-    },
-    "class_type": "SetUnionControlNetType",
-    "_meta": {
-      "title": "SetUnionControlNetType"
-    }
-  },
   "534": {
     "inputs": {
       "index": [
@@ -3192,43 +3170,6 @@
       "title": "Compare"
     }
   },
-  "540": {
-    "inputs": {
-      "strength": [
-        "521",
-        0
-      ],
-      "start_percent": 0,
-      "end_percent": [
-        "537",
-        0
-      ],
-      "positive": [
-        "541",
-        2
-      ],
-      "negative": [
-        "1",
-        0
-      ],
-      "control_net": [
-        "533",
-        0
-      ],
-      "vae": [
-        "336",
-        0
-      ],
-      "image": [
-        "542",
-        0
-      ]
-    },
-    "class_type": "ControlNetApplySD3",
-    "_meta": {
-      "title": "Apply Controlnet with VAE"
-    }
-  },
   "541": {
     "inputs": {
       "total": 4,
@@ -3308,23 +3249,6 @@
       "title": "图像处理"
     }
   },
-  "546": {
-    "inputs": {
-      "boolean": false,
-      "on_true": [
-        "540",
-        0
-      ],
-      "on_false": [
-        "540",
-        0
-      ]
-    },
-    "class_type": "easy ifElse",
-    "_meta": {
-      "title": "If else"
-    }
-  },
   "550": {
     "inputs": {
       "value": 1
@@ -3345,7 +3269,7 @@
   },
   "568": {
     "inputs": {
-      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "lora_name": "placeholder.safetensors",
       "strength_model": 0,
       "model": [
         "725",
@@ -3359,7 +3283,7 @@
   },
   "569": {
     "inputs": {
-      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "lora_name": "placeholder.safetensors",
       "strength_model": 0,
       "model": [
         "568",
@@ -3373,7 +3297,7 @@
   },
   "570": {
     "inputs": {
-      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "lora_name": "placeholder.safetensors",
       "strength_model": 0,
       "model": [
         "569",
@@ -3387,7 +3311,7 @@
   },
   "571": {
     "inputs": {
-      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "lora_name": "placeholder.safetensors",
       "strength_model": 0,
       "model": [
         "570",
@@ -3406,7 +3330,7 @@
         0
       ],
       "on_true": [
-        "546",
+        "801",
         0
       ],
       "on_false": [
@@ -3423,7 +3347,7 @@
     "inputs": {
       "total": 3,
       "initial_value1": [
-        "458",
+        "798",
         0
       ]
     },
@@ -3457,6 +3381,20 @@
     "class_type": "easy int",
     "_meta": {
       "title": "i2i_ip_fn2"
+    }
+  },
+  "587": {
+    "inputs": {
+      "sage_attention": "auto",
+      "allow_compile": false,
+      "model": [
+        "494",
+        0
+      ]
+    },
+    "class_type": "PathchSageAttentionKJ",
+    "_meta": {
+      "title": "Patch Sage Attention KJ"
     }
   },
   "594": {
@@ -3653,7 +3591,7 @@
         0
       ],
       "on_true": [
-        "798",
+        "526",
         0
       ],
       "on_false": [
@@ -3673,7 +3611,7 @@
         0
       ],
       "on_true": [
-        "798",
+        "526",
         0
       ],
       "on_false": [
@@ -3693,7 +3631,7 @@
         0
       ],
       "on_true": [
-        "526",
+        "767",
         0
       ],
       "on_false": [
@@ -3713,11 +3651,11 @@
         0
       ],
       "on_true": [
-        "526",
+        "264",
         0
       ],
       "on_false": [
-        "785",
+        "264",
         0
       ]
     },
@@ -3847,7 +3785,7 @@
         0
       ],
       "positive": [
-        "526",
+        "767",
         0
       ],
       "negative": [
@@ -4036,7 +3974,7 @@
         0
       ],
       "positive": [
-        "795",
+        "667",
         0
       ],
       "negative": [
@@ -5080,10 +5018,10 @@
     "inputs": {
       "find1": "none",
       "replace1": "0",
-      "find2": "Qwen_Inpaint",
-      "replace2": "1",
-      "find3": "Qwen_Inpaint",
-      "replace3": "2",
+      "find2": "Z-image_Inpaint",
+      "replace2": "0",
+      "find3": "Z-image_Inpaint",
+      "replace3": "0",
       "prompt": [
         "362",
         0
@@ -5109,10 +5047,10 @@
   },
   "725": {
     "inputs": {
-      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "lora_name": "placeholder.safetensors",
       "strength_model": 0,
       "model": [
-        "494",
+        "799",
         0
       ]
     },
@@ -5123,7 +5061,7 @@
   },
   "727": {
     "inputs": {
-      "value": 2
+      "value": 1
     },
     "class_type": "easy int",
     "_meta": {
@@ -5154,7 +5092,7 @@
   },
   "729": {
     "inputs": {
-      "unet_name": "placeholder.safetensors",
+      "unet_name": "z_image_turbo_bf16.safetensors",
       "weight_dtype": "default"
     },
     "class_type": "UNETLoader",
@@ -5258,8 +5196,8 @@
   },
   "766": {
     "inputs": {
-      "clip_name": "qwen_2.5_vl_7b_fp8_scaled.safetensors",
-      "type": "qwen_image",
+      "clip_name": "qwen_3_4b.safetensors",
+      "type": "lumina2",
       "device": "default"
     },
     "class_type": "CLIPLoader",
@@ -5299,22 +5237,6 @@
       "title": "CLIP Text Encode (Prompt)"
     }
   },
-  "784": {
-    "inputs": {
-      "pixels": [
-        "217",
-        0
-      ],
-      "vae": [
-        "336",
-        0
-      ]
-    },
-    "class_type": "VAEEncode",
-    "_meta": {
-      "title": "VAE Encode"
-    }
-  },
   "785": {
     "inputs": {
       "boolean": [
@@ -5322,7 +5244,7 @@
         11
       ],
       "on_true": [
-        "790",
+        "264",
         0
       ],
       "on_false": [
@@ -5351,117 +5273,9 @@
       "title": "VAE Encode"
     }
   },
-  "790": {
-    "inputs": {
-      "strength": 1,
-      "start_percent": 0,
-      "end_percent": 1,
-      "positive": [
-        "767",
-        0
-      ],
-      "negative": [
-        "1",
-        0
-      ],
-      "control_net": [
-        "791",
-        0
-      ],
-      "vae": [
-        "336",
-        0
-      ],
-      "image": [
-        "217",
-        0
-      ],
-      "mask": [
-        "300",
-        0
-      ]
-    },
-    "class_type": "ControlNetInpaintingAliMamaApply",
-    "_meta": {
-      "title": "ControlNetInpaintingAliMamaApply"
-    }
-  },
-  "791": {
-    "inputs": {
-      "control_net_name": "Qwen-Image-InstantX-ControlNet-Inpainting.safetensors"
-    },
-    "class_type": "ControlNetLoader",
-    "_meta": {
-      "title": "Load ControlNet Model"
-    }
-  },
-  "793": {
-    "inputs": {
-      "control_net_name": "Qwen-Image-InstantX-ControlNet-Inpainting.safetensors"
-    },
-    "class_type": "ControlNetLoader",
-    "_meta": {
-      "title": "Load ControlNet Model"
-    }
-  },
-  "794": {
-    "inputs": {
-      "strength": 1,
-      "start_percent": 0,
-      "end_percent": 1,
-      "positive": [
-        "667",
-        0
-      ],
-      "negative": [
-        "667",
-        1
-      ],
-      "control_net": [
-        "793",
-        0
-      ],
-      "vae": [
-        "336",
-        0
-      ],
-      "image": [
-        "344",
-        0
-      ],
-      "mask": [
-        "345",
-        0
-      ]
-    },
-    "class_type": "ControlNetInpaintingAliMamaApply",
-    "_meta": {
-      "title": "ControlNetInpaintingAliMamaApply"
-    }
-  },
-  "795": {
-    "inputs": {
-      "boolean": [
-        "714",
-        0
-      ],
-      "on_true": [
-        "794",
-        0
-      ],
-      "on_false": [
-        "667",
-        0
-      ]
-    },
-    "class_type": "easy ifElse",
-    "_meta": {
-      "title": "If else"
-    }
-  },
   "796": {
     "inputs": {
-      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "lora_name": "placeholder.safetensors",
       "strength_model": 0,
       "model": [
         "571",
@@ -5475,7 +5289,7 @@
   },
   "797": {
     "inputs": {
-      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "lora_name": "placeholder.safetensors",
       "strength_model": 0,
       "model": [
         "796",
@@ -5489,7 +5303,7 @@
   },
   "798": {
     "inputs": {
-      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "lora_name": "placeholder.safetensors",
       "strength_model": 0,
       "model": [
         "797",
@@ -5499,6 +5313,72 @@
     "class_type": "LoraLoaderModelOnly",
     "_meta": {
       "title": "lora_8"
+    }
+  },
+  "799": {
+    "inputs": {
+      "enable_fp16_accumulation": true,
+      "model": [
+        "587",
+        0
+      ]
+    },
+    "class_type": "ModelPatchTorchSettings",
+    "_meta": {
+      "title": "Model Patch Torch Settings"
+    }
+  },
+  "800": {
+    "inputs": {
+      "name": "Z-Image-Turbo-Fun-Controlnet-Union.safetensors"
+    },
+    "class_type": "ModelPatchLoader",
+    "_meta": {
+      "title": "ModelPatchLoader"
+    }
+  },
+  "801": {
+    "inputs": {
+      "strength": [
+        "521",
+        0
+      ],
+      "model": [
+        "541",
+        2
+      ],
+      "model_patch": [
+        "800",
+        0
+      ],
+      "vae": [
+        "336",
+        0
+      ],
+      "image": [
+        "542",
+        0
+      ]
+    },
+    "class_type": "QwenImageDiffsynthControlnet",
+    "_meta": {
+      "title": "QwenImageDiffsynthControlnet"
+    }
+  },
+  "804": {
+    "inputs": {
+      "pixels": [
+        "217",
+        0
+      ],
+      "vae": [
+        "336",
+        0
+      ]
+    },
+    "class_type": "VAEEncode",
+    "_meta": {
+      "title": "VAE Encode"
     }
   }
 }

@@ -444,7 +444,7 @@ function startDraggingItems(node, pointer) {
 }
 function processDraggedItems(e) {
     if (e.shiftKey || LiteGraph.alwaysSnapToGrid)
-      app.graph?.snapToGrid(app.canvas.selectedItems)
+      app.canvas?.graph?.snapToGrid(app.canvas.selectedItems)
     app.canvas.dirty_canvas = true
     app.canvas.dirty_bgcanvas = true
     app.canvas.onNodeMoved?.(findFirstNode(app.canvas.selectedItems))
@@ -489,39 +489,7 @@ async function uploadFile(file, progressCallback) {
         alert(error);
     }
 }
-function applyVHSAudioLinksFix(nodeType, nodeData, audio_slot) {
-    chainCallback(nodeType.prototype, "onConnectionsChange", function(contype, slot, iscon, linfo) {
-        if (contype == LiteGraph.OUTPUT && slot == audio_slot) {
-            if (linfo?.type == "VHS_AUDIO") {
-                this.outputs[audio_slot].type = "AUDIO"
-                let tnode = app.graph._nodes_by_id[linfo.target_id]
-                let inputDef = LiteGraph.registered_node_types[tnode.type]?.nodeData?.input
-                let has_migrated = true
-                if (inputDef?.required) {
-                    for (let k in inputDef.required) {
-                        if (inputDef.required[k][0] == "VHS_AUDIO") {
-                            has_migrated = false
-                            break
-                        }
-                    }
-                }
-                if (has_migrated &&inputDef?.optional) {
-                    for (let k in inputDef.optional) {
-                        if (inputDef.optional[k][0] == "VHS_AUDIO") {
-                            has_migrated = false
-                            break
-                        }
-                    }
-                }
-                if (!has_migrated) {
-                    //need to add node and migrate
-                    app.ui.dialog.show("This workflow contains one or more nodes which use the old VHS_AUDIO format. They have been highlighted in red. An AudioToVHSAudio node must be added to convert to this legacy format")
-                    tnode.bgcolor = "#C00"
-                }
-            }
-        }
-    })
-}
+
 function addVAEOutputToggle(nodeType, nodeData) {
     chainCallback(nodeType.prototype, "onNodeCreated", function() {
         this.reject_ue_connection = (input) => input?.name == "vae"
@@ -853,6 +821,95 @@ function addUploadWidget(nodeType, nodeData, widgetName, type="video") {
 
     });
 }
+function addAudioPreview(nodeType, isInput=true) {
+    chainCallback(nodeType.prototype, "onNodeCreated", function() {
+        var element = document.createElement("audio");
+        element.controls = true
+        const previewNode = this;
+        var previewWidget = this.addDOMWidget("audiopreview", "preview", element, {
+            serialize: false,
+            hideOnZoom: true,
+            getValue() {
+                return element.value;
+            },
+            setValue(v) {
+                element.value = v;
+            },
+        });
+        previewWidget.computeSize = function(width) {
+            return [width, 50];
+        }
+        var timeout = null;
+        this.updateParameters = (params, force_update) => {
+            if (!previewWidget.value.params) {
+                if(typeof(previewWidget.value) != 'object') {
+                    previewWidget.value =  {}
+                }
+                previewWidget.value.params = {}
+            }
+            Object.assign(previewWidget.value.params, params)
+            if (!force_update &&
+                app.ui.settings.getSettingValue("VHS.AdvancedPreviews") == 'Never') {
+                return;
+            }
+            if (timeout) {
+                clearTimeout(timeout);
+            }
+            if (force_update) {
+                previewWidget.updateSource();
+            } else {
+                timeout = setTimeout(() => previewWidget.updateSource(),100);
+            }
+        };
+        previewWidget.updateSource = function () {
+            if (this.value.params == undefined) {
+                return;
+            }
+            let params =  {}
+            let advp = app.ui.settings.getSettingValue("VHS.AdvancedPreviews")
+            if (advp == 'Never') {
+                advp = false
+            } else if (advp == 'Input Only') {
+                advp = isInput
+            } else {
+                advp = true
+            }
+            Object.assign(params, this.value.params);//shallow copy
+            params.timestamp = Date.now()
+            if (!advp) {
+                element.src = api.apiURL('/view?' + new URLSearchParams(params));
+            } else {
+                params.deadline = app.ui.settings.getSettingValue("VHS.AdvancedPreviewsDeadline")
+                element.src = api.apiURL('/vhs/viewaudio?' + new URLSearchParams(params));
+            }
+        }
+        previewWidget.callback = previewWidget.updateSource
+
+
+        //setup widget tracking
+        function update(key) {
+            return function(value) {
+                let params = {}
+                params[key] = this.value
+                previewNode?.updateParameters(params)
+            }
+        }
+        let widgetMap = { 'seek_seconds': 'start_time', 'duration': 'duration',
+            'start_time': 'start_time' }
+        for (let widget of this.widgets) {
+            if (widget.name in widgetMap) {
+                if (typeof(widgetMap[widget.name]) == 'function') {
+                    chainCallback(widget, "callback", widgetMap[widget.name]);
+                } else {
+                    chainCallback(widget, "callback", update(widgetMap[widget.name]))
+                }
+            }
+            if (widget.type != "button") {
+                widget.callback?.(widget.value)
+            }
+        }
+    });
+}
 
 function addVideoPreview(nodeType, isInput=true) {
     chainCallback(nodeType.prototype, "onNodeCreated", function() {
@@ -950,6 +1007,9 @@ function addVideoPreview(nodeType, isInput=true) {
                     previewWidget.value =  {hidden: false, paused: false}
                 }
                 previewWidget.value.params = {}
+            }
+            if (!Object.entries(params).some(([k,v]) => previewWidget.value.params[k] !== v)) {
+                return
             }
             Object.assign(previewWidget.value.params, params)
             if (!force_update &&
@@ -1586,7 +1646,7 @@ function drawAnnotated(ctx, node, widget_width, y, H) {
       ctx.fill()
     }
     let freeWidth = widget_width - (40 + margin * 2 + 20)
-    let [valueText, valueWidth] = fitText(ctx, this.displayValue(), freeWidth)
+    let [valueText, valueWidth] = fitText(ctx, (this.displayValue?.() ?? ""), freeWidth)
     freeWidth -= valueWidth
 
     ctx.textAlign = 'left'
@@ -1696,13 +1756,12 @@ function mouseAnnotated(event, [x, y], node) {
                     d_callback(input.value)
                     dialog.close()
                     node?.graph?.setDirtyCanvas(true);
-                    let i=0
-                    for (;i<node.widgets.length;i++) {
-                        if (node.widgets[i] == this) {
-                            break
-                        }
-                    }
-                    if (node.widgets[++i]?.type == "VHS.ANNOTATED") {//restrict to annotatedNUmbers
+                    let i = node.widgets.findIndex((w) => w == this)
+                    if (e.shiftKey)
+                        i--
+                    else
+                        i++
+                    if (node.widgets[i]?.type == "VHS.ANNOTATED") {//restrict to annotatedNUmbers
                         node.widgets[i]?.mouse(event, [x, y+24], node)
                     }
                 }
@@ -1770,12 +1829,9 @@ app.registerExtension({
         onChange(value) {
             // 忽略传入的false值，始终保持功能开启
             if (!value) {
-                // 使用正确的方法设置配置值为true
                 app.ui.settings.setSettingValue('VHS.LatentPreview', true);
-                // 不需要执行清理逻辑，因为我们要保持功能开启
                 return;
             }
-            // 当值为true时，可以保留默认行为（如果有的话）
         },
       },
       {
@@ -1790,7 +1846,7 @@ app.registerExtension({
         },
         tooltip:
           'Force a specific frame rate for the playback of latent frames. This should not be confused with the output frame rate and will not match for video models.',
-        defaultValue: 8,
+        defaultValue: 0,
       },
       {
         id: 'VHS.MetadataImage',
@@ -1919,12 +1975,25 @@ app.registerExtension({
             addUploadWidget(nodeType, nodeData, "video");
             addLoadCommon(nodeType, nodeData);
             addVAEOutputToggle(nodeType, nodeData);
-            applyVHSAudioLinksFix(nodeType, nodeData, 2)
+        } else if (nodeData?.name == "VHS_LoadAudio") {
+            addAudioPreview(nodeType)
+            chainCallback(nodeType.prototype, "onNodeCreated", function() {
+                const pathWidget = this.widgets.find((w) => w.name === "audio_file");
+                chainCallback(pathWidget, "callback", (filename) => {
+                    this.updateParameters({filename, type: 'path'}, true);
+                });
+            });
         } else if (nodeData?.name == "VHS_LoadAudioUpload") {
             addUploadWidget(nodeType, nodeData, "audio", "audio");
-            applyVHSAudioLinksFix(nodeType, nodeData, 0)
-        } else if (nodeData?.name == "VHS_LoadAudio"){
-            applyVHSAudioLinksFix(nodeType, nodeData, 0)
+            addAudioPreview(nodeType)
+            chainCallback(nodeType.prototype, "onNodeCreated", function() {
+                const pathWidget = this.widgets.find((w) => w.name === "audio");
+                chainCallback(pathWidget, "callback", (filename) => {
+                    if (!filename) return
+                    let params = {filename, type : "input"};
+                    this.updateParameters(params, true);
+                });
+            });
         } else if (nodeData?.name == "VHS_LoadVideoPath" || nodeData?.name == "VHS_LoadVideoFFmpegPath") {
             chainCallback(nodeType.prototype, "onNodeCreated", function() {
                 const pathWidget = this.widgets.find((w) => w.name === "video");
@@ -1942,7 +2011,6 @@ app.registerExtension({
             });
             addLoadCommon(nodeType, nodeData);
             addVAEOutputToggle(nodeType, nodeData);
-            applyVHSAudioLinksFix(nodeType, nodeData, 2)
         } else if (nodeData?.name == "VHS_LoadImagePath") {
             addLoadCommon(nodeType, nodeData);
             addVAEOutputToggle(nodeType, nodeData);
@@ -1994,7 +2062,7 @@ app.registerExtension({
                     function get_links(node) {
                         let links = []
                         for (const l of node.outputs[0].links) {
-                            const linkInfo = app.graph.links[l]
+                            const linkInfo = node.graph.links[l]
                             const n = node.graph.getNodeById(linkInfo.target_id)
                             if (n.type == 'Reroute') {
                                 links = links.concat(get_links(n))
@@ -2006,7 +2074,7 @@ app.registerExtension({
                     }
 
                     let links = [
-                        ...get_links(this).map((l) => app.graph.links[l]),
+                        ...get_links(this).map((l) => this.graph.links[l]),
                         ...extraLinks
                     ]
                     let v = this.latest_file
@@ -2033,13 +2101,11 @@ app.registerExtension({
                     let [path, remainder] = path_stem(this.widgets[0].value)
                     let params = {path : path}
                     let optionsURL = api.apiURL('/vhs/getpath?' + new URLSearchParams(params));
-                    let options
+                    let options = []
                     try {
                         let resp = await fetch(optionsURL);
                         options = await resp.json();
-                    } catch(e) {
-                        options = []
-                    }
+                    } catch(e) {}
                     options = options.filter((file) => file.startsWith(remainder) && file.endsWith(this.widgets[1].value))
                     if (options.length && this.latest_file != options[options.length-1]) {
                         this.latest_file = path + options[options.length-1]
@@ -2284,7 +2350,7 @@ app.registerExtension({
             if (filepath && copiedPath == filepath) {
                 //Add a Load Video (Path) and populate filepath
                 const pastedNode = LiteGraph.createNode('VHS_LoadVideoPath')
-                app.graph.add(pastedNode)
+                app.canvas.graph.add(pastedNode)
                 pastedNode.pos[0] = app.canvas.graph_mouse[0]
                 pastedNode.pos[1] = app.canvas.graph_mouse[1]
                 pastedNode.widgets[0].value = filepath
@@ -2293,7 +2359,7 @@ app.registerExtension({
                 //Disabled due to lack of testing
                 //Add a Load Video (Upload), then upload the file, then select the file
                 const pastedNode = LiteGraph.createNode('VHS_LoadVideo')
-                app.graph.add(pastedNode)
+                app.canvas.graph.add(pastedNode)
                 pastedNode.pos[0] = app.canvas.graph_mouse[0]
                 pastedNode.pos[1] = app.canvas.graph_mouse[1]
                 const pathWidget = pastedNode.widgets[0]
@@ -2340,12 +2406,13 @@ app.registerExtension({
     },
 });
 let previewImages = []
-let animateInterval
 api.addEventListener('executing', ({ detail }) => {
     if (detail === null) {
-        for (let node of app.graph._nodes) {
-            if (node.type.startsWith("VHS_")) {
-                node.onPromptExecuted?.()
+        for (let graph of [app.graph, ...app.graph.subgraphs.values()]) {
+            for (let node of graph._nodes) {
+                if (node.type.startsWith("VHS_")) {
+                    node.onPromptExecuted?.()
+                }
             }
         }
     }
@@ -2358,7 +2425,14 @@ function getLatentPreviewCtx(id, width, height) {
 
     let previewWidget = node.widgets.find((w) => w.name == "vhslatentpreview")
     if (!previewWidget) {
+        //check for and remove any native preview
+        let nativePreview = node.widgets.findIndex((w) => w.name == '$$canvas-image-preview')
+        if (nativePreview >= 0) {
+            node.imgs = []
+            node.widgets.splice(nativePreview,1)
+        }
         let canvasEl = document.createElement("canvas")
+        canvasEl.style.width = "100%"
         previewWidget = node.addDOMWidget("vhslatentpreview", "vhscanvas", canvasEl, {
             serialize: false,
             hideOnZoom: false,
@@ -2408,32 +2482,22 @@ function getLatentPreviewCtx(id, width, height) {
     }
     return canvasEl.getContext("2d")
 }
-//TODO: Figure out means of concurrency here. map of active nodes and finish event?
-// Information has been squirreled away to the execution store which isn't exposed.
-api.addEventListener('VHS_latentpreview', ({ detail }) => {
-    let setting = app.ui.settings.getSettingValue("VHS.LatentPreview")
-    if (!setting) {
-        return
-    }
-    let id = detail.id
-    if (id == null) {
-        return
-    }
+let animateIntervals = {}
+function beginLatentPreview(id, previewImages, rate) {
     latentPreviewNodes.add(id)
-
-    previewImages = []
-    previewImages.length = detail.length
-    let displayIndex = 0
-    if (animateInterval) {
-        clearTimeout(animateInterval)
+    if (animateIntervals[id]) {
+        clearTimeout(animateIntervals[id])
     }
+    let displayIndex = 0
+    let node = getNodeById(id)
     //While progress is safely cleared on execution completion.
     //Initial progress must be started here to avoid a race condition
-    getNodeById(id).progress = 0
-    animateInterval = setInterval(() => {
-        if (getNodeById(id).progress == undefined) {
-            clearTimeout(animateInterval)
-            animateInterval = undefined
+    node.progress = 0
+    animateIntervals[id] = setInterval(() => {
+        if (getNodeById(id)?.progress == undefined
+            || app.canvas.graph.rootGraph != node.graph.rootGraph) {
+            clearTimeout(animateIntervals[id])
+            delete animateIntervals[id]
             return
         }
         if (!previewImages[displayIndex]) {
@@ -2442,10 +2506,26 @@ api.addEventListener('VHS_latentpreview', ({ detail }) => {
         getLatentPreviewCtx(id, previewImages[displayIndex].width,
             previewImages[displayIndex].height)?.drawImage?.(previewImages[displayIndex],0,0)
         displayIndex = (displayIndex + 1) % previewImages.length
-    }, 1000/detail.rate);
+    }, 1000/rate);
+
+}
+let previewImagesDict = {}
+api.addEventListener('VHS_latentpreview', ({ detail }) => {
+    if (detail.id == null) {
+        return
+    }
+    let previewImages = previewImagesDict[detail.id] = []
+    previewImages.length = detail.length
+
+    let idParts = detail.id.split(':')
+    for (let i=1; i <= idParts.length; i++) {
+        let id = idParts.slice(0,i).join(':')
+        beginLatentPreview(id, previewImages, detail.rate)
+    }
 });
+let td = new TextDecoder()
 api.addEventListener('b_preview', async (e) => {
-    if (!animateInterval) {
+    if (Object.keys(animateIntervals).length == 0) {
         return
     }
     e.preventDefault()
@@ -2453,8 +2533,8 @@ api.addEventListener('b_preview', async (e) => {
     e.stopPropagation()
     const dv = new DataView(await e.detail.slice(0,24).arrayBuffer())
     const index = dv.getUint32(4)
-    //const idlen = dv.getUint8(5)
-    //const id = dv.getstring???(6,idlen)
-    previewImages[index] = await window.createImageBitmap(e.detail.slice(24))
+    const idlen = dv.getUint8(8)
+    const id = td.decode(dv.buffer.slice(9,9+idlen))
+    previewImagesDict[id][index] = await window.createImageBitmap(e.detail.slice(24))
     return false
 }, true);

@@ -90,13 +90,7 @@ class WrappedPreviewer(latent_preview.LatentPreviewer):
             self.latent_rgb_factors = self.latent_rgb_factors.to(dtype=x0.dtype, device=x0.device)
             if self.latent_rgb_factors_bias is not None:
                 self.latent_rgb_factors_bias = self.latent_rgb_factors_bias.to(dtype=x0.dtype, device=x0.device)
-
-            if x0.ndim == 5:
-                x0_reshaped = x0[:, :, 0]
-            else:
-                x0_reshaped = x0
-
-            latent_image = F.linear(x0_reshaped.movedim(1, -1), self.latent_rgb_factors, 
+            latent_image = F.linear(x0.movedim(1, -1), self.latent_rgb_factors,
                                     bias=self.latent_rgb_factors_bias)
             return latent_image
 

@@ -2120,14 +2120,19 @@ packages = {
         ],
         "download_links": []
     },
-        "z-image-turbo_package": {
+        "z-image-turbo_aio_package": {
         "id":31,
-        "name": "[31]通义造相Z-Image-Turbo文生图预置包",
-        "note": "Z-Image-Turbo文生图预置包|显存需求：★★ 速度:★★★",
+        "name": "[31]通义造相Z-Image-Turbo全功能预置包(beta)",
+        "note": "Z-Image-Turbo全功能预置包（重绘未完善）|显存需求：★★ 速度:★★★",
         "files": [
             ("diffusion_models/https://modelscope.cn/models/VerStella/z_image_turbo_comfyui/resolve/master/split_files/diffusion_models/z_image_turbo_bf16.safetensors", 12309866400),
             ("text_encoders/https://modelscope.cn/models/VerStella/z_image_turbo_comfyui/resolve/master/split_files/text_encoders/qwen_3_4b.safetensors", 8044982048),
+            ("model_patches/https://modelscope.cn/models/PAI/Z-Image-Turbo-Fun-Controlnet-Union/resolve/master/Z-Image-Turbo-Fun-Controlnet-Union.safetensors", 3101572408),
             ("vae/ae.safetensors", 335304388),
+            ("upscale_models/4xNomosUniDAT_bokeh_jpg.safetensors", 154152604),
+            ("upscale_models/4x-UltraSharp.pth", 66961958),
+            ("controlnet/lllyasviel/Annotators/ZoeD_M12_N.pt", 1443406099),
+            ("controlnet/parsing_bisenet.pth", 53289463),
         ],
         "download_links": []
     },

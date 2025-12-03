@@ -31,6 +31,24 @@ if __name__ == "__main__":
     os.environ['HF_HUB_DISABLE_TELEMETRY'] = '1'
     os.environ['DO_NOT_TRACK'] = '1'
 
+
+
+def handle_comfyui_manager_unavailable():
+    if not args.windows_standalone_build:
+        logging.warning(f"\n\nYou appear to be running comfyui-manager from source, this is not recommended. Please install comfyui-manager using the following command:\ncommand:\n\t{sys.executable} -m pip install --pre comfyui_manager\n")
+    args.enable_manager = False
+
+
+if args.enable_manager:
+    if importlib.util.find_spec("comfyui_manager"):
+        import comfyui_manager
+
+        if not comfyui_manager.__file__ or not comfyui_manager.__file__.endswith('__init__.py'):
+            handle_comfyui_manager_unavailable()
+    else:
+        handle_comfyui_manager_unavailable()
+
+
 def apply_custom_paths():
     # extra model paths
     extra_model_paths_config_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "extra_model_paths.yaml")
@@ -94,6 +112,10 @@ def execute_prestartup_script():
             if os.path.isfile(module_path) or module_path.endswith(".disabled") or module_path == "__pycache__":
                 continue
 
+            if args.enable_manager:
+                if comfyui_manager.should_be_disabled(module_path):
+                    continue
+
             script_path = os.path.join(module_path, "prestartup_script.py")
             if os.path.exists(script_path):
                 if args.disable_all_custom_nodes and possible_module not in args.whitelist_custom_nodes:
@@ -113,6 +135,10 @@ def execute_prestartup_script():
         logging.info("")
 
 apply_custom_paths()
+
+if args.enable_manager:
+    comfyui_manager.prestartup()
+
 execute_prestartup_script()
 
 # Main code
@@ -329,6 +355,9 @@ def start_comfyui(asyncio_loop=None):
         asyncio_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(asyncio_loop)
     prompt_server = server.PromptServer(asyncio_loop)
+
+    if args.enable_manager and not args.disable_manager_ui:
+        comfyui_manager.start()
 
     hook_breaker_ac10a0.save_functions()
     asyncio_loop.run_until_complete(nodes.init_extra_nodes(

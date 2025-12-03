@@ -1652,7 +1652,7 @@ def worker():
                     async_task.params_backend['var_number'] = async_task.scene_var_number
                     if async_task.content_type == 'video':
                         async_task.params_backend['display_steps'] = async_task.steps * max(round(async_task.scene_var_number * 5 / 6), 1)
-            if "_aio" in async_task.task_method or "z_image" in async_task.task_method:
+            if "_aio" in async_task.task_method:
                 input_images = comfypipeline.ComfyInputImage([])
                 if '.gguf' in async_task.base_model_name:
                     async_task.params_backend['base_model_gguf'] = async_task.base_model_name
@@ -1662,9 +1662,10 @@ def worker():
                 if async_task.enhance_checkbox:
                     if async_task.enhance_input_image is not None:
                         input_images.set_image(f'enhance_input_image', async_task.enhance_input_image)
+                    if async_task.save_final_enhanced_image_only:
+                        async_task.params_backend[f'save_final_enhanced_image_only'] = True
+
                     if async_task.enhance_uov_method.lower() != 'disabled':
-                        if async_task.save_final_enhanced_image_only:
-                            async_task.params_backend[f'save_final_enhanced_image_only'] = True
                         async_task.params_backend[f'enhance_uov_method'] = async_task.enhance_uov_method
                         async_task.params_backend[f'enhance_uov_denoise'] = async_task.enhance_uov_strength
                         async_task.params_backend[f'enhance_uov_processing_order'] = async_task.enhance_uov_processing_order

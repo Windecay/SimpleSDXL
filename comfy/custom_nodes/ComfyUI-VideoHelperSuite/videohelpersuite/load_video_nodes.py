@@ -201,7 +201,7 @@ def ffmpeg_frame_generator(video, force_rate, frame_load_cap, start_time,
                 fps_base = float(fps_match.group(1))
             else:
                 fps_base = 1
-            alpha = re.search("(yuva|rgba|bgra)", line) is not None
+            alpha = re.search("(yuva|rgba|bgra|gbra)", line) is not None
             break
     else:
         raise Exception("Failed to parse video/image information. FFMPEG output:\n" + lines)
@@ -209,7 +209,7 @@ def ffmpeg_frame_generator(video, force_rate, frame_load_cap, start_time,
     durs_match = re.search("Duration: (\\d+:\\d+:\\d+\\.\\d+),", lines)
     if durs_match:
         durs = durs_match.group(1).split(':')
-        duration = int(durs[0])*360 + int(durs[1])*60 + float(durs[2])
+        duration = int(durs[0])*3600 + int(durs[1])*60 + float(durs[2])
     else:
         duration = 0
 
