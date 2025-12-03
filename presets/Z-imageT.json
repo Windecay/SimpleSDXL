@@ -50,7 +50,7 @@
     "model_list": [
         "diffusion_models,z_image_turbo_bf16.safetensors,12309866400,0,https://modelscope.cn/models/VerStella/z_image_turbo_comfyui/resolve/master/split_files/diffusion_models/z_image_turbo_bf16.safetensors",
         "text_encoders,qwen_3_4b.safetensors,8044982048,0,https://modelscope.cn/models/VerStella/z_image_turbo_comfyui/resolve/master/split_files/text_encoders/qwen_3_4b.safetensors",
-        "model_paches,Z-Image-Turbo-Fun-Controlnet-Union.safetensors,0,https://modelscope.cn/models/PAI/Z-Image-Turbo-Fun-Controlnet-Union/resolve/master/Z-Image-Turbo-Fun-Controlnet-Union.safetensors",
+        "model_patches,Z-Image-Turbo-Fun-Controlnet-Union.safetensors,3101572408,0,https://modelscope.cn/models/PAI/Z-Image-Turbo-Fun-Controlnet-Union/resolve/master/Z-Image-Turbo-Fun-Controlnet-Union.safetensors",
         "controlnet,lllyasviel/Annotators/ZoeD_M12_N.pt,1443406099,0,",
         "controlnet,parsing_bisenet.pth,53289463,0,",
         "upscale_models,4x-UltraSharp.pth,66961958,0,",
