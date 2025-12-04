@@ -1,0 +1,483 @@
+{
+  "id": "307743a2-8a4b-4090-b8dc-3125ff31fa14",
+  "revision": 0,
+  "last_node_id": 230,
+  "last_link_id": 325,
+  "nodes": [
+    {
+      "id": 228,
+      "type": "PreviewImage",
+      "pos": [
+        -3494.875875540266,
+        548.5669663223894
+      ],
+      "size": [
+        339.2942795972781,
+        294.09258819908314
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 320
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.70",
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 229,
+      "type": "easy sam3Visualization",
+      "pos": [
+        -3494.3027670035817,
+        370.1574360470854
+      ],
+      "size": [
+        270,
+        146
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 322
+        },
+        {
+          "name": "obj_masks",
+          "type": "MASK",
+          "link": 319
+        },
+        {
+          "name": "scores",
+          "shape": 7,
+          "type": "FLOAT",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "visualization",
+          "type": "IMAGE",
+          "links": [
+            320
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "easy sam3Visualization"
+      },
+      "widgets_values": [
+        0.5,
+        5,
+        24
+      ]
+    },
+    {
+      "id": 218,
+      "type": "MaskPreview+",
+      "pos": [
+        -3888.366724537354,
+        298.86492826941287
+      ],
+      "size": [
+        332.95740427927046,
+        258
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 298
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfyui_essentials",
+        "ver": "9d9f4bedfc9f0321c19faf71855e228c93bd0dc9",
+        "Node name for S&R": "MaskPreview+"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 213,
+      "type": "easy sam3ImageSegmentation",
+      "pos": [
+        -4291.751706696359,
+        576.330230770682
+      ],
+      "size": [
+        337.2438563422779,
+        284
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "sam3_model",
+          "type": "EASY_SAM3_MODEL",
+          "link": 282
+        },
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 321
+        },
+        {
+          "name": "coordinates_positive",
+          "shape": 7,
+          "type": "STRING",
+          "link": 324
+        },
+        {
+          "name": "coordinates_negative",
+          "shape": 7,
+          "type": "STRING",
+          "link": 325
+        },
+        {
+          "name": "bboxes",
+          "shape": 7,
+          "type": "BBOX",
+          "link": null
+        },
+        {
+          "name": "mask",
+          "shape": 7,
+          "type": "MASK",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "masks",
+          "type": "MASK",
+          "links": [
+            298
+          ]
+        },
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": [
+            303
+          ]
+        },
+        {
+          "name": "obj_masks",
+          "type": "MASK",
+          "links": [
+            319
+          ]
+        },
+        {
+          "name": "boxes",
+          "type": "BBOX",
+          "links": null
+        },
+        {
+          "name": "scores",
+          "type": "FLOAT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "easy sam3ImageSegmentation"
+      },
+      "widgets_values": [
+        "",
+        0.6,
+        false,
+        "none",
+        1
+      ]
+    },
+    {
+      "id": 190,
+      "type": "easy sam3ModelLoader",
+      "pos": [
+        -4288.2999841191895,
+        382.601807955892
+      ],
+      "size": [
+        314.09852906952574,
+        130
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "sam3_model",
+          "type": "EASY_SAM3_MODEL",
+          "links": [
+            282
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "easy sam3ModelLoader"
+      },
+      "widgets_values": [
+        "sam3.pt",
+        "image",
+        "cuda",
+        "fp16"
+      ]
+    },
+    {
+      "id": 222,
+      "type": "PreviewImage",
+      "pos": [
+        -3917.168185833717,
+        629.2502741186897
+      ],
+      "size": [
+        339.2921196124935,
+        246
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 303
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.70",
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 230,
+      "type": "easy framesEditor",
+      "pos": [
+        -4636.859464853215,
+        415.1554606600146
+      ],
+      "size": [
+        325.95913669660604,
+        459.67289658537027
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 323
+        }
+      ],
+      "outputs": [
+        {
+          "name": "positive_coords",
+          "type": "STRING",
+          "links": [
+            324
+          ]
+        },
+        {
+          "name": "negative_coords",
+          "type": "STRING",
+          "links": [
+            325
+          ]
+        },
+        {
+          "name": "bboxes",
+          "type": "BBOX",
+          "links": null
+        },
+        {
+          "name": "frame_index",
+          "type": "INT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "easy framesEditor"
+      },
+      "widgets_values": [
+        "{\"positive_coords\":[{\"x\":507.6728258531036,\"y\":553.852272215835}],\"negative_coords\":[],\"bbox\":[],\"frame_index\":0}",
+        ""
+      ]
+    },
+    {
+      "id": 221,
+      "type": "LoadImage",
+      "pos": [
+        -4880.128094486614,
+        474.11393023284535
+      ],
+      "size": [
+        221.39931371353123,
+        326
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            321,
+            322,
+            323
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.70",
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "8.png",
+        "image"
+      ]
+    }
+  ],
+  "links": [
+    [
+      282,
+      190,
+      0,
+      213,
+      0,
+      "EASY_SAM3_MODEL"
+    ],
+    [
+      298,
+      213,
+      0,
+      218,
+      0,
+      "MASK"
+    ],
+    [
+      303,
+      213,
+      1,
+      222,
+      0,
+      "IMAGE"
+    ],
+    [
+      319,
+      213,
+      2,
+      229,
+      1,
+      "MASK"
+    ],
+    [
+      320,
+      229,
+      0,
+      228,
+      0,
+      "IMAGE"
+    ],
+    [
+      321,
+      221,
+      0,
+      213,
+      1,
+      "IMAGE"
+    ],
+    [
+      322,
+      221,
+      0,
+      229,
+      0,
+      "IMAGE"
+    ],
+    [
+      323,
+      221,
+      0,
+      230,
+      0,
+      "IMAGE"
+    ],
+    [
+      324,
+      230,
+      0,
+      213,
+      2,
+      "STRING"
+    ],
+    [
+      325,
+      230,
+      1,
+      213,
+      3,
+      "STRING"
+    ]
+  ],
+  "groups": [
+    {
+      "id": 1,
+      "title": "Display Masks Visualization",
+      "bounding": [
+        -3514.875875540266,
+        286.1574360470854,
+        379.2942795972781,
+        576.5021184743873
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.8961026620647545,
+      "offset": [
+        5330.488286030588,
+        -2.263526091608526
+      ]
+    },
+    "frontendVersion": "1.34.0",
+    "workflowRendererVersion": "LG",
+    "VHS_latentpreview": false,
+    "VHS_latentpreviewrate": 0,
+    "VHS_MetadataImage": true,
+    "VHS_KeepIntermediate": true
+  },
+  "version": 0.4
+}

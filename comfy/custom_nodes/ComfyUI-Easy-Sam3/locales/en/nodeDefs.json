@@ -1,0 +1,380 @@
+{
+  "easy sam3ModelLoader": {
+    "display_name": "Load SAM3 Model",
+    "inputs": {
+      "model": {
+        "name": "model",
+        "tooltip": "Select SAM3 model file to load"
+      },
+      "segmentor": {
+        "name": "segmentor",
+        "tooltip": "Choose between image or video segmentation mode"
+      },
+      "device": {
+        "name": "device",
+        "tooltip": "Device to load the model on"
+      },
+      "precision": {
+        "name": "precision",
+        "tooltip": "Model precision for inference"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "sam3_model"
+      }
+    }
+  },
+  "easy sam3ImageSegmentation": {
+    "display_name": "Sam3 Image Segmentation",
+    "inputs": {
+      "sam3_model": {
+        "name": "sam3_model",
+        "tooltip": "SAM3 model loaded from LoadSam3Model node (must be in 'image' mode)"
+      },
+      "images": {
+        "name": "images",
+        "tooltip": "Input image or images to segment"
+      },
+      "prompt": {
+        "name": "prompt",
+        "tooltip": "Text description of objects to segment (e.g., 'a cat', 'person'). Supports empty string for point/box only segmentation"
+      },
+      "threshold": {
+        "name": "threshold",
+        "tooltip": "Confidence threshold for detections (0.0-1.0, default: 0.40)"
+      },
+      "keep_model_loaded": {
+        "name": "keep_model_loaded",
+        "tooltip": "Keep model in VRAM after inference (default: False)"
+      },
+      "add_background": {
+        "name": "add_background",
+        "tooltip": "Add background color to segmented images (none, black, white, grey)"
+      },
+      "coordinates_positive": {
+        "name": "coordinates_positive",
+        "tooltip": "Positive point coordinates as JSON string: '[{\"x\": 50, \"y\": 120}]'"
+      },
+      "coordinates_negative": {
+        "name": "coordinates_negative",
+        "tooltip": "Negative point coordinates as JSON string: '[{\"x\": 150, \"y\": 300}]'"
+      },
+      "bboxes": {
+        "name": "bboxes",
+        "tooltip": "Bounding boxes as (x_min, y_min, x_max, y_max) or (x, y, width, height)"
+      },
+      "mask": {
+        "name": "mask",
+        "tooltip": "Input mask for refinement"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "masks",
+        "tooltip": "Combined segmentation masks (one mask per image with all detected objects merged)"
+      },
+      "1": {
+        "name": "images",
+        "tooltip": "Segmented images with RGBA alpha channel (with optional background)"
+      },
+      "2": {
+        "name": "obj_masks",
+        "tooltip": "Individual object masks before combining (for visualization)"
+      },
+      "3": {
+        "name": "boxes",
+        "tooltip": "Bounding boxes for each detected object [N, 4] format"
+      },
+      "4": {
+        "name": "scores",
+        "tooltip": "Confidence scores for each detected object"
+      }
+    }
+  },
+  "easy sam3VideoSegmentation": {
+    "display_name": "SAM3 Video Segmentation",
+    "inputs": {
+      "sam3_model": {
+        "name": "sam3_model",
+        "tooltip": "SAM3 model loaded from LoadSam3Model node (must be video mode)"
+      },
+      "session_id": {
+        "name": "session_id",
+        "tooltip": "Optional session ID to resume a previous tracking session"
+      },
+      "video_frames": {
+        "name": "video_frames",
+        "tooltip": "Video frames as image sequence"
+      },
+      "prompt": {
+        "name": "prompt",
+        "tooltip": "Text description of objects to track (e.g., 'person', 'car')"
+      },
+      "frame_index": {
+        "name": "frame_index",
+        "tooltip": "Frame where initial prompt is applied"
+      },
+      "object_id": {
+        "name": "object_id",
+        "tooltip": "Unique ID for multi-object tracking"
+      },
+      "score_threshold_detection": {
+        "name": "score_threshold_detection",
+        "tooltip": "Confidence threshold for detections, default is 0.5"
+      },
+      "new_det_thresh": {
+        "name": "new_det_thresh",
+        "tooltip": "Threshold for a detection to be added as a new object, default is 0.7"
+      },
+      "propagation_direction": {
+        "name": "propagation_direction",
+        "tooltip": "Propagation direction: both, forward, or backward"
+      },
+      "start_frame_index": {
+        "name": "start_frame_index",
+        "tooltip": "Frame index to start propagation from"
+      },
+      "max_frames_to_track": {
+        "name": "max_frames_to_track",
+        "tooltip": "Advanced: Max frames to process (-1 for all)"
+      },
+      "close_after_propagation": {
+        "name": "close_after_propagation",
+        "tooltip": "Close the session after propagation"
+      },
+      "keep_model_loaded": {
+        "name": "keep_model_loaded",
+        "tooltip": "Keep model in VRAM after inference"
+      },
+      "extra_config": {
+        "name": "extra_config",
+        "tooltip": "Extra configuration for the SAM3 model"
+      },
+      "positive_coords": {
+        "name": "positive_coords",
+        "tooltip": "Positive click coordinates as JSON: '[{\"x\": 50, \"y\": 120}]'"
+      },
+      "negative_coords": {
+        "name": "negative_coords",
+        "tooltip": "Negative click coordinates as JSON: '[{\"x\": 150, \"y\": 300}]'"
+      },
+      "bbox": {
+        "name": "bbox",
+        "tooltip": "Bounding box as (x_min, y_min, x_max, y_max) or (x, y, width, height) tuple. Compatible with KJNodes Points Editor bbox output."
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "masks",
+        "tooltip": "Tracked segmentation masks for all frames"
+      },
+      "1": {
+        "name": "session_id",
+        "tooltip": "Session ID for resuming tracking"
+      },
+      "2": {
+        "name": "objects",
+        "tooltip": "Tracked objects output data"
+      }
+    }
+  },
+  "easy sam3VideoModelExtraConfig": {
+    "display_name": "SAM3 Video Model Extra Config",
+    "inputs": {
+      "assoc_iou_thresh": {
+        "name": "assoc_iou_thresh",
+        "tooltip": "IoU threshold for detection-to-track matching (0.0-1.0, default: 0.1)"
+      },
+      "det_nms_thresh": {
+        "name": "det_nms_thresh",
+        "tooltip": "IoU threshold for detection NMS (Non-Maximum Suppression) (0.0-1.0, default: 0.1)"
+      },
+      "new_det_thresh": {
+        "name": "new_det_thresh",
+        "tooltip": "Threshold for a detection to be added as a new object (0.0-1.0, default: 0.7)"
+      },
+      "hotstart_delay": {
+        "name": "hotstart_delay",
+        "tooltip": "Hold off outputs for N frames to remove unmatched/duplicate tracklets (0-100, default: 15)"
+      },
+      "hotstart_unmatch_thresh": {
+        "name": "hotstart_unmatch_thresh",
+        "tooltip": "Remove tracklets unmatched for this many frames during hotstart (0-100, default: 8)"
+      },
+      "hotstart_dup_thresh": {
+        "name": "hotstart_dup_thresh",
+        "tooltip": "Remove overlapping tracklets during hotstart (0-100, default: 8)"
+      },
+      "suppress_unmatched_within_hotstart": {
+        "name": "suppress_unmatched_within_hotstart",
+        "tooltip": "If True, only suppress unmatched masks within hotstart period (default: True)"
+      },
+      "min_trk_keep_alive": {
+        "name": "min_trk_keep_alive",
+        "tooltip": "Minimum keep-alive value (negative means immediate removal) (-100-0, default: -1)"
+      },
+      "max_trk_keep_alive": {
+        "name": "max_trk_keep_alive",
+        "tooltip": "Maximum frames to keep a track alive without detections (0-100, default: 30)"
+      },
+      "init_trk_keep_alive": {
+        "name": "init_trk_keep_alive",
+        "tooltip": "Initial keep-alive value when a new track is created (-10-100, default: 30)"
+      },
+      "suppress_overlap_occlusion_thresh": {
+        "name": "suppress_overlap_occlusion_thresh",
+        "tooltip": "Threshold for suppressing overlapping objects based on recent occlusion (0.0-1.0, default: 0.7, 0.0 to disable)"
+      },
+      "suppress_det_at_boundary": {
+        "name": "suppress_det_at_boundary",
+        "tooltip": "Suppress detections close to image boundaries (default: False)"
+      },
+      "fill_hole_area": {
+        "name": "fill_hole_area",
+        "tooltip": "Fill holes in masks smaller than this area in pixels (0-1000, default: 16)"
+      },
+      "recondition_every_nth_frame": {
+        "name": "recondition_every_nth_frame",
+        "tooltip": "Recondition tracking every N frames (-1-1000, default: 16, -1 to disable)"
+      },
+      "enable_masklet_confirmation": {
+        "name": "enable_masklet_confirmation",
+        "tooltip": "Enable masklet confirmation to suppress unconfirmed tracklets (default: False)"
+      },
+      "decrease_alive_for_empty_masks": {
+        "name": "decrease_alive_for_empty_masks",
+        "tooltip": "Decrease keep-alive counter for empty masklets (no valid masks) (default: False)"
+      },
+      "image_size": {
+        "name": "image_size",
+        "tooltip": "Input image size for the model (256-2048, step: 8, default: 1008)"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "extra_config",
+        "tooltip": "SAM3 model configuration dictionary"
+      }
+    }
+  },
+  "easy sam3Visualization": {
+    "display_name": "Sam3 Visualization",
+    "inputs": {
+      "image": {
+        "name": "image",
+        "tooltip": "Input image to visualize masks on"
+      },
+      "obj_masks": {
+        "name": "obj_masks",
+        "tooltip": "Individual object masks from Sam3 Image Segmentation node [B, N, H, W] format"
+      },
+      "scores": {
+        "name": "scores",
+        "tooltip": "Confidence scores from Sam3 Image Segmentation node (0.0-1.0)"
+      },
+      "alpha": {
+        "name": "alpha",
+        "tooltip": "Transparency of mask overlay (0.0-1.0, default: 0.5). 0=fully transparent, 1=fully opaque"
+      },
+      "stroke_width": {
+        "name": "stroke_width",
+        "tooltip": "Width of the mask border stroke in pixels (1-100, default: 5)"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "visualization",
+        "tooltip": "Visualized images with colored masks, borders, and confidence scores overlaid"
+      }
+    }
+  },
+  "easy sam3GetObjectIds": {
+    "display_name": "SAM3 Get Object IDs",
+    "inputs": {
+      "objects": {
+        "name": "objects",
+        "tooltip": "Objects output from Sam3VideoSegmentation node"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "obj_ids",
+        "tooltip": "Comma-separated list of all object IDs"
+      },
+      "1": {
+        "name": "count",
+        "tooltip": "Total number of objects"
+      }
+    }
+  },
+  "easy sam3GetObjectMask": {
+    "display_name": "SAM3 Get Object Mask",
+    "inputs": {
+      "objects": {
+        "name": "objects",
+        "tooltip": "Objects output from Sam3VideoSegmentation node"
+      },
+      "obj_id": {
+        "name": "obj_id",
+        "tooltip": "Object ID to extract mask for (0-1000)"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "mask",
+        "tooltip": "Extracted mask for the specified object ID [B, H, W] format"
+      }
+    }
+  },
+  "easy stringToBBox": {
+    "display_name": "String to BBox",
+    "inputs": {
+      "bbox_string": {
+        "name": "bbox_string",
+        "tooltip": "Bounding box coordinates in format: x1,y1,x2,y2 (one per line for multiple boxes)"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "bbox",
+        "tooltip": "Parsed bounding box in BBOX format"
+      }
+    }
+  },
+  "easy framesEditor": {
+    "display_name": "Frames Editor",
+    "inputs": {
+      "images": {
+        "name": "images",
+        "tooltip": "Input images or video frames for annotation"
+      },
+      "info": {
+        "name": "info",
+        "tooltip": "JSON string containing annotation data (automatically managed by the widget)"
+      },
+      "preview_rescale": {
+        "name": "preview_rescale",
+        "tooltip": "Scale factor for preview image (0.05-1.0, default: 1.0). When < 1.0, coordinates and bounding boxes will be automatically converted back to original scale"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "positive_coords",
+        "tooltip": "JSON string of positive point coordinates in format '[{\"x\": 50, \"y\": 120}]'"
+      },
+      "1": {
+        "name": "negative_coords",
+        "tooltip": "JSON string of negative point coordinates in format '[{\"x\": 150, \"y\": 300}]'"
+      },
+      "2": {
+        "name": "bboxes",
+        "tooltip": "List of bounding boxes in format [[x1, y1, x2, y2], ...]"
+      },
+      "3": {
+        "name": "frame_index",
+        "tooltip": "Current frame index being edited (for video sequences)"
+      }
+    }
+  }
+}

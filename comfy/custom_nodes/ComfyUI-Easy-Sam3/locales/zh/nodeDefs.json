@@ -1,0 +1,388 @@
+{
+  "easy sam3ModelLoader": {
+    "display_name": "加载 SAM3 模型",
+    "inputs": {
+      "model": {
+        "name": "模型",
+        "tooltip": "选择要加载的 SAM3 模型文件"
+      },
+      "segmentor": {
+        "name": "分割器",
+        "tooltip": "选择图像或视频分割模式"
+      },
+      "device": {
+        "name": "设备",
+        "tooltip": "加载模型的设备"
+      },
+      "precision": {
+        "name": "精度",
+        "tooltip": "推理时的模型精度"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "SAM3 模型"
+      }
+    }
+  },
+  "easy sam3ImageSegmentation": {
+    "display_name": "SAM3 图像分割",
+    "inputs": {
+      "sam3_model": {
+        "name": "SAM3 模型",
+        "tooltip": "从 LoadSam3Model 节点加载的 SAM3 模型（必须是 'image' 模式）"
+      },
+      "images": {
+        "name": "图像",
+        "tooltip": "输入要分割的图像"
+      },
+      "prompt": {
+        "name": "提示词",
+        "tooltip": "要分割的对象的文本描述（例如：'一只猫'、'人'）。支持空字符串以仅使用点/框进行分割"
+      },
+      "threshold": {
+        "name": "置信度",
+        "tooltip": "检测的置信度阈值（0.0-1.0，默认：0.40）"
+      },
+      "keep_model_loaded": {
+        "name": "保持模型加载",
+        "tooltip": "推理后将模型保留在显存中（默认：False）"
+      },
+      "add_background": {
+        "name": "添加背景",
+        "tooltip": "为分割的图像添加背景颜色（none、black、white、grey）"
+      },
+      "coordinates_positive": {
+        "name": "正向点坐标",
+        "tooltip": "正向点坐标，JSON 字符串格式：'[{\"x\": 50, \"y\": 120}]'"
+      },
+      "coordinates_negative": {
+        "name": "负向点坐标",
+        "tooltip": "负向点坐标，JSON 字符串格式：'[{\"x\": 150, \"y\": 300}]'"
+      },
+      "bboxes": {
+        "name": "边界框",
+        "tooltip": "边界框，格式为 (x_min, y_min, x_max, y_max) 或 (x, y, width, height)"
+      },
+      "mask": {
+        "name": "遮罩",
+        "tooltip": "用于细化的输入遮罩"
+      },
+      "detection_limit": {
+        "name": "检测对象限制",
+        "tooltip": "限制每张图像检测的最大对象数量（默认：-1）"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "遮罩",
+        "tooltip": "合并的分割遮罩（每张图像一个遮罩，所有检测到的对象合并在一起）"
+      },
+      "1": {
+        "name": "图像",
+        "tooltip": "带 RGBA 透明通道的分割图像（可选背景）"
+      },
+      "2": {
+        "name": "对象这种",
+        "tooltip": "合并前的单个对象遮罩（用于可视化）"
+      },
+      "3": {
+        "name": "边界框",
+        "tooltip": "每个检测对象的边界框坐标 [N, 4] 格式"
+      },
+      "4": {
+        "name": "置信度分",
+        "tooltip": "每个检测对象的置信度分数"
+      }
+    }
+  },
+  "easy sam3VideoSegmentation": {
+    "display_name": "SAM3 视频分割",
+    "inputs": {
+      "sam3_model": {
+        "name": "SAM3 模型",
+        "tooltip": "从 LoadSam3Model 节点加载的 SAM3 模型（必须是视频模式）"
+      },
+      "session_id": {
+        "name": "会话 ID",
+        "tooltip": "可选的会话 ID，用于恢复之前的跟踪会话"
+      },
+      "video_frames": {
+        "name": "视频帧",
+        "tooltip": "作为图像序列的视频帧"
+      },
+      "prompt": {
+        "name": "提示词",
+        "tooltip": "要跟踪的对象的文本描述（例如：'人'、'汽车'）"
+      },
+      "frame_index": {
+        "name": "帧索引",
+        "tooltip": "应用初始提示词的帧"
+      },
+      "object_id": {
+        "name": "对象 ID",
+        "tooltip": "多对象跟踪的唯一 ID"
+      },
+      "score_threshold_detection": {
+        "name": "检测分数阈值",
+        "tooltip": "检测的置信度阈值，默认为 0.5"
+      },
+      "new_det_thresh": {
+        "name": "新检测阈值",
+        "tooltip": "将检测添加为新对象的阈值，默认为 0.7"
+      },
+      "propagation_direction": {
+        "name": "传播方向",
+        "tooltip": "传播方向：双向、前向或后向"
+      },
+      "start_frame_index": {
+        "name": "起始帧索引",
+        "tooltip": "开始传播的帧索引"
+      },
+      "max_frames_to_track": {
+        "name": "最大跟踪帧数",
+        "tooltip": "高级：要处理的最大帧数（-1 表示全部）"
+      },
+      "close_after_propagation": {
+        "name": "传播后关闭",
+        "tooltip": "传播后关闭会话"
+      },
+      "keep_model_loaded": {
+        "name": "保持模型加载",
+        "tooltip": "推理后将模型保留在显存中"
+      },
+      "extra_config": {
+        "name": "额外配置",
+        "tooltip": "SAM3 模型的额外配置"
+      },
+      "positive_coords": {
+        "name": "正向坐标",
+        "tooltip": "正向点击坐标，JSON 格式：'[{\"x\": 50, \"y\": 120}]'"
+      },
+      "negative_coords": {
+        "name": "负向坐标",
+        "tooltip": "负向点击坐标，JSON 格式：'[{\"x\": 150, \"y\": 300}]'"
+      },
+      "bbox": {
+        "name": "边界框",
+        "tooltip": "边界框，格式为 (x_min, y_min, x_max, y_max) 或 (x, y, width, height) 元组。兼容 KJNodes Points Editor bbox 输出。"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "遮罩",
+        "tooltip": "所有帧的跟踪分割遮罩"
+      },
+      "1": {
+        "name": "会话 ID",
+        "tooltip": "用于恢复跟踪的会话 ID"
+      },
+      "2": {
+        "name": "对象",
+        "tooltip": "跟踪对象输出数据"
+      }
+    }
+  },
+  "easy sam3VideoModelExtraConfig": {
+    "display_name": "SAM3 视频模型额外配置",
+    "inputs": {
+      "assoc_iou_thresh": {
+        "name": "assoc_iou_thresh",
+        "tooltip": "检测到跟踪匹配的 IoU 阈值（0.0-1.0，默认：0.1）"
+      },
+      "det_nms_thresh": {
+        "name": "det_nms_thresh",
+        "tooltip": "检测 NMS（非极大值抑制）的 IoU 阈值（0.0-1.0，默认：0.1）"
+      },
+      "new_det_thresh": {
+        "name": "new_det_thresh",
+        "tooltip": "将检测添加为新对象的阈值（0.0-1.0，默认：0.7）"
+      },
+      "hotstart_delay": {
+        "name": "hotstart_delay",
+        "tooltip": "延迟 N 帧输出，以移除不匹配/重复的轨迹（0-100，默认：15）"
+      },
+      "hotstart_unmatch_thresh": {
+        "name": "hotstart_unmatch_thresh",
+        "tooltip": "在热启动期间移除不匹配此数量帧的轨迹（0-100，默认：8）"
+      },
+      "hotstart_dup_thresh": {
+        "name": "hotstart_dup_thresh",
+        "tooltip": "在热启动期间移除重叠的轨迹（0-100，默认：8）"
+      },
+      "suppress_unmatched_within_hotstart": {
+        "name": "suppress_unmatched_within_hotstart",
+        "tooltip": "如果为真，仅在热启动期间抑制不匹配的遮罩（默认：True）"
+      },
+      "min_trk_keep_alive": {
+        "name": "min_trk_keep_alive",
+        "tooltip": "最小保活值（负数表示立即移除）（-100-0，默认：-1）"
+      },
+      "max_trk_keep_alive": {
+        "name": "max_trk_keep_alive",
+        "tooltip": "在没有检测的情况下保持跟踪活动的最大帧数（0-100，默认：30）"
+      },
+      "init_trk_keep_alive": {
+        "name": "init_trk_keep_alive",
+        "tooltip": "创建新跟踪时的初始保活值（-10-100，默认：30）"
+      },
+      "suppress_overlap_occlusion_thresh": {
+        "name": "suppress_overlap_occlusion_thresh",
+        "tooltip": "基于最近遮挡抑制重叠对象的阈值（0.0-1.0，默认：0.7，0.0 禁用）"
+      },
+      "suppress_det_at_boundary": {
+        "name": "suppress_det_at_boundary",
+        "tooltip": "抑制靠近图像边界的检测（默认：False）"
+      },
+      "fill_hole_area": {
+        "name": "fill_hole_area",
+        "tooltip": "填充遮罩中小于此面积的孔洞（像素）（0-1000，默认：16）"
+      },
+      "recondition_every_nth_frame": {
+        "name": "recondition_every_nth_frame",
+        "tooltip": "每 N 帧重新调整跟踪（-1-1000，默认：16，-1 禁用）"
+      },
+      "enable_masklet_confirmation": {
+        "name": "enable_masklet_confirmation",
+        "tooltip": "启用掩码确认以抑制未确认的轨迹（默认：False）"
+      },
+      "decrease_alive_for_empty_masks": {
+        "name": "decrease_alive_for_empty_masks",
+        "tooltip": "为空掩码（无有效遮罩）减少保活计数器（默认：False）"
+      },
+      "image_size": {
+        "name": "image_size",
+        "tooltip": "模型的输入图像尺寸（256-2048，步长：8，默认：1008）"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "extra_config",
+        "tooltip": "SAM3 模型配置字典"
+      }
+    }
+  },
+  "easy sam3Visualization": {
+    "display_name": "SAM3 可视化",
+    "inputs": {
+      "image": {
+        "name": "image",
+        "tooltip": "用于显示遮罩的输入图像"
+      },
+      "obj_masks": {
+        "name": "obj_masks",
+        "tooltip": "来自 Sam3 图像分割节点的单个对象遮罩 [B, N, H, W] 格式"
+      },
+      "scores": {
+        "name": "scores",
+        "tooltip": "来自 Sam3 图像分割节点的置信度分数（0.0-1.0）"
+      },
+      "alpha": {
+        "name": "alpha",
+        "tooltip": "遮罩叠加的透明度（0.0-1.0，默认：0.5）。0=完全透明，1=完全不透明"
+      },
+      "stroke_width": {
+        "name": "stroke_width",
+        "tooltip": "遮罩边框的宽度（像素）（1-100，默认：5）"
+      },
+      "font_size": {
+        "name": "字体大小",
+        "tooltip": "置信度分数字体大小（8-100，默认：24）"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "visualization",
+        "tooltip": "叠加了彩色遮罩、边框和置信度分数的可视化图像"
+      }
+    }
+  },
+  "easy sam3GetObjectIds": {
+    "display_name": "SAM3 获取对象 ID",
+    "inputs": {
+      "objects": {
+        "name": "对象",
+        "tooltip": "来自 SAM3 视频分割节点的对象输出"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "对象 ID",
+        "tooltip": "所有对象 ID 的逗号分隔列表"
+      },
+      "1": {
+        "name": "数量",
+        "tooltip": "对象总数"
+      }
+    }
+  },
+  "easy sam3GetObjectMask": {
+    "display_name": "SAM3 获取对象遮罩",
+    "inputs": {
+      "objects": {
+        "name": "对象",
+        "tooltip": "来自 SAM3 视频分割节点的对象输出"
+      },
+      "obj_id": {
+        "name": "对象 ID",
+        "tooltip": "要提取遮罩的对象 ID（0-1000）"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "遮罩",
+        "tooltip": "指定对象 ID 的提取遮罩 [B, H, W] 格式"
+      }
+    }
+  },
+  "easy stringToBBox": {
+    "display_name": "字符串转边界框",
+    "inputs": {
+      "bbox_string": {
+        "name": "bbox_string",
+        "tooltip": "边界框坐标，格式：x1,y1,x2,y2（多个边界框用换行分隔）"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "边界框",
+        "tooltip": "解析后的 BBOX 格式边界框"
+      }
+    }
+  },
+  "easy framesEditor": {
+    "display_name": "帧编辑器",
+    "inputs": {
+      "images": {
+        "name": "图像",
+        "tooltip": "输入要标注的图像或视频帧"
+      },
+      "info": {
+        "name": "信息",
+        "tooltip": "包含标注数据的 JSON 字符串（由小部件自动管理）"
+      },
+      "preview_rescale": {
+        "name": "预览缩放",
+        "tooltip": "预览图像的缩放系数（0.05-1.0，默认：1.0）。当值小于 1.0 时，坐标和边界框将自动转换回原始比例"
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "正向坐标",
+        "tooltip": "正向点坐标的 JSON 字符串，格式为 '[{\"x\": 50, \"y\": 120}]'"
+      },
+      "1": {
+        "name": "负向坐标",
+        "tooltip": "负向点坐标的 JSON 字符串，格式为 '[{\"x\": 150, \"y\": 300}]'"
+      },
+      "2": {
+        "name": "边界框",
+        "tooltip": "边界框列表，格式为 [[x1, y1, x2, y2], ...]"
+      },
+      "3": {
+        "name": "帧索引",
+        "tooltip": "当前正在编辑的帧索引（用于视频序列）"
+      }
+    }
+  }
+}

@@ -1,0 +1,282 @@
+{
+  "id": "307743a2-8a4b-4090-b8dc-3125ff31fa14",
+  "revision": 0,
+  "last_node_id": 223,
+  "last_link_id": 304,
+  "nodes": [
+    {
+      "id": 222,
+      "type": "PreviewImage",
+      "pos": [
+        -3883.9588057841556,
+        593.0894010290336
+      ],
+      "size": [
+        339.2921196124935,
+        246
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 303
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.70",
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 218,
+      "type": "MaskPreview+",
+      "pos": [
+        -3880.8437110898844,
+        280.9015183807766
+      ],
+      "size": [
+        332.95740427927046,
+        258
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 298
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfyui_essentials",
+        "ver": "9d9f4bedfc9f0321c19faf71855e228c93bd0dc9",
+        "Node name for S&R": "MaskPreview+"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 190,
+      "type": "easy sam3ModelLoader",
+      "pos": [
+        -4235.041825672723,
+        334.7519653807837
+      ],
+      "size": [
+        314.09852906952574,
+        130
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "sam3_model",
+          "type": "EASY_SAM3_MODEL",
+          "links": [
+            282
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "easy sam3ModelLoader"
+      },
+      "widgets_values": [
+        "sam3.pt",
+        "image",
+        "cuda",
+        "fp16"
+      ]
+    },
+    {
+      "id": 221,
+      "type": "LoadImage",
+      "pos": [
+        -4678.319118164902,
+        372.4935004943305
+      ],
+      "size": [
+        406.60579628243977,
+        446.341753250938
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            302
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.70",
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "1 (3).png",
+        "image"
+      ]
+    },
+    {
+      "id": 213,
+      "type": "easy sam3ImageSegmentation",
+      "pos": [
+        -4241.387303264146,
+        538.9760914950197
+      ],
+      "size": [
+        337.2438563422779,
+        281.966544722883
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "sam3_model",
+          "type": "EASY_SAM3_MODEL",
+          "link": 282
+        },
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 302
+        },
+        {
+          "name": "coordinates_positive",
+          "shape": 7,
+          "type": "STRING",
+          "link": null
+        },
+        {
+          "name": "coordinates_negative",
+          "shape": 7,
+          "type": "STRING",
+          "link": null
+        },
+        {
+          "name": "bboxes",
+          "shape": 7,
+          "type": "BBOX",
+          "link": null
+        },
+        {
+          "name": "mask",
+          "shape": 7,
+          "type": "MASK",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "masks",
+          "type": "MASK",
+          "links": [
+            298
+          ]
+        },
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": [
+            303
+          ]
+        },
+        {
+          "name": "obj_masks",
+          "type": "MASK",
+          "links": null
+        },
+        {
+          "name": "boxes",
+          "type": "BBOX",
+          "links": null
+        },
+        {
+          "name": "scores",
+          "type": "FLOAT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "easy sam3ImageSegmentation"
+      },
+      "widgets_values": [
+        "apple",
+        0.4,
+        false,
+        "none"
+      ]
+    }
+  ],
+  "links": [
+    [
+      282,
+      190,
+      0,
+      213,
+      0,
+      "EASY_SAM3_MODEL"
+    ],
+    [
+      298,
+      213,
+      0,
+      218,
+      0,
+      "MASK"
+    ],
+    [
+      302,
+      221,
+      0,
+      213,
+      1,
+      "IMAGE"
+    ],
+    [
+      303,
+      213,
+      1,
+      222,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 1.3920191078517683,
+      "offset": [
+        4898.859436279234,
+        -79.3314399803767
+      ]
+    },
+    "frontendVersion": "1.33.5",
+    "workflowRendererVersion": "LG",
+    "VHS_latentpreview": false,
+    "VHS_latentpreviewrate": 0,
+    "VHS_MetadataImage": true,
+    "VHS_KeepIntermediate": true
+  },
+  "version": 0.4
+}
