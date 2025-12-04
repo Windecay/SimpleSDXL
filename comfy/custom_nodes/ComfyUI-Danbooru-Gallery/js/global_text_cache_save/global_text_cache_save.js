@@ -1347,7 +1347,7 @@ class WorkflowChannelSynchronizer {
             }
 
         } catch (error) {
-            this.throttledErrorLog("[WorkflowSynchronizer] ❌ 工作流通道同步异常:", error);
+            // this.throttledErrorLog("[WorkflowSynchronizer] ❌ 工作流通道同步异常:", error);
             if (showToast) {
                 showToast(`❌ 工作流同步异常: ${error.message}`, 'error', 4000);
             }
