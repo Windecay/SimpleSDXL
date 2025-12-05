@@ -150,11 +150,13 @@ def get_preset_name_list(user_session, ua_hash):
         user_preset_file = get_path_in_user_dir('presets.txt', user_did, 'presets')
         if not os.path.exists(user_preset_file):
             path_preset = os.path.abspath(f'./presets/')
-            presets = [p for p in util.get_files_from_folder(path_preset, ['.json'], None) if not p.startswith('.')]
+            presets = [p for p in util.get_files_from_folder(path_preset, ['.json'], None) 
+                      if not p.startswith('.') and 'deprecated' not in p]
             file_times = [(f[:-5], os.path.getmtime(os.path.join(path_preset, f))) for f in presets]
             user_path_preset = get_path_in_user_dir('presets', user_did)
             if os.path.exists(user_path_preset):
-                presets2 = [p for p in util.get_files_from_folder(user_path_preset, ['.json'], None) if not p.startswith('.')]
+                presets2 = [p for p in util.get_files_from_folder(user_path_preset, ['.json'], None) 
+                           if not p.startswith('.') and 'deprecated' not in p]
                 file_times2 = [(f'{f[:-5]}.', os.path.getmtime(os.path.join(user_path_preset, f))) for f in presets2]
                 file_times = file_times + file_times2
             presets = sorted(file_times, key=lambda x: x[1], reverse=True)
@@ -175,7 +177,8 @@ def get_preset_name_list(user_session, ua_hash):
                 presets_list = nav_preset_file.read()
         else:
             path_preset = os.path.abspath(f'./presets/')
-            presets = [p for p in util.get_files_from_folder(path_preset, ['.json'], None) if not p.startswith('.')]
+            presets = [p for p in util.get_files_from_folder(path_preset, ['.json'], None) 
+                      if not p.startswith('.') and 'deprecated' not in p]
             file_times = [(f[:-5], os.path.getmtime(os.path.join(path_preset, f))) for f in presets]
             presets = sorted(file_times, key=lambda x: x[1], reverse=True)
             presets = [f[0] for f in presets]
@@ -193,16 +196,17 @@ def get_preset_name_list(user_session, ua_hash):
         shared.token.set_local_vars("user_presets", presets_list, user_session, ua_hash)
     return presets_list
 
-
 preset_samples = {}
 def get_preset_samples(user_did=None):
     global preset_samples
     path_preset = os.path.abspath(f'./presets/')
-    presets = [p[:-5] for p in util.get_files_from_folder(path_preset, ['.json'], None) if not p.startswith('.')]
+    presets = [p[:-5] for p in util.get_files_from_folder(path_preset, ['.json'], None) 
+              if not p.startswith('.') and 'deprecated' not in p]
     if user_did and not shared.token.is_guest(user_did):
         user_path_preset = get_path_in_user_dir('presets', user_did)
         if os.path.exists(user_path_preset):
-            presets2 = [p for p in util.get_files_from_folder(user_path_preset, ['.json'], None) if not p.startswith('.')]
+            presets2 = [p for p in util.get_files_from_folder(user_path_preset, ['.json'], None) 
+                       if not p.startswith('.') and 'deprecated' not in p]
             presets2 = [f'{p[:-5]}.' for p in presets2]
             presets = presets + presets2
     presets = sorted(presets)
