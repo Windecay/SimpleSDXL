@@ -140,6 +140,8 @@ def load_model_paths():
             "ultralytics": [os.path.join(simplemodels_root, "ultralytics")],
             "bbox": [os.path.join(simplemodels_root, "ultralytics", "bbox")],
             "segm": [os.path.join(simplemodels_root, "ultralytics", "segm")],
+            "SDPose_OOD": [os.path.join(simplemodels_root, "SDPose_OOD")],
+            "yolo": [os.path.join(simplemodels_root, "yolo")],
         }
 
     except Exception as e:
@@ -178,6 +180,8 @@ def load_model_paths():
             "ultralytics": [os.path.join(simplemodels_root, "ultralytics")],
             "bbox": [os.path.join(simplemodels_root, "ultralytics", "bbox")],
             "segm": [os.path.join(simplemodels_root, "ultralytics", "segm")],
+            "SDPose_OOD": [os.path.join(simplemodels_root, "SDPose_OOD")],
+            "yolo": [os.path.join(simplemodels_root, "yolo")],
         }
 
     for key in path_mapping:
@@ -322,7 +326,7 @@ def normalize_path(path):
     if len(path_parts) < 2:
         return os.path.abspath(path)
 
-    path_type = path_parts[0].lower()
+    path_type = path_parts[0]
     filename = '/'.join(path_parts[1:])
 
     sorted_dirs = sorted(
@@ -358,7 +362,7 @@ def print_instructions():
     time.sleep(0.1)
     print(f"{Fore.GREEN}★{Style.RESET_ALL}打开默认浏览器设置，关闭GPU加速、或图形加速的选项。{Fore.GREEN}★{Style.RESET_ALL}大内存(64+)与固态硬盘存放模型有助于减少模型加载时间。{Fore.GREEN}★{Style.RESET_ALL}")
     time.sleep(0.1)
-    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：938075852{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:25.10.29{Fore.GREEN}★{Style.RESET_ALL}")
+    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：1005085136{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:25.12.05{Fore.GREEN}★{Style.RESET_ALL}")
     print()
     time.sleep(0.1)
     
@@ -419,7 +423,7 @@ def validate_files(packages):
         for expected_path, expected_size in files_and_sizes:
             expected_filename = os.path.basename(expected_path) 
             path_parts = expected_path.split('/')
-            path_type = path_parts[0].lower() if len(path_parts) > 0 else ''
+            path_type = path_parts[0] if len(path_parts) > 0 else ''
             sub_path = '/'.join(path_parts[1:]) if len(path_parts) > 1 else ''
 
             search_dirs = sorted(
@@ -443,14 +447,16 @@ def validate_files(packages):
             if url_match:
                 local_dir = expected_path.split(url_match.group(0))[0].rstrip('/')
                 file_name = os.path.basename(url_match.group(0))
+
                 for base_dir in search_dirs:
                     actual_full_path = os.path.join(base_dir, local_dir.replace(path_type, "", 1).lstrip('/'), file_name)
+
                     actual_full_path = os.path.normpath(actual_full_path)
+
                     if os.path.exists(actual_full_path):
                         actual_dir = os.path.dirname(actual_full_path)
                         found = True
                         expected_path = os.path.join(local_dir, file_name)
-                        # non_missing_size += expected_size
                         break
                 # if found:
                 #     continue
@@ -492,15 +498,16 @@ def validate_files(packages):
         os.path.join(simplemodels_root, "checkpoints"),
         os.path.join(simplemodels_root, "loras"),
         os.path.join(simplemodels_root, "controlnet"),
-        os.path.join(simplemodels_root, "ipadapter")]
+        os.path.join(simplemodels_root, "ipadapter"),
+        os.path.join(simplemodels_root, "diffusers")
+        ]
         for model_root in MODEL_PATHS_TO_SCAN:
             if not os.path.exists(model_root):
                 continue
-            for root, _, files in os.walk(model_root):
+            for scan_root, _, files in os.walk(model_root):
                 for file in files:
-                    # 使用文件名全小写匹配
                     if file.lower() in [x.lower() for x in OBSOLETE_MODELS]:
-                        full_path = os.path.join(root, file)
+                        full_path = os.path.join(scan_root, file)
                         obsolete_files.append(full_path)
 
 
@@ -939,7 +946,7 @@ def trigger_manual_download():
         if "SimpleModels/" in link:
             path_part = link.split("SimpleModels/", 1)[1]
             path_parts = path_part.split('/')
-            path_type = path_parts[0].lower()
+            path_type = path_parts[0]
             rel_path = '/'.join(path_parts[1:])
         else:
             continue
@@ -1004,7 +1011,7 @@ def auto_download_missing_files_with_retry(max_threads=5):
                 if link.startswith(CURRENT_DOWNLOAD_PREFIX):
                     relative_path = link.replace(CURRENT_DOWNLOAD_PREFIX, "", 1).strip()
                     relative_path_without_prefix = relative_path.replace("SimpleModels/", "", 1)
-                    path_type = relative_path_without_prefix.split('/')[0].lower()
+                    path_type = relative_path_without_prefix.split('/')[0]
                 else:
                     found_path = None
                     for package_name, package_info in packages.items():
@@ -1020,7 +1027,7 @@ def auto_download_missing_files_with_retry(max_threads=5):
                         url_match = re.search(url_pattern, found_path)
                         if url_match:
                             save_directory = found_path.split(url_match.group(0))[0].rstrip('/')
-                            path_type = save_directory.split('/')[0].lower() if save_directory else "default"
+                            path_type = save_directory.split('/')[0] if save_directory else "default"
                             url_path = url_match.group(0)
                             file_name_from_url = os.path.basename(url_path)
                             relative_path = os.path.join(save_directory, file_name_from_url)
@@ -1185,17 +1192,21 @@ def delete_package(package_name, packages):
 
                 if path_part:
                     path_parts = path_part.split('/')
-                    file_type = path_parts[0].lower() if path_parts else ""
+                    file_type = path_parts[0] if path_parts else ""
+                    rel_path = '/'.join(path_parts[1:]) if len(path_parts) > 1 else ""
 
                     for base_dir in path_mapping.get(file_type, []):
-                        full_path = os.path.join(base_dir, file_name)
+                        if rel_path:
+                            full_path = os.path.join(base_dir, rel_path, file_name)
+                        else:
+                            full_path = os.path.join(base_dir, file_name)
                         if os.path.exists(full_path):
                             file_refs[full_path].append(pkg_name)
             else:
                 path_parts = path_with_url.split('/')
                 if len(path_parts) < 1: continue
 
-                file_type = path_parts[0].lower()
+                file_type = path_parts[0]
                 rel_path = '/'.join(path_parts[1:]) if len(path_parts) > 1 else ""
 
                 for base_dir in path_mapping.get(file_type, []):
@@ -1219,10 +1230,14 @@ def delete_package(package_name, packages):
 
             if path_part:
                 path_parts = path_part.split('/')
-                file_type = path_parts[0].lower() if path_parts else ""
+                file_type = path_parts[0] if path_parts else ""
+                rel_path = '/'.join(path_parts[1:]) if len(path_parts) > 1 else ""
 
                 for base_dir in path_mapping.get(file_type, []):
-                    full_path = os.path.join(base_dir, file_name)
+                    if rel_path:
+                        full_path = os.path.join(base_dir, rel_path, file_name)
+                    else:
+                        full_path = os.path.join(base_dir, file_name)
                     if os.path.exists(full_path):
                         if len(file_refs[full_path]) == 1 and file_refs[full_path][0] == package_name:
                             delete_candidates.append(full_path)
@@ -1235,14 +1250,20 @@ def delete_package(package_name, packages):
                 if path_part:
                     path_parts = path_part.split('/')
                     if path_parts:
-                        file_type = path_parts[0].lower()
+                        file_type = path_parts[0]
+                        rel_path = '/'.join(path_parts[1:]) if len(path_parts) > 1 else ""
                         default_base_dir = os.path.join(simplemodels_root, file_type)
+                        if rel_path:
+                            default_path = os.path.join(default_base_dir, rel_path, file_name)
+                        else:
+                            default_path = os.path.join(default_base_dir, file_name)
                     else:
                         default_base_dir = simplemodels_root
+                        default_path = os.path.join(default_base_dir, file_name)
                 else:
                     default_base_dir = simplemodels_root
+                    default_path = os.path.join(default_base_dir, file_name)
 
-                default_path = os.path.join(default_base_dir, file_name)
                 if os.path.exists(default_path):
                     if len(file_refs[default_path]) == 1 and file_refs[default_path][0] == package_name:
                         delete_candidates.append(default_path)
@@ -1252,7 +1273,7 @@ def delete_package(package_name, packages):
             path_parts = path_with_url.split('/')
             if len(path_parts) < 1: continue
 
-            file_type = path_parts[0].lower()
+            file_type = path_parts[0]
             rel_path = '/'.join(path_parts[1:]) if len(path_parts) > 1 else ""
             found = False
 
@@ -1555,57 +1576,26 @@ packages = {
         ],
         "download_links": []
     },
-        "Kolors_aio_package": {
+    "one_key_pose_package": {
         "id": 5,
-        "name": "[5]Kolors_AIO扩展包",
-        "note": "可图全功能-默认模型[Kolors_V1.0]|显存需求：★★★ 速度：★★★",
+        "name": "[5]一键Pose骨骼图预置包",
+        "note": "使用SDPose、DWpose进行预处理姿势|显存需求：★★ 速度：★★★★★",
         "files": [
-            ("checkpoints/kolors_unet_fp16.safetensors", 5159140240),
-            ("clip_vision/kolors_clip_ipa_plus_vit_large_patch14_336.bin", 1711974081),
-            ("controlnet/kolors_controlnet_pose.safetensors", 2526129624),
-            ("controlnet/xinsir_cn_union_sdxl_1.0_promax.safetensors", 2513342408),
-            ("controlnet/lllyasviel/Annotators/ZoeD_M12_N.pt", 1443406099),
-            ("diffusers/Kolors/model_index.json", 427),
-            ("diffusers/Kolors/MODEL_LICENSE", 14920),
-            ("diffusers/Kolors/README.md", 4707),
-            ("diffusers/Kolors/scheduler/scheduler_config.json", 606),
-            ("diffusers/Kolors/text_encoder/config.json", 1323),
-            ("diffusers/Kolors/text_encoder/configuration_chatglm.py", 2332),
-            ("diffusers/Kolors/text_encoder/modeling_chatglm.py", 55722),
-            ("diffusers/Kolors/text_encoder/pytorch_model-00001-of-00007.bin", 1827781090),
-            ("diffusers/Kolors/text_encoder/pytorch_model-00002-of-00007.bin", 1968299480),
-            ("diffusers/Kolors/text_encoder/pytorch_model-00003-of-00007.bin", 1927415036),
-            ("diffusers/Kolors/text_encoder/pytorch_model-00004-of-00007.bin", 1815225998),
-            ("diffusers/Kolors/text_encoder/pytorch_model-00005-of-00007.bin", 1968299544),
-            ("diffusers/Kolors/text_encoder/pytorch_model-00006-of-00007.bin", 1927415036),
-            ("diffusers/Kolors/text_encoder/pytorch_model-00007-of-00007.bin", 1052808542),
-            ("diffusers/Kolors/text_encoder/pytorch_model.bin.index.json", 20437),
-            ("diffusers/Kolors/text_encoder/quantization.py", 14692),
-            ("diffusers/Kolors/text_encoder/tokenization_chatglm.py", 12223),
-            ("diffusers/Kolors/text_encoder/tokenizer.model", 1018370),
-            ("diffusers/Kolors/text_encoder/tokenizer_config.json", 249),
-            ("diffusers/Kolors/text_encoder/vocab.txt", 1018370),
-            ("diffusers/Kolors/tokenizer/tokenization_chatglm.py", 12223),
-            ("diffusers/Kolors/tokenizer/tokenizer.model", 1018370),
-            ("diffusers/Kolors/tokenizer/tokenizer_config.json", 249),
-            ("diffusers/Kolors/tokenizer/vocab.txt", 1018370),
-            ("diffusers/Kolors/unet/config.json", 1785),
-            ("diffusers/Kolors/vae/config.json", 611),
-            ("diffusers/Kolors/unet/diffusion_pytorch_model.fp16.safetensors", 145),
-            ("diffusers/Kolors/vae/diffusion_pytorch_model.fp16.safetensors", 145),
-            ("insightface/models/antelopev2/1k3d68.onnx", 143607619),
-            ("insightface/models/antelopev2/2d106det.onnx", 5030888),
-            ("insightface/models/antelopev2/genderage.onnx", 1322532),
-            ("insightface/models/antelopev2/glintr100.onnx", 260665334),
-            ("insightface/models/antelopev2/scrfd_10g_bnkps.onnx", 16923827),
-            ("ipadapter/kolors_ipa_faceid_plus.bin", 2385842603),
-            ("ipadapter/kolors_ip_adapter_plus_general.bin", 1013163359),
-            ("loras/Hyper-SDXL-8steps-lora.safetensors", 787359648),
-            ("loras/sd_xl_offset_example-lora_1.0.safetensors", 49553604),
-            ("unet/kolors_inpainting.safetensors", 5159169040),
-            ("upscale_models/4x-UltraSharp.pth", 66961958),
-            ("upscale_models/4xNomosUniDAT_bokeh_jpg.safetensors", 154152604),
-            ("vae/sdxl_fp16.vae.safetensors", 167335342)
+            ("controlnet/hr16/DWPose-TorchScript-BatchSize5/https://www.modelscope.cn/models/svjack/DWPose-TorchScript-BatchSize5/resolve/master/dw-ll_ucoco_384_bs5.torchscript.pt", 135059124),
+            ("controlnet/yzd-v/DWPose/https://www.modelscope.cn/models/zhangjin/DWPose/resolve/master/yolox_l.onnx", 216746733),
+            ("SDPose_OOD/SDPose-Wholebody/vae/https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/vae/config.json", 611),
+            ("SDPose_OOD/SDPose-Wholebody/vae/https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/vae/diffusion_pytorch_model.safetensors", 334643276),
+            ("SDPose_OOD/SDPose-Wholebody/unet/https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/unet/config.json", 1859),
+            ("SDPose_OOD/SDPose-Wholebody/unet/https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/unet/diffusion_pytorch_model.safetensors", 3470311272),
+            ("SDPose_OOD/SDPose-Wholebody/tokenizer/https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/tokenizer/merges.txt", 524619),
+            ("SDPose_OOD/SDPose-Wholebody/tokenizer/https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/tokenizer/special_tokens_map.json", 460),
+            ("SDPose_OOD/SDPose-Wholebody/tokenizer/https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/tokenizer/tokenizer_config.json", 824),
+            ("SDPose_OOD/SDPose-Wholebody/tokenizer/https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/tokenizer/vocab.json", 1059962),
+            ("SDPose_OOD/SDPose-Wholebody/decoder/https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/decoder/decoder.safetensors", 28196828),
+            ("SDPose_OOD/SDPose-Wholebody/scheduler/https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/scheduler/scheduler_config.json", 344),
+            ("SDPose_OOD/SDPose-Wholebody/text_encoder/https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/text_encoder/model.safetensors", 1361597018),
+            ("SDPose_OOD/SDPose-Wholebody/text_encoder/https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/text_encoder/config.json", 633),
+            ("yolo/https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/yolo11x.pt", 114636239),
         ],
         "download_links": []
     },
@@ -2152,7 +2142,7 @@ packages = {
             "https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/checkpoints/Wan2.2_T2V_Low_Noise_14B_VACE-Q4_K_M.gguf",
             "https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/clip/umt5-xxl-encoder-Q8_0.gguf"
         ]
-    },
+    }
 }
 
 MANUAL_DOWNLOAD_MAP = {
@@ -2164,7 +2154,6 @@ MANUAL_DOWNLOAD_MAP = {
         "flux-hyp8-Q5_K_M.jpg",
         "hunyuan_dit_1.2.jpg",
         "juggernautXL_juggXIByRundiffusion.jpg",
-        "kolors_unet_fp16.jpg",
         "LEOSAM_HelloWorldXL_70.jpg",
         "miaomiaoHarem_v15b.jpg",
         "playground-v2.5-1024px.jpg",
@@ -2187,7 +2176,6 @@ MANUAL_DOWNLOAD_MAP = {
         "Hyper-SDXL-8steps-lora.jpg",
         "ip-adapter-faceid-plusv2_sd15_lora.jpg",
         "ip-adapter-faceid-plusv2_sdxl_lora.jpg",
-        "kolors_crayonsketch_e10.jpg",
         "sd_xl_offset_example-lora_1.0.jpg",
         "SDXL_FILM_PHOTOGRAPHY_STYLE_V1.jpg",
         "sdxl_hyper_sd_4step_lora.jpg",
@@ -2251,7 +2239,19 @@ OBSOLETE_MODELS = [
     "Qwen-Image-Edit-Lightning-4steps-V1.0-bf16.safetensors",
     "FramePackI2V_HY_fp8_e4m3fn.safetensors"
     "llava_llama3_fp8_scaled.safetensors",
-    "hunyuan_video_vae_bf16.safetensors"
+    "hunyuan_video_vae_bf16.safetensors",
+    "kolors_unet_fp16.safetensors",
+    "kolors_clip_ipa_plus_vit_large_patch14_336.bin",
+    "kolors_controlnet_pose.safetensors",
+    "kolors_ipa_faceid_plus.bin",
+    "kolors_ip_adapter_plus_general.bin",
+    "pytorch_model-00001-of-00007.bin",
+    "pytorch_model-00002-of-00007.bin",
+    "pytorch_model-00003-of-00007.bin",
+    "pytorch_model-00004-of-00007.bin",
+    "pytorch_model-00005-of-00007.bin",
+    "pytorch_model-00006-of-00007.bin",
+    "pytorch_model-00007-of-00007.bin",
 ]
 def main():
     print()

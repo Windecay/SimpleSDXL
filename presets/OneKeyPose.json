@@ -6,23 +6,26 @@
             "available_aspect_ratios_selection": "Flux",
             "scene_frontend": {
                 "version": "m1.1",
-                "theme": ["OneKeyPose"],
+                "theme": ["SDPose-OOD","DWPose"],
                 "theme_title": "快速转换Pose骨骼图",
                 "disvisible": ["scene_canvas_image", "scene_input_image2","scene_additional_prompt","scene_additional_prompt_2","scene_aspect_ratio", "scene_image_number", "scene_use_lora"],
                 "task_method": {
-                    "OneKeyPose": "onekey_pose"
+                    "SDPose-OOD": "sdpose",
+                    "DWPose": "dw_pose"
                 },
                 "scene_steps": {
-                    "OneKeyPose": 1
+                    "SDPose-OOD": 1,
+                    "DWPose": 1
                 },
                 "var_number_title": "[1]=加粗骨骼 [2]=普通骨骼",
                 "var_number": {
-                    "OneKeyPose":1
+                    "SDPose-OOD":1,
+                    "DWPose":1
                 },
                 "var_number_max": 2,
                 "aspect_ratio" : ["9:16", "4:5", "4:3", "3:2", "16:9"],
                 "image_preprocessor_method": {
-                    "OneKeyPose": [["-normalization"]]}
+                    "DWPose": [["-normalization"]]}
             }
     },
     "default_model": "None",
@@ -67,6 +70,19 @@
     "vae_downloads": {},
     "model_list": [
         "controlnet/hr16/DWPose-TorchScript-BatchSize5,dw-ll_ucoco_384_bs5.torchscript.pt,135059124,0,https://www.modelscope.cn/models/svjack/DWPose-TorchScript-BatchSize5/resolve/master/dw-ll_ucoco_384_bs5.torchscript.pt",
-        "controlnet/yzd-v/DWPose,yolox_l.onnx,216746733,0,https://www.modelscope.cn/models/zhangjin/DWPose/resolve/master/yolox_l.onnx"
+        "controlnet/yzd-v/DWPose,yolox_l.onnx,216746733,0,https://www.modelscope.cn/models/zhangjin/DWPose/resolve/master/yolox_l.onnx",
+        "SDPose_OOD/SDPose-Wholebody/vae,config.json,611,0,https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/vae/config.json",
+        "SDPose_OOD/SDPose-Wholebody/vae,diffusion_pytorch_model.safetensors,334643276,0,https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/vae/diffusion_pytorch_model.safetensors",
+        "SDPose_OOD/SDPose-Wholebody/unet,config.json,1859,0,https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/unet/config.json",
+        "SDPose_OOD/SDPose-Wholebody/unet,diffusion_pytorch_model.safetensors,3470311272,0,https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/unet/diffusion_pytorch_model.safetensors",
+        "SDPose_OOD/SDPose-Wholebody/tokenizer,merges.txt,524619,0,https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/tokenizer/merges.txt",
+        "SDPose_OOD/SDPose-Wholebody/tokenizer,special_tokens_map.json,460,0,https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/tokenizer/special_tokens_map.json",
+        "SDPose_OOD/SDPose-Wholebody/tokenizer,tokenizer_config.json,824,0,https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/tokenizer/tokenizer_config.json",
+        "SDPose_OOD/SDPose-Wholebody/tokenizer,vocab.json,1059962,0,https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/tokenizer/vocab.json",
+        "SDPose_OOD/SDPose-Wholebody/decoder,decoder.safetensors,28196828,0,https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/decoder/decoder.safetensors",
+        "SDPose_OOD/SDPose-Wholebody/scheduler,scheduler_config.json,344,0,https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/scheduler/scheduler_config.json",
+        "SDPose_OOD/SDPose-Wholebody/text_encoder,model.safetensors,1361597018,0,https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/text_encoder/model.safetensors",
+        "SDPose_OOD/SDPose-Wholebody/text_encoder,config.json,633,0,https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/text_encoder/config.json",
+        "yolo,yolo11x.pt,114636239,0,https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/yolo11x.pt"
     ]
 }

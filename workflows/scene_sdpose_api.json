@@ -1,0 +1,176 @@
+{
+  "20": {
+    "inputs": {
+      "model_type": "WholeBody",
+      "unet_precision": "fp16",
+      "device": "auto",
+      "unload_on_finish": true
+    },
+    "class_type": "SDPoseOODLoader",
+    "_meta": {
+      "title": "Load SDPose Model"
+    }
+  },
+  "21": {
+    "inputs": {
+      "score_threshold": 0.3,
+      "overlay_alpha": 1,
+      "batch_size": 1,
+      "prompt": "person .",
+      "gd_threshold": 0.3,
+      "save_for_editor": false,
+      "filename_prefix_edit": "poses/pose_edit",
+      "keep_face": true,
+      "keep_hands": true,
+      "keep_feet": true,
+      "scale_for_xinsr": true,
+      "sdpose_model": [
+        "20",
+        0
+      ],
+      "images": [
+        "59",
+        0
+      ],
+      "yolo_model": [
+        "26",
+        0
+      ]
+    },
+    "class_type": "SDPoseOODProcessor",
+    "_meta": {
+      "title": "Run SDPose Estimation"
+    }
+  },
+  "23": {
+    "inputs": {
+      "image": "welcome.png"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "i2i_ip_image1"
+    }
+  },
+  "26": {
+    "inputs": {
+      "model_name": "yolo11x.pt"
+    },
+    "class_type": "YOLOModelLoader",
+    "_meta": {
+      "title": "Load YOLO Model"
+    }
+  },
+  "59": {
+    "inputs": {
+      "generation_width": 1024,
+      "generation_height": 1024,
+      "aspect_ratio_preservation": "keep_input",
+      "image": [
+        "23",
+        0
+      ]
+    },
+    "class_type": "WanVideoImageResizeToClosest",
+    "_meta": {
+      "title": "WanVideo Image Resize To Closest"
+    }
+  },
+  "68": {
+    "inputs": {
+      "images": [
+        "72",
+        0
+      ]
+    },
+    "class_type": "SaveImageWebsocket",
+    "_meta": {
+      "title": "SaveImageWebsocket"
+    }
+  },
+  "69": {
+    "inputs": {
+      "value": 1
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "var_number"
+    }
+  },
+  "70": {
+    "inputs": {
+      "value": 1
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "int"
+    }
+  },
+  "71": {
+    "inputs": {
+      "comparison": "a == b",
+      "a": [
+        "69",
+        0
+      ],
+      "b": [
+        "70",
+        0
+      ]
+    },
+    "class_type": "easy compare",
+    "_meta": {
+      "title": "Compare"
+    }
+  },
+  "72": {
+    "inputs": {
+      "boolean": [
+        "71",
+        0
+      ],
+      "on_true": [
+        "21",
+        0
+      ],
+      "on_false": [
+        "73",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "73": {
+    "inputs": {
+      "score_threshold": 0.3,
+      "overlay_alpha": 1,
+      "batch_size": 1,
+      "prompt": "person .",
+      "gd_threshold": 0.3,
+      "save_for_editor": false,
+      "filename_prefix_edit": "poses/pose_edit",
+      "keep_face": true,
+      "keep_hands": true,
+      "keep_feet": true,
+      "scale_for_xinsr": false,
+      "sdpose_model": [
+        "20",
+        0
+      ],
+      "images": [
+        "59",
+        0
+      ],
+      "yolo_model": [
+        "26",
+        0
+      ]
+    },
+    "class_type": "SDPoseOODProcessor",
+    "_meta": {
+      "title": "Run SDPose Estimation"
+    }
+  }
+}

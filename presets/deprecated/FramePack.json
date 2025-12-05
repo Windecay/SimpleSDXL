@@ -1,0 +1,88 @@
+{ 
+    "default_engine": {
+            "backend_engine": "Comfy",
+	    "engine_type": "video",
+            "disvisible": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
+            "disinteractive": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
+            "available_aspect_ratios_selection": "Flux",
+            "scene_frontend": {
+                "version": "v1.1",
+                "theme": ["快速", "高质量", "循环"],
+                "theme_title": "图生视频 [上传首帧，尾帧可选]/[高质量=关闭加速]/[循环=首尾匹配]*上传一张纯黑图片可触发文生视频*。",
+                "disvisible": ["scene_canvas_image", "scene_additional_prompt","scene_additional_prompt_2"],
+                "prompt": {
+                    "快速": "这是一个动感十足的画面",
+                    "高质量": "这是一个动感十足的画面",
+                    "循环": "这是一个动感十足的画面"
+                },
+                "task_method": {
+                    "快速": "framepack_cn",
+                    "高质量": "framepack_hq_cn",
+                    "循环": "framepack_loop_cn"
+                },
+                "agent_prompt": {
+                    "快速": "您是一名助手，负责撰写用于动画图像的简短、注重运动的提示。根据我输入的图像，请用一个简洁的提示来描述视觉运动（例如，人类活动、移动物体或相机运动）。只关注场景如何变得生动和动态，使用简短的短语。更大、更动态的运动（如跳舞、跳跃、奔跑等）比较小或更微妙的运动（如静止、坐着等）更受青睐。先描述主体，然后是运动，然后是其他事物。例如：“女孩优雅地跳舞，动作清楚，充满魅力。”如果有可以跳舞的东西（如男人、女孩、机器人等），则优先将其描述为跳舞。保持循环：一张图像输入，一条运动提示输出。不要解释、提问或生成多个选项。我想要的画面是：",
+                    "高质量": "您是一名助手，负责撰写用于动画图像的简短、注重运动的提示。根据我输入的图像，请用一个简洁的提示来描述视觉运动（例如，人类活动、移动物体或相机运动）。只关注场景如何变得生动和动态，使用简短的短语。更大、更动态的运动（如跳舞、跳跃、奔跑等）比较小或更微妙的运动（如静止、坐着等）更受青睐。先描述主体，然后是运动，然后是其他事物。例如：“女孩优雅地跳舞，动作清楚，充满魅力。”如果有可以跳舞的东西（如男人、女孩、机器人等），则优先将其描述为跳舞。保持循环：一张图像输入，一条运动提示输出。不要解释、提问或生成多个选项。我想要的画面是：",
+                    "循环": "您是一名助手，负责撰写用于动画图像的简短、注重运动的提示。根据我输入的图像，请用一个简洁的提示来描述视觉运动（例如，人类活动、移动物体或相机运动）。只关注场景如何变得生动和动态，使用简短的短语。更大、更动态的运动（如跳舞、跳跃、奔跑等）比较小或更微妙的运动（如静止、坐着等）更受青睐。先描述主体，然后是运动，然后是其他事物。例如：“女孩优雅地跳舞，动作清楚，充满魅力。”如果有可以跳舞的东西（如男人、女孩、机器人等），则优先将其描述为跳舞。保持循环：一张图像输入，一条运动提示输出。不要解释、提问或生成多个选项。我想要的画面是："
+                },
+                "var_number": {
+                    "快速":5,
+                    "高质量":5,
+                    "循环":3
+                },
+                "scene_steps": {
+                    "快速": 20,
+                    "高质量": 20,
+                    "循环": 20
+                },
+                "aspect_ratio" : ["640|1:1", "480|1:1", "320|1:1", "720|1:1", "832|1:1", "960|1:1"]
+            }
+    },
+    "default_model": "FramePackI2V_HY_fp8_e4m3fn.safetensors",
+    "default_refiner": "None",
+    "default_refiner_switch": 0.5,
+    "default_loras": [
+        [
+            "None",
+            1.0
+        ],
+        [
+            "None",
+            1.0
+        ],
+        [
+            "None",
+            1.0
+        ],
+        [
+            "None",
+            1.0
+        ],
+        [
+            "None",
+            1.0
+        ]
+    ],
+    "default_cfg_scale": 5.0,
+    "default_sample_sharpness": 2,
+    "default_sampler": "euler_ancestral",
+    "default_scheduler": "simple",
+    "default_performance": "Speed",
+    "default_styles": [],
+    "default_aspect_ratio": "1024*1024",
+    "default_image_number": 1,
+    "default_overwrite_step":30,
+    "default_prompt": "",
+    "default_prompt_negative": "low quality, worst quality",
+    "checkpoint_downloads": {},
+    "embeddings_downloads": {},
+    "lora_downloads": {},
+    "vae_downloads": {},
+    "model_list": [
+        "checkpoints,FramePackI2V_HY_fp8_e4m3fn.safetensors,16331849976,0,",
+        "clip,clip_l.safetensors,246144152,0,",
+        "clip,llava_llama3_fp8_scaled.safetensors,9091392483,0,",
+        "clip_vision,sigclip_vision_patch14_384.safetensors,856505640,0,",
+        "vae,hunyuan_video_vae_bf16.safetensors,492984198,0,"
+        ]
+}
