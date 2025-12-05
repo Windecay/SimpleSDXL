@@ -154,7 +154,6 @@ def get_model(config):
         print(f"Loading mmproj from {mmproj_path}")
         if chat_handler == "Qwen3-VL":
             try:
-                print(image_max_tokens, image_min_tokens)
                 _chat_handler = handler(
                     clip_model_path=mmproj_path,
                     force_reasoning=think_mode,
@@ -220,7 +219,7 @@ class llama_cpp_instruct_adv:
                 "llamamodel": ("LLAMACPPMODEL",),
                 "parameters": ("LLAMACPPARAMS",),
                 "preset_prompt": (preset_tags, {"default": preset_tags[0]}),
-                "custom_prompt": ("STRING", {"default": "", "multiline": True, "placeholder": 'For preset hints marked with an "*", this will be used to fill the placeholder (e.g., Object names in BBox detection)\n\nOtherwise, this will override the preset prompts.'}),
+                "custom_prompt": ("STRING", {"default": "", "multiline": True, "placeholder": 'user_prompt\n\nFor preset hints marked with an "*", this will be used to fill the placeholder (e.g., Object names in BBox detection)\nOtherwise, this will override the preset prompts.'}),
                 "system_prompt": ("STRING", {"multiline": True, "default": ""}),
                 "input_mode": (["one by one", "images", "video"], {
                     "default": "one by one",
@@ -309,7 +308,7 @@ class llama_cpp_instruct_adv:
                 user_content.append(image_content)
                 messages.append({"role": "user", "content": user_content})
                 for i, image in enumerate(frames):
-                    print(f"[llama-cpp_vllm] Reading image {i}/{len(frames)}...")
+                    print(f"[llama-cpp_vllm] Reading image {i+1}/{len(frames)}...")
                     data = image2base64(np.clip(255.0 * image.cpu().numpy().squeeze(), 0, 255).astype(np.uint8))
                     for item in user_content:
                         if item.get("type") == "image_url":
@@ -339,11 +338,18 @@ class llama_cpp_instruct_adv:
                 output = self.llm.create_chat_completion(messages=messages, seed=seed, **filtered_params)
                 text = output['choices'][0]['message']['content']
                 text = text[2:].lstrip() if text.startswith(": ") else text.lstrip() 
+        else:
+            parameters.pop("image_min_tokens", None)
+            parameters.pop("image_max_tokens", None)
+            messages.append({"role": "user", "content": user_content})
+            output = self.llm.create_chat_completion(messages=messages, seed=seed, **parameters)
+            text = output['choices'][0]['message']['content']
+            text = text[2:].lstrip() if text.startswith(": ") else text.lstrip() 
         
-                if not keep_model_loaded:
-                    self.clean()
+        if not keep_model_loaded:
+            self.clean()
         
-                return (text,)
+        return (text,)
 
 class llama_cpp_instruct:
     @classmethod
@@ -362,6 +368,16 @@ class llama_cpp_instruct:
     FUNCTION = "process"
     CATEGORY = "llama-cpp-vllm"
     
+    def clean(self):
+        self.llm.close()
+        try:
+            self.chat_handler._exit_stack.close()
+        except Exception:
+            pass
+        del self.llm, self.chat_handler
+        gc.collect()
+        mm.soft_empty_cache()
+    
     def process(self, llamamodel, parameters, prompt, seed):
         mm.soft_empty_cache()
         keep_model_loaded = llamamodel.get('keep_model_loaded', True)
@@ -370,6 +386,7 @@ class llama_cpp_instruct:
         filtered_params = {k: v for k, v in parameters.items() if k not in {'image_min_tokens', 'image_max_tokens'}}
         
         if not hasattr(self, "llm") or self.current_config != llamamodel:
+            print("[llama-cpp_vllm] Reloading model...")
             if hasattr(self, "llm"):
                 self.llm.close()
                 try:
@@ -384,28 +401,13 @@ class llama_cpp_instruct:
         user_content.append({"type": "text", "text": prompt})
         messages.append({"role": "user", "content": user_content})
         
-        output = self.llm.create_chat_completion(
-            messages=messages,
-            seed=seed,
-            **parameters
-        )
+        output = self.llm.create_chat_completion(messages=messages, seed=seed, **parameters)
+        text = output['choices'][0]['message']['content']
+        text = text[2:].lstrip() if text.startswith(": ") else text.lstrip() 
         
         if not keep_model_loaded:
-            self.llm.close()
-            try:
-                self.chat_handler._exit_stack.close()
-            except Exception:
-                pass
-            del self.llm, self.chat_handler
-            gc.collect()
-            mm.soft_empty_cache()
+            self.clean()
             
-        text = output['choices'][0]['message']['content']
-        
-        if text.startswith(": "):
-            text = text[2:]
-        text = text.lstrip() 
-        
         return (text,)
 
 class llama_cpp_parameters:
@@ -651,6 +653,34 @@ class bbox_to_mask:
             
         return (torch.cat(masks, dim=0),)
 
+class bboxes_to_bbox:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "bboxes": ("BBOX",),
+                "image_index": ("INT", {"default": 0, "min": 0, "max": 1000000, "step": 1}),
+                "bbox_index": ("INT", {
+                    "default": 0,
+                    "min": -998,
+                    "max": 999,
+                    "step": 1,
+                    "tooltip": "BBox index in the image. Set to 999 to get all bboxes."
+                }),
+            }
+        }
+    
+    RETURN_TYPES = ("BBOX",)
+    RETURN_NAMES = ("bbox",)
+    FUNCTION = "process"
+    CATEGORY = "llama-cpp-vllm"
+    
+    def process(self, bboxes, image_index, bbox_index):
+        if bbox_index != 999:
+            return ([bboxes[image_index][bbox_index]],)
+        return (bboxes[image_index],)
+        
+
 NODE_CLASS_MAPPINGS = {
     "llama_cpp_model_loader": llama_cpp_model_loader,
     "llama_cpp_instruct_adv": llama_cpp_instruct_adv,
@@ -659,6 +689,7 @@ NODE_CLASS_MAPPINGS = {
     "json_to_bbox": json_to_bbox,
     "bbox_to_segs": bbox_to_segs,
     "bbox_to_mask": bbox_to_mask,
+    "bboxes_to_bbox": bboxes_to_bbox,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -666,7 +697,8 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "llama_cpp_instruct_adv": "Llama-cpp Instruct (Advanced)",
     "llama_cpp_instruct": "Llama-cpp Instruct",
     "llama_cpp_parameters": "Llama-cpp Parameters",
-    "json_to_bbox": "JSON to BBOX",
-    "bbox_to_segs": "BBOX to SEGS",
-    "bbox_to_mask": "BBOX to MASK",
+    "json_to_bbox": "JSON to BBoxes",
+    "bbox_to_segs": "BBoxes to SEGS",
+    "bbox_to_mask": "BBoxes to MASK",
+    "bboxes_to_bbox": "BBoxes to BBox",
 }
