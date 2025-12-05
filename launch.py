@@ -71,7 +71,7 @@ def check_base_environment():
     print(f'{now_string()} 当前运行在可视化分支by冰華，部分界面和功能与主分支存在差异。')
 
     base_pkg = "simpleai_base"
-    ver_required = "0.3.25"
+    ver_required = "0.3.26"
     REINSTALL_BASE = False #if '_dev' not in version.get_branch() else True
     base_branch = "release"
     if '--dev' in (sys.argv):

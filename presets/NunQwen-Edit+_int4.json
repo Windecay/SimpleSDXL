@@ -8,7 +8,7 @@
                 "version": "m1.1",
                 "theme": ["双截棍Qwen-Editplus-1024px-4steps","双截棍Qwen-Editplus-1536px-4steps","双截棍Qwen-Editplus-2048px-4steps"],
                 "theme_title": "Qwen-Edit使用中文指令修改图片(画笔可生成[绿色方框区域]）",
-                "disvisible": ["scene_additional_prompt","scene_additional_prompt_2", "scene_use_lora"],
+                "disvisible": ["scene_additional_prompt","scene_additional_prompt_2"],
                 "task_method": {
                     "双截棍Qwen-Editplus-1024px-4steps": "nun_int4_qwen_editplus_cn",
                     "双截棍Qwen-Editplus-1536px-4steps": "nun_int4_qwen_editplus_1536_cn",
