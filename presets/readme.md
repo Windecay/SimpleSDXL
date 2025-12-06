@@ -30,7 +30,7 @@
 - 为了让更多人认识、了解和使用你创作的预置包，可以添加预置包的简介页。简介页是以html文件形式保存在`presets/html`目录下，也可以用URL形式加入配置文件。
 - 配置文件和说明文件放到位后，系统在每次启动或预置包切换时，会更新顶部的预置包导航，如果存在简介页则会自动出现在右侧设置Tab顶部。
 - 原创的预置包，可以推荐到社区，发布到公共的presets目录下，供大家分享学习和使用。
-- 目前SimpleSDXL支持的预置包配置参数如下，后续可以根据使用场景进行添加，可以在Github Issues和QQ群:938075852 提出需求。
+- 目前SimpleSDXL支持的预置包配置参数如下，后续可以根据使用场景进行添加，可以在Github Issues和QQ群:1005085136 提出需求。
 
   ```
   default_prompt                                    # 默认提示词
@@ -121,5 +121,5 @@ ase add some blessing and holiday elements, such as fireworks, red envelopes, et
 
 ## 如何获取制作好的预置包？
 - SimpleSDXL会优选社区用户制作的预置包更新到presets目录下，上到导航条，供大家使用。
-- 加入SimpleSDXL用户交流QQ群：938075852，通过群内获取。
+- 加入SimpleSDXL用户交流QQ群：1005085136，通过群内获取。
 <img width="250" src="https://v2.token.tm/img/qqgroup.jpg">

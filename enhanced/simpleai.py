@@ -454,7 +454,7 @@ Wiki: <a target= "_blank" href="http://simpai.cn">http://simpai.cn</a><br>
 开源代码:<br>
 Github: <a target= "_blank" href="https://github.com/metercai/SimpleSDXL">https://github.com/metercai/SimpleSDXL</a><br>
 学习交流:<br>
-QQ群: 938075852<br>
+QQ群: 1005085136<br>
 商务合作:<br>
 邮箱: 925457@qq.com
 '''

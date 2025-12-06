@@ -97,7 +97,7 @@ Enhanced parameter management for instant viewing and embedding of images, and c
 - [x] **主线同步** SimpleSDXL的增强代码保持良好的结构，与Fooocus主线版本保持良好的兼容性和扩展性，可以及时同步主线的新增能力和Bug修复。
 
 
-## 在线交流：qq群：938075852  如何使用，有哪些新需求，进群畅聊
+## 在线交流：qq群：1005085136  如何使用，有哪些新需求，进群畅聊
 <div align=center><img width="250" src="https://github.com/metercai/SimpleSDXL/assets/5652458/28f8c604-79eb-467d-956c-b9137c784194"></div>
 
 ## Star History

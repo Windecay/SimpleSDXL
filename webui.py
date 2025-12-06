@@ -248,7 +248,11 @@ def inpaint_mode_change(mode, inpaint_engine_version, outpaint, state):
         ]
 
     if inpaint_engine_version == 'empty':
-        task_method = 'SDXL' if 'task_method' not in state else state["task_method"]
+        backend_engine = state.get('backend_engine', 'Z-image')
+        if backend_engine == 'Z-image':
+            task_method = 'z_image_turbo_aio_cn'
+        else:
+            task_method = 'SDXL' if 'task_method' not in state else state["task_method"]
         inpaint_engine_version = modules.flags.default_inpaint_engine_versions(task_method)
     
     engine = 'Fooocus' if 'engine' not in state else state['engine']
@@ -277,7 +281,11 @@ def enhance_inpaint_mode_change(mode, inpaint_engine_version, state):
         ]
 
     if inpaint_engine_version == 'empty':
-        task_method = 'SDXL' if 'task_method' not in state else state["task_method"]
+        backend_engine = state.get('backend_engine', 'Z-image')
+        if backend_engine == 'Z-image':
+            task_method = 'z_image_turbo_aio_cn'
+        else:
+            task_method = 'SDXL' if 'task_method' not in state else state["task_method"]
         inpaint_engine_version = modules.flags.default_inpaint_engine_versions(task_method)
 
     if mode == modules.flags.inpaint_option_modify:
@@ -836,24 +844,24 @@ with shared.gradio_root:
                                                                    inpaint_mask_advanced_options,
                                                                    example_inpaint_mask_dino_prompt_text],
                                                           queue=False, show_progress=False)
-
-                    with gr.Tab(label='Layer_iclight', id='layer_tab') as layer_tab:
-                        with gr.Row():
-                            layer_method = gr.Radio(choices=comfy_task.default_method_names, value=comfy_task.default_method_names[0], interactive=False, container=False)
-                        with gr.Row():
-                            with gr.Column():
-                                layer_input_image = grh.Image(label='Drag given image to here', source='upload', type='numpy', visible=True, interactive=False)
-                            with gr.Column():
-                                with gr.Group():
-                                    iclight_enable = gr.Checkbox(label='Enable IC-Light', value=True)
-                                    iclight_source_radio = gr.Radio(show_label=False, choices=comfy_task.iclight_source_names, value=comfy_task.iclight_source_names[0], elem_classes='iclight_source', elem_id='iclight_source')
-                                gr.HTML('* The module derived from <a href="https://github.com/lllyasviel/IC-Light" target="_blank">IC-Light</a> <a href="https://github.com/layerdiffusion/LayerDiffuse" target="_blank">LayerDiffuse</a>')
-                        with gr.Row():
-                            example_quick_subjects = gr.Dataset(samples=comfy_task.quick_subjects, label='Subject Quick List', samples_per_page=1000, components=[prompt])
-                        with gr.Row():
-                            example_quick_prompts = gr.Dataset(samples=comfy_task.quick_prompts, label='Lighting Quick List', samples_per_page=1000, components=[prompt])
-                    example_quick_prompts.click(lambda x, y: ', '.join(y.split(', ')[:2] + [x[0]]), inputs=[example_quick_prompts, prompt], outputs=prompt, show_progress=False, queue=False)
-                    example_quick_subjects.click(lambda x: x[0], inputs=example_quick_subjects, outputs=prompt, show_progress=False, queue=False)
+                    with gr.Column(visible=False):
+                        with gr.Tab(label='Layer_iclight', id='layer_tab') as layer_tab:
+                            with gr.Row():
+                                layer_method = gr.Radio(choices=comfy_task.default_method_names, value=comfy_task.default_method_names[0], interactive=False, container=False)
+                            with gr.Row():
+                                with gr.Column():
+                                    layer_input_image = grh.Image(label='Drag given image to here', source='upload', type='numpy', visible=True, interactive=False)
+                                with gr.Column():
+                                    with gr.Group():
+                                        iclight_enable = gr.Checkbox(label='Enable IC-Light', value=True)
+                                        iclight_source_radio = gr.Radio(show_label=False, choices=comfy_task.iclight_source_names, value=comfy_task.iclight_source_names[0], elem_classes='iclight_source', elem_id='iclight_source')
+                                    gr.HTML('* The module derived from <a href="https://github.com/lllyasviel/IC-Light" target="_blank">IC-Light</a> <a href="https://github.com/layerdiffusion/LayerDiffuse" target="_blank">LayerDiffuse</a>')
+                            with gr.Row():
+                                example_quick_subjects = gr.Dataset(samples=comfy_task.quick_subjects, label='Subject Quick List', samples_per_page=1000, components=[prompt])
+                            with gr.Row():
+                                example_quick_prompts = gr.Dataset(samples=comfy_task.quick_prompts, label='Lighting Quick List', samples_per_page=1000, components=[prompt])
+                        example_quick_prompts.click(lambda x, y: ', '.join(y.split(', ')[:2] + [x[0]]), inputs=[example_quick_prompts, prompt], outputs=prompt, show_progress=False, queue=False)
+                        example_quick_subjects.click(lambda x: x[0], inputs=example_quick_subjects, outputs=prompt, show_progress=False, queue=False)
 
                     with gr.Tab(label='Enhance+', id='enhance_tab') as enhance_tab:
                         with gr.Row():
@@ -961,7 +969,7 @@ with shared.gradio_root:
                                                         label='Disable initial latent in inpaint', value=False)
                                                     enhance_inpaint_engine = gr.Dropdown(label='Inpaint Engine',
                                                                      value=modules.config.default_inpaint_engine_version,
-                                                                     choices=flags.inpaint_engine_versions["SDXL"],
+                                                                     choices=flags.inpaint_engine_versions["z_image_turbo_aio_cn"],
                                                                      info='Version of Fooocus inpaint model. If set, use performance Quality or Speed (no performance LoRAs) for best results.')
                                                     enhance_inpaint_strength = gr.Slider(label='Inpaint Denoising Strength',
                                                                      minimum=0.0, maximum=1.0, step=0.01,
@@ -1042,7 +1050,7 @@ with shared.gradio_root:
                 with gr.Tab(label="General"):
                     performance_selection = gr.Radio(label='Performance', container=False, 
                                                  choices=flags.Performance.list(),
-                                                 value=modules.config.default_performance)
+                                                 value=modules.config.default_performance, visible=False)
                     with gr.Group():
                         image_number = gr.Slider(label='Image Number', minimum=1, maximum=modules.config.default_max_image_number, step=1, value=modules.config.default_image_number)
                         with gr.Accordion(label='Aspect Ratios', open=False, elem_id='aspect_ratios_accordion') as aspect_ratios_accordion:
@@ -1182,7 +1190,7 @@ with shared.gradio_root:
                     with gr.Group():
                         inpaint_engine = gr.Dropdown(label='Inpaint Engine',
                                     value=modules.config.default_inpaint_engine_version,
-                                    choices=flags.inpaint_engine_versions["SDXL"])
+                                    choices=flags.inpaint_engine_versions["z_image_turbo_aio_cn"])
                         with gr.Row():
                             debugging_inpaint_preprocessor = gr.Checkbox(label='Debug Inpaint Preprocessing', value=False)
                             inpaint_disable_initial_latent = gr.Checkbox(label='Disable initial latent in inpaint', value=False)    
@@ -1239,8 +1247,8 @@ with shared.gradio_root:
                                     describe_prompt = gr.Textbox(label="MiniCPM enabled: Enter additional prompts (optional).", show_label=True, max_lines=1, placeholder="Type additional prompt for describe image.", visible=MiniCPM.get_enable())
                                     with gr.Row():
                                         describe_apply_styles = gr.Checkbox(label='Apply Styles', value=modules.config.default_describe_apply_prompts_checkbox, visible=not MiniCPM.get_enable())
-                                        describe_output_tags = gr.Checkbox(label='Output with tags', value=True, visible=MiniCPM.get_enable(), min_width=50)
-                                        describe_output_chinese = gr.Checkbox(label='Output in Chinese', value=False, visible=MiniCPM.get_enable(), min_width=50)
+                                        describe_output_tags = gr.Checkbox(label='Output with tags', value=False, visible=MiniCPM.get_enable(), min_width=50)
+                                        describe_output_chinese = gr.Checkbox(label='Output in Chinese', value=True, visible=MiniCPM.get_enable(), min_width=50)
                                         describe_output_artist = gr.Checkbox(label='Artist', value=False, visible=MiniCPM.get_enable(), min_width=50)
                                 describe_image_size = gr.Button(label='Original Size / Recommended Size', elem_id='describe_image_size', visible=False)
                                 describe_btn = gr.Button(value='Describe this Image into Prompt')
@@ -1677,9 +1685,9 @@ with shared.gradio_root:
                 refresh_files.click(refresh_files_clicked, [state_topbar], refresh_files_output + lora_ctrls,
                                     queue=False, show_progress=False)
 
-            with gr.Tab(label='Gallery', elem_id="scrollable-box"):
-                with gr.Row():
-                    gallery_id_button = gr.Button(value='GalleryCenter(under construction...)', visible=True, elem_id="gallery_center")
+            # with gr.Tab(label='Gallery', elem_id="scrollable-box"):
+            #     with gr.Row():
+            #         gallery_id_button = gr.Button(value='GalleryCenter(under construction...)', visible=True, elem_id="gallery_center")
 
             with gr.Tab(label='Identity', elem_id="scrollable-box"):
                 binding_id_button = gr.Button(value='IdentityCenter', visible=True, elem_id="identity_center")
@@ -1690,7 +1698,7 @@ with shared.gradio_root:
                             language_ui = gr.Radio(label='Language of UI', choices=['En', '中文'], value=modules.flags.language_radio(args_manager.args.language), interactive=(args_manager.args.language in ['default', 'cn', 'en']), container=False)
                             background_theme = gr.Radio(label='Theme of background', choices=['light', 'dark'], value=args_manager.args.theme, interactive=True, container=False)
                         with gr.Group():
-                            mobile_link = gr.HTML(elem_classes=["htmlcontent"], value=f'{get_local_url}/<div>Mobile phone access address within the LAN. If you want WAN access, consulting QQ group: 938075852.</div>')
+                            mobile_link = gr.HTML(elem_classes=["htmlcontent"], value=f'{get_local_url}/<div>Mobile phone access address within the LAN. If you want WAN access, consulting QQ group: 1005085136.</div>')
                             prompt_preset_button = gr.Button(value='Save the current parameters as a preset package')
                             backfill_prompt = gr.Checkbox(label='Backfill prompt while switching images', value=modules.config.default_backfill_prompt)
                             style_preview_checkbox = gr.Checkbox(label="Enable visual style preview", value=False)
@@ -1959,7 +1967,11 @@ with shared.gradio_root:
 
         def inpaint_engine_state_change(inpaint_engine_version, state, *args):
             if inpaint_engine_version == 'empty':
-                task_method = 'SDXL' if 'task_method' not in state else state["task_method"]
+                backend_engine = state.get('backend_engine', 'Z-image')
+                if backend_engine == 'Z-image':
+                    task_method = 'z_image_turbo_aio_cn'
+                else:
+                    task_method = 'SDXL' if 'task_method' not in state else state["task_method"]
                 inpaint_engine_version = modules.flags.default_inpaint_engine_versions(task_method)
 
             result = []

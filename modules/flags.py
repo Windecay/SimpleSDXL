@@ -119,6 +119,7 @@ inpaint_engine_versions = {
     "nun_fp4_aio": ['Nun_fp4','None'],
     "wan_aio_cn": ['VACE'],
     "qwen_aio_cn": ['Qwen_Inpaint'],
+    "z_image_turbo_aio_cn": ['LanPaint']
     }
 inpaint_engine_model_names = {
     "kolors_aio_kolors_inpainting": "kolors_inpainting.safetensors",
@@ -126,7 +127,7 @@ inpaint_engine_model_names = {
     "nun_int4_aio_Nun_int4": "svdq-int4_r32-flux.1-fill-dev.safetensors",
     "nun_fp4_aio_Nun_fp4": "svdq-fp4_r32-flux.1-fill-dev.safetensors",
     }
-default_inpaint_engine_versions = lambda x: inpaint_engine_versions[x][0] if x in inpaint_engine_versions else inpaint_engine_versions["SDXL"][0]
+default_inpaint_engine_versions = lambda x: inpaint_engine_versions[x][0] if x in inpaint_engine_versions else inpaint_engine_versions["z_image_turbo_aio_cn"][0]
 inpaint_engine_versions_all = list({version for versions in inpaint_engine_versions.values() for version in versions})
 inpaint_option_default = 'Inpaint or Outpaint (default)'
 inpaint_option_detail = 'Improve Detail (face, hand, eyes, etc.)'
@@ -357,7 +358,7 @@ default_class_params = {
         'available_sampler_name': comfy_sampler_list,
         'available_scheduler_name': comfy_scheduler_list,
         'backend_params': {
-            "task_method": "z_image_turbo_cn",
+            "task_method": "z_image_turbo_aio_cn",
             },
         },
     }

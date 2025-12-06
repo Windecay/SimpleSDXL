@@ -98,12 +98,12 @@ def check_base_environment():
             logger.info(f'受组件安装限制，SimpleSDXL2新版本(增加对混元、可图和SD3支持)需要下载新的程序包和基本模型包。具体操作详见：https://hf-mirror.com/metercai/SimpleSDXL2/')
             logger.info(f'If not updated, you can run the commit version using the following scripte: run_SimpleSDXL_commit.bat')
             logger.info(f'如果不升级，可下载SimpleSDXL1的独立分支完全包(未来仅修bug不加功能): https://hf-mirror.com/metercai/SimpleSDXL2/resolve/main/SimpleSDXL1_win64_all.exe.7z; 也可点击run_SimpleSDXL_commit.bat继续运行旧版本(历史存档,无法修bug也不加功能)。')
-            logger.info(f'有任何疑问可到SimpleSDXL的QQ群交流: 938075852')
+            logger.info(f'有任何疑问可到SimpleSDXL的QQ群交流: 1005085136')
             sys.exit(0)
         if platform.system() == 'Windows' and is_installed("facexlib") and is_installed("insightface") and (not is_installed("cpm_kernels") or not is_installed_version("bitsandbytes", "0.45.5")):
             logger.info(f'运行环境中缺乏必要组件或组件版本不匹配, SimpleSDXL2的程序环境包已升级。请参照 https://hf-mirror.com/metercai/SimpleSDXL2/ 的指引, 下载安装最新程序环境包.')
             logger.info(f'The program running environment lacks necessary components. The program environment package for SimpleSDXL2 has been upgraded. Please go to https://hf-mirror.com/metercai/SimpleSDXL2/ Download and install the latest program environment package.')
-            logger.info(f'有任何疑问可到SimpleSDXL的QQ群交流: 938075852')
+            logger.info(f'有任何疑问可到SimpleSDXL的QQ群交流: 1005085136')
             sys.exit(0)
     else:
         logger.info(f'系统环境已升级, 请到 https://hf-mirror.com/metercai/SimpleSDXL2/ 下载最新版本进行升级: SimpAI_dev.exe.7z0505')
@@ -119,7 +119,7 @@ def check_base_environment():
     if (sysinfo["ram_total"]+sysinfo["ram_swap"])<40960:
         logger.info(f'The total virtual memory capacity of the system is too small, which will affect the loading and computing efficiency of the model. Please expand the total virtual memory capacity of the system to be greater than 40G.')
         logger.info(f'系统虚拟内存总容量过小，会影响模型的加载与计算效率，请扩充系统虚拟内存总容量(RAM+SWAP)大于40G。')
-        logger.info(f'有任何疑问可到SimpleSDXL的QQ群交流: 938075852')
+        logger.info(f'有任何疑问可到SimpleSDXL的QQ群交流: 1005085136')
         shared.args.disable_backend = True
 
     return token, sysinfo
@@ -312,7 +312,7 @@ if shared.args.gpu_device_id is not None:
 if shared.sysinfo["gpu_memory"]<4000:
     logger.info(f'The GPU memory capacity of the system is too small to run the latest models such as Flux, SD3m, Kolors, and HyDiT properly, and the Comfyd engine will be automatically disabled.')
     logger.info(f'系统GPU显存容量太小，无法正常运行Flux, SD3m, Kolors和HyDiT等最新模型，将自动禁用Comfyd引擎。请知晓，尽早升级硬件。')
-    logger.info(f'有任何疑问可到SimpleSDXL的QQ群交流: 938075852')
+    logger.info(f'有任何疑问可到SimpleSDXL的QQ群交流: 1005085136')
     shared.args.async_cuda_allocation = False
     shared.args.disable_async_cuda_allocation = True
     shared.args.disable_comfyd = True
@@ -352,7 +352,7 @@ env_ready_code = shared.token.check_ready(fooocus_version.version, comfy_version
 logger.info(f'Env_ready_code: {env_ready_code}')
 #if env_ready_code!=0 and env_ready_code!=4:
 #    print("系统环境检测不达标。请根据前面提示信息，重新检查并更新后再启动!")
-#    print(f'有任何疑问可到SimpleSDXL的QQ群交流: 938075852')
+#    print(f'有任何疑问可到SimpleSDXL的QQ群交流: 1005085136')
 #    sys.exit(0)
 
 if not shared.args.disable_backend:

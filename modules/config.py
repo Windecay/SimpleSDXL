@@ -39,10 +39,10 @@ visited_keys = []
 wildcards_max_bfs_depth = 64
 
 try:
-    with open(os.path.abspath(f'./presets/default.json'), "r", encoding="utf-8") as json_file:
+    with open(os.path.abspath(f'./presets/Z-imageT.json'), "r", encoding="utf-8") as json_file:
         config_dict.update(json.load(json_file))
 except Exception as e:
-    logger.info(f'Load default preset failed.')
+    logger.info(f'Load Z-imageT preset failed.')
     logger.info(e)
 
 try:
@@ -424,7 +424,7 @@ default_engine = get_config_item_or_set_default(
     validator=lambda x: isinstance(x, dict),
     expected_type=dict
 )
-backend_engine = "Remote" if args_manager.args.disable_backend else default_engine.get("backend_engine", "Fooocus")
+backend_engine = "Remote" if args_manager.args.disable_backend else default_engine.get("backend_engine", "Z-image")
 
 default_base_model_name = default_model = get_config_item_or_set_default(
     key='default_model',
@@ -610,7 +610,7 @@ default_aspect_ratio = get_config_item_or_set_default(
 )
 default_inpaint_engine_version = get_config_item_or_set_default(
     key='default_inpaint_engine_version',
-    default_value=ads.default['inpaint_engine'],
+    default_value=modules.flags.default_inpaint_engine_versions(backend_engine),
     validator=lambda x: x in modules.flags.inpaint_engine_versions,
     expected_type=str
 )
@@ -1082,7 +1082,7 @@ def get_model_filenames(folder_paths, extensions=None, name_filter=None):
     return files
 
 
-def get_base_model_list(engine='Fooocus', task_method=None):
+def get_base_model_list(engine='Z-image', task_method=None):
     global modelsinfo
     file_filter = modules.flags.model_file_filter.get(engine, [])
     if engine in ['Flux'] and task_method and 'aio' in task_method:
@@ -1098,7 +1098,7 @@ def get_base_model_list(engine='Fooocus', task_method=None):
     base_model_list = list(dict.fromkeys(base_model_list))
     return base_model_list
 
-def update_files(engine='Fooocus', task_method=None):
+def update_files(engine='Z-image', task_method=None):
     global modelsinfo, model_filenames, lora_filenames, vae_filenames, wildcard_filenames 
     modelsinfo.refresh_from_path()
     model_filenames = get_base_model_list(engine, task_method)

@@ -799,7 +799,11 @@ def update_navbar_from_mystore(selected_preset, state):
     results2 = update_topbar_js_params(state)
     nav_name_list = get_preset_name_list(state["__session"], state["ua_hash"])
     nav_array = nav_name_list.split(',')
-
+    if 'Z-imageT' not in nav_array:
+        nav_array.insert(0, 'Z-imageT')
+    else:
+        nav_array.remove('Z-imageT')
+        nav_array.insert(0, 'Z-imageT')
     available_presets_count = 0
 
     missing_model_filter = ads.get_admin_default("missing_model_filter_checkbox")
@@ -819,7 +823,7 @@ def update_navbar_from_mystore(selected_preset, state):
             filtered_nav_name_list = ','.join(nav_array)
             shared.token.set_local_vars("user_presets", filtered_nav_name_list, state["__session"], state["ua_hash"])
 
-    if selected_preset_name in ["default", state["__preset"]]:
+    if selected_preset_name in ["Z-imageT", state["__preset"]]:
         return results + results2
     if selected_preset_name in nav_array:
         nav_array.remove(selected_preset_name)
@@ -938,7 +942,7 @@ identity_introduce = '''
 1，可管理和进入内嵌的Comfyd工作流引擎。<br>
 2，可管理游客的预置导航及下载预置包所需模型。<br>
 3，解锁MiniCPM多模态模型，可对话的反推/扩写服务。<br>
-更多管理需求可以入QQ群:938075852 进行交流。<br>
+更多管理需求可以入QQ群:1005085136 进行交流。<br>
 <br>
 系统遵循分布式身份管理机制，即: <br>
 1，用户掌控身份私钥，授权本地部署的节点使用身份。<br>

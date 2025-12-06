@@ -362,7 +362,7 @@ def print_instructions():
     time.sleep(0.1)
     print(f"{Fore.GREEN}★{Style.RESET_ALL}打开默认浏览器设置，关闭GPU加速、或图形加速的选项。{Fore.GREEN}★{Style.RESET_ALL}大内存(64+)与固态硬盘存放模型有助于减少模型加载时间。{Fore.GREEN}★{Style.RESET_ALL}")
     time.sleep(0.1)
-    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：1005085136{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:25.12.05{Fore.GREEN}★{Style.RESET_ALL}")
+    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：1005085136{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:25.12.07{Fore.GREEN}★{Style.RESET_ALL}")
     print()
     time.sleep(0.1)
     
@@ -876,7 +876,9 @@ def download_file_with_resume(link, file_path, position, result_queue, max_retri
             else:
                 resume_size = 0
                 headers = {}
-            response = requests.get(link, stream=True, headers=headers)
+
+            # 添加超时设置，防止无限期等待
+            response = requests.get(link, stream=True, headers=headers, timeout=(30, 60))
             total_size = int(response.headers.get('content-length', 0)) + resume_size
             block_size = 8192
 
@@ -889,17 +891,26 @@ def download_file_with_resume(link, file_path, position, result_queue, max_retri
                     unit_scale=True,
                     position=position,
                     initial=resume_size,
-                    dynamic_ncols=True,  # 动态列宽
-                    leave=True,          # 完成后保留进度条（显示100%）
-                    file=sys.stdout,     # 输出到 stdout
-                    miniters=1,          # 每次迭代都更新
-                    mininterval=0.05,    # 缩短更新间隔到 0.05 秒
-                    disable=False,       # 明确不禁用
-                    ncols=100            # 固定列宽，避免动态计算问题
+                    dynamic_ncols=True,
+                    leave=True,
+                    file=sys.stdout,
+                    miniters=1,
+                    mininterval=0.1,  # 增加更新间隔，减少性能影响
+                    disable=False,
+                    ncols=100
             ) as progress_bar:
+                start_time = time.time()
+                last_update_time = start_time
+
                 for data in response.iter_content(block_size):
                     file.write(data)
                     progress_bar.update(len(data))
+
+                    # 添加超时检测：如果超过60秒没有数据，认为连接已断
+                    current_time = time.time()
+                    if current_time - last_update_time > 60:
+                        raise requests.exceptions.Timeout("下载超时，超过60秒没有数据")
+                    last_update_time = current_time
 
             final_file_path = os.path.normpath(file_path)
             partial_file_path = os.path.normpath(partial_file_path)
@@ -913,7 +924,7 @@ def download_file_with_resume(link, file_path, position, result_queue, max_retri
             result_queue.put(True)
             return
 
-        except requests.exceptions.RequestException as e:
+        except (requests.exceptions.RequestException, requests.exceptions.Timeout) as e:
             print(f"{Fore.RED}△下载失败，正在重试... 错误：{e}{Style.RESET_ALL}")
             retries += 1
             time.sleep(5)
@@ -1077,12 +1088,18 @@ def auto_download_missing_files_with_retry(max_threads=5):
                 save_dir = os.path.join(target_base_dir, file_sub_dir)
                 file_path = os.path.join(save_dir, file_name)
 
+                # 使用线程池执行下载，但不阻塞等待
                 thread = threading.Thread(
                     target=download_file_with_resume,
                     args=(link, file_path, position, result_queue, 5, lock)
                 )
                 thread.start()
-                thread.join()
+
+                # 添加超时检测，避免线程卡死
+                thread.join(timeout=300)  # 5分钟超时
+                if thread.is_alive():
+                    print(f"{Fore.RED}×下载超时：{link}，跳过此文件{Style.RESET_ALL}")
+                    result_queue.put(False)
 
                 task_queue.task_done()
             except queue.Empty:
@@ -1326,6 +1343,7 @@ def delete_package(package_name, packages):
                     print(f"{Fore.RED}× 删除失败: {path} ({str(e)}){Style.RESET_ALL}")
             
             print(f"\n{Fore.GREEN}✓ 包体{selected_package['name']}孤立文件已清除{Style.RESET_ALL}")
+            validate_files(packages)
         else:
             print(f"{Fore.BLUE}× 操作已取消{Style.RESET_ALL}")
     else:
@@ -1401,9 +1419,16 @@ packages = {
     "base_package": {
         "id": 1,
         "name": "[1]基础模型包",
-        "note": "SDXL全功能-默认模型[主宰XL_V11]|显存需求：★★ 速度：★★★☆",
+        "note": "Z-image-Turbo-默认模型[Z-image-Turbo-fp16]|显存需求：★★☆ 速度：★★★",
         "files": [
-            ("checkpoints/juggernautXL_juggXIByRundiffusion.safetensors", 7105350536),
+            ("diffusion_models/https://modelscope.cn/models/VerStella/z_image_turbo_comfyui/resolve/master/split_files/diffusion_models/z_image_turbo_bf16.safetensors", 12309866400),
+            ("text_encoders/https://modelscope.cn/models/VerStella/z_image_turbo_comfyui/resolve/master/split_files/text_encoders/qwen_3_4b.safetensors", 8044982048),
+            ("model_patches/https://modelscope.cn/models/PAI/Z-Image-Turbo-Fun-Controlnet-Union/resolve/master/Z-Image-Turbo-Fun-Controlnet-Union.safetensors", 3101572408),
+            ("vae/ae.safetensors", 335304388),
+            ("upscale_models/4x-UltraSharp.pth", 66961958),
+            ("upscale_models/4xNomosUniDAT_bokeh_jpg.safetensors", 154152604),
+            ("controlnet/parsing_bisenet.pth", 53289463),
+            ("controlnet/lllyasviel/Annotators/ZoeD_M12_N.pt", 1443406099),
             ("clip_vision/clip_vision_vit_h.safetensors", 1972298538),
             ("clip_vision/model_base_caption_capfilt_large.pth", 896081425),
             ("clip_vision/https://www.modelscope.cn/models/windecay/WD-tagger/resolve/master/wd-eva02-large-tagger-v3.onnx", 1260435999),
@@ -1425,10 +1450,7 @@ packages = {
             ("configs/v2-inpainting-inference.yaml", 4450),
             ("controlnet/detection_Resnet50_Final.pth", 109497761),
             ("controlnet/fooocus_ip_negative.safetensors", 65616),
-            ("controlnet/ip-adapter-plus-face_sdxl_vit-h.bin", 1013454761),
-            ("controlnet/ip-adapter-plus_sdxl_vit-h.bin", 1013454427),
             ("controlnet/parsing_parsenet.pth", 85331193),
-            ("controlnet/xinsir_cn_union_sdxl_1.0_promax.safetensors", 2513342408),
             ("controlnet/lllyasviel/Annotators/body_pose_model.pth", 209267595),
             ("controlnet/lllyasviel/Annotators/facenet.pth", 153718792),
             ("controlnet/lllyasviel/Annotators/hand_pose_model.pth", 147341049),
@@ -1436,7 +1458,6 @@ packages = {
             ("controlnet/yzd-v/DWPose/https://www.modelscope.cn/models/zhangjin/DWPose/resolve/master/yolox_l.onnx", 216746733),
             ("inpaint/fooocus_inpaint_head.pth", 52602),
             ("inpaint/groundingdino_swint_ogc.pth", 693997677),
-            ("inpaint/inpaint_v26.fooocus.patch", 1323362033),
             ("inpaint/isnet-anime.onnx", 176069933),
             ("inpaint/isnet-general-use.onnx", 178648008),
             ("inpaint/sam_vit_b_01ec64.pth", 375042383),
@@ -1466,8 +1487,6 @@ packages = {
             ("llms/superprompt-v1/spiece.model", 791656),
             ("llms/superprompt-v1/tokenizer.json", 2424064),
             ("llms/superprompt-v1/tokenizer_config.json", 2539),
-            ("loras/ip-adapter-faceid-plusv2_sdxl_lora.safetensors", 371842896),
-            ("loras/sdxl_lightning_4step_lora.safetensors", 393854592),
             ("loras/sd_xl_offset_example-lora_1.0.safetensors", 49553604),
             ("prompt_expansion/fooocus_expansion/config.json", 937),
             ("prompt_expansion/fooocus_expansion/merges.txt", 456356),
@@ -1478,13 +1497,11 @@ packages = {
             ("prompt_expansion/fooocus_expansion/tokenizer_config.json", 255),
             ("prompt_expansion/fooocus_expansion/vocab.json", 798156),
             ("rembg/RMBG-1.4.pth", 176718373),
-            ("upscale_models/fooocus_upscaler_s409985e5.bin", 33636613),
             ("vae_approx/vaeapp_sd15.pth", 213777),
             ("vae_approx/xl-to-v1_interposer-v4.0.safetensors", 5667280),
             ("vae_approx/xlvaeapp.pth", 213777),
             ("clip/clip_l.safetensors", 246144152),
             ("vae/ponyDiffusionV6XL_vae.safetensors", 334641162),
-            ("loras/Hyper-SDXL-8steps-lora.safetensors", 787359648),
             ("ultralytics/bbox/https://www.modelscope.cn/models/ACCC1380/Adetailer_model/resolve/master/face_yolov8m.pt", 52026019),
             ("ultralytics/bbox/https://www.modelscope.cn/models/ACCC1380/Adetailer_model/resolve/master/hand_yolov8s.pt", 22507643),
         ],
@@ -1492,29 +1509,12 @@ packages = {
     },
     "extension_package": {
         "id": 2,
-        "name": "[2]融图打光&增强模型包",
-        "note": "融图打光预置包等功能性补充。|显存需求：★★ 速度：★★★☆",
+        "name": "[2]IC-Light重打光",
+        "note": "IC-Light图像重打光预置包|显存需求：★★ 速度：★★★☆",
         "files": [
             ("checkpoints/realisticVisionV60B1_v51VAE.safetensors", 2132625894),
-            ("embeddings/unaestheticXLhk1.safetensors", 33296),
-            ("embeddings/unaestheticXLv31.safetensors", 33296),
-            ("inpaint/inpaint_v25.fooocus.patch", 2580722369),
-            ("inpaint/sam_vit_h_4b8939.pth", 2564550879),
-            ("layer_model/layer_xl_bg2ble.safetensors", 701981624),
-            ("layer_model/layer_xl_transparent_attn.safetensors", 743352688),
-            ("layer_model/layer_xl_fg2ble.safetensors", 701981624),
-            ("layer_model/layer_xl_transparent_conv.safetensors", 3619745776),
-            ("layer_model/vae_transparent_decoder.safetensors", 208266320),
-            ("llms/nllb-200-distilled-600M/pytorch_model.bin", 2460457927),
-            ("llms/nllb-200-distilled-600M/sentencepiece.bpe.model", 4852054),
-            ("llms/nllb-200-distilled-600M/tokenizer.json", 17331176),
-            ("loras/FilmVelvia3.safetensors", 151108832),
-            ("loras/SDXL_FILM_PHOTOGRAPHY_STYLE_V1.safetensors", 912593164),
-            ("safety_checker/stable-diffusion-safety-checker.bin", 1216067303),
             ("unet/iclight_sd15_fbc_unet_ldm.safetensors", 1719167896),
             ("unet/iclight_sd15_fc_unet_ldm.safetensors", 1719144856),
-            ("upscale_models/4x-UltraSharp.pth", 66961958),
-            ("vae/sdxl_fp16.vae.safetensors", 167335342),
         ],
         "download_links": []
     },
@@ -2110,19 +2110,25 @@ packages = {
         ],
         "download_links": []
     },
-        "z-image-turbo_aio_package": {
+        "sdxl_package": {
         "id":31,
-        "name": "[31]通义造相Z-Image-Turbo全功能预置包(beta)",
-        "note": "Z-Image-Turbo全功能预置包（重绘未完善）|显存需求：★★ 速度:★★★",
+        "name": "[31]怀旧fooocus-SDXL支持包",
+        "note": "fooocus后端SDXL模块支持包|显存需求：★★ 速度:★★★☆",
         "files": [
-            ("diffusion_models/https://modelscope.cn/models/VerStella/z_image_turbo_comfyui/resolve/master/split_files/diffusion_models/z_image_turbo_bf16.safetensors", 12309866400),
-            ("text_encoders/https://modelscope.cn/models/VerStella/z_image_turbo_comfyui/resolve/master/split_files/text_encoders/qwen_3_4b.safetensors", 8044982048),
-            ("model_patches/https://modelscope.cn/models/PAI/Z-Image-Turbo-Fun-Controlnet-Union/resolve/master/Z-Image-Turbo-Fun-Controlnet-Union.safetensors", 3101572408),
-            ("vae/ae.safetensors", 335304388),
-            ("upscale_models/4xNomosUniDAT_bokeh_jpg.safetensors", 154152604),
-            ("upscale_models/4x-UltraSharp.pth", 66961958),
-            ("controlnet/lllyasviel/Annotators/ZoeD_M12_N.pt", 1443406099),
-            ("controlnet/parsing_bisenet.pth", 53289463),
+            ("controlnet/ip-adapter-plus-face_sdxl_vit-h.bin", 1013454761),
+            ("controlnet/ip-adapter-plus_sdxl_vit-h.bin", 1013454427),
+            ("loras/ip-adapter-faceid-plusv2_sdxl_lora.safetensors", 371842896), 
+            ("loras/sdxl_lightning_4step_lora.safetensors", 393854592),
+            ("upscale_models/fooocus_upscaler_s409985e5.bin", 33636613),
+            ("loras/Hyper-SDXL-8steps-lora.safetensors", 787359648),
+            ("embeddings/unaestheticXLhk1.safetensors", 33296),
+            ("embeddings/unaestheticXLv31.safetensors", 33296),
+            ("inpaint/inpaint_v26.fooocus.patch", 1323362033),
+            ("inpaint/inpaint_v25.fooocus.patch", 2580722369),
+            ("llms/nllb-200-distilled-600M/pytorch_model.bin", 2460457927),
+            ("llms/nllb-200-distilled-600M/sentencepiece.bpe.model", 4852054),
+            ("llms/nllb-200-distilled-600M/tokenizer.json", 17331176),
+            ("safety_checker/stable-diffusion-safety-checker.bin", 1216067303),
         ],
         "download_links": []
     },
@@ -2252,6 +2258,8 @@ OBSOLETE_MODELS = [
     "pytorch_model-00005-of-00007.bin",
     "pytorch_model-00006-of-00007.bin",
     "pytorch_model-00007-of-00007.bin",
+    "FilmVelvia3.safetensors",
+    "SDXL_FILM_PHOTOGRAPHY_STYLE_V1.safetensors"
 ]
 def main():
     print()

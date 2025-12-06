@@ -223,12 +223,12 @@ def check_base_environment():
             logger.info(f'受组件安装限制，SimpleSDXL2新版本(增加对混元、可图和SD3支持)需要下载新的程序包和基本模型包。具体操作详见：https://hf-mirror.com/metercai/SimpleSDXL2/')
             logger.info(f'If not updated, you can run the commit version using the following scripte: run_SimpleSDXL_commit.bat')
             logger.info(f'如果不升级，可下载SimpleSDXL1的独立分支完全包(未来仅修bug不加功能): https://hf-mirror.com/metercai/SimpleSDXL2/resolve/main/SimpleSDXL1_win64_all.exe.7z; 也可点击run_SimpleSDXL_commit.bat继续运行旧版本(历史存档,无法修bug也不加功能)。')
-            logger.info(f'有任何疑问可到SimpleSDXL的QQ群交流: 938075852')
+            logger.info(f'有任何疑问可到SimpleSDXL的QQ群交流: 1005085136')
             sys.exit(0)
         if platform.system() == 'Windows' and is_installed("facexlib") and is_installed("insightface") and (not is_installed("cpm_kernels") or not is_installed_version("bitsandbytes", "0.45.5")):
             logger.info(f'运行环境中缺乏必要组件或组件版本不匹配, SimpleSDXL2的程序环境包已升级。请参照 https://hf-mirror.com/metercai/SimpleSDXL2/ 的指引, 下载安装最新程序环境包.')
             logger.info(f'The program running environment lacks necessary components. The program environment package for SimpleSDXL2 has been upgraded. Please go to https://hf-mirror.com/metercai/SimpleSDXL2/ Download and install the latest program environment package.')
-            logger.info(f'有任何疑问可到SimpleSDXL的QQ群交流: 938075852')
+            logger.info(f'有任何疑问可到SimpleSDXL的QQ群交流: 1005085136')
             sys.exit(0)
     else:
         logger.info(f'系统环境已升级, 请到 https://hf-mirror.com/metercai/SimpleSDXL2/ 下载最新版本进行升级: SimpAI_dev.exe.7z0505')
@@ -244,7 +244,7 @@ def check_base_environment():
     if (sysinfo["ram_total"]+sysinfo["ram_swap"])<40960 and not shared.args.disable_backend:
         logger.info(f'The total virtual memory capacity of the system is too small, which will affect the loading and computing efficiency of the model. Please expand the total virtual memory capacity of the system to be greater than 40G.')
         logger.info(f'系统虚拟内存总容量过小，会影响模型的加载与计算效率，请扩充系统虚拟内存总容量(RAM+SWAP)大于40G。')
-        logger.info(f'有任何疑问可到SimpleSDXL的QQ群交流: 938075852')
+        logger.info(f'有任何疑问可到SimpleSDXL的QQ群交流: 1005085136')
         # sys.exit(0)
 
     return token, sysinfo
@@ -329,7 +329,7 @@ def prepare_environment():
         #     run_pip(f"install -r \"{requirements_file}\" -t {target_path_win}", "requirements")
         # else:
         #     run_pip(f"install -r \"{requirements_file}\"", "requirements", live=True)
-        logger.info(f'运行环境中有不匹配的依赖，可能曾经被改动。重新部署程序或咨询交流群938075852。')
+        logger.info(f'运行环境中有不匹配的依赖，可能曾经被改动。重新部署程序或咨询交流群1005085136。')
     return
 
 def create_placeholder_files():
@@ -495,7 +495,7 @@ if shared.args.gpu_device_id is not None:
 if shared.sysinfo["gpu_memory"]<4000 and not shared.args.disable_backend:
     logger.info(f'The GPU memory capacity of the system is too small to run the latest models such as Flux, SD3m, Kolors, and HyDiT properly, and the Comfyd engine will be automatically disabled.')
     logger.info(f'系统GPU显存容量太小，无法正常运行Flux, SD3m, Kolors和HyDiT等最新模型，将自动禁用Comfyd引擎。请知晓，尽早升级硬件。')
-    logger.info(f'有任何疑问可到SimpleSDXL的QQ群交流: 938075852')
+    logger.info(f'有任何疑问可到SimpleSDXL的QQ群交流: 1005085136')
     shared.args.async_cuda_allocation = False
     shared.args.disable_async_cuda_allocation = True
     shared.args.disable_comfyd = True
@@ -533,18 +533,18 @@ env_ready_code = shared.token.check_ready(fooocus_version.version, comfy_version
 logger.info(f'Env_ready_code: {env_ready_code}')
 #if env_ready_code!=0 and env_ready_code!=4:
 #    print("系统环境检测不达标。请根据前面提示信息，重新检查并更新后再启动!")
-#    print(f'有任何疑问可到SimpleSDXL的QQ群交流: 938075852')
+#    print(f'有任何疑问可到SimpleSDXL的QQ群交流: 1005085136')
 #    sys.exit(0)
 
 if not shared.args.disable_backend:
-    config.default_base_model_name, config.checkpoint_downloads = download_models(
-        config.default_base_model_name, config.previous_default_models, config.checkpoint_downloads,
-        config.embeddings_downloads, config.lora_downloads, config.vae_downloads)
+    # config.default_base_model_name, config.checkpoint_downloads = download_models(
+    #     config.default_base_model_name, config.previous_default_models, config.checkpoint_downloads,
+    #     config.embeddings_downloads, config.lora_downloads, config.vae_downloads)
 
     # 检查默认模型是否存在
-    default_model_path = shared.modelsinfo.get_file_path_by_name('checkpoints', config.default_base_model_name)
+    default_model_path = shared.modelsinfo.get_file_path_by_name('diffusion_models', config.default_base_model_name)
     if not os.path.exists(default_model_path):
-        logger.error(f"默认模型不存在: {config.default_base_model_name}，将导致部分预置包运行失败")
+        logger.error(f"默认模型尚未下载: {config.default_base_model_name}")
         logger.error(f"请运行模型检测器或手动下载模型到: {os.path.dirname(default_model_path)}")
         # 设置标志以便UI显示错误信息
         shared.args.absent_model = True

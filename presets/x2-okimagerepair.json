@@ -85,7 +85,6 @@
     "vae_downloads": {},
     "model_list": [
         "checkpoints,flux-hyp8-Q5_K_M.gguf,8421981408,0,",
-    	"checkpoints,juggernautXL_juggXIByRundiffusion.safetensors,7105350536,0,",
         "checkpoints,LEOSAM_HelloWorldXL_70.safetensors,6938040682,0,",
         "clip,clip_l.safetensors,246144152,0,",
 	"clip,t5xxl_fp8_e4m3fn.safetensors,4893934904,0,",
