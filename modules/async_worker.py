@@ -1139,22 +1139,22 @@ def worker():
                 inpaint_mask = 255 - inpaint_mask
 
             inpaint_image = HWC3(inpaint_image)
-            # if isinstance(inpaint_image, np.ndarray) and isinstance(inpaint_mask, np.ndarray) \
-            #         and (np.any(inpaint_mask > 127) or len(async_task.outpaint_selections) > 0):
-            #     progressbar(async_task, 1, '下载放大模型 ...')
-            #     modules.config.downloading_upscale_model()
-            #     if inpaint_parameterized:
-            #         progressbar(async_task, 1, '下载重绘模型 ...')
-            #         inpaint_head_model_path, inpaint_patch_model_path = modules.config.downloading_inpaint_models(
-            #             async_task.inpaint_engine)
-            #         base_model_additional_loras += [(inpaint_patch_model_path, 1.0)]
-            #         logger.info(f'[Inpaint] Current inpaint model is {inpaint_patch_model_path}')
-            #         if async_task.refiner_model_name == 'None':
-            #             use_synthetic_refiner = True
-            #             async_task.refiner_switch = 0.8
-            #     else:
-            #         inpaint_head_model_path, inpaint_patch_model_path = None, None
-            #         logger.info(f'[Inpaint] Parameterized inpaint is disabled.')
+            if isinstance(inpaint_image, np.ndarray) and isinstance(inpaint_mask, np.ndarray) \
+                    and (np.any(inpaint_mask > 127) or len(async_task.outpaint_selections) > 0):
+                progressbar(async_task, 1, '下载放大模型 ...')
+                modules.config.downloading_upscale_model()
+                if inpaint_parameterized:
+                    progressbar(async_task, 1, '下载重绘模型 ...')
+                    inpaint_head_model_path, inpaint_patch_model_path = modules.config.downloading_inpaint_models(
+                        async_task.inpaint_engine)
+                    base_model_additional_loras += [(inpaint_patch_model_path, 1.0)]
+                    logger.info(f'[Inpaint] Current inpaint model is {inpaint_patch_model_path}')
+                    if async_task.refiner_model_name == 'None':
+                        use_synthetic_refiner = True
+                        async_task.refiner_switch = 0.8
+                else:
+                    inpaint_head_model_path, inpaint_patch_model_path = None, None
+                    logger.info(f'[Inpaint] Parameterized inpaint is disabled.')
             if async_task.inpaint_additional_prompt != '':
                 if async_task.prompt == '':
                     async_task.prompt = async_task.inpaint_additional_prompt
@@ -1165,18 +1165,18 @@ def worker():
                 async_task.mixing_image_prompt_and_vary_upscale or \
                 async_task.mixing_image_prompt_and_inpaint:
             goals.append('cn')
-            # progressbar(async_task, 1, '下载控制模型 ...')
-            # if len(async_task.cn_tasks[flags.cn_canny]) > 0:
-            #     controlnet_canny_path = modules.config.downloading_controlnet_union() #modules.config.downloading_controlnet_canny()
-            # if len(async_task.cn_tasks[flags.cn_cpds]) > 0:
-            #     controlnet_cpds_path = modules.config.downloading_controlnet_union() #modules.config.downloading_controlnet_cpds()
-            # if len(async_task.cn_tasks[flags.cn_pose]) > 0:
-            #     controlnet_pose_path = modules.config.downloading_controlnet_union() #modules.config.downloading_controlnet_pose()
-            # if len(async_task.cn_tasks[flags.cn_ip]) > 0:
-            #     clip_vision_path, ip_negative_path, ip_adapter_path = modules.config.downloading_ip_adapters('ip')
-            # if len(async_task.cn_tasks[flags.cn_ip_face]) > 0:
-            #     clip_vision_path, ip_negative_path, ip_adapter_face_path = modules.config.downloading_ip_adapters(
-            #         'face')
+            progressbar(async_task, 1, '下载控制模型 ...')
+            if len(async_task.cn_tasks[flags.cn_canny]) > 0:
+                controlnet_canny_path = modules.config.downloading_controlnet_union() #modules.config.downloading_controlnet_canny()
+            if len(async_task.cn_tasks[flags.cn_cpds]) > 0:
+                controlnet_cpds_path = modules.config.downloading_controlnet_union() #modules.config.downloading_controlnet_cpds()
+            if len(async_task.cn_tasks[flags.cn_pose]) > 0:
+                controlnet_pose_path = modules.config.downloading_controlnet_union() #modules.config.downloading_controlnet_pose()
+            if len(async_task.cn_tasks[flags.cn_ip]) > 0:
+                clip_vision_path, ip_negative_path, ip_adapter_path = modules.config.downloading_ip_adapters('ip')
+            if len(async_task.cn_tasks[flags.cn_ip_face]) > 0:
+                clip_vision_path, ip_negative_path, ip_adapter_face_path = modules.config.downloading_ip_adapters(
+                    'face')
         if async_task.current_tab == 'enhance' and async_task.enhance_input_image is not None and async_task.task_class in ['Fooocus']:
             goals.append('enhance')
             skip_prompt_processing = True

@@ -49,6 +49,7 @@
         "loras,ip-adapter-faceid-plusv2_sdxl_lora.safetensors,371842896,0,",
         "loras,sdxl_lightning_4step_lora.safetensors,393854592,0,",
         "upscale_models,fooocus_upscaler_s409985e5.bin,33636613,0,",
-        "loras,Hyper-SDXL-8steps-lora.safetensors,787359648,0,"
+        "loras,Hyper-SDXL-8steps-lora.safetensors,787359648,0,",
+        "inpaint,inpaint_v26.fooocus.patch,1323362033,0,"
     ]
 }

@@ -1256,7 +1256,7 @@ with shared.gradio_root:
                                     with gr.Row():
                                         describe_apply_styles = gr.Checkbox(label='Apply Styles', value=modules.config.default_describe_apply_prompts_checkbox, visible=not MiniCPM.get_enable())
                                         describe_output_tags = gr.Checkbox(label='Output with tags', value=False, visible=MiniCPM.get_enable(), min_width=50)
-                                        describe_output_chinese = gr.Checkbox(label='Output in Chinese', value=True, visible=MiniCPM.get_enable(), min_width=50)
+                                        describe_output_chinese = gr.Checkbox(label='Output in Chinese', value=False, visible=MiniCPM.get_enable(), min_width=50)
                                         describe_output_artist = gr.Checkbox(label='Artist', value=False, visible=MiniCPM.get_enable(), min_width=50)
                                 describe_image_size = gr.Button(label='Original Size / Recommended Size', elem_id='describe_image_size', visible=False)
                                 describe_btn = gr.Button(value='Describe this Image into Prompt')
