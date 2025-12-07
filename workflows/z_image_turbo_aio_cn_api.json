@@ -5316,7 +5316,7 @@
         0
       ],
       "latent_image": [
-        "804",
+        "807",
         0
       ]
     },
@@ -5352,7 +5352,7 @@
         9
       ],
       "LanPaint_NumSteps": 5,
-      "LanPaint_PromptMode": "Prompt First",
+      "LanPaint_PromptMode": "Image First",
       "LanPaint_Info": "LanPaint KSampler. For more info, visit https://github.com/scraed/LanPaint. If you find it useful, please give a star ⭐️!",
       "Inpainting_mode": "🖼️ Image Inpainting",
       "model": [
@@ -5368,7 +5368,7 @@
         0
       ],
       "latent_image": [
-        "804",
+        "807",
         0
       ]
     },
