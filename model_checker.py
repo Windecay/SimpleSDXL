@@ -142,6 +142,8 @@ def load_model_paths():
             "segm": [os.path.join(simplemodels_root, "ultralytics", "segm")],
             "SDPose_OOD": [os.path.join(simplemodels_root, "SDPose_OOD")],
             "yolo": [os.path.join(simplemodels_root, "yolo")],
+            "jina_clip": [os.path.join(simplemodels_root, "jina_clip")],
+            "gemma3": [os.path.join(simplemodels_root, "gemma3")]
         }
 
     except Exception as e:
@@ -182,6 +184,8 @@ def load_model_paths():
             "segm": [os.path.join(simplemodels_root, "ultralytics", "segm")],
             "SDPose_OOD": [os.path.join(simplemodels_root, "SDPose_OOD")],
             "yolo": [os.path.join(simplemodels_root, "yolo")],
+            "jina_clip": [os.path.join(simplemodels_root, "jina_clip")],
+            "gemma3": [os.path.join(simplemodels_root, "gemma3")]
         }
 
     for key in path_mapping:
@@ -2147,6 +2151,40 @@ packages = {
             "https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/checkpoints/Wan2.2_T2V_Low_Noise_14B_VACE-Q4_K_M.gguf",
             "https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/clip/umt5-xxl-encoder-Q8_0.gguf"
         ]
+    },
+    "newbie_image_package": {
+        "id": 33,
+        "name": "[33]NewbieImage扩展包",
+        "note": "NewbieImage二次元大模型|显存需求：★★★ 速度：★★",
+        "files": [
+            ("unet/https://www.modelscope.cn/models/windecay/Models/resolve/master/newbieImage_exp01Base.safetensors", 6973329400),
+            ("jina_clip/https://www.modelscope.cn/models/jinaai/jina-clip-v2/resolve/master/config.json", 2152),
+            ("jina_clip/https://www.modelscope.cn/models/jinaai/jina-clip-v2/resolve/master/config_sentence_transformers.json", 281),
+            ("jina_clip/https://www.modelscope.cn/models/jinaai/jina-clip-v2/resolve/master/configuration.json", 76),
+            ("jina_clip/https://www.modelscope.cn/models/jinaai/jina-clip-v2/resolve/master/custom_st.py", 11988),
+            ("jina_clip/https://www.modelscope.cn/models/jinaai/jina-clip-v2/resolve/master/model.safetensors", 1730688642),
+            ("jina_clip/https://www.modelscope.cn/models/jinaai/jina-clip-v2/resolve/master/modules.json", 273),
+            ("jina_clip/https://www.modelscope.cn/models/jinaai/jina-clip-v2/resolve/master/preprocessor_config.json", 584),
+            ("jina_clip/https://www.modelscope.cn/models/jinaai/jina-clip-v2/resolve/master/special_tokens_map.json", 964),
+            ("jina_clip/https://www.modelscope.cn/models/jinaai/jina-clip-v2/resolve/master/tokenizer.json", 17082997),
+            ("jina_clip/https://www.modelscope.cn/models/jinaai/jina-clip-v2/resolve/master/tokenizer_config.json", 1148),
+            ("gemma3/https://www.modelscope.cn/models/google/gemma-3-4b-it/resolve/master/added_tokens.json", 35),
+            ("gemma3/https://www.modelscope.cn/models/google/gemma-3-4b-it/resolve/master/chat_template.json", 1615),
+            ("gemma3/https://www.modelscope.cn/models/google/gemma-3-4b-it/resolve/master/config.json", 855),
+            ("gemma3/https://www.modelscope.cn/models/google/gemma-3-4b-it/resolve/master/configuration.json", 76),
+            ("gemma3/https://www.modelscope.cn/models/google/gemma-3-4b-it/resolve/master/generation_config.json", 215),
+            ("gemma3/https://www.modelscope.cn/models/google/gemma-3-4b-it/resolve/master/model-00001-of-00002.safetensors", 4961251752),
+            ("gemma3/https://www.modelscope.cn/models/google/gemma-3-4b-it/resolve/master/model-00002-of-00002.safetensors", 3639026128),
+            ("gemma3/https://www.modelscope.cn/models/google/gemma-3-4b-it/resolve/master/model.safetensors.index.json", 90558),
+            ("gemma3/https://www.modelscope.cn/models/google/gemma-3-4b-it/resolve/master/preprocessor_config.json", 570),
+            ("gemma3/https://www.modelscope.cn/models/google/gemma-3-4b-it/resolve/master/special_tokens_map.json", 662),
+            ("gemma3/https://www.modelscope.cn/models/google/gemma-3-4b-it/resolve/master/tokenizer.json", 33384568),
+            ("gemma3/https://www.modelscope.cn/models/google/gemma-3-4b-it/resolve/master/tokenizer.model", 4689074),
+            ("gemma3/https://www.modelscope.cn/models/google/gemma-3-4b-it/resolve/master/tokenizer_config.json", 1156999),
+            ("vae/ae.safetensors", 335304388),
+            ("upscale_models/https://hf-mirror.com/Kim2091/AnimeSharp/resolve/main/4x-AnimeSharp.pth",67010245)
+        ],
+        "download_links": []
     }
 }
 

@@ -1,0 +1,221 @@
+{
+  "3": {
+    "inputs": {
+      "vae_name": "ae.safetensors"
+    },
+    "class_type": "VAELoader",
+    "_meta": {
+      "title": "vae_model"
+    }
+  },
+  "4": {
+    "inputs": {
+      "seed": [
+        "28",
+        0
+      ],
+      "steps": [
+        "27",
+        5
+      ],
+      "cfg": [
+        "27",
+        4
+      ],
+      "sampler_name": [
+        "27",
+        7
+      ],
+      "scheduler": [
+        "27",
+        8
+      ],
+      "denoise": 1,
+      "model": [
+        "31",
+        0
+      ],
+      "positive": [
+        "5",
+        0
+      ],
+      "negative": [
+        "6",
+        0
+      ],
+      "latent_image": [
+        "7",
+        0
+      ]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "KSampler"
+    }
+  },
+  "5": {
+    "inputs": {
+      "user_prompt": [
+        "27",
+        0
+      ],
+      "system_prompt": "You are an assistant designed to generate high-quality anime images with the highest degree of image-text alignment based on xml format textual prompts. <Prompt Start>",
+      "use_chat_template": false,
+      "clip": [
+        "22",
+        0
+      ]
+    },
+    "class_type": "NewBieCLIPTextEncode",
+    "_meta": {
+      "title": "NewBie CLIP Text Encode"
+    }
+  },
+  "6": {
+    "inputs": {
+      "user_prompt": [
+        "27",
+        1
+      ],
+      "system_prompt": "You are an assistant designed to generate high-quality anime images with the highest degree of image-text alignment based on textual prompts. <Prompt Start> ",
+      "use_chat_template": false,
+      "clip": [
+        "22",
+        0
+      ]
+    },
+    "class_type": "NewBieCLIPTextEncode",
+    "_meta": {
+      "title": "NewBie CLIP Text Encode"
+    }
+  },
+  "7": {
+    "inputs": {
+      "width": [
+        "27",
+        2
+      ],
+      "height": [
+        "27",
+        3
+      ],
+      "batch_size": 1
+    },
+    "class_type": "EmptyLatentImage",
+    "_meta": {
+      "title": "Empty Latent Image"
+    }
+  },
+  "8": {
+    "inputs": {
+      "samples": [
+        "4",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE Decode"
+    }
+  },
+  "10": {
+    "inputs": {
+      "multiplier": 0.7,
+      "model": [
+        "23",
+        0
+      ]
+    },
+    "class_type": "RescaleCFG",
+    "_meta": {
+      "title": "RescaleCFG"
+    }
+  },
+  "22": {
+    "inputs": {
+      "gemma_model_path": "..\\..\\SimpleModels\\gemma3",
+      "jina_clip_path": "..\\..\\SimpleModels\\jina_clip",
+      "device": "cuda",
+      "dtype": "bf16",
+      "cpu_offload": true,
+      "enable_jina_weights": true,
+      "weight_baseline_mode": "mean",
+      "weight_strength": 1,
+      "mask_normalization": true
+    },
+    "class_type": "NewBieCLIPLoader",
+    "_meta": {
+      "title": "NewBie CLIP Loader"
+    }
+  },
+  "23": {
+    "inputs": {
+      "unet_name": "newbieImage_exp01Base.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "base_model"
+    }
+  },
+  "26": {
+    "inputs": {
+      "images": [
+        "8",
+        0
+      ]
+    },
+    "class_type": "SaveImageWebsocket",
+    "_meta": {
+      "title": "result2"
+    }
+  },
+  "27": {
+    "inputs": {
+      "prompt": "",
+      "negative_prompt": "",
+      "width": 1024,
+      "height": 1024,
+      "cfg": 5,
+      "steps": 30,
+      "refiner_step": 16,
+      "sampler": "res_multistep",
+      "scheduler": "linear_quadratic",
+      "denoise": 1,
+      "clip_skip": -1,
+      "inpaint_disable_initial_latent": false,
+      "wavespeed_strength": 0.12,
+      "save_final_enhanced_image_only": false
+    },
+    "class_type": "GeneralInput",
+    "_meta": {
+      "title": "GeneralInput"
+    }
+  },
+  "28": {
+    "inputs": {
+      "seed": 0
+    },
+    "class_type": "SeedInput",
+    "_meta": {
+      "title": "SeedInput"
+    }
+  },
+  "31": {
+    "inputs": {
+      "enable_fp16_accumulation": true,
+      "model": [
+        "10",
+        0
+      ]
+    },
+    "class_type": "ModelPatchTorchSettings",
+    "_meta": {
+      "title": "Model Patch Torch Settings"
+    }
+  }
+}
