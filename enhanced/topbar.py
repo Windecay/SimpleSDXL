@@ -162,8 +162,8 @@ def get_preset_name_list(user_session, ua_hash):
             presets = sorted(file_times, key=lambda x: x[1], reverse=True)
             presets = [f[0] for f in presets]
             presets = preset_filter(presets)
-            if config.preset in presets:
-                presets.remove(config.preset)
+            # if config.preset in presets:
+            #     presets.remove(config.preset)
             presets.insert(0, config.preset)
             presets = presets[:shared.BUTTON_NUM]
             presets_list = ','.join(presets)
@@ -183,8 +183,8 @@ def get_preset_name_list(user_session, ua_hash):
             presets = sorted(file_times, key=lambda x: x[1], reverse=True)
             presets = [f[0] for f in presets]
             presets = preset_filter(presets)
-            if config.preset in presets:
-                presets.remove(config.preset)
+            # if config.preset in presets:
+            #     presets.remove(config.preset)
             presets.insert(0, config.preset)
             presets = presets[:shared.BUTTON_NUM]
             presets_list = ','.join(presets)
@@ -211,7 +211,7 @@ def get_preset_samples(user_did=None):
             presets = presets + presets2
     presets = sorted(presets)
     refresh_model_list(presets, user_did)
-    presets.remove(config.preset)
+    # presets.remove(config.preset)
     presets = [[p] for p in presets]
     presets = preset_filter(presets)
     if user_did:
