@@ -241,7 +241,7 @@ model_file_filter = {
         'Kolors' : ['kolors'],
         'Wan'    : ['wan'],
         'Qwen'   : ['qwen'],
-        'Z-image': [['z_image'], ['z-image']],
+        'Z-image': [['z_image'], ['z-image'], ['zimage']],
         }
 model_file_filter['Fooocus'] = model_file_filter['SD3x'] + model_file_filter['Flux'] + model_file_filter['HyDiT']
 

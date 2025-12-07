@@ -1650,7 +1650,6 @@ packages = {
         "note": "上色、修复模糊、旧照片[XL/Flux]|显存需求：★★★ 速度：★☆",
         "files": [
             ("checkpoints/flux-hyp8-Q5_K_M.gguf", 8421981408),
-            ("checkpoints/juggernautXL_juggXIByRundiffusion.safetensors", 7105350536),
             ("checkpoints/LEOSAM_HelloWorldXL_70.safetensors", 6938040682),
             ("clip/clip_l.safetensors", 246144152),
             ("clip/t5xxl_fp8_e4m3fn.safetensors", 4893934904),

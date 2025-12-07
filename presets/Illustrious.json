@@ -1,4 +1,7 @@
 {
+    "default_engine": {
+        "backend_engine": "Fooocus"
+    },
     "default_model": "miaomiaoHarem_v15b.safetensors",
     "default_refiner": "None",
     "default_refiner_switch": 0.5,

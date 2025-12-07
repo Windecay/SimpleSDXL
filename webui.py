@@ -681,7 +681,7 @@ with shared.gradio_root:
                 prompt_delete_button = gr.Button(value='DeleteImage', size='sm', visible=True)
                 prompt_info_button.click(toolbox.toggle_prompt_info, inputs=state_topbar, outputs=[prompt_info_box, state_topbar], show_progress=False)
             
-            engine_class_display = gr.HTML(visible=False, value="SDXL", elem_classes=["engineClass"], elem_id='engine_class')
+            engine_class_display = gr.HTML(visible=False, value="Z-image", elem_classes=["engineClass"], elem_id='engine_class')
             with gr.Row(visible=modules.config.default_image_prompt_checkbox) as image_input_panel:
                 with gr.Tabs(selected=modules.config.default_selected_image_input_tab_id, elem_id='image_input_tabs'):
                     with gr.Tab(label='Image Prompt', id='ip_tab', elem_id='ip_tab') as ip_tab:
@@ -708,20 +708,28 @@ with shared.gradio_root:
                                             ip_weight = gr.Slider(label='Weight', minimum=0.0, maximum=2.0, step=0.01, value=modules.config.default_ip_weights[image_count])
                                             ip_weights.append(ip_weight)
                                             ip_ctrls.append(ip_weight)
-                                        ip_type = gr.Radio(label='Type', choices=flags.ip_list, value=modules.config.default_ip_types[image_count], container=False)
+                                            filtered_ip_list = [flags.cn_canny, flags.cn_cpds, flags.cn_pose]
+                                            default_ip_type = modules.config.default_ip_types[image_count]
+                                            if default_ip_type not in filtered_ip_list:
+                                                default_ip_type = filtered_ip_list[0]
+                                        ip_type = gr.Radio(label='Type', choices=filtered_ip_list, value=default_ip_type, container=False)
                                         ip_types.append(ip_type)
                                         ip_ctrls.append(ip_type)
-                                        ip_type.change(lambda x: flags.default_parameters[x], inputs=[ip_type], outputs=[ip_stop, ip_weight], queue=False, show_progress=False)
+                                        ip_type.change(lambda x: flags.default_parameters[x] if x in filtered_ip_list else flags.default_parameters[filtered_ip_list[0]],
+                                                     inputs=[ip_type], outputs=[ip_stop, ip_weight], queue=False, show_progress=False)
                                     ip_ad_cols.append(ad_col)
 
 
                         gr.HTML('* Powered by Fooocus Image Mixture Engine (v1.0.1), <a href="https://github.com/lllyasviel/Fooocus/discussions/557" target="_blank">\U0001F4D4 Documentation</a>, and Comfyd workflow engine from ComfyUI.')
 
                         def ip_advance_checked(x):
+                            filtered_ip_list = [flags.cn_canny, flags.cn_cpds, flags.cn_pose]
+                            default_ip = filtered_ip_list[0]
+
                             return [gr.update(visible=x)] * len(ip_ad_cols) + \
-                                [flags.default_ip] * len(ip_types) + \
-                                [flags.default_parameters[flags.default_ip][0]] * len(ip_stops) + \
-                                [flags.default_parameters[flags.default_ip][1]] * len(ip_weights)
+                                [default_ip] * len(ip_types) + \
+                                [flags.default_parameters[default_ip][0]] * len(ip_stops) + \
+                                [flags.default_parameters[default_ip][1]] * len(ip_weights)
 
                         ip_advanced.change(ip_advance_checked, inputs=ip_advanced,
                                            outputs=ip_ad_cols + ip_types + ip_stops + ip_weights,

@@ -97,7 +97,7 @@ default = {
     'freeu': [1.01, 1.02, 0.99, 0.95],
     'debugging_inpaint_preprocessor': False,
     'inpaint_disable_initial_latent': False,
-    'inpaint_engine': 'Lanpaint',
+    'inpaint_engine': 'LanPaint',
     'inpaint_strength': 1,
     'inpaint_respective_field': 0.618,
     'inpaint_advanced_masking_checkbox': True,

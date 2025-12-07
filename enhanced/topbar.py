@@ -373,11 +373,11 @@ def init_nav_bars(state_params, comfyd_active_checkbox, fast_comfyd_checkbox, re
     state_params.update({"wildcard_in_wildcards": 'root'})
     state_params.update({"bar_button": config.preset})
     state_params.update({"preset_store": False})
-    state_params.update({"engine": 'Fooocus'})
+    state_params.update({"engine": 'Z-image'})
     state_params.update({"engine_type": 'image'})
     results = [gr.update(value=get_welcome_image(config.preset,state_params["__is_mobile"],no_welcome=ads.get_admin_default("no_welcome_checkbox")))]
     results += [gr.update(value=modules.flags.language_radio(state_params["__lang"])), gr.update(value=state_params["__theme"])]
-    preset = 'default'
+    preset = 'Z-imageT'
     preset_url = get_preset_inc_url(preset)
     state_params.update({"__preset_url":preset_url})
     results += [gr.update(visible=True if 'blank.inc.html' not in preset_url else False)]
