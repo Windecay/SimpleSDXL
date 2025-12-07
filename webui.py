@@ -1151,9 +1151,9 @@ with shared.gradio_root:
                                                    value=modules.config.default_overwrite_step,
                                                    info='Set as -1 to disable. For developer debugging.')
                         with gr.Row():
-                            sampler_name = gr.Dropdown(label='Sampler', choices=flags.sampler_list,
+                            sampler_name = gr.Dropdown(label='Sampler', choices=flags.comfy_sampler_list,
                                                    value=modules.config.default_sampler)
-                            scheduler_name = gr.Dropdown(label='Scheduler', choices=flags.scheduler_list,
+                            scheduler_name = gr.Dropdown(label='Scheduler', choices=flags.comfy_scheduler_list,
                                                      value=modules.config.default_scheduler)
                         with gr.Row():
                             vae_name = gr.Dropdown(label='VAE', choices=[modules.flags.default_vae] + modules.config.vae_filenames,

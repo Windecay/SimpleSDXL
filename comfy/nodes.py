@@ -969,7 +969,7 @@ class DualCLIPLoader:
     def INPUT_TYPES(s):
         return {"required": { "clip_name1": (folder_paths.get_filename_list("text_encoders"), ),
                               "clip_name2": (folder_paths.get_filename_list("text_encoders"), ),
-                              "type": (["sdxl", "sd3", "flux", "hunyuan_video", "hidream", "hunyuan_image", "hunyuan_video_15"], ),
+                              "type": (["sdxl", "sd3", "flux", "hunyuan_video", "hidream", "hunyuan_image", "hunyuan_video_15", "kandinsky5", "kandinsky5_image"], ),
                               },
                 "optional": {
                               "device": (["default", "cpu"], {"advanced": True}),
@@ -2354,7 +2354,9 @@ async def init_builtin_extra_nodes():
         "nodes_easycache.py",
         "nodes_audio_encoder.py",
         "nodes_rope.py",
+        "nodes_logic.py",
         "nodes_nop.py",
+        "nodes_kandinsky5.py",
     ]
 
     import_failed = []
