@@ -162,6 +162,11 @@ def get_preset_name_list(user_session, ua_hash):
             presets = sorted(file_times, key=lambda x: x[1], reverse=True)
             presets = [f[0] for f in presets]
             presets = preset_filter(presets)
+            unique_presets = []
+            for preset in presets:
+                if preset not in unique_presets:
+                    unique_presets.append(preset)
+            presets = unique_presets
             # if config.preset in presets:
             #     presets.remove(config.preset)
             presets.insert(0, config.preset)
@@ -401,7 +406,13 @@ def refresh_nav_bars(state_params):
     ua_hash = state_params.get("ua_hash", "")
     preset_name_list = get_preset_name_list(user_session, ua_hash).split(',')
     filtered_presets = preset_filter(preset_name_list)
-    preset_name_list = [preset for preset in preset_name_list if preset in filtered_presets]    
+    preset_name_list = [preset for preset in preset_name_list if preset in filtered_presets]
+
+    unique_presets = []
+    for preset in preset_name_list:
+        if preset and preset not in unique_presets:
+            unique_presets.append(preset)
+    preset_name_list = unique_presets
     user_did = state_params["user"].get_did()
     is_guest = shared.token.is_guest(user_did)
     path_preset = os.path.abspath(f'./presets/')
