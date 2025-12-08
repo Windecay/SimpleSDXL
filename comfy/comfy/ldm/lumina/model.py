@@ -640,3 +640,106 @@ class NextDiT(nn.Module):
 
         return -img
 
+class Newbie(NextDiT):
+    """
+    Newbie model with dual CLIP support (Gemma3-4B-IT + Jina CLIP v2)
+    """
+    def __init__(self, *args, **kwargs):
+        # Extract CLIP-related parameters
+        clip_text_dim = kwargs.pop('clip_text_dim', 1024)
+        clip_img_dim = kwargs.pop('clip_img_dim', 1024)
+        
+        # Set default cap_feat_dim to 2560 for CLIP models
+        if 'cap_feat_dim' not in kwargs:
+            kwargs['cap_feat_dim'] = 2560
+        
+        # Call parent initialization
+        super().__init__(*args, **kwargs)
+        
+        # Initialize CLIP-related components
+        self.enable_clip = True
+        operation_settings = {"operations": kwargs.get("operations"), "device": kwargs.get("device"), "dtype": kwargs.get("dtype")}
+        
+        self.time_text_embed = nn.Sequential(
+            nn.SiLU(),
+            operation_settings.get("operations").Linear(
+                min(self.dim, 1024) + clip_text_dim, 
+                min(self.dim, 1024),
+                device=operation_settings.get("device"),
+                dtype=operation_settings.get("dtype"),
+            ),
+        )
+        
+        self.clip_text_pooled_proj = nn.Sequential(
+            operation_settings.get("operations").RMSNorm(
+                clip_text_dim, 
+                elementwise_affine=True, 
+                device=operation_settings.get("device"), 
+                dtype=operation_settings.get("dtype")
+            ),
+            operation_settings.get("operations").Linear(
+                clip_text_dim, 
+                clip_text_dim, 
+                bias=True,
+                device=operation_settings.get("device"),
+                dtype=operation_settings.get("dtype"),
+            ),
+        )
+
+    def forward(self, x, timesteps, context, num_tokens=None, attention_mask=None, **kwargs):
+        """
+        Forward pass with CLIP features support for Newbie
+        """
+        t = 1.0 - timesteps
+        
+        # Handle NewBie CLIP conditioning format
+        if isinstance(context, list) and len(context) > 0 and isinstance(context[0], list) and len(context[0]) == 2:
+            # ComfyUI standard format: [[features, extra_dict]]
+            cap_feats, extra_conds = context[0]
+            cap_mask = extra_conds.get("cap_mask", attention_mask)
+            clip_text_pooled = extra_conds.get("clip_text_pooled")
+        elif isinstance(context, dict) and "model_conds" in context:
+            # Old NewBie CLIP format (backward compatibility)
+            model_conds = context["model_conds"]
+            cap_feats = model_conds.get("cap_feats", context.get("cross_attn"))
+            cap_mask = model_conds.get("cap_mask", attention_mask)
+            clip_text_pooled = model_conds.get("clip_text_pooled")
+        else:
+            # Standard format fallback
+            cap_feats = context
+            cap_mask = attention_mask
+            clip_text_pooled = kwargs.get('clip_text_pooled')
+        
+        bs, c, h, w = x.shape
+        x = comfy.ldm.common_dit.pad_to_patch_size(x, (self.patch_size, self.patch_size))
+        
+        # Handle num_tokens if not provided
+        if num_tokens is None:
+            if cap_feats is not None:
+                num_tokens = cap_feats.shape[1]  # Use sequence length from cap_feats
+            else:
+                num_tokens = 512  # Default fallback
+        
+        # Prepare AdaLN input with CLIP features
+        t_emb = self.t_embedder(t, dtype=x.dtype)
+        adaln_input = t_emb
+        cap_feats = self.cap_embedder(cap_feats)
+        
+        if clip_text_pooled is not None:
+            clip_emb = self.clip_text_pooled_proj(clip_text_pooled)
+            combined_features = torch.cat([t_emb, clip_emb], dim=-1)
+            adaln_input = self.time_text_embed(combined_features)
+        else:
+            adaln_input = t_emb
+        
+        x_is_tensor = isinstance(x, torch.Tensor)
+        x, mask, img_size, cap_size, freqs_cis = self.patchify_and_embed(x, cap_feats, cap_mask, adaln_input, num_tokens)
+        freqs_cis = freqs_cis.to(x.device)
+
+        for layer in self.layers:
+            x = layer(x, mask, freqs_cis, adaln_input)
+
+        x = self.final_layer(x, adaln_input)
+        x = self.unpatchify(x, img_size, cap_size, return_tensor=x_is_tensor)[:,:,:h,:w]
+
+        return -x

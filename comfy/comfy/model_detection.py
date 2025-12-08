@@ -405,6 +405,21 @@ def detect_unet_config(state_dict, key_prefix, metadata=None):
             dit_config["extra_per_block_abs_pos_emb_type"] = "learnable"
         return dit_config
 
+    if '{}time_text_embed.1.weight'.format(key_prefix) in state_dict_keys and '{}clip_text_pooled_proj.1.weight'.format(key_prefix) in state_dict_keys:  # Newbie
+        dit_config = {}
+        dit_config["image_model"] = "newbie"
+        dit_config["patch_size"] = 2
+        dit_config["in_channels"] = 16
+        dit_config["dim"] = 2304  # or detect from actual weights
+        dit_config["cap_feat_dim"] = 2560  # Gemma3-4B-IT output size
+        dit_config["n_layers"] = 36  # or detect from actual weights
+        dit_config["n_heads"] = 24
+        dit_config["n_kv_heads"] = 8
+        dit_config["qk_norm"] = True
+        dit_config["axes_dims"] = [32, 32, 32]
+        dit_config["axes_lens"] = [1024, 512, 512]
+        return dit_config
+
     if '{}cap_embedder.1.weight'.format(key_prefix) in state_dict_keys:  # Lumina 2
         dit_config = {}
         dit_config["image_model"] = "lumina2"
