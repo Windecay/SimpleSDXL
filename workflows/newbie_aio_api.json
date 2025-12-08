@@ -165,7 +165,7 @@
   "26": {
     "inputs": {
       "images": [
-        "8",
+        "37",
         0
       ]
     },
@@ -216,6 +216,235 @@
     "class_type": "ModelPatchTorchSettings",
     "_meta": {
       "title": "Model Patch Torch Settings"
+    }
+  },
+  "33": {
+    "inputs": {
+      "uov_method": "disabled",
+      "uov_denoise": 0.5000000000000001,
+      "uov_processing_order": "Before First Enhancement",
+      "uov_prompt_type": "Original Prompts",
+      "uov_multiple": 1.5,
+      "uov_tiled_width": 1024,
+      "uov_tiled_height": 1024,
+      "uov_tiled_steps": 12
+    },
+    "class_type": "EnhanceUovInput",
+    "_meta": {
+      "title": "EnhanceUovInput"
+    }
+  },
+  "34": {
+    "inputs": {
+      "find1": "disabled",
+      "replace1": "0",
+      "find2": "upscale (1.5x)",
+      "replace2": "1",
+      "find3": "",
+      "replace3": "",
+      "prompt": [
+        "33",
+        0
+      ]
+    },
+    "class_type": "easy promptReplace",
+    "_meta": {
+      "title": "PromptReplace"
+    }
+  },
+  "35": {
+    "inputs": {
+      "value": "a",
+      "a": [
+        "34",
+        0
+      ]
+    },
+    "class_type": "SimpleMath+",
+    "_meta": {
+      "title": "🔧 Simple Math"
+    }
+  },
+  "37": {
+    "inputs": {
+      "boolean": [
+        "39",
+        0
+      ],
+      "on_true": [
+        "50",
+        0
+      ],
+      "on_false": [
+        "52",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "39": {
+    "inputs": {
+      "comparison": "a == b",
+      "a": [
+        "40",
+        0
+      ],
+      "b": [
+        "35",
+        0
+      ]
+    },
+    "class_type": "easy compare",
+    "_meta": {
+      "title": "Compare"
+    }
+  },
+  "40": {
+    "inputs": {
+      "value": 0
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "Int"
+    }
+  },
+  "43": {
+    "inputs": {
+      "pixels": [
+        "8",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ]
+    },
+    "class_type": "VAEEncode",
+    "_meta": {
+      "title": "VAE Encode"
+    }
+  },
+  "44": {
+    "inputs": {
+      "model_name": "4x-AnimeSharp.pth"
+    },
+    "class_type": "UpscaleModelLoader",
+    "_meta": {
+      "title": "Load Upscale Model"
+    }
+  },
+  "49": {
+    "inputs": {
+      "format": "JPEG",
+      "images": [
+        "8",
+        0
+      ]
+    },
+    "class_type": "SaveImageWebsocketLazy",
+    "_meta": {
+      "title": "result1"
+    }
+  },
+  "50": {
+    "inputs": {
+      "boolean": [
+        "27",
+        13
+      ],
+      "on_true": [
+        "8",
+        0
+      ],
+      "on_false": [
+        "49",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "52": {
+    "inputs": {
+      "upscale_by": [
+        "33",
+        4
+      ],
+      "seed": [
+        "28",
+        0
+      ],
+      "steps": [
+        "33",
+        7
+      ],
+      "cfg": [
+        "27",
+        4
+      ],
+      "sampler_name": [
+        "27",
+        7
+      ],
+      "scheduler": [
+        "27",
+        8
+      ],
+      "denoise": [
+        "33",
+        1
+      ],
+      "mode_type": "Chess",
+      "tile_width": [
+        "33",
+        5
+      ],
+      "tile_height": [
+        "33",
+        6
+      ],
+      "mask_blur": 32,
+      "tile_padding": 64,
+      "seam_fix_mode": "None",
+      "seam_fix_denoise": 1,
+      "seam_fix_width": 64,
+      "seam_fix_mask_blur": 8,
+      "seam_fix_padding": 16,
+      "force_uniform_tiles": true,
+      "tiled_decode": false,
+      "image": [
+        "50",
+        0
+      ],
+      "model": [
+        "31",
+        0
+      ],
+      "positive": [
+        "5",
+        0
+      ],
+      "negative": [
+        "6",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ],
+      "upscale_model": [
+        "44",
+        0
+      ]
+    },
+    "class_type": "UltimateSDUpscale",
+    "_meta": {
+      "title": "Ultimate SD Upscale"
     }
   }
 }
