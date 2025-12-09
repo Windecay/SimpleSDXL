@@ -1993,7 +1993,7 @@
   "372": {
     "inputs": {
       "samples": [
-        "813",
+        "816",
         0
       ],
       "vae": [
@@ -5231,7 +5231,7 @@
         8
       ],
       "denoise": 1,
-      "LanPaint_NumSteps": 2,
+      "LanPaint_NumSteps": 5,
       "LanPaint_PromptMode": "Image First",
       "LanPaint_Info": "LanPaint KSampler. For more info, visit https://github.com/scraed/LanPaint. If you find it useful, please give a star ⭐️!",
       "Inpainting_mode": "🖼️ Image Inpainting",
@@ -5299,7 +5299,7 @@
         "728",
         9
       ],
-      "LanPaint_NumSteps": 2,
+      "LanPaint_NumSteps": 5,
       "LanPaint_PromptMode": "Image First",
       "LanPaint_Info": "LanPaint KSampler. For more info, visit https://github.com/scraed/LanPaint. If you find it useful, please give a star ⭐️!",
       "Inpainting_mode": "🖼️ Image Inpainting",
@@ -5316,7 +5316,7 @@
         0
       ],
       "latent_image": [
-        "807",
+        "804",
         0
       ]
     },
@@ -5351,8 +5351,8 @@
         "728",
         9
       ],
-      "LanPaint_NumSteps": 2,
-      "LanPaint_PromptMode": "Image First",
+      "LanPaint_NumSteps": 5,
+      "LanPaint_PromptMode": "Prompt First",
       "LanPaint_Info": "LanPaint KSampler. For more info, visit https://github.com/scraed/LanPaint. If you find it useful, please give a star ⭐️!",
       "Inpainting_mode": "🖼️ Image Inpainting",
       "model": [
@@ -5368,7 +5368,7 @@
         0
       ],
       "latent_image": [
-        "807",
+        "804",
         0
       ]
     },
@@ -5490,6 +5490,134 @@
     "class_type": "KSamplerAdvanced",
     "_meta": {
       "title": "KSampler (Advanced)"
+    }
+  },
+  "815": {
+    "inputs": {
+      "seed": [
+        "417",
+        0
+      ],
+      "steps": [
+        "728",
+        5
+      ],
+      "cfg": [
+        "728",
+        4
+      ],
+      "sampler_name": [
+        "728",
+        7
+      ],
+      "scheduler": [
+        "728",
+        8
+      ],
+      "denoise": 1,
+      "model": [
+        "798",
+        0
+      ],
+      "positive": [
+        "805",
+        0
+      ],
+      "negative": [
+        "1",
+        0
+      ],
+      "latent_image": [
+        "257",
+        0
+      ]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "KSampler"
+    }
+  },
+  "816": {
+    "inputs": {
+      "boolean": [
+        "825",
+        0
+      ],
+      "on_true": [
+        "815",
+        0
+      ],
+      "on_false": [
+        "813",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "817": {
+    "inputs": {
+      "目标A": [
+        "818",
+        0
+      ],
+      "比较对象B": [
+        "585",
+        0
+      ],
+      "比较对象C": [
+        "586",
+        0
+      ],
+      "比较对象D": [
+        "525",
+        0
+      ],
+      "比较对象E": [
+        "556",
+        0
+      ]
+    },
+    "class_type": "ZML_RelativeComparison",
+    "_meta": {
+      "title": "ZML_相等判断"
+    }
+  },
+  "818": {
+    "inputs": {
+      "value": 0
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "Int"
+    }
+  },
+  "825": {
+    "inputs": {
+      "comparison": "a == b",
+      "a": [
+        "826",
+        0
+      ],
+      "b": [
+        "817",
+        0
+      ]
+    },
+    "class_type": "easy compare",
+    "_meta": {
+      "title": "Compare"
+    }
+  },
+  "826": {
+    "inputs": {
+      "value": 4
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "Int"
     }
   }
 }

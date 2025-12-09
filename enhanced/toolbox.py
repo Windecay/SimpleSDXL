@@ -386,9 +386,9 @@ def save_preset(*args):
         preset["default_translation_methods"] = translation_methods
         preset["default_input_image_checkbox"] = input_image_checkbox
 
-        preset["default_progress_video"] = progress_video
-        preset["default_progress_gallery"] = progress_gallery
-        preset["default_progress_window"] = progress_window
+        # preset["default_progress_video"] = progress_video
+        # preset["default_progress_gallery"] = progress_gallery
+        # preset["default_progress_window"] = progress_window
 
         preset["default_refiner_swap_method"] = refiner_swap_method
         preset["default_inpaint_engine_state"] = inpaint_engine_state
