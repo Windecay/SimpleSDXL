@@ -1819,7 +1819,7 @@ def worker():
                         async_task.params_backend['i2i_inpaint_fn'] = 1  # out
                     else:
                         async_task.params_backend['i2i_inpaint_fn'] = 2 # detail, object, general
-                if async_task.task_class in ('Flux', 'Qwen'):
+                if async_task.task_class in ('Flux', 'Qwen', 'Wan', 'Z-image'):
                     async_task.params_backend['i2i_model_type'] = 2 if 'gguf' in async_task.base_model_name else 1
                 if async_task.task_class == 'Comfy':
                     if 'i2i_uov_tiled_steps' not in async_task.params_backend and async_task.task_method == "sd15_aio":

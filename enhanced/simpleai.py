@@ -15,7 +15,7 @@ from simpleai_base.params_mapper import ComfyTaskParams
 from simpleai_base.comfyclient_pipeline import get_media_info
 from simpleai_base.models_info import ModelsInfo, sync_model_info
 from simpleai_base.simpleai_base import export_identity_qrcode_svg, import_identity_qrcode
-
+import socket
 import logging
 from enhanced.logger import format_name
 logger = logging.getLogger(format_name(__name__))
@@ -30,12 +30,59 @@ def init_modelsinfo(models_root, path_map):
     if not shared.modelsinfo:
         shared.modelsinfo = ModelsInfo(models_info_path, path_map)
     return shared.modelsinfo
+def is_port_available(port, host='127.0.0.1'):
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.settimeout(1)
+            result = s.connect_ex((host, port))
+            return result != 0
+    except Exception as e:
+        logger.warning(f"检查端口 {port} 时出错: {e}")
+        return False
+def find_available_port(start_port=8187, max_attempts=100, suppress_logging=False):
+    excluded_ports = {8188}
+
+    for i in range(max_attempts):
+        port = start_port + i
+        if port in excluded_ports:
+            continue
+
+        if is_port_available(port):
+            if i > 0 and not suppress_logging:
+                logger.info(f"端口 {start_port} 被占用，自动切换到端口: {port}")
+            elif not suppress_logging:
+                logger.info(f"后端使用端口: {port}")
+            return port
+
+    import random
+    for _ in range(20):
+        port = random.randint(10000, 65535)
+        if port not in range(8180, 8200) and is_port_available(port):
+            if not suppress_logging:
+                logger.warning(f"常规端口范围被占用，使用随机端口: {port}")
+            return port
+
+    if not suppress_logging:
+        logger.error(f"无法找到可用端口，尝试使用默认端口: {start_port}")
+    return start_port
 
 def reset_simpleai_args():
     global args_comfyd
     shared.sysinfo.update(dict(
         torch_version=torch_version,
         xformers_version=xformers_version ))
+
+    if args_manager.args.backend_port is not None:
+        available_port = find_available_port(args_manager.args.backend_port, suppress_logging=True)
+        if available_port == args_manager.args.backend_port:
+            logger.info(f"使用指定的后端端口: {available_port}")
+        else:
+            logger.info(f"端口 {args_manager.args.backend_port} 被占用，自动切换到端口: {available_port}")
+    else:
+        available_port = find_available_port(8187)
+        logger.info(f"使用默认后端端口: {available_port}")
+
+    shared.sysinfo["loopback_port"] = available_port
     comfyclient_pipeline.COMFYUI_ENDPOINT_PORT = shared.sysinfo["loopback_port"]
     reserve_vram_value = ads.get_admin_default('reserved_vram')
     reserve_vram = [['--reserve-vram', f'{reserve_vram_value}']] if reserve_vram_value and reserve_vram_value>0 else [] 

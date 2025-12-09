@@ -58,6 +58,9 @@ args_parser.parser.add_argument("--reserve-vram", type=float, default=None, help
 args_parser.parser.add_argument("--disable-backend", action='store_true',
                                 help="disable generate backend and ready to remote process", default=False)
 
+args_parser.parser.add_argument("--backend-port", type=int, default=None,
+                                help="Set the port for backend server (ComfyUI). If port is in use, will automatically find an available port.")
+
 args_parser.parser.set_defaults(
     disable_cuda_malloc=True,
     in_browser=True,

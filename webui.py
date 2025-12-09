@@ -1543,8 +1543,8 @@ with shared.gradio_root:
                     with gr.Row():
                         base_model = gr.Dropdown(label='Base Model (or HighNoise)', choices=modules.config.model_filenames, value=modules.config.default_base_model_name, show_label=True,
                                                  elem_id="model_dropdown_base",elem_classes="model-dropdown",interactive=True, info="Right Click for Model Gallery")
-                        refiner_model = gr.Dropdown(label='Refiner (or LowNoise)', choices=['None'] + modules.config.model_filenames, value=modules.config.default_refiner_model_name, show_label=True,
-                                                 elem_id="model_dropdown_refiner",elem_classes="model-dropdown",interactive=True, info="WanT2I selects VACE here")
+                        refiner_model = gr.Dropdown(label='Refiner (or LowNoise)', choices=['None'] + modules.config.get_base_model_list('Fooocus', None), value=modules.config.default_refiner_model_name, show_label=True,
+                                                 elem_id="model_dropdown_refiner",elem_classes="model-dropdown",interactive=True, info="WanT2I selects VACE here", visible=False)
                     with gr.Row():
                         base_preview_btn = gr.Button( "🖼️ Base Model", variant="secondary", visible=False,elem_id="base_preview_btn")
                         refiner_preview_btn = gr.Button("🖼️ Refiner", variant="secondary", visible=False,elem_id="refiner_preview_btn")

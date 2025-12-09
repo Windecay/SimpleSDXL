@@ -10,6 +10,7 @@ import shared
 import fooocus_version
 import comfy.comfy_version as comfy_version
 import enhanced.version as version
+import socket
 import logging
 
 from pathlib import Path
@@ -440,6 +441,35 @@ def download_models(default_model, previous_default_models, checkpoint_downloads
 
     return default_model, checkpoint_downloads
 
+def is_port_available(port, host='127.0.0.1'):
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.settimeout(1)
+            result = s.connect_ex((host, port))
+            return result != 0
+    except Exception as e:
+        logger.warning(f"检查端口 {port} 时出错: {e}")
+        return False
+
+def find_available_port(start_port=7865, max_attempts=100):
+    excluded_ports = {7890, 8188}
+
+    for i in range(max_attempts):
+        port = start_port + i
+        if port in excluded_ports:
+            continue
+
+        host = shared.args.listen if hasattr(shared.args, 'listen') else '127.0.0.1'
+
+        if is_port_available(port, host):
+            if i > 0:
+                logger.info(f"端口 {start_port} 被占用，自动切换到端口: {port}")
+            else:
+                logger.info(f"前端使用端口: {port}")
+            return port
+
+    return None
+
 def reset_env_args():
     shared.sysinfo = json.loads(shared.token.get_sysinfo().to_json())
     shared.sysinfo.update(dict(did=shared.token.get_sys_did()))
@@ -460,7 +490,18 @@ def reset_env_args():
             shared.args.listen = shared.sysinfo["local_ip"]
     if '--port' not in sys.argv:
         shared.args.port = shared.sysinfo["local_port"]
-   
+
+    host = shared.args.listen
+    if not is_port_available(shared.args.port, host):
+        available_port = find_available_port(shared.args.port + 1)
+        if available_port:
+            logger.info(f"端口 {shared.args.port} 被占用，自动切换到: {available_port}")
+            shared.args.port = available_port
+    else:
+        if '--port' in sys.argv:
+            logger.info(f"使用指定的前端端口: {shared.args.port}")
+        else:
+            logger.info(f"使用默认前端端口: {shared.args.port}")
     if shared.args.node_type and shared.args.node_type != "online":
         shared.sysinfo["local_ip"] = '127.0.0.1'
         shared.args.listen = '127.0.0.1'
