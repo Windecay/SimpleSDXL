@@ -326,7 +326,7 @@ def save_preset(*args):
 
     if name:
         preset = {}
-        if 'backend_engine' in backend_params and backend_params['backend_engine']!='Fooocus':
+        if 'backend_engine' in backend_params:
             preset["default_engine"] = backend_params
 
         preset["default_model"] = base_model

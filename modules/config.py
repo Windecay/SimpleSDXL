@@ -143,6 +143,18 @@ def try_get_preset_content(preset, user_did=None):
                 with open(preset_path, "r", encoding="utf-8") as json_file:
                     json_content = json.load(json_file)
                     logger.info(f'Loaded preset: {preset_path}')
+
+                    has_default_engine = 'default_engine' in json_content
+
+                    default_engine_has_backend = False
+                    if has_default_engine and isinstance(json_content['default_engine'], dict):
+                        default_engine_has_backend = 'backend_engine' in json_content['default_engine']
+
+                    if has_default_engine and isinstance(json_content['default_engine'], dict) and not default_engine_has_backend:
+                        json_content['default_engine']['backend_engine'] = 'Fooocus'
+                    elif not has_default_engine:
+                        json_content['default_engine'] = {'backend_engine': 'Fooocus'}
+
                     return json_content
             else:
                 raise FileNotFoundError
