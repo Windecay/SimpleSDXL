@@ -144,6 +144,16 @@ def get_preset_name_list(user_session, ua_hash):
 
     presets_list = shared.token.get_local_vars("user_presets", "", user_session, ua_hash)
     if presets_list and presets_list not in ["Unknown", "None", "Default"]:
+        presets = [p.strip() for p in presets_list.split(',') if p.strip()]
+        unique_presets = []
+        for preset in presets:
+            if preset not in unique_presets:
+                unique_presets.append(preset)
+        if config.preset in unique_presets:
+            unique_presets.remove(config.preset)
+        unique_presets.insert(0, config.preset)
+        unique_presets = unique_presets[:shared.BUTTON_NUM]
+        presets_list = ','.join(unique_presets)
         return presets_list
 
     if user_did and not shared.token.is_guest(user_did):
@@ -167,8 +177,8 @@ def get_preset_name_list(user_session, ua_hash):
                 if preset not in unique_presets:
                     unique_presets.append(preset)
             presets = unique_presets
-            # if config.preset in presets:
-            #     presets.remove(config.preset)
+            if config.preset in presets:
+                presets.remove(config.preset)
             presets.insert(0, config.preset)
             presets = presets[:shared.BUTTON_NUM]
             presets_list = ','.join(presets)
@@ -188,8 +198,13 @@ def get_preset_name_list(user_session, ua_hash):
             presets = sorted(file_times, key=lambda x: x[1], reverse=True)
             presets = [f[0] for f in presets]
             presets = preset_filter(presets)
-            # if config.preset in presets:
-            #     presets.remove(config.preset)
+            unique_presets = []
+            for preset in presets:
+                if preset not in unique_presets:
+                    unique_presets.append(preset)
+            presets = unique_presets
+            if config.preset in presets:
+                presets.remove(config.preset)
             presets.insert(0, config.preset)
             presets = presets[:shared.BUTTON_NUM]
             presets_list = ','.join(presets)
