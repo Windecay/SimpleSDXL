@@ -701,7 +701,13 @@ def cut_with_mask(mask, width, height):
         y_max = iy.max().item()
 
         if x_max - x_min > width or y_max - y_min > height:
-            raise Exception("Mask is bigger than provided dimensions")
+            mask_width = x_max - x_min
+            mask_height = y_max - y_min
+
+            width = int(mask_width)
+            height = int(mask_height)
+
+            print(f"BrushNet: Mask is bigger than provided dimensions. Adjusted width to {width}, height to {height}")
 
         x_c = (x_min + x_max) / 2.0
         y_c = (y_min + y_max) / 2.0
