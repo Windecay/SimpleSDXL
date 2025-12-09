@@ -5231,7 +5231,7 @@
         8
       ],
       "denoise": 1,
-      "LanPaint_NumSteps": 5,
+      "LanPaint_NumSteps": 2,
       "LanPaint_PromptMode": "Image First",
       "LanPaint_Info": "LanPaint KSampler. For more info, visit https://github.com/scraed/LanPaint. If you find it useful, please give a star ⭐️!",
       "Inpainting_mode": "🖼️ Image Inpainting",
@@ -5299,7 +5299,7 @@
         "728",
         9
       ],
-      "LanPaint_NumSteps": 5,
+      "LanPaint_NumSteps": 2,
       "LanPaint_PromptMode": "Image First",
       "LanPaint_Info": "LanPaint KSampler. For more info, visit https://github.com/scraed/LanPaint. If you find it useful, please give a star ⭐️!",
       "Inpainting_mode": "🖼️ Image Inpainting",
@@ -5351,7 +5351,7 @@
         "728",
         9
       ],
-      "LanPaint_NumSteps": 5,
+      "LanPaint_NumSteps": 2,
       "LanPaint_PromptMode": "Prompt First",
       "LanPaint_Info": "LanPaint KSampler. For more info, visit https://github.com/scraed/LanPaint. If you find it useful, please give a star ⭐️!",
       "Inpainting_mode": "🖼️ Image Inpainting",
