@@ -38,6 +38,7 @@ import simpleai_base.api_params as api_params
 from enhanced.simpleai import comfyd, p2p_task 
 from enhanced.minicpm import MiniCPM, minicpm
 from enhanced.inference_artist import get_artist_tags_string
+import modules.model_loader as model_loader
 import logging
 logger = logging.getLogger(__name__)
 
@@ -87,13 +88,13 @@ def generate_clicked(task: worker.AsyncTask, state):
     is_fooocus = state["engine"] == 'Fooocus'
 
     # outputs=[progress_html, progress_window, progress_gallery, progress_video, gallery]
-    if "absent_model" in state and state["absent_model"]:
-        yield gr.update(visible=False), \
-            gr.update(visible=True, value=get_welcome_image(is_mobile=is_mobile, is_change=True)), \
-            gr.update(visible=False, value=None), \
-            gr.update(visible=False), \
-            gr.update(visible=False)
-        return
+    # if "absent_model" in state and state["absent_model"]:
+    #     yield gr.update(visible=False), \
+    #         gr.update(visible=True, value=get_welcome_image(is_mobile=is_mobile, is_change=True)), \
+    #         gr.update(visible=False, value=None), \
+    #         gr.update(visible=False), \
+    #         gr.update(visible=False)
+        # return
 
     MAX_WAIT_TIME = 600
     POLL_INTERVAL = 0.1
@@ -338,6 +339,83 @@ with shared.gradio_root:
                     shared.gradio_root.load(get_wildcards_list, outputs=start_timestamp, queue=False)
                 with gr.Row(visible=False, elem_classes='preset_store') as preset_store:
                     preset_store_list = gr.Dataset(label="My preset store: Click on the preset in store to append it to the navigation. If it is already on, it will be automatically removed.", components=[gallery_index_stat], samples=topbar.get_preset_samples(), visible=True, samples_per_page=48, type='index')
+
+                missing_model_modal = gr.Box(
+                    visible=False,
+                    elem_id="missing_model_modal",
+                    elem_classes=["modal", "missing-model-modal"])
+                with missing_model_modal:
+                    modal_content = gr.Column(
+                        elem_classes=["modal-content"],
+                        elem_id="missing_model_modal_content",
+                        scale=1,
+                        min_width=800
+                    )
+                    with modal_content:
+                        missing_model_title = gr.Markdown("### 以下模型文件缺失，请点击下载按钮获取：")
+
+                        dataframe_container = gr.Box(elem_id="missing_model_dataframe_container")
+                        with dataframe_container:
+                            missing_model_list = gr.Dataframe(
+                                headers=["模型名称", "模型大小", "操作"],
+                                datatype=["str", "str", "str"],
+                                value=[],
+                                interactive=False,
+                                elem_id="missing_model_list",
+                                col_count=3,
+                                row_count=10,
+                                max_rows=200,
+                                overflow_row_behaviour="scroll")
+
+                        with gr.Row():
+                            close_missing_model_btn = gr.Button("关闭")
+                            missing_model_btn = gr.Button("下载所选模型", visible=False)
+
+                def check_and_show_missing_models(button_value, state_params):
+                    """检查模型是否缺失并显示提示窗口"""
+
+                    preset_name = button_value.replace('⬇', '').strip()
+                    if not preset_name:
+                        return [gr.update(visible=False), gr.update(value=[]), gr.update(visible=False)]
+                    missing_models = model_loader.get_missing_model_list(preset_name)
+
+                    if missing_models:
+                        display_data = []
+                        for cata, path_file, human_size, url in missing_models:
+                            model_name = os.path.basename(path_file)
+                            display_data.append([model_name, human_size, f"下载 {model_name}"])
+
+                        return [gr.update(visible=True),
+                                gr.update(value=display_data),
+                                gr.update(visible=True)]
+                    else:
+                        return [gr.update(visible=False), gr.update(value=[]), gr.update(visible=False)]
+
+                def download_models(state_params):
+                    preset_name = state_params.get('__preset', '')
+                    if not preset_name:
+                        return gr.update(visible=True)
+
+                    user_session = state_params.get('__session', '')
+                    ua_hash = state_params.get('ua_hash', '')
+
+                    user_did = shared.token.check_sstoken_and_get_did(user_session, ua_hash) if hasattr(shared.token, 'check_sstoken_and_get_did') else None
+                    is_guest = not user_did or (hasattr(shared.token, 'is_guest') and shared.token.is_guest(user_did))
+
+                    if is_guest:
+                        gr.Info("游客模式下无法下载模型，请使用外置的模型管理器补全")
+                        return gr.update(visible=False)
+
+                    gr.Info(f"开始下载预置包的模型: {preset_name}，请耐心等待...可于控制台查看下载进度")
+                    model_loader.download_model_files(preset_name, async_task=True)
+                    return gr.update(visible=True)
+
+                def close_missing_model_modal():
+                    return gr.update(visible=False)
+
+                close_missing_model_btn.click(close_missing_model_modal, outputs=missing_model_modal)
+                missing_model_btn.click(download_models, inputs=[state_topbar], outputs=missing_model_modal, api_name="download_models")
+
                 with gr.Row():
                     with gr.Column(scale=2, visible=True):
                         with gr.Row():
@@ -2378,7 +2456,8 @@ with shared.gradio_root:
                      + [False for _ in lora_gallery_visible]
                      + [[] for _ in lora_current_previews]
                      + [gr.update(variant="secondary") for _ in lora_preview_btns],
-                    outputs=[model_gallery, gallery_visible, current_previews, active_target, base_preview_btn, refiner_preview_btn] + lora_galleries + lora_gallery_visible + lora_current_previews + lora_preview_btns)
+                    outputs=[model_gallery, gallery_visible, current_previews, active_target, base_preview_btn, refiner_preview_btn] + lora_galleries + lora_gallery_visible + lora_current_previews + lora_preview_btns) \
+               .then(check_and_show_missing_models, inputs=[bar_buttons[i], state_topbar], outputs=[missing_model_modal, missing_model_list, missing_model_btn])
     shared.gradio_root.load(fn=lambda x: x, inputs=system_params, outputs=state_topbar, _js=topbar.get_system_params_js, queue=False, show_progress=False) \
                       .then(topbar.init_nav_bars, inputs=[state_topbar] + admin_ctrls, outputs=[progress_window, language_ui, background_theme, preset_instruction] + user_app_ctrls + admin_ctrls, show_progress=False) \
                       .then(topbar.reset_layout_params, inputs=reset_preset_inputs, outputs=reset_layout_params, show_progress=False) \

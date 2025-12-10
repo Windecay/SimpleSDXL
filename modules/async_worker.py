@@ -1351,9 +1351,9 @@ def worker():
                     break
                 time.sleep(2)
             return
-        if is_models_file_absent(async_task.task_name):
-            stop_processing(async_task, 0, "Model absent")
-            return
+        # if is_models_file_absent(async_task.task_name):
+        #     stop_processing(async_task, 0, "Model absent")
+        #     return
         ldm_patched.modules.model_management.print_memory_info("begin at handler")
         async_task.outpaint_selections = [o.lower() for o in async_task.outpaint_selections]
         base_model_additional_loras = []

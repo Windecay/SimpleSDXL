@@ -182,10 +182,8 @@ def get_gpu_arch_str_in_preset_name():
     return ''
 def is_models_file_absent(preset_name, user_did=None):
     global presets_model_list
-
     if shared.args.disable_backend:
         return False
-
     if preset_name in presets_model_list:
         if check_models_exists(preset_name, user_did):
             return False
@@ -206,17 +204,6 @@ def is_models_file_absent(preset_name, user_did=None):
     if os.path.exists(preset_path):
         with open(preset_path, "r", encoding="utf-8") as json_file:
             config_preset = json.load(json_file)
-
-        if config_preset["default_model"] and config_preset["default_model"] != 'None':
-            if 'Flux' in preset_name and config_preset["default_model"] == 'auto':
-                config_preset["default_model"] = comfy_task.get_default_base_Flux_name('+' in preset_name)
-            model_key = f'checkpoints/{config_preset["default_model"]}'
-            if not shared.modelsinfo.exists_model(catalog="checkpoints", model_path=config_preset["default_model"]):
-                return True
-
-        if config_preset["default_refiner"] and config_preset["default_refiner"] != 'None':
-            if not shared.modelsinfo.exists_model(catalog="checkpoints", model_path=config_preset["default_refiner"]):
-                return True
 
         if config_preset.get("model_list"):
             for model_entry in config_preset["model_list"]:
@@ -247,6 +234,77 @@ def is_models_file_absent(preset_name, user_did=None):
 
     return False
 
+def format_size(size_bytes):
+    if size_bytes == 0:
+        return "0 B"
+    size_name = ["B", "KB", "MB", "GB", "TB"]
+    i = 0
+    while size_bytes >= 1024 and i < len(size_name) - 1:
+        size_bytes /= 1024
+        i += 1
+    return f"{size_bytes:.2f} {size_name[i]}"
+
+def get_missing_model_list(preset_name, user_did=None):
+    missing_models = []
+    missing_models_with_details = []
+
+    if shared.args.disable_backend:
+        return missing_models_with_details
+
+    arch_str = get_gpu_arch_str_in_preset_name()
+
+    preset_path = os.path.abspath(f'./presets/{preset_name}.json')
+
+    if not os.path.exists(preset_path) and arch_str:
+        preset_path_with_arch = os.path.abspath(f'./presets/{preset_name}{arch_str}.json')
+        if os.path.exists(preset_path_with_arch):
+            preset_path = preset_path_with_arch
+
+    if os.path.exists(preset_path):
+        with open(preset_path, "r", encoding="utf-8") as json_file:
+            config_preset = json.load(json_file)
+
+        model_list = []
+        if 'model_list' in config_preset:
+            raw_model_list = config_preset['model_list']
+            for model_entry in raw_model_list:
+                if isinstance(model_entry, str):
+
+                    parts = model_entry.split(',')
+                    if len(parts) >= 5:
+                        cata, path_file, size, hash10, url = parts[:5]
+                        cata = cata.strip()
+                        path_file = path_file.strip()
+
+                        url = url.strip().strip('`')
+                        try:
+                            size = int(size.strip())
+                        except ValueError:
+                            size = 0
+                        hash10 = hash10.strip() if len(parts) > 3 else ''
+                        model_list.append((cata, path_file, size, hash10, url))
+
+        for cata, path_file, size, hash10, url in model_list:
+            url = url.strip().strip('`')
+            file_path = shared.modelsinfo.get_model_filepath(cata, path_file)
+
+            if not file_path or not os.path.exists(file_path):
+
+                from modules.config import path_models_root
+
+                full_path = os.path.abspath(os.path.join(path_models_root, cata, path_file))
+
+                if os.path.exists(full_path):
+                    file_path = full_path
+
+            if file_path is None or file_path == '' or not os.path.exists(file_path):
+                human_size = format_size(size)
+                if not url:
+                    url = f'{default_download_url_prefix}/{cata}/{path_file}'
+                missing_models_with_details.append((cata, path_file, human_size, url))
+
+    return missing_models_with_details
+
 
 default_download_url_prefix = 'https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels'
 def download_model_files(preset, user_did=None, async_task=False):
@@ -269,6 +327,7 @@ def download_model_files(preset, user_did=None, async_task=False):
     # 如果没有找到，尝试使用原始预置包名称
     elif preset in presets_model_list:
         model_list = presets_model_list[preset]
+
     if len(model_list)>0:
         download_task_list = []
         for cata, path_file, size, hash10, url in model_list:
