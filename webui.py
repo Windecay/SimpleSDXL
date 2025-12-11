@@ -369,7 +369,7 @@ with shared.gradio_root:
 
                         with gr.Row():
                             close_missing_model_btn = gr.Button("关闭")
-                            missing_model_btn = gr.Button("下载所选模型", visible=False)
+                            missing_model_btn = gr.Button("补全所选预置包", visible=False)
 
                 def check_and_show_missing_models(button_value, state_params):
                     """检查模型是否缺失并显示提示窗口"""

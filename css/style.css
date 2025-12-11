@@ -1022,13 +1022,15 @@ button.gallery-item {
   padding: 20px;
   border-radius: var(--radius-md);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  max-width: 80%;
+  width: 100%;
+  max-width: 100%;
   max-height: 80vh;
   overflow-y: visible;
   overflow-x: auto;
   color: var(--text-color-primary);
   display: flex;
   flex-direction: column;
+  box-sizing: border-box;
 }
 
 .missing-model-modal {

@@ -30,20 +30,49 @@ async def download_file_with_progress(url: str, file_path: str, size: int=0):
             model_dir = os.path.dirname(file_path)
             if not os.path.exists(model_dir):
                 os.makedirs(model_dir, exist_ok=True)
-            async with client.stream("GET", url) as response:
+
+            partial_file_path = file_path + ".partial"
+
+            resume_size = 0
+            if os.path.exists(partial_file_path):
+                resume_size = os.path.getsize(partial_file_path)
+                logger.info(f"发现部分下载的文件，将从 {resume_size} 字节处继续下载")
+
+            headers = {}
+            if resume_size > 0:
+                headers["Range"] = f"bytes={resume_size}-"
+
+            async with client.stream("GET", url, headers=headers) as response:
                 response.raise_for_status()
-                total_size = int(response.headers.get("Content-Length", 0))
-                
+
+                content_range = response.headers.get("Content-Range")
+                if content_range:
+
+                    total_size = int(content_range.split("/")[-1])
+                else:
+                    total_size = int(response.headers.get("Content-Length", 0))
+
                 with tqdm(
-                    total=total_size, unit="iB", unit_scale=True, desc=''
+                    total=total_size,
+                    initial=resume_size,
+                    unit="iB",
+                    unit_scale=True,
+                    desc=''
                 ) as progress_bar:
-                    partial_file_path = file_path + ".partial"
-                    with open(partial_file_path, "wb") as f:
+                    mode = "ab" if resume_size > 0 else "wb"
+                    with open(partial_file_path, mode) as f:
                         async for chunk in response.aiter_bytes():
                             f.write(chunk)
                             progress_bar.update(len(chunk))
-            os.rename(partial_file_path, file_path)
-            shared.modelsinfo.refresh_file('add', file_path, url)
+
+            downloaded_size = os.path.getsize(partial_file_path)
+            if downloaded_size == total_size or downloaded_size == size:
+                os.rename(partial_file_path, file_path)
+                shared.modelsinfo.refresh_file('add', file_path, url)
+                logger.info(f"文件下载完成: {file_path}")
+            else:
+                logger.error(f"下载的文件大小不符，预期 {total_size} 字节，实际 {downloaded_size} 字节")
+                raise Exception(f"下载的文件大小不符，预期 {total_size} 字节，实际 {downloaded_size} 字节")
         except httpx.HTTPStatusError as e:
             logger.error(f"下载失败: {e}")
             logger.error(f"请求 URL: {e.request.url}")

@@ -531,7 +531,7 @@ if shared.args.reset_admin is not None:
 
 if shared.args.gpu_device_id is not None:
     os.environ['CUDA_VISIBLE_DEVICES'] = str(shared.args.gpu_device_id)
-    logger.info("Set device to:", shared.args.gpu_device_id)
+    logger.info(f"Set device to: {shared.args.gpu_device_id}")
 
 if shared.sysinfo["gpu_memory"]<4000 and not shared.args.disable_backend:
     logger.info(f'The GPU memory capacity of the system is too small to run the latest models such as Flux, SD3m, Kolors, and HyDiT properly, and the Comfyd engine will be automatically disabled.')
