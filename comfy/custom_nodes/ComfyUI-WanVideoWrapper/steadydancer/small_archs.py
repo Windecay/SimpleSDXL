@@ -44,11 +44,10 @@ class FactorConv3d(nn.Module):
         self.act = nn.SiLU()
 
     def forward(self, x):
-        x = self.spatial(x)
+        out_dtype = x.dtype
+        x = self.spatial(x.to(self.spatial.weight.dtype)).to(out_dtype)
         x = self.act(x)
-        x = self.temporal(x)
-        return x
-
+        return self.temporal(x.to(self.temporal.weight.dtype)).to(out_dtype)
 
 class LayerNorm2D(nn.Module):
     """
@@ -110,29 +109,25 @@ class PoseRefNetNoBNV3(nn.Module):
         return: (B, d_model, T, H, W)
         """
         B, _, T, H, W = pose.shape
-        L = H * W
 
         p_trans = pose.permute(0, 2, 1, 3, 4).contiguous().flatten(0, 1)
         r_trans = ref.permute(0, 2, 1, 3, 4).contiguous().flatten(0, 1)
 
-        p_trans = self.proj_p(p_trans)
-        r_trans = self.proj_r(r_trans)
-
-        p_trans = p_trans.flatten(2).transpose(1, 2)
-        r_trans = r_trans.flatten(2).transpose(1, 2)
+        p_trans = self.proj_p(p_trans.to(self.proj_p.weight.dtype)).to(self.cross_attn.in_proj_weight.dtype).flatten(2).transpose(1, 2)
+        r_trans = self.proj_r(r_trans.to(self.proj_r.weight.dtype)).to(self.cross_attn.in_proj_weight.dtype).flatten(2).transpose(1, 2)
 
         out = self.cross_attn(query=r_trans,
                               key=p_trans,
                               value=p_trans,
                               key_padding_mask=mask)[0]
 
-        out = out.transpose(1, 2).contiguous().view(B*T, -1, H, W)
-        out = self.norm1(out)
+        out = self.norm1(out.transpose(1, 2).contiguous().view(B*T, -1, H, W))
 
-        ffn_out = self.ffn_pose(out)
-        out = out + ffn_out
+        out_type = out.dtype
+
+        out = out + self.ffn_pose(out.to(self.ffn_pose[0].weight.dtype)).to(out_type)
         out = self.norm2(out)
-        out = self.proj_p_back(out)
-        out = out.view(B, T, -1, H, W).contiguous().transpose(1, 2)
 
-        return out
+        out = self.proj_p_back(out.to(self.proj_p_back.weight.dtype)).to(out_type)
+
+        return out.view(B, T, -1, H, W).contiguous().transpose(1, 2)

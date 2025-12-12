@@ -1,21 +1,15 @@
-# Copyright 2024-2025 The Alibaba Wan Team Authors. All rights reserved.
 import torch
 from ...utils import log
 
-# Flash Attention imports
-try:
-    import flash_attn_interface
-    FLASH_ATTN_3_AVAILABLE = True
-except Exception as e:
-    FLASH_ATTN_3_AVAILABLE = False
+from comfy.ldm.modules.attention import optimized_attention
 
-try:
-    import flash_attn
-    FLASH_ATTN_2_AVAILABLE = True
-except Exception as e:
-    FLASH_ATTN_2_AVAILABLE = False
+def attention_func_error(*args, **kwargs):
+    raise ImportError("Selected attention mode not available. Please ensure required packages are installed correctly.")
+
+from .attention_flash import flash_attention
 
 # Sage Attention imports
+# using custom ops to avoid graph breaks with torch.compile
 try:
     from sageattention import sageattn
 
@@ -34,6 +28,8 @@ try:
         # Return tensor with same shape as q
         return q.clone()
 
+    sageattn_func = torch.ops.wanvideo.sageattn
+
     def sageattn_func_compiled(q, k, v, attn_mask=None, dropout_p=0, is_causal=False, tensor_layout="HND"):
         if not (q.dtype == k.dtype == v.dtype):
             return sageattn(q, k.to(q.dtype), v.to(q.dtype), attn_mask=attn_mask, dropout_p=dropout_p, is_causal=is_causal, tensor_layout=tensor_layout)
@@ -47,7 +43,7 @@ except Exception as e:
         log.warning("sageattention package is not installed, sageattention will not be available")
     elif isinstance(e, ImportError) and "DLL" in str(e):
         log.warning("sageattention DLL loading error, sageattention will not be available")
-    sageattn_func = None
+    sageattn_func = attention_func_error
 
 try:
     from sageattention import sageattn_varlen
@@ -68,189 +64,54 @@ try:
     def _(q, k, v, q_lens, k_lens, max_seqlen_q, max_seqlen_k, dropout_p=0.0, is_causal=False):
         # Return tensor with same shape as q
         return q.clone()
-except Exception as e:
-    sageattn_varlen_func = None
+    sageattn_varlen_func = torch.ops.wanvideo.sageattn_varlen
+except:
+    sageattn_varlen_func = attention_func_error
 
+# sage3
 try:
     from sageattn3 import sageattn3_blackwell as sageattn_blackwell
 except:
     try:
         from sageattn import sageattn_blackwell
     except:
-        SAGE3_AVAILABLE = False
+        sageattn_blackwell = attention_func_error
+
+try:
+    from ...ultravico.sageattn.core import sage_attention as sageattn_ultravico
+    @torch.library.custom_op("wanvideo::sageattn_ultravico", mutates_args=())
+    def sageattn_func_ultravico(qkv: List[torch.Tensor], attn_mask: torch.Tensor | None = None, dropout_p: float = 0.0, is_causal: bool = False, multi_factor: float = 0.9
+    ) -> torch.Tensor:
+        return sageattn_ultravico(qkv, attn_mask=attn_mask, dropout_p=dropout_p, is_causal=is_causal, multi_factor=multi_factor)
+
+    @sageattn_func_ultravico.register_fake
+    def _(qkv, attn_mask=None, dropout_p=0.0, is_causal=False, multi_factor=0.9):
+        return torch.empty_like(qkv[0]).contiguous()
+    sageattn_func_ultravico = torch.ops.wanvideo.sageattn_ultravico
+except:
+    sageattn_func_ultravico = attention_func_error
 
 
-__all__ = [
-    'flash_attention',
-    'attention',
-]
-
-
-def flash_attention(
-    q,
-    k,
-    v,
-    q_lens=None,
-    k_lens=None,
-    dropout_p=0.,
-    softmax_scale=None,
-    q_scale=None,
-    causal=False,
-    window_size=(-1, -1),
-    deterministic=False,
-    dtype=torch.bfloat16,
-    version=None,
-):
-    """
-    q:              [B, Lq, Nq, C1].
-    k:              [B, Lk, Nk, C1].
-    v:              [B, Lk, Nk, C2]. Nq must be divisible by Nk.
-    q_lens:         [B].
-    k_lens:         [B].
-    dropout_p:      float. Dropout probability.
-    softmax_scale:  float. The scaling of QK^T before applying softmax.
-    causal:         bool. Whether to apply causal attention mask.
-    window_size:    (left right). If not (-1, -1), apply sliding window local attention.
-    deterministic:  bool. If True, slightly slower and uses more memory.
-    dtype:          torch.dtype. Apply when dtype of q/k/v is not float16/bfloat16.
-    """
-    half_dtypes = (torch.float16, torch.bfloat16)
-    #assert dtype in half_dtypes
-    #assert q.device.type == 'cuda' and q.size(-1) <= 256
-
-    # params
-    b, lq, lk, out_dtype = q.size(0), q.size(1), k.size(1), q.dtype
-
-    def half(x):
-        return x if x.dtype in half_dtypes else x.to(dtype)
-
-    # preprocess query
-    if q_lens is None:
-        q = half(q.flatten(0, 1))
-        q_lens = torch.tensor(
-            [lq] * b, dtype=torch.int32).to(
-                device=q.device, non_blocking=True)
-    else:
-        q = half(torch.cat([u[:v] for u, v in zip(q, q_lens)]))
-
-    # preprocess key, value
-    if k_lens is None:
-        k = half(k.flatten(0, 1))
-        v = half(v.flatten(0, 1))
-        k_lens = torch.tensor(
-            [lk] * b, dtype=torch.int32).to(
-                device=k.device, non_blocking=True)
-    else:
-        k = half(torch.cat([u[:v] for u, v in zip(k, k_lens)]))
-        v = half(torch.cat([u[:v] for u, v in zip(v, k_lens)]))
-
-    q = q.to(v.dtype)
-    k = k.to(v.dtype)
-
-    if q_scale is not None:
-        q = q * q_scale
-
-    if version is not None and version == 3 and not FLASH_ATTN_3_AVAILABLE:
-        log.warning('Flash attention 3 is not available, use flash attention 2 instead.')
-
-    # apply attention
-    if (version is None or version == 3) and FLASH_ATTN_3_AVAILABLE:
-        # Note: dropout_p, window_size are not supported in FA3 now.
-        x = flash_attn_interface.flash_attn_varlen_func(
-            q=q,
-            k=k,
-            v=v,
-            cu_seqlens_q=torch.cat([q_lens.new_zeros([1]), q_lens]).cumsum(
-                0, dtype=torch.int32).to(q.device, non_blocking=True),
-            cu_seqlens_k=torch.cat([k_lens.new_zeros([1]), k_lens]).cumsum(
-                0, dtype=torch.int32).to(q.device, non_blocking=True),
-            seqused_q=None,
-            seqused_k=None,
-            max_seqlen_q=lq,
-            max_seqlen_k=lk,
-            softmax_scale=softmax_scale,
-            causal=causal,
-            deterministic=deterministic)[0].unflatten(0, (b, lq))
-    else:
-        assert FLASH_ATTN_2_AVAILABLE
-        x = flash_attn.flash_attn_varlen_func(
-            q=q,
-            k=k,
-            v=v,
-            cu_seqlens_q=torch.cat([q_lens.new_zeros([1]), q_lens]).cumsum(
-                0, dtype=torch.int32).to(q.device, non_blocking=True),
-            cu_seqlens_k=torch.cat([k_lens.new_zeros([1]), k_lens]).cumsum(
-                0, dtype=torch.int32).to(q.device, non_blocking=True),
-            max_seqlen_q=lq,
-            max_seqlen_k=lk,
-            dropout_p=dropout_p,
-            softmax_scale=softmax_scale,
-            causal=causal,
-            window_size=window_size,
-            deterministic=deterministic).unflatten(0, (b, lq))
-
-    # output
-    return x.type(out_dtype)
-
-
-def attention(
-    q,
-    k,
-    v,
-    q_lens=None,
-    k_lens=None,
-    max_seqlen_q=None,
-    max_seqlen_k=None,
-    dropout_p=0.,
-    softmax_scale=None,
-    q_scale=None,
-    causal=False,
-    window_size=(-1, -1),
-    deterministic=False,
-    dtype=torch.bfloat16,
-    attention_mode='sdpa',
-    attn_mask=None,
-):
+def attention(q, k, v, q_lens=None, k_lens=None, max_seqlen_q=None, max_seqlen_k=None, dropout_p=0.,
+    softmax_scale=None, q_scale=None, causal=False,  window_size=(-1, -1), deterministic=False, dtype=torch.bfloat16,
+    attention_mode='sdpa', attn_mask=None, multi_factor=0.9, heads=128):
     if "flash" in attention_mode:
-        if attention_mode == 'flash_attn_2':
-            fa_version = 2
-        elif attention_mode == 'flash_attn_3':
-            fa_version = 3
-        return flash_attention(
-            q=q,
-            k=k,
-            v=v,
-            q_lens=q_lens,
-            k_lens=k_lens,
-            dropout_p=dropout_p,
-            softmax_scale=softmax_scale,
-            q_scale=q_scale,
-            causal=causal,
-            window_size=window_size,
-            deterministic=deterministic,
-            dtype=dtype,
-            version=fa_version,
+        return flash_attention(q, k, v, q_lens=q_lens, k_lens=k_lens, dropout_p=dropout_p, softmax_scale=softmax_scale,
+            q_scale=q_scale, causal=causal, window_size=window_size, deterministic=deterministic, dtype=dtype, version=2 if attention_mode == 'flash_attn_2' else 3,
         )
-    elif attention_mode == 'sdpa':
+    elif attention_mode == 'sageattn_3':
+        return sageattn_blackwell(q.transpose(1,2), k.transpose(1,2), v.transpose(1,2), per_block_mean=False).transpose(1,2).contiguous()
+    elif attention_mode == 'sageattn_varlen':
+        return sageattn_varlen_func(q,k,v, q_lens=q_lens, k_lens=k_lens, max_seqlen_k=max_seqlen_k, max_seqlen_q=max_seqlen_q)
+    elif attention_mode == 'sageattn_compiled': # for sage versions that allow torch.compile, may be redundant now as other sageattn ops are wrapper in custom ops
+        return sageattn_func_compiled(q, k, v, tensor_layout="NHD").contiguous()
+    elif attention_mode == 'sageattn':
+        return sageattn_func(q, k, v, tensor_layout="NHD").contiguous()
+    elif attention_mode == 'sageattn_ultravico':
+        return sageattn_func_ultravico([q, k, v], multi_factor=multi_factor).contiguous()
+    elif attention_mode == 'comfy':
+        return optimized_attention(q.transpose(1,2), k.transpose(1,2), v.transpose(1,2), heads=heads, skip_reshape=True)
+    else: # sdpa
         if not (q.dtype == k.dtype == v.dtype):
             return torch.nn.functional.scaled_dot_product_attention(q.transpose(1, 2), k.transpose(1, 2).to(q.dtype), v.transpose(1, 2).to(q.dtype), attn_mask=attn_mask).transpose(1, 2).contiguous()
         return torch.nn.functional.scaled_dot_product_attention(q.transpose(1, 2), k.transpose(1, 2), v.transpose(1, 2), attn_mask=attn_mask).transpose(1, 2).contiguous()
-    elif attention_mode == 'sageattn_3':
-        return sageattn_blackwell(
-            q.transpose(1,2),
-            k.transpose(1,2),
-            v.transpose(1,2),
-            per_block_mean=False #seems necessary for reasonable VRAM usage, not sure of other implications
-            ).transpose(1,2).contiguous()
-    elif attention_mode == 'sageattn_varlen':
-        return torch.ops.wanvideo.sageattn_varlen(
-                q,k,v,
-                q_lens=q_lens,
-                k_lens=k_lens,
-                max_seqlen_k=max_seqlen_k,
-                max_seqlen_q=max_seqlen_q
-            )
-    elif attention_mode == 'sageattn_compiled':
-        return sageattn_func_compiled(q, k, v, tensor_layout="NHD").contiguous()
-    else:
-        return torch.ops.wanvideo.sageattn(q, k, v, tensor_layout="NHD").contiguous()

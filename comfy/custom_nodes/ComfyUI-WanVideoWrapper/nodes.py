@@ -916,6 +916,7 @@ class WanVideoImageToVideoEncode:
                 "tiled_vae": ("BOOLEAN", {"default": False, "tooltip": "Use tiled VAE encoding for reduced memory use"}),
                 "add_cond_latents": ("ADD_COND_LATENTS", {"advanced": True, "tooltip": "Additional cond latents WIP"}),
                 "augment_empty_frames": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 10.0, "step": 0.01, "tooltip": "EXPERIMENTAL: Augment empty frames with the difference to the start image to force more motion"}),
+                "empty_frame_pad_image": ("IMAGE", {"tooltip": "Use this image to pad empty frames instead of gray, used with SVI-shot and SVI 2.0 LoRAs"}),
             }
         }
 
@@ -925,14 +926,14 @@ class WanVideoImageToVideoEncode:
     CATEGORY = "WanVideoWrapper"
 
     def process(self, width, height, num_frames, force_offload, noise_aug_strength, 
-                start_latent_strength, end_latent_strength, start_image=None, end_image=None, control_embeds=None, fun_or_fl2v_model=False, 
-                temporal_mask=None, extra_latents=None, clip_embeds=None, tiled_vae=False, add_cond_latents=None, vae=None, augment_empty_frames=0.0):
-        
+                start_latent_strength, end_latent_strength, start_image=None, end_image=None, control_embeds=None, fun_or_fl2v_model=False,
+                temporal_mask=None, extra_latents=None, clip_embeds=None, tiled_vae=False, add_cond_latents=None, vae=None, augment_empty_frames=0.0, empty_frame_pad_image=None):
+
         if vae is None:
             raise ValueError("VAE is required for image encoding.")
         H = height
         W = width
-           
+
         lat_h = H // vae.upsampling_factor
         lat_w = W // vae.upsampling_factor
 
@@ -957,6 +958,8 @@ class WanVideoImageToVideoEncode:
                 mask = torch.cat([mask, torch.zeros(base_frames - mask.shape[0], lat_h, lat_w, device=device)])
             mask = mask.unsqueeze(0).to(device, vae.dtype)
 
+        pixel_mask = mask.clone()
+
         # Repeat first frame and optionally end frame
         start_mask_repeated = torch.repeat_interleave(mask[:, 0:1], repeats=4, dim=1) # T, C, H, W
         if end_image is not None and not fun_or_fl2v_model:
@@ -979,7 +982,7 @@ class WanVideoImageToVideoEncode:
             resized_start_image = resized_start_image * 2 - 1
             if noise_aug_strength > 0.0:
                 resized_start_image = add_noise_to_reference_video(resized_start_image, ratio=noise_aug_strength)
-        
+
         if end_image is not None:
             end_image = end_image[..., :3]
             if end_image.shape[1] != H or end_image.shape[2] != W:
@@ -989,30 +992,46 @@ class WanVideoImageToVideoEncode:
             resized_end_image = resized_end_image * 2 - 1
             if noise_aug_strength > 0.0:
                 resized_end_image = add_noise_to_reference_video(resized_end_image, ratio=noise_aug_strength)
-            
+
         # Concatenate image with zero frames and encode
-        if temporal_mask is None:
-            if start_image is not None and end_image is None:
-                zero_frames = torch.zeros(3, num_frames-start_image.shape[0], H, W, device=device, dtype=vae.dtype)
-                concatenated = torch.cat([resized_start_image.to(device, dtype=vae.dtype), zero_frames], dim=1)
-                del resized_start_image, zero_frames
-            elif start_image is None and end_image is not None:
-                zero_frames = torch.zeros(3, num_frames-end_image.shape[0], H, W, device=device, dtype=vae.dtype)
-                concatenated = torch.cat([zero_frames, resized_end_image.to(device, dtype=vae.dtype)], dim=1)
-                del zero_frames
-            elif start_image is None and end_image is None:
-                concatenated = torch.zeros(3, num_frames, H, W, device=device, dtype=vae.dtype)
-            else:
-                if fun_or_fl2v_model:
-                    zero_frames = torch.zeros(3, num_frames-(start_image.shape[0]+end_image.shape[0]), H, W, device=device, dtype=vae.dtype)
-                else:
-                    zero_frames = torch.zeros(3, num_frames-1, H, W, device=device, dtype=vae.dtype)
-                concatenated = torch.cat([resized_start_image.to(device, dtype=vae.dtype), zero_frames, resized_end_image.to(device, dtype=vae.dtype)], dim=1)
-                del resized_start_image, zero_frames
+        if start_image is not None and end_image is None:
+            zero_frames = torch.zeros(3, num_frames-start_image.shape[0], H, W, device=device, dtype=vae.dtype)
+            concatenated = torch.cat([resized_start_image.to(device, dtype=vae.dtype), zero_frames], dim=1)
+            del resized_start_image, zero_frames
+        elif start_image is None and end_image is not None:
+            zero_frames = torch.zeros(3, num_frames-end_image.shape[0], H, W, device=device, dtype=vae.dtype)
+            concatenated = torch.cat([zero_frames, resized_end_image.to(device, dtype=vae.dtype)], dim=1)
+            del zero_frames
+        elif start_image is None and end_image is None:
+            concatenated = torch.zeros(3, num_frames, H, W, device=device, dtype=vae.dtype)
         else:
-            temporal_mask = common_upscale(temporal_mask.unsqueeze(1), W, H, "nearest", "disabled").squeeze(1)
-            concatenated = resized_start_image[:,:num_frames].to(vae.dtype)# * temporal_mask[:num_frames].unsqueeze(0).to(vae.dtype)
-            del resized_start_image, temporal_mask
+            if fun_or_fl2v_model:
+                zero_frames = torch.zeros(3, num_frames-(start_image.shape[0]+end_image.shape[0]), H, W, device=device, dtype=vae.dtype)
+            else:
+                zero_frames = torch.zeros(3, num_frames-1, H, W, device=device, dtype=vae.dtype)
+            concatenated = torch.cat([resized_start_image.to(device, dtype=vae.dtype), zero_frames, resized_end_image.to(device, dtype=vae.dtype)], dim=1)
+            del resized_start_image, zero_frames
+
+        if empty_frame_pad_image is not None:
+            pad_img = empty_frame_pad_image.clone()[..., :3]
+            if pad_img.shape[1] != H or pad_img.shape[2] != W:
+                pad_img = common_upscale(pad_img.movedim(-1, 1), W, H, "lanczos", "disabled").movedim(1, -1)
+            pad_img = (pad_img.movedim(-1, 0) * 2 - 1).to(device, dtype=vae.dtype)
+
+            num_pad_frames = pad_img.shape[1]
+            num_target_frames = concatenated.shape[1]
+            if num_pad_frames < num_target_frames:
+                pad_img = torch.cat([pad_img, pad_img[:, -1:].expand(-1, num_target_frames - num_pad_frames, -1, -1)], dim=1)
+            else:
+                pad_img = pad_img[:, :num_target_frames]
+
+            frame_is_empty = (pixel_mask[0].mean(dim=(-2, -1)) < 0.5)[:concatenated.shape[1]].clone()
+            if start_image is not None:
+                frame_is_empty[:start_image.shape[0]] = False
+            if end_image is not None:
+                frame_is_empty[-end_image.shape[0]:] = False
+
+            concatenated[:, frame_is_empty] = pad_img[:, frame_is_empty]
 
         mm.soft_empty_cache()
         gc.collect()
@@ -1041,7 +1060,7 @@ class WanVideoImageToVideoEncode:
 
         if add_cond_latents is not None:
             add_cond_latents["ref_latent_neg"] = vae.encode(torch.zeros(1, 3, 1, H, W, device=device, dtype=vae.dtype), device)
-        
+
         if force_offload:
             vae.model.to(offload_device)
             mm.soft_empty_cache()
@@ -1064,7 +1083,7 @@ class WanVideoImageToVideoEncode:
         }
 
         return (image_embeds,)
-    
+
 # region WanAnimate
 class WanVideoAnimateEmbeds:
     @classmethod
@@ -1075,15 +1094,15 @@ class WanVideoAnimateEmbeds:
             "height": ("INT", {"default": 480, "min": 64, "max": 8096, "step": 8, "tooltip": "Height of the image to encode"}),
             "num_frames": ("INT", {"default": 81, "min": 1, "max": 10000, "step": 4, "tooltip": "Number of frames to encode"}),
             "force_offload": ("BOOLEAN", {"default": True}),
-            "frame_window_size": ("INT", {"default": 77, "min": 1, "max": 1000, "step": 1, "tooltip": "Number of frames to use for temporal attention window"}),
+            "frame_window_size": ("INT", {"default": 77, "min": 1, "max": 10000, "step": 1, "tooltip": "Number of frames to use for temporal attention window"}),
             "colormatch": (
-            [   
+            [
                 'disabled',
                 'mkl',
-                'hm', 
-                'reinhard', 
-                'mvgd', 
-                'hm-mvgd-hm', 
+                'hm',
+                'reinhard',
+                'mvgd',
+                'hm-mvgd-hm',
                 'hm-mkl-hm',
             ], {
                "default": 'disabled', "tooltip": "Color matching method to use between the windows"
@@ -2155,7 +2174,7 @@ class WanVideoDecode:
                     "tile_stride_y": ("INT", {"default": 128, "min": 32, "max": 2040, "step": 8, "tooltip": "Tile stride height in pixels. Smaller values use less VRAM but will introduce more seams."}),
                     },
                     "optional": {
-                        "normalization": (["default", "minmax"], {"advanced": True}),
+                        "normalization": (["default", "minmax", "none"], {"advanced": True}),
                     }
                 }
 
@@ -2198,25 +2217,24 @@ class WanVideoDecode:
         if drop_last:
             latents = latents[:, :, :-1]
 
-        if type(vae).__name__ == "TAEHV":      
+        if type(vae).__name__ == "TAEHV":
             images = vae.decode_video(latents.permute(0, 2, 1, 3, 4), cond=flashvsr_LQ_images.to(vae.dtype) if flashvsr_LQ_images is not None else None)[0].permute(1, 0, 2, 3)
             images = torch.clamp(images, 0.0, 1.0)
             images = images.permute(1, 2, 3, 0).cpu().float()
             return (images,)
         else:
-            if end_image is not None:
-                enable_vae_tiling = False
             images = vae.decode(latents, device=device, end_=(end_image is not None), tiled=enable_vae_tiling, tile_size=(tile_x//8, tile_y//8), tile_stride=(tile_stride_x//8, tile_stride_y//8))[0]
-            
-        
+
+
         images = images.cpu().float()
 
-        if normalization == "minmax":
-            images.sub_(images.min()).div_(images.max() - images.min())
-        else:  
-            images.clamp_(-1.0, 1.0)
-            images.add_(1.0).div_(2.0)
-        
+        if normalization != "none":
+            if normalization == "minmax":
+                images.sub_(images.min()).div_(images.max() - images.min())
+            else:
+                images.clamp_(-1.0, 1.0)
+                images.add_(1.0).div_(2.0)
+
         if is_looped:
             temp_latents = torch.cat([latents[:, :, -3:]] + [latents[:, :, :2]], dim=2)
             temp_images = vae.decode(temp_latents, device=device, end_=(end_image is not None), tiled=enable_vae_tiling, tile_size=(tile_x//vae.upsampling_factor, tile_y//vae.upsampling_factor), tile_stride=(tile_stride_x//vae.upsampling_factor, tile_stride_y//vae.upsampling_factor))[0]
@@ -2227,7 +2245,7 @@ class WanVideoDecode:
         if end_image is not None: 
             images = images[:, 0:-1]
 
-        
+
         vae.to(offload_device)
         mm.soft_empty_cache()
 
@@ -2278,7 +2296,7 @@ class WanVideoEncodeLatentBatch:
                 latent = vae.encode(img.unsqueeze(0).unsqueeze(0).permute(0, 4, 1, 2, 3), device=device, tiled=enable_vae_tiling, tile_size=(tile_x//vae.upsampling_factor, tile_y//vae.upsampling_factor), tile_stride=(tile_stride_x//vae.upsampling_factor, tile_stride_y//vae.upsampling_factor))
             else:
                 latent = vae.encode(img.unsqueeze(0).unsqueeze(0).permute(0, 4, 1, 2, 3), device=device, tiled=enable_vae_tiling)
-            
+
             if latent_strength != 1.0:
                 latent *= latent_strength
             latent_list.append(latent.squeeze(0).cpu())
@@ -2338,7 +2356,7 @@ class WanVideoEncode:
             latents = latents.permute(0, 2, 1, 3, 4)
         else:
             latents = vae.encode(image * 2.0 - 1.0, device=device, tiled=enable_vae_tiling, tile_size=(tile_x//vae.upsampling_factor, tile_y//vae.upsampling_factor), tile_stride=(tile_stride_x//vae.upsampling_factor, tile_stride_y//vae.upsampling_factor))
-            
+
             vae.to(offload_device)
         if latent_strength != 1.0:
             latents *= latent_strength
@@ -2347,7 +2365,7 @@ class WanVideoEncode:
 
         log.info(f"WanVideoEncode: Encoded latents shape {latents.shape}")
         mm.soft_empty_cache()
- 
+
         return ({"samples": latents, "noise_mask": mask},)
 
 NODE_CLASS_MAPPINGS = {

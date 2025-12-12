@@ -44,11 +44,11 @@ class SimpleOnnxInference(object):
 
             print(f"Using CPUExecutionProvider after fallback. Providers available: {actual_providers}")
 
+        self.session = onnxruntime.InferenceSession(checkpoint, providers=provider)
         self.input_name = self.session.get_inputs()[0].name
         self.output_name = self.session.get_outputs()[0].name
         self.input_resolution = self.session.get_inputs()[0].shape[2:]
         self.input_resolution = np.array(self.input_resolution)
-
 
     def _print_reinstall_command(self):
         """打印重新安装onnxruntime-gpu的命令"""

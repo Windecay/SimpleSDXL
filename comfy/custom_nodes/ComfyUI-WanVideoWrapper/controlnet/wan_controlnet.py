@@ -10,17 +10,12 @@ from diffusers.utils import USE_PEFT_BACKEND, logging, scale_lora_layers, unscal
 from diffusers.models.modeling_outputs import Transformer2DModelOutput
 from diffusers.models.modeling_utils import ModelMixin
 from diffusers.models.transformers.transformer_wan import (
-    WanTimeTextImageEmbedding, 
-    WanRotaryPosEmbed, 
+    WanTimeTextImageEmbedding,
+    WanRotaryPosEmbed,
     WanTransformerBlock
 )
 
 logger = logging.get_logger(__name__)  # pylint: disable=invalid-name
-
-def zero_module(module):
-    for p in module.parameters():
-        nn.init.zeros_(p)
-    return module
 
 
 class WanControlnet(ModelMixin, ConfigMixin, PeftAdapterMixin, FromOriginalModelMixin):
@@ -69,7 +64,7 @@ class WanControlnet(ModelMixin, ConfigMixin, PeftAdapterMixin, FromOriginalModel
     _no_split_modules = ["WanTransformerBlock"]
     _keep_in_fp32_modules = ["time_embedder", "scale_shift_table", "norm1", "norm2", "norm3"]
     _keys_to_ignore_on_load_unexpected = ["norm_added_q"]
-    
+
     @register_to_config
     def __init__(
         self,
@@ -100,10 +95,10 @@ class WanControlnet(ModelMixin, ConfigMixin, PeftAdapterMixin, FromOriginalModel
             ## Spatial compression with time awareness
             nn.Sequential(
                 nn.Conv3d(
-                    in_channels, 
-                    input_channels[0], 
+                    in_channels,
+                    input_channels[0],
                     kernel_size=(3, downscale_coef  + 1, downscale_coef + 1),
-                    stride=(1, downscale_coef, downscale_coef), 
+                    stride=(1, downscale_coef, downscale_coef),
                     padding=(1, downscale_coef // 2, downscale_coef // 2)
                 ),
                 nn.GELU(approximate="tanh"),
@@ -122,9 +117,9 @@ class WanControlnet(ModelMixin, ConfigMixin, PeftAdapterMixin, FromOriginalModel
                 nn.GroupNorm(2, input_channels[2]),
             )
         ])
-        
+
         inner_dim = num_attention_heads * attention_head_dim
-        
+
         # 1. Patch & position embedding
         self.rope = WanRotaryPosEmbed(attention_head_dim, patch_size, rope_max_seq_len)
         self.patch_embedding = nn.Conv3d(vae_channels + input_channels[2], inner_dim, kernel_size=patch_size, stride=patch_size)
@@ -153,11 +148,10 @@ class WanControlnet(ModelMixin, ConfigMixin, PeftAdapterMixin, FromOriginalModel
 
         for _ in range(len(self.blocks)):
             controlnet_block = nn.Linear(inner_dim, out_proj_dim)
-            controlnet_block = zero_module(controlnet_block)
             self.controlnet_blocks.append(controlnet_block)
-            
+
         self.gradient_checkpointing = False
-        
+
     def forward(
         self,
         hidden_states: torch.Tensor,
@@ -187,7 +181,7 @@ class WanControlnet(ModelMixin, ConfigMixin, PeftAdapterMixin, FromOriginalModel
         # 0. Controlnet encoder
         for control_encoder_block in self.control_encoder:
             controlnet_states = control_encoder_block(controlnet_states)
-            
+
         hidden_states = torch.cat([hidden_states, controlnet_states], dim=1)
 
         ## 1. Patch embedding and stack
@@ -216,7 +210,7 @@ class WanControlnet(ModelMixin, ConfigMixin, PeftAdapterMixin, FromOriginalModel
 
         if encoder_hidden_states_image is not None:
             encoder_hidden_states = torch.concat([encoder_hidden_states_image, encoder_hidden_states], dim=1)
-        
+
         # 4. Transformer blocks
         controlnet_hidden_states = ()
         if torch.is_grad_enabled() and self.gradient_checkpointing:
@@ -239,43 +233,4 @@ class WanControlnet(ModelMixin, ConfigMixin, PeftAdapterMixin, FromOriginalModel
             return (controlnet_hidden_states,)
 
         return Transformer2DModelOutput(sample=controlnet_hidden_states)
-    
-
-if __name__ == "__main__":
-    parameters = {
-        "added_kv_proj_dim": None,
-        "attention_head_dim": 128,
-        "cross_attn_norm": True,
-        "eps": 1e-06,
-        "ffn_dim": 8960,
-        "freq_dim": 256,
-        "image_dim": None,
-        "in_channels": 3,
-        "num_attention_heads": 12,
-        "num_layers": 2,
-        "patch_size": [1, 2, 2],
-        "qk_norm": "rms_norm_across_heads",
-        "rope_max_seq_len": 1024,
-        "text_dim": 4096,
-        "downscale_coef": 8,
-        "out_proj_dim": 12 * 128,
-        "vae_channels": 16
-    }
-    controlnet = WanControlnet(**parameters)
-
-    hidden_states = torch.rand(1, 16, 13, 60, 90)
-    timestep = torch.tensor([1000]).repeat(17550).unsqueeze(0) #torch.randint(low=0, high=1000, size=(1,), dtype=torch.long)
-    encoder_hidden_states = torch.rand(1, 512, 4096)
-    controlnet_states = torch.rand(1, 3, 49, 480, 720)
-
-    controlnet_hidden_states = controlnet(
-        hidden_states=hidden_states,
-        timestep=timestep,
-        encoder_hidden_states=encoder_hidden_states,
-        controlnet_states=controlnet_states,
-        return_dict=False
-    )
-    print("Output states count", len(controlnet_hidden_states[0]))
-    for out_hidden_states in controlnet_hidden_states[0]:
-        print(out_hidden_states.shape)
 

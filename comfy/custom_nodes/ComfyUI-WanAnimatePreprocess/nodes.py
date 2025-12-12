@@ -9,7 +9,7 @@ import logging
 script_directory = os.path.dirname(os.path.abspath(__file__))
 
 from comfy import model_management as mm
-from comfy.utils import load_torch_file, ProgressBar
+from comfy.utils import ProgressBar
 device = mm.get_torch_device()
 offload_device = mm.unet_offload_device()
 
@@ -18,7 +18,7 @@ folder_paths.add_model_folder_path("detection", os.path.join(folder_paths.models
 from .models.onnx_models import ViTPose, Yolo
 from .pose_utils.pose2d_utils import load_pose_metas_from_kp2ds_seq, crop, bbox_from_detector
 from .utils import get_face_bboxes, padding_resize, resize_by_area, resize_to_bounds
-from .pose_utils.human_visualization import AAPoseMeta, draw_aapose_by_meta_new, draw_aaface_by_meta
+from .pose_utils.human_visualization import AAPoseMeta, draw_aapose_by_meta_new
 from .retarget_pose import get_retarget_pose
 
 class OnnxDetectionModelLoader:
@@ -26,8 +26,8 @@ class OnnxDetectionModelLoader:
     def INPUT_TYPES(s):
         return {
             "required": {
-                "vitpose_model": (folder_paths.get_filename_list("detection"), {"tooltip": "These models are loaded from the 'SimpleModels/detection' -folder",}),
-                "yolo_model": (folder_paths.get_filename_list("detection"), {"tooltip": "These models are loaded from the 'SimpleModels/detection' -folder",}),
+                "vitpose_model": (folder_paths.get_filename_list("detection"), {"tooltip": "These models are loaded from the 'ComfyUI/models/detection' -folder",}),
+                "yolo_model": (folder_paths.get_filename_list("detection"), {"tooltip": "These models are loaded from the 'ComfyUI/models/detection' -folder",}),
                 "onnx_device": (["CUDAExecutionProvider", "CPUExecutionProvider"], {"default": "CUDAExecutionProvider", "tooltip": "Device to run the ONNX models on"}),
             },
         }
@@ -162,7 +162,7 @@ class PoseAndFaceDetection:
                 fallback_y1 = int(H * 0.1)
                 fallback_y2 = fallback_y1 + fallback_size
                 face_image = images_np[idx][fallback_y1:fallback_y2, fallback_x1:fallback_x2]
-                
+
                 # If still empty, create a black image
                 if face_image.size == 0:
                     face_image = np.zeros((fallback_size, fallback_size, C), dtype=images_np.dtype)
@@ -333,15 +333,154 @@ class PoseRetargetPromptHelper:
 
         return (tpl_prompt, refer_prompt, )
 
+class PoseDetectionOneToAllAnimation:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "model": ("POSEMODEL",),
+                "images": ("IMAGE",),
+                "width": ("INT", {"default": 832, "min": 64, "max": 2048, "step": 2, "tooltip": "Width of the generation"}),
+                "height": ("INT", {"default": 480, "min": 64, "max": 2048, "step": 2, "tooltip": "Height of the generation"}),
+                "align_to": (["ref", "pose", "none"], {"default": "ref", "tooltip": "Alignment mode for poses"}),
+                "draw_face_points": (["full", "weak", "none"], {"default": "full", "tooltip": "Whether to draw face keypoints on the pose images"}),
+                "draw_head": (["full", "weak", "none"], {"default": "full", "tooltip": "Whether to draw head keypoints on the pose images"}),
+            },
+            "optional": {
+                "ref_image": ("IMAGE", {"default": None, "tooltip": "Optional reference image for pose retargeting"}),
+            },
+        }
+
+    RETURN_TYPES = ("IMAGE", "IMAGE", "IMAGE", "MASK",)
+    RETURN_NAMES = ("pose_images", "ref_pose_image", "ref_image", "ref_mask")
+    FUNCTION = "process"
+    CATEGORY = "WanAnimatePreprocess"
+    DESCRIPTION = "Specialized pose detection and alignment for OneToAllAnimation model https://github.com/ssj9596/One-to-All-Animation. Detects poses from input images and aligns them based on a reference image if provided."
+
+    def process(self, model, images, width, height, align_to, draw_face_points, draw_head, ref_image=None):
+        from .onetoall.infer_function import aaposemeta_to_dwpose, align_to_reference, align_to_pose
+        from .onetoall.utils import draw_pose_aligned, warp_ref_to_pose
+        detector = model["yolo"]
+        pose_model = model["vitpose"]
+        B, H, W, C = images.shape
+
+        shape = np.array([H, W])[None]
+        images_np = images.numpy()
+
+        IMG_NORM_MEAN = np.array([0.485, 0.456, 0.406])
+        IMG_NORM_STD = np.array([0.229, 0.224, 0.225])
+        input_resolution=(256, 192)
+        rescale = 1.25
+
+        detector.reinit()
+        pose_model.reinit()
+
+        refer_img_np = ref_image[0].numpy() * 255
+        if ref_image is not None:
+            refer_img = resize_by_area(refer_img_np, width * height, divisor=16) / 255.0
+            ref_bbox = (detector(
+                cv2.resize(refer_img.astype(np.float32), (640, 640)).transpose(2, 0, 1)[None],
+                shape
+                )[0][0]["bbox"])
+
+            if ref_bbox is None or ref_bbox[-1] <= 0 or (ref_bbox[2] - ref_bbox[0]) < 10 or (ref_bbox[3] - ref_bbox[1]) < 10:
+                ref_bbox = np.array([0, 0, refer_img.shape[1], refer_img.shape[0]])
+
+            center, scale = bbox_from_detector(ref_bbox, input_resolution, rescale=rescale)
+            refer_img = crop(refer_img, center, scale, (input_resolution[0], input_resolution[1]))[0]
+
+            img_norm = (refer_img - IMG_NORM_MEAN) / IMG_NORM_STD
+            img_norm = img_norm.transpose(2, 0, 1).astype(np.float32)
+
+            ref_keypoints = pose_model(img_norm[None], np.array(center)[None], np.array(scale)[None])
+            refer_pose_meta = load_pose_metas_from_kp2ds_seq(ref_keypoints, width=ref_image.shape[2], height=ref_image.shape[1])[0]
+
+            ref_dwpose = aaposemeta_to_dwpose(refer_pose_meta)
+
+        comfy_pbar = ProgressBar(B*2)
+        progress = 0
+        bboxes = []
+        for img in tqdm(images_np, total=len(images_np), desc="Detecting bboxes"):
+            bboxes.append(detector(
+                cv2.resize(img, (640, 640)).transpose(2, 0, 1)[None],
+                shape
+                )[0][0]["bbox"])
+            progress += 1
+            if progress % 10 == 0:
+                comfy_pbar.update_absolute(progress)
+
+        detector.cleanup()
+
+        kp2ds = []
+        for img, bbox in tqdm(zip(images_np, bboxes), total=len(images_np), desc="Extracting keypoints"):
+            if bbox is None or bbox[-1] <= 0 or (bbox[2] - bbox[0]) < 10 or (bbox[3] - bbox[1]) < 10:
+                bbox = np.array([0, 0, img.shape[1], img.shape[0]])
+
+            bbox_xywh = bbox
+            center, scale = bbox_from_detector(bbox_xywh, input_resolution, rescale=rescale)
+            img = crop(img, center, scale, (input_resolution[0], input_resolution[1]))[0]
+
+            img_norm = (img - IMG_NORM_MEAN) / IMG_NORM_STD
+            img_norm = img_norm.transpose(2, 0, 1).astype(np.float32)
+
+            keypoints = pose_model(img_norm[None], np.array(center)[None], np.array(scale)[None])
+            kp2ds.append(keypoints)
+            progress += 1
+            if progress % 10 == 0:
+                comfy_pbar.update_absolute(progress)
+
+        pose_model.cleanup()
+
+        kp2ds = np.concatenate(kp2ds, 0)
+        pose_metas = load_pose_metas_from_kp2ds_seq(kp2ds, width=W, height=H)
+        tpl_dwposes = [aaposemeta_to_dwpose(meta) for meta in pose_metas]
+
+        ref_pose_image_tensor = None
+        if ref_image is not None:
+            if align_to == "ref":
+                ref_pose_image =  draw_pose_aligned(ref_dwpose, height, width, without_face=True)
+                ref_pose_image_np = np.stack(ref_pose_image, 0)
+                ref_pose_image_tensor = torch.from_numpy(ref_pose_image_np).unsqueeze(0).float() / 255.0
+                tpl_dwposes = align_to_reference(refer_pose_meta, pose_metas, tpl_dwposes, anchor_idx=0)
+                image_input_tensor = ref_image
+                image_mask_tensor = torch.zeros(1, ref_image.shape[1], ref_image.shape[2], dtype=torch.float32, device="cpu")
+            elif align_to == "pose":
+                image_input, ref_pose_image_np, image_mask = warp_ref_to_pose(refer_img_np, tpl_dwposes[0], ref_dwpose)
+                ref_pose_image_np = np.stack(ref_pose_image_np, 0)
+                ref_pose_image_tensor = torch.from_numpy(ref_pose_image_np).unsqueeze(0).float() / 255.0
+                tpl_dwposes = align_to_pose(ref_dwpose, tpl_dwposes, anchor_idx=0)
+                image_input_tensor = torch.from_numpy(image_input).unsqueeze(0).float() / 255.0
+                image_mask_tensor = torch.from_numpy(image_mask).unsqueeze(0).float() / 255.0
+            elif align_to == "none":
+                ref_pose_image =  draw_pose_aligned(ref_dwpose, height, width, without_face=True)
+                ref_pose_image_np = np.stack(ref_pose_image, 0)
+                ref_pose_image_tensor = torch.from_numpy(ref_pose_image_np).unsqueeze(0).float() / 255.0
+                image_input_tensor = ref_image
+                image_mask_tensor = torch.zeros(1, ref_image.shape[1], ref_image.shape[2], dtype=torch.float32, device="cpu")
+        else:
+            ref_pose_image_tensor = torch.zeros((1, height, width, 3), dtype=torch.float32, device="cpu")
+
+        pose_imgs = []
+        for pose_np in tpl_dwposes:
+            pose_img = draw_pose_aligned(pose_np, height, width, without_face=(draw_face_points=="none"), face_change=(draw_face_points=="weak"), head_strength=draw_head)
+            pose_img = torch.from_numpy(np.array(pose_img))
+            pose_imgs.append(pose_img)
+
+        pose_tensor = torch.stack(pose_imgs).cpu().float() / 255.0
+
+        return (pose_tensor, ref_pose_image_tensor, image_input_tensor, image_mask_tensor)
+
 NODE_CLASS_MAPPINGS = {
     "OnnxDetectionModelLoader": OnnxDetectionModelLoader,
     "PoseAndFaceDetection": PoseAndFaceDetection,
     "DrawViTPose": DrawViTPose,
     "PoseRetargetPromptHelper": PoseRetargetPromptHelper,
+    "PoseDetectionOneToAllAnimation": PoseDetectionOneToAllAnimation,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
     "OnnxDetectionModelLoader": "ONNX Detection Model Loader",
     "PoseAndFaceDetection": "Pose and Face Detection",
     "DrawViTPose": "Draw ViT Pose",
     "PoseRetargetPromptHelper": "Pose Retarget Prompt Helper",
+    "PoseDetectionOneToAllAnimation": "Pose Detection OneToAll Animation",
 }

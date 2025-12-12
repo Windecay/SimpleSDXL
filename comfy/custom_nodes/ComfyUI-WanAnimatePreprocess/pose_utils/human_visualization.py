@@ -253,7 +253,7 @@ def draw_aanose_by_meta(img, meta: AAPoseMeta, threshold=0.5, stick_width_norm=1
 
 def gen_face_motion_seq(img, metas: List[AAPoseMeta], threshold=0.5, stick_width_norm=200):
 
-    return 
+    return
 
 
 def draw_M(
@@ -1026,16 +1026,6 @@ def draw_kp2ds(img, kp2ds, threshold=0, color=(255, 0, 0), skeleton=None, revers
     return img
 
 
-def draw_mask(img, mask, background=0, return_rgba=False):
-    img = load_image(img)
-    h, w, _ = img.shape
-    if type(background) == int:
-        background = np.ones((h, w, 3)).astype(np.uint8) * 255 * background
-    backgournd = cv2.resize(background, (w, h))
-    img_rgba = np.concatenate([img, mask], -1)
-    return alphaMerge(img_rgba, background, 0, 0, return_rgba=True)
-
-
 def draw_pcd(pcd_list, save_path=None):
     fig = plt.figure()
     ax = fig.add_subplot(111, projection="3d")
@@ -1176,7 +1166,7 @@ def draw_traj(metas: List[AAPoseMeta], threshold=0.6):
 
     colors = [[255, 0, 0], [255, 85, 0], [255, 170, 0], [255, 255, 0], [170, 255, 0], [85, 255, 0], [0, 255, 0], \
                 [0, 255, 85], [0, 255, 170], [0, 255, 255], [0, 170, 255], [0, 85, 255], [0, 0, 255], [85, 0, 255], \
-                [170, 0, 255], [255, 0, 255], [255, 0, 170], [255, 0, 85], [100, 255, 50], [255, 100, 50], 
+                [170, 0, 255], [255, 0, 255], [255, 0, 170], [255, 0, 85], [100, 255, 50], [255, 100, 50],
                 # foot
                 [200, 200, 0],
                 [100, 100, 0]
@@ -1185,17 +1175,17 @@ def draw_traj(metas: List[AAPoseMeta], threshold=0.6):
                     [1, 2], [1, 5],     # shoulders
                     [2, 3], [3, 4],     # left arm
                     [5, 6], [6, 7],     # right arm
-                    [1, 8], [8, 9], [9, 10],    # right leg 
+                    [1, 8], [8, 9], [9, 10],    # right leg
                     [1, 11], [11, 12], [12, 13],  # left leg
                      # face (nose, eyes, ears)
                     [13, 18], [10, 19] # foot
                 ]
-    
-    face_seq = [[1, 0], [0, 14], [14, 16], [0, 15], [15, 17]] 
+
+    face_seq = [[1, 0], [0, 14], [14, 16], [0, 15], [15, 17]]
     kp_body = np.array([meta.kps_body for meta in metas])
     kp_body_p = np.array([meta.kps_body_p for meta in metas])
-    
-    
+
+
     face_seq = random.sample(face_seq, 2)
 
     kp_lh = np.array([meta.kps_lhand for meta in metas])
@@ -1206,11 +1196,11 @@ def draw_traj(metas: List[AAPoseMeta], threshold=0.6):
 
     # kp_lh = np.concatenate([kp_lh, kp_lh_p], axis=-1)
     # kp_rh = np.concatenate([kp_rh, kp_rh_p], axis=-1)
-    
+
     new_limbSeq = []
     key_point_list = []
     for _idx, ((k1_index, k2_index)) in enumerate(limbSeq):
-        
+
         vis = (kp_body_p[:, k1_index] > threshold) * (kp_body_p[:, k2_index] > threshold) * 1
         if vis.sum() * 1.0 / vis.shape[0] > 0.4:
             new_limbSeq.append([k1_index, k2_index])
@@ -1223,7 +1213,7 @@ def draw_traj(metas: List[AAPoseMeta], threshold=0.6):
         randind = random.randint(0, interleave - 1)
         # randind = random.rand(range(interleave), sampling_num)
 
-        Y = np.array([keypoint1[:, 0], keypoint2[:, 0]]) 
+        Y = np.array([keypoint1[:, 0], keypoint2[:, 0]])
         X = np.array([keypoint1[:, 1], keypoint2[:, 1]])
 
         vis = (keypoint1[:, -1] > threshold) * (keypoint2[:, -1] > threshold) * 1
@@ -1238,14 +1228,14 @@ def draw_traj(metas: List[AAPoseMeta], threshold=0.6):
         y = y.astype(int)
 
         new_array = np.array([x, y, vis]).T
-        
+
         key_point_list.append(new_array)
-    
+
     indx_lh = random.randint(0, kp_lh.shape[1] - 1)
     lh = kp_lh[:, indx_lh, :]
     lh_p = kp_lh_p[:, indx_lh:indx_lh+1]
     lh = np.concatenate([lh, lh_p], axis=-1)
-    
+
     indx_rh = random.randint(0, kp_rh.shape[1] - 1)
     rh = kp_rh[:, random.randint(0, kp_rh.shape[1] - 1), :]
     rh_p = kp_rh_p[:, indx_rh:indx_rh+1]
@@ -1261,7 +1251,7 @@ def draw_traj(metas: List[AAPoseMeta], threshold=0.6):
     key_point_list.append(lh.astype(int))
     key_point_list.append(rh.astype(int))
 
-    
+
     key_points_list = np.stack(key_point_list)
     num_points = len(key_points_list)
     sample_colors = random.sample(colors, num_points)
@@ -1276,7 +1266,7 @@ def draw_traj(metas: List[AAPoseMeta], threshold=0.6):
             x, y, vis = point
             if vis == 1:
                 cv2.circle(_image_vis, (x, y), stickwidth, sample_colors[idx], thickness=-1)
-        
+
         image_list_ori.append(_image_vis)
-    
+
     return image_list_ori

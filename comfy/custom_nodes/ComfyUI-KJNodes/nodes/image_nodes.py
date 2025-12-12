@@ -176,7 +176,7 @@ Saves an image and mask as .PNG with the mask as the alpha channel.
         def file_counter():
             max_counter = 0
             # Loop through the existing files
-            for existing_file in os.listdir(full_output_folder):
+            for existing_file in sorted(os.listdir(full_output_folder)):
                 # Check if the file matches the expected format
                 match = re.fullmatch(fr"{filename}_(\d+)_?\.[a-zA-Z0-9]+", existing_file)
                 if match:
@@ -2963,7 +2963,9 @@ class LoadImagesFromFolderKJ:
 
     @classmethod
     def IS_CHANGED(cls, folder, **kwargs):
-        if not os.path.isdir(folder):
+        if folder and not os.path.isabs(folder) and args.base_directory:
+            folder = os.path.join(args.base_directory, folder)
+        if not folder or not os.path.isdir(folder):
             return float("NaN")
         
         valid_extensions = ['.jpg', '.jpeg', '.png', '.webp', '.tga']
@@ -2981,7 +2983,7 @@ class LoadImagesFromFolderKJ:
                         except OSError:
                             pass
         else:
-            for file in os.listdir(folder):
+            for file in sorted(os.listdir(folder)):
                 if any(file.lower().endswith(ext) for ext in valid_extensions):
                     path = os.path.join(folder, file)
                     try:
@@ -3031,9 +3033,11 @@ class LoadImagesFromFolderKJ:
     CATEGORY = "KJNodes/image"
     DESCRIPTION = """Loads images from a folder into a batch, images are resized and loaded into a batch."""
 
-    def load_images(self, folder, width, height, image_load_cap, start_index, keep_aspect_ratio, include_subfolders=False):
-        if not os.path.isdir(folder):
-            raise FileNotFoundError(f"Folder '{folder} cannot be found.'")
+    def load_images(self, folder, width, height, image_load_cap, start_index, keep_aspect_ratio, include_subfolders=False):    
+        if folder and not os.path.isabs(folder) and args.base_directory:
+            folder = os.path.join(args.base_directory, folder)
+        if not folder or not os.path.isdir(folder):
+            raise FileNotFoundError(f"Folder '{folder}' cannot be found.")
         
         valid_extensions = ['.jpg', '.jpeg', '.png', '.webp', '.tga']
         image_paths = []
@@ -3043,7 +3047,7 @@ class LoadImagesFromFolderKJ:
                     if any(file.lower().endswith(ext) for ext in valid_extensions):
                         image_paths.append(os.path.join(root, file))
         else:
-            for file in os.listdir(folder):
+            for file in sorted(os.listdir(folder)):
                 if any(file.lower().endswith(ext) for ext in valid_extensions):
                     image_paths.append(os.path.join(folder, file))
 
@@ -3182,7 +3186,6 @@ class LoadImagesFromFolderKJ:
         stat = ImageStat.Stat(edges)
         median = tuple(map(int, stat.median))
         return median
-        
 
 class ImageGridtoBatch:
     @classmethod
@@ -3193,37 +3196,38 @@ class ImageGridtoBatch:
                     "rows": ("INT", {"default": 0, "min": 1, "max": 8, "tooltip": "The number of rows in the grid. Set to 0 for automatic calculation."}),
                   }
                 }
-    
+
     RETURN_TYPES = ("IMAGE",)
     FUNCTION = "decompose"
     CATEGORY = "KJNodes/image"
     DESCRIPTION = "Converts a grid of images to a batch of images."
-        
+
     def decompose(self, image, columns, rows):
         B, H, W, C = image.shape
         print("input size: ", image.shape)
-        
+
         # Calculate cell width, rounding down
         cell_width = W // columns
-        
+
         if rows == 0:
             # If rows is 0, calculate number of full rows
+            cell_height = H // columns
             rows = H // cell_height
         else:
             # If rows is specified, adjust cell_height
             cell_height = H // rows
-        
+
         # Crop the image to fit full cells
         image = image[:, :rows*cell_height, :columns*cell_width, :]
-        
+
         # Reshape and permute the image to get the grid
         image = image.view(B, rows, cell_height, columns, cell_width, C)
         image = image.permute(0, 1, 3, 2, 4, 5).contiguous()
         image = image.view(B, rows * columns, cell_height, cell_width, C)
-        
+
         # Reshape to the final batch tensor
         img_tensor = image.view(-1, cell_height, cell_width, C)
-        
+
         return (img_tensor,)
 
 class SaveImageKJ:
@@ -3335,6 +3339,8 @@ class SaveStringKJ:
         filename_prefix += self.prefix_append
         
         full_output_folder, filename, counter, subfolder, filename_prefix = folder_paths.get_save_image_path(filename_prefix, self.output_dir)
+        if output_folder and not os.path.isabs(output_folder) and args.base_directory:
+            output_folder = os.path.join(args.base_directory, output_folder)
         if output_folder != "output":
             if not os.path.exists(output_folder):
                 os.makedirs(output_folder, exist_ok=True)
@@ -3960,11 +3966,14 @@ class LoadVideosFromFolder:
     FUNCTION = "load_video"
 
     def load_video(self, output_type, grid_max_columns, add_label=False, **kwargs):
+        if kwargs.get('video') and not os.path.isabs(kwargs['video']) and args.base_directory:
+            kwargs['video'] = os.path.join(args.base_directory, kwargs['video'])
+            
         if self.vhs_nodes is None:
             raise ImportError("This node requires ComfyUI-VideoHelperSuite to be installed.")
         videos_list = []
         filenames = []
-        for f in os.listdir(kwargs['video']):
+        for f in sorted(os.listdir(kwargs['video'])):
             if os.path.isfile(os.path.join(kwargs['video'], f)):
                 file_parts = f.split('.')
                 if len(file_parts) > 1 and (file_parts[-1].lower() in ['webm', 'mp4', 'mkv', 'gif', 'mov']):

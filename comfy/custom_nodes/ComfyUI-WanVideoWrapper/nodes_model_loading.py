@@ -6,7 +6,7 @@ import numpy as np
 from tqdm import tqdm
 import re
 
-from .wanvideo.modules.model import WanModel, LoRALinearLayer
+from .wanvideo.modules.model import WanModel, LoRALinearLayer, WanRMSNorm
 from .wanvideo.modules.t5 import T5EncoderModel
 from .wanvideo.modules.clip import CLIPModel
 from .wanvideo.wan_video_vae import WanVideoVAE, WanVideoVAE38
@@ -852,18 +852,18 @@ def load_weights(transformer, sd=None, weight_dtype=None, base_dtype=None,
             total=param_count,
             leave=True):
         block_idx = vace_block_idx = None
-        if "vace_blocks." in name:
+        if name.startswith("vace_blocks."):
             try:
                 vace_block_idx = int(name.split("vace_blocks.")[1].split(".")[0])
             except Exception:
                 vace_block_idx = None
-        elif "blocks." in name and "face" not in name:
+        elif name.startswith("blocks.") and "face" not in name:
             try:
                 block_idx = int(name.split("blocks.")[1].split(".")[0])
             except Exception:
                 block_idx = None
 
-        if "loras" in name or "controlnet" in name:
+        if "loras" in name:
             continue
 
         # GGUF: skip GGUFParameter params
@@ -1010,6 +1010,8 @@ class WanVideoModelLoader:
                     "sageattn_3",
                     "radial_sage_attention",
                     "sageattn_compiled",
+                    "sageattn_ultravico",
+                    "comfy"
                     ], {"default": "sdpa"}),
                 "compile_args": ("WANCOMPILEARGS", ),
                 "block_swap_args": ("BLOCKSWAPARGS", ),
@@ -1309,7 +1311,7 @@ class WanVideoModelLoader:
         if dim == 1536:
             model_variant = "1_3B"
         if dim == 3072:
-            log.info(f"5B model detected, no Teacache or MagCache coefficients available, consider using EasyCache for this model")
+            log.info("5B model detected, no Teacache or MagCache coefficients available, consider using EasyCache for this model")
 
         if "high" in model.lower() or "low" in model.lower():
             if "i2v" in model.lower():
@@ -1374,7 +1376,7 @@ class WanVideoModelLoader:
             with init_empty_weights():
                 transformer.audio_model = WanModel(**TRANSFORMER_CONFIG).eval()
 
-            from .wanvideo.modules.model import WanLayerNorm, WanRMSNorm
+            from .wanvideo.modules.model import WanLayerNorm
 
             for block in transformer.blocks:
                 block.cross_attn.k_fusion = nn.Linear(block.dim, block.dim)
@@ -1476,16 +1478,12 @@ class WanVideoModelLoader:
 
         # Additional cond latents
         if "add_conv_in.weight" in sd:
-            def zero_module(module):
-                for p in module.parameters():
-                    torch.nn.init.zeros_(p)
-                return module
             inner_dim = sd["add_conv_in.weight"].shape[0]
             add_cond_in_dim = sd["add_conv_in.weight"].shape[1]
             attn_cond_in_dim = sd["attn_conv_in.weight"].shape[1]
-            transformer.add_conv_in = torch.nn.Conv3d(add_cond_in_dim, inner_dim, kernel_size=transformer.patch_size, stride=transformer.patch_size)
-            transformer.add_proj = zero_module(torch.nn.Linear(inner_dim, inner_dim))
-            transformer.attn_conv_in = torch.nn.Conv3d(attn_cond_in_dim, inner_dim, kernel_size=transformer.patch_size, stride=transformer.patch_size)
+            transformer.add_conv_in = nn.Conv3d(add_cond_in_dim, inner_dim, kernel_size=transformer.patch_size, stride=transformer.patch_size)
+            transformer.add_proj = nn.Linear(inner_dim, inner_dim)
+            transformer.attn_conv_in = nn.Conv3d(attn_cond_in_dim, inner_dim, kernel_size=transformer.patch_size, stride=transformer.patch_size)
 
         # Bindweave text_projection
         if "text_projection.0.weight" in sd:
@@ -1514,6 +1512,48 @@ class WanVideoModelLoader:
                 FactorConv3d(in_channels=in_dim_c, out_channels=in_dim_c, kernel_size=(3, 3, 3), stride=1), nn.SiLU())
             transformer.condition_embedding_align = PoseRefNetNoBNV3(in_channels_x=16, in_channels_c=16, hidden_dim=128, num_heads=8) # Frame-wise Attention Alignment Unit
 
+
+        if "image_to_cond.conv_in.bias" in sd:
+            # One-to-all
+            from .onetoall.controlnet import MiniHunyuanEncoder, MiniEncoder2D
+            from .onetoall.refextractor_2d import WanRefextractor, WanAttentionBlock
+
+            controlnet_layers = len({k.split(".")[2] for k in sd if k.startswith("controlnet.blocks.")})
+            refextractor_layers = len({k.split(".")[2] for k in sd if k.startswith("refextractor.blocks.")})
+            log.info(f"{controlnet_layers} One-to-all controlnet layers and {refextractor_layers} refextractor layers detected, patching model...")
+
+            with init_empty_weights():
+                transformer.image_to_cond = MiniEncoder2D(
+                    in_channels = sd["image_to_cond.conv_in.bias"].shape[0],
+                    out_channels = in_channels,
+                    down_block_types= ("DownEncoderBlockInflated","DownEncoderBlockInflated","DownEncoderBlockInflated"),
+                    block_out_channels=(16, 16, 16),
+                    norm_num_groups = 4,
+                    layers_per_block = 1,
+                    spatial_compression_ratio=1
+                )
+
+                transformer.input_hint_block = MiniHunyuanEncoder(
+                    in_channels=3,
+                    out_channels=in_channels,
+                    block_out_channels=(16, 16, 16, 16),
+                    norm_num_groups=4,
+                    layers_per_block=1,
+                    spatial_compression_ratio=16
+                )
+
+                transformer.controlnet = nn.Module()
+                transformer.controlnet.blocks = nn.ModuleList([WanAttentionBlock(in_features, out_features, ffn_dim, ffn2_dim, num_heads) for _ in range(controlnet_layers)])
+                transformer.controlnet_zero = nn.ModuleList([nn.Linear(in_features, out_features) for _ in range(controlnet_layers)])
+                transformer.refextractor = WanRefextractor(
+                    patch_size=(1, 2, 2), in_dim=sd["refextractor.patch_embedding.weight"].shape[1],
+                    dim=dim, in_features=in_features, out_features=out_features, ffn_dim=ffn_dim, ffn2_dim=ffn2_dim,
+                        num_heads=num_heads, num_layers=refextractor_layers)
+
+                for block in transformer.blocks:
+                    block.ref_attn_k_img = nn.Linear(in_features, out_features)
+                    block.ref_attn_v_img = nn.Linear(in_features, out_features)
+                    block.ref_attn_norm_k_img = WanRMSNorm(out_features, eps=1e-6)
 
         comfy_model.diffusion_model = transformer
         comfy_model.load_device = transformer_load_device
@@ -1579,7 +1619,7 @@ class WanVideoModelLoader:
             if gguf:
                 raise ValueError("GGUF models don't support vram management")
             from .diffsynth.vram_management import enable_vram_management, AutoWrappedModule, AutoWrappedLinear
-            from .wanvideo.modules.model import WanLayerNorm, WanRMSNorm
+            from .wanvideo.modules.model import WanLayerNorm
 
             total_params_in_model = sum(p.numel() for p in patcher.model.diffusion_model.parameters())
             log.info(f"Total number of parameters in the loaded model: {total_params_in_model}")
@@ -1760,7 +1800,7 @@ class WanVideoTinyVAELoader:
         model_path = folder_paths.get_full_path_or_raise("vae_approx", model_name)
         vae_sd = load_torch_file(model_path, safe_load=True)
 
-        vae = TAEHV(vae_sd, parallel=parallel, dtype=dtype)
+        vae = TAEHV(vae_sd, parallel=parallel, dtype=dtype, model_name=model_name)
 
         vae.to(device=offload_device, dtype=dtype)
 

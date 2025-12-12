@@ -53,21 +53,25 @@ class DYModule(nn.Module):
         self.bn2 = nn.GroupNorm(num_groups=4, num_channels=self.dim)
 
     def forward(self, x):
-        r = self.conv(x)
-
+        x_type = x.dtype
+        r = self.conv(x.to(self.conv.weight.dtype)).to(x_type)
         b, c, h, w = x.size()
+
         y = self.avg_pool(x).view(b, c * self.mul)
         y = self.fc(y)
         dy_phi = self.fc_phi(y).view(b, self.dim, self.dim)
         dy_scale = self.hs(self.fc_scale(y)).view(b, -1, 1, 1)
         r = dy_scale.expand_as(r) * r
 
-        x = self.conv_q(x)
+        x = self.conv_q(x.to(self.conv_q.weight.dtype)).to(self.bn1.weight.dtype)
         x = self.bn1(x)
+
         x = x.view(b, -1, h * w)
-        x = self.bn2(torch.matmul(dy_phi, x)) + x
+        x = x + self.bn2(torch.matmul(dy_phi, x.to(dy_phi.dtype)).to(self.bn2.weight.dtype))
         x = x.view(b, -1, h, w)
-        x = self.conv_p(x)
+
+        x = self.conv_p(x.to(self.conv_p.weight.dtype)).to(x_type)
+
         return x + r
 
 

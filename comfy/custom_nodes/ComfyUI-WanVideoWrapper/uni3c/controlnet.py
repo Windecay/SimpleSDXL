@@ -115,15 +115,8 @@ class WanRotaryPosEmbed(nn.Module):
         freqs_w = freqs[2][:ppw].view(1, 1, ppw, -1).expand(ppf, pph, ppw, -1)
         freqs = torch.cat([freqs_f, freqs_h, freqs_w], dim=-1).reshape(1, 1, ppf * pph * ppw, -1)
         return freqs
-    
+
 from ..wanvideo.modules.attention import sageattn_func
-
-def zero_module(module):
-    # Zero out the parameters of a module and return it.
-    for p in module.parameters():
-        p.detach().zero_()
-    return module
-
 
 class SimpleAttnProcessor2_0:
     def __init__(self, attention_mode):
@@ -278,7 +271,7 @@ class MaskCamEmbed(nn.Module):
         mid_channels = controlnet_cfg.get("mid_channels", 64)
         self.mask_proj = nn.Sequential(nn.Conv3d(add_channels, mid_channels, kernel_size=(4, 8, 8), stride=(4, 8, 8)),
                                        nn.GroupNorm(mid_channels // 8, mid_channels), nn.SiLU())
-        self.mask_zero_proj = zero_module(nn.Conv3d(mid_channels, controlnet_cfg["conv_out_dim"], kernel_size=(1, 2, 2), stride=(1, 2, 2)))
+        self.mask_zero_proj = nn.Conv3d(mid_channels, controlnet_cfg["conv_out_dim"], kernel_size=(1, 2, 2), stride=(1, 2, 2))
 
     def forward(self, add_inputs: torch.Tensor):
         # render_mask.shape [b,c,f,h,w]
@@ -321,7 +314,7 @@ class WanControlNet(ModelMixin):
         )
         self.proj_out = nn.ModuleList(
             [
-                zero_module(nn.Linear(self.dim, 5120))
+                nn.Linear(self.dim, 5120)
                 for _ in range(controlnet_cfg["num_layers"])
             ]
         )

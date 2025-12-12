@@ -4,7 +4,7 @@ from accelerate import init_empty_weights
 from .gguf.gguf_utils import GGUFParameter, dequantize_gguf_tensor
 
 @torch.library.custom_op("wanvideo::apply_lora", mutates_args=())
-def apply_lora(weight: torch.Tensor, lora_diff_0: torch.Tensor, lora_diff_1: torch.Tensor, lora_diff_2: float, lora_strength: float) -> torch.Tensor:
+def apply_lora(weight: torch.Tensor, lora_diff_0: torch.Tensor, lora_diff_1: torch.Tensor, lora_diff_2: float, lora_strength: torch.Tensor) -> torch.Tensor:
     patch_diff = torch.mm(
         lora_diff_0.flatten(start_dim=1),
         lora_diff_1.flatten(start_dim=1)
@@ -13,7 +13,7 @@ def apply_lora(weight: torch.Tensor, lora_diff_0: torch.Tensor, lora_diff_1: tor
     alpha = lora_diff_2 / lora_diff_1.shape[0] if lora_diff_2 != 0.0 else 1.0
     scale = lora_strength * alpha
 
-    return weight.add(patch_diff, alpha=scale)
+    return weight + patch_diff * scale
 
 @apply_lora.register_fake
 def _(weight, lora_diff_0, lora_diff_1, lora_diff_2, lora_strength):
@@ -21,8 +21,8 @@ def _(weight, lora_diff_0, lora_diff_1, lora_diff_2, lora_strength):
     return weight.clone()
 
 @torch.library.custom_op("wanvideo::apply_single_lora", mutates_args=())
-def apply_single_lora(weight: torch.Tensor, lora_diff: torch.Tensor, lora_strength: float) -> torch.Tensor:
-    return weight.add(lora_diff, alpha=lora_strength)
+def apply_single_lora(weight: torch.Tensor, lora_diff: torch.Tensor, lora_strength: torch.Tensor) -> torch.Tensor:
+    return weight + lora_diff * lora_strength
 
 @apply_single_lora.register_fake
 def _(weight, lora_diff, lora_strength):
@@ -119,8 +119,8 @@ def set_lora_params(module, patches, module_prefix="", device=torch.device("cpu"
                     continue
             lora_strengths = [p[0] for p in patch]
             module.set_lora_diffs(lora_diffs, device=device)
-            module.lora_strengths = lora_strengths
-            module.step = 0  # Initialize step for LoRA scheduling
+            module.set_lora_strengths(lora_strengths, device=device)
+            module._step.fill_(0)   # Initialize step for LoRA scheduling
 
 
 class CustomLinear(nn.Linear):
@@ -138,7 +138,7 @@ class CustomLinear(nn.Linear):
         super().__init__(in_features, out_features, bias, device)
         self.compute_dtype = compute_dtype
         self.lora_diffs = []
-        self.step = 0
+        self.register_buffer("_step", torch.zeros((), dtype=torch.long))
         self.scale_weight = scale_weight
         self.lora_strengths = []
         self.allow_compile = allow_compile
@@ -162,10 +162,10 @@ class CustomLinear(nn.Linear):
         ).reshape(weight.shape) + 0
         alpha = lora_diff_2 / lora_diff_1.shape[0] if lora_diff_2 != 0.0 else 1.0
         scale = lora_strength * alpha
-        return weight.add(patch_diff, alpha=scale)
+        return weight + patch_diff * scale
 
     def _apply_single_lora_direct(self, weight, lora_diff, lora_strength):
-        return weight.add(lora_diff, alpha=lora_strength)
+        return weight + lora_diff * lora_strength
 
     def _linear_forward_direct(self, input, weight, bias):
         return torch.nn.functional.linear(input, weight, bias)
@@ -173,12 +173,11 @@ class CustomLinear(nn.Linear):
     # Custom op implementations
     def _apply_lora_custom_op(self, weight, lora_diff_0, lora_diff_1, lora_diff_2, lora_strength):
         return torch.ops.wanvideo.apply_lora(weight, lora_diff_0, lora_diff_1,
-            float(lora_diff_2) if lora_diff_2 is not None else 0.0,
-            float(lora_strength)
+            float(lora_diff_2) if lora_diff_2 is not None else 0.0, lora_strength
         )
 
     def _apply_single_lora_custom_op(self, weight, lora_diff, lora_strength):
-        return torch.ops.wanvideo.apply_single_lora(weight, lora_diff, float(lora_strength))
+        return torch.ops.wanvideo.apply_single_lora(weight, lora_diff, lora_strength)
 
     def _linear_forward_custom_op(self, input, weight, bias):
         return torch.ops.wanvideo.linear_forward(input, weight, bias)
@@ -195,18 +194,33 @@ class CustomLinear(nn.Linear):
                 self.register_buffer(f"lora_diff_{i}_0", diff[0].to(device, self.compute_dtype))
                 self.lora_diffs.append(f"lora_diff_{i}_0")
 
+    def set_lora_strengths(self, lora_strengths, device=torch.device("cpu")):
+        self._lora_strength_tensors = []
+        self._lora_strength_is_scheduled = []
+        self._step = self._step.to(device)
+        for i, strength in enumerate(lora_strengths):
+            if isinstance(strength, list):
+                tensor = torch.tensor(strength, dtype=self.compute_dtype, device=device)
+                self.register_buffer(f"_lora_strength_{i}", tensor)
+                self._lora_strength_is_scheduled.append(True)
+            else:
+                tensor = torch.tensor([strength], dtype=self.compute_dtype, device=device)
+                self.register_buffer(f"_lora_strength_{i}", tensor)
+                self._lora_strength_is_scheduled.append(False)
+
+    def _get_lora_strength(self, idx):
+        strength_tensor = getattr(self, f"_lora_strength_{idx}")
+        if self._lora_strength_is_scheduled[idx]:
+            return strength_tensor.index_select(0, self._step).squeeze(0)
+        return strength_tensor[0]
+
     def _get_weight_with_lora(self, weight):
         """Apply LoRA using custom ops to avoid graph breaks"""
         if not hasattr(self, "lora_diff_0_0"):
             return weight
 
-        for lora_diff_names, lora_strength in zip(self.lora_diffs, self.lora_strengths):
-            if isinstance(lora_strength, list):
-                lora_strength = lora_strength[self.step]
-                if lora_strength == 0.0:
-                    continue
-            elif lora_strength == 0.0:
-                continue
+        for idx, lora_diff_names in enumerate(self.lora_diffs):
+            lora_strength = self._get_lora_strength(idx)
 
             if isinstance(lora_diff_names, tuple):
                 lora_diff_0 = getattr(self, lora_diff_names[0])
@@ -215,12 +229,11 @@ class CustomLinear(nn.Linear):
 
                 weight = self._apply_lora_impl(
                     weight, lora_diff_0, lora_diff_1,
-                    float(lora_diff_2) if lora_diff_2 is not None else 0.0,
-                    float(lora_strength)
+                    float(lora_diff_2) if lora_diff_2 is not None else 0.0, lora_strength
                 )
             else:
                 lora_diff = getattr(self, lora_diff_names)
-                weight = self._apply_single_lora_impl(weight, lora_diff,float(lora_strength))
+                weight = self._apply_single_lora_impl(weight, lora_diff, lora_strength)
         return weight
 
     def _prepare_weight(self, input):

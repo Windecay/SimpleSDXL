@@ -1054,9 +1054,6 @@ def crop(img, center, scale, res):
     # Bottom right point
     br = np.array(transform([res[1] + 1, res[0] + 1], center, max(scale), res, invert=1)) - 1
 
-    # Padding so that when rotated proper amount of context is included
-    pad = int(np.linalg.norm(br - ul) / 2 - float(br[1] - ul[1]) / 2)
-
     new_shape = [br[1] - ul[1], br[0] - ul[0]]
     if len(img.shape) > 2:
         new_shape += [img.shape[2]]
@@ -1086,34 +1083,10 @@ def split_kp2ds_for_aa(kp2ds, ret_face=False):
         return kp2ds_body.copy(), kp2ds_lhand.copy(), kp2ds_rhand.copy(), kp2ds_face.copy()
     return kp2ds_body.copy(), kp2ds_lhand.copy(), kp2ds_rhand.copy()
 
-def load_pose_metas_from_kp2ds_seq_list(kp2ds_seq, width, height):
-    metas = []
-    for kps in kp2ds_seq:
-        if len(kps) != 1:
-            return None
-        kps = kps[0].copy()
-        kps[:, 0] /= width
-        kps[:, 1] /= height
-        kp2ds_body, kp2ds_lhand, kp2ds_rhand, kp2ds_face = split_kp2ds_for_aa(kps, ret_face=True)
-
-        if kp2ds_body[:, :2].min(axis=1).max() < 0:
-            kp2ds_body = last_kp2ds_body
-        last_kp2ds_body = kp2ds_body
-
-        meta = {
-            "width": width,
-            "height": height,
-            "keypoints_body": kp2ds_body.tolist(),
-            "keypoints_left_hand": kp2ds_lhand.tolist(),
-            "keypoints_right_hand": kp2ds_rhand.tolist(),
-            "keypoints_face": kp2ds_face.tolist(),
-        }
-        metas.append(meta)
-    return metas
-
 
 def load_pose_metas_from_kp2ds_seq(kp2ds_seq, width, height):
     metas = []
+    last_kp2ds_body = None
     for kps in kp2ds_seq:
         kps = kps.copy()
         kps[:, 0] /= width
@@ -1121,7 +1094,7 @@ def load_pose_metas_from_kp2ds_seq(kp2ds_seq, width, height):
         kp2ds_body, kp2ds_lhand, kp2ds_rhand, kp2ds_face = split_kp2ds_for_aa(kps, ret_face=True)
 
         # Exclude cases where all values are less than 0
-        if kp2ds_body[:, :2].min(axis=1).max() < 0:
+        if last_kp2ds_body is not None and kp2ds_body[:, :2].min(axis=1).max() < 0:
             kp2ds_body = last_kp2ds_body
         last_kp2ds_body = kp2ds_body
 

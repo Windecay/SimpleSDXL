@@ -633,8 +633,8 @@
   },
   "80": {
     "inputs": {
-      "generation_width": 512,
-      "generation_height": 512,
+      "generation_width": 640,
+      "generation_height": 640,
       "aspect_ratio_preservation": "keep_input",
       "image": [
         "89",
