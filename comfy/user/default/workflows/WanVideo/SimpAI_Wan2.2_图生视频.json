@@ -2565,6 +2565,7 @@
           "link": null
         },
         {
+          "dir": 3,
           "name": "any_05",
           "type": "MODEL",
           "link": null
@@ -2636,7 +2637,7 @@
       },
       "widgets_values": [
         "",
-        "None"
+        "Toggle all"
       ],
       "color": "#2a363b",
       "bgcolor": "#3f5159"
@@ -2799,7 +2800,7 @@
       },
       "widgets_values": [
         "",
-        "None"
+        "Toggle all"
       ],
       "color": "#2a363b",
       "bgcolor": "#3f5159"
@@ -4643,7 +4644,7 @@
       },
       "widgets_values": [
         "",
-        "None"
+        "Toggle all"
       ],
       "color": "#2a363b",
       "bgcolor": "#3f5159"
@@ -4690,6 +4691,7 @@
           "link": null
         },
         {
+          "dir": 3,
           "name": "any_05",
           "type": "CLIP",
           "link": null
@@ -9822,10 +9824,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 1.1918176537728142,
+      "scale": 0.8954302432553074,
       "offset": [
-        -2332.3521653855314,
-        315.80921348377046
+        -787.627606077285,
+        580.8464018490073
       ]
     },
     "frontendVersion": "1.33.10",
