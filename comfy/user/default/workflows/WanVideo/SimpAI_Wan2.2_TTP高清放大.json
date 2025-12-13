@@ -3378,7 +3378,7 @@
       },
       "widgets_values": [
         "",
-        "None"
+        "Toggle all"
       ],
       "color": "#2a363b",
       "bgcolor": "#3f5159"
@@ -4265,7 +4265,7 @@
       },
       "widgets_values": [
         "",
-        "None"
+        "Toggle all"
       ],
       "color": "#2a363b",
       "bgcolor": "#3f5159"
