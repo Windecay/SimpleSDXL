@@ -62,7 +62,6 @@
         "insightface,models/antelopev2/glintr100.onnx,260665334,0,",
         "insightface,models/antelopev2/scrfd_10g_bnkps.onnx,16923827,0,",
         "upscale_models,4x-UltraSharp.pth,66961958,0,",
-        "clip,t5xxl_fp16.safetensors,9787841024,0,",
         "clip,t5xxl_fp8_e4m3fn.safetensors,4893934904,0,",
         "clip,clip_l.safetensors,246144152,0,",
         "clip_vision,sigclip_vision_patch14_384.safetensors,856505640,0,",
