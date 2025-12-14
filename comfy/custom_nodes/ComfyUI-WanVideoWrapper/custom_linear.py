@@ -264,6 +264,11 @@ class CustomLinear(nn.Linear):
         del weight, input, bias
         return out
 
+def update_lora_step(module, step):
+    for name, submodule in module.named_modules():
+        if isinstance(submodule, CustomLinear) and hasattr(submodule, "_step"):
+            submodule._step.fill_(step)
+
 def remove_lora_from_module(module):
     for name, submodule in module.named_modules():
         if hasattr(submodule, "lora_diffs"):

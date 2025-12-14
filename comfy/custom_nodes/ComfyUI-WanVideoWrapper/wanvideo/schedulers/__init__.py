@@ -41,6 +41,8 @@ def _apply_custom_sigmas(sample_scheduler, sigmas, device):
 
 def get_scheduler(scheduler, steps, start_step, end_step, shift, device, transformer_dim=5120, flowedit_args=None, denoise_strength=1.0, sigmas=None, log_timesteps=False, **kwargs):
     timesteps = None
+    if sigmas is not None:
+        steps = len(sigmas) - 1
     if scheduler == 'vibt_unipc':
         sample_scheduler = ViBTScheduler()
         sample_scheduler.set_parameters(shift=shift)

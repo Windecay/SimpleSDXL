@@ -21,6 +21,7 @@ from ...utils import log, get_module_memory_mb
 from ...cache_methods.cache_methods import TeaCacheState, MagCacheState, EasyCacheState, relative_l1_distance
 from ...multitalk.multitalk import get_attn_map_with_target
 from ...echoshot.echoshot import rope_apply_z, rope_apply_c, rope_apply_echoshot
+from ...custom_linear import update_lora_step
 
 from ...MTV.mtv import apply_rotary_emb
 from comfy.ldm.flux.math import apply_rope1 as apply_rope_comfy1
@@ -2251,10 +2252,7 @@ class WanModel(torch.nn.Module):
                 ip_scale = fantasy_portrait_input.get("strength", 1.0)
 
         if self.lora_scheduling_enabled:
-            for name, submodule in self.named_modules():
-                if isinstance(submodule, nn.Linear):
-                    if hasattr(submodule, 'step'):
-                        submodule.step = current_step
+            update_lora_step(self, current_step)
 
         # lynx
         lynx_x_ip = lynx_ref_feature = lynx_ref_buffer = lynx_ref_feature_extractor = None
@@ -2941,15 +2939,15 @@ class WanModel(torch.nn.Module):
             if uni3c_data is not None:
                 if (uni3c_data["start"] <= current_step_percentage <= uni3c_data["end"]) or \
                             (uni3c_data["end"] > 0 and current_step == 0 and current_step_percentage >= uni3c_data["start"]):
-                    self.controlnet.to(self.main_device)
+                    self.uni3c_controlnet.to(self.main_device)
                     with torch.autocast(device_type=mm.get_autocast_device(device), dtype=self.base_dtype, enabled=True):
-                        uni3c_controlnet_states = self.controlnet(
-                            render_latent=render_latent.to(self.main_device, self.controlnet.dtype), 
+                        uni3c_controlnet_states = self.uni3c_controlnet(
+                            render_latent=render_latent.to(self.main_device, self.uni3c_controlnet.dtype),
                             render_mask=uni3c_data["render_mask"], 
                             camera_embedding=uni3c_data["camera_embedding"], 
                             temb=e.to(self.main_device),
                             device=self.offload_device)
-                    self.controlnet.to(self.offload_device)
+                    self.uni3c_controlnet.to(self.offload_device)
 
             # Asynchronous block offloading with CUDA streams and events
             if torch.cuda.is_available():
