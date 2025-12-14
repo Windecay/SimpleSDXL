@@ -817,6 +817,8 @@ with shared.gradio_root:
                         with gr.Row():
                             with gr.Column():
                                 uov_input_image = grh.Image(label='Image', source='upload', type='numpy', height=300, show_label=False)
+                                with gr.Row():
+                                    describe_uov_button = gr.Button(value='Describe Image', variant='secondary', size='sm', visible=False)
                             with gr.Column():
                                 with gr.Group():
                                     mixing_image_prompt_and_vary_upscale = gr.Checkbox(label='Mixing Image Prompt and Vary/Upscale', value=False)
@@ -848,6 +850,8 @@ with shared.gradio_root:
                         with gr.Row():
                             with gr.Column():
                                 inpaint_input_image = grh.Image(label='Image', source='upload', type='numpy', tool='sketch', height=350, brush_color="#FFFFFF", elem_id='inpaint_canvas', show_label=False)
+                                with gr.Row():
+                                    describe_inpaint_button = gr.Button(value='Describe Image', variant='secondary', size='sm', visible=False)
                                 inpaint_mode = gr.Dropdown(choices=modules.flags.inpaint_options, value=modules.config.default_inpaint_method, label='Method')
                                 inpaint_additional_prompt = gr.Textbox(placeholder="Describe what you want to inpaint.", elem_id='inpaint_additional_prompt', label='Inpaint Additional Prompt', visible=False)
                                 outpaint_selections = gr.CheckboxGroup(choices=['Left', 'Right', 'Top', 'Bottom'], value=[], label='Outpaint Direction')
@@ -954,6 +958,8 @@ with shared.gradio_root:
                             with gr.Column():
                                 enhance_checkbox = gr.Checkbox(label='Enhance', value=modules.config.default_enhance_checkbox, container=False)
                                 enhance_input_image = grh.Image(label='Use with Enhance, skips image generation', source='upload', type='numpy')
+                                with gr.Row():
+                                    describe_enhance_button = gr.Button(value='Describe Image', variant='secondary', size='sm', visible=False)
                                 with gr.Group():
                                     with gr.Row():
                                         enhance_enabled_1 = gr.Checkbox(label='Enable Region#1', value=False, elem_classes='min_check')
@@ -2230,6 +2236,10 @@ with shared.gradio_root:
                 break
 
         def trigger_describe(modes, img, apply_styles, output_tags, output_chinese, output_artist, describe_prompt=""):
+            if img is None and output_tags:
+                logger.info("Image is None in trigger_describe, skipping image description")
+                return gr.update(), gr.update()
+
             describe_images = []
             styles = set()
 
@@ -2273,6 +2283,7 @@ with shared.gradio_root:
             if check_generating_state(state_is_generating, has_pending_tasks, is_worker_processing):
                 logger.info("Generation is in progress or pending, skipping image description")
                 return gr.update(), gr.update()
+
             return trigger_describe(modes, img, apply_styles, output_tags, output_chinese, output_artist, describe_prompt)
         describe_btn.click(describe_with_generating_check,
                            inputs=[state_is_generating, describe_methods, describe_input_image, describe_apply_styles,
@@ -2381,30 +2392,42 @@ with shared.gradio_root:
                    .then(switch_scene_theme_ready_to_gen, inputs=[state_topbar, image_number, scene_canvas_image, scene_input_image1, scene_additional_prompt, scene_additional_prompt_2, scene_theme], outputs=[prompt, generate_button], queue=False, show_progress=True)
 
         if args_manager.args.enable_auto_describe_image:
-            def trigger_auto_describe(mode, img, prompt, apply_styles, output_tags, output_chinese, output_artist, state_is_generating=False):
+            def trigger_auto_describe(mode, img, prompt, apply_styles, output_tags, output_chinese, output_artist, state_is_generating=True):
 
-                is_worker_processing = modules.async_worker.worker_processing is not None
-                has_pending_tasks = modules.async_worker.pending_tasks > 0
-
-                if state_is_generating or is_worker_processing or has_pending_tasks:
-                    logger.info("Generation is in progress or pending, skipping auto image description")
+                if img is None:
+                    logger.info("Image is None, skipping image description")
                     return gr.update(), gr.update()
 
                 if isinstance(img, dict):
                     img = img['image']
-                # keep prompt if not empty
-                if prompt == '':
-                    return trigger_describe(mode, img, apply_styles, output_tags, output_chinese, output_artist)
-                return gr.update(), gr.update()
+                return trigger_describe(mode, img, apply_styles, output_tags, output_chinese, output_artist)
 
-            uov_input_image.upload(trigger_auto_describe, inputs=[describe_methods, uov_input_image, prompt, describe_apply_styles, describe_output_tags, describe_output_chinese, describe_output_artist], outputs=[prompt, style_selections], show_progress=True, queue=True) \
+            uov_input_image.upload(lambda: None, outputs=[], show_progress=False, queue=False) \
                 .then(fn=style_sorter.sort_styles, inputs=style_selections, outputs=style_selections, queue=False, show_progress=False) \
                 .then(lambda: None, _js='()=>{refresh_style_localization();}')
-            inpaint_input_image.upload(trigger_auto_describe, inputs=[describe_methods, inpaint_input_image, prompt, describe_apply_styles, describe_output_tags, describe_output_chinese, describe_output_artist], outputs=[prompt, style_selections], show_progress=True, queue=True) \
+
+            uov_input_image.change(lambda img: gr.update(visible=img is not None), inputs=uov_input_image, outputs=describe_uov_button, show_progress=False, queue=False)
+
+            describe_uov_button.click(trigger_auto_describe, inputs=[describe_methods, uov_input_image, prompt, describe_apply_styles, describe_output_tags, describe_output_chinese, describe_output_artist], outputs=[prompt, style_selections], show_progress=True, queue=True) \
                 .then(fn=style_sorter.sort_styles, inputs=style_selections, outputs=style_selections, queue=False, show_progress=False) \
                 .then(lambda: None, _js='()=>{refresh_style_localization();}')
+
+            inpaint_input_image.upload(lambda: None, outputs=[], show_progress=False, queue=False) \
+                .then(fn=style_sorter.sort_styles, inputs=style_selections, outputs=style_selections, queue=False, show_progress=False) \
+                .then(lambda: None, _js='()=>{refresh_style_localization();}') \
+                .then(lambda img: gr.update(visible=img is not None), inputs=inpaint_input_image, outputs=describe_inpaint_button, show_progress=False, queue=False)
+
+            describe_inpaint_button.click(trigger_auto_describe, inputs=[describe_methods, inpaint_input_image, prompt, describe_apply_styles, describe_output_tags, describe_output_chinese, describe_output_artist], outputs=[prompt, style_selections], show_progress=True, queue=True) \
+                .then(fn=style_sorter.sort_styles, inputs=style_selections, outputs=style_selections, queue=False, show_progress=False) \
+                .then(lambda: None, _js='()=>{refresh_style_localization();}')
+
             enhance_input_image.upload(lambda: gr.update(value=True), outputs=enhance_checkbox, queue=False, show_progress=False) \
-                .then(trigger_auto_describe, inputs=[describe_methods, enhance_input_image, prompt, describe_apply_styles, describe_output_tags, describe_output_chinese, describe_output_artist], outputs=[prompt, style_selections], show_progress=True, queue=True) \
+                .then(lambda: (gr.update(), gr.update()), inputs=[], outputs=[prompt, style_selections], show_progress=False, queue=False) \
+                .then(fn=style_sorter.sort_styles, inputs=style_selections, outputs=style_selections, queue=False, show_progress=False) \
+                .then(lambda: None, _js='()=>{refresh_style_localization();}')
+            enhance_input_image.change(lambda img: gr.update(visible=img is not None), inputs=enhance_input_image, outputs=describe_enhance_button, show_progress=False, queue=False)
+
+            describe_enhance_button.click(trigger_auto_describe, inputs=[describe_methods, enhance_input_image, prompt, describe_apply_styles, describe_output_tags, describe_output_chinese, describe_output_artist], outputs=[prompt, style_selections], show_progress=True, queue=True) \
                 .then(fn=style_sorter.sort_styles, inputs=style_selections, outputs=style_selections, queue=False, show_progress=False) \
                 .then(lambda: None, _js='()=>{refresh_style_localization();}')
 
