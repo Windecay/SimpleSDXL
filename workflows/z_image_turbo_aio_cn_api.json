@@ -583,7 +583,10 @@
   },
   "196": {
     "inputs": {
-      "model_name": "4x-UltraSharp.pth"
+      "model_name": [
+        "835",
+        0
+      ]
     },
     "class_type": "UpscaleModelLoader",
     "_meta": {
@@ -608,7 +611,10 @@
   },
   "198": {
     "inputs": {
-      "model_name": "4x-UltraSharp.pth"
+      "model_name": [
+        "835",
+        0
+      ]
     },
     "class_type": "UpscaleModelLoader",
     "_meta": {
@@ -656,7 +662,7 @@
     "inputs": {
       "strength": 1,
       "model": [
-        "626",
+        "829",
         0
       ]
     },
@@ -702,7 +708,10 @@
   },
   "219": {
     "inputs": {
-      "model_name": "4xNomosUniDAT_bokeh_jpg.safetensors"
+      "model_name": [
+        "836",
+        0
+      ]
     },
     "class_type": "UpscaleModelLoader",
     "_meta": {
@@ -939,11 +948,11 @@
         11
       ],
       "on_true": [
-        "809",
+        "832",
         0
       ],
       "on_false": [
-        "808",
+        "830",
         0
       ]
     },
@@ -1000,7 +1009,10 @@
   },
   "274": {
     "inputs": {
-      "model_name": "4x-UltraSharp.pth"
+      "model_name": [
+        "835",
+        0
+      ]
     },
     "class_type": "UpscaleModelLoader",
     "_meta": {
@@ -1937,7 +1949,7 @@
     },
     "class_type": "GrowMask",
     "_meta": {
-      "title": "GrowMask"
+      "title": "Grow Mask"
     }
   },
   "370": {
@@ -2409,7 +2421,10 @@
   },
   "410": {
     "inputs": {
-      "model_name": "4x-UltraSharp.pth"
+      "model_name": [
+        "835",
+        0
+      ]
     },
     "class_type": "UpscaleModelLoader",
     "_meta": {
@@ -5137,7 +5152,10 @@
   },
   "800": {
     "inputs": {
-      "name": "Z-Image-Turbo-Fun-Controlnet-Union.safetensors"
+      "name": [
+        "833",
+        0
+      ]
     },
     "class_type": "ModelPatchLoader",
     "_meta": {
@@ -5271,110 +5289,6 @@
     "class_type": "SetLatentNoiseMask",
     "_meta": {
       "title": "Set Latent Noise Mask"
-    }
-  },
-  "808": {
-    "inputs": {
-      "seed": [
-        "417",
-        0
-      ],
-      "steps": [
-        "728",
-        5
-      ],
-      "cfg": [
-        "728",
-        4
-      ],
-      "sampler_name": [
-        "728",
-        7
-      ],
-      "scheduler": [
-        "728",
-        8
-      ],
-      "denoise": [
-        "728",
-        9
-      ],
-      "LanPaint_NumSteps": 2,
-      "LanPaint_PromptMode": "Image First",
-      "LanPaint_Info": "LanPaint KSampler. For more info, visit https://github.com/scraed/LanPaint. If you find it useful, please give a star ⭐️!",
-      "Inpainting_mode": "🖼️ Image Inpainting",
-      "model": [
-        "208",
-        0
-      ],
-      "positive": [
-        "634",
-        0
-      ],
-      "negative": [
-        "1",
-        0
-      ],
-      "latent_image": [
-        "807",
-        0
-      ]
-    },
-    "class_type": "LanPaint_KSampler",
-    "_meta": {
-      "title": "LanPaint KSampler"
-    }
-  },
-  "809": {
-    "inputs": {
-      "seed": [
-        "417",
-        0
-      ],
-      "steps": [
-        "728",
-        5
-      ],
-      "cfg": [
-        "728",
-        4
-      ],
-      "sampler_name": [
-        "728",
-        7
-      ],
-      "scheduler": [
-        "728",
-        8
-      ],
-      "denoise": [
-        "728",
-        9
-      ],
-      "LanPaint_NumSteps": 2,
-      "LanPaint_PromptMode": "Image First",
-      "LanPaint_Info": "LanPaint KSampler. For more info, visit https://github.com/scraed/LanPaint. If you find it useful, please give a star ⭐️!",
-      "Inpainting_mode": "🖼️ Image Inpainting",
-      "model": [
-        "208",
-        0
-      ],
-      "positive": [
-        "634",
-        0
-      ],
-      "negative": [
-        "1",
-        0
-      ],
-      "latent_image": [
-        "807",
-        0
-      ]
-    },
-    "class_type": "LanPaint_KSampler",
-    "_meta": {
-      "title": "LanPaint KSampler"
     }
   },
   "811": {
@@ -5618,6 +5532,188 @@
     "class_type": "easy int",
     "_meta": {
       "title": "Int"
+    }
+  },
+  "828": {
+    "inputs": {
+      "name": [
+        "833",
+        0
+      ]
+    },
+    "class_type": "ModelPatchLoader",
+    "_meta": {
+      "title": "ModelPatchLoader"
+    }
+  },
+  "829": {
+    "inputs": {
+      "strength": 1,
+      "model": [
+        "626",
+        0
+      ],
+      "model_patch": [
+        "828",
+        0
+      ],
+      "vae": [
+        "336",
+        0
+      ],
+      "image": [
+        "217",
+        0
+      ]
+    },
+    "class_type": "QwenImageDiffsynthControlnet",
+    "_meta": {
+      "title": "QwenImageDiffsynthControlnet"
+    }
+  },
+  "830": {
+    "inputs": {
+      "seed": [
+        "417",
+        0
+      ],
+      "steps": [
+        "728",
+        5
+      ],
+      "cfg": [
+        "728",
+        4
+      ],
+      "sampler_name": [
+        "728",
+        7
+      ],
+      "scheduler": [
+        "728",
+        8
+      ],
+      "denoise": [
+        "728",
+        9
+      ],
+      "model": [
+        "834",
+        0
+      ],
+      "positive": [
+        "634",
+        0
+      ],
+      "negative": [
+        "1",
+        0
+      ],
+      "latent_image": [
+        "807",
+        0
+      ]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "KSampler"
+    }
+  },
+  "832": {
+    "inputs": {
+      "seed": [
+        "417",
+        0
+      ],
+      "steps": [
+        "728",
+        5
+      ],
+      "cfg": [
+        "728",
+        4
+      ],
+      "sampler_name": [
+        "728",
+        7
+      ],
+      "scheduler": [
+        "728",
+        8
+      ],
+      "denoise": [
+        "728",
+        9
+      ],
+      "model": [
+        "208",
+        0
+      ],
+      "positive": [
+        "634",
+        0
+      ],
+      "negative": [
+        "1",
+        0
+      ],
+      "latent_image": [
+        "807",
+        0
+      ]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "KSampler"
+    }
+  },
+  "833": {
+    "inputs": {
+      "model_url": "https://www.modelscope.cn/models/PAI/Z-Image-Turbo-Fun-Controlnet-Union-2.0/resolve/master/Z-Image-Turbo-Fun-Controlnet-Union-2.0.safetensors",
+      "model_folder": "model_patches",
+      "run_download": true,
+      "overwrite_existing": false
+    },
+    "class_type": "SimpleModelDownloader",
+    "_meta": {
+      "title": "Simple Model Downloader"
+    }
+  },
+  "834": {
+    "inputs": {
+      "strength": 1,
+      "model": [
+        "626",
+        0
+      ]
+    },
+    "class_type": "DifferentialDiffusion",
+    "_meta": {
+      "title": "Differential Diffusion"
+    }
+  },
+  "835": {
+    "inputs": {
+      "model_url": "https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/upscale_models/4x-UltraSharp.pth",
+      "model_folder": "upscale_models",
+      "run_download": true,
+      "overwrite_existing": false
+    },
+    "class_type": "SimpleModelDownloader",
+    "_meta": {
+      "title": "Simple Model Downloader"
+    }
+  },
+  "836": {
+    "inputs": {
+      "model_url": "https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/upscale_models/4xNomosUniDAT_bokeh_jpg.safetensors",
+      "model_folder": "upscale_models",
+      "run_download": true,
+      "overwrite_existing": false
+    },
+    "class_type": "SimpleModelDownloader",
+    "_meta": {
+      "title": "Simple Model Downloader"
     }
   }
 }

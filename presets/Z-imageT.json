@@ -41,7 +41,7 @@
     "default_styles": [],
     "default_aspect_ratio": "832*1216",
     "default_image_number": 1,
-    "default_overwrite_step": 9,
+    "default_overwrite_step": 8,
     "default_inpaint_engine": "LanPaint",
     "checkpoint_downloads": {},
     "embeddings_downloads": {},
@@ -50,11 +50,8 @@
     "model_list": [
         "diffusion_models,z_image_turbo_bf16.safetensors,12309866400,0,https://modelscope.cn/models/VerStella/z_image_turbo_comfyui/resolve/master/split_files/diffusion_models/z_image_turbo_bf16.safetensors",
         "text_encoders,qwen_3_4b.safetensors,8044982048,0,https://modelscope.cn/models/VerStella/z_image_turbo_comfyui/resolve/master/split_files/text_encoders/qwen_3_4b.safetensors",
-        "model_patches,Z-Image-Turbo-Fun-Controlnet-Union.safetensors,3101572408,0,https://modelscope.cn/models/PAI/Z-Image-Turbo-Fun-Controlnet-Union/resolve/master/Z-Image-Turbo-Fun-Controlnet-Union.safetensors",
         "controlnet,lllyasviel/Annotators/ZoeD_M12_N.pt,1443406099,0,",
         "controlnet,parsing_bisenet.pth,53289463,0,",
-        "upscale_models,4x-UltraSharp.pth,66961958,0,",
-        "upscale_models,4xNomosUniDAT_bokeh_jpg.safetensors,154152604,0,",
         "vae,ae.safetensors,335304388,0,"
         ]
 }

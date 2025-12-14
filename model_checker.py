@@ -503,7 +503,8 @@ def validate_files(packages):
         os.path.join(simplemodels_root, "loras"),
         os.path.join(simplemodels_root, "controlnet"),
         os.path.join(simplemodels_root, "ipadapter"),
-        os.path.join(simplemodels_root, "diffusers")
+        os.path.join(simplemodels_root, "diffusers"),
+        os.path.join(simplemodels_root, "model_patches"),
         ]
         for model_root in MODEL_PATHS_TO_SCAN:
             if not os.path.exists(model_root):
@@ -707,7 +708,7 @@ def delete_partial_files():
     scan_categories = [
         'checkpoints', 'loras', 'controlnet', 'embeddings',
         'vae_approx', 'vae', 'upscale_models', 'inpaint', "ipadapter",
-        'clip', 'clip_vision', 'llms', 'unet', 'diffusers'
+        'clip', 'clip_vision', 'llms', 'unet', 'diffusers', 'model_patches'
     ]
 
     scan_dirs = []
@@ -1427,7 +1428,7 @@ packages = {
         "files": [
             ("diffusion_models/https://modelscope.cn/models/VerStella/z_image_turbo_comfyui/resolve/master/split_files/diffusion_models/z_image_turbo_bf16.safetensors", 12309866400),
             ("text_encoders/https://modelscope.cn/models/VerStella/z_image_turbo_comfyui/resolve/master/split_files/text_encoders/qwen_3_4b.safetensors", 8044982048),
-            ("model_patches/https://modelscope.cn/models/PAI/Z-Image-Turbo-Fun-Controlnet-Union/resolve/master/Z-Image-Turbo-Fun-Controlnet-Union.safetensors", 3101572408),
+            ("model_patches/https://www.modelscope.cn/models/PAI/Z-Image-Turbo-Fun-Controlnet-Union-2.0/resolve/master/Z-Image-Turbo-Fun-Controlnet-Union-2.0.safetensors", 6712485600),
             ("vae/ae.safetensors", 335304388),
             ("upscale_models/4x-UltraSharp.pth", 66961958),
             ("upscale_models/4xNomosUniDAT_bokeh_jpg.safetensors", 154152604),
@@ -2296,7 +2297,8 @@ OBSOLETE_MODELS = [
     "pytorch_model-00006-of-00007.bin",
     "pytorch_model-00007-of-00007.bin",
     "FilmVelvia3.safetensors",
-    "SDXL_FILM_PHOTOGRAPHY_STYLE_V1.safetensors"
+    "SDXL_FILM_PHOTOGRAPHY_STYLE_V1.safetensors",
+    "Z-Image-Turbo-Fun-Controlnet-Union.safetensors"
 ]
 def main():
     print()
