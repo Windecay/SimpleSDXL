@@ -228,14 +228,17 @@ def prepare_text_encoder(async_call=True):
         # TODO: make sure that this is always called in an async way so that users cannot feel it.
         pass
     assert_model_integrity()
-    ldm_patched.modules.model_management.load_models_gpu([final_clip.patcher, final_expansion.patcher])
+    models_to_load = [final_clip.patcher]
+    if final_expansion is not None:
+        models_to_load.append(final_expansion.patcher)
+    ldm_patched.modules.model_management.load_models_gpu(models_to_load)
     return
 
 
 @torch.no_grad()
 @torch.inference_mode()
 def refresh_everything(refiner_model_name, base_model_name, loras,
-                       base_model_additional_loras=None, use_synthetic_refiner=False, vae_name=None):
+                       base_model_additional_loras=None, use_synthetic_refiner=False, vae_name=None, use_expansion=False):
     global final_unet, final_clip, final_vae, final_refiner_unet, final_refiner_vae, final_expansion
 
     final_unet = None
@@ -262,8 +265,10 @@ def refresh_everything(refiner_model_name, base_model_name, loras,
     final_refiner_unet = model_refiner.unet_with_lora
     final_refiner_vae = model_refiner.vae
 
-    if final_expansion is None:
+    if use_expansion and final_expansion is None:
         final_expansion = FooocusExpansion()
+    elif not use_expansion:
+        final_expansion = None
 
     prepare_text_encoder(async_call=True)
     clear_all_caches()
@@ -303,11 +308,14 @@ if modules.config.backend_engine == 'Fooocus':
             import shared
             shared.args.absent_model = True
         else:
+            # Check if Fooocus V2 is in default styles to determine if expansion should be enabled
+            use_expansion = 'Fooocus V2' in modules.config.default_styles
             refresh_everything(
                 refiner_model_name=modules.config.default_refiner_model_name,
                 base_model_name=modules.config.default_base_model_name,
                 loras=get_enabled_loras(modules.config.default_loras),
                 vae_name=modules.config.default_vae,
+                use_expansion=use_expansion
             )
     except Exception as e:
         logger.error(f"加载模型时出错: {str(e)}")

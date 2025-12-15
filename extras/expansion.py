@@ -38,6 +38,28 @@ def remove_pattern(x, pattern):
 
 class FooocusExpansion:
     def __init__(self):
+        # 检查并下载缺失的fooocus_expansion.bin文件
+        import os
+        from modules.config import path_fooocus_expansion
+        from modules.model_loader import load_file_from_url
+
+        required_files = [
+            ('pytorch_model.bin', 'https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/prompt_expansion/fooocus_expansion/pytorch_model.bin'),
+            ('config.json', 'https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/prompt_expansion/fooocus_expansion/config.json'),
+            ('tokenizer_config.json', 'https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/prompt_expansion/fooocus_expansion/tokenizer_config.json'),
+            ('vocab.json', 'https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/prompt_expansion/fooocus_expansion/vocab.json'),
+            ('merges.txt', 'https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/prompt_expansion/fooocus_expansion/merges.txt'),
+            ('special_tokens_map.json', 'https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/prompt_expansion/fooocus_expansion/special_tokens_map.json'),
+            ('positive.txt', 'https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/prompt_expansion/fooocus_expansion/positive.txt'),
+            ('tokenizer.json', 'https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/prompt_expansion/fooocus_expansion/tokenizer.json')
+        ]
+
+        for file_name, url in required_files:
+            file_path = os.path.join(path_fooocus_expansion, file_name)
+            if not os.path.exists(file_path):
+                logger.info(f'Downloading missing file: {file_name}')
+                load_file_from_url(url=url, model_dir=path_fooocus_expansion, file_name=file_name)
+
         self.tokenizer = AutoTokenizer.from_pretrained(path_fooocus_expansion)
 
         positive_words = open(os.path.join(path_fooocus_expansion, 'positive.txt'),

@@ -973,9 +973,10 @@ def worker():
             pipeline.refresh_everything(refiner_model_name=async_task.refiner_model_name,
                                     base_model_name=async_task.base_model_name,
                                     loras=loras, base_model_additional_loras=base_model_additional_loras,
-                                    use_synthetic_refiner=use_synthetic_refiner, vae_name=async_task.vae_name)
+                                    use_synthetic_refiner=use_synthetic_refiner, vae_name=async_task.vae_name,
+                                    use_expansion=use_expansion)
             pipeline.set_clip_skip(async_task.clip_skip)
-        else:
+        elif use_expansion:
             pipeline.reload_expansion()
 
         if use_expansion:
@@ -1452,10 +1453,13 @@ def worker():
                                                          async_task.disable_seed_increment, use_expansion, use_style,
                                                          use_synthetic_refiner, current_progress, advance_progress=True)
         else:
+            # Determine use_expansion based on style selections
+            skip_use_expansion = fooocus_expansion in async_task.style_selections
             pipeline.refresh_everything(refiner_model_name=async_task.refiner_model_name,
                                     base_model_name=async_task.base_model_name,
                                     loras=async_task.loras,
-                                    vae_name=async_task.vae_name)
+                                    vae_name=async_task.vae_name,
+                                    use_expansion=skip_use_expansion)
             pipeline.set_clip_skip(async_task.clip_skip)
 
         if async_task.task_class in flags.comfy_classes:
