@@ -857,7 +857,7 @@ def load_weights(transformer, sd=None, weight_dtype=None, base_dtype=None,
                 vace_block_idx = int(name.split("vace_blocks.")[1].split(".")[0])
             except Exception:
                 vace_block_idx = None
-        elif name.startswith("blocks.") and "face" not in name:
+        elif name.startswith("blocks.") and "face" not in name and "controlnet_blocks." not in name:
             try:
                 block_idx = int(name.split("blocks.")[1].split(".")[0])
             except Exception:
@@ -1223,11 +1223,8 @@ class WanVideoModelLoader:
             model_type = "no_cross_attn" #minimaxremover
         elif "model_type.Wan2_1-FLF2V-14B-720P" in sd or "img_emb.emb_pos" in sd or "flf2v" in model.lower():
             model_type = "fl2v"
-        elif in_channels in [36, 48]:
-            if "blocks.0.cross_attn.k_img.weight" not in sd:
-                model_type = "t2v"
-            else:
-                model_type = "i2v"
+        if "blocks.0.cross_attn.k_img.weight" in sd:
+            model_type = "i2v"
         elif in_channels == 16:
             model_type = "t2v"
         elif "control_adapter.conv.weight" in sd:
@@ -1512,6 +1509,11 @@ class WanVideoModelLoader:
                 FactorConv3d(in_channels=in_dim_c, out_channels=in_dim_c, kernel_size=(3, 3, 3), stride=1), nn.SiLU())
             transformer.condition_embedding_align = PoseRefNetNoBNV3(in_channels_x=16, in_channels_c=16, hidden_dim=128, num_heads=8) # Frame-wise Attention Alignment Unit
 
+        # SCAIL
+        if "patch_embedding_pose.weight" in sd:
+            log.info("SCAIL model detected, patching model...")
+            pose_dim = sd["patch_embedding_pose.weight"].shape[1]
+            transformer.patch_embedding_pose = nn.Conv3d(pose_dim, dim, kernel_size=patch_size, stride=patch_size)
 
         if "image_to_cond.conv_in.bias" in sd:
             # One-to-all

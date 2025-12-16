@@ -1,5 +1,11 @@
 # ComfyUI wrapper nodes for [WanVideo](https://github.com/Wan-Video/Wan2.1) and related models.
 
+
+## Memory use update (again)
+
+I've made everythign less reliant on torch.compile for VRAM efficiency, so things should work better even without it. Also figured workaround for some issues when using compile that made first run use drastically more VRAM, issue I battled with myself a lot.
+
+
 ## Update notification that can affect memory use in old workflows
 
 In a recent update I changed how unmerged LoRA weights are handled:
@@ -107,6 +113,12 @@ Bindweave: https://github.com/bytedance/BindWeave
 Training free techniques:
 
 TimeToMove: https://github.com/time-to-move/TTM
+
+SteadyDancer: https://github.com/MCG-NJU/SteadyDancer
+
+One-to-all-Animation: https://github.com/ssj9596/One-to-All-Animation
+
+SCAIL: https://github.com/zai-org/SCAIL
 
 
 Not exactly Wan model, but close enough to work with the code base:

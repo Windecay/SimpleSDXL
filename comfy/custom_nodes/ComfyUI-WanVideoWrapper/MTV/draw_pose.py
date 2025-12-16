@@ -31,7 +31,7 @@ def p3d_to_p2d(point_3d, height, width):    # point3d n*1024*3
 
 def get_pose_images(smpl_data, offset):
     pose_images = []
-    for data in smpl_data:   
+    for data in smpl_data:
         if isinstance(data, np.ndarray):
             joints3d = data
         else:
@@ -43,28 +43,33 @@ def get_pose_images(smpl_data, offset):
     return pose_images
 
 
-def get_control_conditions(poses, h, w):
-    video_transforms = transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5], inplace=True)
+def get_control_conditions(poses, h, w, stick_width=1.0, point_radius=2, style="original"):
     control_images = []
     for idx, pose in enumerate(poses):
         canvas = np.zeros(shape=(h, w, 3), dtype=np.uint8)
         try:
             joints3d = p3d_to_p2d(pose, h, w)
-            canvas = draw_3d_points(
-                canvas,
-                joints3d[0],
-                stickwidth=int(h / 350),
-            )
+            if style == "original":
+                canvas = draw_3d_points(
+                    canvas,
+                    joints3d[0],
+                    stickwidth=int(h / 350 * stick_width),
+                    r=point_radius,
+                )
+            elif style == "scail":
+                canvas = draw_3d_points_scail(
+                    canvas,
+                    joints3d[0],
+                    stickwidth=int(h / 350 * stick_width),
+                    r=point_radius,
+                )
             resized_canvas = cv2.resize(canvas, (w, h))
             # Image.fromarray(resized_canvas).save(f'tmp/{idx}_pose.jpg')
             control_images.append(resized_canvas)
-        except Exception as e:
-            print("wrong:", e)
+        except Exception:
             control_images.append(Image.fromarray(canvas))
     control_pixel_values = np.array(control_images)
     control_pixel_values = torch.from_numpy(control_pixel_values).contiguous() / 255.
-    print("control_pixel_values.shape", control_pixel_values.shape)
-    #control_pixel_values = video_transforms(control_pixel_values)
     return control_pixel_values
 
 
@@ -138,5 +143,71 @@ def draw_3d_points(canvas, points, stickwidth=2, r=2, draw_line=True):
             angle = math.degrees(math.atan2(X[0] - X[1], Y[0] - Y[1]))
             polygon = cv2.ellipse2Poly((mY, mX), (int(length / 2), stickwidth), int(angle), 0, 360, 1)
             cv2.fillConvexPoly(canvas, polygon, connection_colors[i%17])
+
+    return canvas
+
+def draw_3d_points_scail(canvas, points, stickwidth=2, r=2, draw_line=True):
+
+    connetions = [
+        [15,12],[12, 16],[16, 18],[18, 20],[20, 22],  # 0-4: Left arm chain
+        [12,17],[17,19],[19,21],                       # 5-7: Right arm chain
+        [21,23],                                       # 8: Right hand
+        [12,1],[1,4],[4,7],                           # 9-11: Neck to left leg (hip, thigh, shin)
+        [12,2],[2,5],[5,8],                           # 12-14: Neck to right leg (hip, thigh, shin)
+    ]
+
+    # Warm colors for right side, cool colors for left side
+    connection_colors = [
+        [180, 180, 180],    # 0: [15,12] - L. clavicle (Bright Cyan)
+        [0, 200, 255],    # 1: [12,16] - L. shoulder (Bright Cyan)
+        [0, 120, 255],    # 2: [16,18] - L. upper arm (Bright Blue)
+        [0, 60, 255],     # 3: [18,20] - L. forearm (Deep Blue)
+        [60, 0, 255],     # 4: [20,22] - L. hand (Blue-Purple)
+        [255, 0, 0],      # 5: [12,17] - R. clavicle (Bright Red)
+        [255, 100, 0],    # 6: [17,19] - R. upper arm (Bright Orange)
+        [255, 180, 0],    # 7: [19,21] - R. forearm (Golden Orange)
+        [255, 255, 0],    # 8: [21,23] - R. hand (Bright Yellow)
+        [30, 27, 160],    # 9: [12,1] - Neck to L. hip (purple-blue)
+        [73, 27, 177],    # 10: [1,4] - L. thigh (purple)
+        [145, 27, 194],    # 11: [4,7] - L. shin (magenta)
+        [200, 255, 100],    # 12: [12,2] - Neck to R. hip (yellow)
+        [54, 201, 52],     # 13: [2,5] - R. thigh (green)
+        [30, 176, 85],     # 14: [5,8] - R. shin (green)
+    ]
+
+    # draw line
+    if draw_line:
+        # Collect all joints that are part of connections
+        joints_in_use = set()
+        for connection in connetions:
+            joints_in_use.add(connection[0])
+            joints_in_use.add(connection[1])
+
+        for i in range(len(connetions)):
+            point1_idx, point2_idx = connetions[i][0:2]
+            point1 = points[point1_idx]
+            point2 = points[point2_idx]
+            x1, y1 = int(point1[0]), int(point1[1])
+            x2, y2 = int(point2[0]), int(point2[1])
+            cv2.line(canvas, (x1, y1), (x2, y2), connection_colors[i], stickwidth)
+
+    # draw points for joints that have connections
+    joints_in_use = set()
+    for connection in connetions:
+        joints_in_use.add(connection[0])
+        joints_in_use.add(connection[1])
+
+    for joint_idx in joints_in_use:
+        if joint_idx >= len(points):
+            continue
+        x, y = points[joint_idx][0:2]
+        x, y = int(x), int(y)
+        # Use the color from the first connection involving this joint
+        joint_color = [180, 180, 180]  # default grey
+        for i, connection in enumerate(connetions):
+            if connection[0] == joint_idx or connection[1] == joint_idx:
+                joint_color = connection_colors[i]
+                break
+        cv2.circle(canvas, (x, y), r, joint_color, thickness=-1)
 
     return canvas

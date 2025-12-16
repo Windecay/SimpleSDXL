@@ -1,0 +1,825 @@
+{
+  "id": "c6e410bc-5e2c-460b-ae81-c91b6094fbb1",
+  "revision": 0,
+  "last_node_id": 381,
+  "last_link_id": 706,
+  "nodes": [
+    {
+      "id": 379,
+      "type": "VHS_LoadVideo",
+      "pos": [
+        -728.1399554193044,
+        -1903.2296105502905
+      ],
+      "size": [
+        255.8291015625,
+        743.5855352640658
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "meta_batch",
+          "shape": 7,
+          "type": "VHS_BatchManager",
+          "link": null
+        },
+        {
+          "name": "vae",
+          "shape": 7,
+          "type": "VAE",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            684
+          ]
+        },
+        {
+          "name": "frame_count",
+          "type": "INT",
+          "links": []
+        },
+        {
+          "name": "audio",
+          "type": "AUDIO",
+          "links": null
+        },
+        {
+          "name": "video_info",
+          "type": "VHS_VIDEOINFO",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-videohelpersuite",
+        "ver": "8550981384301e9bc5bfea83e5c2c75258102593",
+        "Node name for S&R": "VHS_LoadVideo"
+      },
+      "widgets_values": {
+        "video": "vid.mp4",
+        "force_rate": 0,
+        "custom_width": 0,
+        "custom_height": 0,
+        "frame_load_cap": 81,
+        "skip_first_frames": 0,
+        "select_every_nth": 2,
+        "format": "AnimateDiff",
+        "videopreview": {
+          "hidden": false,
+          "paused": false,
+          "params": {
+            "filename": "vid.mp4",
+            "type": "input",
+            "format": "video/mp4",
+            "force_rate": 0,
+            "custom_width": 0,
+            "custom_height": 0,
+            "frame_load_cap": 81,
+            "skip_first_frames": 0,
+            "select_every_nth": 2
+          }
+        }
+      }
+    },
+    {
+      "id": 358,
+      "type": "OnnxDetectionModelLoader",
+      "pos": [
+        -731.2840742077292,
+        -2127.3788215536956
+      ],
+      "size": [
+        304.0484375,
+        106
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "model",
+          "type": "POSEMODEL",
+          "links": [
+            677,
+            680
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "ComfyUI-WanAnimatePreprocess",
+        "ver": "65502e208ae89231619e3def41bc8bafe6fc4f1e",
+        "Node name for S&R": "OnnxDetectionModelLoader"
+      },
+      "widgets_values": [
+        "vitpose-l-wholebody.onnx",
+        "onnx\\yolov10m.onnx",
+        "CUDAExecutionProvider"
+      ]
+    },
+    {
+      "id": 361,
+      "type": "NLFPredict",
+      "pos": [
+        485.2315622592827,
+        -2157.1952980266337
+      ],
+      "size": [
+        157.564453125,
+        46
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "NLFMODEL",
+          "link": 627
+        },
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 701
+        }
+      ],
+      "outputs": [
+        {
+          "name": "pose_results",
+          "type": "NLFPRED",
+          "links": [
+            656
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "ComfyUI-WanVideoWrapper",
+        "ver": "056d8ad96ffa5a223a8cd88c900a573a8d450e22",
+        "Node name for S&R": "NLFPredict"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 362,
+      "type": "DownloadAndLoadNLFModel",
+      "pos": [
+        -279.5657072597091,
+        -2231.190892106357
+      ],
+      "size": [
+        606.9488335754912,
+        82
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "nlf_model",
+          "type": "NLFMODEL",
+          "links": [
+            627
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "ComfyUI-WanVideoWrapper",
+        "ver": "056d8ad96ffa5a223a8cd88c900a573a8d450e22",
+        "Node name for S&R": "DownloadAndLoadNLFModel"
+      },
+      "widgets_values": [
+        "https://github.com/isarandi/nlf/releases/download/v0.3.2/nlf_l_multi_0.3.2.torchscript",
+        true
+      ]
+    },
+    {
+      "id": 359,
+      "type": "LoadImage",
+      "pos": [
+        -369.63293579008285,
+        -1510.3591727642465
+      ],
+      "size": [
+        282.798828125,
+        314
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            698
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.4.0",
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "anya.jpg",
+        "image"
+      ]
+    },
+    {
+      "id": 381,
+      "type": "Reroute",
+      "pos": [
+        144.49613132898912,
+        -2052.387551799464
+      ],
+      "size": [
+        75,
+        26
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "",
+          "type": "*",
+          "link": 700
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "IMAGE",
+          "links": [
+            701,
+            702
+          ]
+        }
+      ],
+      "properties": {
+        "showOutputText": false,
+        "horizontal": false
+      }
+    },
+    {
+      "id": 380,
+      "type": "VHS_VideoCombine",
+      "pos": [
+        1061.113369865757,
+        -2147.425691347535
+      ],
+      "size": [
+        329.65692831178876,
+        889.8996245456303
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 685
+        },
+        {
+          "name": "audio",
+          "shape": 7,
+          "type": "AUDIO",
+          "link": null
+        },
+        {
+          "name": "meta_batch",
+          "shape": 7,
+          "type": "VHS_BatchManager",
+          "link": null
+        },
+        {
+          "name": "vae",
+          "shape": 7,
+          "type": "VAE",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Filenames",
+          "type": "VHS_FILENAMES",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-videohelpersuite",
+        "ver": "8550981384301e9bc5bfea83e5c2c75258102593",
+        "Node name for S&R": "VHS_VideoCombine"
+      },
+      "widgets_values": {
+        "frame_rate": 16,
+        "loop_count": 0,
+        "filename_prefix": "SCAIL_pose",
+        "format": "video/h264-mp4",
+        "pix_fmt": "yuv420p",
+        "crf": 19,
+        "save_metadata": true,
+        "trim_to_audio": false,
+        "pingpong": false,
+        "save_output": false,
+        "videopreview": {
+          "hidden": false,
+          "paused": false,
+          "params": {
+            "filename": "SCAIL_pose_00030.mp4",
+            "subfolder": "",
+            "type": "temp",
+            "format": "video/h264-mp4",
+            "frame_rate": 16,
+            "workflow": "SCAIL_pose_00030.png",
+            "fullpath": "N:\\AI\\ComfyUI\\temp\\SCAIL_pose_00030.mp4"
+          }
+        }
+      }
+    },
+    {
+      "id": 376,
+      "type": "PoseDetectionVitPoseToDWPose",
+      "pos": [
+        330.07991567045417,
+        -1961.6148428238132
+      ],
+      "size": [
+        271.9595703125,
+        46
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "vitpose_model",
+          "type": "POSEMODEL",
+          "link": 677
+        },
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 702
+        }
+      ],
+      "outputs": [
+        {
+          "name": "dw_poses",
+          "type": "DWPOSES",
+          "links": [
+            704
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PoseDetectionVitPoseToDWPose"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 370,
+      "type": "RenderNLFPoses",
+      "pos": [
+        747.8706167185883,
+        -2157.040108369948
+      ],
+      "size": [
+        270,
+        146
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "nlf_poses",
+          "type": "NLFPRED",
+          "link": 656
+        },
+        {
+          "name": "dw_poses",
+          "shape": 7,
+          "type": "DWPOSES",
+          "link": 704
+        },
+        {
+          "name": "ref_dw_pose",
+          "shape": 7,
+          "type": "DWPOSES",
+          "link": 706
+        },
+        {
+          "name": "width",
+          "type": "INT",
+          "widget": {
+            "name": "width"
+          },
+          "link": 688
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "widget": {
+            "name": "height"
+          },
+          "link": 689
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            685
+          ]
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "RenderNLFPoses"
+      },
+      "widgets_values": [
+        512,
+        896
+      ]
+    },
+    {
+      "id": 372,
+      "type": "ImageResizeKJv2",
+      "pos": [
+        -379.6838809890405,
+        -1915.7782190865344
+      ],
+      "size": [
+        270,
+        336
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 684
+        },
+        {
+          "name": "mask",
+          "shape": 7,
+          "type": "MASK",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            700
+          ]
+        },
+        {
+          "name": "width",
+          "type": "INT",
+          "links": [
+            688,
+            695
+          ]
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "links": [
+            689,
+            696
+          ]
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-kjnodes",
+        "ver": "1b9af2322c009e0171f1c7c2f8457ca69afa1ec0",
+        "Node name for S&R": "ImageResizeKJv2"
+      },
+      "widgets_values": [
+        512,
+        896,
+        "bilinear",
+        "crop",
+        "0, 0, 0",
+        "center",
+        2,
+        "cpu",
+        "<tr><td>Output: </td><td><b>81</b> x <b>512</b> x <b>896 | 425.25MB</b></td></tr>"
+      ]
+    },
+    {
+      "id": 374,
+      "type": "ImageResizeKJv2",
+      "pos": [
+        -46.738037813889264,
+        -1635.669074975477
+      ],
+      "size": [
+        270,
+        336
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 698
+        },
+        {
+          "name": "mask",
+          "shape": 7,
+          "type": "MASK",
+          "link": null
+        },
+        {
+          "name": "width",
+          "type": "INT",
+          "widget": {
+            "name": "width"
+          },
+          "link": 695
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "widget": {
+            "name": "height"
+          },
+          "link": 696
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            682
+          ]
+        },
+        {
+          "name": "width",
+          "type": "INT",
+          "links": null
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "links": null
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-kjnodes",
+        "ver": "1b9af2322c009e0171f1c7c2f8457ca69afa1ec0",
+        "Node name for S&R": "ImageResizeKJv2"
+      },
+      "widgets_values": [
+        512,
+        896,
+        "bilinear",
+        "pad",
+        "0, 0, 0",
+        "center",
+        2,
+        "cpu",
+        "<tr><td>Output: </td><td><b>1</b> x <b>512</b> x <b>896 | 5.25MB</b></td></tr>"
+      ]
+    },
+    {
+      "id": 377,
+      "type": "PoseDetectionVitPoseToDWPose",
+      "pos": [
+        361.20948481109036,
+        -1818.3087110204879
+      ],
+      "size": [
+        271.9595703125,
+        46
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "vitpose_model",
+          "type": "POSEMODEL",
+          "link": 680
+        },
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 682
+        }
+      ],
+      "outputs": [
+        {
+          "name": "dw_poses",
+          "type": "DWPOSES",
+          "links": [
+            706
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PoseDetectionVitPoseToDWPose"
+      },
+      "widgets_values": []
+    }
+  ],
+  "links": [
+    [
+      627,
+      362,
+      0,
+      361,
+      0,
+      "NLFMODEL"
+    ],
+    [
+      656,
+      361,
+      0,
+      370,
+      0,
+      "NLFPRED"
+    ],
+    [
+      677,
+      358,
+      0,
+      376,
+      0,
+      "POSEMODEL"
+    ],
+    [
+      680,
+      358,
+      0,
+      377,
+      0,
+      "POSEMODEL"
+    ],
+    [
+      682,
+      374,
+      0,
+      377,
+      1,
+      "IMAGE"
+    ],
+    [
+      684,
+      379,
+      0,
+      372,
+      0,
+      "IMAGE"
+    ],
+    [
+      685,
+      370,
+      0,
+      380,
+      0,
+      "IMAGE"
+    ],
+    [
+      688,
+      372,
+      1,
+      370,
+      3,
+      "INT"
+    ],
+    [
+      689,
+      372,
+      2,
+      370,
+      4,
+      "INT"
+    ],
+    [
+      695,
+      372,
+      1,
+      374,
+      2,
+      "INT"
+    ],
+    [
+      696,
+      372,
+      2,
+      374,
+      3,
+      "INT"
+    ],
+    [
+      698,
+      359,
+      0,
+      374,
+      0,
+      "IMAGE"
+    ],
+    [
+      700,
+      372,
+      0,
+      381,
+      0,
+      "IMAGE"
+    ],
+    [
+      701,
+      381,
+      0,
+      361,
+      1,
+      "IMAGE"
+    ],
+    [
+      702,
+      381,
+      0,
+      376,
+      1,
+      "IMAGE"
+    ],
+    [
+      704,
+      376,
+      0,
+      370,
+      1,
+      "DWPOSES"
+    ],
+    [
+      706,
+      377,
+      0,
+      370,
+      2,
+      "DWPOSES"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.8140274938684753,
+      "offset": [
+        1341.9401489123059,
+        2475.387199967974
+      ]
+    },
+    "frontendVersion": "1.35.3",
+    "workflowRendererVersion": "LG",
+    "node_versions": {
+      "ComfyUI-WanVideoWrapper": "5a2383621a05825d0d0437781afcb8552d9590fd",
+      "comfy-core": "0.3.26",
+      "ComfyUI-VideoHelperSuite": "0a75c7958fe320efcb052f1d9f8451fd20c730a8"
+    },
+    "VHS_latentpreview": true,
+    "VHS_latentpreviewrate": 0,
+    "VHS_MetadataImage": true,
+    "VHS_KeepIntermediate": true
+  },
+  "version": 0.4
+}

@@ -160,6 +160,7 @@ class WanMove_native:
     RETURN_NAMES = ("positive", "tracks")
     FUNCTION = "patchcond"
     CATEGORY = "WanVideoWrapper"
+    DEPRECATED = True
 
     def patchcond(self, positive, track_coords, track_mask=None):
 

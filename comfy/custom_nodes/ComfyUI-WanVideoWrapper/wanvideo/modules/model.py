@@ -2,6 +2,7 @@
 import math
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from einops import repeat, rearrange
 from ...enhance_a_video.enhance import get_feta_scores
 import time
@@ -629,8 +630,8 @@ class WanT2VCrossAttention(WanSelfAttention):
         self.ip_adapter = None
         self.k_fusion = None
 
-    def forward(self, x, context, grid_sizes=None, clip_embed=None, audio_proj=None, audio_scale=1.0, 
-                num_latent_frames=21, nag_params={}, nag_context=None, rope_func="comfy", 
+    def forward(self, x, context, grid_sizes=None, clip_embed=None, audio_proj=None, audio_scale=1.0,
+                num_latent_frames=21, nag_params={}, nag_context=None, rope_func="comfy",
                 inner_t=None, inner_c=None, cross_freqs=None,
                 adapter_proj=None, adapter_attn_mask=None, ip_scale=1.0, orig_seq_len=None, lynx_x_ip=None, lynx_ip_scale=1.0, num_cond_latents=None, **kwargs):
         b, n, d = x.size(0), self.num_heads, self.head_dim
@@ -725,8 +726,8 @@ class WanI2VCrossAttention(WanSelfAttention):
         self.norm_k_img = WanRMSNorm(out_features, eps=eps) if qk_norm else nn.Identity()
         self.attention_mode = attention_mode
 
-    def forward(self, x, context, grid_sizes=None, clip_embed=None, audio_proj=None, 
-                audio_scale=1.0, num_latent_frames=21, nag_params={}, nag_context=None, rope_func="comfy", 
+    def forward(self, x, context, grid_sizes=None, clip_embed=None, audio_proj=None,
+                audio_scale=1.0, num_latent_frames=21, nag_params={}, nag_context=None, rope_func="comfy",
                 adapter_proj=None, adapter_attn_mask=None, ip_scale=1.0, orig_seq_len=None, **kwargs):
         r"""
         Args:
@@ -734,6 +735,7 @@ class WanI2VCrossAttention(WanSelfAttention):
             context(Tensor): Shape [B, L2, C]
         """
         b, n, d = x.size(0), self.num_heads, self.head_dim
+
         # compute query
         q = self.norm_q(self.q(x).to(self.norm_q.weight.dtype),num_chunks=2 if rope_func == "comfy_chunked" else 1).view(b, -1, n, d).to(x.dtype)
 
@@ -787,7 +789,7 @@ class WanI2VCrossAttention(WanSelfAttention):
             x = x + adapter_x * ip_scale
 
         return self.o(x)
-    
+
 class WanHuMoCrossAttention(WanSelfAttention):
 
     def __init__(self, in_features, out_features, num_heads, kv_dim=None, qk_norm=True, eps=1e-6, attention_mode='sdpa', rms_norm_function="default"):
@@ -2125,7 +2127,9 @@ class WanModel(torch.nn.Module):
             return x.add(residual_out, alpha=strength)
 
 
-    def rope_encode_comfy(self, t, h, w, freq_offset=0, t_start=0, attn_cond_shape=None, steps_t=None, steps_h=None, steps_w=None, ntk_alphas=[1,1,1], device=None, dtype=None):
+    def rope_encode_comfy(self, t, h, w, freq_offset=0, t_start=0, ref_frame_shape=None, pose_frame_shape=None,
+                          steps_t=None, steps_h=None, steps_w=None, ntk_alphas=[1,1,1], device=None, dtype=None):
+
         patch_size = self.patch_size
         t_len = ((t + (patch_size[0] // 2)) // patch_size[0])
         h_len = ((h + (patch_size[1] // 2)) // patch_size[1])
@@ -2138,39 +2142,69 @@ class WanModel(torch.nn.Module):
         if steps_w is None:
             steps_w = w_len
 
+        # Main frames position IDs
         img_ids = torch.zeros((steps_t, steps_h, steps_w, 3), device=device, dtype=dtype)
         img_ids[:, :, :, 0] = img_ids[:, :, :, 0] + torch.linspace(t_start+freq_offset, t_start + (t_len - 1), steps=steps_t, device=device, dtype=dtype).reshape(-1, 1, 1)
         img_ids[:, :, :, 1] = img_ids[:, :, :, 1] + torch.linspace(freq_offset, h_len - 1, steps=steps_h, device=device, dtype=dtype).reshape(1, -1, 1)
         img_ids[:, :, :, 2] = img_ids[:, :, :, 2] + torch.linspace(freq_offset, w_len - 1, steps=steps_w, device=device, dtype=dtype).reshape(1, 1, -1)
         img_ids = img_ids.reshape(1, -1, img_ids.shape[-1])
-        if attn_cond_shape is not None:
-            F_cond, H_cond, W_cond = attn_cond_shape[2], attn_cond_shape[3], attn_cond_shape[4]
+
+        segments = [img_ids]  # Start with main frames
+
+        # Reference frames position IDs
+        if ref_frame_shape is not None:
+            F_cond, H_cond, W_cond = ref_frame_shape[-3], ref_frame_shape[-2], ref_frame_shape[-1]
             cond_f_len = ((F_cond + (self.patch_size[0] // 2)) // self.patch_size[0])
             cond_h_len = ((H_cond + (self.patch_size[1] // 2)) // self.patch_size[1])
             cond_w_len = ((W_cond + (self.patch_size[2] // 2)) // self.patch_size[2])
             cond_img_ids = torch.zeros((cond_f_len, cond_h_len, cond_w_len, 3), device=device, dtype=dtype)
-            
-            #shift
-            shift_f_size = 81 # Default value
-            shift_f = False
-            if shift_f:
-                cond_img_ids[:, :, :, 0] = cond_img_ids[:, :, :, 0] + torch.linspace(shift_f_size, shift_f_size + cond_f_len - 1,steps=cond_f_len, device=device, dtype=dtype).reshape(-1, 1, 1)
-            else:
-                cond_img_ids[:, :, :, 0] = cond_img_ids[:, :, :, 0] + torch.linspace(0, cond_f_len - 1, steps=cond_f_len, device=device, dtype=dtype).reshape(-1, 1, 1)
+
+            cond_img_ids[:, :, :, 0] = cond_img_ids[:, :, :, 0] + torch.linspace(0, cond_f_len - 1, steps=cond_f_len, device=device, dtype=dtype).reshape(-1, 1, 1)
             cond_img_ids[:, :, :, 1] = cond_img_ids[:, :, :, 1] + torch.linspace(h_len, h_len + cond_h_len - 1, steps=cond_h_len, device=device, dtype=dtype).reshape(1, -1, 1)
             cond_img_ids[:, :, :, 2] = cond_img_ids[:, :, :, 2] + torch.linspace(w_len, w_len + cond_w_len - 1, steps=cond_w_len, device=device, dtype=dtype).reshape(1, 1, -1)
 
-            # Combine original and conditional position ids
-            #img_ids = repeat(img_ids, "t h w c -> b (t h w) c", b=1)
-            #cond_img_ids = repeat(cond_img_ids, "t h w c -> b (t h w) c", b=1)
-            cond_img_ids = cond_img_ids.reshape(1, -1, cond_img_ids.shape[-1])
-            combined_img_ids = torch.cat([img_ids, cond_img_ids], dim=1)
-            
-            # Generate RoPE frequencies for the combined positions
-            freqs = self.rope_embedder(combined_img_ids, ntk_alphas).movedim(1, 2)
-        else:
-            freqs = self.rope_embedder(img_ids, ntk_alphas).movedim(1, 2)
+            segments.insert(0, cond_img_ids.reshape(1, -1, cond_img_ids.shape[-1]))  # Ref frames come first
+
+        # Pose frames position IDs
+        if pose_frame_shape is not None:
+            F_pose, H_pose, W_pose = pose_frame_shape[-3], pose_frame_shape[-2], pose_frame_shape[-1]
+
+            downscale = H_pose != h
+            pose_f_len_full = ((F_pose + (self.patch_size[0] // 2)) // self.patch_size[0])
+            pose_h_len_full = (((H_pose * (2 if downscale else 1)) + (self.patch_size[1] // 2)) // self.patch_size[1])  # 2x height
+            pose_w_len_full = (((W_pose * (2 if downscale else 1)) + (self.patch_size[2] // 2)) // self.patch_size[2])  # 2x width
+
+            pose_img_ids = torch.zeros((pose_f_len_full, pose_h_len_full, pose_w_len_full, 3), device=device, dtype=dtype)
+            global_h_offset, global_w_offset = 0, 120  # global spatial offset to separate pose from main frames spatially (SCAIL uses 120 as offset)
+            pose_img_ids[:, :, :, 0] = pose_img_ids[:, :, :, 0] + torch.linspace(t_start+freq_offset, t_start + (pose_f_len_full - 1), steps=pose_f_len_full, device=device, dtype=dtype).reshape(-1, 1, 1)
+            pose_img_ids[:, :, :, 1] = pose_img_ids[:, :, :, 1] + torch.linspace(global_h_offset + freq_offset, global_h_offset + pose_h_len_full - 1, steps=pose_h_len_full, device=device, dtype=dtype).reshape(1, -1, 1)
+            pose_img_ids[:, :, :, 2] = pose_img_ids[:, :, :, 2] + torch.linspace(global_w_offset + freq_offset, global_w_offset + pose_w_len_full - 1, steps=pose_w_len_full, device=device, dtype=dtype).reshape(1, 1, -1)
+
+            segments.append(pose_img_ids.reshape(1, -1, pose_img_ids.shape[-1]))
+
+        combined_img_ids = torch.cat(segments, dim=1)
+        freqs = self.rope_embedder(combined_img_ids, ntk_alphas).movedim(1, 2)
+
+        # Downsample pose frequencies to match actual pose input resolution
+        if pose_frame_shape is not None and downscale:
+            pose_h_len_actual = ((H_pose + (self.patch_size[1] // 2)) // self.patch_size[1])
+            pose_w_len_actual = ((W_pose + (self.patch_size[2] // 2)) // self.patch_size[2])
+
+            pose_start_idx = freqs.shape[1] - pose_f_len_full * pose_h_len_full * pose_w_len_full
+            main_freqs, pose_freqs = freqs[:, :pose_start_idx], freqs[:, pose_start_idx:]
+
+            B, _, heads, dim, _, _ = pose_freqs.shape
+            # Reshape and pool: (B, L, heads, dim, 2, 2) -> pool H,W -> (B, L', heads, dim, 2, 2)
+            pose_freqs = pose_freqs.reshape(B, pose_f_len_full, pose_h_len_full, pose_w_len_full, heads, dim, 2, 2)
+            pose_freqs = pose_freqs.permute(0, 1, 4, 5, 6, 7, 2, 3).reshape(-1, pose_h_len_full, pose_w_len_full)
+            pose_freqs = F.avg_pool2d(pose_freqs, kernel_size=2, stride=2)
+            pose_freqs = pose_freqs.reshape(B, pose_f_len_full, heads, dim, 2, 2, pose_h_len_actual, pose_w_len_actual)
+            pose_freqs = pose_freqs.permute(0, 1, 6, 7, 2, 3, 4, 5).reshape(B, -1, heads, dim, 2, 2)
+
+            freqs = torch.cat([main_freqs, pose_freqs], dim=1)
+
         return freqs
+
 
     def forward(
         self, x, t, context, seq_len,
@@ -2212,7 +2246,8 @@ class WanModel(torch.nn.Module):
         num_cond_latents=None,
         add_text_emb=None,
         sdancer_input=None,  # SteadyDancer
-        one_to_all_input=None, one_to_all_controlnet_strength=0.0 # One-to-All
+        one_to_all_input=None, one_to_all_controlnet_strength=0.0, # One-to-All
+        scail_input=None,  # SCAIL pose
     ):
         r"""
         Forward pass through the diffusion model
@@ -2296,6 +2331,7 @@ class WanModel(torch.nn.Module):
            freqs = freqs.to(device)
 
         _, F, H, W = x[0].shape
+        ref_frame_shape = pose_frame_shape = None
 
         sdancer_enabled = False
         if sdancer_input is not None and sdancer_input['start_percent'] <= current_step_percentage <= sdancer_input['end_percent']:
@@ -2348,12 +2384,24 @@ class WanModel(torch.nn.Module):
                 token_replace_start = (H // self.patch_size[1]) * (W // self.patch_size[2]) # skip first (ref) frame
                 replace_token_num = num_latent_frames_to_replace * token_replace_start # zero next frames
 
+        # SCAIL ref
+        if scail_input is not None:
+            ref_latent = scail_input.get("ref_latent_pos", None) if not is_uncond else scail_input.get("ref_latent_neg", None)
+            if ref_latent is not None and scail_input['ref_start_percent'] <= current_step_percentage <= scail_input['ref_end_percent']:
+                x = [torch.cat([v, u], dim=1) for v, u in zip([ref_latent], x)]
+                seq_len += math.ceil((ref_latent.shape[-1] * ref_latent.shape[-2]) / 4 * ref_latent.shape[-3])
+                F += 1
+                prefix_frames = 1
+                suffix_frames += 1
+
         #uni3c controlnet
         if uni3c_data is not None:
             render_latent = uni3c_data["render_latent"].to(self.base_dtype)
             hidden_states = x[0].unsqueeze(0).clone().float()
             if hidden_states.shape[1] == 16: #T2V work around
                 hidden_states = torch.cat([hidden_states, torch.zeros_like(hidden_states[:, :4])], dim=1)
+            if hidden_states.shape[2] != render_latent.shape[2]: # temporal resample
+                render_latent = nn.functional.interpolate(render_latent, size=(hidden_states.shape[2], hidden_states.shape[3], hidden_states.shape[4]), mode='trilinear', align_corners=False)
             render_latent = torch.cat([hidden_states[:, :20], render_latent], dim=1)
 
         # SteadyDancer
@@ -2424,6 +2472,17 @@ class WanModel(torch.nn.Module):
         original_grid_sizes = grid_sizes.clone()
         x = [u.flatten(2).transpose(1, 2) for u in x]
         self.original_seq_len = x[0].shape[1]
+
+        # SCAIL pose
+        if scail_input is not None:
+            scail_pose_latents = scail_input.get("pose_latent", None)
+            if scail_pose_latents is not None and scail_input['pose_start_percent'] <= current_step_percentage <= scail_input['pose_end_percent']:
+                scail_x = [self.patch_embedding_pose(u.unsqueeze(0).to(torch.float32)).to(x[0].dtype) for u in [scail_pose_latents]]
+                scail_x = [u.flatten(2).transpose(1, 2) * scail_input.get("pose_strength", 1) for u in scail_x]
+                x = [torch.cat([u, v], dim=1) for u, v in zip(x, scail_x)]
+                seq_len += scail_x[0].shape[1]
+                pose_frame_shape = scail_pose_latents.shape
+
         seq_lens = torch.tensor([u.size(1) for u in x], dtype=torch.int32)
         assert seq_lens.max() <= seq_len, f"max seq len {seq_lens.max()} exceeds provided seq_len {seq_len}"
 
@@ -2435,9 +2494,8 @@ class WanModel(torch.nn.Module):
             add_cond = self.add_conv_in(add_cond.to(self.add_conv_in.weight.dtype)).to(x[0].dtype)
             add_cond = add_cond.flatten(2).transpose(1, 2)
             x[0] = x[0] + self.add_proj(add_cond)
-        attn_cond_shape = None
         if attn_cond is not None:
-            attn_cond_shape = attn_cond.shape
+            ref_frame_shape = attn_cond.shape
             grid_sizes = torch.stack([torch.tensor([u[0] + 1, u[1], u[2]]) for u in grid_sizes]).to(grid_sizes.device)
             attn_cond = self.attn_conv_in(attn_cond.to(self.attn_conv_in.weight.dtype)).to(x[0].dtype)
             attn_cond = attn_cond.flatten(2).transpose(1, 2)
@@ -2490,33 +2548,49 @@ class WanModel(torch.nn.Module):
             x_ip = ip_image_patch.flatten(2).transpose(1, 2)  # [B, N, D]
             freq_offset = standin_input["freq_offset"]
 
+        # region rope freqs
         if freqs is None and "comfy" in self.rope_func: #comfy rope
-            current_shape = (F, H, W)
+            # Create cache key from all relevant parameters
+            cache_key = (
+                F, H, W,
+                attn_cond is not None,
+                tuple(ref_frame_shape) if ref_frame_shape is not None else None,
+                tuple(pose_frame_shape) if pose_frame_shape is not None else None,
+                self.rope_embedder.k,
+                tuple(ntk_alphas),
+            )
 
-            has_cond = attn_cond is not None
-
+            # Check cache using key comparison
             if (self.cached_freqs is not None and
-                self.cached_shape == current_shape and
-                self.cached_cond == has_cond and
-                self.cached_rope_k == self.rope_embedder.k and
-                self.cached_ntk_alphas == ntk_alphas
-                ):
+                hasattr(self, 'cached_key') and
+                self.cached_key == cache_key):
                 freqs = self.cached_freqs
             else:
-                freqs = self.rope_encode_comfy(F, H, W, freq_offset=freq_offset, ntk_alphas=ntk_alphas, attn_cond_shape=attn_cond_shape, device=x.device, dtype=x.dtype)
+                log.info("Generating new RoPE frequencies")
+                freqs = self.rope_encode_comfy(
+                    F, H, W,
+                    freq_offset=freq_offset,
+                    ntk_alphas=ntk_alphas,
+                    ref_frame_shape=ref_frame_shape,
+                    pose_frame_shape=pose_frame_shape,
+                    device=x.device,
+                    dtype=x.dtype
+                )
+
                 if s2v_ref_latent is not None:
                     freqs_ref = self.rope_encode_comfy(
                         s2v_ref_latent.shape[2],
                         s2v_ref_latent.shape[3],
                         s2v_ref_latent.shape[4],
-                        t_start=max(30, F + 9), device=x.device, dtype=x.dtype)
+                        t_start=max(30, F + 9),
+                        device=x.device,
+                        dtype=x.dtype
+                    )
                     freqs = torch.cat([freqs, freqs_ref], dim=1)
 
+                # Store cache with key
                 self.cached_freqs = freqs
-                self.cached_shape = current_shape
-                self.cached_cond = has_cond
-                self.cached_rope_k = self.rope_embedder.k
-                self.cached_ntk_alphas = ntk_alphas
+                self.cached_key = cache_key
 
         # Stand-In RoPE frequencies
         if x_ip is not None:
@@ -3102,16 +3176,16 @@ class WanModel(torch.nn.Module):
         if self.ref_conv is not None and fun_ref is not None:
             fun_ref_length = fun_ref.size(1)
             x = x[:, fun_ref_length:]
-            grid_sizes = torch.stack([torch.tensor([u[0] - 1, u[1], u[2]]) for u in grid_sizes]).to(grid_sizes.device)
+            #grid_sizes = torch.stack([torch.tensor([u[0] - 1, u[1], u[2]]) for u in grid_sizes]).to(grid_sizes.device)
 
         if end_ref_latent is not None:
             end_ref_latent_length = end_ref_latent.size(1)
             x = x[:, :-end_ref_latent_length]
-            grid_sizes = torch.stack([torch.tensor([u[0] - end_ref_latent_frames, u[1], u[2]]) for u in grid_sizes]).to(grid_sizes.device)
+            #grid_sizes = torch.stack([torch.tensor([u[0] - end_ref_latent_frames, u[1], u[2]]) for u in grid_sizes]).to(grid_sizes.device)
 
-        if attn_cond is not None:
-            x = x[:, :self.original_seq_len]
-            grid_sizes = torch.stack([torch.tensor([u[0] - 1, u[1], u[2]]) for u in grid_sizes]).to(grid_sizes.device)
+        #if attn_cond is not None:
+        #    x = x[:, :self.original_seq_len]
+            #grid_sizes = torch.stack([torch.tensor([u[0] - 1, u[1], u[2]]) for u in grid_sizes]).to(grid_sizes.device)
 
 
         x = x[:, :self.original_seq_len]
