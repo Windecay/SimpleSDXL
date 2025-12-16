@@ -148,6 +148,8 @@ def load_model_paths():
 
     except Exception as e:
         print(f"{Fore.YELLOW}△配置文件加载失败: {e}，使用默认路径{Style.RESET_ALL}")
+        # 设置默认的simplemodels_root
+        simplemodels_root = os.path.normpath(os.path.join(root_dir, "SimpleModels"))
         path_mapping = {
             "checkpoints": [os.path.join(simplemodels_root, "checkpoints")],
             "loras": [os.path.join(simplemodels_root, "loras")],
