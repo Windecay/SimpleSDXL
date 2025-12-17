@@ -334,7 +334,7 @@ class WanControlNet(ModelMixin):
 
         self.controlnet_mask_embedding = MaskCamEmbed(controlnet_cfg)
 
-    def forward(self, render_latent, render_mask, camera_embedding, temb, device):        
+    def forward(self, render_latent, render_mask, camera_embedding, temb, out_device):
         controlnet_rotary_emb = self.controlnet_rope(render_latent)
         controlnet_inputs = self.controlnet_patch_embedding(render_latent.to(torch.float32))
         if not self.quantized:
@@ -354,7 +354,7 @@ class WanControlNet(ModelMixin):
         if add_inputs is not None:
             add_inputs = self.controlnet_mask_embedding(add_inputs)
             controlnet_inputs = controlnet_inputs + add_inputs
-        
+
         hidden_states = self.proj_in(controlnet_inputs)
 
         controlnet_states = []
@@ -364,6 +364,6 @@ class WanControlNet(ModelMixin):
                 temb=temb,
                 rotary_emb=controlnet_rotary_emb
             )
-            controlnet_states.append(self.proj_out[i](hidden_states).to(device))
+            controlnet_states.append(self.proj_out[i](hidden_states).to(out_device))
 
         return controlnet_states

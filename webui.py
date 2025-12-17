@@ -134,6 +134,13 @@ def generate_clicked(task: worker.AsyncTask, state):
 
     logger.info(f"Start generating..., qsize={qsize}")
     last_update_time = time.time()
+
+    preview_cache = []
+    preview_cache_index = 0
+    last_preview_title = ""
+    last_preview_percentage = 0
+    waiting_for_new_step_frame = False
+
     while not finished:
         current_time = time.time()
         if (current_time - last_update_time > MAX_WAIT_TIME and in_progress) or not ready_flag:
@@ -156,20 +163,27 @@ def generate_clicked(task: worker.AsyncTask, state):
             break
 
         time.sleep(POLL_INTERVAL)
-        
+
         if len(task.yields) > 0:
             flag, product = task.yields.pop(0)
             in_progress = True
             if flag == 'preview':
                 last_update_time = current_time
-
-                # help bad internet connection by skipping duplicated preview
-                if len(task.yields) > 0:  # if we have the next item
-                    if task.yields[0][0] == 'preview':   # if the next item is also a preview
-                        # print('Skipped one preview for better internet connection.')
-                        continue
-
                 percentage, title, image = product
+
+                if title != last_preview_title:
+                    last_preview_title = title
+                    waiting_for_new_step_frame = True
+
+                if image is not None:
+                    if waiting_for_new_step_frame:
+                        preview_cache = []
+                        preview_cache_index = 0
+                        waiting_for_new_step_frame = False
+
+                    preview_cache.append(image)
+
+                last_preview_percentage = percentage
 
                 yield gr.update(visible=True, value=modules.html.make_progress_html(percentage, title)), \
                     gr.update(visible=True, value=image) if image is not None else gr.update(), \
@@ -177,6 +191,7 @@ def generate_clicked(task: worker.AsyncTask, state):
                     gr.update(visible=False), \
                     gr.update(visible=False)
             if flag == 'results':
+                preview_cache = []
                 last_update_time = current_time
 
                 yield gr.update(visible=True), \
@@ -185,6 +200,7 @@ def generate_clicked(task: worker.AsyncTask, state):
                     gr.update(visible=False), \
                     gr.update(visible=False)
             if flag == 'finish':
+                preview_cache = []
                 if not args_manager.args.disable_enhance_output_sorting and is_fooocus:
                     product = sort_enhance_images(product, task)
 
@@ -208,6 +224,16 @@ def generate_clicked(task: worker.AsyncTask, state):
                     for filepath in product:
                         if isinstance(filepath, str) and os.path.exists(filepath):
                             os.remove(filepath)
+
+        elif len(preview_cache) > 1:
+            preview_cache_index = (preview_cache_index + 1) % len(preview_cache)
+            cached_image = preview_cache[preview_cache_index]
+
+            yield gr.update(visible=True, value=modules.html.make_progress_html(last_preview_percentage, last_preview_title)), \
+                gr.update(visible=True, value=cached_image), \
+                gr.update(), \
+                gr.update(visible=False), \
+                gr.update(visible=False)
 
     execution_time = time.perf_counter() - execution_start_time
     logger.info(f'Total time: {execution_time:.2f} seconds')

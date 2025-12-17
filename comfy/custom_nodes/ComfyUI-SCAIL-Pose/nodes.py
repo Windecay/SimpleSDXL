@@ -17,6 +17,68 @@ folder_paths.add_model_folder_path("detection", os.path.join(folder_paths.models
 
 from .vitpose_utils.utils import bbox_from_detector, crop, load_pose_metas_from_kp2ds_seq, aaposemeta_to_dwpose_scail
 
+def convert_openpose_to_target_format(frames, max_people=2):
+    NUM_BODY = 18
+    NUM_FACE = 70
+    NUM_HAND = 21
+
+    results = []
+    for frame in frames:
+        canvas_width = frame['canvas_width']
+        canvas_height = frame['canvas_height']
+        people = frame['people'][:max_people]
+
+        bodies = []
+        hands = []
+        faces = []
+        body_scores = []
+        hand_scores = []
+        face_scores = []
+
+        for person in people:
+            pose_raw = person.get('pose_keypoints_2d') or []
+            if len(pose_raw) != NUM_BODY * 3:
+                continue
+
+            pose = np.array(pose_raw).reshape(-1, 3)
+            pose_xy = np.stack([pose[:, 0] / canvas_width, pose[:, 1] / canvas_height], axis=1)
+            bodies.append(pose_xy)
+            body_scores.append(pose[:, 2])
+
+            face_raw = person.get('face_keypoints_2d') or []
+            if len(face_raw) == NUM_FACE * 3:
+                face = np.array(face_raw).reshape(-1, 3)
+                face_xy = np.stack([face[:, 0] / canvas_width, face[:, 1] / canvas_height], axis=1)
+                faces.append(face_xy)
+                face_scores.append(face[:, 2])
+
+            hand_left_raw = person.get('hand_left_keypoints_2d') or []
+            hand_right_raw = person.get('hand_right_keypoints_2d') or []
+            if len(hand_left_raw) == NUM_HAND * 3:
+                hand_left = np.array(hand_left_raw).reshape(-1, 3)
+                hand_left_xy = np.stack([hand_left[:, 0] / canvas_width, hand_left[:, 1] / canvas_height], axis=1)
+                hands.append(hand_left_xy)
+                hand_scores.append(hand_left[:, 2])
+            if len(hand_right_raw) == NUM_HAND * 3:
+                hand_right = np.array(hand_right_raw).reshape(-1, 3)
+                hand_right_xy = np.stack([hand_right[:, 0] / canvas_width, hand_right[:, 1] / canvas_height], axis=1)
+                hands.append(hand_right_xy)
+                hand_scores.append(hand_right[:, 2])
+
+        result = {
+            'bodies': {
+                'candidate': np.array(bodies, dtype=np.float32),
+                'subset': np.array([np.arange(NUM_BODY) for _ in bodies], dtype=np.float32) if bodies else np.array([])
+            },
+            'hands': np.array(hands, dtype=np.float32),
+            'faces': np.array(faces, dtype=np.float32),
+            'body_score': np.array(body_scores, dtype=np.float32),
+            'hand_score': np.array(hand_scores, dtype=np.float32),
+            'face_score': np.array(face_scores, dtype=np.float32)
+        }
+        results.append(result)
+    return results
+
 def scale_faces(poses, pose_2d_ref):
     # Input: two lists of dict, poses[0]['faces'].shape: 1, 68, 2  , poses_ref[0]['faces'].shape: 1, 68, 2
     # Scale the facial keypoints in poses according to the center point of the face
@@ -153,6 +215,27 @@ class PoseDetectionVitPoseToDWPose:
         return (dwposes,)
 
 
+class ConvertOpenPoseKeypointsToDWPose:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "keypoints": ("POSE_KEYPOINT",),
+                "max_people": ("INT", {"default": 2, "min": 1, "max": 100, "step": 1, "tooltip": "Maximum number of people to process per frame"}),
+            },
+        }
+
+    RETURN_TYPES = ("DWPOSES",)
+    RETURN_NAMES = ("dw_poses",)
+    FUNCTION = "process"
+    CATEGORY = "WanAnimatePreprocess"
+    DESCRIPTION = "Convert OpenPose format keypoints to DWPose format."
+
+    def process(self, keypoints, max_people=2):
+
+        return convert_openpose_to_target_format(keypoints, max_people=max_people),
+
+
 class RenderNLFPoses:
     @classmethod
     def INPUT_TYPES(s):
@@ -202,7 +285,9 @@ class RenderNLFPoses:
         ori_camera_pose = intrinsic_matrix_from_field_of_view([height, width])
         ori_focal = ori_camera_pose[0, 0]
 
-        if ref_dw_pose is not None:
+        num_people = dw_pose_input[0]['bodies']['candidate'].shape[0] if dw_poses is not None else 0
+
+        if dw_poses is not None and ref_dw_pose is not None and num_people == 1:
             ref_dw_pose_input = copy.deepcopy(ref_dw_pose)
 
             # Find the first valid pose
@@ -268,8 +353,10 @@ class RenderNLFPoses:
 NODE_CLASS_MAPPINGS = {
     "PoseDetectionVitPoseToDWPose": PoseDetectionVitPoseToDWPose,
     "RenderNLFPoses": RenderNLFPoses,
+    "ConvertOpenPoseKeypointsToDWPose": ConvertOpenPoseKeypointsToDWPose,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
     "PoseDetectionVitPoseToDWPose": "Pose Detection VitPose to DWPose",
     "RenderNLFPoses": "Render NLF Poses",
+    "ConvertOpenPoseKeypointsToDWPose": "Convert OpenPose Keypoints to DWPose",
 }

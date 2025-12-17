@@ -1615,7 +1615,7 @@
         -3520
       ],
       "size": [
-        210,
+        213.464453125,
         150
       ],
       "flags": {
@@ -1670,7 +1670,7 @@
         -3140
       ],
       "size": [
-        210,
+        213.464453125,
         150
       ],
       "flags": {
@@ -1766,7 +1766,7 @@
         -2950
       ],
       "size": [
-        210,
+        213.464453125,
         150
       ],
       "flags": {
@@ -1821,7 +1821,7 @@
         -2760
       ],
       "size": [
-        210,
+        210.0396484375,
         250
       ],
       "flags": {
@@ -1995,7 +1995,7 @@
         -3820
       ],
       "size": [
-        210,
+        212.8970703125,
         60
       ],
       "flags": {
@@ -3890,7 +3890,7 @@
         -3710
       ],
       "size": [
-        210,
+        213.464453125,
         150
       ],
       "flags": {
@@ -3986,7 +3986,7 @@
         -3330
       ],
       "size": [
-        210,
+        213.464453125,
         150
       ],
       "flags": {
@@ -4522,7 +4522,7 @@
         -3570
       ],
       "size": [
-        210,
+        214.3599609375,
         58
       ],
       "flags": {
@@ -4836,7 +4836,7 @@
         -3080
       ],
       "size": [
-        172.1890625,
+        181.3697265625,
         46
       ],
       "flags": {
@@ -4929,7 +4929,7 @@
         -4050
       ],
       "size": [
-        270.951171875,
+        274.197265625,
         102
       ],
       "flags": {
@@ -5104,8 +5104,8 @@
         -4270
       ],
       "size": [
-        113.34228515625,
-        15
+        143.5943359375,
+        26
       ],
       "flags": {
         "pinned": true,
@@ -5949,7 +5949,7 @@
         -2830
       ],
       "size": [
-        164.3755859375,
+        172.230078125,
         122
       ],
       "flags": {
@@ -6783,7 +6783,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 79,
+      "order": 78,
       "mode": 0,
       "inputs": [
         {
@@ -6912,7 +6912,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 78,
+      "order": 79,
       "mode": 0,
       "inputs": [
         {
@@ -7074,286 +7074,6 @@
       "bgcolor": "#3f5159"
     },
     {
-      "id": 638,
-      "type": "ParameterControlPanel",
-      "pos": [
-        -3490,
-        -2700
-      ],
-      "size": [
-        690,
-        520
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 52,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "parameters",
-          "type": "DICT",
-          "links": [
-            1214
-          ]
-        }
-      ],
-      "properties": {
-        "parameters": [
-          {
-            "id": "param_1764705569820",
-            "name": "基础分辨率",
-            "type": "slider",
-            "config": {
-              "description": "建议值480-1024\n\n选择720则为720x720自动分配到宽高\n\n与消耗显存量和速度正相关\n\n8G使用720x5s / 12G使用960x5s",
-              "min": 480,
-              "max": 1280,
-              "step": 16,
-              "default": 720
-            },
-            "value": 720
-          },
-          {
-            "id": "param_1764705668431",
-            "name": "显存块交换",
-            "type": "slider",
-            "config": {
-              "description": "支持的设置值 0~40\n\n数值增大时显存用量减少 内存用量增多。\n\n爆显存时增大。",
-              "min": 0,
-              "max": 40,
-              "step": 1,
-              "default": 35
-            },
-            "value": 35
-          },
-          {
-            "id": "param_1764705849442",
-            "name": "总步数",
-            "type": "slider",
-            "config": {
-              "min": 3,
-              "max": 6,
-              "step": 1,
-              "default": 4
-            },
-            "value": 4
-          },
-          {
-            "id": "param_1764705986976",
-            "name": "分段帧数",
-            "type": "slider",
-            "config": {
-              "description": "长视频分段处理的帧数",
-              "min": 65,
-              "max": 121,
-              "step": 4,
-              "default": 81
-            },
-            "value": 81
-          },
-          {
-            "id": "param_1764706058183",
-            "name": "视频帧率（默认值）",
-            "type": "slider",
-            "config": {
-              "description": "输入视频覆盖帧率&采样处理帧率",
-              "min": 16,
-              "max": 24,
-              "step": 0.1,
-              "default": 16
-            },
-            "value": 16
-          },
-          {
-            "id": "param_1764706144666",
-            "name": "补帧到输出帧率",
-            "type": "slider",
-            "config": {
-              "description": "与视频帧率一致则不补",
-              "min": 16,
-              "max": 120,
-              "step": 0.5,
-              "default": 60
-            },
-            "value": 60
-          },
-          {
-            "id": "param_1764708119534",
-            "name": "姿态强度（空间）",
-            "type": "slider",
-            "config": {
-              "description": "SteadDancer参数",
-              "min": 0,
-              "max": 1,
-              "step": 0.01,
-              "default": 1
-            },
-            "value": 1
-          },
-          {
-            "id": "param_1764708136072",
-            "name": "姿态强度（时间）",
-            "type": "slider",
-            "config": {
-              "description": "SteadDancer参数",
-              "min": 0,
-              "max": 1,
-              "step": 0.01,
-              "default": 1
-            },
-            "value": 1
-          },
-          {
-            "id": "param_1764708340233",
-            "name": "分块VAE",
-            "type": "switch",
-            "config": {
-              "description": "显存编码缓慢紧缺时开启",
-              "default": false,
-              "show_top_left_notice": true,
-              "notice_text": ""
-            },
-            "value": false,
-            "accessible_to_group_executor": false,
-            "accessible_to_group_mute_manager": false
-          }
-        ],
-        "currentPreset": null,
-        "locked": true,
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "version": "7.3",
-          "input_ue_unconnectable": {}
-        }
-      },
-      "widgets_values": [
-        ""
-      ],
-      "color": "#2a363b",
-      "bgcolor": "#3f5159",
-      "parameters": [
-        {
-          "id": "param_1764705569820",
-          "name": "基础分辨率",
-          "type": "slider",
-          "config": {
-            "description": "建议值480-1024\n\n选择720则为720x720自动分配到宽高\n\n与消耗显存量和速度正相关\n\n8G使用720x5s / 12G使用960x5s",
-            "min": 480,
-            "max": 1280,
-            "step": 16,
-            "default": 720
-          },
-          "value": 720
-        },
-        {
-          "id": "param_1764705668431",
-          "name": "显存块交换",
-          "type": "slider",
-          "config": {
-            "description": "支持的设置值 0~40\n\n数值增大时显存用量减少 内存用量增多。\n\n爆显存时增大。",
-            "min": 0,
-            "max": 40,
-            "step": 1,
-            "default": 35
-          },
-          "value": 35
-        },
-        {
-          "id": "param_1764705849442",
-          "name": "总步数",
-          "type": "slider",
-          "config": {
-            "min": 3,
-            "max": 6,
-            "step": 1,
-            "default": 4
-          },
-          "value": 4
-        },
-        {
-          "id": "param_1764705986976",
-          "name": "分段帧数",
-          "type": "slider",
-          "config": {
-            "description": "长视频分段处理的帧数",
-            "min": 65,
-            "max": 121,
-            "step": 4,
-            "default": 81
-          },
-          "value": 81
-        },
-        {
-          "id": "param_1764706058183",
-          "name": "视频帧率（默认值）",
-          "type": "slider",
-          "config": {
-            "description": "输入视频覆盖帧率&采样处理帧率",
-            "min": 16,
-            "max": 24,
-            "step": 0.1,
-            "default": 16
-          },
-          "value": 16
-        },
-        {
-          "id": "param_1764706144666",
-          "name": "补帧到输出帧率",
-          "type": "slider",
-          "config": {
-            "description": "与视频帧率一致则不补",
-            "min": 16,
-            "max": 120,
-            "step": 0.5,
-            "default": 60
-          },
-          "value": 60
-        },
-        {
-          "id": "param_1764708119534",
-          "name": "姿态强度（空间）",
-          "type": "slider",
-          "config": {
-            "description": "SteadDancer参数",
-            "min": 0,
-            "max": 1,
-            "step": 0.01,
-            "default": 1
-          },
-          "value": 1
-        },
-        {
-          "id": "param_1764708136072",
-          "name": "姿态强度（时间）",
-          "type": "slider",
-          "config": {
-            "description": "SteadDancer参数",
-            "min": 0,
-            "max": 1,
-            "step": 0.01,
-            "default": 1
-          },
-          "value": 1
-        },
-        {
-          "id": "param_1764708340233",
-          "name": "分块VAE",
-          "type": "switch",
-          "config": {
-            "description": "显存编码缓慢紧缺时开启",
-            "default": false,
-            "show_top_left_notice": true,
-            "notice_text": ""
-          },
-          "value": false,
-          "accessible_to_group_executor": false,
-          "accessible_to_group_mute_manager": false
-        }
-      ],
-      "currentPreset": null
-    },
-    {
       "id": 530,
       "type": "GetNode",
       "pos": [
@@ -7361,14 +7081,14 @@
         -4060
       ],
       "size": [
-        210,
+        214.3599609375,
         60
       ],
       "flags": {
         "collapsed": true,
         "pinned": true
       },
-      "order": 53,
+      "order": 52,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -7505,7 +7225,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 54,
+      "order": 53,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -7545,7 +7265,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 55,
+      "order": 54,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -7571,6 +7291,286 @@
       ],
       "color": "#232",
       "bgcolor": "#353"
+    },
+    {
+      "id": 638,
+      "type": "ParameterControlPanel",
+      "pos": [
+        -3490,
+        -2700
+      ],
+      "size": [
+        690,
+        520
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 55,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "parameters",
+          "type": "DICT",
+          "links": [
+            1214
+          ]
+        }
+      ],
+      "properties": {
+        "parameters": [
+          {
+            "id": "param_1764705569820",
+            "name": "基础分辨率",
+            "type": "slider",
+            "config": {
+              "description": "建议值480-1024\n\n选择720则为720x720自动分配到宽高\n\n与消耗显存量和速度正相关\n\n8G使用720x5s / 12G使用960x5s",
+              "min": 480,
+              "max": 1280,
+              "step": 16,
+              "default": 720
+            },
+            "value": 720
+          },
+          {
+            "id": "param_1764705668431",
+            "name": "显存块交换",
+            "type": "slider",
+            "config": {
+              "description": "支持的设置值 0~40\n\n数值增大时显存用量减少 内存用量增多。\n\n爆显存时增大。",
+              "min": 0,
+              "max": 40,
+              "step": 1,
+              "default": 35
+            },
+            "value": 35
+          },
+          {
+            "id": "param_1764705849442",
+            "name": "总步数",
+            "type": "slider",
+            "config": {
+              "min": 3,
+              "max": 6,
+              "step": 1,
+              "default": 4
+            },
+            "value": 4
+          },
+          {
+            "id": "param_1764705986976",
+            "name": "分段帧数",
+            "type": "slider",
+            "config": {
+              "description": "长视频分段处理的帧数",
+              "min": 65,
+              "max": 121,
+              "step": 4,
+              "default": 81
+            },
+            "value": 81
+          },
+          {
+            "id": "param_1764706058183",
+            "name": "覆盖视频帧率",
+            "type": "slider",
+            "config": {
+              "description": "输入视频覆盖帧率&采样处理帧率",
+              "min": 16,
+              "max": 30,
+              "step": 0.1,
+              "default": 16
+            },
+            "value": 16
+          },
+          {
+            "id": "param_1764706144666",
+            "name": "补帧到输出帧率",
+            "type": "slider",
+            "config": {
+              "description": "低于视频覆盖帧率则不补",
+              "min": 16,
+              "max": 120,
+              "step": 0.5,
+              "default": 60
+            },
+            "value": 60
+          },
+          {
+            "id": "param_1764708119534",
+            "name": "姿态强度（空间）",
+            "type": "slider",
+            "config": {
+              "description": "SteadDancer参数",
+              "min": 0,
+              "max": 1,
+              "step": 0.01,
+              "default": 1
+            },
+            "value": 1
+          },
+          {
+            "id": "param_1764708136072",
+            "name": "姿态强度（时间）",
+            "type": "slider",
+            "config": {
+              "description": "SteadDancer参数",
+              "min": 0,
+              "max": 1,
+              "step": 0.01,
+              "default": 1
+            },
+            "value": 1
+          },
+          {
+            "id": "param_1764708340233",
+            "name": "分块VAE",
+            "type": "switch",
+            "config": {
+              "description": "显存编码缓慢紧缺时开启",
+              "default": false,
+              "show_top_left_notice": true,
+              "notice_text": ""
+            },
+            "value": false,
+            "accessible_to_group_executor": false,
+            "accessible_to_group_mute_manager": false
+          }
+        ],
+        "currentPreset": null,
+        "locked": true,
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.3",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        ""
+      ],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159",
+      "parameters": [
+        {
+          "id": "param_1764705569820",
+          "name": "基础分辨率",
+          "type": "slider",
+          "config": {
+            "description": "建议值480-1024\n\n选择720则为720x720自动分配到宽高\n\n与消耗显存量和速度正相关\n\n8G使用720x5s / 12G使用960x5s",
+            "min": 480,
+            "max": 1280,
+            "step": 16,
+            "default": 720
+          },
+          "value": 720
+        },
+        {
+          "id": "param_1764705668431",
+          "name": "显存块交换",
+          "type": "slider",
+          "config": {
+            "description": "支持的设置值 0~40\n\n数值增大时显存用量减少 内存用量增多。\n\n爆显存时增大。",
+            "min": 0,
+            "max": 40,
+            "step": 1,
+            "default": 35
+          },
+          "value": 35
+        },
+        {
+          "id": "param_1764705849442",
+          "name": "总步数",
+          "type": "slider",
+          "config": {
+            "min": 3,
+            "max": 6,
+            "step": 1,
+            "default": 4
+          },
+          "value": 4
+        },
+        {
+          "id": "param_1764705986976",
+          "name": "分段帧数",
+          "type": "slider",
+          "config": {
+            "description": "长视频分段处理的帧数",
+            "min": 65,
+            "max": 121,
+            "step": 4,
+            "default": 81
+          },
+          "value": 81
+        },
+        {
+          "id": "param_1764706058183",
+          "name": "覆盖视频帧率",
+          "type": "slider",
+          "config": {
+            "description": "输入视频覆盖帧率&采样处理帧率",
+            "min": 16,
+            "max": 30,
+            "step": 0.1,
+            "default": 16
+          },
+          "value": 16
+        },
+        {
+          "id": "param_1764706144666",
+          "name": "补帧到输出帧率",
+          "type": "slider",
+          "config": {
+            "description": "低于视频覆盖帧率则不补",
+            "min": 16,
+            "max": 120,
+            "step": 0.5,
+            "default": 60
+          },
+          "value": 60
+        },
+        {
+          "id": "param_1764708119534",
+          "name": "姿态强度（空间）",
+          "type": "slider",
+          "config": {
+            "description": "SteadDancer参数",
+            "min": 0,
+            "max": 1,
+            "step": 0.01,
+            "default": 1
+          },
+          "value": 1
+        },
+        {
+          "id": "param_1764708136072",
+          "name": "姿态强度（时间）",
+          "type": "slider",
+          "config": {
+            "description": "SteadDancer参数",
+            "min": 0,
+            "max": 1,
+            "step": 0.01,
+            "default": 1
+          },
+          "value": 1
+        },
+        {
+          "id": "param_1764708340233",
+          "name": "分块VAE",
+          "type": "switch",
+          "config": {
+            "description": "显存编码缓慢紧缺时开启",
+            "default": false,
+            "show_top_left_notice": true,
+            "notice_text": ""
+          },
+          "value": false,
+          "accessible_to_group_executor": false,
+          "accessible_to_group_mute_manager": false
+        }
+      ],
+      "currentPreset": null
     }
   ],
   "links": [
@@ -8700,13 +8700,13 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 1.4265583530550046,
+      "scale": 1.071794405000004,
       "offset": [
-        538.2918359362783,
-        4378.199298366538
+        4142.0443445267965,
+        2803.5577977746952
       ]
     },
-    "frontendVersion": "1.33.10",
+    "frontendVersion": "1.34.8",
     "node_versions": {
       "ComfyUI-WanVideoWrapper": "5a2383621a05825d0d0437781afcb8552d9590fd",
       "ComfyUI-KJNodes": "a5bd3c86c8ed6b83c55c2d0e7a59515b15a0137f",

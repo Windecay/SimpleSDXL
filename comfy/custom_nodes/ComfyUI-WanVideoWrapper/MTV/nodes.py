@@ -1,6 +1,6 @@
 import os
 import torch
-from ..utils import log, dict_to_device
+from ..utils import log
 import numpy as np
 
 import comfy.model_management as mm
@@ -12,6 +12,7 @@ device = mm.get_torch_device()
 offload_device = mm.unet_offload_device()
 
 local_model_path = os.path.join(folder_paths.models_dir, "nlf", "nlf_l_multi_0.3.2.torchscript")
+folder_paths.add_model_folder_path("nlf", os.path.join(folder_paths.models_dir, "nlf"))
 
 from .motion4d import SMPL_VQVAE, VectorQuantizer, Encoder, Decoder
 
@@ -97,7 +98,8 @@ class LoadNLFModel:
     def INPUT_TYPES(s):
         return {
             "required": {
-                "path": ("STRING", {"default": local_model_path}),
+                "nlf_model": (folder_paths.get_filename_list("nlf"), {"tooltip": "These models are loaded from the 'ComfyUI/models/nlf' -folder",}),
+
             },
              "optional": {
                 "warmup": ("BOOLEAN", {"default": True, "tooltip": "Whether to warmup the model after loading"}),
@@ -109,9 +111,9 @@ class LoadNLFModel:
     FUNCTION = "loadmodel"
     CATEGORY = "WanVideoWrapper"
 
-    def loadmodel(self, path, warmup=True):
+    def loadmodel(self, nlf_model, warmup=True):
         check_jit_script_function()
-        model = torch.jit.load(path, map_location="cpu").eval()
+        model = torch.jit.load(folder_paths.get_full_path_or_raise("nlf", nlf_model)).eval()
 
         if warmup:
             log.info("Warming up NLF model...")
@@ -321,6 +323,7 @@ class DrawNLFPoses:
         return (control_conditions,)
 
 NODE_CLASS_MAPPINGS = {
+    "LoadNLFModel": LoadNLFModel,
     "DownloadAndLoadNLFModel": DownloadAndLoadNLFModel,
     "NLFPredict": NLFPredict,
     "DrawNLFPoses": DrawNLFPoses,
@@ -328,6 +331,7 @@ NODE_CLASS_MAPPINGS = {
     "MTVCrafterEncodePoses": MTVCrafterEncodePoses
     }
 NODE_DISPLAY_NAME_MAPPINGS = {
+    "LoadNLFModel": "Load NLF Model",
     "DownloadAndLoadNLFModel": "(Download)Load NLF Model",
     "NLFPredict": "NLF Predict",
     "DrawNLFPoses": "Draw NLF Poses",

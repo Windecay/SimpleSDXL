@@ -1,7 +1,6 @@
 import cv2
 import numpy as np
 from PIL import Image
-import os
 from .draw_utils import draw_bodypose, draw_bodypose_with_feet, draw_handpose_lr, draw_handpose, draw_facepose, draw_bodypose_augmentation
 
 
@@ -97,16 +96,6 @@ def draw_pose_to_canvas(poses, pool, H, W, reshape_scale, points_only_flag, show
         canvas_lst.append(canvas_img)
     return canvas_lst
 
-
-def get_mp4_filenames_from_directory(dwpose_keypoints_dir):
-    mp4_filenames_dwpose = []
-    # Get all available mp4 files by intersecting keypoints and mp4
-    if dwpose_keypoints_dir:
-        for root, dirs, files in os.walk(dwpose_keypoints_dir):
-            for file in files:
-                if file.lower().endswith('.pt'):  # Only look for .mp4 files
-                    mp4_filenames_dwpose.append(file.replace(".pt", ".mp4"))  # Get absolute path
-    return mp4_filenames_dwpose
 
 def project_dwpose_to_3d(dwpose_keypoint, original_threed_keypoint, focal, princpt, H, W):
     # Camera intrinsic parameters

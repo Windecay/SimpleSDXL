@@ -203,12 +203,12 @@ def draw_bodypose_augmentation(canvas, candidate, subset, drop_aug=True, shift_a
     stickwidth = 4
 
     limbSeq = [
-        [2, 3],  # 1->2 左肩 0
-        [2, 6],  # 1->5 右肩 1
-        [3, 4],  # 2->3 左臂 2
-        [4, 5],  # 3->4 左肘 3
-        [6, 7],  # 5->6 右臂 4
-        [7, 8],  # 6->7 右肘 5
+        [2, 3],  # 1->2 left shoulder 0
+        [2, 6],  # 1->5 right shoulder 1
+        [3, 4],  # 2->3 left arm 2
+        [4, 5],  # 3->4 left elbow 3
+        [6, 7],  # 5->6 right arm 4
+        [7, 8],  # 6->7 right elbow 5
         [2, 9],  # 6
         [9, 10], # 7
         [10, 11], # 8
@@ -245,7 +245,7 @@ def draw_bodypose_augmentation(canvas, candidate, subset, drop_aug=True, shift_a
         [255, 0, 85],
     ]
 
-    # 随机选0-2根骨骼进行丢弃
+    # Randomly select 0-2 bones to drop
     if drop_aug:
         arr_drop = list(range(17))
         k_drop = random.choices([0, 1, 2], weights=[0.5, 0.3, 0.2])[0]
@@ -257,7 +257,7 @@ def draw_bodypose_augmentation(canvas, candidate, subset, drop_aug=True, shift_a
     else:
         shift_indices = []
     if all_cheek_aug:
-        drop_indices = list(range(13)) # 0-12对应的骨骼都扔掉
+        drop_indices = list(range(13)) # Drop all bones corresponding to 0-12
 
     for i in range(17):
         for n in range(len(subset)):
@@ -270,7 +270,7 @@ def draw_bodypose_augmentation(canvas, candidate, subset, drop_aug=True, shift_a
             if i in drop_indices:
                 continue
 
-            mX = np.mean(X)   # 计算两个关节点之间的中点
+            mX = np.mean(X)   # Calculate the midpoint between two joints
             mY = np.mean(Y)
             length = ((X[0] - X[1]) ** 2 + (Y[0] - Y[1]) ** 2) ** 0.5
             if i in shift_indices:

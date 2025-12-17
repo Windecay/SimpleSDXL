@@ -286,8 +286,7 @@ def worker():
         if async_task.remote_task is not None:
             p2p_task.call_remote_progress(async_task, number, text, img)
             return
-        if img is None:
-            logger.info(f'{text}')
+
         async_task.yields.append(['preview', (number, text, img)])
         async_task.lasttime = time.time()
 
@@ -434,7 +433,18 @@ def worker():
                 client_id = async_task.user_did
                 if async_task.remote_task is not None:
                     client_id = async_task.remote_task
-                imgs = comfypipeline.process_flow(client_id, comfy_task.name, comfy_task.params, comfy_task.images, callback=callback, total_steps=comfy_task.steps)
+
+                extra_data = {
+                    "extra_pnginfo": {
+                        "workflow": {
+                            "extra": {
+                                "VHS_latentpreview": True,
+                                "VHS_latentpreviewrate": 8
+                            }
+                        }
+                    }
+                }
+                imgs = comfypipeline.process_flow(client_id, comfy_task.name, comfy_task.params, comfy_task.images, callback=callback, total_steps=comfy_task.steps, extra_data=extra_data)
                 if inpaint_worker.current_task is not None:
                     imgs = [inpaint_worker.current_task.post_process(x) for x in imgs]
             except ValueError as e:
@@ -1600,13 +1610,29 @@ def worker():
         def callback_comfytask(step, total_steps, y):
             if step == 1:
                 async_task.callback_steps = 0
-            async_task.callback_steps += (100 - preparation_steps) / float(all_steps)
+            if not hasattr(async_task, "_last_callback_step"):
+                async_task._last_callback_step = None
+                async_task._last_percentage = 0
+
+            step_changed = (async_task._last_callback_step is None) or (step != async_task._last_callback_step)
+
+            if step_changed:
+                if total_steps > 0:
+                     progress_per_step = (100 - preparation_steps) / float(total_steps)
+                     async_task.callback_steps = progress_per_step * step
+                else:
+                     async_task.callback_steps += (100 - preparation_steps) / float(all_steps)
+
+                async_task._last_callback_step = step
+
             if async_task.task_method == 'sd15_aio' and step % 4 != 1 and step <= 30:
                 return
             if async_task.task_method in ('il_v_pre', 'il_v_pre_aio') and step % 2 != 1 and step <= 30:
                 return
+
             percentage = int(current_progress + async_task.callback_steps)
             progressbar(async_task, percentage, f'采样步数 {step}/{total_steps}, 图片 {current_task_id + 1}/{total_count} ...', y)
+            async_task._last_percentage = percentage
 
         callback_function = callback
         i2i_uov_hires_fix_blurred = async_task.params_backend.pop('hires_fix_blurred', 0.0)
