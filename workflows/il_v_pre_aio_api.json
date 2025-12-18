@@ -1309,6 +1309,7 @@
   "241": {
     "inputs": {
       "sage_attention": "auto",
+      "allow_compile": false,
       "model": [
         "242",
         0
@@ -1496,6 +1497,7 @@
     "inputs": {
       "upscale_method": "lanczos",
       "megapixels": 1.5000000000000002,
+      "resolution_steps": 1,
       "image": [
         "620",
         0
@@ -1503,7 +1505,7 @@
     },
     "class_type": "ImageScaleToTotalPixels",
     "_meta": {
-      "title": "Scale Image to Total Pixels"
+      "title": "ImageScaleToTotalPixels"
     }
   },
   "279": {
@@ -2875,7 +2877,7 @@
     },
     "class_type": "GrowMask",
     "_meta": {
-      "title": "GrowMask"
+      "title": "Grow Mask"
     }
   },
   "378": {
@@ -4932,6 +4934,7 @@
     "inputs": {
       "upscale_method": "lanczos",
       "megapixels": 1.6400000000000003,
+      "resolution_steps": 1,
       "image": [
         "628",
         0
@@ -4939,7 +4942,7 @@
     },
     "class_type": "ImageScaleToTotalPixels",
     "_meta": {
-      "title": "Scale Image to Total Pixels"
+      "title": "ImageScaleToTotalPixels"
     }
   },
   "511": {

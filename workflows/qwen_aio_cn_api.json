@@ -1280,6 +1280,7 @@
     "inputs": {
       "upscale_method": "lanczos",
       "megapixels": 1.5000000000000002,
+      "resolution_steps": 1,
       "image": [
         "3",
         0
@@ -1714,6 +1715,7 @@
     "inputs": {
       "upscale_method": "lanczos",
       "megapixels": 1.6400000000000003,
+      "resolution_steps": 1,
       "image": [
         "760",
         0
@@ -2065,7 +2067,7 @@
     },
     "class_type": "GrowMask",
     "_meta": {
-      "title": "GrowMask"
+      "title": "Grow Mask"
     }
   },
   "370": {

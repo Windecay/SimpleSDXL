@@ -27,6 +27,10 @@ async def get_cnr_data(cache_mode=True, dont_wait=True):
 
 async def _get_cnr_data(cache_mode=True, dont_wait=True):
     global is_cache_loading
+    # Check network mode - if not public, return empty data
+    import manager_core
+    if manager_core.get_config()['network_mode'] != 'public':
+        return []
 
     uri = f'{base_url}/nodes'
 

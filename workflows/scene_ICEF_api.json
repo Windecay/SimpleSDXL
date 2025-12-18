@@ -326,6 +326,7 @@
   "73": {
     "inputs": {
       "sage_attention": "auto",
+      "allow_compile": false,
       "model": [
         "64",
         0
@@ -390,6 +391,7 @@
   "78": {
     "inputs": {
       "sage_attention": "auto",
+      "allow_compile": false,
       "model": [
         "77",
         0
@@ -600,6 +602,7 @@
     "inputs": {
       "upscale_method": "lanczos",
       "megapixels": 1.64,
+      "resolution_steps": 1,
       "image": [
         "233",
         0
@@ -612,6 +615,7 @@
   },
   "212": {
     "inputs": {
+      "strength": 1,
       "model": [
         "78",
         0

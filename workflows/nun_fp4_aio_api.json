@@ -1614,7 +1614,7 @@
     },
     "class_type": "ImageBlur",
     "_meta": {
-      "title": "Image Blur"
+      "title": "ImageBlur"
     }
   },
   "306": {
@@ -1669,6 +1669,7 @@
     "inputs": {
       "upscale_method": "lanczos",
       "megapixels": 1.5000000000000002,
+      "resolution_steps": 1,
       "image": [
         "3",
         0
@@ -1676,7 +1677,7 @@
     },
     "class_type": "ImageScaleToTotalPixels",
     "_meta": {
-      "title": "Scale Image to Total Pixels"
+      "title": "ImageScaleToTotalPixels"
     }
   },
   "313": {
@@ -2225,6 +2226,7 @@
     "inputs": {
       "upscale_method": "lanczos",
       "megapixels": 1.6400000000000003,
+      "resolution_steps": 1,
       "image": [
         "760",
         0
@@ -2232,7 +2234,7 @@
     },
     "class_type": "ImageScaleToTotalPixels",
     "_meta": {
-      "title": "Scale Image to Total Pixels"
+      "title": "ImageScaleToTotalPixels"
     }
   },
   "345": {
@@ -2597,7 +2599,7 @@
     },
     "class_type": "GrowMask",
     "_meta": {
-      "title": "GrowMask"
+      "title": "Grow Mask"
     }
   },
   "370": {
@@ -4719,6 +4721,7 @@
   "587": {
     "inputs": {
       "sage_attention": "auto",
+      "allow_compile": false,
       "model": [
         "494",
         0

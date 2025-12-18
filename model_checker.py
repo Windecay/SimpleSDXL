@@ -368,7 +368,7 @@ def print_instructions():
     time.sleep(0.1)
     print(f"{Fore.GREEN}★{Style.RESET_ALL}打开默认浏览器设置，关闭GPU加速、或图形加速的选项。{Fore.GREEN}★{Style.RESET_ALL}大内存(64+)与固态硬盘存放模型有助于减少模型加载时间。{Fore.GREEN}★{Style.RESET_ALL}")
     time.sleep(0.1)
-    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：1005085136{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:25.12.07{Fore.GREEN}★{Style.RESET_ALL}")
+    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：1005085136{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:25.12.18{Fore.GREEN}★{Style.RESET_ALL}")
     print()
     time.sleep(0.1)
     
@@ -507,6 +507,22 @@ def validate_files(packages):
         os.path.join(simplemodels_root, "ipadapter"),
         os.path.join(simplemodels_root, "diffusers"),
         os.path.join(simplemodels_root, "model_patches"),
+        os.path.join(simplemodels_root, "inpaint"),
+        os.path.join(simplemodels_root, "clip"),
+        os.path.join(simplemodels_root, "clip_vision"),
+        os.path.join(simplemodels_root, "fooocus_expansion"),
+        os.path.join(simplemodels_root, "llms"),
+        os.path.join(simplemodels_root, "safety_checker"),
+        os.path.join(simplemodels_root, "unet"),
+        os.path.join(simplemodels_root, "layer_model"),
+        os.path.join(simplemodels_root, "pulid"),
+        os.path.join(simplemodels_root, "text_encoders"),
+        os.path.join(simplemodels_root, "lsnet"),
+        os.path.join(simplemodels_root, "kaloscope"),
+        os.path.join(simplemodels_root, "diffusion_models"),
+        os.path.join(simplemodels_root, "SDPose_OOD"),
+        os.path.join(simplemodels_root, "jina_clip"),
+        os.path.join(simplemodels_root, "gemma3"),
         ]
         for model_root in MODEL_PATHS_TO_SCAN:
             if not os.path.exists(model_root):
@@ -1430,7 +1446,7 @@ packages = {
         "files": [
             ("diffusion_models/https://modelscope.cn/models/VerStella/z_image_turbo_comfyui/resolve/master/split_files/diffusion_models/z_image_turbo_bf16.safetensors", 12309866400),
             ("text_encoders/https://modelscope.cn/models/VerStella/z_image_turbo_comfyui/resolve/master/split_files/text_encoders/qwen_3_4b.safetensors", 8044982048),
-            ("model_patches/https://www.modelscope.cn/models/PAI/Z-Image-Turbo-Fun-Controlnet-Union-2.0/resolve/master/Z-Image-Turbo-Fun-Controlnet-Union-2.0.safetensors", 6712485600),
+            ("model_patches/https://www.modelscope.cn/models/PAI/Z-Image-Turbo-Fun-Controlnet-Union-2.0/resolve/master/Z-Image-Turbo-Fun-Controlnet-Union-2.1.safetensors", 6712485600),
             ("vae/ae.safetensors", 335304388),
             ("upscale_models/4x-UltraSharp.pth", 66961958),
             ("upscale_models/4xNomosUniDAT_bokeh_jpg.safetensors", 154152604),
@@ -2298,7 +2314,8 @@ OBSOLETE_MODELS = [
     "pytorch_model-00007-of-00007.bin",
     "FilmVelvia3.safetensors",
     "SDXL_FILM_PHOTOGRAPHY_STYLE_V1.safetensors",
-    "Z-Image-Turbo-Fun-Controlnet-Union.safetensors"
+    "Z-Image-Turbo-Fun-Controlnet-Union.safetensors",
+    "Z-Image-Turbo-Fun-Controlnet-Union-2.0.safetensors",
 ]
 def main():
     print()

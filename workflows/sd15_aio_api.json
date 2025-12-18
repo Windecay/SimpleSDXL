@@ -2395,6 +2395,7 @@
     "inputs": {
       "upscale_method": "lanczos",
       "megapixels": 1.0000000000000002,
+      "resolution_steps": 1,
       "image": [
         "96",
         0
@@ -2402,7 +2403,7 @@
     },
     "class_type": "ImageScaleToTotalPixels",
     "_meta": {
-      "title": "Scale Image to Total Pixels"
+      "title": "ImageScaleToTotalPixels"
     }
   },
   "318": {
@@ -3882,7 +3883,7 @@
     },
     "class_type": "GrowMask",
     "_meta": {
-      "title": "GrowMask"
+      "title": "Grow Mask"
     }
   },
   "403": {
@@ -5602,6 +5603,7 @@
     "inputs": {
       "upscale_method": "lanczos",
       "megapixels": 1.0000000000000002,
+      "resolution_steps": 1,
       "image": [
         "381",
         0
@@ -5609,7 +5611,7 @@
     },
     "class_type": "ImageScaleToTotalPixels",
     "_meta": {
-      "title": "Scale Image to Total Pixels"
+      "title": "ImageScaleToTotalPixels"
     }
   },
   "514": {

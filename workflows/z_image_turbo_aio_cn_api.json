@@ -662,7 +662,7 @@
     "inputs": {
       "strength": 1,
       "model": [
-        "829",
+        "837",
         0
       ]
     },
@@ -1263,6 +1263,7 @@
     "inputs": {
       "upscale_method": "lanczos",
       "megapixels": 1.5000000000000002,
+      "resolution_steps": 1,
       "image": [
         "3",
         0
@@ -1598,6 +1599,7 @@
     "inputs": {
       "upscale_method": "lanczos",
       "megapixels": 1.6400000000000003,
+      "resolution_steps": 1,
       "image": [
         "760",
         0
@@ -3217,7 +3219,7 @@
         0
       ],
       "on_true": [
-        "801",
+        "838",
         0
       ],
       "on_false": [
@@ -5162,34 +5164,6 @@
       "title": "ModelPatchLoader"
     }
   },
-  "801": {
-    "inputs": {
-      "strength": [
-        "521",
-        0
-      ],
-      "model": [
-        "541",
-        2
-      ],
-      "model_patch": [
-        "800",
-        0
-      ],
-      "vae": [
-        "336",
-        0
-      ],
-      "image": [
-        "542",
-        0
-      ]
-    },
-    "class_type": "QwenImageDiffsynthControlnet",
-    "_meta": {
-      "title": "QwenImageDiffsynthControlnet"
-    }
-  },
   "804": {
     "inputs": {
       "pixels": [
@@ -5546,31 +5520,6 @@
       "title": "ModelPatchLoader"
     }
   },
-  "829": {
-    "inputs": {
-      "strength": 1,
-      "model": [
-        "626",
-        0
-      ],
-      "model_patch": [
-        "828",
-        0
-      ],
-      "vae": [
-        "336",
-        0
-      ],
-      "image": [
-        "217",
-        0
-      ]
-    },
-    "class_type": "QwenImageDiffsynthControlnet",
-    "_meta": {
-      "title": "QwenImageDiffsynthControlnet"
-    }
-  },
   "830": {
     "inputs": {
       "seed": [
@@ -5658,7 +5607,7 @@
         0
       ],
       "latent_image": [
-        "807",
+        "804",
         0
       ]
     },
@@ -5669,7 +5618,7 @@
   },
   "833": {
     "inputs": {
-      "model_url": "https://www.modelscope.cn/models/PAI/Z-Image-Turbo-Fun-Controlnet-Union-2.0/resolve/master/Z-Image-Turbo-Fun-Controlnet-Union-2.0.safetensors",
+      "model_url": "https://www.modelscope.cn/models/PAI/Z-Image-Turbo-Fun-Controlnet-Union-2.0/resolve/master/Z-Image-Turbo-Fun-Controlnet-Union-2.1.safetensors",
       "model_folder": "model_patches",
       "run_download": true,
       "overwrite_existing": false
@@ -5714,6 +5663,63 @@
     "class_type": "SimpleModelDownloader",
     "_meta": {
       "title": "Simple Model Downloader"
+    }
+  },
+  "837": {
+    "inputs": {
+      "strength": 1,
+      "model": [
+        "626",
+        0
+      ],
+      "model_patch": [
+        "828",
+        0
+      ],
+      "vae": [
+        "336",
+        0
+      ],
+      "inpaint_image": [
+        "217",
+        0
+      ],
+      "mask": [
+        "300",
+        0
+      ]
+    },
+    "class_type": "ZImageFunControlnet",
+    "_meta": {
+      "title": "ZImageFunControlnet"
+    }
+  },
+  "838": {
+    "inputs": {
+      "strength": [
+        "521",
+        0
+      ],
+      "model": [
+        "541",
+        2
+      ],
+      "model_patch": [
+        "800",
+        0
+      ],
+      "vae": [
+        "336",
+        0
+      ],
+      "image": [
+        "542",
+        0
+      ]
+    },
+    "class_type": "ZImageFunControlnet",
+    "_meta": {
+      "title": "ZImageFunControlnet"
     }
   }
 }
