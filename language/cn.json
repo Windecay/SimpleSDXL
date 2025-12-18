@@ -141,7 +141,7 @@
   "Use GroundingDINO boxes instead of more detailed SAM masks": "使用GroundingDINO框，而不是更细节的SAM掩码",
   
   "Control": "控图",
-  "💥Preview Preprocessor": "💥预览预处理结果",
+  "💥Preview Preprocessor": "💥预处理预览",
   "Debug Preprocessors": "预处理器调试",
   "See the results from preprocessors.": "可以查看图像预处理后的结果",
   "Skip Preprocessors": "跳过预处理器",

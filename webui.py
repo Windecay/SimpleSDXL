@@ -1112,7 +1112,6 @@ with shared.gradio_root:
                                                     enhance_mask_invert = gr.Checkbox(label='Invert Mask', value=False)
 
                                                 gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/3281" target="_blank">\U0001F4D4 Documentation</a>')
-
                                             enhance_ctrls += [
                                                 enhance_enabled,
                                                 enhance_mask_dino_prompt_text,
@@ -1155,13 +1154,13 @@ with shared.gradio_root:
                                                         example_enhance_mask_dino_prompt_text],
                                                 queue=False, show_progress=False)
 
-
             switch_js = "(x) => {if(x){viewer_to_bottom(100);viewer_to_bottom(500);}else{viewer_to_top();} return x;}"
             down_js = "() => {viewer_to_bottom();}"
 
             ip_advanced.change(lambda: None, queue=False, show_progress=False, _js=down_js)
 
             current_tab = gr.Textbox(value=modules.config.default_selected_image_input_tab_id.split('_')[0], visible=False)
+            history_link = gr.HTML()
 
         with gr.Column(scale=1, visible=modules.config.default_advanced_checkbox, elem_id="scrollable-box-hidden") as advanced_column:
             with gr.Tab(label='Setting', elem_id="scrollable-box") as setting_tab:
@@ -1348,8 +1347,6 @@ with shared.gradio_root:
                         freeu_s1 = gr.Slider(label='S1', minimum=0, maximum=4, step=0.01, value=0.99)
                         freeu_s2 = gr.Slider(label='S2', minimum=0, maximum=4, step=0.01, value=0.95)
                         freeu_ctrls = [freeu_enabled, freeu_b1, freeu_b2, freeu_s1, freeu_s2]
-                
-                history_link = gr.HTML()
 
                 with gr.Tabs():
                     with gr.Tab(label='Describe Image', id='describe_tab', visible=True) as image_describe:
@@ -1977,6 +1974,7 @@ with shared.gradio_root:
                     simpleai_contact = gr.HTML(visible=True, value=simpleai.self_contact, elem_classes=["identityIntroduce"], elem_id='identity_introduce')
                 with gr.Row():
                     gr.Markdown(value=f'<b>系统版本</b>({version.get_simplesdxl_short_ver()})<br>OS: {shared.sysinfo["os_name"]}, {shared.sysinfo["cpu_arch"]}, {shared.sysinfo["cuda"]}, Torch{shared.sysinfo["torch_version"]}, XF{shared.sysinfo["xformers_version"]}<br>Ver: {version.branch} {version.simplesdxl_ver} / Comfyd {comfy_version.version}<br>PyHash: {shared.sysinfo["pyhash"]}, UIHash: {shared.sysinfo["uihash"]}')
+
 
         
                 def sync_state_params(key, value, state):
