@@ -1226,6 +1226,17 @@ def downloading_controlnet_cpds():
     )
     return os.path.join(paths_controlnet[0], 'fooocus_xl_cpds_128.safetensors')
 
+def downloading_controlnet_zoe():
+    model_path = 'lllyasviel/Annotators'
+    model_root = os.path.join(paths_controlnet[0], model_path)
+    file_name = 'ZoeD_M12_N.pt'
+    load_file_from_url(
+        url='https://huggingface.co/lllyasviel/Annotators/resolve/main/ZoeD_M12_N.pt',
+        model_dir=model_root,
+        file_name=file_name
+    )
+    return os.path.join(model_root, file_name)
+
 def downloading_controlnet_dwpose():
     model_path = "yzd-v/DWPose"
     model_root = os.path.join(paths_controlnet[0], model_path)

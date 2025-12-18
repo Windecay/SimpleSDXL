@@ -5484,22 +5484,6 @@
       "title": "图像停止"
     }
   },
-  "746": {
-    "inputs": {
-      "resolution": [
-        "289",
-        0
-      ],
-      "image": [
-        "747",
-        0
-      ]
-    },
-    "class_type": "Zoe-DepthMapPreprocessor",
-    "_meta": {
-      "title": "Zoe Depth Map"
-    }
-  },
   "747": {
     "inputs": {
       "index": [
@@ -5526,26 +5510,6 @@
     "class_type": "easy anythingIndexSwitch",
     "_meta": {
       "title": "图像"
-    }
-  },
-  "748": {
-    "inputs": {
-      "boolean": [
-        "189",
-        0
-      ],
-      "on_true": [
-        "747",
-        0
-      ],
-      "on_false": [
-        "746",
-        0
-      ]
-    },
-    "class_type": "easy ifElse",
-    "_meta": {
-      "title": "If else"
     }
   },
   "749": {
@@ -5680,7 +5644,7 @@
         0
       ],
       "value1": [
-        "748",
+        "747",
         0
       ],
       "value2": [

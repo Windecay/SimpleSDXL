@@ -790,7 +790,8 @@ with shared.gradio_root:
                 with gr.Tabs(selected=modules.config.default_selected_image_input_tab_id, elem_id='image_input_tabs'):
                     with gr.Tab(label='Image Prompt', id='ip_tab', elem_id='ip_tab') as ip_tab:
                         with gr.Row():
-                            ip_advanced = gr.Checkbox(label='Advanced Control', value=modules.config.default_image_prompt_advanced_checkbox, container=False)
+                            ip_advanced = gr.Checkbox(label='Advanced Control', value=modules.config.default_image_prompt_advanced_checkbox, container=False, scale=5)
+                            preview_preprocessing = gr.Button(value='💥Preview Preprocessor', scale=1)
                         with gr.Row():
                             ip_images = []
                             ip_types = []
@@ -2255,6 +2256,14 @@ with shared.gradio_root:
             .then(fn=lambda: None, _js='playNotification').then(fn=lambda: None, _js='refresh_grid_delayed') \
             .then(fn=update_prompt_history,inputs=[currentTask, state_prompt_history],outputs=state_prompt_history) \
             .then(lambda h: gr.Dataset.update(samples=[[v] for v in h]),inputs=state_prompt_history,outputs=history_prompts)
+
+        debug_true_state = gr.State(value=True)
+        ctrls_preview = [debug_true_state if c == debugging_cn_preprocessor else c for c in ctrls]
+
+        preview_preprocessing.click(topbar.process_before_generation, inputs=[state_topbar, seed_random, image_seed, params_backend] + scene_params[:-2], outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating, index_radio, image_toolbox, prompt_info_box, image_seed] + protections + [preset_store, identity_dialog], show_progress=False) \
+            .then(fn=get_task, inputs=ctrls_preview, outputs=currentTask) \
+            .then(fn=generate_clicked, inputs=[currentTask, state_topbar], outputs=[progress_html, progress_window, progress_gallery, progress_video, gallery]) \
+            .then(topbar.process_after_generation, inputs=state_topbar, outputs=[generate_button, stop_button, skip_button, state_is_generating, gallery_index, index_radio] + protections + [gallery_index_stat, history_link], show_progress=False)
 
         for notification_file in ['notification.ogg', 'notification.mp3']:
             if os.path.exists(notification_file):

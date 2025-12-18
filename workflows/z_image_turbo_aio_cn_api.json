@@ -2782,22 +2782,6 @@
       "title": "If else"
     }
   },
-  "488": {
-    "inputs": {
-      "resolution": [
-        "239",
-        0
-      ],
-      "image": [
-        "522",
-        0
-      ]
-    },
-    "class_type": "Zoe-DepthMapPreprocessor",
-    "_meta": {
-      "title": "Zoe Depth Map"
-    }
-  },
   "494": {
     "inputs": {
       "boolean": [
@@ -2872,26 +2856,6 @@
     "class_type": "easy anythingIndexSwitch",
     "_meta": {
       "title": "图像"
-    }
-  },
-  "523": {
-    "inputs": {
-      "boolean": [
-        "174",
-        0
-      ],
-      "on_true": [
-        "522",
-        0
-      ],
-      "on_false": [
-        "488",
-        0
-      ]
-    },
-    "class_type": "easy ifElse",
-    "_meta": {
-      "title": "If else"
     }
   },
   "525": {
@@ -3125,7 +3089,7 @@
         0
       ],
       "value1": [
-        "523",
+        "522",
         0
       ],
       "value2": [
@@ -5290,10 +5254,10 @@
       ],
       "start_at_step": 0,
       "end_at_step": [
-        "812",
-        0
+        "728",
+        5
       ],
-      "return_with_leftover_noise": "enable",
+      "return_with_leftover_noise": "disable",
       "model": [
         "526",
         0
@@ -5308,70 +5272,6 @@
       ],
       "latent_image": [
         "257",
-        0
-      ]
-    },
-    "class_type": "KSamplerAdvanced",
-    "_meta": {
-      "title": "KSampler (Advanced)"
-    }
-  },
-  "812": {
-    "inputs": {
-      "value": "a/2",
-      "a": [
-        "728",
-        5
-      ]
-    },
-    "class_type": "SimpleMath+",
-    "_meta": {
-      "title": "🔧 Simple Math"
-    }
-  },
-  "813": {
-    "inputs": {
-      "add_noise": "disable",
-      "noise_seed": [
-        "417",
-        0
-      ],
-      "steps": [
-        "728",
-        5
-      ],
-      "cfg": [
-        "728",
-        4
-      ],
-      "sampler_name": [
-        "728",
-        7
-      ],
-      "scheduler": [
-        "728",
-        8
-      ],
-      "start_at_step": [
-        "812",
-        0
-      ],
-      "end_at_step": 10000,
-      "return_with_leftover_noise": "disable",
-      "model": [
-        "798",
-        0
-      ],
-      "positive": [
-        "805",
-        0
-      ],
-      "negative": [
-        "1",
-        0
-      ],
-      "latent_image": [
-        "811",
         0
       ]
     },
@@ -5436,7 +5336,7 @@
         0
       ],
       "on_false": [
-        "813",
+        "811",
         0
       ]
     },
@@ -5697,8 +5597,8 @@
   "838": {
     "inputs": {
       "strength": [
-        "521",
-        0
+        "839",
+        1
       ],
       "model": [
         "541",
@@ -5720,6 +5620,19 @@
     "class_type": "ZImageFunControlnet",
     "_meta": {
       "title": "ZImageFunControlnet"
+    }
+  },
+  "839": {
+    "inputs": {
+      "value": "a*0.85",
+      "a": [
+        "521",
+        0
+      ]
+    },
+    "class_type": "SimpleMath+",
+    "_meta": {
+      "title": "🔧 Simple Math"
     }
   }
 }

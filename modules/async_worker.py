@@ -619,9 +619,8 @@ def worker():
         for task in async_task.cn_tasks[flags.cn_cpds]:
             cn_img, cn_stop, cn_weight = task
             cn_img = HWC3(cn_img)
-            if not async_task.skipping_cn_preprocessor and async_task.task_class in ['Fooocus']:
-                cn_img = preprocessors.cpds(cn_img)
-
+            if not async_task.skipping_cn_preprocessor:
+                cn_img = preprocessors.zoe_depth(cn_img)
             cn_img = resize_image(HWC3(cn_img), width=width, height=height)
             task[0] = core.numpy_to_pytorch(cn_img) if async_task.task_class in ['Fooocus'] else cn_img
             if async_task.debugging_cn_preprocessor:

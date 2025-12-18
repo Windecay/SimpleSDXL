@@ -130,3 +130,15 @@ def normalizedBG(image, threshold=200):
         return 255 - image
     return image
 
+
+def zoe_depth(x, resolution=512):
+    try:
+        from extras.zoe import ZoeDetector
+    except ImportError as e:
+        print(f"Error: Could not import ZoeDetector from extras: {e}")
+        return x
+
+    detector = ZoeDetector.from_pretrained()
+    result = detector(x, detect_resolution=resolution, output_type="np")
+
+    return result

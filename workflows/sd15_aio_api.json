@@ -6223,26 +6223,6 @@
       "title": "CLIP Text Encode (Prompt)"
     }
   },
-  "566": {
-    "inputs": {
-      "boolean": [
-        "78",
-        0
-      ],
-      "on_true": [
-        "585",
-        0
-      ],
-      "on_false": [
-        "660",
-        0
-      ]
-    },
-    "class_type": "easy ifElse",
-    "_meta": {
-      "title": "If else"
-    }
-  },
   "567": {
     "inputs": {
       "value": 2
@@ -7153,22 +7133,6 @@
       "title": "String"
     }
   },
-  "660": {
-    "inputs": {
-      "resolution": [
-        "169",
-        0
-      ],
-      "image": [
-        "585",
-        0
-      ]
-    },
-    "class_type": "Zoe-DepthMapPreprocessor",
-    "_meta": {
-      "title": "Zoe Depth Map"
-    }
-  },
   "661": {
     "inputs": {
       "index": [
@@ -7180,7 +7144,7 @@
         0
       ],
       "value1": [
-        "566",
+        "585",
         0
       ],
       "value2": [
