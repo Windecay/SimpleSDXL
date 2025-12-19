@@ -100,7 +100,7 @@ def images_list_update(choice, image_tools_checkbox, state_params):
         return [gr.update(visible=False), gr.update(visible=False)] + \
                [gr.update(open=False, visible=False), gr.update(visible=False)] + \
                [gr.update(visible=False)] * 3 + \
-               [gr.update(visible=True, value=welcome_image), gr.update(visible=False), gr.update(visible=False)] + \
+               [gr.update(visible=True, value=None), gr.update(visible=False), gr.update(visible=False)] + \
                [gr.update(visible=False)] * 7
     user_did = state_params["user"].get_did()
     state_params.update({"gallery_state": 'finished_index'})
