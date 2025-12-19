@@ -417,12 +417,22 @@ def worker():
             input_images = params_backend.pop('input_images', None)
             options = params_backend.pop('ui_options', {})
             reserved_vram = ads.get_admin_default('reserved_vram')
+            cache_ram = ads.get_admin_default('cache_ram')
+            modify_vars = {}
             if reserved_vram > 0:
-                comfyd.modify_variable({"reserved_vram": reserved_vram})
+                modify_vars["reserved_vram"] = reserved_vram
+            if cache_ram is not None:
+                modify_vars["cache_ram"] = cache_ram
+            if modify_vars:
+                comfyd.modify_variable(modify_vars)
+
             wavespeed_strength = ads.get_admin_default('wavespeed_strength')
             if wavespeed_strength > 0:
                 params_backend.update({"wavespeed_strength": wavespeed_strength})
-            logger.info(f'reserved_vram={reserved_vram}, wavespeed_strength={wavespeed_strength}')
+            cache_ram = ads.get_admin_default('cache_ram')
+            if cache_ram is not None:
+                params_backend.update({"cache_ram": cache_ram})
+            logger.info(f'reserved_vram={reserved_vram}, wavespeed_strength={wavespeed_strength}, cache_ram={cache_ram}')
             default_params.update(params_backend)
             try:
                 user_cert = shared.token.get_register_cert(async_task.user_did)

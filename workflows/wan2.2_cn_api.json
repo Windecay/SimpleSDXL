@@ -353,7 +353,7 @@
         0
       ],
       "latent_image": [
-        "100",
+        "51",
         0
       ]
     },
@@ -491,7 +491,7 @@
       "batch_size": 32,
       "use_fp16": true,
       "images": [
-        "101",
+        "17",
         0
       ]
     },
@@ -661,34 +661,6 @@
     "class_type": "ModelPatchTorchSettings",
     "_meta": {
       "title": "Model Patch Torch Settings"
-    }
-  },
-  "100": {
-    "inputs": {
-      "mode": "RAM_PRESSURE (Auto Purge)",
-      "cleanup_threshold": 2,
-      "any_input": [
-        "51",
-        0
-      ]
-    },
-    "class_type": "DynamicRAMCacheControl",
-    "_meta": {
-      "title": "🔥 Dynamic RAM Cache Control"
-    }
-  },
-  "101": {
-    "inputs": {
-      "mode": "CLASSIC (No Eviction)",
-      "cleanup_threshold": 2,
-      "any_input": [
-        "17",
-        0
-      ]
-    },
-    "class_type": "DynamicRAMCacheControl",
-    "_meta": {
-      "title": "🔥 Dynamic RAM Cache Control"
     }
   },
   "104": {

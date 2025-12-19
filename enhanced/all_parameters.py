@@ -127,6 +127,7 @@ default = {
     'minicpm_version': 'MiniCPMv26',
     'advanced_logs': False,
     'wavespeed_strength': 0.12,
+    'cache_ram': 0,
     'p2p_active_checkbox': False,
     'p2p_remote_process': 'Disable',
     'p2p_in_did_list': '',

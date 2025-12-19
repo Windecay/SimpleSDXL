@@ -1916,9 +1916,10 @@ with shared.gradio_root:
                                         advanced_logs = gr.Checkbox(label='Enable advanced logs', value=ads.get_admin_default('advanced_logs'), info='Enabling with more infomation in logs.')
                                         with gr.Column():
                                             minicpm_version = gr.Dropdown(label='MiniCPM Version', choices=['MiniCPMv26', 'MiniCPMv45'], value=ads.get_admin_default('minicpm_version'), info='Select the MiniCPM model version to use')
-                                    with gr.Row(visible=True if not args_manager.args.disable_backend else False):
-                                        reserved_vram = gr.Slider(label='Reserved VRAM(GB)', minimum=0, maximum=24, step=0.1, value=ads.get_admin_default('reserved_vram'))
-                                        wavespeed_strength = gr.Slider(label='wavespeed_strength', minimum=0, maximum=1, step=0.01, value=ads.get_admin_default('wavespeed_strength'))
+                                    with gr.Column(visible=True if not args_manager.args.disable_backend else False):
+                                        reserved_vram = gr.Slider(label='Reserved VRAM(GB)', minimum=0, maximum=24, step=0.1, value=ads.get_admin_default('reserved_vram'), info='Reserve VRAM to prevent OOM or Slow inference.')
+                                        cache_ram = gr.Slider(label='Cache RAM(GB)', minimum=0, maximum=96, step=0.1, value=ads.get_admin_default('cache_ram'), info='[BETA]Set RAM cache threshold. 0: Classic; >0: RAM Pressure mode (auto-purge when available RAM is low).')
+                                        wavespeed_strength = gr.Slider(label='wavespeed_strength', minimum=0, maximum=1, step=0.01, value=ads.get_admin_default('wavespeed_strength'), info='Wavespeed optimization strength to improve inference speed on some presets.')
                                     with gr.Row(visible=True if not args_manager.args.disable_backend else False):
                                         translation_methods = gr.Radio(label='Translation methods', choices=modules.flags.translation_methods, value=ads.get_admin_default('translation_methods'))
 
@@ -1999,17 +2000,22 @@ with shared.gradio_root:
                 disable_intermediate_results.change(lambda x,y: ads.set_user_default_value("disable_intermediate_results", x, y), inputs=[disable_intermediate_results, state_topbar])
                 disable_seed_increment.change(lambda x,y: ads.set_user_default_value("disable_seed_increment", x, y), inputs=[disable_seed_increment, state_topbar])
                 save_final_enhanced_image_only.change(lambda x,y: ads.set_user_default_value("save_final_enhanced_image_only", x, y), inputs=[save_final_enhanced_image_only, state_topbar])
+                generate_image_grid.change(lambda x,y: ads.set_user_default_value("generate_image_grid", x, y), inputs=[generate_image_grid, state_topbar])
+                black_out_nsfw.change(lambda x,y: ads.set_user_default_value("black_out_nsfw", x, y), inputs=[black_out_nsfw, state_topbar])
+                save_metadata_to_images.change(lambda x,y: ads.set_user_default_value("save_metadata_to_images", x, y), inputs=[save_metadata_to_images, state_topbar])
+                metadata_scheme.change(lambda x,y: ads.set_user_default_value("metadata_scheme", x, y), inputs=[metadata_scheme, state_topbar])
 
                 fast_comfyd_checkbox.change(simpleai.start_fast_comfyd, inputs=[fast_comfyd_checkbox, state_topbar])
                 minicpm_checkbox.change(toggle_minicpm, inputs=[minicpm_checkbox, state_topbar], outputs=[describe_apply_styles, describe_output_tags, describe_output_chinese, describe_output_artist, describe_methods, describe_prompt], queue=False, show_progress=False)
                 minicpm_version.change(fn=lambda version, state: [minicpm.set_version(version), ads.set_admin_default_value('minicpm_version', version, state)][-1], inputs=[minicpm_version, state_topbar], outputs=None)
                 reserved_vram.change(lambda x,y: ads.set_admin_default_value('reserved_vram',x,y), inputs=[reserved_vram, state_topbar])
+                cache_ram.change(lambda x,y: ads.set_admin_default_value('cache_ram',x,y), inputs=[cache_ram, state_topbar])
                 advanced_logs.change(simpleai.change_advanced_logs, inputs=[advanced_logs, state_topbar])
                 wavespeed_strength.change(lambda x,y: ads.set_admin_default_value('wavespeed_strength',x,y), inputs=[wavespeed_strength, state_topbar])
                 admin_sync_button.click(topbar.admin_sync_to_guest, inputs=[state_topbar], outputs=admin_sync_button, queue=False, show_progress=False)
 
-                admin_ctrls = [comfyd_active_checkbox, fast_comfyd_checkbox, reserved_vram, minicpm_checkbox, minicpm_version, advanced_logs, wavespeed_strength, translation_methods, p2p_active_checkbox, p2p_remote_process, p2p_in_did_list, p2p_out_did_list, no_welcome_checkbox, missing_model_filter_checkbox]
-                user_app_ctrls = [backfill_prompt, image_tools_checkbox, disable_preview, disable_intermediate_results, disable_seed_increment, save_final_enhanced_image_only, style_preview_checkbox]
+                admin_ctrls = [comfyd_active_checkbox, fast_comfyd_checkbox, reserved_vram, cache_ram, minicpm_checkbox, minicpm_version, advanced_logs, wavespeed_strength, translation_methods, p2p_active_checkbox, p2p_remote_process, p2p_in_did_list, p2p_out_did_list, no_welcome_checkbox, missing_model_filter_checkbox]
+                user_app_ctrls = [backfill_prompt, image_tools_checkbox, disable_preview, disable_intermediate_results, disable_seed_increment, save_final_enhanced_image_only, style_preview_checkbox, generate_image_grid, black_out_nsfw, save_metadata_to_images, metadata_scheme]
 
 
             iclight_enable.change(lambda x: [gr.update(interactive=x, value='' if not x else comfy_task.iclight_source_names[0]), gr.update(value=flags.add_ratio('1024*1024') if not x else modules.config.default_aspect_ratio)], inputs=iclight_enable, outputs=[iclight_source_radio, aspect_ratios_selections[0]], queue=False, show_progress=False)

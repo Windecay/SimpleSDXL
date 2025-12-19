@@ -13,6 +13,9 @@ import asyncio
 import torch
 
 import comfy.model_management
+from comfy.cli_args import args
+import os
+import gc
 from latent_preview import set_preview_method
 import nodes
 from comfy_execution.caching import (
@@ -95,11 +98,57 @@ class CacheEntry(NamedTuple):
     outputs: list
 
 
+CACHE_RAM = None
+if args.cache_ram is not None:
+    CACHE_RAM = args.cache_ram
+
+if "COMFY_CACHE_RAM" in os.environ:
+    try:
+        CACHE_RAM = float(os.environ["COMFY_CACHE_RAM"])
+    except:
+        pass
+
+_LAST_PRINTED_CACHE_RAM = None
+
 class CacheType(Enum):
     CLASSIC = 0
     LRU = 1
     NONE = 2
     RAM_PRESSURE = 3
+
+
+def get_cache_ram():
+    global _LAST_PRINTED_CACHE_RAM
+    ram = CACHE_RAM
+
+    if ram != _LAST_PRINTED_CACHE_RAM:
+        _LAST_PRINTED_CACHE_RAM = ram
+    return ram
+
+def set_cache_ram(ram):
+    global CACHE_RAM
+    if CACHE_RAM != ram:
+        CACHE_RAM = ram
+        try:
+            import gc
+            for obj in gc.get_objects():
+                if obj.__class__.__name__ == 'PromptExecutor':
+                    if hasattr(obj, 'cache_args'):
+                        old_val = obj.cache_args.get('ram')
+                        if old_val != ram:
+                            logging.info(f"Syncing PromptExecutor cache_args['ram']: {old_val} -> {ram}")
+                            obj.cache_args['ram'] = ram
+
+                        new_cache_type = CacheType.CLASSIC if (ram is None or ram <= 0) else CacheType.RAM_PRESSURE
+                        if hasattr(obj, 'cache_type') and obj.cache_type != new_cache_type:
+
+                            if obj.cache_type in [CacheType.CLASSIC, CacheType.RAM_PRESSURE]:
+                                logging.info(f"Switching PromptExecutor cache_type: {obj.cache_type} -> {new_cache_type}")
+                                obj.cache_type = new_cache_type
+                                obj.reset() # Re-initialize caches
+                    break
+        except Exception as e:
+            logging.error(f"Error syncing CACHE_RAM to PromptExecutor: {e}")
 
 
 class CacheSet:
@@ -109,6 +158,9 @@ class CacheSet:
             logging.info("Disabling intermediate node cache.")
         elif cache_type == CacheType.RAM_PRESSURE:
             cache_ram = cache_args.get("ram", 16.0)
+            dynamic_ram = get_cache_ram()
+            if dynamic_ram is not None:
+                cache_ram = dynamic_ram
             self.init_ram_cache(cache_ram)
             logging.info("Using RAM pressure cache.")
         elif cache_type == CacheType.LRU:

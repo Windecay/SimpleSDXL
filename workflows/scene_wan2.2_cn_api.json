@@ -553,7 +553,7 @@
         0
       ],
       "on_false": [
-        "106",
+        "58",
         0
       ]
     },
@@ -800,7 +800,7 @@
       "batch_size": 32,
       "use_fp16": true,
       "images": [
-        "108",
+        "109",
         0
       ]
     },
@@ -902,7 +902,7 @@
     "inputs": {
       "model": "Wan 2.1 latent upscale 2x",
       "samples": [
-        "107",
+        "22",
         0
       ]
     },
@@ -984,48 +984,6 @@
       "cleanup_threshold": 2,
       "any_input": [
         "59",
-        0
-      ]
-    },
-    "class_type": "DynamicRAMCacheControl",
-    "_meta": {
-      "title": "🔥 Dynamic RAM Cache Control"
-    }
-  },
-  "106": {
-    "inputs": {
-      "mode": "CLASSIC (No Eviction)",
-      "cleanup_threshold": 2,
-      "any_input": [
-        "58",
-        0
-      ]
-    },
-    "class_type": "DynamicRAMCacheControl",
-    "_meta": {
-      "title": "🔥 Dynamic RAM Cache Control"
-    }
-  },
-  "107": {
-    "inputs": {
-      "mode": "RAM_PRESSURE (Auto Purge)",
-      "cleanup_threshold": 2,
-      "any_input": [
-        "22",
-        0
-      ]
-    },
-    "class_type": "DynamicRAMCacheControl",
-    "_meta": {
-      "title": "🔥 Dynamic RAM Cache Control"
-    }
-  },
-  "108": {
-    "inputs": {
-      "mode": "CLASSIC (No Eviction)",
-      "cleanup_threshold": 2,
-      "any_input": [
-        "109",
         0
       ]
     },
