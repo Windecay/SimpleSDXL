@@ -34,7 +34,8 @@ def make_infobox_markdown(info, theme):
     bgcolor = '#ddd'
     if theme == "dark":
         bgcolor = '#444'
-    html = f'<div style="background: {bgcolor}">'
+    # 为 div 添加 padding，特别是右侧留出空间给关闭按钮 (×)
+    html = f'<div style="background: {bgcolor}; padding: 10px 35px 10px 15px; border-radius: 8px;">'
     if info:
         for key in info:
             if key in ['Filename', 'Advanced_parameters', 'Fooocus V2 Expansion', 'Metadata Scheme', 'Version', 'Upscale (Fast)'] or info[key] in [None, '', 'None']:
@@ -54,13 +55,36 @@ def toggle_toolbox(state, state_params):
 
 
 def toggle_prompt_info(state_params):
-    infobox_state = state_params["infobox_state"]
+    infobox_state = state_params.get("infobox_state", False)
     infobox_state = not infobox_state
     state_params.update({"infobox_state": infobox_state})
-    #logger.info(f'[ToolBox] Toggle_image_info: {infobox_state}')
-    [choice, selected] = state_params["prompt_info"]
+
+    prompt_info_data = state_params.get("prompt_info")
+    if not prompt_info_data or not isinstance(prompt_info_data, list) or len(prompt_info_data) < 2:
+        output_list = state_params.get("__output_list", [])
+        if output_list:
+            prompt_info_data = [output_list[0], 0]
+            state_params.update({"prompt_info": prompt_info_data})
+        else:
+            prompt_info_data = [None, 0]
+
+    [choice, selected] = prompt_info_data
     prompt_info = gallery.get_images_prompt(choice, selected, state_params["__max_per_page"], user_did=state_params["user"].get_did())
-    return gr.update(value=make_infobox_markdown(prompt_info, state_params['__theme']), visible=infobox_state), state_params
+    return (
+        gr.update(value=make_infobox_markdown(prompt_info, state_params['__theme']), visible=infobox_state),
+        gr.update(visible=infobox_state),
+        gr.update(visible=infobox_state),
+        state_params
+    )
+
+def close_prompt_info(state_params):
+    state_params.update({"infobox_state": False})
+    return (
+        gr.update(visible=False),
+        gr.update(visible=False),
+        gr.update(visible=False),
+        state_params
+    )
 
 
 def check_preset_models(checklist, state_params):
@@ -87,23 +111,34 @@ def toggle_note_box(item, state_params):
         note_box_state[1] = not note_box_state[1]
         note_box_state[0] = item
     else:
-        state_params.update({"note_box_state": note_box_state})
-        return [gr.update(visible=True)] + [gr.update()] * (3 if item == 'preset' else 2) + [state_params]
+        note_box_state[0] = item
+        note_box_state[1] = True
+
     state_params.update({"note_box_state": note_box_state})
     flag = note_box_state[1]
     title_extra = ""
     if note_box_state[2]:
         title_extra = '\n' # + toolbox_note_missing_muid
+
+    info_val = ""
     if item == 'delete':
-        [choice, selected] = state_params["prompt_info"]
-        info = gallery.get_images_prompt(choice, selected, state_params["__max_per_page"], user_did=state_params["user"].get_did())
-        return gr.update(value=f'DELETE the image from output directory and logs!', visible=True), gr.update(visible=flag), gr.update(visible=flag), state_params
-    if item == 'regen':
-        return gr.update(value=toolbox_note_regenerate_title, visible=True), gr.update(visible=flag), gr.update(visible=flag), state_params
-    if item == 'preset':
-        return gr.update(value=toolbox_note_preset_title + title_extra, visible=True), gr.update(visible=flag), gr.update(visible=flag), gr.update(visible=flag), state_params
-    if item == 'embed':
-        return gr.update(value=toolbox_note_embed_title + title_extra, visible=True), gr.update(visible=flag), gr.update(visible=flag)
+        info_val = f'DELETE the image from output directory and logs!'
+    elif item == 'regen':
+        info_val = toolbox_note_regenerate_title
+    elif item == 'preset':
+        info_val = toolbox_note_preset_title + title_extra
+
+    # 返回顺序: info, close_btn, input_name, delete_btn, regen_btn, preset_btn, box, state_params
+    return (
+        gr.update(value=info_val, visible=flag),
+        gr.update(visible=flag),
+        gr.update(visible=flag if item == 'preset' else False),
+        gr.update(visible=flag if item == 'delete' else False),
+        gr.update(visible=flag if item == 'regen' else False),
+        gr.update(visible=flag if item == 'preset' else False),
+        gr.update(visible=flag),
+        state_params
+    )
 
 def toggle_note_box_delete(state_params):
     return toggle_note_box('delete', state_params)
@@ -112,9 +147,11 @@ def toggle_note_box_delete(state_params):
 def toggle_note_box_regen(*args):
     args = list(args)
     state_params = args.pop()
-    for i in range(len(config.default_loras)):
-        del args[4+i]
-        del args[4+i+1]
+    lora_count = len(config.default_loras)
+    for i in range(lora_count):
+        if len(args) > 4:
+            del args[4]
+            del args[4]
     checklist = args[2:]
     state_params = check_preset_models(checklist, state_params)
     return toggle_note_box('regen', state_params)
@@ -122,12 +159,29 @@ def toggle_note_box_regen(*args):
 def toggle_note_box_preset(*args):
     args = list(args)
     state_params = args.pop()
-    for i in range(len(config.default_loras)):
-        del args[4+i]
-        del args[4+i+1]
+    lora_count = len(config.default_loras)
+    for i in range(lora_count):
+        if len(args) > 4:
+            del args[4]
+            del args[4]
     checklist = args[2:]
     state_params = check_preset_models(checklist, state_params)
     return toggle_note_box('preset', state_params)
+
+
+def close_note_box(state_params):
+    state_params.update({"note_box_state": ['', 0, 0]})
+    # 隐藏所有组件，返回顺序需与 webui.py 中的 outputs 一致
+    return (
+        gr.update(visible=False), # info
+        gr.update(visible=False), # close_btn
+        gr.update(visible=False), # input_name
+        gr.update(visible=False), # delete_btn
+        gr.update(visible=False), # regen_btn
+        gr.update(visible=False), # preset_btn
+        gr.update(visible=False), # box
+        state_params
+    )
 
 
 filename_regex = re.compile(r'\<div id=\"(.*?)_png\"')
@@ -137,15 +191,22 @@ def delete_image(state_params):
         return [gr.update()] * 4 + [state_params['__finished_nums_pages']]
 
     [choice, selected] = state_params["prompt_info"]
+    if choice is None and "__output_list" in state_params and len(state_params["__output_list"]) > 0:
+        choice = state_params["__output_list"][0]
+        state_params["prompt_info"][0] = choice
+
     max_per_page = state_params["__max_per_page"]
     max_catalog = state_params["__max_catalog"]
     user_did = state_params["user"].get_did()
     info = gallery.get_images_prompt(choice, selected, max_per_page, user_did=user_did)
+    if not info or "Filename" not in info:
+        logger.warning(f"Delete image failed: Image info not found for choice={choice}, selected={selected}")
+        return [gr.update()] * 4 + [state_params['__finished_nums_pages']]
     file_name = info["Filename"]
     output_index = choice.split('/')
     user_path_outputs = config.get_user_path_outputs(user_did)
     dir_path = os.path.join(user_path_outputs, "20{}".format(output_index[0]))
-    
+
     log_path = os.path.join(dir_path, 'log.html')
     if os.path.exists(log_path):
         file_text = ''
@@ -178,8 +239,12 @@ def delete_image(state_params):
             log_ext.update(json.load(log_file))
         if file_name in log_ext.keys():
             log_ext.pop(file_name)
-        with open(log_name, 'w', encoding='utf-8') as log_file:
-            json.dump(log_ext, log_file)
+
+        if not log_ext:
+            os.remove(log_name)
+        else:
+            with open(log_name, 'w', encoding='utf-8') as log_file:
+                json.dump(log_ext, log_file)
 
     file_path = os.path.join(dir_path, file_name)
     if os.path.exists(file_path):
@@ -188,9 +253,16 @@ def delete_image(state_params):
 
     image_list_nums = len(gallery.refresh_images_catalog(output_index[0], True, user_did))
     if image_list_nums<=0:
-        os.remove(log_path)
-        os.rmdir(dir_path)
-        index = state_params["__output_list"].index(choice)
+        if os.path.exists(log_path):
+            os.remove(log_path)
+        if os.path.exists(log_name):
+            os.remove(log_name)
+
+        try:
+            index = state_params["__output_list"].index(choice)
+        except ValueError:
+            index = 0
+
         output_list, finished_nums, finished_pages = gallery.refresh_output_list(max_per_page, max_catalog, user_did)
         state_params.update({"__output_list": output_list})
         state_params.update({"__finished_nums_pages": f'{finished_nums},{finished_pages}'})
@@ -252,6 +324,8 @@ def reset_params_by_image_meta(metadata, state_params, is_generating, inpaint_mo
 def reset_image_params(state_params, is_generating, inpaint_mode):
     [choice, selected] = state_params["prompt_info"]
     metainfo = gallery.get_images_prompt(choice, selected, state_params["__max_per_page"], user_did=state_params["user"].get_did())
+    if metainfo is None:
+        metainfo = {}
     metadata = copy.deepcopy(metainfo)
     metadata['Refiner Model'] = metainfo.get('Refiner Model', 'None')
     state_params.update({"note_box_state": ['',0,0]})

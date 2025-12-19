@@ -35,8 +35,19 @@ def refresh_output_list(max_per_page, max_catalog, user_did=None, engine_type='i
         logger.info(f'[Gallery] Makedirs for new user: {user_path_outputs}')
         os.makedirs(user_path_outputs, exist_ok=True)
     listdirs = [f for f in os.listdir(user_path_outputs) if output_images_regex.findall(f) and os.path.isdir(os.path.join(user_path_outputs,f))]
-    if listdirs is None:
-        return None
+    if not listdirs:
+        return [], 0, 0
+
+    valid_listdirs = []
+    for d in listdirs:
+        path_gallery = os.path.join(user_path_outputs, d)
+        if len(util.get_files_from_folder(path_gallery, image_types, None)) > 0:
+            valid_listdirs.append(d)
+    listdirs = valid_listdirs
+
+    if not listdirs:
+        return [], 0, 0
+
     listdirs1 = listdirs.copy()
     total_nums = 0
     video_files = {}
@@ -78,7 +89,6 @@ def refresh_output_list(max_per_page, max_catalog, user_did=None, engine_type='i
 
 
 def images_list_update(choice, image_tools_checkbox, state_params):
-
     if "__output_list" not in state_params.keys():
         return  gr.update(), gr.update(), state_params
     state_params.update({"infobox_state": 0})
@@ -86,9 +96,14 @@ def images_list_update(choice, image_tools_checkbox, state_params):
     state_params['identity_dialog'] = False
     index_type = state_params['engine_type']
     output_list = state_params["__output_list"]
-    if choice is None and len(output_list) > 0:
-        choice = output_list[0]
+    if choice is None:
+        return [gr.update(visible=False), gr.update(visible=False)] + \
+               [gr.update(open=False, visible=False), gr.update(visible=False)] + \
+               [gr.update(visible=False)] * 3 + \
+               [gr.update(visible=True, value=welcome_image), gr.update(visible=False), gr.update(visible=False)] + \
+               [gr.update(visible=False)] * 7
     user_did = state_params["user"].get_did()
+    state_params.update({"gallery_state": 'finished_index'})
     if index_type == 'image':
         gallery_result = [gr.update(visible=True, value=get_images_from_gallery_index(choice, state_params["__max_per_page"], user_did)), gr.update(visible=False)]
         logger.info(f'Selected_gallery_catalog: change image catalog:{choice}.')
@@ -101,7 +116,14 @@ def images_list_update(choice, image_tools_checkbox, state_params):
         gallery_result = [gr.update(), gr.update()]
     state_params.update({"prompt_info": [choice, 0]})
 
-    return gallery_result + [gr.update(open=False, visible=len(output_list)>0), gr.update(visible=image_tools_checkbox and index_type=='image')] + [gr.update(visible=False)] * 9
+    infobox_state = state_params.get("infobox_state", False)
+    infobox_updates = [
+        gr.update(value=toolbox.make_infobox_markdown(get_images_prompt(choice, 0, state_params["__max_per_page"], user_did=user_did), state_params['__theme']), visible=infobox_state),
+        gr.update(visible=infobox_state),
+        gr.update(visible=infobox_state)
+    ]
+
+    return gallery_result + [gr.update(open=False, visible=len(output_list)>0), gr.update(visible=(image_tools_checkbox or 'scene_frontend' in state_params) and index_type=='image')] + infobox_updates + [gr.update(visible=False)] * 3 + [gr.update(visible=False)] * 7
 
 
 def select_index(choice, image_tools_checkbox, state_params, evt: gr.SelectData):
@@ -112,12 +134,19 @@ def select_index(choice, image_tools_checkbox, state_params, evt: gr.SelectData)
     state_params.update({"gallery_state": 'finished_index'})
     state_params['identity_dialog'] = False
     index_type = state_params['engine_type']
-    return [gr.update(visible=index_type=='image'), gr.update(visible=index_type=='video')] + [gr.update(visible=image_tools_checkbox and index_type=='image')] + [gr.update(visible=False)] * 9
+
+    infobox_state = state_params.get("infobox_state", False)
+    infobox_updates = [
+        gr.update(visible=infobox_state),
+        gr.update(visible=infobox_state),
+        gr.update(visible=infobox_state)
+    ]
+    return [gr.update(visible=index_type=='image'), gr.update(visible=index_type=='video')] + [gr.update(visible=(image_tools_checkbox or 'scene_frontend' in state_params) and index_type=='image')] + infobox_updates + [gr.update(visible=False)] * 4 + [gr.update(visible=False)] * 7
 
 
 def select_gallery(choice, state_params, backfill_prompt, evt: gr.SelectData):
     if "__output_list" not in state_params.keys():
-        return  [gr.update()] * 7 + [state_params]
+        return  [gr.update()] * 12 + [state_params]
     state_params.update({"note_box_state": ['',0,0]})
     state_params.update({"prompt_info": [choice, evt.index]})
     if choice is None and len(state_params["__output_list"]) > 0:
@@ -127,15 +156,34 @@ def select_gallery(choice, state_params, backfill_prompt, evt: gr.SelectData):
         gr_prompt_results =  [gr.update(value=result["Prompt"]), gr.update(value=result["Negative Prompt"])]
     else:
         gr_prompt_results = [gr.update(), gr.update()]
-    return [gr.update(value=toolbox.make_infobox_markdown(result, state_params['__theme']))] + gr_prompt_results + [gr.update(visible=False)] * 4 + [state_params]
+
+    infobox_state = state_params.get("infobox_state", False)
+    infobox_updates = [
+        gr.update(value=toolbox.make_infobox_markdown(result, state_params['__theme']), visible=infobox_state),
+        gr.update(visible=infobox_state),
+        gr.update(visible=infobox_state)
+    ]
+    return infobox_updates + gr_prompt_results + [gr.update(visible=False)] * 7 + [state_params]
 
 def select_gallery_progress(state_params, evt: gr.SelectData):
     #if "__output_list" not in state_params.keys():
     #    return  [gr.update()] * 5 + [state_params]
     state_params.update({"note_box_state": ['',0,0]})
-    state_params.update({"prompt_info": [None, evt.index]})
-    result = get_images_prompt(state_params["__output_list"][0], evt.index, state_params["__max_per_page"], user_did=state_params["user"].get_did())
-    return [gr.update(value=toolbox.make_infobox_markdown(result, state_params['__theme']), visible=False)] + [gr.update(visible=False)] * 4
+
+    choice = None
+    if "__output_list" in state_params and len(state_params["__output_list"]) > 0:
+        choice = state_params["__output_list"][0]
+
+    state_params.update({"prompt_info": [choice, evt.index]})
+    result = get_images_prompt(choice, evt.index, state_params["__max_per_page"], user_did=state_params["user"].get_did())
+
+    infobox_state = state_params.get("infobox_state", False)
+    infobox_updates = [
+        gr.update(value=toolbox.make_infobox_markdown(result, state_params['__theme']), visible=infobox_state),
+        gr.update(visible=infobox_state),
+        gr.update(visible=infobox_state)
+    ]
+    return infobox_updates + [gr.update(visible=False)] * 7
 
 
 def get_images_from_gallery_index(choice, max_per_page, user_did=None):

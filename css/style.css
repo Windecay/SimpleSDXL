@@ -252,9 +252,25 @@ div:has(> #positive_prompt) {
   opacity: 1;
 }
 
-@keyframes fadeIn {
-  from {opacity: 0;}
-  to {opacity: 1;}
+.note_close_btn {
+    min-width: 30px !important;
+    width: 30px !important;
+    height: 30px !important;
+    padding: 0 !important;
+    font-size: 20px !important;
+    line-height: 30px !important;
+    background: transparent !important;
+    border: none !important;
+    color: var(--body-text-color) !important;
+    cursor: pointer !important;
+    position: absolute !important;
+    top: 5px !important;
+    right: 5px !important;
+    z-index: 102 !important;
+}
+
+.note_close_btn:hover {
+    color: var(--error-color, #ff4d4f) !important;
 }
 
 .styler {
@@ -625,14 +641,22 @@ div.block.tagHelper.active {
   border-radius: var(--radius-md);
 }
 
+.preview_column {
+    position: relative;
+}
+
 .toolbox {
     height: auto;
     position: absolute;
-    top: 210px;
-    left: 86%;
+    top: 200px;
+    right: 20px;
     width: 100px !important;
-    z-index: 20;
+    z-index: 100;
     text-align: center;
+    background: var(--block-background-fill);
+    border: 1px solid var(--border-color-primary);
+    border-radius: var(--radius-md);
+    padding: 5px;
 }
 
 .preset_store {
@@ -649,19 +673,29 @@ div.block.tagHelper.active {
 
 .infobox {
     height: auto;
-    position: absolute;
-    top: -15rem;
+    position: relative;
+    top: 0px;
     left: 50%;
     transform: translateX(-50%);
-    width: 28rem !important;
+    width: 100% !important;
     z-index: 20;
     text-align: left;
-    opacity: 0.85;
+    opacity: 1;
     border-radius: 8px;
-    padding: 6px;
+    padding: 2px;
     line-height: 120%;
-    border: groove;
+    border: none;
     color: var(--neutral-800);
+}
+
+.infobox_group {
+    position: relative;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
 }
 
 .infobox_mobi {
@@ -683,16 +717,17 @@ div.block.tagHelper.active {
 .toolbox_note {
     height: auto;
     position: absolute;
-    top: 160px;
+    top: 20%;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translate(-50%, -50%);
     width: 300px !important;
-    z-index: 21;
+    z-index: 101;
     text-align: left;
     opacity: 1;
-    border-radius: 8px;
-    padding: 0px;
-    border: groove;
+    background: var(--block-background-fill);
+    border: 1px solid var(--border-color-primary);
+    border-radius: var(--radius-md);
+    padding: 10px;
 }
 
 .identity_note {
@@ -859,6 +894,16 @@ div.block.tagHelper.active {
 
   scrollbar-width: none;      /* Firefox */
   -ms-overflow-style: none;   /* IE 和 Edge */
+}
+
+.infobox_group {
+    position: relative;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
 }
 
 /* 针对Webkit内核浏览器（如Chrome、Safari） */

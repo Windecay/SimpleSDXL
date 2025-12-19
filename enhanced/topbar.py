@@ -621,7 +621,6 @@ def process_after_generation(state_params):
         gallery_util.refresh_images_catalog(output_index, True, user_did)
         gallery_util.parse_html_log(output_index, True, user_did)
    
-
     return results
 
 
