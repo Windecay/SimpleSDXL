@@ -91,16 +91,16 @@ def refresh_output_list(max_per_page, max_catalog, user_did=None, engine_type='i
 def images_list_update(choice, image_tools_checkbox, state_params):
     if "__output_list" not in state_params.keys():
         return  gr.update(), gr.update(), state_params
-    state_params.update({"infobox_state": 0})
+    # state_params.update({"infobox_state": 0})
     state_params.update({"note_box_state": ['',0,0]})
     state_params['identity_dialog'] = False
     index_type = state_params['engine_type']
     output_list = state_params["__output_list"]
     if choice is None:
         return [gr.update(visible=False), gr.update(visible=False)] + \
-               [gr.update(open=False, visible=False), gr.update(visible=False)] + \
+               [gr.update(open=False, visible=True), gr.update(visible=False)] + \
                [gr.update(visible=False)] * 3 + \
-               [gr.update(visible=True, value=None), gr.update(visible=False), gr.update(visible=False)] + \
+               [gr.update(), gr.update(), gr.update(visible=False)] + \
                [gr.update(visible=False)] * 7
     user_did = state_params["user"].get_did()
     state_params.update({"gallery_state": 'finished_index'})
