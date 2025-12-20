@@ -1721,9 +1721,13 @@ def read_config():
         manager_util.use_uv = default_conf['use_uv'].lower() == 'true' if 'use_uv' in default_conf else False
         manager_util.bypass_ssl = get_bool('bypass_ssl', False)
 
+        default_preview_method = manager_funcs.get_current_preview_method()
+        if default_preview_method == 'none':
+            default_preview_method = 'auto'
+
         result = {
                     'http_channel_enabled': get_bool('http_channel_enabled', False),
-                    'preview_method': default_conf.get('preview_method', manager_funcs.get_current_preview_method()).lower(),
+                    'preview_method': default_conf.get('preview_method', default_preview_method).lower(),
                     'git_exe': default_conf.get('git_exe', ''),
                     'use_uv': get_bool('use_uv', False),
                     'channel_url': default_conf.get('channel_url', DEFAULT_CHANNEL),
@@ -1750,9 +1754,13 @@ def read_config():
         manager_util.use_uv = importlib.util.find_spec("uv") is not None and platform.system() != "Windows"
         manager_util.bypass_ssl = False
 
+        default_preview_method = manager_funcs.get_current_preview_method()
+        if default_preview_method == 'none':
+            default_preview_method = 'auto'
+
         result = {
             'http_channel_enabled': False,
-            'preview_method': manager_funcs.get_current_preview_method(),
+            'preview_method': default_preview_method,
             'git_exe': '',
             'use_uv': manager_util.use_uv,
             'channel_url': DEFAULT_CHANNEL,
