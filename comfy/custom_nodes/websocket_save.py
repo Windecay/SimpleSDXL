@@ -81,22 +81,26 @@ class SaveVideoWebsocket:
                      "codec": (["h264", "h265", "vp9", "av1"], {"default": "vp9"}),
                      "fps": ("FLOAT", {"default": 24.0, "min": 0.01, "max": 60.0, "step": 0.01}),
                      "crf": ("INT", {"default": 32, "min": 0, "max": 63, "step": 1}),
+                    },
+                "optional":
+                    {"audio": ("AUDIO", ),
                     }
                 }
 
-    RETURN_TYPES = ()
+    RETURN_TYPES = ("IMAGE", )
     FUNCTION = "save_video"
 
     OUTPUT_NODE = True
 
     CATEGORY = "api/video"
 
-    def save_video(self, images, format, codec, fps, crf):
+    def save_video(self, images, format, codec, fps, crf, audio=None):
         import av
         import io
         import torch
         from tqdm import tqdm
         from fractions import Fraction
+        import math
 
         codec_map = {
             "h264": "libx264",
@@ -125,6 +129,13 @@ class SaveVideoWebsocket:
 
         stream.options = {'crf': str(crf)}
 
+        if audio is not None:
+            audio_waveform = audio['waveform']
+            audio_sample_rate = audio['sample_rate']
+            # audio_stream = container.add_stream('aac', rate=audio_sample_rate)
+            audio_codec = 'aac' if format == 'MP4' else 'libvorbis'
+            audio_stream = container.add_stream(audio_codec, rate=audio_sample_rate)
+            
         pbar = comfy.utils.ProgressBar(len(images))
 
         for i, img in tqdm(enumerate(images), desc="Encoding Frame", unit="frame", total=len(images)):
@@ -132,9 +143,32 @@ class SaveVideoWebsocket:
             frame = av.VideoFrame.from_ndarray(frame_data, format='rgb24')
             for packet in stream.encode(frame):
                 container.mux(packet)
+            pbar.update(1)
 
         for packet in stream.encode():
             container.mux(packet)
+
+        if audio is not None:
+
+            waveform = audio_waveform[0] # [channels, samples]
+            
+            # Ensure it's CPU and numpy
+            waveform = waveform.cpu().numpy()
+            
+            if not waveform.flags['C_CONTIGUOUS']:
+                waveform = np.ascontiguousarray(waveform)
+
+            layout = 'stereo' if waveform.shape[0] > 1 else 'mono'
+
+            frame = av.AudioFrame.from_ndarray(waveform, format='fltp', layout=layout)
+            frame.sample_rate = audio_sample_rate
+            frame.pts = 0
+            
+            for packet in audio_stream.encode(frame):
+                container.mux(packet)
+                
+            for packet in audio_stream.encode():
+                container.mux(packet)
 
         container.close()
 
@@ -142,7 +176,7 @@ class SaveVideoWebsocket:
 
         pbar.update_absolute(0, 1, (format, video_data, None))
 
-        return {}
+        return (images, )
 
     @classmethod
     def IS_CHANGED(s, images, format, codec, fps, crf):

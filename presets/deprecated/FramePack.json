@@ -9,7 +9,7 @@
                 "version": "v1.1",
                 "theme": ["快速", "高质量", "循环"],
                 "theme_title": "图生视频 [上传首帧，尾帧可选]/[高质量=关闭加速]/[循环=首尾匹配]*上传一张纯黑图片可触发文生视频*。",
-                "disvisible": ["scene_canvas_image", "scene_additional_prompt","scene_additional_prompt_2"],
+                "disvisible": ["scene_canvas_image", "scene_additional_prompt","scene_additional_prompt_2", "scene_use_lora", "scene_video", "scene_audio"],
                 "prompt": {
                     "快速": "这是一个动感十足的画面",
                     "高质量": "这是一个动感十足的画面",

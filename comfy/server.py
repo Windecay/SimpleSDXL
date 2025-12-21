@@ -339,6 +339,8 @@ class PromptServer():
                 folder_paths.set_output_directory(json_data['outputs'])
             if "reserved_vram" in json_data:
                 comfy.model_management.set_extra_reserved_vram(json_data['reserved_vram'])
+            if "cache_ram" in json_data:
+                execution.set_cache_ram(json_data['cache_ram'])
             return web.json_response({'feedback': 'ok'})
 
 

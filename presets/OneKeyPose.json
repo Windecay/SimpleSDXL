@@ -8,7 +8,7 @@
                 "version": "m1.1",
                 "theme": ["SDPose-OOD","DWPose"],
                 "theme_title": "快速转换Pose骨骼图",
-                "disvisible": ["scene_canvas_image", "scene_input_image2","scene_additional_prompt","scene_additional_prompt_2","scene_aspect_ratio", "scene_image_number", "scene_use_lora"],
+                "disvisible": ["scene_canvas_image", "scene_input_image2","scene_additional_prompt","scene_additional_prompt_2","scene_aspect_ratio", "scene_image_number", "scene_use_lora", "scene_video", "scene_audio"],
                 "task_method": {
                     "SDPose-OOD": "sdpose",
                     "DWPose": "dw_pose"

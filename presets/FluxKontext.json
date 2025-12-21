@@ -9,7 +9,7 @@
                 "theme": ["FluxKontext","FluxKontextFast","Depth Composite(need 2 images)"],
 
                 "theme_title": "FluxKontext需要使用标准化指令进行图像编辑",
-                "disvisible": ["scene_canvas_image", "scene_additional_prompt","scene_additional_prompt_2"],
+                "disvisible": ["scene_canvas_image", "scene_additional_prompt","scene_additional_prompt_2", "scene_video", "scene_audio"],
                 "task_method": {
                     "FluxKontext": "kontext_gguf",
                     "FluxKontextFast": "kontext_fast_gguf",

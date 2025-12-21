@@ -109,7 +109,7 @@ def describe_prompt_for_scene(state, img, scene_theme, additional_prompt):
 def switch_scene_theme_select(state):
     state["switch_scene_theme"] = True
 
-def switch_scene_theme_ready_to_gen(state, image_number, canvas_image, input_image1, additional_prompt, additional_prompt_2, theme=None):
+def switch_scene_theme_ready_to_gen(state, image_number, canvas_image, input_image1, additional_prompt, additional_prompt_2, theme=None, video=None, audio=None):
     scenes = state.get("scene_frontend",{})
     visible = scenes.get('disvisible', [])
     input_image_number = 1 if 'scene_canvas_image' not in visible or 'scene_input_image1' not in visible else 0
@@ -118,6 +118,8 @@ def switch_scene_theme_ready_to_gen(state, image_number, canvas_image, input_ima
 
     canvas_visible = 'scene_canvas_image' not in visible
     input_image1_visible = 'scene_input_image1' not in visible
+    video_visible = 'scene_video' not in visible
+    audio_visible = 'scene_audio' not in visible
 
     ready_to_gen = False
     if input_image_number == 1:
@@ -128,6 +130,11 @@ def switch_scene_theme_ready_to_gen(state, image_number, canvas_image, input_ima
     elif input_image_number == 2:
         if canvas_visible and canvas_image is not None :
             ready_to_gen = True
+
+    if video_visible and video is not None:
+        ready_to_gen = True
+    if audio_visible and audio is not None:
+        ready_to_gen = True
 
     use_image = None
     has_canvas_image = canvas_image is not None and isinstance(canvas_image, dict) and 'image' in canvas_image
@@ -202,8 +209,10 @@ def switch_scene_theme(state, image_number, canvas_image, input_image1, addition
         aspect_ratio = '' if len(aspect_ratios)==0 else aspect_ratios[0]
     results.append(get_layout_setting_choices_visible_inter(aspect_ratios, aspect_ratio, 'scene_aspect_ratio', visible, inter))
     results.append(get_layout_update_and_visible_inter(image_number, 'scene_image_number', visible, inter))
-    results.append(gr.update(visible= 'scene_canvas_image' not in visible))
-    results.append(gr.update(visible= 'scene_use_lora' not in visible))
+    results.append(gr.update())
+    results.append(gr.update())
+    results.append(get_layout_visible('scene_video', visible))
+    results.append(get_layout_visible('scene_audio', visible))
     state['scene_theme'] = theme
     return results
 
@@ -314,6 +323,35 @@ def switch_layout_template(presetdata: dict | str, state_params, preset_url=''):
         theme_default = themes[0] if themes else None
         themes_title = scenes.get('theme_title', '')
         results.append(get_layout_update_label_and_choice_visible_inter(themes_title, themes, theme_default, 'scene_theme', visible, inter))
+
+        results.append(get_layout_visible('scene_canvas_image', visible))
+        results.append(get_layout_visible('scene_input_image1', visible))
+        results.append(get_layout_visible('scene_input_image2', visible))
+
+        title = scenes.get('additional_prompt_title', '')
+        results.append(get_layout_update_label_visible_inter(title, modules.flags.get_value_by_scene_theme(state_params, theme_default, 'additional_prompt', ''), 'scene_additional_prompt', visible, inter))
+
+        title_2 = scenes.get('additional_prompt_title_2', '')
+        results.append(get_layout_update_label_visible_inter(title_2, modules.flags.get_value_by_scene_theme(state_params, theme_default, 'additional_prompt_2', ''), 'scene_additional_prompt_2', visible, inter))
+
+        var_number_title = scenes.get('var_number_title', 'Duration(s)')
+        var_number_max = scenes.get('var_number_max', 10)
+        var_number_default = modules.flags.get_value_by_scene_theme(state_params, theme_default, 'var_number', 3)
+        results.append(gr.update(label=var_number_title, value=var_number_default, maximum=var_number_max, visible='scene_var_number' not in visible, interactive='scene_var_number' not in inter))
+
+        aspect_ratios = modules.flags.get_value_by_scene_theme(state_params, theme_default, 'aspect_ratio', [])
+        aspect_ratios = modules.flags.scene_aspect_ratios_mapping_list(aspect_ratios)
+        aspect_ratio = '' if len(aspect_ratios)==0 else aspect_ratios[0]
+        results.append(get_layout_setting_choices_visible_inter(aspect_ratios, aspect_ratio, 'scene_aspect_ratio', visible, inter))
+
+        results.append(get_layout_update_and_visible_inter(2, 'scene_image_number', visible, inter))
+
+        results.append(gr.update(visible='scene_mask_color' not in visible and 'scene_canvas_image' not in visible))
+        results.append(get_layout_visible('scene_use_lora', visible))
+
+        results.append(get_layout_visible('scene_video', visible))
+        results.append(get_layout_visible('scene_audio', visible))
+
         results.append(gr.update(visible=True, interactive=False)) #generate_button
         results.append(gr.update(visible=False))                   #load_parameter_button
     else:
@@ -324,6 +362,9 @@ def switch_layout_template(presetdata: dict | str, state_params, preset_url=''):
         results.append(gr.update(value=True))
         results.append(gr.update(visible=False))
         results.append(gr.update(visible=True, interactive=True))
+
+        results += [gr.update(visible=False)] * 12
+
         results.append(gr.update(visible=True, interactive=True))  #generate_button
         results.append(gr.update(visible=False))                   #load_parameter_button
     state_params.pop("switch_scene_theme", None)

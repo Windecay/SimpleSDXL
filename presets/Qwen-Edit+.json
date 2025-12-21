@@ -8,7 +8,7 @@
                 "version": "m1.1",
                 "theme": ["Qwen-Editplus-1024px","Qwen-Editplus-1024px-fast","Qwen-Editplus-1536px","Qwen-Editplus-1536px-fast","Qwen-Editplus-2048px","Qwen-Editplus-2048px-fast"],
                 "theme_title": "Qwen-Edit使用中文指令修改图片(画笔可生成[绿色方框区域]）",
-                "disvisible": ["scene_additional_prompt","scene_additional_prompt_2"],
+                "disvisible": ["scene_additional_prompt","scene_additional_prompt_2", "scene_video", "scene_audio"],
                 "task_method": {
                     "Qwen-Editplus-1024px": "qwen_editplus_cn",
                     "Qwen-Editplus-1024px-fast": "qwen_editplus_fast_cn",

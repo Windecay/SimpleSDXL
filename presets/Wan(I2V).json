@@ -9,7 +9,7 @@
                 "version": "m1.1",
                 "theme": ["基础","动态增强15%","动态增强30%"],
                 "theme_title": "Wan2.2图生视频 [左边上传首帧，右边尾帧可选]",
-                "disvisible": ["scene_canvas_image", "scene_additional_prompt","scene_additional_prompt_2"],
+                "disvisible": ["scene_canvas_image", "scene_additional_prompt","scene_additional_prompt_2", "scene_video", "scene_audio"],
                 "prompt": {
                     "基础": "",
                     "动态增强15%": "",

@@ -30,7 +30,7 @@
                     "清晰背景": "Deblur,background is clear.",
                     "深度参考": "redepthkontext change depth map to photo."
                 },
-                "disvisible": ["scene_canvas_image", "scene_input_image2", "scene_additional_prompt","scene_additional_prompt_2", "scene_use_lora"],
+                "disvisible": ["scene_canvas_image", "scene_input_image2", "scene_additional_prompt","scene_additional_prompt_2", "scene_use_lora", "scene_video", "scene_audio"],
                 "task_method": {
                     "通用": "kontext_gen",
                     "全能": "kontext_all",
