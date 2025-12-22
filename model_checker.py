@@ -368,7 +368,7 @@ def print_instructions():
     time.sleep(0.1)
     print(f"{Fore.GREEN}★{Style.RESET_ALL}打开默认浏览器设置，关闭GPU加速、或图形加速的选项。{Fore.GREEN}★{Style.RESET_ALL}大内存(64+)与固态硬盘存放模型有助于减少模型加载时间。{Fore.GREEN}★{Style.RESET_ALL}")
     time.sleep(0.1)
-    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：1005085136{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:25.12.18{Fore.GREEN}★{Style.RESET_ALL}")
+    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：1005085136{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:25.12.23{Fore.GREEN}★{Style.RESET_ALL}")
     print()
     time.sleep(0.1)
     
@@ -588,7 +588,7 @@ def validate_files(packages):
 
 
     if missing_package_names:
-        print(f"{Fore.RED}△以下包体缺失文件，请检查并重新下载：{Style.RESET_ALL}")
+        print(f"{Fore.RED}△以下包体缺失文件，请选择你想要的模块下载：{Style.RESET_ALL}")
         for package_name in missing_package_names:
             percentage = package_percentages.get(package_name, 0)
             total_size_gb = package_sizes.get(package_name, 0)
@@ -608,7 +608,7 @@ def validate_files(packages):
             print(f"  {file}")
         # 新增空间显示
         print(f"{Fore.CYAN}※这些模型已被新版替代，可节省空间: {total_obsolete_size/1024/1024/1024:.2f}GB (按0+回车清理时选择删除){Style.RESET_ALL}")
-    # 新增基础包自动下载逻辑
+
     sorted_download_files = sorted(download_files.items(), key=lambda x: x[1])
 
     if sorted_download_files:
@@ -625,95 +625,6 @@ def validate_files(packages):
                 f1.write(f"{link},{size}\n")
                 f2.write(f"{link}\n")
         print(f"{Fore.YELLOW}>>>问题文件的文件下载链接已保存到 '缺失模型下载链接.txt'。<<<<<<<<<<<<<<<<<<<<<{Style.RESET_ALL}")
-    if "[1]基础模型包" in missing_package_names:
-        package_id = 1
-        selected_package = None
-        for package_name, package_info in packages.items():
-            if package_info["id"] == package_id:
-                selected_package = package_info
-                break
-
-        gpu_arch = get_gpu_arch_str()
-        if gpu_arch == "cpu":
-            print(f"\n{Fore.YELLOW}△检测到当前使用的是非NVIDIA显卡，SimpAI当前版本仅支持NVIDIA显卡{Style.RESET_ALL}")
-            print(f"{Fore.YELLOW}△如需手动下载，请手动按键{Style.RESET_ALL}")
-        else:
-            countdown_seconds = 10  # 设置倒计时时间（秒）
-            print(f"\n{Fore.CYAN}△检测到基础包不完整，将在{countdown_seconds}秒后自动触发下载流程...{Style.RESET_ALL}")
-            print(f"{Fore.YELLOW}※按任意键可以取消自动下载{Style.RESET_ALL}")
-
-            import select
-
-            user_cancel = False
-            stdin_input_received = [False]  # 使用列表以便在线程中修改
-
-            def stdin_listener():
-                """监听 stdin 输入的线程函数（用于从启动器GUI接收输入）"""
-                try:
-                    # 尝试从 stdin 读取一行
-                    line = sys.stdin.readline()
-                    if line:
-                        stdin_input_received[0] = True
-                except:
-                    pass
-
-            # 启动 stdin 监听线程（适用于从启动器GUI接收输入）
-            listener_thread = threading.Thread(target=stdin_listener, daemon=True)
-            listener_thread.start()
-
-            try:
-                if platform.system() == 'Windows':
-                    import ctypes
-                    user32 = ctypes.windll.user32
-
-                    start_time = time.time()
-                    last_remaining = -1
-
-                    while time.time() - start_time < countdown_seconds:
-                        remaining = int(countdown_seconds - (time.time() - start_time))
-                        if remaining != last_remaining:
-                            print(f"倒计时: {remaining}秒...", flush=True)
-                            print(f"{Fore.YELLOW}按任意键停止{Style.RESET_ALL}", flush=True)
-                            last_remaining = remaining
-
-                        for key_code in range(8, 256):
-                            if user32.GetAsyncKeyState(key_code) & 0x8000:
-                                user_cancel = True
-                                print(f"{Fore.GREEN}√已取消自动下载{Style.RESET_ALL}", flush=True)
-                                break
-                        if user_cancel:
-                            break
-                else:
-                    for i in range(countdown_seconds, 0, -1):
-                        print(f"倒计时: {i}秒...", flush=True)
-                        if select.select([sys.stdin], [], [], 1)[0]:
-                            sys.stdin.readline()
-                            user_cancel = True
-                            print(f"{Fore.GREEN}√已取消自动下载{Style.RESET_ALL}")
-                            break
-            except Exception as e:
-                print(f"{Fore.RED}×倒计时功能出错: {e}{Style.RESET_ALL}")
-            if not user_cancel:
-                if platform.system() == 'Windows':
-                    try:
-                        import msvcrt
-                        while msvcrt.kbhit():
-                            msvcrt.getch()
-                    except:
-                        pass
-                else:
-                    try:
-                        import sys, termios
-                        termios.tcflush(sys.stdin, termios.TCIOFLUSH)
-                    except:
-                        pass
-
-                print(f"\n{Fore.CYAN}▶开始自动下载流程...{Style.RESET_ALL}")
-                if selected_package:
-                    get_download_links_for_package({package_name: selected_package}, "downloadlist.txt")
-                auto_download_missing_files_with_retry(max_threads=5)
-            else:
-                print(f"{Fore.YELLOW}△如需手动下载，请手动按键{Style.RESET_ALL}")
 
 def delete_partial_files():
     global OBSOLETE_MODELS
@@ -1441,7 +1352,7 @@ def filter_packages_by_gpu_arch(packages):
 packages = {
     "base_package": {
         "id": 1,
-        "name": "[1]基础模型包",
+        "name": "[1]基础模型包[Z-image-Turbo]",
         "note": "Z-image-Turbo-默认模型[Z-image-Turbo-fp16]|显存需求：★★☆ 速度：★★★",
         "files": [
             ("diffusion_models/https://modelscope.cn/models/VerStella/z_image_turbo_comfyui/resolve/master/split_files/diffusion_models/z_image_turbo_bf16.safetensors", 12309866400),

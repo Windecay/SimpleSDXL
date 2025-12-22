@@ -1,8 +1,8 @@
 {
   "id": "8e907f65-5b37-494d-a053-b1c690adb8e0",
   "revision": 0,
-  "last_node_id": 500,
-  "last_link_id": 1538,
+  "last_node_id": 501,
+  "last_link_id": 1540,
   "nodes": [
     {
       "id": 58,
@@ -148,7 +148,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 150,
+      "order": 151,
       "mode": 0,
       "inputs": [
         {
@@ -438,7 +438,7 @@
         -1430
       ],
       "size": [
-        210.2994140625,
+        218.659765625,
         88
       ],
       "flags": {
@@ -494,7 +494,7 @@
         -1260
       ],
       "size": [
-        210.2994140625,
+        218.659765625,
         88
       ],
       "flags": {
@@ -556,7 +556,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 146,
+      "order": 147,
       "mode": 0,
       "inputs": [
         {
@@ -609,7 +609,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 152,
+      "order": 153,
       "mode": 0,
       "inputs": [
         {
@@ -807,13 +807,13 @@
         -570
       ],
       "size": [
-        270,
+        277.3462890625,
         78
       ],
       "flags": {
         "pinned": true
       },
-      "order": 151,
+      "order": 152,
       "mode": 0,
       "inputs": [
         {
@@ -861,14 +861,14 @@
         -760
       ],
       "size": [
-        157.3892578125,
+        161.3404296875,
         60.748714447021484
       ],
       "flags": {
         "collapsed": true,
         "pinned": true
       },
-      "order": 137,
+      "order": 138,
       "mode": 0,
       "inputs": [
         {
@@ -910,7 +910,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 133,
+      "order": 134,
       "mode": 0,
       "inputs": [
         {
@@ -1107,7 +1107,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 147,
+      "order": 148,
       "mode": 0,
       "inputs": [
         {
@@ -1160,7 +1160,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 153,
+      "order": 154,
       "mode": 0,
       "inputs": [
         {
@@ -1353,7 +1353,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 148,
+      "order": 149,
       "mode": 0,
       "inputs": [
         {
@@ -1406,7 +1406,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 149,
+      "order": 150,
       "mode": 0,
       "inputs": [
         {
@@ -1575,7 +1575,7 @@
       ],
       "size": [
         660,
-        20
+        26
       ],
       "flags": {
         "pinned": true,
@@ -1613,7 +1613,7 @@
       ],
       "size": [
         521.240234375,
-        20
+        26
       ],
       "flags": {
         "pinned": true,
@@ -1651,7 +1651,7 @@
       ],
       "size": [
         240.05859375,
-        20
+        26
       ],
       "flags": {
         "pinned": true,
@@ -1688,7 +1688,7 @@
         -1020
       ],
       "size": [
-        210,
+        213.464453125,
         150
       ],
       "flags": {
@@ -1743,7 +1743,7 @@
         -830
       ],
       "size": [
-        210,
+        210.0396484375,
         246
       ],
       "flags": {
@@ -1802,7 +1802,7 @@
         -540
       ],
       "size": [
-        210,
+        213.464453125,
         150
       ],
       "flags": {
@@ -2207,7 +2207,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 141,
+      "order": 142,
       "mode": 0,
       "inputs": [
         {
@@ -2283,7 +2283,8 @@
             "lora_name": "None",
             "weight": 1,
             "enabled": true,
-            "parent_id": null
+            "parent_id": null,
+            "clip_weight": 1
           },
           {
             "id": "lora1761035802886",
@@ -2293,7 +2294,8 @@
             "lora_name": "None",
             "weight": 1,
             "enabled": true,
-            "parent_id": null
+            "parent_id": null,
+            "clip_weight": 1
           },
           {
             "id": "lora1761035805251",
@@ -2303,7 +2305,8 @@
             "lora_name": "None",
             "weight": 1,
             "enabled": true,
-            "parent_id": null
+            "parent_id": null,
+            "clip_weight": 1
           },
           {
             "id": "lora1761035808871",
@@ -2313,7 +2316,8 @@
             "lora_name": "None",
             "weight": 1,
             "enabled": true,
-            "parent_id": null
+            "parent_id": null,
+            "clip_weight": 1
           },
           {
             "id": "lora1761035863526",
@@ -2323,7 +2327,8 @@
             "lora_name": "None",
             "weight": 1,
             "enabled": true,
-            "parent_id": null
+            "parent_id": null,
+            "clip_weight": 1
           }
         ]
       },
@@ -2333,7 +2338,8 @@
       "customTextWidth": 80,
       "folderColor": "#30353c",
       "loraEntryColor": "#3a3a3a",
-      "enabledStateColor": "#4CAF50"
+      "enabledStateColor": "#4CAF50",
+      "separateWeights": false
     },
     {
       "id": 359,
@@ -2349,7 +2355,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 142,
+      "order": 143,
       "mode": 0,
       "inputs": [
         {
@@ -2425,7 +2431,8 @@
             "lora_name": "None",
             "weight": 1,
             "enabled": true,
-            "parent_id": null
+            "parent_id": null,
+            "clip_weight": 1
           },
           {
             "id": "lora1761035802886",
@@ -2435,7 +2442,8 @@
             "lora_name": "None",
             "weight": 1,
             "enabled": true,
-            "parent_id": null
+            "parent_id": null,
+            "clip_weight": 1
           },
           {
             "id": "lora1761035805251",
@@ -2445,7 +2453,8 @@
             "lora_name": "None",
             "weight": 1,
             "enabled": true,
-            "parent_id": null
+            "parent_id": null,
+            "clip_weight": 1
           },
           {
             "id": "lora1761035808871",
@@ -2455,7 +2464,8 @@
             "lora_name": "None",
             "weight": 1,
             "enabled": true,
-            "parent_id": null
+            "parent_id": null,
+            "clip_weight": 1
           },
           {
             "id": "lora1761035863526",
@@ -2465,7 +2475,8 @@
             "lora_name": "None",
             "weight": 1,
             "enabled": true,
-            "parent_id": null
+            "parent_id": null,
+            "clip_weight": 1
           }
         ]
       },
@@ -2475,7 +2486,8 @@
       "customTextWidth": 80,
       "folderColor": "#30353c",
       "loraEntryColor": "#3a3a3a",
-      "enabledStateColor": "#4CAF50"
+      "enabledStateColor": "#4CAF50",
+      "separateWeights": false
     },
     {
       "id": 360,
@@ -3021,7 +3033,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 134,
+      "order": 135,
       "mode": 0,
       "inputs": [
         {
@@ -3239,7 +3251,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 155,
+      "order": 156,
       "mode": 0,
       "inputs": [
         {
@@ -3285,7 +3297,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 154,
+      "order": 155,
       "mode": 0,
       "inputs": [
         {
@@ -3817,7 +3829,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 135,
+      "order": 136,
       "mode": 0,
       "inputs": [
         {
@@ -3863,7 +3875,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 136,
+      "order": 137,
       "mode": 0,
       "inputs": [
         {
@@ -3993,7 +4005,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 143,
+      "order": 144,
       "mode": 0,
       "inputs": [
         {
@@ -4235,7 +4247,7 @@
         -1310
       ],
       "size": [
-        210,
+        210.0396484375,
         250
       ],
       "flags": {
@@ -4492,7 +4504,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 144,
+      "order": 145,
       "mode": 4,
       "inputs": [
         {
@@ -4713,6 +4725,7 @@
           "link": null
         },
         {
+          "dir": 3,
           "name": "any_05",
           "type": "CLIP",
           "link": null
@@ -5508,7 +5521,7 @@
       ],
       "size": [
         250,
-        25
+        26
       ],
       "flags": {
         "pinned": true,
@@ -5857,7 +5870,7 @@
           "name": "IMAGE",
           "type": "IMAGE",
           "links": [
-            1490
+            1539
           ]
         }
       ],
@@ -6023,7 +6036,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 123,
+      "order": 132,
       "mode": 0,
       "inputs": [
         {
@@ -6066,7 +6079,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 103,
+      "order": 123,
       "mode": 0,
       "inputs": [
         {
@@ -6083,7 +6096,7 @@
           "name": "images",
           "shape": 7,
           "type": "IMAGE",
-          "link": 1490
+          "link": 1540
         },
         {
           "name": "custom_prompt",
@@ -6138,13 +6151,13 @@
         -60
       ],
       "size": [
-        210,
+        213.464453125,
         150
       ],
       "flags": {
         "pinned": true
       },
-      "order": 138,
+      "order": 139,
       "mode": 4,
       "inputs": [
         {
@@ -6197,7 +6210,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 139,
+      "order": 140,
       "mode": 4,
       "inputs": [
         {
@@ -6232,7 +6245,7 @@
         -350
       ],
       "size": [
-        210,
+        210.0396484375,
         250
       ],
       "flags": {
@@ -6420,7 +6433,7 @@
         250
       ],
       "size": [
-        157.3892578125,
+        161.3404296875,
         26
       ],
       "flags": {
@@ -6470,7 +6483,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 132,
+      "order": 133,
       "mode": 0,
       "inputs": [
         {
@@ -6610,7 +6623,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 145,
+      "order": 146,
       "mode": 0,
       "inputs": [
         {
@@ -6647,13 +6660,13 @@
         -410
       ],
       "size": [
-        241.915625,
+        250.8365234375,
         82
       ],
       "flags": {
         "pinned": true
       },
-      "order": 140,
+      "order": 141,
       "mode": 0,
       "inputs": [
         {
@@ -6801,7 +6814,7 @@
         130
       ],
       "size": [
-        241.915625,
+        250.8365234375,
         82
       ],
       "flags": {
@@ -6891,7 +6904,7 @@
         -30
       ],
       "size": [
-        210.060546875,
+        214.595703125,
         218
       ],
       "flags": {
@@ -7721,7 +7734,7 @@
         -100
       ],
       "size": [
-        214.9341796875,
+        220.2662109375,
         406
       ],
       "flags": {
@@ -8195,8 +8208,8 @@
         -1690
       ],
       "size": [
-        90.673828125,
-        12
+        146.4380859375,
+        26
       ],
       "flags": {
         "pinned": true,
@@ -8233,8 +8246,8 @@
         -1690
       ],
       "size": [
-        90.673828125,
-        12
+        143.5943359375,
+        26
       ],
       "flags": {
         "pinned": true,
@@ -8303,6 +8316,51 @@
       ],
       "color": "#2a363b",
       "bgcolor": "#3f5159"
+    },
+    {
+      "id": 501,
+      "type": "FluxKontextImageScale",
+      "pos": [
+        2240,
+        -1480
+      ],
+      "size": [
+        194.9458984375,
+        26
+      ],
+      "flags": {
+        "collapsed": true,
+        "pinned": true
+      },
+      "order": 103,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 1539
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            1540
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.5.1",
+        "Node name for S&R": "FluxKontextImageScale",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": []
     }
   ],
   "links": [
@@ -9195,14 +9253,6 @@
       "LLAMACPPARAMS"
     ],
     [
-      1490,
-      470,
-      0,
-      471,
-      2,
-      "IMAGE"
-    ],
-    [
       1494,
       385,
       0,
@@ -9473,6 +9523,22 @@
       454,
       3,
       "INT"
+    ],
+    [
+      1539,
+      470,
+      0,
+      501,
+      0,
+      "IMAGE"
+    ],
+    [
+      1540,
+      501,
+      0,
+      471,
+      2,
+      "IMAGE"
     ]
   ],
   "groups": [
@@ -9690,13 +9756,13 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 1.5692141883605022,
+      "scale": 0.9743585500000013,
       "offset": [
-        -2634.1915812143843,
-        1621.2518357412891
+        -1080.3717544242181,
+        1977.2295327517484
       ]
     },
-    "frontendVersion": "1.33.10",
+    "frontendVersion": "1.34.9",
     "node_versions": {
       "ComfyUI-WanVideoWrapper": "5a2383621a05825d0d0437781afcb8552d9590fd",
       "comfy-core": "0.3.26",

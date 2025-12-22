@@ -457,7 +457,7 @@ def load_parameter_button_click(raw_metadata: dict | str, is_generating: bool, i
     preset = loaded_parameter_dict.get("preset", None)
     is_mobile = loaded_parameter_dict.get("is_mobile", False)
     if no_welcome:
-        results = [gr.update(visible=True), gr.update(visible=False), gr.update(visible=False), gr.update(visible=False), None]
+        results = [gr.update(value=None, visible=True), gr.update(visible=False), gr.update(visible=False), gr.update(visible=False), None]
     else:
         results = [gr.update(value=get_welcome_image(preset, is_mobile, no_welcome=no_welcome), visible=True), gr.update(visible=False), gr.update(visible=False), gr.update(visible=False), None]
 
