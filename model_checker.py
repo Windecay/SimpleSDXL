@@ -1446,7 +1446,7 @@ packages = {
         "files": [
             ("diffusion_models/https://modelscope.cn/models/VerStella/z_image_turbo_comfyui/resolve/master/split_files/diffusion_models/z_image_turbo_bf16.safetensors", 12309866400),
             ("text_encoders/https://modelscope.cn/models/VerStella/z_image_turbo_comfyui/resolve/master/split_files/text_encoders/qwen_3_4b.safetensors", 8044982048),
-            ("model_patches/https://www.modelscope.cn/models/PAI/Z-Image-Turbo-Fun-Controlnet-Union-2.0/resolve/master/Z-Image-Turbo-Fun-Controlnet-Union-2.1.safetensors", 6712485600),
+            ("model_patches/https://www.modelscope.cn/models/PAI/Z-Image-Turbo-Fun-Controlnet-Union-2.1/resolve/master/Z-Image-Turbo-Fun-Controlnet-Union-2.1-8steps.safetensors", 6712485600),
             ("vae/ae.safetensors", 335304388),
             ("upscale_models/4x-UltraSharp.pth", 66961958),
             ("upscale_models/4xNomosUniDAT_bokeh_jpg.safetensors", 154152604),
@@ -2316,6 +2316,7 @@ OBSOLETE_MODELS = [
     "SDXL_FILM_PHOTOGRAPHY_STYLE_V1.safetensors",
     "Z-Image-Turbo-Fun-Controlnet-Union.safetensors",
     "Z-Image-Turbo-Fun-Controlnet-Union-2.0.safetensors",
+    "Z-Image-Turbo-Fun-Controlnet-Union-2.1.safetensors",
 ]
 def main():
     print()

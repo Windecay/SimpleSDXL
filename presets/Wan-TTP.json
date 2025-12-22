@@ -8,7 +8,8 @@
                 "version": "m1.1",
                 "theme": ["Wan_TTP_Hires.Upscale", "Wan_TTP_Hires.Upscale_2X_VAE"],
                 "theme_title": "使用万相模型进行TTP分块放大",
-                "disvisible": ["scene_canvas_image", "scene_additional_prompt","scene_additional_prompt_2","scene_input_image2","scene_aspect_ratio", "scene_video", "scene_audio"],
+                "disvisible": ["scene_canvas_image", "scene_additional_prompt","scene_additional_prompt_2","scene_input_image2","scene_aspect_ratio", "scene_video", "scene_audio",
+                    "scene_var_number2","scene_var_number3","scene_var_number4","scene_switch_option1","scene_switch_option2"],
                 "task_method": {
                     "Wan_TTP_Hires.Upscale": "wan_ttp_cn",
                     "Wan_TTP_Hires.Upscale_2X_VAE": "wan_ttp_2x_vae_cn"

@@ -155,7 +155,7 @@ def switch_scene_theme_ready_to_gen(state, image_number, canvas_image, input_ima
     return describe_prompt if describe_prompt else gr.update(), gr.update(interactive=ready_to_gen and img_is_ok)
 
 
-def switch_scene_theme(state, image_number, canvas_image, input_image1, additional_prompt, additional_prompt_2, var_number, theme=None):
+def switch_scene_theme(state, image_number, canvas_image, input_image1, additional_prompt, additional_prompt_2, var_number, var_number2, var_number3, var_number4, switch_option1, switch_option2, theme=None):
     scenes = state.get("scene_frontend",{})
     visible = scenes.get('disvisible', [])
     inter = scenes.get('disinteractive', [])
@@ -188,9 +188,37 @@ def switch_scene_theme(state, image_number, canvas_image, input_image1, addition
     results.append(get_layout_update_label_visible_inter(title_2, additional_prompt_2 if ready_to_gen and switch_flag else additional_prompt_2_default, 'scene_additional_prompt_2', visible, inter))
     var_number_title = scenes.get('var_number_title', 'Duration(s)')
     var_number_max = scenes.get('var_number_max', 10)
+    var_number_min = scenes.get('var_number_min', 0)
     var_number_default = modules.flags.get_value_by_scene_theme(state, theme, 'var_number', 3)
     var_number = var_number if ready_to_gen and switch_flag else var_number_default
-    results.append(gr.update(label=var_number_title, value=var_number, maximum=var_number_max, visible='scene_var_number' not in visible, interactive='scene_var_number' not in inter))
+    results.append(gr.update(label=var_number_title, value=var_number, minimum=var_number_min, maximum=var_number_max, visible='scene_var_number' not in visible, interactive='scene_var_number' not in inter))
+
+    var_number2_title = scenes.get('var_number2_title', 'Int Value 2')
+    var_number2_min = scenes.get('var_number2_min', 0)
+    var_number2_max = scenes.get('var_number2_max', 10)
+    var_number2_default = modules.flags.get_value_by_scene_theme(state, theme, 'var_number2', 1)
+    results.append(gr.update(label=var_number2_title, value=var_number2 if ready_to_gen and switch_flag else var_number2_default, minimum=var_number2_min, maximum=var_number2_max, visible='scene_var_number2' not in visible, interactive='scene_var_number2' not in inter))
+
+    var_number3_title = scenes.get('var_number3_title', 'Float Value 1')
+    var_number3_min = scenes.get('var_number3_min', 0.0)
+    var_number3_max = scenes.get('var_number3_max', 1.0)
+    var_number3_default = modules.flags.get_value_by_scene_theme(state, theme, 'var_number3', 0.0)
+    results.append(gr.update(label=var_number3_title, value=var_number3 if ready_to_gen and switch_flag else var_number3_default, minimum=var_number3_min, maximum=var_number3_max, visible='scene_var_number3' not in visible, interactive='scene_var_number3' not in inter))
+
+    var_number4_title = scenes.get('var_number4_title', 'Float Value 2')
+    var_number4_min = scenes.get('var_number4_min', 0.0)
+    var_number4_max = scenes.get('var_number4_max', 1.0)
+    var_number4_default = modules.flags.get_value_by_scene_theme(state, theme, 'var_number4', 0.0)
+    results.append(gr.update(label=var_number4_title, value=var_number4 if ready_to_gen and switch_flag else var_number4_default, minimum=var_number4_min, maximum=var_number4_max, visible='scene_var_number4' not in visible, interactive='scene_var_number4' not in inter))
+
+    switch_option1_title = scenes.get('switch_option1_title', 'Switch Option 1')
+    switch_option1_default = modules.flags.get_value_by_scene_theme(state, theme, 'switch_option1', False)
+    results.append(gr.update(label=switch_option1_title, value=switch_option1 if ready_to_gen and switch_flag else switch_option1_default, visible='scene_switch_option1' not in visible, interactive='scene_switch_option1' not in inter))
+
+    switch_option2_title = scenes.get('switch_option2_title', 'Switch Option 2')
+    switch_option2_default = modules.flags.get_value_by_scene_theme(state, theme, 'switch_option2', False)
+    results.append(gr.update(label=switch_option2_title, value=switch_option2 if ready_to_gen and switch_flag else switch_option2_default, visible='scene_switch_option2' not in visible, interactive='scene_switch_option2' not in inter))
+
     aspect_ratios = modules.flags.get_value_by_scene_theme(state, theme, 'aspect_ratio', [])
     if ready_to_gen and switch_flag:
         img = input_image1 if input_image_number==1 and 'scene_input_image1' not in visible else canvas_image['image']
@@ -339,6 +367,29 @@ def switch_layout_template(presetdata: dict | str, state_params, preset_url=''):
         var_number_default = modules.flags.get_value_by_scene_theme(state_params, theme_default, 'var_number', 3)
         results.append(gr.update(label=var_number_title, value=var_number_default, maximum=var_number_max, visible='scene_var_number' not in visible, interactive='scene_var_number' not in inter))
 
+        var_number2_title = scenes.get('var_number2_title', 'Int Value 2')
+        var_number2_max = scenes.get('var_number2_max', 10)
+        var_number2_default = modules.flags.get_value_by_scene_theme(state_params, theme_default, 'var_number2', 1)
+        results.append(gr.update(label=var_number2_title, value=var_number2_default, maximum=var_number2_max, visible='scene_var_number2' not in visible, interactive='scene_var_number2' not in inter))
+
+        var_number3_title = scenes.get('var_number3_title', 'Float Value 1')
+        var_number3_max = scenes.get('var_number3_max', 1.0)
+        var_number3_default = modules.flags.get_value_by_scene_theme(state_params, theme_default, 'var_number3', 0.0)
+        results.append(gr.update(label=var_number3_title, value=var_number3_default, maximum=var_number3_max, visible='scene_var_number3' not in visible, interactive='scene_var_number3' not in inter))
+
+        var_number4_title = scenes.get('var_number4_title', 'Float Value 2')
+        var_number4_max = scenes.get('var_number4_max', 1.0)
+        var_number4_default = modules.flags.get_value_by_scene_theme(state_params, theme_default, 'var_number4', 0.0)
+        results.append(gr.update(label=var_number4_title, value=var_number4_default, maximum=var_number4_max, visible='scene_var_number4' not in visible, interactive='scene_var_number4' not in inter))
+
+        switch_option1_title = scenes.get('switch_option1_title', 'Switch Option 1')
+        switch_option1_default = modules.flags.get_value_by_scene_theme(state_params, theme_default, 'switch_option1', False)
+        results.append(gr.update(label=switch_option1_title, value=switch_option1_default, visible='scene_switch_option1' not in visible, interactive='scene_switch_option1' not in inter))
+
+        switch_option2_title = scenes.get('switch_option2_title', 'Switch Option 2')
+        switch_option2_default = modules.flags.get_value_by_scene_theme(state_params, theme_default, 'switch_option2', False)
+        results.append(gr.update(label=switch_option2_title, value=switch_option2_default, visible='scene_switch_option2' not in visible, interactive='scene_switch_option2' not in inter))
+
         aspect_ratios = modules.flags.get_value_by_scene_theme(state_params, theme_default, 'aspect_ratio', [])
         aspect_ratios = modules.flags.scene_aspect_ratios_mapping_list(aspect_ratios)
         aspect_ratio = '' if len(aspect_ratios)==0 else aspect_ratios[0]
@@ -363,7 +414,7 @@ def switch_layout_template(presetdata: dict | str, state_params, preset_url=''):
         results.append(gr.update(visible=False))
         results.append(gr.update(visible=True, interactive=True))
 
-        results += [gr.update(visible=False)] * 12
+        results += [gr.update(visible=False)] * 17
 
         results.append(gr.update(visible=True, interactive=True))  #generate_button
         results.append(gr.update(visible=False))                   #load_parameter_button
@@ -406,7 +457,7 @@ def load_parameter_button_click(raw_metadata: dict | str, is_generating: bool, i
     preset = loaded_parameter_dict.get("preset", None)
     is_mobile = loaded_parameter_dict.get("is_mobile", False)
     if no_welcome:
-        results = [gr.update(),gr.update(),gr.update(),gr.update(),None]
+        results = [gr.update(visible=True), gr.update(visible=False), gr.update(visible=False), gr.update(visible=False), None]
     else:
         results = [gr.update(value=get_welcome_image(preset, is_mobile, no_welcome=no_welcome), visible=True), gr.update(visible=False), gr.update(visible=False), gr.update(visible=False), None]
 

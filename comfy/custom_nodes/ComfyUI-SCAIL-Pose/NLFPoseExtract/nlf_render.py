@@ -66,8 +66,11 @@ def intrinsic_matrix_from_field_of_view(imshape, fov_degrees:float =55):   # nlf
         [0, 0, 1],
     ])
 
-def shift_dwpose_according_to_nlf(smpl_poses, aligned_poses, ori_intrinstics, modified_intrinstics, height, width):
-    ########## warning: 会改变body； shift 之后 body是不准的 ##########
+def scale_around_center(points, center, dim, scale=1.0):
+    return (points[:, dim] - center[dim]) * scale + center[dim]
+
+def shift_dwpose_according_to_nlf(smpl_poses, aligned_poses, ori_intrinstics, modified_intrinstics, height, width, swap_hands=True, scale_hands=True, scale_x = 1.0, scale_y = 1.0):
+    ########## warning: Will modify body; after shifting, the body is inaccurate ##########
     for i in range(len(smpl_poses)):
         persons_joints_list = smpl_poses[i]
         poses_list = aligned_poses[i]
@@ -81,10 +84,13 @@ def shift_dwpose_according_to_nlf(smpl_poses, aligned_poses, ori_intrinstics, mo
             right_hand = poses_list["hands"][2 * person_idx]
             left_hand = poses_list["hands"][2 * person_idx + 1]
             candidate = poses_list["bodies"]["candidate"][person_idx]
-            # 注意，这里不是coco format
+            # Note: This is not COCO format
             person_joint_15_2d_shift = p3d_single_p2d(person_joints[15], modified_intrinstics) - p3d_single_p2d(person_joints[15], ori_intrinstics) if person_joints[15, 2] > 0.01 else np.array([0.0, 0.0])  # face
-            person_joint_20_2d_shift = p3d_single_p2d(person_joints[20], modified_intrinstics) - p3d_single_p2d(person_joints[20], ori_intrinstics) if person_joints[20, 2] > 0.01 else np.array([0.0, 0.0])  # right hand
-            person_joint_21_2d_shift = p3d_single_p2d(person_joints[21], modified_intrinstics) - p3d_single_p2d(person_joints[21], ori_intrinstics) if person_joints[21, 2] > 0.01 else np.array([0.0, 0.0])  # left hand
+            person_joint_21_2d_shift = p3d_single_p2d(person_joints[20], modified_intrinstics) - p3d_single_p2d(person_joints[20], ori_intrinstics) if person_joints[20, 2] > 0.01 else np.array([0.0, 0.0])  # right hand
+            person_joint_20_2d_shift = p3d_single_p2d(person_joints[21], modified_intrinstics) - p3d_single_p2d(person_joints[21], ori_intrinstics) if person_joints[21, 2] > 0.01 else np.array([0.0, 0.0])  # left hand
+
+            if swap_hands:
+                person_joint_20_2d_shift, person_joint_21_2d_shift = person_joint_21_2d_shift, person_joint_20_2d_shift
 
             face[:, 0] += person_joint_15_2d_shift[0] / width
             face[:, 1] += person_joint_15_2d_shift[1] / height
@@ -95,13 +101,20 @@ def shift_dwpose_according_to_nlf(smpl_poses, aligned_poses, ori_intrinstics, mo
             candidate[:, 0] += person_joint_15_2d_shift[0] / width
             candidate[:, 1] += person_joint_15_2d_shift[1] / height
 
+            scales = [scale_x, scale_y]
+            # apply camera scale around wrist (hand[0]).
+            if scale_hands:
+                for dim in [0,1]:
+                    right_hand[:, dim] = scale_around_center(right_hand, right_hand[0, :], dim=dim, scale=scales[dim])
+                    left_hand[:, dim] = scale_around_center(left_hand, left_hand[0, :], dim=dim, scale=scales[dim])
+
 
 def get_single_pose_cylinder_specs(args):
     """Helper function for rendering a single pose, used for parallel processing."""
     idx, pose, focal, princpt, height, width, colors, limb_seq, draw_seq = args
     cylinder_specs = []
 
-    for joints3d in pose:  # 多人
+    for joints3d in pose:  # multiple persons
         # Skip if None or not a valid tensor
         if joints3d is None:
             continue
@@ -462,7 +475,7 @@ def render_multi_nlf_as_images(smpl_poses, dw_poses, height, width, video_length
     frames_np_rgba = render_whole(cylinder_specs_list, H=height, W=width, fx=focal_x, fy=focal_y, cx=princpt[0], cy=princpt[1])
     if dw_poses is not None and draw_2d:
         aligned_poses = copy.deepcopy(dw_poses)
-        canvas_2d = draw_pose_to_canvas_np(aligned_poses, pool=None, H=height, W=width, reshape_scale=0, show_feet_flag=False, show_body_flag=False, show_cheek_flag=True, dw_hand=True)
+        canvas_2d = draw_pose_to_canvas_np(aligned_poses, pool=None, H=height, W=width, reshape_scale=0, show_feet_flag=False, show_body_flag=False, show_cheek_flag=True, dw_hand=True, show_face_flag=draw_face, show_hand_flag=draw_hands)
         for i in range(len(frames_np_rgba)):
             frame_img = frames_np_rgba[i]
             canvas_img = canvas_2d[i]

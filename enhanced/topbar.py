@@ -490,11 +490,12 @@ def avoid_empty_prompt_for_scene(prompt, state, img, scene_theme, additional_pro
     return gr.update() if describe_prompt is None else describe_prompt
 
 
-def process_before_generation(state_params, seed_random, image_seed, backend_params, scene_theme, scene_canvas_image, scene_input_image1, scene_input_image2, scene_additional_prompt, scene_additional_prompt_2, scene_var_number, scene_aspect_ratio, scene_image_number, scene_video, scene_audio):
+def process_before_generation(state_params, seed_random, image_seed, backend_params, scene_theme, scene_canvas_image, scene_input_image1, scene_input_image2, scene_additional_prompt, scene_additional_prompt_2, scene_var_number, scene_var_number2, scene_var_number3, scene_var_number4, scene_switch_option1, scene_switch_option2, scene_aspect_ratio, scene_image_number, scene_video, scene_audio):
     backend_params.update(dict(
         nickname=state_params["user"].get_nickname(),
         user_did=state_params["user"].get_did(),
         preset=state_params["__preset"],
+        engine_type=state_params.get("engine_type", "image"),
         ))
     
     if 'scene_frontend' in state_params:
@@ -549,6 +550,11 @@ def process_before_generation(state_params, seed_random, image_seed, backend_par
             scene_theme=scene_theme,
             scene_additional_prompt=scene_additional_prompt,
             scene_var_number=None if 'var_number' not in scene_frontend else scene_var_number,
+            scene_var_number2=scene_var_number2,
+            scene_var_number3=scene_var_number3,
+            scene_var_number4=scene_var_number4,
+            scene_switch_option1=scene_switch_option1,
+            scene_switch_option2=scene_switch_option2,
             scene_aspect_ratio=scene_aspect_ratio.split('|')[0] if '×' in scene_aspect_ratio else modules.flags.scene_aspect_ratios_size[scene_aspect_ratio],
             scene_image_number=scene_image_number,
             video=scene_video,

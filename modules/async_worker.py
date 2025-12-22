@@ -200,10 +200,18 @@ class AsyncTask:
             self.scene_theme = self.params_backend.pop('scene_theme')
             self.scene_additional_prompt = self.params_backend.pop('scene_additional_prompt', None)
             self.scene_var_number = self.params_backend.pop('scene_var_number', None)
+            self.scene_var_number2 = self.params_backend.pop('scene_var_number2', None)
+            self.scene_var_number3 = self.params_backend.pop('scene_var_number3', None)
+            self.scene_var_number4 = self.params_backend.pop('scene_var_number4', None)
+            self.scene_switch_option1 = self.params_backend.pop('scene_switch_option1', None)
+            self.scene_switch_option2 = self.params_backend.pop('scene_switch_option2', None)
             self.scene_steps = self.params_backend.pop('scene_steps', None)
             self.scene_frontend = self.params_backend.pop('scene_frontend')
             if self.scene_frontend.startswith('v'):
                 self.content_type = 'video'
+        self.engine_type = self.params_backend.pop('engine_type', None)
+        if self.engine_type == 'video':
+            self.content_type = 'video'
 
 class EarlyReturnException(BaseException):
     pass
@@ -454,6 +462,9 @@ def worker():
                         }
                     }
                 }
+                logger.info(f'Task Type == {async_task.content_type}')
+                if async_task.content_type == 'video':
+                    extra_data['is_vhs'] = True
                 imgs = comfypipeline.process_flow(client_id, comfy_task.name, comfy_task.params, comfy_task.images, callback=callback, total_steps=comfy_task.steps, extra_data=extra_data)
                 if inpaint_worker.current_task is not None:
                     imgs = [inpaint_worker.current_task.post_process(x) for x in imgs]
@@ -1687,10 +1698,22 @@ def worker():
                     #all_steps = async_task.steps * async_task.image_number
                 if async_task.scene_additional_prompt:
                     async_task.params_backend['additional_prompt'] = async_task.scene_additional_prompt
-                if async_task.scene_var_number:
+                if async_task.scene_var_number is not None:
                     async_task.params_backend['var_number'] = async_task.scene_var_number
-                    if async_task.content_type == 'video':
-                        async_task.params_backend['display_steps'] = async_task.steps * max(round(async_task.scene_var_number * 5 / 6), 1)
+                if async_task.scene_var_number2 is not None:
+                    async_task.params_backend['var_number2'] = async_task.scene_var_number2
+                if async_task.scene_var_number3 is not None:
+                    async_task.params_backend['var_number3'] = async_task.scene_var_number3
+                if async_task.scene_var_number4 is not None:
+                    async_task.params_backend['var_number4'] = async_task.scene_var_number4
+                if async_task.scene_switch_option1 is not None:
+                    async_task.params_backend['switch_option1'] = async_task.scene_switch_option1
+                if async_task.scene_switch_option2 is not None:
+                    async_task.params_backend['switch_option2'] = async_task.scene_switch_option2
+
+                if async_task.content_type == 'video' and 'framepack' in async_task.task_method:
+                     if async_task.scene_var_number is not None:
+                         async_task.params_backend['display_steps'] = async_task.steps * max(round(async_task.scene_var_number * 5 / 6), 1)
             if "_aio" in async_task.task_method:
                 input_images = comfypipeline.ComfyInputImage([])
                 if '.gguf' in async_task.base_model_name:

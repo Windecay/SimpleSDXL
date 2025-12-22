@@ -8,7 +8,8 @@
 	    "version": "m1.1",
 	    "theme": ["ICEdit"],
 	    "theme_title": "使用自然语言指令进行图像编辑[ICEdit Lora版]",
-            "disvisible": ["scene_additional_prompt", "scene_additional_prompt_2", "scene_aspect_ratio", "scene_canvas_image", "scene_var_number", "scene_input_image2", "scene_use_lora", "scene_video", "scene_audio"],
+            "disvisible": ["scene_additional_prompt", "scene_additional_prompt_2", "scene_aspect_ratio", "scene_canvas_image", "scene_var_number", "scene_input_image2", "scene_use_lora", "scene_video", "scene_audio",
+        "scene_var_number2","scene_var_number3","scene_var_number4","scene_switch_option1","scene_switch_option2"],
 	    "prompt": {
             "ICEdit": ""
 	    },

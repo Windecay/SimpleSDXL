@@ -130,11 +130,19 @@ class SaveVideoWebsocket:
         stream.options = {'crf': str(crf)}
 
         if audio is not None:
-            audio_waveform = audio['waveform']
-            audio_sample_rate = audio['sample_rate']
-            # audio_stream = container.add_stream('aac', rate=audio_sample_rate)
-            audio_codec = 'aac' if format == 'MP4' else 'libvorbis'
-            audio_stream = container.add_stream(audio_codec, rate=audio_sample_rate)
+            try:
+                audio_waveform = audio['waveform']
+                audio_sample_rate = audio['sample_rate']
+                # audio_stream = container.add_stream('aac', rate=audio_sample_rate)
+                audio_codec = 'aac' if format == 'MP4' else 'libvorbis'
+                audio_stream = container.add_stream(audio_codec, rate=audio_sample_rate)
+            except Exception as e:
+                msg = str(e)
+                if "Output file does not contain any stream" in msg:
+                    print("Warning: No audio stream found in input video. Saving without audio.")
+                else:
+                    print(f"Warning: Could not extract audio from input: {e}")
+                audio = None
             
         pbar = comfy.utils.ProgressBar(len(images))
 
@@ -179,7 +187,7 @@ class SaveVideoWebsocket:
         return (images, )
 
     @classmethod
-    def IS_CHANGED(s, images, format, codec, fps, crf):
+    def IS_CHANGED(s, images, format, codec, fps, crf, audio=None):
         return time.time()
 
 

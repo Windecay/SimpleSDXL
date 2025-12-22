@@ -20,14 +20,20 @@ class AppSettings():
         if os.path.isfile(file):
             try:
                 with open(file) as f:
-                    return json.load(f)
+                    settings = json.load(f)
             except:
                 logging.error(f"The user settings file is corrupted: {file}")
-                return {}
+                settings = {}
         else:
-            return {}
+            settings = {}
+
+        # Force disable Nodes 2.0 (VueNodes)
+        settings["Comfy.VueNodes.Enabled"] = False
+        return settings
 
     def save_settings(self, request, settings):
+        # Force disable Nodes 2.0 (VueNodes)
+        settings["Comfy.VueNodes.Enabled"] = False
         file = self.user_manager.get_request_user_filepath(
             request, "comfy.settings.json")
         with open(file, "w") as f:

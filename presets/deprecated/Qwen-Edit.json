@@ -8,7 +8,8 @@
                 "version": "m1.1",
                 "theme": ["Qwen-Edit","Qwen-Edit-fast"],
                 "theme_title": "Qwen-Edit使用中文指令修改图片",
-                "disvisible": ["scene_canvas_image", "scene_additional_prompt","scene_additional_prompt_2","scene_var_number","scene_input_image2", "scene_use_lora", "scene_video", "scene_audio"],
+                "disvisible": ["scene_canvas_image", "scene_additional_prompt","scene_additional_prompt_2","scene_var_number","scene_input_image2", "scene_use_lora", "scene_video", "scene_audio",
+        "scene_var_number2","scene_var_number3","scene_var_number4","scene_switch_option1","scene_switch_option2"],
                 "task_method": {
                     "Qwen-Edit": "qwen_edit_cn",
                     "Qwen-Edit-fast": "qwen_edit_fast_cn"

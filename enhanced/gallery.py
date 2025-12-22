@@ -249,12 +249,25 @@ def refresh_images_catalog(choice: str, passthrough = False, user_did=None):
 
 
 def get_images_prompt(choice, selected, max_per_page, display_index=False, user_did=None):
-    global images_list, images_prompt, images_prompt_keys, images_ads
+    global images_list, images_prompt, images_prompt_keys, images_ads, videos_list
 
     if choice is None:
         return None
     if not user_did:
         user_did = shared.token.get_guest_did()
+
+    if user_did in videos_list and choice in videos_list[user_did]:
+        video_rel_path = videos_list[user_did][choice]
+        folder, filename = os.path.split(video_rel_path)
+        image_choice = folder[2:]
+        parse_html_log(image_choice, user_did=user_did)
+        if image_choice in images_prompt[user_did] and filename in images_prompt[user_did][image_choice]:
+            metainfo = images_prompt[user_did][image_choice][filename]
+        else:
+            metainfo = {"Filename": filename}
+        if image_choice in images_ads[user_did] and filename in images_ads[user_did][image_choice]:
+            metainfo.update({"Advanced_parameters": images_ads[user_did][image_choice][filename]})
+        return metainfo
     if user_did not in images_list:
         images_list[user_did]={}
     if user_did not in images_prompt:

@@ -211,8 +211,9 @@ class PoseDetectionVitPoseToDWPose:
         kp2ds = np.concatenate(kp2ds, 0)
         pose_metas = load_pose_metas_from_kp2ds_seq(kp2ds, width=W, height=H)
         dwposes = [aaposemeta_to_dwpose_scail(meta) for meta in pose_metas]
-
-        return (dwposes,)
+        swap_hands = True
+        out_dict = {"poses": dwposes, "swap_hands": swap_hands}
+        return out_dict,
 
 
 class ConvertOpenPoseKeypointsToDWPose:
@@ -232,8 +233,9 @@ class ConvertOpenPoseKeypointsToDWPose:
     DESCRIPTION = "Convert OpenPose format keypoints to DWPose format."
 
     def process(self, keypoints, max_people=2):
-
-        return convert_openpose_to_target_format(keypoints, max_people=max_people),
+        swap_hands = False
+        out_dict = {"poses": convert_openpose_to_target_format(keypoints, max_people=max_people), "swap_hands": swap_hands}
+        return out_dict,
 
 
 class RenderNLFPoses:
@@ -250,6 +252,7 @@ class RenderNLFPoses:
                 "draw_face": ("BOOLEAN", {"default": True, "tooltip": "Whether to draw face keypoints"}),
                 "draw_hands": ("BOOLEAN", {"default": True, "tooltip": "Whether to draw hand keypoints"}),
                 "render_device": (["gpu", "cpu", "opengl", "cuda", "vulkan", "metal"], {"default": "gpu", "tooltip": "Taichi device to use for rendering"}),
+                "scale_hands": ("BOOLEAN", {"default": True, "tooltip": "Whether to scale hand keypoints when aligning DW poses"}),
             }
     }
 
@@ -258,7 +261,7 @@ class RenderNLFPoses:
     FUNCTION = "predict"
     CATEGORY = "WanVideoWrapper"
 
-    def predict(self, nlf_poses, width, height, dw_poses=None, ref_dw_pose=None, draw_face=True, draw_hands=True, render_device="gpu"):
+    def predict(self, nlf_poses, width, height, dw_poses=None, ref_dw_pose=None, draw_face=True, draw_hands=True, render_device="gpu", scale_hands=True):
 
         from .NLFPoseExtract.nlf_render import render_nlf_as_images, render_multi_nlf_as_images, shift_dwpose_according_to_nlf, process_data_to_COCO_format, intrinsic_matrix_from_field_of_view
         from .NLFPoseExtract.align3d import solve_new_camera_params_central, solve_new_camera_params_down
@@ -280,7 +283,8 @@ class RenderNLFPoses:
         else:
             pose_input = nlf_poses
 
-        dw_pose_input = copy.deepcopy(dw_poses)
+        dw_pose_input = copy.deepcopy(dw_poses["poses"]) if dw_poses is not None else None
+        swap_hands = dw_poses.get("swap_hands", False) if dw_poses is not None else False
 
         ori_camera_pose = intrinsic_matrix_from_field_of_view([height, width])
         ori_focal = ori_camera_pose[0, 0]
@@ -288,7 +292,7 @@ class RenderNLFPoses:
         num_people = dw_pose_input[0]['bodies']['candidate'].shape[0] if dw_poses is not None else 0
 
         if dw_poses is not None and ref_dw_pose is not None and num_people == 1:
-            ref_dw_pose_input = copy.deepcopy(ref_dw_pose)
+            ref_dw_pose_input = copy.deepcopy(ref_dw_pose["poses"])
 
             # Find the first valid pose
             pose_3d_first_driving_frame = None
@@ -307,7 +311,7 @@ class RenderNLFPoses:
             poses_2d_ref[:, 0] = poses_2d_ref[:, 0] * width
             poses_2d_ref[:, 1] = poses_2d_ref[:, 1] * height
 
-            poses_2d_subset = ref_dw_pose[0]['bodies']['subset'][0][:14]
+            poses_2d_subset = ref_dw_pose_input[0]['bodies']['subset'][0][:14]
             pose_3d_coco_first_driving_frame = pose_3d_coco_first_driving_frame[:14]
 
             valid_indices, valid_upper_indices, valid_lower_indices = [], [], []
@@ -327,14 +331,14 @@ class RenderNLFPoses:
             pose_3d_coco_first_driving_frame = pose_3d_coco_first_driving_frame[valid_indices]
 
             if len(valid_lower_indices) >= 4:
-                new_camera_intrinsics, scale_m = solve_new_camera_params_down(pose_3d_coco_first_driving_frame, ori_focal, [height, width], pose_2d_ref)
+                new_camera_intrinsics, scale_m, scale_s = solve_new_camera_params_down(pose_3d_coco_first_driving_frame, ori_focal, [height, width], pose_2d_ref)
             else:
-                new_camera_intrinsics, scale_m = solve_new_camera_params_central(pose_3d_coco_first_driving_frame, ori_focal, [height, width], pose_2d_ref)
+                new_camera_intrinsics, scale_m, scale_s = solve_new_camera_params_central(pose_3d_coco_first_driving_frame, ori_focal, [height, width], pose_2d_ref)
 
-            scale_face = scale_faces(list(dw_pose_input), list(ref_dw_pose))   # poses[0]['faces'].shape: 1, 68, 2  , poses_ref[0]['faces'].shape: 1, 68, 2
+            scale_face = scale_faces(list(dw_pose_input), list(ref_dw_pose_input))   # poses[0]['faces'].shape: 1, 68, 2  , poses_ref[0]['faces'].shape: 1, 68, 2
 
             logging.info(f"Scale - m: {scale_m}, face: {scale_face}")
-            shift_dwpose_according_to_nlf(pose_input, dw_pose_input, ori_camera_pose, new_camera_intrinsics, height, width)
+            shift_dwpose_according_to_nlf(pose_input, dw_pose_input, ori_camera_pose, new_camera_intrinsics, height, width, swap_hands=swap_hands, scale_hands=scale_hands, scale_x=scale_m, scale_y=scale_m*scale_s)
 
             intrinsic_matrix = new_camera_intrinsics
         else:

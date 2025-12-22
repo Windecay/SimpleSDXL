@@ -6,10 +6,11 @@
             "disinteractive": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
             "available_aspect_ratios_selection": "Flux",
             "scene_frontend": {
-                "version": "m1.1",
+                "version": "v1.1",
                 "theme": ["基础","动态增强15%","动态增强30%"],
                 "theme_title": "Wan2.2图生视频 [左边上传首帧，右边尾帧可选]",
-                "disvisible": ["scene_canvas_image", "scene_additional_prompt","scene_additional_prompt_2", "scene_video", "scene_audio"],
+                "disvisible": ["scene_canvas_image", "scene_additional_prompt","scene_additional_prompt_2", "scene_video", "scene_audio",
+                    "scene_var_number2","scene_var_number3","scene_var_number4","scene_switch_option1","scene_switch_option2"],
                 "prompt": {
                     "基础": "",
                     "动态增强15%": "",

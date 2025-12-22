@@ -866,14 +866,74 @@ div.block.tagHelper.active {
 
 #scrollable-box {
   max-height: 100vh;  /* 设定最大高度 */
-  overflow-y: auto;   /* 启用垂直滚动条 */
+  overflow-y: auto !important;   /* 启用垂直滚动条 */
   position: sticky;   /* 设为sticky */
   top: 0;             /* 设置sticky的顶部位置 */
   
   scrollbar-width: thin !important;      /* Firefox */
   -ms-overflow-style: -ms-autohiding-scrollbar !important;   /* IE 和 Edge */
 }
+/* 响应式布局：仅在桌面端（宽度 >= 768px）启用双列等高和吸顶滚动 */
+@media (min-width: 768px) {
+    #scene_panel {
+        /* 在双列模式下，高度同步左侧预览列 */
+        height: 0 !important; 
+        min-height: 100% !important; 
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        position: sticky !important;
+        top: 0;
+        flex-direction: column !important;
+        flex-wrap: nowrap !important;
+    }
 
+    #main_layout_row {
+        display: flex !important;
+        align-items: stretch !important;
+    }
+}
+
+@media (max-width: 767px) {
+    #scene_panel {
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        position: relative !important;
+        overflow: visible !important;
+    }
+}
+
+#scene_panel[style*="display: none"], 
+#scene_panel.hidden,
+.hidden {
+    display: none !important;
+}
+
+#scene_panel > .form, 
+#scene_panel > .block,
+#scene_panel > div {
+    width: 100% !important;
+    flex-shrink: 0 !important;
+}
+
+#scene_panel .gr-form {
+    flex-direction: column !important;
+}
+
+#scene_panel::-webkit-scrollbar {
+    width: 6px !important;
+    display: block !important;
+}
+#scene_panel::-webkit-scrollbar-thumb {
+    background-color: rgba(128, 128, 128, 0.4) !important;
+    border-radius: 10px !important;
+}
+#scene_panel::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(128, 128, 128, 0.6) !important;
+}
+#scene_panel::-webkit-scrollbar-track {
+    background-color: transparent !important;
+}
 /* 针对Webkit内核浏览器（如Chrome、Safari） */
 #scrollable-box::-webkit-scrollbar {
     width: 5px !important;

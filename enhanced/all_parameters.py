@@ -109,7 +109,7 @@ default = {
     'max_image_number': 32,
     'image_number': 2,
     'output_format': 'jpeg',
-    'save_metadata_to_images': False,
+    'save_metadata_to_images': True,
     'metadata_scheme': 'simple',
     'input_image_checkbox': False,
     'advanced_checkbox': True,
