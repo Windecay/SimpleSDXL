@@ -395,7 +395,7 @@ def switch_layout_template(presetdata: dict | str, state_params, preset_url=''):
         aspect_ratio = '' if len(aspect_ratios)==0 else aspect_ratios[0]
         results.append(get_layout_setting_choices_visible_inter(aspect_ratios, aspect_ratio, 'scene_aspect_ratio', visible, inter))
 
-        results.append(get_layout_update_and_visible_inter(2, 'scene_image_number', visible, inter))
+        results.append(get_layout_update_and_visible_inter(1, 'scene_image_number', visible, inter))
 
         results.append(gr.update(visible='scene_mask_color' not in visible and 'scene_canvas_image' not in visible))
         results.append(get_layout_visible('scene_use_lora', visible))

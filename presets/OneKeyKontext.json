@@ -194,26 +194,6 @@
         "clip,t5xxl_fp8_e4m3fn.safetensors,4893934904,0,",
         "loras,flux1-turbo.safetensors,694082424,0,",
         "vae,ae.safetensors,335304388,0,",
-        "upscale_models,4x_NMKD-Siax_200k.safetensors,66864028,0,",
-        "loras,Kontext_general_V1.safetensors,306593008,0,",
-        "loras,Kontext_all.safetensors,306593008,0,",
-        "loras,Kontext_appliances_V1.safetensors,343806368,0,",
-        "loras,Kontext_makeup_V1.safetensors,171970336,0,",
-        "loras,Kontext_metal_V1.safetensors,343806368,0,",
-        "loras,Kontext_clothing_V1.safetensors,306593008,0,",
-        "loras,Kontext_jewelry_V1.safetensors,306593008,0,",
-        "loras,Kontext_digital3C.safetensors,306593008,0,",
-        "loras,Kontext_composite.safetensors,343806400,0,",
-        "loras,Kontext_pattern.safetensors,343806384,0,",
-        "loras,Kontext_scene_alpha.safetensors,343806392,0,",
-        "loras,Kontext_face_V1.safetensors,306593008,0,",
-        "loras,Kontext_angle_beta.safetensors,343806392,0,",
-        "loras,Kontext_3view.safetensors,306593008,0,",
-        "loras,Kontext_remove_V1.safetensors,306593008,0,",
-        "loras,Kontext_body_restore.safetensors,343806408,0,",
-        "loras,Kontext_takeclothes_V2.safetensors,343806408,0,",
-        "loras,Kontext_put_it_here_V4.2.safetensors,358706112,0,",
-        "loras,Kontext_deblur.safetensors,306793968,0,",
-        "loras,Kontext_depth_referencel.safetensors,343806456,0,"
+        "upscale_models,4x_NMKD-Siax_200k.safetensors,66864028,0,"
         ]
 }

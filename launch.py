@@ -98,13 +98,19 @@ def check_base_environment():
     base_url = f'{base_url}/{base_file[platform_os]}'
     has_update_whl = download_if_updated(base_url, base_path)
     if has_update_whl or REINSTALL_BASE or not is_installed_version(base_pkg, ver_required):
-        if not is_installed(base_pkg):
-            run(f'"{python}" -m pip install {base_path}', f'Install {base_pkg} {ver_required}')
-        else:
-            version_installed = importlib.metadata.version(base_pkg)
-            if REINSTALL_BASE or packaging.version.parse(ver_required) != packaging.version.parse(version_installed):
-                run(f'"{python}" -m pip uninstall -y {base_pkg}', f'Uninstall {base_pkg} {version_installed}')
+        if os.path.exists(base_path):
+            if not is_installed(base_pkg):
                 run(f'"{python}" -m pip install {base_path}', f'Install {base_pkg} {ver_required}')
+            else:
+                version_installed = importlib.metadata.version(base_pkg)
+                if REINSTALL_BASE or packaging.version.parse(ver_required) != packaging.version.parse(version_installed):
+                    logger.info(f"正在更新 {base_pkg}: {version_installed} -> {ver_required}")
+                    run(f'"{python}" -m pip install -U {base_path}', f'Update {base_pkg} {ver_required}')
+        else:
+            if not is_installed(base_pkg):
+                logger.error(f"缺失必要的包 {base_pkg} 且下载失败，程序可能无法正常运行。请检查网络连接并重新启动。")
+            else:
+                logger.warning(f"无法下载更新包 {base_pkg}，将继续使用当前版本 {importlib.metadata.version(base_pkg)}。")
 
     if is_installed("sageattention"):
         extra_pkgs = [('comfyui_embedded_docs', 'comfyui_embedded_docs==0.2.3'), ('socketio', 'python-socketio'), ('jsonpatch', 'jsonpatch'), 
@@ -233,6 +239,11 @@ def check_base_environment():
             sys.exit(0)
     else:
         logger.info(f'系统环境已升级, 请到 https://hf-mirror.com/metercai/SimpleSDXL2/ 下载最新版本进行升级: SimpAI_dev.exe.7z0505')
+
+    if not is_installed(base_pkg):
+        logger.error(f"FATAL ERROR: {base_pkg} is not installed and could not be downloaded/installed.")
+        logger.error("程序缺失必要的组件且下载失败，无法继续启动。请检查网络连接并重新启动程序。")
+        sys.exit(1)
 
     from simpleai_base import simpleai_base
     logger.info("Checking ...")
