@@ -8,8 +8,8 @@
                 "version": "m1.1",
                 "theme": ["SDPose-OOD","DWPose"],
                 "theme_title": "快速转换Pose骨骼图",
-                "disvisible": ["scene_canvas_image", "scene_input_image2","scene_additional_prompt","scene_additional_prompt_2","scene_aspect_ratio", "scene_image_number", "scene_use_lora", "scene_video", "scene_audio",
-                    "scene_var_number2","scene_var_number3","scene_var_number4","scene_switch_option1","scene_switch_option2"],
+                "disvisible": ["scene_canvas_image", "scene_input_image2","scene_var_number","scene_additional_prompt","scene_additional_prompt_2","scene_aspect_ratio", "scene_image_number", "scene_use_lora", "scene_video", "scene_audio",
+                    "scene_var_number2","scene_var_number3","scene_var_number4","scene_switch_option2"],
                 "task_method": {
                     "SDPose-OOD": "sdpose",
                     "DWPose": "dw_pose"
@@ -18,15 +18,14 @@
                     "SDPose-OOD": 1,
                     "DWPose": 1
                 },
-                "var_number_title": "[1]=加粗骨骼 [2]=普通骨骼",
-                "var_number": {
-                    "SDPose-OOD":1,
-                    "DWPose":1
-                },
-                "var_number_max": 2,
                 "aspect_ratio" : ["9:16", "4:5", "4:3", "3:2", "16:9"],
                 "image_preprocessor_method": {
-                    "DWPose": [["-normalization"]]}
+                    "DWPose": [["-normalization"]]},
+                "switch_option1_title": "加粗骨骼",
+                "switch_option1": {
+                    "SDPose-OOD": true,
+                    "DWPose": true
+                }
             }
     },
     "default_model": "None",

@@ -101,54 +101,10 @@
       "title": "If else"
     }
   },
-  "23": {
-    "inputs": {
-      "value": 1
-    },
-    "class_type": "easy int",
-    "_meta": {
-      "title": "var_number"
-    }
-  },
-  "24": {
-    "inputs": {
-      "value": 1
-    },
-    "class_type": "easy int",
-    "_meta": {
-      "title": "int"
-    }
-  },
-  "25": {
-    "inputs": {
-      "comparison": "a == b",
-      "a": [
-        "23",
-        0
-      ],
-      "b": [
-        "24",
-        0
-      ]
-    },
-    "class_type": "easy compare",
-    "_meta": {
-      "title": "Compare"
-    }
-  },
-  "26": {
-    "inputs": {
-      "value": false
-    },
-    "class_type": "easy boolean",
-    "_meta": {
-      "title": "Boolean"
-    }
-  },
   "28": {
     "inputs": {
       "boolean": [
-        "25",
+        "30",
         0
       ],
       "on_true": [
@@ -182,6 +138,15 @@
     "class_type": "DWPreprocessor",
     "_meta": {
       "title": "DWPose Estimator"
+    }
+  },
+  "30": {
+    "inputs": {
+      "value": false
+    },
+    "class_type": "easy boolean",
+    "_meta": {
+      "title": "switch_option1"
     }
   }
 }

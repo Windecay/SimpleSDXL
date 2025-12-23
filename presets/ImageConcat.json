@@ -20,6 +20,7 @@
                 "var_number": {
                     "ImageConcat":1
                 },
+                "var_number_min": 1,
                 "var_number_max": 2,
                 "aspect_ratio" : ["9:16", "4:5", "4:3", "3:2", "16:9"],
                 "image_preprocessor_method": {

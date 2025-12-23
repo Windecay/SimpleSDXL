@@ -400,7 +400,7 @@
         1
       ],
       "latent_image": [
-        "105",
+        "59",
         0
       ]
     },
@@ -976,20 +976,6 @@
     "class_type": "WanFirstLastFrameToVideoTiledVAE",
     "_meta": {
       "title": "WanFirstLastFrameToVideo (Tiled VAE encode)"
-    }
-  },
-  "105": {
-    "inputs": {
-      "mode": "RAM_PRESSURE (Auto Purge)",
-      "cleanup_threshold": 2,
-      "any_input": [
-        "59",
-        0
-      ]
-    },
-    "class_type": "DynamicRAMCacheControl",
-    "_meta": {
-      "title": "🔥 Dynamic RAM Cache Control"
     }
   },
   "109": {

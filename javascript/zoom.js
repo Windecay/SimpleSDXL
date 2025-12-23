@@ -181,20 +181,6 @@ onUiLoaded(async() => {
                 closeBtn.addEventListener("click", resetZoom);
             }
 
-            if (canvas) {
-                const parentElement = targetElement.closest('[id^="component-"]');
-                if (
-                    canvas &&
-                    parseFloat(canvas.style.width) > parentElement.offsetWidth &&
-                    parseFloat(targetElement.style.width) > parentElement.offsetWidth
-                ) {
-                    fitToElement();
-                    return;
-                }
-
-            }
-
-            targetElement.style.width = "";
             const canvasLabels = gradioApp().querySelectorAll(
                 `${elemId} div[data-testid="block-label"][data-original-text="Upload and canvas"],
                 ${elemId} div[data-testid="block-label"][data-original-text="Upload prompt image"],
@@ -320,29 +306,32 @@ onUiLoaded(async() => {
          */
 
         function fitToElement() {
+            const canvas = gradioApp().querySelector(
+                `${elemId} canvas[key="interface"]`
+            );
+            if (!canvas) return;
+
             //Reset Zoom
             targetElement.style.transform = `translate(${0}px, ${0}px) scale(${1})`;
 
-            let parentElement;
-
-            parentElement = targetElement.closest('[id^="component-"]');
+            const parentElement = targetElement.closest('[id^="component-"]');
 
             // Get element and screen dimensions
-            const elementWidth = targetElement.offsetWidth;
-            const elementHeight = targetElement.offsetHeight;
+            const canvasRect = canvas.getBoundingClientRect();
+            const parentWidth = parentElement.clientWidth - 24;
+            const parentHeight = parentElement.clientHeight;
 
-            const screenWidth = parentElement.clientWidth - 24;
-            const screenHeight = parentElement.clientHeight;
-
-            // Calculate scale and offsets
-            const scaleX = screenWidth / elementWidth;
-            const scaleY = screenHeight / elementHeight;
+            // Calculate scale - we want the canvas to fit the parent
+            const scaleX = parentWidth / canvasRect.width;
+            const scaleY = parentHeight / canvasRect.height;
             const scale = Math.min(scaleX, scaleY);
 
-            const offsetX =0;
-            const offsetY =0;
+            const offsetX = 0;
+            const offsetY = 0;
 
             // Apply scale and offsets to the element
+            // Note: fitting to element usually doesn't need complex centering 
+            // because it's already inside the element.
             targetElement.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
 
             // Update global variables
@@ -414,7 +403,6 @@ onUiLoaded(async() => {
 
             if (!canvas) return;
 
-            targetElement.style.width = (canvas.offsetWidth + 2) + "px";
             targetElement.style.overflow = "visible";
             targetElement.classList.add("is-zoomed-active"); // 添加状态类
 
@@ -424,27 +412,23 @@ onUiLoaded(async() => {
                 return;
             }
 
-            //Reset Zoom
-            targetElement.style.transform = `translate(${0}px, ${0}px) scale(${1})`;
+            // Reset transform for accurate measurement
+            targetElement.style.transform = `translate(0px, 0px) scale(1)`;
 
             // Get scrollbar width to right-align the image
             const scrollbarWidth =
                 window.innerWidth - document.documentElement.clientWidth;
 
-            // Get element and screen dimensions
-            const elementWidth = targetElement.offsetWidth;
-            const elementHeight = targetElement.offsetHeight;
             const screenWidth = window.innerWidth - scrollbarWidth;
             const screenHeight = window.innerHeight;
 
-            // Get element's coordinates relative to the page
+            // Use canvas for dimensions and coordinates
+            const canvasRect = canvas.getBoundingClientRect();
             const elementRect = targetElement.getBoundingClientRect();
-            const elementY = elementRect.y;
-            const elementX = elementRect.x;
 
-            // Calculate scale and offsets
-            const scaleX = screenWidth / elementWidth;
-            const scaleY = screenHeight / elementHeight;
+            // Calculate scale based on canvas
+            const scaleX = screenWidth / canvasRect.width;
+            const scaleY = screenHeight / canvasRect.height;
             const scale = Math.min(scaleX, scaleY);
 
             // Get the current transformOrigin
@@ -454,15 +438,12 @@ onUiLoaded(async() => {
             const originXValue = parseFloat(originX);
             const originYValue = parseFloat(originY);
 
-            // Calculate offsets with respect to the transformOrigin
             const offsetX =
-                (screenWidth - elementWidth * scale) / 2 -
-                elementX -
-                originXValue * (1 - scale);
+                (screenWidth - canvasRect.width * scale) / 2 -
+                (elementRect.x + (canvasRect.x - elementRect.x) * scale - originXValue * (1 - scale));
             const offsetY =
-                (screenHeight - elementHeight * scale) / 2 -
-                elementY -
-                originYValue * (1 - scale);
+                (screenHeight - canvasRect.height * scale) / 2 -
+                (elementRect.y + (canvasRect.y - elementRect.y) * scale - originYValue * (1 - scale));
 
             // Apply scale and offsets to the element
             targetElement.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;

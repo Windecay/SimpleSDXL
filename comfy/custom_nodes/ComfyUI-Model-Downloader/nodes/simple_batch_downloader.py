@@ -35,6 +35,24 @@ def get_folder_group(folder_name):
         'inpaint': ['sams', 'inpaint'],
     }
     return folder_groups.get(folder_name, [folder_name])
+
+def find_existing_file(file_name, model_folder):
+    """在文件夹组中查找已存在的文件"""
+    group = get_folder_group(model_folder)
+    for folder in group:
+        try:
+            full_path = folder_paths.get_full_path(folder, file_name)
+            if full_path and os.path.exists(full_path):
+                return full_path
+        except:
+            pass
+
+        manual_path = os.path.join(folder_paths.models_dir, folder, file_name)
+        if os.path.exists(manual_path):
+            return manual_path
+
+    return None
+
 def is_trusted_url(url):
     """检查URL是否属于可信站点范围"""
     trusted_domains = [
@@ -282,19 +300,27 @@ class SimpleBatchDownloader:
             for url in urls:
                 try:
                     file_name = url.split('/')[-1].split('?')[0]
+
+                    # 检查是否已在文件夹组中存在
+                    if not overwrite_existing:
+                        existing_path = find_existing_file(file_name, model_folder)
+                        if existing_path:
+                            results.append(f"文件已存在于组中，跳过下载: {existing_path}")
+                            continue
+
                     model_dir = os.path.join(folder_paths.models_dir, model_folder)
                     os.makedirs(model_dir, exist_ok=True)
 
                     file_path = os.path.join(model_dir, file_name)
-                
+
                     success, message = download_file_with_temp(url, file_path, overwrite_existing)
                     results.append(message)
-                    
+
                 except Exception as e:
                     results.append(f"处理URL {url} 时出错: {str(e)}")
 
         final_message = "\n".join(results)
-        
+
         return (anything, final_message)
 
 class SimpleModelDownloader:
@@ -335,6 +361,14 @@ class SimpleModelDownloader:
         
         try:
             model_name_with_ext = model_url.split('/')[-1].split('?')[0]
+
+            # 检查是否已在文件夹组中存在
+            if not overwrite_existing:
+                existing_path = find_existing_file(model_name_with_ext, model_folder)
+                if existing_path:
+                    # 如果找到了，返回已存在的文件名（不含路径，因为 ComfyUI 节点通常只需要文件名）
+                    # 这里的 model_name_with_ext 就是我们要的文件名
+                    return (model_name_with_ext, f"文件已存在于组中，跳过下载: {existing_path}")
 
             model_dir = os.path.join(folder_paths.models_dir, model_folder)
             os.makedirs(model_dir, exist_ok=True)

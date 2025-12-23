@@ -499,7 +499,7 @@ with shared.gradio_root:
                         scene_switch_option2 = gr.Checkbox(label='Switch Option 2', value=False, visible=False)
                         scene_aspect_ratio = gr.Radio(choices=modules.flags.scene_aspect_ratios[:3], label="Aspect Ratios", value=modules.flags.scene_aspect_ratios[0], elem_classes=['scene_aspect_ratio_selections'])
                         with gr.Row():
-                            scene_image_number = gr.Slider(label='Image Number', minimum=1, maximum=5, step=1, value=2)
+                            scene_image_number = gr.Slider(label='Image Number', minimum=1, maximum=5, step=1, value=1)
                             scene_mask_color = gr.ColorPicker(label="Scene brush color", value="#70FF81", elem_id="scene_brush_color")
                         with gr.Row():
                             scene_use_lora = gr.Checkbox(label='Use LoRAs', value=False, visible=True)
