@@ -887,9 +887,12 @@ div.block.tagHelper.active {
         flex-wrap: nowrap !important;
     }
 
-    #main_layout_row {
-        display: flex !important;
-        align-items: stretch !important;
+    /* 放大/预览状态时，解除容器限制 */
+    #scene_panel:has(.is-zoomed-active),
+    #scene_panel:has(.fullscreen), 
+    #scene_panel:has(.preview) {
+        overflow: visible !important;
+        z-index: 10001 !important;
     }
 }
 
@@ -911,7 +914,7 @@ div.block.tagHelper.active {
 
 #scene_panel > .form, 
 #scene_panel > .block,
-#scene_panel > div {
+#scene_panel > div:not(.fixed):not(.modal):not(.fullscreen):not(.preview):not(.is-zoomed-active):not([style*="position: fixed"]):not([style*="position:fixed"]) {
     width: 100% !important;
     flex-shrink: 0 !important;
 }

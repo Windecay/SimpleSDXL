@@ -163,6 +163,7 @@ onUiLoaded(async() => {
             };
 
             targetElement.style.overflow = "hidden";
+            targetElement.classList.remove("is-zoomed-active"); // 移除状态类
 
             targetElement.isZoomed = false;
 
@@ -276,6 +277,7 @@ onUiLoaded(async() => {
             targetElement.style.transformOrigin = "0 0";
             targetElement.style.transform = `translate(${elemData[elemId].panX}px, ${elemData[elemId].panY}px) scale(${newZoomLevel})`;
             targetElement.style.overflow = "visible";
+            targetElement.classList.add("is-zoomed-active"); // 添加状态类
 
             toggleOverlap("on");
  
@@ -414,6 +416,7 @@ onUiLoaded(async() => {
 
             targetElement.style.width = (canvas.offsetWidth + 2) + "px";
             targetElement.style.overflow = "visible";
+            targetElement.classList.add("is-zoomed-active"); // 添加状态类
 
             if (fullScreenMode) {
                 resetZoom();
