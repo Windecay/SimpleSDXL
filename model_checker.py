@@ -2121,7 +2121,7 @@ packages = {
         "name": "[34]Wan_SCAIL扩展包",
         "note": "万相_SCAIL动作迁移扩展包|显存需求：★★★ 速度：★",
         "files": [
-            ("diffusion_models/Wan21-14B-SCAIL-preview_fp8_e4m3fn_scaled_KJ.safetensors", 16401525232),
+            ("diffusion_models/https://www.modelscope.cn/models/Kijai/WanVideo_comfy_fp8_scaled/resolve/master/SCAIL/Wan21-14B-SCAIL-preview_fp8_e4m3fn_scaled_KJ.safetensors", 16401525232),
             ("clip/umt5-xxl-encoder-Q8_0.gguf", 6043068256),
             ("vae/Wan2_1_VAE_bf16.safetensors", 253806278),
             ("loras/lightx2v_I2V_14B_480p_cfg_step_distill_rank64_bf16.safetensors", 738005744),
