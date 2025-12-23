@@ -2522,7 +2522,7 @@
         512,
         512,
         "lanczos",
-        "pad_edge_pixel",
+        "crop",
         "0, 0, 0",
         "center",
         8,

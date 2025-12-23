@@ -143,7 +143,8 @@ def load_model_paths():
             "SDPose_OOD": [os.path.join(simplemodels_root, "SDPose_OOD")],
             "yolo": [os.path.join(simplemodels_root, "yolo")],
             "jina_clip": [os.path.join(simplemodels_root, "jina_clip")],
-            "gemma3": [os.path.join(simplemodels_root, "gemma3")]
+            "gemma3": [os.path.join(simplemodels_root, "gemma3")],
+            "nlf": [os.path.join(simplemodels_root, "nlf")],
         }
 
     except Exception as e:
@@ -187,7 +188,8 @@ def load_model_paths():
             "SDPose_OOD": [os.path.join(simplemodels_root, "SDPose_OOD")],
             "yolo": [os.path.join(simplemodels_root, "yolo")],
             "jina_clip": [os.path.join(simplemodels_root, "jina_clip")],
-            "gemma3": [os.path.join(simplemodels_root, "gemma3")]
+            "gemma3": [os.path.join(simplemodels_root, "gemma3")],
+            "nlf": [os.path.join(simplemodels_root, "nlf")],
         }
 
     for key in path_mapping:
@@ -2113,7 +2115,25 @@ packages = {
             ("upscale_models/https://hf-mirror.com/Kim2091/AnimeSharp/resolve/main/4x-AnimeSharp.pth",67010245)
         ],
         "download_links": []
-    }
+    },
+    "wan_scail_package": {
+        "id": 34,
+        "name": "[34]Wan_SCAIL扩展包",
+        "note": "万相_SCAIL动作迁移扩展包|显存需求：★★★ 速度：★",
+        "files": [
+            ("diffusion_models/Wan21-14B-SCAIL-preview_fp8_e4m3fn_scaled_KJ.safetensors", 16401525232),
+            ("clip/umt5-xxl-encoder-Q8_0.gguf", 6043068256),
+            ("vae/Wan2_1_VAE_bf16.safetensors", 253806278),
+            ("loras/lightx2v_I2V_14B_480p_cfg_step_distill_rank64_bf16.safetensors", 738005744),
+            ("controlnet/rife/https://www.modelscope.cn/models/windecay/rife/resolve/master/flownet.pkl", 24636301),
+            ("detection/https://modelscope.cn/models/Kijai/vitpose_comfy/resolve/master/onnx/vitpose_h_wholebody_data.bin", 2548958740),
+            ("detection/https://modelscope.cn/models/Kijai/vitpose_comfy/resolve/master/onnx/vitpose_h_wholebody_model.onnx", 420252),
+            ("detection/https://modelscope.cn/models/Wan-AI/Wan2.2-Animate-14B/resolve/master/process_checkpoint/det/yolov10m.onnx", 61659339),
+            ("nlf/https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/nlf/nlf_l_multi_0.3.2.torchscript", 493117974)
+        ],
+        "download_links": []
+    },
+    
 }
 
 MANUAL_DOWNLOAD_MAP = {

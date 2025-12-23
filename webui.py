@@ -96,7 +96,7 @@ def generate_clicked(task: worker.AsyncTask, state):
     #         gr.update(visible=False)
         # return
 
-    MAX_WAIT_TIME = 600
+    MAX_WAIT_TIME = 1800
     POLL_INTERVAL = 0.1
 
     worker.add_task(task)
@@ -128,7 +128,7 @@ def generate_clicked(task: worker.AsyncTask, state):
     execution_start_time = time.perf_counter()
     finished = False
     ready_flag = True if qsize==1 else ready_flag
-    MAX_WAIT_TIME = 600 if task.content_type == 'image' else 3600
+    MAX_WAIT_TIME = 1800 if task.content_type == 'image' else 7200
     POLL_INTERVAL = 0.08
     in_progress = False
 
