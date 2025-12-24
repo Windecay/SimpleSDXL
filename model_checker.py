@@ -1977,9 +1977,8 @@ packages = {
         "name": "[27]QwenPlus图像编辑预置包",
         "note": "Qwen_Image_EditPlus指令编辑图像|显存需求：★★★★★ 速度:★☆",
         "files": [
-            ("checkpoints/https://www.modelscope.cn/models/Comfy-Org/Qwen-Image-Edit_ComfyUI/resolve/master/split_files/diffusion_models/qwen_image_edit_2509_fp8_e4m3fn.safetensors", 20430698424),
-            ("loras/https://www.modelscope.cn/models/windecay/my_favorite_loras/resolve/master/Qwen-Image-Edit-2509-Lightning-8steps-V1.0-bf16.safetensors", 849608296),
-            ("loras/https://www.modelscope.cn/models/windecay/my_favorite_loras/resolve/master/Qwen-Image-Edit-2509-Lightning-4steps-V1.0-bf16.safetensors", 849608296),
+            ("diffusion_models/https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/diffusion_models/qwen_image_edit_2511_fp8mixed.safetensors", 20533762817),
+            ("loras/https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/loras/Qwen-Image-Edit-2511-Lightning-4steps-V1.0-bf16.safetensors", 849608296),
             ("clip/qwen_2.5_vl_7b_fp8_scaled.safetensors", 9384670680),
             ("vae/qwen_image_vae.safetensors", 253806246)
         ],

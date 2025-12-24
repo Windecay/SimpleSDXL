@@ -61,8 +61,8 @@
   },
   "7": {
     "inputs": {
-      "lora_name": "Qwen-Image-Edit-2509-Lightning-8steps-V1.0-bf16.safetensors",
-      "strength_model": 1,
+      "lora_name": "Qwen-Image-Edit-2511-Lightning-4steps-V1.0-bf16.safetensors",
+      "strength_model": 0.5,
       "model": [
         "90",
         0
@@ -333,7 +333,7 @@
         0
       ],
       "positive": [
-        "84",
+        "135",
         0
       ],
       "negative": [
@@ -551,7 +551,7 @@
   },
   "90": {
     "inputs": {
-      "unet_name": "qwen_image_edit_2509_fp8_e4m3fn.safetensors",
+      "unet_name": "qwen_image_edit_2511_fp8mixed.safetensors",
       "weight_dtype": "default"
     },
     "class_type": "UNETLoader",
@@ -576,19 +576,10 @@
       "title": "Empty Latent Image"
     }
   },
-  "95": {
-    "inputs": {
-      "value": 1
-    },
-    "class_type": "easy int",
-    "_meta": {
-      "title": "var_number"
-    }
-  },
   "96": {
     "inputs": {
       "boolean": [
-        "98",
+        "134",
         0
       ],
       "on_true": [
@@ -603,32 +594,6 @@
     "class_type": "easy ifElse",
     "_meta": {
       "title": "If else"
-    }
-  },
-  "97": {
-    "inputs": {
-      "value": 2
-    },
-    "class_type": "easy int",
-    "_meta": {
-      "title": "Int"
-    }
-  },
-  "98": {
-    "inputs": {
-      "comparison": "a == b",
-      "a": [
-        "95",
-        0
-      ],
-      "b": [
-        "97",
-        0
-      ]
-    },
-    "class_type": "easy compare",
-    "_meta": {
-      "title": "Compare"
     }
   },
   "104": {
@@ -1013,6 +978,28 @@
     "class_type": "SimpleMath+",
     "_meta": {
       "title": "🔧 Simple Math"
+    }
+  },
+  "134": {
+    "inputs": {
+      "value": false
+    },
+    "class_type": "easy boolean",
+    "_meta": {
+      "title": "switch_option1"
+    }
+  },
+  "135": {
+    "inputs": {
+      "reference_latents_method": "index_timestep_zero",
+      "conditioning": [
+        "84",
+        0
+      ]
+    },
+    "class_type": "FluxKontextMultiReferenceLatentMethod",
+    "_meta": {
+      "title": "FluxKontextMultiReferenceLatentMethod"
     }
   }
 }

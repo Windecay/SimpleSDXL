@@ -6,49 +6,48 @@
             "available_aspect_ratios_selection": "Flux",
             "scene_frontend": {
                 "version": "m1.1",
-                "theme": ["Qwen-Editplus-1024px","Qwen-Editplus-1024px-fast","Qwen-Editplus-1536px","Qwen-Editplus-1536px-fast","Qwen-Editplus-2048px","Qwen-Editplus-2048px-fast"],
-                "theme_title": "Qwen-Edit使用中文指令修改图片(画笔可生成[绿色方框区域]）",
+                "theme": ["Edit-2511-1024px","Edit-2511-1024px-fast","Edit-2511-1536px","Edit-2511-1536px-fast","Edit-2511-2048px","Edit-2511-2048px-fast"],
+                "theme_title": "Qwen-Edit-2511指令修图(画笔可生成[绿色方框区域]）",
                 "disvisible": ["scene_additional_prompt","scene_additional_prompt_2", "scene_video", "scene_audio",
-                    "scene_var_number2","scene_var_number3","scene_var_number4","scene_switch_option1","scene_switch_option2"],
+                    "scene_var_number","scene_var_number2","scene_var_number3","scene_var_number4","scene_switch_option2"],
                 "task_method": {
-                    "Qwen-Editplus-1024px": "qwen_editplus_cn",
-                    "Qwen-Editplus-1024px-fast": "qwen_editplus_fast_cn",
-                    "Qwen-Editplus-1536px": "qwen_editplus_1536_cn",
-                    "Qwen-Editplus-1536px-fast": "qwen_editplus_1536_fast_cn",
-                    "Qwen-Editplus-2048px": "qwen_editplus_2048_cn",
-                    "Qwen-Editplus-2048px-fast": "qwen_editplus_2048_fast_cn"
+                    "Edit-2511-1024px": "qwen_editplus_cn",
+                    "Edit-2511-1024px-fast": "qwen_editplus_fast_cn",
+                    "Edit-2511-1536px": "qwen_editplus_1536_cn",
+                    "Edit-2511-1536px-fast": "qwen_editplus_1536_fast_cn",
+                    "Edit-2511-2048px": "qwen_editplus_2048_cn",
+                    "Edit-2511-2048px-fast": "qwen_editplus_2048_fast_cn"
                 },
                 "scene_steps": {
-                    "Qwen-Editplus-1024px": 8,
-                    "Qwen-Editplus-1024px-fast": 4,
-                    "Qwen-Editplus-1536px": 8,
-                    "Qwen-Editplus-1536px-fast": 4,
-                    "Qwen-Editplus-2048px": 8,
-                    "Qwen-Editplus-2048px-fast": 4
+                    "Edit-2511-1024px": 8,
+                    "Edit-2511-1024px-fast": 4,
+                    "Edit-2511-1536px": 8,
+                    "Edit-2511-1536px-fast": 4,
+                    "Edit-2511-2048px": 8,
+                    "Edit-2511-2048px-fast": 4
                 },
                 "image_preprocessor_method": {
-                    "Qwen-Editplus-1024px": [["-normalization"]],
-                    "Qwen-Editplus-1024px-fast": [["-normalization"]],
-                    "Qwen-Editplus-1536px": [["-normalization"]],
-                    "Qwen-Editplus-1536px-fast": [["-normalization"]],
-                    "Qwen-Editplus-2048px": [["-normalization"]],
-                    "Qwen-Editplus-2048px-fast": [["-normalization"]]
+                    "Edit-2511-1024px": [["-normalization"]],
+                    "Edit-2511-1024px-fast": [["-normalization"]],
+                    "Edit-2511-1536px": [["-normalization"]],
+                    "Edit-2511-1536px-fast": [["-normalization"]],
+                    "Edit-2511-2048px": [["-normalization"]],
+                    "Edit-2511-2048px-fast": [["-normalization"]]
                 },
-                "var_number": {
-                    "Qwen-Editplus-1024px": 1,
-                    "Qwen-Editplus-1024px-fast": 1,
-                    "Qwen-Editplus-1536px": 1,
-                    "Qwen-Editplus-1536px-fast": 1,
-                    "Qwen-Editplus-2048px": 1,
-                    "Qwen-Editplus-2048px-fast": 1
+                "switch_option1_title": "自定义比例[下方选择]",
+                "switch_option": {
+                    "Edit-2511-1024px": false,
+                    "Edit-2511-1024px-fast": false,
+                    "Edit-2511-1536px": false,
+                    "Edit-2511-1536px-fast": false,
+                    "Edit-2511-2048px": false,
+                    "Edit-2511-2048px-fast": false
                 },
-                "var_number_title": "1为遵从原图比例，2为下方自定义比例",
-                "var_number_max": 2,
                 "aspect_ratio" : [ "1024|1:1", "756|9:16", "832|2:3", "1216|4:3", "1248|3:2", "1344|16:9"]
             }
     },
 
-    "default_model": "qwen_image_edit_2509_fp8_e4m3fn.safetensors",
+    "default_model": "qwen_image_edit_2511_fp8mixed.safetensors",
     "default_refiner": "None",
     "default_refiner_switch": 0.5,
     "default_loras": [
@@ -89,9 +88,8 @@
     "lora_downloads": {},
     "vae_downloads": {},
     "model_list": [
-        "checkpoints,qwen_image_edit_2509_fp8_e4m3fn.safetensors,20430698424,0,https://www.modelscope.cn/models/Comfy-Org/Qwen-Image-Edit_ComfyUI/resolve/master/split_files/diffusion_models/qwen_image_edit_2509_fp8_e4m3fn.safetensors",
-        "loras,Qwen-Image-Edit-2509-Lightning-8steps-V1.0-bf16.safetensors,849608296,0,https://www.modelscope.cn/models/windecay/my_favorite_loras/resolve/master/Qwen-Image-Edit-2509-Lightning-8steps-V1.0-bf16.safetensors",
-        "loras,Qwen-Image-Edit-2509-Lightning-4steps-V1.0-bf16.safetensors,849608296,0,https://www.modelscope.cn/models/windecay/my_favorite_loras/resolve/master/Qwen-Image-Edit-2509-Lightning-4steps-V1.0-bf16.safetensors",
+        "diffusion_models,qwen_image_edit_2511_fp8mixed.safetensors,20533762817,0,https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/diffusion_models/qwen_image_edit_2511_fp8mixed.safetensors",
+        "loras,Qwen-Image-Edit-2509-Lightning-8steps-V1.0-bf16.safetensors,849608296,0,https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/loras/Qwen-Image-Edit-2511-Lightning-4steps-V1.0-bf16.safetensors",
         "clip,qwen_2.5_vl_7b_fp8_scaled.safetensors,9384670680,0,",
         "vae,qwen_image_vae.safetensors,253806246,0,"
         ]
