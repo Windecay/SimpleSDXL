@@ -220,6 +220,7 @@ class WanVideoAddFantasyPortrait:
                     "strength": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 100.0, "step": 0.01, "tooltip": "Strength of the portrait embedding"}),
                     "start_percent": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 1.0, "step": 0.01, "tooltip": "Start percentage of the embedding application"}),
                     "end_percent": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 1.0, "step": 0.01, "tooltip": "End percentage of the embedding application"}),
+                    "portrait_cfg": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 20.0, "step": 0.01, "tooltip": "CFG scale for the portrait embedding"}),
                 }
         }
 
@@ -228,12 +229,13 @@ class WanVideoAddFantasyPortrait:
     FUNCTION = "add"
     CATEGORY = "WanVideoWrapper"
 
-    def add(self, embeds, portrait_embeds, strength, start_percent=0.0, end_percent=1.0):
+    def add(self, embeds, portrait_embeds, strength, start_percent=0.0, end_percent=1.0, portrait_cfg=1.0):
         new_entry = {
             "adapter_proj": portrait_embeds,
             "strength": strength,
             "start_percent": start_percent,
             "end_percent": end_percent,
+            "cfg_scale": portrait_cfg,
         }
 
         updated = dict(embeds)

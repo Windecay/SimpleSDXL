@@ -888,6 +888,27 @@ class WanVideoAddMTVMotion:
         updated["mtv_crafter_motion"] = new_entry
         return (updated,)
 
+class WanVideoAddStoryMemLatents:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": {
+                    "embeds": ("WANVIDIMAGE_EMBEDS",),
+                    "memory_latents": ("LATENT",),
+                }
+        }
+
+    RETURN_TYPES = ("WANVIDIMAGE_EMBEDS",)
+    RETURN_NAMES = ("image_embeds",)
+    FUNCTION = "add"
+    CATEGORY = "WanVideoWrapper"
+
+    def add(self, embeds, memory_latents):
+        updated = dict(embeds)
+        samples = memory_latents["samples"][0]
+        updated["story_mem_latents"] = samples
+
+        return (updated,)
+
 #region I2V encode
 class WanVideoImageToVideoEncode:
     @classmethod
@@ -2046,7 +2067,7 @@ class WanVideoDecode:
             video.clamp_(-1.0, 1.0)
             video.add_(1.0).div_(2.0)
             return video.cpu().float(),
-        latents = samples["samples"]
+        latents = samples["samples"].clone()
         end_image = samples.get("end_image", None)
         has_ref = samples.get("has_ref", False)
         drop_last = samples.get("drop_last", False)
@@ -2255,6 +2276,7 @@ NODE_CLASS_MAPPINGS = {
     "TextImageEncodeQwenVL": TextImageEncodeQwenVL,
     "WanVideoUniLumosEmbeds": WanVideoUniLumosEmbeds,
     "WanVideoAddTTMLatents": WanVideoAddTTMLatents,
+    "WanVideoAddStoryMemLatents": WanVideoAddStoryMemLatents,
     }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -2296,4 +2318,5 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "WanVideoAddBindweaveEmbeds": "WanVideo Add Bindweave Embeds",
     "WanVideoUniLumosEmbeds": "WanVideo UniLumos Embeds",
     "WanVideoAddTTMLatents": "WanVideo Add TTMLatents",
+    "WanVideoAddStoryMemLatents": "WanVideo Add StoryMem Latents",
 }

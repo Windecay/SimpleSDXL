@@ -132,6 +132,7 @@ def standardize_lora_key_format(lora_sd):
             k = k.replace('vace_blocks.', 'diffusion_model.vace_blocks.')
         k = k.replace('.default.', '.')
         k = k.replace('.diff_m', '.modulation.diff')
+        k = k.replace('base_model.model.', 'diffusion_model.')
 
         # Fun LoRA format
         if k.startswith('lora_unet__'):
@@ -177,7 +178,7 @@ def standardize_lora_key_format(lora_sd):
 
                         new_key += f".{component}"
 
-                # Handle weight type - this is the critical fix
+                # Handle weight type
                 if weight_type:
                     if weight_type == 'alpha':
                         new_key += '.alpha'
@@ -208,12 +209,12 @@ def standardize_lora_key_format(lora_sd):
                 new_key = new_key.replace('time_embedding', 'time.embedding')
                 new_key = new_key.replace('time_projection', 'time.projection')
 
-                # Replace remaining underscores with dots, carefully
+                # Replace remaining underscores with dots
                 parts = new_key.split('.')
                 final_parts = []
                 for part in parts:
                     if part in ['img_emb', 'self_attn', 'cross_attn']:
-                        final_parts.append(part)  # Keep these intact
+                        final_parts.append(part)
                     else:
                         final_parts.append(part.replace('_', '.'))
                 new_key = '.'.join(final_parts)
@@ -271,6 +272,20 @@ def standardize_lora_key_format(lora_sd):
         if "txt_attn.qkv" in k:
             k = k.replace("txt_attn.qkv", "txt_attn_qkv")
         new_sd[k] = v
+    return new_sd
+
+def compensate_rs_lora_format(lora_sd):
+    rank = lora_sd["base_model.model.blocks.0.cross_attn.k.lora_A.weight"].shape[0]
+    alpha = torch.tensor(2 * 128 * rank ** 0.5)
+    log.info(f"Detected rank stabilized peft lora format with rank {rank}, setting alpha to {alpha} to compensate.")
+    new_sd = {}
+    for k, v in lora_sd.items():
+        if k.endswith(".lora_A.weight"):
+            new_sd[k] = v
+            new_k = k.replace(".lora_A.weight", ".alpha")
+            new_sd[new_k] = alpha
+        else:
+            new_sd[k] = v
     return new_sd
 
 class WanVideoBlockSwap:
@@ -363,7 +378,7 @@ class WanVideoLoraSelect:
             "required": {
                "lora": (folder_paths.get_filename_list("loras"),
                 {"tooltip": "LORA models are expected to be in ComfyUI/models/loras with .safetensors extension"}),
-                "strength": ("FLOAT", {"default": 1.0, "min": -10.0, "max": 10.0, "step": 0.0001, "tooltip": "LORA strength, set to 0.0 to unmerge the LORA"}),
+                "strength": ("FLOAT", {"default": 1.0, "min": -1000.0, "max": 1000.0, "step": 0.0001, "tooltip": "LORA strength, set to 0.0 to unmerge the LORA"}),
             },
             "optional": {
                 "prev_lora":("WANVIDLORA", {"default": None, "tooltip": "For loading multiple LoRAs"}),
@@ -755,6 +770,8 @@ class WanVideoSetLoRAs:
             lora_sd = load_torch_file(lora_path, safe_load=True)
             if "dwpose_embedding.0.weight" in lora_sd: #unianimate
                 raise NotImplementedError("Unianimate LoRA patching is not implemented in this node.")
+            if "base_model.model.blocks.0.cross_attn.k.lora_A.weight" in lora_sd: # assume rs_lora
+                lora_sd = compensate_rs_lora_format(lora_sd)
 
             lora_sd = standardize_lora_key_format(lora_sd)
             if l["blocks"]:
@@ -966,7 +983,8 @@ def add_lora_weights(patcher, lora, base_dtype, merge_loras=False):
             from .unianimate.nodes import update_transformer
             log.info("Unianimate LoRA detected, patching model...")
             patcher.model.diffusion_model, unianimate_sd = update_transformer(patcher.model.diffusion_model, lora_sd)
-
+        if "base_model.model.blocks.0.cross_attn.k.lora_A.weight" in lora_sd: # assume rs_lora
+                lora_sd = compensate_rs_lora_format(lora_sd)
         lora_sd = standardize_lora_key_format(lora_sd)
 
         if l["blocks"]:
@@ -1128,7 +1146,7 @@ class WanVideoModelLoader:
         scale_weights = {}
         if "fp8" in quantization:
             for k, v in sd.items():
-                if k.endswith(".scale_weight"):
+                if k.endswith(".scale_weight") or k.endswith(".weight_scale"):
                     is_scaled_fp8 = True
                     break
 
@@ -1153,7 +1171,7 @@ class WanVideoModelLoader:
         # currently this can be VACE, MTV-Crafter, Lynx or Ovi-audio weights
         if extra_model is not None:
             for _model in extra_model:
-                print("Loading extra model: ", _model["path"])
+                log.info(f"Loading extra model: {_model['path']}")
                 if gguf:
                     if not _model["path"].endswith(".gguf"):
                         raise ValueError("With GGUF main model the extra model must also be GGUF quantized, if the main model already has VACE included, you can disconnect the extra module loader")
@@ -1408,7 +1426,7 @@ class WanVideoModelLoader:
             sd.update(fantasytalking_model["sd"])
 
         # FantasyPortrait https://github.com/Fantasy-AMAP/fantasy-portrait/
-        if fantasyportrait_model is not None:
+        if fantasyportrait_model is not None and "blocks.0.cross_attn.emo_k_proj.weight" not in sd:
             log.info("FantasyPortrait model detected, patching model...")
             context_dim = fantasyportrait_model["sd"]["ip_adapter.blocks.0.cross_attn.ip_adapter_single_stream_k_proj.weight"].shape[1]
 
@@ -1422,6 +1440,19 @@ class WanVideoModelLoader:
                     ip_adapter_sd[k.replace("ip_adapter.", "")] = v
             sd.update(ip_adapter_sd)
             del ip_adapter_sd
+
+        # FlashPortrait
+        if "blocks.0.cross_attn.emo_k_proj.weight" in sd:
+            log.info("FlashPortrait model detected, patching model...")
+            context_dim = sd["blocks.0.cross_attn.emo_k_proj.weight"].shape[1]
+
+            sd = {k.replace("emo_k_proj", "ip_adapter_single_stream_k_proj"): v for k, v in sd.items()}
+            sd = {k.replace("emo_v_proj", "ip_adapter_single_stream_v_proj"): v for k, v in sd.items()}
+
+            with init_empty_weights():
+                for block in transformer.blocks:
+                    block.cross_attn.ip_adapter_single_stream_k_proj = nn.Linear(context_dim, dim, bias=False)
+                    block.cross_attn.ip_adapter_single_stream_v_proj = nn.Linear(context_dim, dim, bias=False)
 
         if multitalk_model is not None:
             multitalk_model_type = multitalk_model.get("model_type", "MultiTalk")
@@ -1466,6 +1497,41 @@ class WanVideoModelLoader:
 
             sd.update(extra_sd)
             del extra_sd
+        elif "multitalk_audio_proj.proj1.weight" in sd:
+            log.info("MultiTalk/InfiniteTalk model detected, patching model...")
+            from .multitalk.multitalk import AudioProjModel
+            from .wanvideo.modules.model import WanLayerNorm
+            from .LongCat.layers import SingleStreamAttention
+
+            audio_window = 5
+            vae_scale = 4
+
+            for block in transformer.blocks:
+                with init_empty_weights():
+                    if "blocks.0.audio_modulation.1.weight" in sd:
+                        block.audio_modulation = nn.Sequential(nn.SiLU(), nn.Linear(512, 3 * dim, bias=True))
+                    block.norm_x = WanLayerNorm(dim, transformer.eps, elementwise_affine=True)
+                    block.audio_cross_attn = SingleStreamAttention(
+                            dim=dim,
+                            encoder_hidden_states_dim=768,
+                            num_heads=num_heads,
+                        qkv_bias=True,
+                        qk_norm=True,
+                        class_range=24,
+                        class_interval=4,
+                        attention_mode=attention_mode,
+                    )
+                    multitalk_proj_model = AudioProjModel(
+                            seq_len=audio_window,
+                            seq_len_vf=audio_window+vae_scale-1,
+                            intermediate_dim=512,
+                            output_dim=768,
+                            context_tokens=32,
+                            norm_output_audio=True,
+                    )
+            transformer.multitalk_audio_proj = multitalk_proj_model
+
+        sd = {k.replace(".weight_scale", ".scale_weight"): v for k, v in sd.items()}
 
         # FlashVSR
         if "LQ_proj_in.norm1.gamma" in sd:

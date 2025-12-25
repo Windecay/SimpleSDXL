@@ -6,6 +6,7 @@ import folder_paths
 import cv2
 import logging
 import copy
+import datetime
 script_directory = os.path.dirname(os.path.abspath(__file__))
 
 from comfy import model_management as mm
@@ -253,6 +254,7 @@ class RenderNLFPoses:
                 "draw_hands": ("BOOLEAN", {"default": True, "tooltip": "Whether to draw hand keypoints"}),
                 "render_device": (["gpu", "cpu", "opengl", "cuda", "vulkan", "metal"], {"default": "gpu", "tooltip": "Taichi device to use for rendering"}),
                 "scale_hands": ("BOOLEAN", {"default": True, "tooltip": "Whether to scale hand keypoints when aligning DW poses"}),
+                "render_backend": (["taichi", "torch"], {"default": "taichi", "tooltip": "Rendering backend to use"}),
             }
     }
 
@@ -261,22 +263,25 @@ class RenderNLFPoses:
     FUNCTION = "predict"
     CATEGORY = "WanVideoWrapper"
 
-    def predict(self, nlf_poses, width, height, dw_poses=None, ref_dw_pose=None, draw_face=True, draw_hands=True, render_device="gpu", scale_hands=True):
+    def predict(self, nlf_poses, width, height, dw_poses=None, ref_dw_pose=None, draw_face=True, draw_hands=True, render_device="gpu", scale_hands=True, render_backend="taichi"):
 
         from .NLFPoseExtract.nlf_render import render_nlf_as_images, render_multi_nlf_as_images, shift_dwpose_according_to_nlf, process_data_to_COCO_format, intrinsic_matrix_from_field_of_view
         from .NLFPoseExtract.align3d import solve_new_camera_params_central, solve_new_camera_params_down
-        import taichi as ti
-
-        device_map = {
-            "cpu": ti.cpu,
-            "gpu": ti.gpu,
-            "opengl": ti.opengl,
-            "cuda": ti.cuda,
-            "vulkan": ti.vulkan,
-            "metal": ti.metal,
-        }
-
-        ti.init(arch=device_map.get(render_device.lower()))
+        if render_backend == "taichi":
+            try:
+                import taichi as ti
+                device_map = {
+                    "cpu": ti.cpu,
+                    "gpu": ti.gpu,
+                    "opengl": ti.opengl,
+                    "cuda": ti.cuda,
+                    "vulkan": ti.vulkan,
+                    "metal": ti.metal,
+                }
+                ti.init(arch=device_map.get(render_device.lower()))
+            except:
+                logging.warning("Taichi selected but not installed. Falling back to torch rendering.")
+                render_backend = "torch"
 
         if isinstance(nlf_poses, dict):
             pose_input = nlf_poses['joints3d_nonparam'][0] if 'joints3d_nonparam' in nlf_poses else nlf_poses
@@ -345,22 +350,71 @@ class RenderNLFPoses:
             intrinsic_matrix = ori_camera_pose
 
         if pose_input[0].shape[0] > 1:
-            frames_np = render_multi_nlf_as_images(pose_input, dw_pose_input, height, width, len(pose_input), intrinsic_matrix=intrinsic_matrix, draw_face=draw_face, draw_hands=draw_hands)
+            frames_np = render_multi_nlf_as_images(pose_input, dw_pose_input, height, width, len(pose_input), intrinsic_matrix=intrinsic_matrix, draw_face=draw_face, draw_hands=draw_hands, render_backend = render_backend)
         else:
-            frames_np = render_nlf_as_images(pose_input, dw_pose_input, height, width, len(pose_input), intrinsic_matrix=intrinsic_matrix, draw_face=draw_face, draw_hands=draw_hands)
+            frames_np = render_nlf_as_images(pose_input, dw_pose_input, height, width, len(pose_input), intrinsic_matrix=intrinsic_matrix, draw_face=draw_face, draw_hands=draw_hands, render_backend = render_backend)
 
         frames_tensor = torch.from_numpy(np.stack(frames_np, axis=0)).contiguous() / 255.0
         frames_tensor, mask = frames_tensor[..., :3], frames_tensor[..., -1] > 0.5
 
         return (frames_tensor.cpu().float(), mask.cpu().float())
 
+class SaveNLFPosesAs3D:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": {
+            "nlf_poses": ("NLFPRED", {"tooltip": "Input poses for the model"}),
+            "filename_prefix": ("STRING", {"default": "nlf_pose_3d"}),
+            "fps": ("FLOAT", {"default": 24.0, "min": 1.0, "max": 300.0, "step": 0.1, "tooltip": "Frames per second for the output animation"}),
+            "cylinder_radius": ("FLOAT", {"default": 21.5, "tooltip": "Radius of the cylinders representing bones"}),
+            },
+    }
+
+    RETURN_TYPES = ("STRING",)
+    RETURN_NAMES = ("output_path",)
+    OUTPUT_NODE = True
+    FUNCTION = "save_3d"
+    CATEGORY = "WanVideoWrapper"
+
+    def save_3d(self, nlf_poses, filename_prefix, fps, cylinder_radius):
+        from .NLFPoseExtract.nlf_render import get_cylinder_specs_list_from_poses
+        from .render_3d.export_utils import save_cylinder_specs_as_glb_animation
+        try:
+            if isinstance(nlf_poses, dict):
+                pose_input = nlf_poses['joints3d_nonparam'][0] if 'joints3d_nonparam' in nlf_poses else nlf_poses
+            else:
+                pose_input = nlf_poses
+
+            cylinder_specs_list = get_cylinder_specs_list_from_poses(pose_input, include_missing=True)
+            logging.info(f"Generated {len(cylinder_specs_list)} frames of cylinder specs")
+
+            output_dir = folder_paths.get_output_directory()
+            full_output_folder = os.path.join(output_dir, filename_prefix)
+            if not os.path.exists(full_output_folder):
+                os.makedirs(full_output_folder)
+
+            filename = f"{filename_prefix}_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.glb"
+            filepath = os.path.join(full_output_folder, filename)
+
+            logging.info(f"Saving as GLB animation to {full_output_folder}")
+            logging.info(f"Starting GLB animation export. Frames: {len(cylinder_specs_list)}")
+            save_cylinder_specs_as_glb_animation(cylinder_specs_list, filepath, fps=fps, radius=cylinder_radius)
+            logging.info(f"Saved GLB: {filepath}")
+        except Exception as e:
+            logging.error(f"Error in SaveNLFPosesAs3D: {e}")
+            raise e
+
+        return (filepath,)
+
 NODE_CLASS_MAPPINGS = {
     "PoseDetectionVitPoseToDWPose": PoseDetectionVitPoseToDWPose,
     "RenderNLFPoses": RenderNLFPoses,
     "ConvertOpenPoseKeypointsToDWPose": ConvertOpenPoseKeypointsToDWPose,
+    "SaveNLFPosesAs3D": SaveNLFPosesAs3D,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
     "PoseDetectionVitPoseToDWPose": "Pose Detection VitPose to DWPose",
     "RenderNLFPoses": "Render NLF Poses",
     "ConvertOpenPoseKeypointsToDWPose": "Convert OpenPose Keypoints to DWPose",
+    "SaveNLFPosesAs3D": "Save NLF Poses as 3D Animation",
 }

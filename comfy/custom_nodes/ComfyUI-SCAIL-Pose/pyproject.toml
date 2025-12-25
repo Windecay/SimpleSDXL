@@ -1,7 +1,7 @@
 [project]
 name = "ComfyUI-SCAIL-Pose"
 description = "ComfyUI nodes for SCAIL pose input processing"
-version = "1.0.1"
+version = "1.0.2"
 license = {file = "LICENSE"}
 dependencies = ["taichi >= 1.7.4", "opencv-python", "pillow"]
 

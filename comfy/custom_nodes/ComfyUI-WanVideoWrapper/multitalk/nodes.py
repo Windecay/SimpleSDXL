@@ -7,6 +7,8 @@ from ..utils import log, set_module_tensor_to_device
 import os
 import json
 import datetime
+import scipy.signal as ss
+import numpy as np
 
 script_directory = os.path.dirname(os.path.abspath(__file__))
 folder_paths.add_model_folder_path("wav2vec2", os.path.join(folder_paths.models_dir, "wav2vec2"))
@@ -134,6 +136,15 @@ def loudness_norm(audio_array, sr=16000, lufs=-23):
         return audio_array
     normalized_audio = pyloudnorm.normalize.loudness(audio_array, loudness, lufs)
     return normalized_audio
+
+def _add_noise_floor(audio, noise_db=-45):
+        noise_amp = 10 ** (noise_db / 20)
+        noise = np.random.randn(len(audio)) * noise_amp
+        return audio + noise
+
+def _smooth_transients(audio, sr=16000):
+        b, a = ss.butter(3, 3000 / (sr/2))
+        return ss.lfilter(b, a, audio)
     
 class MultiTalkWav2VecEmbeds:
     @classmethod
@@ -153,6 +164,8 @@ class MultiTalkWav2VecEmbeds:
                 "audio_3": ("AUDIO",),
                 "audio_4": ("AUDIO",),
                 "ref_target_masks": ("MASK", {"tooltip": "Per-speaker semantic mask(s) in pixel space. Supply one mask per speaker (plus optional background) to guide mouth assignment"}),
+                "add_noise_floor": ("BOOLEAN", {"default": False, "tooltip": "Add a low-level noise floor to the audio to reduce silent gaps"}),
+                "smooth_transients": ("BOOLEAN", {"default": False, "tooltip": "Apply a low-pass filter to the audio to smooth out transients"}),
             }
         }
 
@@ -161,7 +174,8 @@ class MultiTalkWav2VecEmbeds:
     FUNCTION = "process"
     CATEGORY = "WanVideoWrapper"
 
-    def process(self, wav2vec_model, normalize_loudness, fps, num_frames, audio_1, audio_scale, audio_cfg_scale, multi_audio_type, audio_2=None, audio_3=None, audio_4=None, ref_target_masks=None):
+    def process(self, wav2vec_model, normalize_loudness, fps, num_frames, audio_1, audio_scale, audio_cfg_scale, multi_audio_type, audio_2=None, audio_3=None, audio_4=None,
+                ref_target_masks=None, add_noise_floor=False, smooth_transients=False):
         model_type = wav2vec_model["model_type"]
         if not "tencent" in model_type.lower():
             raise ValueError("Only tencent wav2vec2 models supported by MultiTalk")
@@ -207,6 +221,10 @@ class MultiTalkWav2VecEmbeds:
 
             if normalize_loudness:
                 audio_segment = loudness_norm(audio_segment, sr=sr)
+            if add_noise_floor:
+                audio_segment = _add_noise_floor(audio_segment, noise_db=-45)
+            if smooth_transients:
+                audio_segment = _smooth_transients(audio_segment, sr=sr)
 
             audio_feature = np.squeeze(
                 wav2vec2_feature_extractor(audio_segment, sampling_rate=sr).input_values

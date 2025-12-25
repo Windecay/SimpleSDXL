@@ -1,15 +1,14 @@
 import numpy as np
 import torch
-import os, platform, copy
+import copy
 import logging
 
-if platform.system() == 'Linux':
-    if 'PYOPENGL_PLATFORM' not in os.environ:
-        os.environ['PYOPENGL_PLATFORM'] = 'egl'
-elif platform.system() == 'Windows':
-    os.environ.pop('PYOPENGL_PLATFORM', None)
+try:
+    from ..render_3d.taichi_cylinder import render_whole as render_whole_taichi
+except:
+    render_whole_taichi = None
 
-from ..render_3d.taichi_cylinder import render_whole
+from ..render_3d.render_torch import render_whole as render_whole_torch
 from ..pose_draw.draw_pose_utils import draw_pose_to_canvas_np
 
 def p3d_single_p2d(points, intrinsic_matrix):
@@ -109,7 +108,7 @@ def shift_dwpose_according_to_nlf(smpl_poses, aligned_poses, ori_intrinstics, mo
                     left_hand[:, dim] = scale_around_center(left_hand, left_hand[0, :], dim=dim, scale=scales[dim])
 
 
-def get_single_pose_cylinder_specs(args):
+def get_single_pose_cylinder_specs(args, include_missing=False):
     """Helper function for rendering a single pose, used for parallel processing."""
     idx, pose, focal, princpt, height, width, colors, limb_seq, draw_seq = args
     cylinder_specs = []
@@ -117,17 +116,30 @@ def get_single_pose_cylinder_specs(args):
     for joints3d in pose:  # multiple persons
         # Skip if None or not a valid tensor
         if joints3d is None:
+            if include_missing:
+                # Add empty specs for all limbs of this missing person
+                for line_idx in draw_seq:
+                    cylinder_specs.append((np.zeros(3), np.zeros(3), colors[line_idx]))
             continue
         if isinstance(joints3d, torch.Tensor):
             # Check if it's an all-zero tensor (missing person)
             if torch.sum(torch.abs(joints3d)) < 0.01:
+                if include_missing:
+                    for line_idx in draw_seq:
+                        cylinder_specs.append((np.zeros(3), np.zeros(3), colors[line_idx]))
                 continue
             joints3d = joints3d.cpu().numpy()
         elif isinstance(joints3d, np.ndarray):
             # Check if it's an all-zero array (missing person)
             if np.sum(np.abs(joints3d)) < 0.01:
+                if include_missing:
+                    for line_idx in draw_seq:
+                        cylinder_specs.append((np.zeros(3), np.zeros(3), colors[line_idx]))
                 continue
         else:
+            if include_missing:
+                for line_idx in draw_seq:
+                    cylinder_specs.append((np.zeros(3), np.zeros(3), colors[line_idx]))
             continue
 
         joints3d = process_data_to_COCO_format(joints3d)
@@ -135,6 +147,8 @@ def get_single_pose_cylinder_specs(args):
             line = limb_seq[line_idx]
             start, end = line[0], line[1]
             if np.sum(joints3d[start]) == 0 or np.sum(joints3d[end]) == 0:
+                if include_missing:
+                    cylinder_specs.append((np.zeros(3), np.zeros(3), colors[line_idx]))
                 continue
             else:
                 cylinder_specs.append((joints3d[start], joints3d[end], colors[line_idx]))
@@ -178,7 +192,7 @@ def collect_smpl_poses_samurai(data):
 
 
 
-def render_nlf_as_images(smpl_poses, dw_poses, height, width, video_length, intrinsic_matrix=None, draw_2d=True, draw_face=True, draw_hands=True):
+def render_nlf_as_images(smpl_poses, dw_poses, height, width, video_length, intrinsic_matrix=None, draw_2d=True, draw_face=True, draw_hands=True, render_backend="taichi"):
     """ return a list of images """
 
     base_colors_255_dict = {
@@ -273,8 +287,14 @@ def render_nlf_as_images(smpl_poses, dw_poses, height, width, video_length, intr
         cylinder_specs = get_single_pose_cylinder_specs((i, smpl_poses[i], None, None, None, None, colors, limb_seq, draw_seq))
         cylinder_specs_list.append(cylinder_specs)
 
-
-    frames_np_rgba = render_whole(cylinder_specs_list, H=height, W=width, fx=focal_x, fy=focal_y, cx=princpt[0], cy=princpt[1])
+    if render_backend == "taichi" and render_whole_taichi is not None:
+        try:
+            frames_np_rgba = render_whole_taichi(cylinder_specs_list, H=height, W=width, fx=focal_x, fy=focal_y, cx=princpt[0], cy=princpt[1])
+        except:
+            logging.warning("Taichi rendering failed. Falling back to torch rendering.")
+            frames_np_rgba = render_whole_torch(cylinder_specs_list, H=height, W=width, fx=focal_x, fy=focal_y, cx=princpt[0], cy=princpt[1])
+    else:
+        frames_np_rgba = render_whole_torch(cylinder_specs_list, H=height, W=width, fx=focal_x, fy=focal_y, cx=princpt[0], cy=princpt[1])
     if dw_poses is not None and draw_2d:
         canvas_2d = draw_pose_to_canvas_np(aligned_poses, pool=None, H=height, W=width, reshape_scale=0, show_feet_flag=False, show_body_flag=False, show_cheek_flag=True, dw_hand=True, show_face_flag=draw_face, show_hand_flag=draw_hands)
 
@@ -328,10 +348,8 @@ def align_persons_across_frames(smpl_poses, max_persons=2):
                 aligned[t][i] = torch.zeros((24, 3), dtype=torch.float32)
     return aligned
 
-def render_multi_nlf_as_images(smpl_poses, dw_poses, height, width, video_length, intrinsic_matrix=None, draw_2d=True, draw_face=True, draw_hands=True):
-
-
-    second_person_base_colors_255_dict = {
+def get_cylinder_specs_list_from_poses(smpl_poses, include_missing=False):
+    first_person_base_colors_255_dict = {
         # Warm Colors for Right Side (R.) - Red, Orange, Yellow
         "Red": [255, 20, 20],
         "Orange": [255, 60, 0],
@@ -358,7 +376,7 @@ def render_multi_nlf_as_images(smpl_poses, dw_poses, height, width, video_length
         "Dark Violet": [60, 0, 255],
     }
 
-    first_person_base_colors_255_dict = {
+    second_person_base_colors_255_dict = {
         # Warm Colors for Right Side (R.) - Red, Orange, Yellow
         "Red": [255, 150, 150],
         "Orange": [255, 180, 140],
@@ -400,10 +418,10 @@ def render_multi_nlf_as_images(smpl_poses, dw_poses, height, width, video_length
         base_colors_255_dict["Purple-Blue"],      # L. Hip -> L. Knee (Purple-Blue)
         base_colors_255_dict["Medium Purple"],    # L. Knee -> L. Ankle (Medium Purple)
         base_colors_255_dict["Grey"],             # Neck -> Nose (Grey)
-        base_colors_255_dict["Pink-Magenta"],     # Nose -> R. Eye (Pink/Magenta)
-        base_colors_255_dict["Dark Violet"],        # R. Eye -> R. Ear (Dark Pink)
-        base_colors_255_dict["Pink-Magenta"],           # Nose -> L. Eye (Violet)
-        base_colors_255_dict["Dark Violet"],      # L. Eye -> L. Ear (Dark Violet)
+        # base_colors_255_dict["Pink-Magenta"],     # Nose -> R. Eye (Pink/Magenta)
+        # base_colors_255_dict["Dark Violet"],        # R. Eye -> R. Ear (Dark Pink)
+        # base_colors_255_dict["Pink-Magenta"],           # Nose -> L. Eye (Violet)
+        # base_colors_255_dict["Dark Violet"],      # L. Eye -> L. Ear (Dark Violet)
     ] for base_colors_255_dict in base_colors_255_dict_list]
 
     limb_seq = [
@@ -420,10 +438,10 @@ def render_multi_nlf_as_images(smpl_poses, dw_poses, height, width, video_length
         [11, 12],  # 10 L. Hip -> L. Knee
         [12, 13],  # 11 L. Knee -> L. Ankle
         [1, 0],    # 12 Neck -> Nose
-        [0, 14],   # 13 Nose -> R. Eye
-        [14, 16],  # 14 R. Eye -> R. Ear
-        [0, 15],   # 15 Nose -> L. Eye
-        [15, 17],  # 16 L. Eye -> L. Ear
+        # [0, 14],   # 13 Nose -> R. Eye
+        # [14, 16],  # 14 R. Eye -> R. Ear
+        # [0, 15],   # 15 Nose -> L. Eye
+        # [15, 17],  # 16 L. Eye -> L. Ear
     ]
 
     draw_seq = [0, 2, 3, # Neck -> R. Shoulder -> R. Elbow -> R. Wrist
@@ -431,8 +449,8 @@ def render_multi_nlf_as_images(smpl_poses, dw_poses, height, width, video_length
                 6, 7, 8, # Neck -> R. Hip -> R. Knee -> R. Ankle
                 9, 10, 11, # Neck -> L. Hip -> L. Knee -> L. Ankle
                 12, # Neck -> Nose
-                13, 14, # Nose -> R. Eye -> R. Ear
-                15, 16, # Nose -> L. Eye -> L. Ear
+                # 13, 14, # Nose -> R. Eye -> R. Ear
+                # 15, 16, # Nose -> L. Eye -> L. Ear
                 ]   # Expanding outward from the proximal end
 
     # Determine max number of people across all frames
@@ -453,12 +471,7 @@ def render_multi_nlf_as_images(smpl_poses, dw_poses, height, width, video_length
         colors = [[c / 300 + 0.15 for c in color_rgb] + [0.8] for color_rgb in ordered_colors_255_list[color_scheme_idx]]
         colors_by_person.append(colors)
 
-    if intrinsic_matrix is None:
-        intrinsic_matrix = intrinsic_matrix_from_field_of_view((height, width))
-    focal_x = intrinsic_matrix[0,0]
-    focal_y = intrinsic_matrix[1,1]
-    princpt = (intrinsic_matrix[0,2], intrinsic_matrix[1,2])  # (cx, cy)
-
+    video_length = len(smpl_poses)
     # obtain cylinder_specs for each frame
     cylinder_specs_list = []
     for i in range(video_length):
@@ -466,13 +479,32 @@ def render_multi_nlf_as_images(smpl_poses, dw_poses, height, width, video_length
         for person_idx in range(max_persons):
             person_specs = get_single_pose_cylinder_specs(
                 (i, smpl_poses_by_person[person_idx][i], None, None, None, None, 
-                 colors_by_person[person_idx], limb_seq, draw_seq)
+                 colors_by_person[person_idx], limb_seq, draw_seq),
+                 include_missing=include_missing
             )
             cylinder_specs.extend(person_specs)
         cylinder_specs_list.append(cylinder_specs)
 
+    return cylinder_specs_list
 
-    frames_np_rgba = render_whole(cylinder_specs_list, H=height, W=width, fx=focal_x, fy=focal_y, cx=princpt[0], cy=princpt[1])
+def render_multi_nlf_as_images(smpl_poses, dw_poses, height, width, video_length, intrinsic_matrix=None, draw_2d=True, draw_face=True, draw_hands=True, render_backend="taichi"):
+
+    cylinder_specs_list = get_cylinder_specs_list_from_poses(smpl_poses)
+
+    if intrinsic_matrix is None:
+        intrinsic_matrix = intrinsic_matrix_from_field_of_view((height, width))
+    focal_x = intrinsic_matrix[0,0]
+    focal_y = intrinsic_matrix[1,1]
+    princpt = (intrinsic_matrix[0,2], intrinsic_matrix[1,2])  # (cx, cy)
+
+    if render_backend == "taichi" and render_whole_taichi is not None:
+        try:
+            frames_np_rgba = render_whole_taichi(cylinder_specs_list, H=height, W=width, fx=focal_x, fy=focal_y, cx=princpt[0], cy=princpt[1])
+        except:
+            logging.warning("Taichi rendering failed. Falling back to torch rendering.")
+            frames_np_rgba = render_whole_torch(cylinder_specs_list, H=height, W=width, fx=focal_x, fy=focal_y, cx=princpt[0], cy=princpt[1])
+    else:
+        frames_np_rgba = render_whole_torch(cylinder_specs_list, H=height, W=width, fx=focal_x, fy=focal_y, cx=princpt[0], cy=princpt[1])
     if dw_poses is not None and draw_2d:
         aligned_poses = copy.deepcopy(dw_poses)
         canvas_2d = draw_pose_to_canvas_np(aligned_poses, pool=None, H=height, W=width, reshape_scale=0, show_feet_flag=False, show_body_flag=False, show_cheek_flag=True, dw_hand=True, show_face_flag=draw_face, show_hand_flag=draw_hands)

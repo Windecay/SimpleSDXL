@@ -200,7 +200,7 @@
         80
       ],
       "size": [
-        182.888671875,
+        190.6640625,
         120
       ],
       "flags": {
@@ -702,7 +702,7 @@
         250
       ],
       "size": [
-        184.6236328125,
+        193.2779296875,
         26
       ],
       "flags": {
@@ -2174,7 +2174,7 @@
         450
       ],
       "size": [
-        184.6236328125,
+        193.2779296875,
         26
       ],
       "flags": {
@@ -2645,7 +2645,7 @@
         120
       ],
       "size": [
-        190.86484375,
+        196.2994140625,
         86
       ],
       "flags": {
@@ -2757,7 +2757,7 @@
         -140
       ],
       "size": [
-        244.759765625,
+        252.98046875,
         424
       ],
       "flags": {
@@ -2854,9 +2854,10 @@
         }
       ],
       "properties": {
-        "aux_id": "yolain/ComfyUI-Easy-Sam3",
+        "cnr_id": "comfyui-easy-sam3",
         "ver": "851a5be3c01d6fbd3ef45dbb55092916cfc466af",
         "Node name for S&R": "easy sam3VideoSegmentation",
+        "aux_id": "yolain/ComfyUI-Easy-Sam3",
         "ue_properties": {
           "widget_ue_connectable": {},
           "input_ue_unconnectable": {},
@@ -2884,7 +2885,7 @@
         -140
       ],
       "size": [
-        244.759765625,
+        252.98046875,
         424
       ],
       "flags": {
@@ -2973,9 +2974,10 @@
         }
       ],
       "properties": {
-        "aux_id": "yolain/ComfyUI-Easy-Sam3",
+        "cnr_id": "comfyui-easy-sam3",
         "ver": "851a5be3c01d6fbd3ef45dbb55092916cfc466af",
         "Node name for S&R": "easy sam3VideoSegmentation",
+        "aux_id": "yolain/ComfyUI-Easy-Sam3",
         "ue_properties": {
           "widget_ue_connectable": {},
           "input_ue_unconnectable": {},
@@ -3069,11 +3071,10 @@
         "force_rate": 0,
         "custom_width": 0,
         "custom_height": 0,
-        "frame_load_cap": 341,
+        "frame_load_cap": 0,
         "skip_first_frames": 0,
         "select_every_nth": 1,
         "format": "Wan",
-        "choose video to upload": "image",
         "videopreview": {
           "hidden": false,
           "paused": false,
@@ -3084,7 +3085,7 @@
             "force_rate": 0,
             "custom_width": 0,
             "custom_height": 0,
-            "frame_load_cap": 341,
+            "frame_load_cap": 0,
             "skip_first_frames": 0,
             "select_every_nth": 1
           }
@@ -3867,9 +3868,10 @@
         }
       ],
       "properties": {
-        "aux_id": "yolain/ComfyUI-Easy-Sam3",
+        "cnr_id": "comfyui-easy-sam3",
         "ver": "851a5be3c01d6fbd3ef45dbb55092916cfc466af",
         "Node name for S&R": "easy sam3ModelLoader",
+        "aux_id": "yolain/ComfyUI-Easy-Sam3",
         "ue_properties": {
           "widget_ue_connectable": {},
           "input_ue_unconnectable": {},
@@ -4789,9 +4791,10 @@
         }
       ],
       "properties": {
-        "aux_id": "yolain/ComfyUI-Easy-Sam3",
+        "cnr_id": "comfyui-easy-sam3",
         "ver": "851a5be3c01d6fbd3ef45dbb55092916cfc466af",
         "Node name for S&R": "easy framesEditor",
+        "aux_id": "yolain/ComfyUI-Easy-Sam3",
         "ue_properties": {
           "widget_ue_connectable": {},
           "input_ue_unconnectable": {},
@@ -5052,7 +5055,7 @@
               "step": 1,
               "default": 35
             },
-            "value": 40
+            "value": 0
           },
           {
             "id": "param_1764705849442",
@@ -5209,7 +5212,7 @@
             "step": 1,
             "default": 35
           },
-          "value": 40
+          "value": 0
         },
         {
           "id": "param_1764705849442",
@@ -6315,10 +6318,10 @@
       }
     ],
     "ds": {
-      "scale": 0.5500000000000057,
+      "scale": 1.1789738455000132,
       "offset": [
-        -3977.656816602344,
-        696.3987789443173
+        -4278.651187473649,
+        656.5749230553946
       ]
     },
     "links_added_by_ue": [
@@ -6333,7 +6336,7 @@
     ],
     "qgn_navigation_groups": [],
     "qgn_locked": false,
-    "frontendVersion": "1.33.10",
+    "frontendVersion": "1.34.9",
     "VHS_latentpreview": true,
     "VHS_latentpreviewrate": 8,
     "VHS_MetadataImage": true,

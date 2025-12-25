@@ -1,9 +1,11 @@
 import torch
+import numpy as np
 from .fm_solvers import (FlowDPMSolverMultistepScheduler)
 from .fm_solvers_unipc import FlowUniPCMultistepScheduler
 from .basic_flowmatch import FlowMatchScheduler
 from .flowmatch_pusa import FlowMatchSchedulerPusa
 from .flowmatch_res_multistep import FlowMatchSchedulerResMultistep
+from .ersde_scheduler import ERSDEScheduler
 from .scheduling_flow_match_lcm import FlowMatchLCMScheduler
 from .fm_sa_ode import FlowMatchSAODEStableScheduler
 from .fm_rcm import rCMFlowMatchScheduler
@@ -25,6 +27,7 @@ scheduler_list = [
     "deis",
     "lcm", "lcm/beta",
     "res_multistep",
+    "er_sde",
     "flowmatch_causvid",
     "flowmatch_distill",
     "flowmatch_pusa",
@@ -39,7 +42,7 @@ def _apply_custom_sigmas(sample_scheduler, sigmas, device):
     sample_scheduler.timesteps = (sample_scheduler.sigmas[:-1] * 1000).to(torch.int64).to(device)
     sample_scheduler.num_inference_steps = len(sample_scheduler.timesteps)
 
-def get_scheduler(scheduler, steps, start_step, end_step, shift, device, transformer_dim=5120, flowedit_args=None, denoise_strength=1.0, sigmas=None, log_timesteps=False, **kwargs):
+def get_scheduler(scheduler, steps, start_step, end_step, shift, device, transformer_dim=5120, flowedit_args=None, denoise_strength=1.0, sigmas=None, log_timesteps=False, enhance_hf=False, **kwargs):
     timesteps = None
     if sigmas is not None:
         steps = len(sigmas) - 1
@@ -136,6 +139,12 @@ def get_scheduler(scheduler, steps, start_step, end_step, shift, device, transfo
             sample_scheduler.set_timesteps(steps, denoising_strength=denoise_strength)
         else:
             _apply_custom_sigmas(sample_scheduler, sigmas, device)
+    elif scheduler == 'er_sde':
+        sample_scheduler = ERSDEScheduler(shift=shift)
+        if sigmas is None:
+            sample_scheduler.set_timesteps(steps, denoising_strength=denoise_strength)
+        else:
+            _apply_custom_sigmas(sample_scheduler, sigmas, device)
     elif "sa_ode_stable" in scheduler:
         sample_scheduler = FlowMatchSAODEStableScheduler(shift=shift, **kwargs)
         if sigmas is None:
@@ -151,6 +160,18 @@ def get_scheduler(scheduler, steps, start_step, end_step, shift, device, transfo
 
     if timesteps is None:
         timesteps = sample_scheduler.timesteps
+
+    if enhance_hf:
+        num_tail_uniform_steps = max(3, min(15, int(len(timesteps) * 0.2))) # Use 20% of steps for uniform tail (minimum 3, maximum 15)
+        tail_uniform_start = float(timesteps.max()) * 0.5 # Split at 50% of the timestep range
+        tail_uniform_end = 0
+
+        timesteps_uniform_tail = list(np.linspace(tail_uniform_start, tail_uniform_end, num_tail_uniform_steps, dtype=np.float32, endpoint=(tail_uniform_end != 0)))
+        timesteps_uniform_tail = [torch.tensor(t, device=device).unsqueeze(0) for t in timesteps_uniform_tail]
+        filtered_timesteps = [timestep.unsqueeze(0).to(device)  for timestep in timesteps if timestep > tail_uniform_start]
+        timesteps = torch.cat(filtered_timesteps + timesteps_uniform_tail)
+        sample_scheduler.timesteps = timesteps
+        sample_scheduler.sigmas = torch.cat([timesteps / 1000, torch.zeros(1, device=timesteps.device)])
 
     steps = len(timesteps)
     if (isinstance(start_step, int) and end_step != -1 and start_step >= end_step) or (not isinstance(start_step, int) and start_step != -1 and end_step >= start_step):
