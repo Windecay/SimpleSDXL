@@ -887,6 +887,14 @@ div.block.tagHelper.active {
         flex-wrap: nowrap !important;
     }
 
+    /* 针对火狐浏览器的适配：火狐在 height: 0 时会直接消失 */
+    @supports (-moz-appearance:none) {
+        #scene_panel {
+            height: auto !important;
+            max-height: 100vh !important;
+        }
+    }
+
     /* 放大/预览状态时，解除容器限制 */
     #scene_panel:has(.is-zoomed-active),
     #scene_panel:has(.fullscreen), 

@@ -876,7 +876,9 @@ class TextEncodeQwenImageEditPlusCustom_lrzjason:
             vl_crop = image_obj["vl_crop"]
             vl_upscale = image_obj["vl_upscale"]
             
-            mask = image_obj["mask"]
+            mask = None
+            if "mask" in image_obj:
+                mask = image_obj["mask"]
             
             samples = image.movedim(-1, 1)
             if mask is not None:
@@ -1104,7 +1106,14 @@ class QwenEditConfigJsonParser():
         config["image"] = image
         
         config["mask"] = None
+        
+        # print("mask.shape", mask.shape)
+        # print("image.shape", image.shape)
         if mask is not None:
+            # check mask height,width equals image height,width
+            if mask.shape[1] != image.shape[1] or mask.shape[2] != image.shape[2]:
+                print("mask height,width not equals image height,width, skipping mask")
+                mask = None
             config["mask"] = mask
         
         config_output = copy.deepcopy(configs)
@@ -1193,8 +1202,13 @@ class QwenEditConfigPreparer:
         
         config_output = copy.deepcopy(configs)
         
-        config["mask"] = None
+        # print("mask.shape", mask.shape)
+        # print("image.shape", image.shape)
         if mask is not None:
+            # check mask height,width equals image height,width
+            if mask.shape[1] != image.shape[1] or mask.shape[2] != image.shape[2]:
+                print("mask height,width not equals image height,width, skipping mask")
+                mask = None
             config["mask"] = mask
         
         del configs

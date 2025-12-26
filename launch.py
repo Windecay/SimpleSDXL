@@ -72,7 +72,7 @@ def check_base_environment():
     print(f'{now_string()} 当前运行在可视化分支by冰華，部分界面和功能与主分支存在差异。')
 
     base_pkg = "simpleai_base"
-    ver_required = "0.3.30"
+    ver_required = "0.3.31"
     REINSTALL_BASE = False #if '_dev' not in version.get_branch() else True
     base_branch = "release"
     if '--dev' in (sys.argv):
@@ -133,48 +133,46 @@ def check_base_environment():
             logger.info("Installing facenet-pytorch==2.6.0 with --no-deps")
             run_pip(f"install -U facenet-pytorch==2.6.0 --no-deps", "facenet-pytorch==2.6.0")
         try:
-            if platform.system() == 'Windows':
-                if is_installed('nunchaku'):
-                    current_version = importlib.metadata.version('nunchaku') if is_installed('nunchaku') else 'unknown'
-                    is_torch29_version = is_installed_version('nunchaku', '1.0.2+torch2.9')
-                    is_torch27_version = is_installed_version('nunchaku', '1.0.2+torch2.7')
+            is_torch29_nunchaku = is_installed_version('nunchaku', '1.0.2+torch2.9')
+            is_torch27_nunchaku = is_installed_version('nunchaku', '1.0.2+torch2.7')
 
-                    if not is_torch29_version and not is_torch27_version:
-                        print('检测到nunchaku版本不满足要求，需要更新')
-                        import torch
-                        torch_version = torch.__version__
-                        print(f'当前PyTorch版本: {torch_version}')
+            need_nunchaku_install = not is_torch29_nunchaku and not is_torch27_nunchaku
 
-                        if '2.9' in torch_version:
-                            pkg_url = 'https://www.modelscope.cn/models/nunchaku-tech/nunchaku/resolve/master/nunchaku-1.0.2%2Btorch2.9-cp310-cp310-win_amd64.whl'
-                            pkg_path = os.path.abspath(os.path.join(root, 'nunchaku-1.0.2+torch2.9-cp310-cp310-win_amd64.whl'))
-                            print(f'准备更新nunchaku for torch 2.9，URL: {pkg_url}')
-                        else:
-                            pkg_url = 'https://www.modelscope.cn/models/nunchaku-tech/nunchaku/resolve/master/nunchaku-1.0.2%2Btorch2.7-cp310-cp310-win_amd64.whl'
-                            pkg_path = os.path.abspath(os.path.join(root, 'nunchaku-1.0.2+torch2.7-cp310-cp310-win_amd64.whl'))
-                            print(f'准备更新nunchaku for torch 2.7，URL: {pkg_url}')
+            if not need_nunchaku_install and platform.system() == 'Linux':
+                try:
+                    import nunchaku
+                except:
+                    print("nunchaku detected but failed to import. It might be a cross-platform conflict. Reinstalling for Linux...")
+                    need_nunchaku_install = True
 
-                        has_update_whl = download_if_updated(pkg_url, pkg_path)
-                        run(f'"{python}" -m pip install -U {pkg_path}', f'Install {pkg_path}', live=True)
-                else:
-                    import torch
-                    torch_version = torch.__version__
+            if need_nunchaku_install:
+                import torch
+                torch_version = torch.__version__
+                print(f'Detected PyTorch version: {torch_version}')
 
+                pkg_url = None
+                if platform.system() == 'Windows':
                     if '2.9' in torch_version:
                         pkg_url = 'https://www.modelscope.cn/models/nunchaku-tech/nunchaku/resolve/master/nunchaku-1.0.2%2Btorch2.9-cp310-cp310-win_amd64.whl'
-                        pkg_path = os.path.abspath(os.path.join(root, 'nunchaku-1.0.2+torch2.9-cp310-cp310-win_amd64.whl'))
-                        print('check nunchaku for torch 2.9...')
-                        has_update_whl = download_if_updated(pkg_url, pkg_path)
-                        is_version_ok = is_installed_version('nunchaku', '1.0.2+torch2.9')
+                        pkg_name = 'nunchaku-1.0.2+torch2.9-cp310-cp310-win_amd64.whl'
                     else:
                         pkg_url = 'https://www.modelscope.cn/models/nunchaku-tech/nunchaku/resolve/master/nunchaku-1.0.2%2Btorch2.7-cp310-cp310-win_amd64.whl'
-                        pkg_path = os.path.abspath(os.path.join(root, 'nunchaku-1.0.2+torch2.7-cp310-cp310-win_amd64.whl'))
-                        print('check nunchaku...')
-                        has_update_whl = download_if_updated(pkg_url, pkg_path)
-                        is_version_ok = is_installed_version('nunchaku', '1.0.2+torch2.7')
+                        pkg_name = 'nunchaku-1.0.2+torch2.7-cp310-cp310-win_amd64.whl'
+                elif platform.system() == 'Linux' and sys.version_info.major == 3 and sys.version_info.minor == 10:
+                    if '2.9' in torch_version:
+                        pkg_url = 'https://www.modelscope.cn/models/nunchaku-tech/nunchaku/resolve/master/nunchaku-1.0.2%2Btorch2.9-cp310-cp310-linux_x86_64.whl'
+                        pkg_name = 'nunchaku-1.0.2+torch2.9-cp310-cp310-linux_x86_64.whl'
+                    elif '2.7' in torch_version:
+                        pkg_url = 'https://www.modelscope.cn/models/nunchaku-tech/nunchaku/resolve/master/nunchaku-1.0.2%2Btorch2.7-cp310-cp310-linux_x86_64.whl'
+                        pkg_name = 'nunchaku-1.0.2+torch2.7-cp310-cp310-linux_x86_64.whl'
 
-                    if has_update_whl or not is_version_ok:
-                        print(f'ready to install {pkg_path}')
+                if pkg_url:
+                    pkg_path = os.path.abspath(os.path.join(root, pkg_name))
+                    print(f'Preparing to install nunchaku, URL: {pkg_url}')
+                    has_update_whl = download_if_updated(pkg_url, pkg_path)
+                    # 再次检查是否已安装对应版本，防止重复安装
+                    target_ver = '1.0.2+torch2.9' if '2.9' in torch_version else '1.0.2+torch2.7'
+                    if has_update_whl or not is_installed_version('nunchaku', target_ver) or (platform.system() == 'Linux' and need_nunchaku_install):
                         run(f'"{python}" -m pip install -U {pkg_path}', f'Install {pkg_path}', live=True)
         except Exception as e:
             print(f'Error installing nunchaku: {str(e)}')
@@ -196,31 +194,58 @@ def check_base_environment():
             print('Skipping SAM_2 installation and continuing...')
 
         try:
-            if platform.system() == 'Windows' and not is_installed_version('mmcv', '2.1.0'):
-                mmcv_url = 'https://archive1.piwheels.org/simple/mmcv/mmcv-2.1.0-py2.py3-none-any.whl'
-                mmcv_path = os.path.abspath(os.path.join(root, 'mmcv-2.1.0-py2.py3-none-any.whl'))
-                print('check mmcv...')
-                has_update_mmcv = download_if_updated(mmcv_url, mmcv_path)
-                is_mmcv_version_ok = is_installed_version('mmcv', '2.1.0')
+            is_mmcv_installed = is_installed_version('mmcv', '2.1.0')
+            if platform.system() == 'Windows':
+                if not is_mmcv_installed:
+                    mmcv_url = 'https://archive1.piwheels.org/simple/mmcv/mmcv-2.1.0-py2.py3-none-any.whl'
+                    mmcv_path = os.path.abspath(os.path.join(root, 'mmcv-2.1.0-py2.py3-none-any.whl'))
+                    print('check mmcv for Windows...')
+                    has_update_mmcv = download_if_updated(mmcv_url, mmcv_path)
+                    if has_update_mmcv or not is_installed_version('mmcv', '2.1.0'):
+                        print(f'ready to install {mmcv_path}')
+                        run(f'"{python}" -m pip install -U {mmcv_path}', f'Install {mmcv_path}', live=True)
+            elif platform.system() == 'Linux':
+                need_reinstall = not is_mmcv_installed
+                if is_mmcv_installed:
+                    try:
+                        import mmcv
+                    except:
+                        print("mmcv detected but failed to import. It might be a cross-platform conflict. Reinstalling for Linux...")
+                        need_reinstall = True
 
-                if has_update_mmcv or not is_mmcv_version_ok:
-                    print(f'ready to install {mmcv_path}')
-                    run(f'"{python}" -m pip install -U {mmcv_path}', f'Install {mmcv_path}', live=True)
+                if need_reinstall:
+                    print('Installing mmcv for Linux...')
+                    run(f'"{python}" -m pip install -U mmcv==2.1.0', 'Install mmcv', live=True)
         except Exception as e:
             print(f'Error installing mmcv: {str(e)}')
             print('Skipping mmcv installation and continuing...')
 
         try:
-            if not is_installed_version('llama_cpp_python', '0.3.16'):
-                llama_url = 'https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/llama/llama_cpp_python-0.3.16-cp310-cp310-win_amd64.whl'
-                llama_path = os.path.abspath(os.path.join(root, 'llama_cpp_python-0.3.16-cp310-cp310-win_amd64.whl'))
-                print('check llama_cpp_python...')
-                has_update_llama = download_if_updated(llama_url, llama_path)
-                is_llama_version_ok = is_installed_version('llama_cpp_python', '0.3.16')
+            is_llama_installed = is_installed_version('llama_cpp_python', '0.3.16')
+            need_reinstall = not is_llama_installed
 
-                if has_update_llama or not is_llama_version_ok:
-                    print(f'ready to install {llama_path}')
-                    run(f'"{python}" -m pip install -U {llama_path}', f'Install {llama_path}', live=True)
+            if is_llama_installed and platform.system() == 'Linux':
+                try:
+                    import llama_cpp
+                except:
+                    print("llama_cpp_python detected but failed to import. Reinstalling for Linux...")
+                    need_reinstall = True
+
+            if need_reinstall:
+                llama_url = None
+                if platform.system() == 'Windows':
+                    llama_url = 'https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/llama/llama_cpp_python-0.3.16-cp310-cp310-win_amd64.whl'
+                    llama_path = os.path.abspath(os.path.join(root, 'llama_cpp_python-0.3.16-cp310-cp310-win_amd64.whl'))
+                elif platform.system() == 'Linux' and sys.version_info.major == 3 and sys.version_info.minor == 10:
+                    llama_url = 'https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/llama/llama_cpp_python-0.3.16-cp310-cp310-linux_x86_64.whl'
+                    llama_path = os.path.abspath(os.path.join(root, 'llama_cpp_python-0.3.16-cp310-cp310-linux_x86_64.whl'))
+
+                if llama_url:
+                    print('check llama_cpp_python...')
+                    has_update_llama = download_if_updated(llama_url, llama_path)
+                    if has_update_llama or not is_installed_version('llama_cpp_python', '0.3.16'):
+                        print(f'ready to install {llama_path}')
+                        run(f'"{python}" -m pip install -U {llama_path}', f'Install {llama_path}', live=True)
         except Exception as e:
             print(f'Error installing llama_cpp_python: {str(e)}')
             print('Skipping llama_cpp_python installation and continuing...')
