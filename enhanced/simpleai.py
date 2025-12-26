@@ -298,19 +298,37 @@ current_id_info = lambda x,y,z,t: f'<b>当前{guest_inc if shared.token.is_guest
 def trigger_input_identity(img):
     image = util.HWC3(img)
     qr_code_detector = cv2.QRCodeDetector()
+    user_did, nickname, telephone = '', '', ''
     try:
         data, bbox, data_bytes = qr_code_detector.detectAndDecode(image)
-        if bbox is not None:
+        if bbox is not None and data:
             try:
                 user_did, nickname, telephone = import_identity_qrcode(data)
             except Exception as e:
-                logger.debug("qrcode parse error")
-                user_did, nickname, telephone = '', '', ''
-        else:
-            user_did, nickname, telephone = '', '', ''
-    except UnicodeDecodeError as e:
-        logger.debug(f'bbox:{bbox}, data_bytes:{data_bytes}')
-    return  bind_identity_sub(nickname, telephone, user_did)
+                logger.debug(f'import_identity_qrcode error: {e}')
+
+        if not nickname and not telephone:
+            try:
+                from pyzbar import pyzbar
+                decoded_objs = pyzbar.decode(image)
+                for obj in decoded_objs:
+                    qr_data = obj.data.decode('utf-8')
+                    if qr_data:
+                        try:
+                            user_did, nickname, telephone = import_identity_qrcode(qr_data)
+                            if nickname or telephone:
+                                break
+                        except Exception as e:
+                            logger.debug(f'pyzbar import error: {e}')
+            except ImportError:
+                pass
+            except Exception as e:
+                logger.debug(f'pyzbar error: {e}')
+
+    except Exception as e:
+        logger.debug(f'Unexpected error in trigger_input_identity: {e}')
+
+    return bind_identity_sub(nickname, telephone, user_did)
 
 def bind_identity(nick, areacode, tele):
     areacode = areacode.split('-')[0]
@@ -461,14 +479,14 @@ def check_input(nick, tele):
             length += 1
     if length < 4 or length > 24:
         return False
-    
+
     if len(tele)<8 or len(tele)>15 or not tele.isdigit() or tele[0] == '0':
         return False
 
     if tele.startswith('86') and tele!='8610000000001':
         if len(tele)!=13 or not tele.isdigit() or tele[2] != '1' or tele[3] in ['0', '1', '2']:
             return False
-    
+
     return True
 
 def check_phrase(phrase):
