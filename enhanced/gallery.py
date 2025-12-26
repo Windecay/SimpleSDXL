@@ -41,7 +41,7 @@ def refresh_output_list(max_per_page, max_catalog, user_did=None, engine_type='i
     valid_listdirs = []
     for d in listdirs:
         path_gallery = os.path.join(user_path_outputs, d)
-        if len(util.get_files_from_folder(path_gallery, image_types, None)) > 0:
+        if len(util.get_files_from_folder(path_gallery, image_types + video_types, None)) > 0:
             valid_listdirs.append(d)
     listdirs = valid_listdirs
 
