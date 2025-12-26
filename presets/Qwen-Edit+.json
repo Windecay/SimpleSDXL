@@ -6,42 +6,38 @@
             "available_aspect_ratios_selection": "Flux",
             "scene_frontend": {
                 "version": "m1.1",
-                "theme": ["Edit-2511-1024px","Edit-2511-1024px-fast","Edit-2511-1536px","Edit-2511-1536px-fast","Edit-2511-2048px","Edit-2511-2048px-fast"],
-                "theme_title": "Qwen-Edit-2511指令修图(画笔可生成[绿色方框区域]）",
+                "theme": ["Edit-2511-1024px","Edit-2511-1536px","Edit-2511-2048px"],
+                "theme_title": "Qwen-Edit-2511指令修图[蒙版可选]",
                 "disvisible": ["scene_additional_prompt","scene_additional_prompt_2", "scene_video", "scene_audio",
-                    "scene_var_number","scene_var_number2","scene_var_number3","scene_var_number4","scene_switch_option2"],
+                "scene_var_number","scene_var_number2","scene_var_number3","scene_var_number4"],
                 "task_method": {
                     "Edit-2511-1024px": "qwen_editplus_cn",
-                    "Edit-2511-1024px-fast": "qwen_editplus_fast_cn",
                     "Edit-2511-1536px": "qwen_editplus_1536_cn",
-                    "Edit-2511-1536px-fast": "qwen_editplus_1536_fast_cn",
-                    "Edit-2511-2048px": "qwen_editplus_2048_cn",
-                    "Edit-2511-2048px-fast": "qwen_editplus_2048_fast_cn"
+                    "Edit-2511-2048px": "qwen_editplus_2048_cn"
                 },
+                "scene_steps_min": 4,
+                "scene_steps_max": 10,
                 "scene_steps": {
                     "Edit-2511-1024px": 8,
-                    "Edit-2511-1024px-fast": 4,
                     "Edit-2511-1536px": 8,
-                    "Edit-2511-1536px-fast": 4,
-                    "Edit-2511-2048px": 8,
-                    "Edit-2511-2048px-fast": 4
+                    "Edit-2511-2048px": 8
                 },
                 "image_preprocessor_method": {
                     "Edit-2511-1024px": [["-normalization"]],
-                    "Edit-2511-1024px-fast": [["-normalization"]],
                     "Edit-2511-1536px": [["-normalization"]],
-                    "Edit-2511-1536px-fast": [["-normalization"]],
-                    "Edit-2511-2048px": [["-normalization"]],
-                    "Edit-2511-2048px-fast": [["-normalization"]]
+                    "Edit-2511-2048px": [["-normalization"]]
                 },
                 "switch_option1_title": "自定义比例[下方选择]",
-                "switch_option": {
+                "switch_option1": {
                     "Edit-2511-1024px": false,
-                    "Edit-2511-1024px-fast": false,
                     "Edit-2511-1536px": false,
-                    "Edit-2511-1536px-fast": false,
-                    "Edit-2511-2048px": false,
-                    "Edit-2511-2048px-fast": false
+                    "Edit-2511-2048px": false
+                },
+                "switch_option2_title": "图2直接转换为骨骼",
+                "switch_option2": {
+                    "Edit-2511-1024px": false,
+                    "Edit-2511-1536px": false,
+                    "Edit-2511-2048px": false
                 },
                 "aspect_ratio" : [ "1024|1:1", "756|9:16", "832|2:3", "1216|4:3", "1248|3:2", "1344|16:9"]
             }
@@ -91,6 +87,8 @@
         "diffusion_models,qwen_image_edit_2511_fp8mixed.safetensors,20533762817,0,https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/diffusion_models/qwen_image_edit_2511_fp8mixed.safetensors",
         "loras,Qwen-Image-Edit-2511-Lightning-4steps-V1.0-bf16.safetensors,849608296,0,https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/loras/Qwen-Image-Edit-2511-Lightning-4steps-V1.0-bf16.safetensors",
         "clip,qwen_2.5_vl_7b_fp8_scaled.safetensors,9384670680,0,",
-        "vae,qwen_image_vae.safetensors,253806246,0,"
+        "vae,qwen_image_vae.safetensors,253806246,0,",
+        "controlnet/hr16/DWPose-TorchScript-BatchSize5,dw-ll_ucoco_384_bs5.torchscript.pt,135059124,0,https://www.modelscope.cn/models/svjack/DWPose-TorchScript-BatchSize5/resolve/master/dw-ll_ucoco_384_bs5.torchscript.pt",
+        "controlnet/yzd-v/DWPose,yolox_l.onnx,216746733,0,https://www.modelscope.cn/models/zhangjin/DWPose/resolve/master/yolox_l.onnx"
         ]
 }

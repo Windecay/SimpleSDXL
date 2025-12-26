@@ -19,6 +19,8 @@
                 "multimodal_prompt": {
                     "SCAIL": ""
                 },
+                "scene_steps_min": 4,
+                "scene_steps_max": 6,
                 "scene_steps": {
                     "SCAIL": 4
                 },

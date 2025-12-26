@@ -7,7 +7,7 @@
       "scene_frontend": {
           "version": "V1.0",
           "disvisible": ["scene_aspect_ratio", "scene_additional_prompt", "scene_input_image1", "scene_var_number", "scene_use_lora", "scene_video", "scene_audio",
-        "scene_var_number2","scene_var_number3","scene_var_number4","scene_switch_option1","scene_switch_option2"],
+        "scene_var_number2","scene_var_number3","scene_var_number4","scene_switch_option1","scene_switch_option2","scene_steps"],
           "theme": ["橡皮擦"],
           "prompt": {
               "橡皮擦": "Remove the selected objects from the image,  {additional_prompt} "

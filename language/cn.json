@@ -124,6 +124,7 @@
   "(Experimental) This may cause performance problems on some computers and certain internet conditions.": "将生成图片拼接成网格图，对性能有影响，低配机型慎用。",
   "Disable Preview": "取消生图动态预览",
   "Disable preview during generation.": "在图片的生成过程中不进行动态预览。",
+  "Scene Steps": "场景步数",
   "Forced Overwrite of Sampling Step": "采样步数STEPS",
   "Set as -1 to disable. For developer debugging.": "步数越多有更好的细节。-1由性能模式确定。",
   "Forced Overwrite of Refiner Switch Step": "精炼切换步数",

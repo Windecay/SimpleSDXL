@@ -54,6 +54,8 @@
                     "清晰背景": "kontext_unblurbg",
                     "深度参考": "kontext_depth_ref"
                 },
+                "scene_steps_min": 8,
+                "scene_steps_max": 20,
                 "scene_steps": {
                     "通用": 12,
                     "全能": 12,

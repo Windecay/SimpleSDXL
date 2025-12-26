@@ -155,7 +155,7 @@ def switch_scene_theme_ready_to_gen(state, image_number, canvas_image, input_ima
     return describe_prompt if describe_prompt else gr.update(), gr.update(interactive=ready_to_gen and img_is_ok)
 
 
-def switch_scene_theme(state, image_number, canvas_image, input_image1, additional_prompt, additional_prompt_2, var_number, var_number2, var_number3, var_number4, switch_option1, switch_option2, theme=None):
+def switch_scene_theme(state, image_number, canvas_image, input_image1, additional_prompt, additional_prompt_2, var_number, var_number2, var_number3, var_number4, scene_steps, switch_option1, switch_option2, theme=None):
     scenes = state.get("scene_frontend",{})
     visible = scenes.get('disvisible', [])
     inter = scenes.get('disinteractive', [])
@@ -170,6 +170,7 @@ def switch_scene_theme(state, image_number, canvas_image, input_image1, addition
     ui_lines += 0 if 'scene_additional_prompt_2' in visible else 1.0
     ui_lines += 0 if 'scene_aspect_ratio' in visible else 1.0
     ui_lines += 0 if 'scene_var_number' in visible else 1.0
+    ui_lines += 0 if 'scene_steps' in visible else 1.0
     ui_lines += 0 if 'scene_image_number' in visible else 0.83
     
     canvas_height = int(545 - ui_lines * 82.6) if input_image_number==1 else int(325 - ui_lines * 41)
@@ -210,6 +211,12 @@ def switch_scene_theme(state, image_number, canvas_image, input_image1, addition
     var_number4_max = scenes.get('var_number4_max', 1.0)
     var_number4_default = modules.flags.get_value_by_scene_theme(state, theme, 'var_number4', 0.0)
     results.append(gr.update(label=var_number4_title, value=var_number4 if ready_to_gen and switch_flag else var_number4_default, minimum=var_number4_min, maximum=var_number4_max, visible='scene_var_number4' not in visible, interactive='scene_var_number4' not in inter))
+
+    scene_steps_title = scenes.get('scene_steps_title', 'Steps')
+    scene_steps_min = scenes.get('scene_steps_min', 1)
+    scene_steps_max = scenes.get('scene_steps_max', 100)
+    scene_steps_default = modules.flags.get_value_by_scene_theme(state, theme, 'scene_steps', 30)
+    results.append(gr.update(label=scene_steps_title, value=scene_steps if ready_to_gen and switch_flag else scene_steps_default, minimum=scene_steps_min, maximum=scene_steps_max, step=1, visible='scene_steps' not in visible, interactive='scene_steps' not in inter))
 
     switch_option1_title = scenes.get('switch_option1_title', 'Switch Option 1')
     switch_option1_default = modules.flags.get_value_by_scene_theme(state, theme, 'switch_option1', False)
@@ -382,6 +389,12 @@ def switch_layout_template(presetdata: dict | str, state_params, preset_url=''):
         var_number4_default = modules.flags.get_value_by_scene_theme(state_params, theme_default, 'var_number4', 0.0)
         results.append(gr.update(label=var_number4_title, value=var_number4_default, maximum=var_number4_max, visible='scene_var_number4' not in visible, interactive='scene_var_number4' not in inter))
 
+        scene_steps_title = scenes.get('scene_steps_title', 'Steps')
+        scene_steps_min = scenes.get('scene_steps_min', 1)
+        scene_steps_max = scenes.get('scene_steps_max', 100)
+        scene_steps_default = modules.flags.get_value_by_scene_theme(state_params, theme_default, 'scene_steps', 30)
+        results.append(gr.update(label=scene_steps_title, value=scene_steps_default, minimum=scene_steps_min, maximum=scene_steps_max, step=1, visible='scene_steps' not in visible, interactive='scene_steps' not in inter))
+
         switch_option1_title = scenes.get('switch_option1_title', 'Switch Option 1')
         switch_option1_default = modules.flags.get_value_by_scene_theme(state_params, theme_default, 'switch_option1', False)
         results.append(gr.update(label=switch_option1_title, value=switch_option1_default, visible='scene_switch_option1' not in visible, interactive='scene_switch_option1' not in inter))
@@ -413,8 +426,8 @@ def switch_layout_template(presetdata: dict | str, state_params, preset_url=''):
         results.append(gr.update(value=True))
         results.append(gr.update(visible=False))
         results.append(gr.update(visible=True, interactive=True))
-
-        results += [gr.update(visible=False)] * 17
+        
+        results += [gr.update(visible=False)] * 18
 
         results.append(gr.update(visible=True, interactive=True))  #generate_button
         results.append(gr.update(visible=False))                   #load_parameter_button

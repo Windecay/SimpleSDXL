@@ -10,7 +10,7 @@
 
                 "theme_title": "FluxKontext需要使用标准化指令进行图像编辑",
                 "disvisible": ["scene_canvas_image", "scene_additional_prompt","scene_additional_prompt_2", "scene_video", "scene_audio",
-        "scene_var_number2","scene_var_number3","scene_var_number4","scene_switch_option1","scene_switch_option2"],
+        "scene_var_number2","scene_var_number3","scene_var_number4","scene_switch_option1","scene_switch_option2","scene_steps"],
                 "task_method": {
                     "FluxKontext": "kontext_gguf",
                     "FluxKontextFast": "kontext_fast_gguf",

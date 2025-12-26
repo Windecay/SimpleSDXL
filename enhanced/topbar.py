@@ -490,7 +490,7 @@ def avoid_empty_prompt_for_scene(prompt, state, img, scene_theme, additional_pro
     return gr.update() if describe_prompt is None else describe_prompt
 
 
-def process_before_generation(state_params, seed_random, image_seed, backend_params, scene_theme, scene_canvas_image, scene_input_image1, scene_input_image2, scene_additional_prompt, scene_additional_prompt_2, scene_var_number, scene_var_number2, scene_var_number3, scene_var_number4, scene_switch_option1, scene_switch_option2, scene_aspect_ratio, scene_image_number, scene_video, scene_audio):
+def process_before_generation(state_params, seed_random, image_seed, backend_params, scene_theme, scene_canvas_image, scene_input_image1, scene_input_image2, scene_additional_prompt, scene_additional_prompt_2, scene_var_number, scene_var_number2, scene_var_number3, scene_var_number4, scene_steps, scene_switch_option1, scene_switch_option2, scene_aspect_ratio, scene_image_number, scene_video, scene_audio):
     backend_params.update(dict(
         nickname=state_params["user"].get_nickname(),
         user_did=state_params["user"].get_did(),
@@ -559,7 +559,7 @@ def process_before_generation(state_params, seed_random, image_seed, backend_par
             scene_image_number=scene_image_number,
             video=scene_video,
             audio=scene_audio,
-            scene_steps=None if 'scene_steps' not in state_params["scene_frontend"] else scene_frontend['scene_steps'][scene_theme] if scene_theme in scene_frontend['scene_steps'] else None
+            scene_steps=scene_steps if 'scene_steps' in scene_frontend else None
             ))
     state_params["absent_model"] = False
     if not args_manager.args.disable_backend and is_models_file_absent(state_params["__preset"], state_params["user"].get_did()):

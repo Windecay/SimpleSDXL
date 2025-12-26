@@ -9,7 +9,7 @@
                 "theme": ["ImageConcat"],
                 "theme_title": "快速图像拼接[用于指令修图前置拼接]",
                 "disvisible": ["scene_canvas_image", "scene_additional_prompt","scene_additional_prompt_2","scene_aspect_ratio", "scene_image_number", "scene_use_lora", "scene_video", "scene_audio",
-        "scene_var_number2","scene_var_number3","scene_var_number4","scene_switch_option1","scene_switch_option2"],
+        "scene_var_number2","scene_var_number3","scene_var_number4","scene_switch_option1","scene_switch_option2","scene_steps"],
                 "task_method": {
                     "ImageConcat": "image_concatenate"
                 },
