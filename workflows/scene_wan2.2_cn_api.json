@@ -1154,7 +1154,7 @@
       "tile_size": 512,
       "overlap": 64,
       "temporal_size": 64,
-      "temporal_overlap": 8,
+      "temporal_overlap": 24,
       "samples": [
         "66",
         0

@@ -76,7 +76,10 @@
         "166",
         8
       ],
-      "denoise": 0.28,
+      "denoise": [
+        "200",
+        0
+      ],
       "model": [
         "166:139",
         0
@@ -620,6 +623,15 @@
     "class_type": "VAEDecode",
     "_meta": {
       "title": "VAE Decode"
+    }
+  },
+  "200": {
+    "inputs": {
+      "value": 0.28
+    },
+    "class_type": "easy float",
+    "_meta": {
+      "title": "vae_number3"
     }
   },
   "166:122": {

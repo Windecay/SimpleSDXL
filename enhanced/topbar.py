@@ -1116,11 +1116,56 @@ def get_all_admin_default(currunt_value):
 from transformers import CLIPTokenizer
 import shutil
 
+CLIP_TOKENIZER_URLS = [
+    "https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/clip_vision/clip-vit-large-patch14/merges.txt",
+    "https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/clip_vision/clip-vit-large-patch14/special_tokens_map.json",
+    "https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/clip_vision/clip-vit-large-patch14/tokenizer_config.json",
+    "https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/clip_vision/clip-vit-large-patch14/vocab.json"
+]
+
 cur_clip_path = os.path.join(config.paths_clip_vision[0], "clip-vit-large-patch14")
-if not os.path.exists(cur_clip_path):
+
+def check_clip_validity(path):
+    required_files = ["vocab.json", "merges.txt", "tokenizer_config.json", "special_tokens_map.json"]
+    if not os.path.exists(path):
+        return False
+    for f in required_files:
+        if not os.path.exists(os.path.join(path, f)) or os.path.getsize(os.path.join(path, f)) == 0:
+            return False
+    return True
+
+if not check_clip_validity(cur_clip_path):
+    print(f"CLIP directory {cur_clip_path} is missing or invalid.")
+    if os.path.exists(cur_clip_path):
+        try:
+            shutil.rmtree(cur_clip_path)
+            print(f"Removed invalid directory: {cur_clip_path}")
+        except Exception as e:
+            print(f"Failed to remove invalid directory: {e}")
+
     org_clip_path = os.path.join(shared.root, 'models/clip_vision/clip-vit-large-patch14')
-    shutil.copytree(org_clip_path, cur_clip_path)
-tokenizer = CLIPTokenizer.from_pretrained(cur_clip_path)
+    if check_clip_validity(org_clip_path):
+        print(f"Copying CLIP from backup: {org_clip_path}")
+        try:
+            shutil.copytree(org_clip_path, cur_clip_path)
+        except Exception as e:
+             print(f"Failed to copy from backup: {e}")
+    else:
+        print(f"Downloading CLIP tokenizer files to {cur_clip_path}...")
+        try:
+            os.makedirs(cur_clip_path, exist_ok=True)
+            for url in CLIP_TOKENIZER_URLS:
+                file_name = url.split('/')[-1]
+                print(f"Downloading {file_name}...")
+                load_file_from_url(url=url, model_dir=cur_clip_path, file_name=file_name)
+        except Exception as e:
+            print(f"Failed to download CLIP: {e}")
+
+try:
+    tokenizer = CLIPTokenizer.from_pretrained(cur_clip_path)
+except Exception as e:
+    print(f"Error loading tokenizer from {cur_clip_path}: {e}")
+    tokenizer = None
  
 def remove_tokenizer():
     global tokenizer

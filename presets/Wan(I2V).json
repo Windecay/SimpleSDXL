@@ -48,7 +48,7 @@
                 },
                 "switch_option1_title": "使用分块VAE解码",
                 "switch_option1": {
-                    "基础": true
+                    "基础": false
                 },
                 "switch_option2_title": "高噪阶段加速[单图生效]",
                 "switch_option2": {
