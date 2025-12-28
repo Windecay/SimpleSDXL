@@ -389,7 +389,7 @@ def switch_layout_template(presetdata: dict | str, state_params, preset_url=''):
         var_number4_default = modules.flags.get_value_by_scene_theme(state_params, theme_default, 'var_number4', 0.0)
         results.append(gr.update(label=var_number4_title, value=var_number4_default, maximum=var_number4_max, visible='scene_var_number4' not in visible, interactive='scene_var_number4' not in inter))
 
-        scene_steps_title = scenes.get('scene_steps_title', 'Steps')
+        scene_steps_title = scenes.get('scene_steps_title', 'Scene Steps')
         scene_steps_min = scenes.get('scene_steps_min', 1)
         scene_steps_max = scenes.get('scene_steps_max', 100)
         scene_steps_default = modules.flags.get_value_by_scene_theme(state_params, theme_default, 'scene_steps', 30)

@@ -97,7 +97,7 @@ def images_list_update(choice, image_tools_checkbox, state_params):
     index_type = state_params['engine_type']
     output_list = state_params["__output_list"]
     if choice is None:
-        return [gr.update(visible=False), gr.update(visible=False)] + \
+        return [gr.update(visible=False), gr.update()] + \
                [gr.update(open=False, visible=True), gr.update(visible=False)] + \
                [gr.update(visible=False)] * 3 + \
                [gr.update(), gr.update(), gr.update(visible=False)] + \

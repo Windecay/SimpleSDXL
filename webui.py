@@ -352,6 +352,8 @@ with shared.gradio_root:
     currentTask = gr.State(worker.AsyncTask(args=[]))
     inpaint_engine_state = gr.State('empty')
     state_is_generating = gr.State(False)
+    scene_video_backup = gr.State(None)
+    scene_audio_backup = gr.State(None)
     with gr.Row():
         with gr.Column(scale=2):
             with gr.Group():
@@ -489,7 +491,9 @@ with shared.gradio_root:
                             scene_input_image1 = grh.Image(label='Upload prompt image(2)', value=None, source='upload', type='numpy', image_mode='RGBA', show_label=True, height=300, show_download_button=False)
                             scene_input_image2 = grh.Image(label='Upload prompt image(3)', value=None, source='upload', type='numpy', image_mode='RGBA', show_label=True, height=300, show_download_button=False)
                         scene_video = gr.Video(label="Video (Upload)", visible=False, source="upload", height=400)
+                        scene_video_placeholder = gr.HTML('<div style="height: 400px; display: flex; align-items: center; justify-content: center; border: 2px dashed #ccc; border-radius: 8px; background: rgba(128,128,128,0.1); color: #888; font-size: 16px;"><span>Hide When Generating...</span></div>', visible=False)
                         scene_audio = gr.Audio(label="Audio (Upload)", visible=False, source="upload", type="filepath")
+                        scene_audio_placeholder = gr.HTML('<div style="padding: 20px; text-align: center; border: 2px dashed #ccc; border-radius: 8px; background: rgba(128,128,128,0.1); color: #888;">Hide When Generating...</div>', visible=False)
                         scene_additional_prompt_2 = gr.Textbox(label="Blessing words", show_label=True, max_lines=1, visible=False, elem_classes='scene_input_2')
                         scene_var_number = gr.Slider(label='Duration(s)', minimum=0, maximum=60, step=1, value=3, visible=False)
                         scene_var_number2 = gr.Slider(label='Int Value 2', minimum=0, maximum=60, step=1, value=1, visible=False)
@@ -2263,7 +2267,8 @@ with shared.gradio_root:
 
         model_check = [prompt, negative_prompt, base_model, refiner_model] + lora_ctrls
         protections = [random_button, super_prompter, background_theme, image_tools_checkbox] + nav_bars
-        generate_button.click(topbar.process_before_generation, inputs=[state_topbar, seed_random, image_seed, params_backend] + scene_params[:15] + scene_params[17:], outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating, index_radio, image_toolbox, prompt_info_box, image_seed] + protections + [preset_store, identity_dialog], show_progress=False) \
+        generate_button.click(lambda v, a: (v, a, gr.update(value=None, visible=False), gr.update(value=None, visible=False), gr.update(visible=True if v else False), gr.update(visible=True if a else False)), inputs=[scene_video, scene_audio], outputs=[scene_video_backup, scene_audio_backup, scene_video, scene_audio, scene_video_placeholder, scene_audio_placeholder], queue=False, show_progress=False) \
+            .then(topbar.process_before_generation, inputs=[state_topbar, seed_random, image_seed, params_backend] + scene_params[:15] + [scene_video_backup, scene_audio_backup], outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating, index_radio, image_toolbox, prompt_info_box, image_seed] + protections + [preset_store, identity_dialog], show_progress=False) \
             .then(topbar.wait_for_minicpm_completion, outputs=[], show_progress=False) \
             .then(topbar.avoid_empty_prompt_for_scene, inputs=[prompt, state_topbar, scene_input_image1, scene_theme, scene_additional_prompt, scene_additional_prompt_2], outputs=prompt, show_progress=True) \
             .then(lambda state_topbar_value, use_loras, model1, model2, model3, model4: [ \
@@ -2274,6 +2279,7 @@ with shared.gradio_root:
             .then(fn=get_task, inputs=ctrls, outputs=currentTask) \
             .then(fn=generate_clicked, inputs=[currentTask, state_topbar], outputs=[progress_html, progress_window, progress_gallery, progress_video, gallery]) \
             .then(topbar.process_after_generation, inputs=state_topbar, outputs=[generate_button, stop_button, skip_button, state_is_generating, gallery_index, index_radio] + protections + [gallery_index_stat, history_link], show_progress=False) \
+            .then(lambda state, v_bak, a_bak: (gr.update(value=v_bak if not isinstance(v_bak, dict) else v_bak.get('name'), visible='scene_video' not in state["scene_frontend"].get('disvisible', [])), gr.update(value=a_bak if not isinstance(a_bak, dict) else a_bak.get('name'), visible='scene_audio' not in state["scene_frontend"].get('disvisible', [])), gr.update(visible=False), gr.update(visible=False)), inputs=[state_topbar, scene_video_backup, scene_audio_backup], outputs=[scene_video, scene_audio, scene_video_placeholder, scene_audio_placeholder], queue=False, show_progress=False) \
             .then(lambda x: None, inputs=gallery_index_stat, queue=False, show_progress=False, _js='(x)=>{refresh_finished_images_catalog_label(x);}') \
             .then(fn=lambda: None, _js='playNotification').then(fn=lambda: None, _js='refresh_grid_delayed') \
             .then(fn=update_prompt_history,inputs=[currentTask, state_prompt_history],outputs=state_prompt_history) \
@@ -2282,10 +2288,12 @@ with shared.gradio_root:
         debug_true_state = gr.State(value=True)
         ctrls_preview = [debug_true_state if c == debugging_cn_preprocessor else c for c in ctrls]
 
-        preview_preprocessing.click(topbar.process_before_generation, inputs=[state_topbar, seed_random, image_seed, params_backend] + scene_params[:14] + scene_params[16:], outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating, index_radio, image_toolbox, prompt_info_box, image_seed] + protections + [preset_store, identity_dialog], show_progress=False) \
+        preview_preprocessing.click(lambda v, a: (v, a, gr.update(value=None, visible=False), gr.update(value=None, visible=False), gr.update(visible=True if v else False), gr.update(visible=True if a else False)), inputs=[scene_video, scene_audio], outputs=[scene_video_backup, scene_audio_backup, scene_video, scene_audio, scene_video_placeholder, scene_audio_placeholder], queue=False, show_progress=False) \
+            .then(topbar.process_before_generation, inputs=[state_topbar, seed_random, image_seed, params_backend] + scene_params[:14] + [scene_params[16], scene_video_backup, scene_audio_backup], outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating, index_radio, image_toolbox, prompt_info_box, image_seed] + protections + [preset_store, identity_dialog], show_progress=False) \
             .then(fn=get_task, inputs=ctrls_preview, outputs=currentTask) \
             .then(fn=generate_clicked, inputs=[currentTask, state_topbar], outputs=[progress_html, progress_window, progress_gallery, progress_video, gallery]) \
-            .then(topbar.process_after_generation, inputs=state_topbar, outputs=[generate_button, stop_button, skip_button, state_is_generating, gallery_index, index_radio] + protections + [gallery_index_stat, history_link], show_progress=False)
+            .then(topbar.process_after_generation, inputs=state_topbar, outputs=[generate_button, stop_button, skip_button, state_is_generating, gallery_index, index_radio] + protections + [gallery_index_stat, history_link], show_progress=False) \
+            .then(lambda state, v_bak, a_bak: (gr.update(value=v_bak if not isinstance(v_bak, dict) else v_bak.get('name'), visible='scene_video' not in state["scene_frontend"].get('disvisible', [])), gr.update(value=a_bak if not isinstance(a_bak, dict) else a_bak.get('name'), visible='scene_audio' not in state["scene_frontend"].get('disvisible', [])), gr.update(visible=False), gr.update(visible=False)), inputs=[state_topbar, scene_video_backup, scene_audio_backup], outputs=[scene_video, scene_audio, scene_video_placeholder, scene_audio_placeholder], queue=False, show_progress=False)
 
         for notification_file in ['notification.ogg', 'notification.mp3']:
             if os.path.exists(notification_file):

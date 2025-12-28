@@ -101,7 +101,7 @@ Get all object IDs and count from SAM3 Video Segmentation output.
 - `objects`: Objects output from SAM3 Video Segmentation node (contains `obj_ids` and `obj_masks`)
 
 **Outputs:**
-- `obj_ids`: List of all object IDs that were tracked in the video
+- `object_ids`: List of all object IDs that were tracked in the video
 - `count`: Total number of objects tracked
 
 **Use Case:**
@@ -123,7 +123,7 @@ Extract mask for a specific object ID from SAM3 Video Segmentation output.
 
 **Inputs:**
 - `objects`: Objects output from SAM3 Video Segmentation node (contains `obj_ids` and `obj_masks`)
-- `obj_id`: Object ID to extract mask for (min: 0, max: 1000, default: 1)
+- `obj_id`: Object Index to extract mask for (min: 0, max: 1000, default: 0)
 
 **Outputs:**
 - `mask`: Extracted mask tensor for the specified object ID [B, H, W] format. Returns empty mask if object ID not found
@@ -255,8 +255,9 @@ Interactive visual editor for creating point and bounding box prompts on images/
 
 ## Model Downloads
 
-Download SAM3 model weights from the official repository:
+Download SAM3 model weights from the repository:
 - [SAM3 Models](https://huggingface.co/facebook/sam3)
+- [SAM3 FP16 Model](https://huggingface.co/yolain/sam3-safetensors/blob/main/sam3-fp16.safetensors)
 
 Place the downloaded models in: `ComfyUI/models/sam3/`
 
@@ -290,6 +291,14 @@ This project follows the license of the original SAM3 repository.
 Contributions are welcome! Please feel free to submit issues or pull requests.
 
 ## Changelog
+
+### v1.0.4
+
+- Fixed the `Unexpected floating ScalarType` error that occurred when used with wanvideowrapper.
+
+### v1.0.3
+
+- Changed `sam3GetObjectMask` node's `obj_id` to object index ID for easier correspondence with index IDs in visualization
 
 ### v1.0.2
 

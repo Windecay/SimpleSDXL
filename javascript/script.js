@@ -150,10 +150,18 @@ addObserverIfDesiredNodeAvailable(".toast-wrap", function(added) {
     added.forEach(function(element) {
          if (element.innerText.includes("Connection errored out.")) {
              window.setTimeout(function() {
-                document.getElementById("reset_button").classList.remove("hidden");
-                document.getElementById("generate_button").classList.add("hidden");
-                document.getElementById("skip_button").classList.add("hidden");
-                document.getElementById("stop_button").classList.add("hidden");
+                const buttons = {
+                    "reset_button": "remove",
+                    "generate_button": "add",
+                    "skip_button": "add",
+                    "stop_button": "add"
+                };
+                for (const [id, action] of Object.entries(buttons)) {
+                    const btn = document.getElementById(id);
+                    if (btn) {
+                        btn.classList[action]("hidden");
+                    }
+                }
             });
          }
     });

@@ -290,8 +290,14 @@ app.registerExtension({
                         this.canvasWidget.previewFrames = previewData;
                         // Update tracker
                         if(is_init){
-                            this.canvasWidget.frameIndex = 0;
-                            this.restoreState({ positivePoints: [], negativePoints: [], bboxes: [] });
+                            if(this.canvasWidget.frameIndex>=previewData.length-1){
+                                this.canvasWidget.frameIndex = 0;
+                                this.restoreState({ positivePoints: [], negativePoints: [], bboxes: [] });
+                                this.updateWidgetValue();
+                                this.canvasWidget.history = [];
+                                this.canvasWidget.historyIndex = -1;
+                                this.updateUndoRedoUI();
+                            }
                         }
                         if (previewData.length > 1) {
                             this.canvasWidget.tracker.style.display = "flex";

@@ -57,7 +57,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 46,
+      "order": 58,
       "mode": 0,
       "inputs": [
         {
@@ -147,7 +147,7 @@
       ],
       "size": [
         660,
-        20
+        26
       ],
       "flags": {
         "pinned": true,
@@ -228,7 +228,7 @@
       ],
       "size": [
         521.240234375,
-        20
+        26
       ],
       "flags": {
         "pinned": true,
@@ -266,7 +266,7 @@
       ],
       "size": [
         250,
-        25
+        26
       ],
       "flags": {
         "pinned": true,
@@ -335,8 +335,8 @@
         -530
       ],
       "size": [
-        113.34228515625,
-        15
+        143.5943359375,
+        26
       ],
       "flags": {
         "pinned": true,
@@ -373,8 +373,8 @@
         -530
       ],
       "size": [
-        113.34228515625,
-        15
+        146.4380859375,
+        26
       ],
       "flags": {
         "pinned": true,
@@ -449,7 +449,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 58,
+      "order": 57,
       "mode": 0,
       "inputs": [
         {
@@ -977,7 +977,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 51,
+      "order": 50,
       "mode": 0,
       "inputs": [
         {
@@ -1353,7 +1353,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 49,
+      "order": 48,
       "mode": 0,
       "inputs": [
         {
@@ -1428,47 +1428,6 @@
       "bgcolor": "#3f5159"
     },
     {
-      "id": 165,
-      "type": "GetNode",
-      "pos": [
-        360,
-        1090
-      ],
-      "size": [
-        210,
-        58
-      ],
-      "flags": {
-        "collapsed": true,
-        "pinned": true
-      },
-      "order": 19,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            468
-          ]
-        }
-      ],
-      "title": "Get_image1",
-      "properties": {
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "version": "7.3",
-          "input_ue_unconnectable": {}
-        }
-      },
-      "widgets_values": [
-        "image1"
-      ],
-      "color": "#2a363b",
-      "bgcolor": "#3f5159"
-    },
-    {
       "id": 137,
       "type": "SetNode",
       "pos": [
@@ -1528,7 +1487,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 47,
+      "order": 46,
       "mode": 4,
       "inputs": [
         {
@@ -1720,7 +1679,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 20,
+      "order": 19,
       "mode": 4,
       "inputs": [
         {
@@ -1775,7 +1734,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 48,
+      "order": 47,
       "mode": 4,
       "inputs": [
         {
@@ -1864,7 +1823,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 21,
+      "order": 20,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -1908,7 +1867,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 22,
+      "order": 21,
       "mode": 0,
       "inputs": [
         {
@@ -2117,7 +2076,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 23,
+      "order": 22,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -2242,7 +2201,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 24,
+      "order": 23,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -2283,7 +2242,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 25,
+      "order": 24,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -2324,7 +2283,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 26,
+      "order": 25,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -2416,7 +2375,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 27,
+      "order": 26,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -2457,7 +2416,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 28,
+      "order": 27,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -2498,7 +2457,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 29,
+      "order": 28,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -2538,7 +2497,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 52,
+      "order": 51,
       "mode": 0,
       "inputs": [
         {
@@ -2708,7 +2667,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 30,
+      "order": 29,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -2748,7 +2707,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 53,
+      "order": 52,
       "mode": 0,
       "inputs": [
         {
@@ -3101,7 +3060,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 31,
+      "order": 30,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -3187,7 +3146,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 55,
+      "order": 54,
       "mode": 0,
       "inputs": [
         {
@@ -3284,7 +3243,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 56,
+      "order": 55,
       "mode": 0,
       "inputs": [
         {
@@ -3391,7 +3350,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 32,
+      "order": 31,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -3430,7 +3389,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 54,
+      "order": 53,
       "mode": 0,
       "inputs": [
         {
@@ -3636,7 +3595,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 33,
+      "order": 32,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -3677,7 +3636,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 34,
+      "order": 33,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -3973,7 +3932,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 35,
+      "order": 34,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4144,7 +4103,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 36,
+      "order": 35,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4186,7 +4145,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 37,
+      "order": 36,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4226,7 +4185,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 38,
+      "order": 37,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4362,7 +4321,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 39,
+      "order": 38,
       "mode": 0,
       "inputs": [
         {
@@ -4424,7 +4383,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 57,
+      "order": 56,
       "mode": 0,
       "inputs": [
         {
@@ -4525,7 +4484,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 40,
+      "order": 39,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -4568,7 +4527,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 41,
+      "order": 40,
       "mode": 0,
       "inputs": [
         {
@@ -4621,7 +4580,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 50,
+      "order": 49,
       "mode": 0,
       "inputs": [
         {
@@ -4663,6 +4622,47 @@
           }
         ]
       ]
+    },
+    {
+      "id": 165,
+      "type": "GetNode",
+      "pos": [
+        360,
+        760
+      ],
+      "size": [
+        210,
+        58
+      ],
+      "flags": {
+        "collapsed": true,
+        "pinned": true
+      },
+      "order": 41,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            468
+          ]
+        }
+      ],
+      "title": "Get_image1",
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.3",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "image1"
+      ],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
     }
   ],
   "links": [
@@ -5387,10 +5387,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.922959981770648,
+      "scale": 1.1167815779424843,
       "offset": [
-        1039.2225840359226,
-        -204.73395332923948
+        -0.8918044374724445,
+        -550.0604277420022
       ]
     },
     "ue_links": [
