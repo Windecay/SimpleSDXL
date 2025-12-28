@@ -1,13 +1,4 @@
 {
-  "123": {
-    "inputs": {
-      "model_name": "4xNomos8kSCHAT-L.pth"
-    },
-    "class_type": "UpscaleModelLoader",
-    "_meta": {
-      "title": "Upscale Image (using Model)"
-    }
-  },
   "126": {
     "inputs": {
       "width_factor": [
@@ -20,7 +11,7 @@
       ],
       "overlap_rate": 0.05,
       "image": [
-        "182",
+        "165",
         0
       ]
     },
@@ -45,7 +36,7 @@
         1
       ],
       "clip": [
-        "150",
+        "230",
         0
       ]
     },
@@ -77,11 +68,11 @@
         8
       ],
       "denoise": [
-        "203",
+        "200",
         0
       ],
       "model": [
-        "166:139",
+        "181",
         0
       ],
       "positive": [
@@ -109,55 +100,13 @@
         0
       ],
       "clip": [
-        "150",
+        "230",
         0
       ]
     },
     "class_type": "CLIPTextEncode",
     "_meta": {
       "title": "CLIP Text Encode (Prompt)"
-    }
-  },
-  "145": {
-    "inputs": {
-      "lora_name": "lightx2v_T2V_14B_cfg_step_distill_v2_lora_rank64_bf16.safetensors",
-      "strength_model": 1.1,
-      "model": [
-        "195",
-        0
-      ]
-    },
-    "class_type": "LoraLoaderModelOnly",
-    "_meta": {
-      "title": "lightlora"
-    }
-  },
-  "149": {
-    "inputs": {
-      "unet_name": "Wan2.2_T2V_Low_Noise_14B_VACE-Q4_K_M.gguf"
-    },
-    "class_type": "UnetLoaderGGUF",
-    "_meta": {
-      "title": "Lownoise模型加载器"
-    }
-  },
-  "150": {
-    "inputs": {
-      "clip_name": "umt5-xxl-encoder-Q8_0.gguf",
-      "type": "wan"
-    },
-    "class_type": "CLIPLoaderGGUF",
-    "_meta": {
-      "title": "CLIP加载器"
-    }
-  },
-  "151": {
-    "inputs": {
-      "vae_name": "Wan2_1_VAE_bf16.safetensors"
-    },
-    "class_type": "VAELoader",
-    "_meta": {
-      "title": "VAE加载器"
     }
   },
   "165": {
@@ -167,7 +116,7 @@
         "170",
         1
       ],
-      "resolution_steps": 1,
+      "resolution_steps": 16,
       "image": [
         "166:112",
         0
@@ -188,7 +137,7 @@
       "steps": 24,
       "refiner_step": 16,
       "sampler": "euler_ancestral",
-      "scheduler": "kl_optimal",
+      "scheduler": "beta",
       "denoise": 1,
       "clip_skip": -1,
       "inpaint_disable_initial_latent": false,
@@ -334,7 +283,7 @@
   "177": {
     "inputs": {
       "images": [
-        "166:120",
+        "224",
         0
       ]
     },
@@ -376,7 +325,7 @@
       "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
       "strength_model": 0,
       "model": [
-        "145",
+        "195",
         0
       ]
     },
@@ -397,39 +346,6 @@
     "class_type": "LoraLoaderModelOnly",
     "_meta": {
       "title": "lora_4"
-    }
-  },
-  "182": {
-    "inputs": {
-      "generation_width": [
-        "183",
-        0
-      ],
-      "generation_height": [
-        "183",
-        1
-      ],
-      "aspect_ratio_preservation": "keep_input",
-      "image": [
-        "165",
-        0
-      ]
-    },
-    "class_type": "WanVideoImageResizeToClosest",
-    "_meta": {
-      "title": "WanVideo Image Resize To Closest"
-    }
-  },
-  "183": {
-    "inputs": {
-      "image": [
-        "165",
-        0
-      ]
-    },
-    "class_type": "GetImageSize+",
-    "_meta": {
-      "title": "🔧 Get Image Size"
     }
   },
   "184": {
@@ -519,7 +435,7 @@
         0
       ],
       "on_false": [
-        "166:122",
+        "203",
         0
       ]
     },
@@ -578,7 +494,7 @@
       "sage_attention": "auto",
       "allow_compile": false,
       "model": [
-        "149",
+        "229",
         0
       ]
     },
@@ -600,28 +516,6 @@
       "title": "Model Patch Torch Settings"
     }
   },
-  "196": {
-    "inputs": {
-      "upscale": -1,
-      "tile": false,
-      "tile_size": 512,
-      "overlap": 64,
-      "temporal_size": 4096,
-      "temporal_overlap": 64,
-      "samples": [
-        "136",
-        0
-      ],
-      "vae": [
-        "197",
-        0
-      ]
-    },
-    "class_type": "VAEUtils_VAEDecodeTiled",
-    "_meta": {
-      "title": "VAE Decode (VAE Utils)"
-    }
-  },
   "197": {
     "inputs": {
       "vae_name": "Wan2.1_VAE_upscale2x_imageonly_real_v1.safetensors"
@@ -631,89 +525,260 @@
       "title": "Load VAE (VAE Utils)"
     }
   },
-  "199": {
-    "inputs": {
-      "tile_width": [
-        "201",
-        0
-      ],
-      "tile_height": [
-        "202",
-        0
-      ],
-      "image": [
-        "200",
-        0
-      ]
-    },
-    "class_type": "TTP_Image_Tile_Batch",
-    "_meta": {
-      "title": "TTP_Image_Tile_Batch"
-    }
-  },
   "200": {
-    "inputs": {
-      "upscale_method": "nearest-exact",
-      "scale_by": 2,
-      "image": [
-        "182",
-        0
-      ]
-    },
-    "class_type": "ImageScaleBy",
-    "_meta": {
-      "title": "Upscale Image By"
-    }
-  },
-  "201": {
-    "inputs": {
-      "value": "a*2",
-      "a": [
-        "166:153",
-        0
-      ]
-    },
-    "class_type": "SimpleMath+",
-    "_meta": {
-      "title": "🔧 Simple Math"
-    }
-  },
-  "202": {
-    "inputs": {
-      "value": "a*2",
-      "a": [
-        "166:154",
-        0
-      ]
-    },
-    "class_type": "SimpleMath+",
-    "_meta": {
-      "title": "🔧 Simple Math"
-    }
-  },
-  "203": {
     "inputs": {
       "value": 0.28
     },
     "class_type": "easy float",
     "_meta": {
-      "title": "vae_number3"
+      "title": "var_number3"
     }
   },
-  "166:122": {
+  "203": {
     "inputs": {
-      "upscale_model": [
-        "123",
+      "seed": 42,
+      "resolution": [
+        "214",
         0
       ],
+      "max_resolution": 0,
+      "batch_size": 1,
+      "uniform_batch_size": false,
+      "color_correction": "wavelet",
+      "temporal_overlap": 0,
+      "prepend_frames": 0,
+      "input_noise_scale": 0,
+      "latent_noise_scale": 0,
+      "offload_device": "cpu",
+      "enable_debug": false,
       "image": [
         "193",
         0
+      ],
+      "dit": [
+        "211",
+        0
+      ],
+      "vae": [
+        "205",
+        0
       ]
     },
-    "class_type": "ImageUpscaleWithModel",
+    "class_type": "SeedVR2VideoUpscaler",
     "_meta": {
-      "title": "Upscale Image (using Model)"
+      "title": "SeedVR2 Video Upscaler (v2.5.12)"
+    }
+  },
+  "204": {
+    "inputs": {
+      "model": "seedvr2_ema_3b_fp16.safetensors",
+      "device": "cuda:0",
+      "blocks_to_swap": 32,
+      "swap_io_components": false,
+      "offload_device": "cpu",
+      "cache_model": false,
+      "attention_mode": "flash_attn"
+    },
+    "class_type": "SeedVR2LoadDiTModel",
+    "_meta": {
+      "title": "SeedVR2 (Down)Load DiT Model"
+    }
+  },
+  "205": {
+    "inputs": {
+      "model": "ema_vae_fp16.safetensors",
+      "device": "cuda:0",
+      "encode_tiled": true,
+      "encode_tile_size": 1024,
+      "encode_tile_overlap": 128,
+      "decode_tiled": true,
+      "decode_tile_size": 1024,
+      "decode_tile_overlap": 128,
+      "tile_debug": "false",
+      "offload_device": "none",
+      "cache_model": false
+    },
+    "class_type": "SeedVR2LoadVAEModel",
+    "_meta": {
+      "title": "SeedVR2 (Down)Load VAE Model"
+    }
+  },
+  "211": {
+    "inputs": {
+      "boolean": [
+        "228",
+        0
+      ],
+      "on_true": [
+        "204",
+        0
+      ],
+      "on_false": [
+        "213",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "213": {
+    "inputs": {
+      "model": "seedvr2_ema_3b_fp16.safetensors",
+      "device": "cuda:0",
+      "blocks_to_swap": 32,
+      "swap_io_components": false,
+      "offload_device": "cpu",
+      "cache_model": false,
+      "attention_mode": "sdpa"
+    },
+    "class_type": "SeedVR2LoadDiTModel",
+    "_meta": {
+      "title": "SeedVR2 (Down)Load DiT Model"
+    }
+  },
+  "214": {
+    "inputs": {
+      "value": 3072
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "var_number2"
+    }
+  },
+  "221": {
+    "inputs": {
+      "samples": [
+        "136",
+        0
+      ],
+      "vae": [
+        "231",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE Decode"
+    }
+  },
+  "223": {
+    "inputs": {
+      "boolean": [
+        "227",
+        0
+      ],
+      "on_true": [
+        "233",
+        0
+      ],
+      "on_false": [
+        "221",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "224": {
+    "inputs": {
+      "padding": 128,
+      "tiles": [
+        "166:111",
+        0
+      ],
+      "positions": [
+        "166:127",
+        1
+      ],
+      "original_size": [
+        "166:127",
+        2
+      ],
+      "grid_size": [
+        "166:127",
+        3
+      ]
+    },
+    "class_type": "TTP_Image_Assy",
+    "_meta": {
+      "title": "TTP_Image_Assy"
+    }
+  },
+  "227": {
+    "inputs": {
+      "value": true
+    },
+    "class_type": "easy boolean",
+    "_meta": {
+      "title": "switch_option2"
+    }
+  },
+  "228": {
+    "inputs": {
+      "value": true
+    },
+    "class_type": "easy boolean",
+    "_meta": {
+      "title": "switch_option1"
+    }
+  },
+  "229": {
+    "inputs": {
+      "unet_name": "z_image_turbo_bf16.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "Load Diffusion Model"
+    }
+  },
+  "230": {
+    "inputs": {
+      "clip_name": "qwen_3_4b.safetensors",
+      "type": "lumina2",
+      "device": "default"
+    },
+    "class_type": "CLIPLoader",
+    "_meta": {
+      "title": "Load CLIP"
+    }
+  },
+  "231": {
+    "inputs": {
+      "vae_name": "ae.safetensors"
+    },
+    "class_type": "VAELoader",
+    "_meta": {
+      "title": "Load VAE"
+    }
+  },
+  "232": {
+    "inputs": {
+      "vae_name": "UltraFlux-vae_v1.safetensors"
+    },
+    "class_type": "VAELoader",
+    "_meta": {
+      "title": "Load VAE"
+    }
+  },
+  "233": {
+    "inputs": {
+      "samples": [
+        "136",
+        0
+      ],
+      "vae": [
+        "232",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE Decode"
     }
   },
   "166:112": {
@@ -726,19 +791,6 @@
     "class_type": "easy cleanGpuUsed",
     "_meta": {
       "title": "Clean VRAM Used"
-    }
-  },
-  "166:139": {
-    "inputs": {
-      "shift": 8,
-      "model": [
-        "181",
-        0
-      ]
-    },
-    "class_type": "ModelSamplingSD3",
-    "_meta": {
-      "title": "ModelSamplingSD3"
     }
   },
   "166:153": {
@@ -778,7 +830,7 @@
         0
       ],
       "image": [
-        "182",
+        "165",
         0
       ]
     },
@@ -806,7 +858,7 @@
         0
       ],
       "vae": [
-        "151",
+        "231",
         0
       ]
     },
@@ -818,7 +870,7 @@
   "166:163": {
     "inputs": {
       "images": [
-        "196",
+        "223",
         0
       ]
     },
@@ -837,31 +889,6 @@
     "class_type": "easy cleanGpuUsed",
     "_meta": {
       "title": "Clean VRAM Used"
-    }
-  },
-  "166:120": {
-    "inputs": {
-      "padding": 128,
-      "tiles": [
-        "166:111",
-        0
-      ],
-      "positions": [
-        "199",
-        1
-      ],
-      "original_size": [
-        "199",
-        2
-      ],
-      "grid_size": [
-        "199",
-        3
-      ]
-    },
-    "class_type": "TTP_Image_Assy",
-    "_meta": {
-      "title": "TTP_Image_Assy"
     }
   }
 }

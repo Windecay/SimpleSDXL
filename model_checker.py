@@ -145,6 +145,7 @@ def load_model_paths():
             "jina_clip": [os.path.join(simplemodels_root, "jina_clip")],
             "gemma3": [os.path.join(simplemodels_root, "gemma3")],
             "nlf": [os.path.join(simplemodels_root, "nlf")],
+            "SEEDVR2": [os.path.join(simplemodels_root, "SEEDVR2")],
         }
 
     except Exception as e:
@@ -190,6 +191,7 @@ def load_model_paths():
             "jina_clip": [os.path.join(simplemodels_root, "jina_clip")],
             "gemma3": [os.path.join(simplemodels_root, "gemma3")],
             "nlf": [os.path.join(simplemodels_root, "nlf")],
+            "SEEDVR2": [os.path.join(simplemodels_root, "SEEDVR2")],
         }
 
     for key in path_mapping:
@@ -370,7 +372,7 @@ def print_instructions():
     time.sleep(0.1)
     print(f"{Fore.GREEN}★{Style.RESET_ALL}打开默认浏览器设置，关闭GPU加速、或图形加速的选项。{Fore.GREEN}★{Style.RESET_ALL}大内存(64+)与固态硬盘存放模型有助于减少模型加载时间。{Fore.GREEN}★{Style.RESET_ALL}")
     time.sleep(0.1)
-    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：1005085136{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:25.12.26{Fore.GREEN}★{Style.RESET_ALL}")
+    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：1005085136{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:25.12.29{Fore.GREEN}★{Style.RESET_ALL}")
     print()
     time.sleep(0.1)
     
@@ -1357,8 +1359,8 @@ packages = {
         "name": "[1]基础模型包[Z-image-Turbo]",
         "note": "Z-image-Turbo-默认模型[Z-image-Turbo-fp16]|显存需求：★★☆ 速度：★★★",
         "files": [
-            ("diffusion_models/https://modelscope.cn/models/VerStella/z_image_turbo_comfyui/resolve/master/split_files/diffusion_models/z_image_turbo_bf16.safetensors", 12309866400),
-            ("text_encoders/https://modelscope.cn/models/VerStella/z_image_turbo_comfyui/resolve/master/split_files/text_encoders/qwen_3_4b.safetensors", 8044982048),
+            ("diffusion_models/https://www.modelscope.cn/models/VerStella/z_image_turbo_comfyui/resolve/master/split_files/diffusion_models/z_image_turbo_bf16.safetensors", 12309866400),
+            ("text_encoders/https://www.modelscope.cn/models/VerStella/z_image_turbo_comfyui/resolve/master/split_files/text_encoders/qwen_3_4b.safetensors", 8044982048),
             ("model_patches/https://www.modelscope.cn/models/PAI/Z-Image-Turbo-Fun-Controlnet-Union-2.1/resolve/master/Z-Image-Turbo-Fun-Controlnet-Union-2.1-8steps.safetensors", 6712485600),
             ("vae/ae.safetensors", 335304388),
             ("upscale_models/4x-UltraSharp.pth", 66961958),
@@ -1510,19 +1512,19 @@ packages = {
         "files": [
             ("controlnet/hr16/DWPose-TorchScript-BatchSize5/https://www.modelscope.cn/models/svjack/DWPose-TorchScript-BatchSize5/resolve/master/dw-ll_ucoco_384_bs5.torchscript.pt", 135059124),
             ("controlnet/yzd-v/DWPose/https://www.modelscope.cn/models/zhangjin/DWPose/resolve/master/yolox_l.onnx", 216746733),
-            ("SDPose_OOD/SDPose-Wholebody/vae/https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/vae/config.json", 611),
-            ("SDPose_OOD/SDPose-Wholebody/vae/https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/vae/diffusion_pytorch_model.safetensors", 334643276),
-            ("SDPose_OOD/SDPose-Wholebody/unet/https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/unet/config.json", 1859),
-            ("SDPose_OOD/SDPose-Wholebody/unet/https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/unet/diffusion_pytorch_model.safetensors", 3470311272),
-            ("SDPose_OOD/SDPose-Wholebody/tokenizer/https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/tokenizer/merges.txt", 524619),
-            ("SDPose_OOD/SDPose-Wholebody/tokenizer/https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/tokenizer/special_tokens_map.json", 460),
-            ("SDPose_OOD/SDPose-Wholebody/tokenizer/https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/tokenizer/tokenizer_config.json", 824),
-            ("SDPose_OOD/SDPose-Wholebody/tokenizer/https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/tokenizer/vocab.json", 1059962),
-            ("SDPose_OOD/SDPose-Wholebody/decoder/https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/decoder/decoder.safetensors", 28196828),
-            ("SDPose_OOD/SDPose-Wholebody/scheduler/https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/scheduler/scheduler_config.json", 344),
-            ("SDPose_OOD/SDPose-Wholebody/text_encoder/https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/text_encoder/model.safetensors", 1361597018),
-            ("SDPose_OOD/SDPose-Wholebody/text_encoder/https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/text_encoder/config.json", 633),
-            ("yolo/https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/yolo11x.pt", 114636239),
+            ("SDPose_OOD/SDPose-Wholebody/vae/https://www.modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/vae/config.json", 611),
+            ("SDPose_OOD/SDPose-Wholebody/vae/https://www.modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/vae/diffusion_pytorch_model.safetensors", 334643276),
+            ("SDPose_OOD/SDPose-Wholebody/unet/https://www.modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/unet/config.json", 1859),
+            ("SDPose_OOD/SDPose-Wholebody/unet/https://www.modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/unet/diffusion_pytorch_model.safetensors", 3470311272),
+            ("SDPose_OOD/SDPose-Wholebody/tokenizer/https://www.modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/tokenizer/merges.txt", 524619),
+            ("SDPose_OOD/SDPose-Wholebody/tokenizer/https://www.modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/tokenizer/special_tokens_map.json", 460),
+            ("SDPose_OOD/SDPose-Wholebody/tokenizer/https://www.modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/tokenizer/tokenizer_config.json", 824),
+            ("SDPose_OOD/SDPose-Wholebody/tokenizer/https://www.modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/tokenizer/vocab.json", 1059962),
+            ("SDPose_OOD/SDPose-Wholebody/decoder/https://www.modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/decoder/decoder.safetensors", 28196828),
+            ("SDPose_OOD/SDPose-Wholebody/scheduler/https://www.modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/scheduler/scheduler_config.json", 344),
+            ("SDPose_OOD/SDPose-Wholebody/text_encoder/https://www.modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/text_encoder/model.safetensors", 1361597018),
+            ("SDPose_OOD/SDPose-Wholebody/text_encoder/https://www.modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/text_encoder/config.json", 633),
+            ("yolo/https://www.modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/yolo11x.pt", 114636239),
         ],
         "download_links": []
     },
@@ -1978,7 +1980,7 @@ packages = {
         "note": "Qwen_Image_EditPlus指令编辑图像|显存需求：★★★★★ 速度:★☆",
         "files": [
             ("diffusion_models/https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/diffusion_models/qwen_image_edit_2511_fp8mixed.safetensors", 20533762817),
-            ("loras/https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/loras/Qwen-Image-Edit-2511-Lightning-4steps-V1.0-bf16.safetensors", 849608296),
+            ("loras/https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/loras/Qwen-Image-Edit-2511-Lightning-4steps-V1.0-bf16.safetensors", 849608296),
             ("clip/qwen_2.5_vl_7b_fp8_scaled.safetensors", 9384670680),
             ("vae/qwen_image_vae.safetensors", 253806246),
             ("controlnet/hr16/DWPose-TorchScript-BatchSize5/https://www.modelscope.cn/models/svjack/DWPose-TorchScript-BatchSize5/resolve/master/dw-ll_ucoco_384_bs5.torchscript.pt", 135059124),
@@ -2076,7 +2078,8 @@ packages = {
             ("vae/Wan2_1_VAE_bf16.safetensors", 253806278),
             ("vae/https://www.modelscope.cn/models/spacepxl/Wan2.1-VAE-upscale2x/resolve/master/Wan2.1_VAE_upscale2x_imageonly_real_v1.safetensors",507684560),
             ("loras/lightx2v_T2V_14B_cfg_step_distill_v2_lora_rank64_bf16.safetensors", 630697104),
-            ("upscale_models/4xNomos8kSCHAT-L.pth", 331564661)
+            ("SEEDVR2/https://www.modelscope.cn/models/numz/SeedVR2_comfyUI/resolve/master/ema_vae_fp16.safetensors", 501324814),
+            ("SEEDVR2/https://www.modelscope.cn/models/numz/SeedVR2_comfyUI/resolve/master/seedvr2_ema_3b_fp16.safetensors", 6783018808)
         ],
         "download_links": [
             "https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/checkpoints/Wan2.2_T2V_Low_Noise_14B_VACE-Q4_K_M.gguf",
@@ -2127,14 +2130,27 @@ packages = {
             ("vae/Wan2_1_VAE_bf16.safetensors", 253806278),
             ("loras/lightx2v_I2V_14B_480p_cfg_step_distill_rank64_bf16.safetensors", 738005744),
             ("controlnet/rife/https://www.modelscope.cn/models/windecay/rife/resolve/master/flownet.pkl", 24636301),
-            ("detection/https://modelscope.cn/models/Kijai/vitpose_comfy/resolve/master/onnx/vitpose_h_wholebody_data.bin", 2548958740),
-            ("detection/https://modelscope.cn/models/Kijai/vitpose_comfy/resolve/master/onnx/vitpose_h_wholebody_model.onnx", 420252),
-            ("detection/https://modelscope.cn/models/Wan-AI/Wan2.2-Animate-14B/resolve/master/process_checkpoint/det/yolov10m.onnx", 61659339),
+            ("detection/https://www.modelscope.cn/models/Kijai/vitpose_comfy/resolve/master/onnx/vitpose_h_wholebody_data.bin", 2548958740),
+            ("detection/https://www.modelscope.cn/models/Kijai/vitpose_comfy/resolve/master/onnx/vitpose_h_wholebody_model.onnx", 420252),
+            ("detection/https://www.modelscope.cn/models/Wan-AI/Wan2.2-Animate-14B/resolve/master/process_checkpoint/det/yolov10m.onnx", 61659339),
             ("nlf/https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/nlf/nlf_l_multi_0.3.2.torchscript", 493117974)
         ],
         "download_links": []
     },
-    
+    "zit_ttp_package": {
+        "id": 36,
+        "name": "[36]Z-Image_Turbo_TTP超清放大扩展包",
+        "note": "Z-Image_Turbo_TTP超清放大|显存需求：★★★ 速度：★★",
+        "files": [
+            ("diffusion_models/https://www.modelscope.cn/models/VerStella/z_image_turbo_comfyui/resolve/master/split_files/diffusion_models/z_image_turbo_bf16.safetensors", 12309866400),
+            ("text_encoders/https://www.modelscope.cn/models/VerStella/z_image_turbo_comfyui/resolve/master/split_files/text_encoders/qwen_3_4b.safetensors", 8044982048),
+            ("vae/ae.safetensors", 335304388),
+            ("vae/https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/vae/UltraFlux-vae_v1.safetensors", 335306212),
+            ("SEEDVR2/https://www.modelscope.cn/models/numz/SeedVR2_comfyUI/resolve/master/ema_vae_fp16.safetensors", 501324814),
+            ("SEEDVR2/https://www.modelscope.cn/models/numz/SeedVR2_comfyUI/resolve/master/seedvr2_ema_3b_fp16.safetensors", 6783018808)
+        ],
+        "download_links": []
+    }, 
 }
 
 MANUAL_DOWNLOAD_MAP = {
