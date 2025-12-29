@@ -5067,11 +5067,11 @@
   },
   "863": {
     "inputs": {
-      "unet_name": "Wan2.2_T2V_Low_Noise_14B_VACE-Q4_K_M.gguf"
+      "unet_name": "placeholder.gguf"
     },
     "class_type": "UnetLoaderGGUF",
     "_meta": {
-      "title": "base_model2"
+      "title": "base_model_gguf2"
     }
   },
   "867": {

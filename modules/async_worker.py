@@ -1,3 +1,4 @@
+from re import A
 import threading
 import queue
 
@@ -1895,7 +1896,7 @@ def worker():
                         async_task.params_backend['display_steps'] = async_task.steps
                 elif async_task.task_class in ['Kolors', 'Wan', 'Qwen', 'Z-image']:
                     async_task.params_backend['display_steps'] = async_task.steps # + 1
-            if async_task.task_method == 'wan2.2_cn':
+            if async_task.task_method == 'wan2.2_cn' or async_task.task_method == 'wan_aio_cn':
                 if 'gguf' in async_task.base_model_name:
                     async_task.params_backend['i2i_model_type'] = 2
                     async_task.params_backend['base_model_gguf'] = async_task.base_model_name

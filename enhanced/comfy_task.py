@@ -248,7 +248,7 @@ def get_comfy_task(user_did, task_class, task_name, task_method, default_params,
         if 'base_model_gguf' in default_params:
             comfy_params.delete_params(['base_model'])
         return ComfyTask(task_method, comfy_params, input_images, total_steps)
-    elif task_method == 'wan2.2_cn':
+    elif task_method == 'wan2.2_cn' or task_method == 'wan_aio_cn':
         if 'base_model_gguf' in default_params:
             comfy_params.delete_params(['base_model'])
         if 'base_model_gguf2' in default_params:
