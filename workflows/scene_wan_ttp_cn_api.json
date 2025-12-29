@@ -36,7 +36,7 @@
         1
       ],
       "clip": [
-        "236",
+        "237",
         0
       ]
     },
@@ -100,7 +100,7 @@
         0
       ],
       "clip": [
-        "236",
+        "237",
         0
       ]
     },
@@ -984,19 +984,14 @@
       "title": "TTP_Image_Assy"
     }
   },
-  "236": {
+  "237": {
     "inputs": {
       "clip_name": "umt5-xxl-encoder-Q8_0.gguf",
-      "type": "wan",
-      "device": "default",
-      "any": [
-        "190",
-        0
-      ]
+      "type": "wan"
     },
-    "class_type": "CLIPLoader_Any",
+    "class_type": "CLIPLoaderGGUF",
     "_meta": {
-      "title": "Load CLIP (Any)"
+      "title": "CLIPLoader (GGUF)"
     }
   },
   "166:139": {

@@ -2253,8 +2253,8 @@ packages = {
         "download_links": []
     },
     "zit_ttp_package": {
-        "id": 36,
-        "name": "[36]Z-Image_Turbo_TTP超清放大扩展包",
+        "id": 35,
+        "name": "[35]Z-Image_Turbo_TTP超清放大扩展包",
         "note": "Z-Image_Turbo_TTP超清放大|显存需求：★★★ 速度：★★",
         "files": [
             ("diffusion_models/https://www.modelscope.cn/models/VerStella/z_image_turbo_comfyui/resolve/master/split_files/diffusion_models/z_image_turbo_bf16.safetensors", 12309866400),
