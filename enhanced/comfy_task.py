@@ -248,6 +248,12 @@ def get_comfy_task(user_did, task_class, task_name, task_method, default_params,
         if 'base_model_gguf' in default_params:
             comfy_params.delete_params(['base_model'])
         return ComfyTask(task_method, comfy_params, input_images, total_steps)
+    elif task_method == 'wan2.2_cn':
+        if 'base_model_gguf' in default_params:
+            comfy_params.delete_params(['base_model'])
+        if 'base_model_gguf2' in default_params:
+            comfy_params.delete_params(['base_model2'])
+        return ComfyTask(task_method, comfy_params, input_images, total_steps)
     else:  # SeamlessTiled
         #check_download_base_model(default_params["base_model"])
         return ComfyTask(task_method, comfy_params, input_images, total_steps)

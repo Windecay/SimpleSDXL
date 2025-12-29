@@ -1895,8 +1895,29 @@ def worker():
                         async_task.params_backend['display_steps'] = async_task.steps
                 elif async_task.task_class in ['Kolors', 'Wan', 'Qwen', 'Z-image']:
                     async_task.params_backend['display_steps'] = async_task.steps # + 1
-            if "wan2.2_cn" in async_task.task_method:
-                async_task.params_backend['i2i_model_type'] = 2 if 'gguf' in async_task.base_model_name else 1
+            if async_task.task_method == 'wan2.2_cn':
+                if 'gguf' in async_task.base_model_name:
+                    async_task.params_backend['i2i_model_type'] = 2
+                    async_task.params_backend['base_model_gguf'] = async_task.base_model_name
+                    async_task.params_backend.pop('base_model', None)
+                else:
+                    async_task.params_backend['i2i_model_type'] = 1
+                    async_task.params_backend['base_model'] = async_task.base_model_name
+                    async_task.params_backend.pop('base_model_gguf', None)
+
+                refiner_model_name = async_task.params_backend.get('base_model2')
+                if refiner_model_name and refiner_model_name != 'None':
+                    if 'gguf' in refiner_model_name:
+                        async_task.params_backend['i2i_model_type2'] = 2
+                        async_task.params_backend['base_model_gguf2'] = refiner_model_name
+                        async_task.params_backend.pop('base_model2', None)
+                    else:
+                        async_task.params_backend['i2i_model_type2'] = 1
+                        async_task.params_backend['base_model2'] = refiner_model_name
+                        async_task.params_backend.pop('base_model_gguf2', None)
+                else:
+                    async_task.params_backend.pop('base_model2', None)
+                    async_task.params_backend.pop('base_model_gguf2', None)
             if 'display_steps' not in async_task.params_backend:
                 async_task.params_backend['display_steps'] = 30 if async_task.steps==-1 else async_task.steps
             if async_task.enhance_checkbox:

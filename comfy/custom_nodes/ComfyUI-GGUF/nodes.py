@@ -23,7 +23,7 @@ def update_folder_names_and_paths(key, targets=[]):
     # find base key & add w/ fallback, sanity check + warning
     target = next((x for x in targets if x in folder_paths.folder_names_and_paths), targets[0])
     orig, _ = folder_paths.folder_names_and_paths.get(target, ([], {}))
-    folder_paths.folder_names_and_paths[key] = (orig or base, {".gguf", ".safetensors"})
+    folder_paths.folder_names_and_paths[key] = (orig or base, {".gguf"})
     if base and base != orig:
         logging.warning(f"Unknown file list already present on key {key}: {base}")
 
@@ -134,11 +134,7 @@ class GGUFModelPatcher(comfy.model_patcher.ModelPatcher):
 class UnetLoaderGGUF:
     @classmethod
     def INPUT_TYPES(s):
-        # 同时从unet和unet_gguf路径获取文件列表
-        files = []
-        files += folder_paths.get_filename_list("unet")
-        files += folder_paths.get_filename_list("unet_gguf")
-        unet_names = sorted(files)
+        unet_names = [x for x in folder_paths.get_filename_list("unet_gguf")]
         return {
             "required": {
                 "unet_name": (unet_names,),
@@ -167,15 +163,9 @@ class UnetLoaderGGUF:
         else:
             ops.Linear.patch_dtype = getattr(torch, patch_dtype)
 
-        unet_path = folder_paths.get_full_path("unet", unet_name) or folder_paths.get_full_path("unet_gguf", unet_name)
-
-        if unet_path.endswith(".gguf"):
-            sd = gguf_sd_loader(unet_path)
-        else:
-            sd = comfy.utils.load_torch_file(unet_path, safe_load=True)
-            if "scaled_fp8" in sd:
-                raise NotImplementedError(f"Mixing scaled FP8 with GGUF is not supported! Use regular UNET loader or switch model(s)\n({unet_path})")
-
+        # init model
+        unet_path = folder_paths.get_full_path("unet", unet_name)
+        sd = gguf_sd_loader(unet_path)
         model = comfy.sd.load_diffusion_model_state_dict(
             sd, model_options={"custom_operations": ops}
         )
@@ -189,10 +179,7 @@ class UnetLoaderGGUF:
 class UnetLoaderGGUFAdvanced(UnetLoaderGGUF):
     @classmethod
     def INPUT_TYPES(s):
-        files = []
-        files += folder_paths.get_filename_list("unet")
-        files += folder_paths.get_filename_list("unet_gguf")
-        unet_names = sorted(files)
+        unet_names = [x for x in folder_paths.get_filename_list("unet_gguf")]
         return {
             "required": {
                 "unet_name": (unet_names,),
