@@ -91,7 +91,10 @@
   },
   "9": {
     "inputs": {
-      "strength": 1,
+      "strength": [
+        "162",
+        0
+      ],
       "model": [
         "8",
         0
@@ -121,7 +124,7 @@
   "15": {
     "inputs": {
       "images": [
-        "144",
+        "163",
         0
       ]
     },
@@ -196,20 +199,6 @@
     "class_type": "LoraLoaderModelOnly",
     "_meta": {
       "title": "lora_4"
-    }
-  },
-  "36": {
-    "inputs": {
-      "fill_background": false,
-      "background_color": "#FFFFFF",
-      "RGBA_image": [
-        "3",
-        0
-      ]
-    },
-    "class_type": "LayerUtility: ImageRemoveAlpha",
-    "_meta": {
-      "title": "LayerUtility: ImageRemoveAlpha"
     }
   },
   "39": {
@@ -356,7 +345,7 @@
   "68": {
     "inputs": {
       "conditioning": [
-        "156",
+        "160",
         0
       ]
     },
@@ -684,7 +673,7 @@
     "inputs": {
       "reference_latents_method": "index_timestep_zero",
       "conditioning": [
-        "156",
+        "160",
         0
       ]
     },
@@ -796,7 +785,10 @@
     "inputs": {
       "to_ref": true,
       "ref_main_image": true,
-      "ref_longest_edge": 1024,
+      "ref_longest_edge": [
+        "143",
+        0
+      ],
       "ref_crop": "pad",
       "ref_upscale": "lanczos",
       "to_vl": true,
@@ -822,7 +814,10 @@
     "inputs": {
       "to_ref": true,
       "ref_main_image": true,
-      "ref_longest_edge": 1024,
+      "ref_longest_edge": [
+        "143",
+        0
+      ],
       "ref_crop": "pad",
       "ref_upscale": "lanczos",
       "to_vl": true,
@@ -1028,8 +1023,8 @@
         0
       ],
       "latent": [
-        "138",
-        1
+        "161",
+        0
       ]
     },
     "class_type": "ReferenceLatent",
@@ -1074,6 +1069,82 @@
     "class_type": "SimpleMath+",
     "_meta": {
       "title": "🔧 Simple Math"
+    }
+  },
+  "160": {
+    "inputs": {
+      "boolean": [
+        "108",
+        0
+      ],
+      "on_true": [
+        "138",
+        0
+      ],
+      "on_false": [
+        "156",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "161": {
+    "inputs": {
+      "pixels": [
+        "3",
+        0
+      ],
+      "vae": [
+        "5",
+        0
+      ]
+    },
+    "class_type": "VAEEncode",
+    "_meta": {
+      "title": "VAE Encode"
+    }
+  },
+  "162": {
+    "inputs": {
+      "value": 0.95
+    },
+    "class_type": "easy float",
+    "_meta": {
+      "title": "var_number3"
+    }
+  },
+  "163": {
+    "inputs": {
+      "method": "mkl",
+      "strength": [
+        "164",
+        0
+      ],
+      "multithread": true,
+      "image_ref": [
+        "139",
+        0
+      ],
+      "image_target": [
+        "144",
+        0
+      ]
+    },
+    "class_type": "ColorMatch",
+    "_meta": {
+      "title": "Color Match"
+    }
+  },
+  "164": {
+    "inputs": {
+      "value": 0
+    },
+    "class_type": "easy float",
+    "_meta": {
+      "title": "var_number4"
     }
   }
 }
