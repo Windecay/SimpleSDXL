@@ -48,7 +48,6 @@
     "lora_downloads": {},
     "model_list": [
         "checkpoints,realisticVisionV60B1_v51VAE.safetensors,2132625894,0,",
-        "loras,sd_xl_offset_example-lora_1.0.safetensors,49553604,0,",
         "loras,ip-adapter-faceid-plusv2_sd15_lora.safetensors,51059544,0,",
         "upscale_models,4x-UltraSharp.pth,66961958,0,",
         "inpaint,sd15_powerpaint_brushnet_v2_1.safetensors,3544366408,0,",

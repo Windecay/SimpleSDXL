@@ -577,7 +577,7 @@
   },
   "76": {
     "inputs": {
-      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "lora_name": "placeholder.safetensors",
       "strength_model": 0,
       "model": [
         "78",
@@ -591,7 +591,7 @@
   },
   "77": {
     "inputs": {
-      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "lora_name": "placeholder.safetensors",
       "strength_model": 0,
       "model": [
         "93",
@@ -605,7 +605,7 @@
   },
   "78": {
     "inputs": {
-      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "lora_name": "placeholder.safetensors",
       "strength_model": 0,
       "model": [
         "94",
@@ -619,7 +619,7 @@
   },
   "79": {
     "inputs": {
-      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "lora_name": "placeholder.safetensors",
       "strength_model": 0,
       "model": [
         "77",

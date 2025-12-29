@@ -1425,7 +1425,6 @@ packages = {
             ("llms/superprompt-v1/spiece.model", 791656),
             ("llms/superprompt-v1/tokenizer.json", 2424064),
             ("llms/superprompt-v1/tokenizer_config.json", 2539),
-            ("loras/sd_xl_offset_example-lora_1.0.safetensors", 49553604),
             ("rembg/RMBG-1.4.pth", 176718373),
             ("vae_approx/vaeapp_sd15.pth", 213777),
             ("vae_approx/xl-to-v1_interposer-v4.0.safetensors", 5667280),
@@ -1483,7 +1482,6 @@ packages = {
         "note": "SD1.5全功能-默认模型[realisticVision]|显存需求：★ 速度：★★★★",
         "files": [
             ("checkpoints/realisticVisionV60B1_v51VAE.safetensors", 2132625894),
-            ("loras/sd_xl_offset_example-lora_1.0.safetensors", 49553604),
             ("clip/sd15_clip_model.fp16.safetensors", 246144864),
             ("controlnet/control_v11f1e_sd15_tile_fp16.safetensors", 722601104),
             ("controlnet/control_v11f1p_sd15_depth_fp16.safetensors", 722601100),
@@ -1967,7 +1965,6 @@ packages = {
             ("upscale_models/4x-UltraSharp.pth", 66961958),
             ("clip/qwen_2.5_vl_7b_fp8_scaled.safetensors", 9384670680),
             ("vae/qwen_image_vae.safetensors", 253806246),
-            ("loras/sd_xl_offset_example-lora_1.0.safetensors", 49553604),
             ("loras/https://www.modelscope.cn/models/lightx2v/Qwen-Image-Lightning/resolve/master/Qwen-Image-Lightning-8steps-V2.0-bf16.safetensors", 849608296),
             ("upscale_models/4xNomosUniDAT_bokeh_jpg.safetensors", 154152604),
             ("controlnet/Qwen-Image-InstantX-ControlNet-Inpainting.safetensors", 4234599432)
@@ -2045,6 +2042,7 @@ packages = {
         "files": [
             ("controlnet/ip-adapter-plus-face_sdxl_vit-h.bin", 1013454761),
             ("controlnet/ip-adapter-plus_sdxl_vit-h.bin", 1013454427),
+            ("controlnet/xinsir_cn_union_sdxl_1.0_promax.safetensors", 2513342408),
             ("loras/ip-adapter-faceid-plusv2_sdxl_lora.safetensors", 371842896), 
             ("loras/sdxl_lightning_4step_lora.safetensors", 393854592),
             ("upscale_models/fooocus_upscaler_s409985e5.bin", 33636613),

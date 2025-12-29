@@ -1,7 +1,7 @@
 {
   "1": {
     "inputs": {
-      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "lora_name": "placeholder.safetensors",
       "strength_model": 0,
       "model": [
         "75",
@@ -280,7 +280,7 @@
   },
   "69": {
     "inputs": {
-      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "lora_name": "placeholder.safetensors",
       "strength_model": 0,
       "model": [
         "1",
@@ -321,7 +321,7 @@
   },
   "73": {
     "inputs": {
-      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "lora_name": "placeholder.safetensors",
       "strength_model": 0,
       "model": [
         "69",
@@ -335,7 +335,7 @@
   },
   "74": {
     "inputs": {
-      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "lora_name": "placeholder.safetensors",
       "strength_model": 0,
       "model": [
         "73",
@@ -349,7 +349,7 @@
   },
   "75": {
     "inputs": {
-      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "lora_name": "placeholder.safetensors",
       "strength_model": 0,
       "model": [
         "272",
@@ -3553,7 +3553,7 @@
   },
   "386": {
     "inputs": {
-      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "lora_name": "placeholder.safetensors",
       "strength_model": 0,
       "model": [
         "387",
@@ -3567,7 +3567,7 @@
   },
   "387": {
     "inputs": {
-      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "lora_name": "placeholder.safetensors",
       "strength_model": 0,
       "model": [
         "388",
@@ -3581,7 +3581,7 @@
   },
   "388": {
     "inputs": {
-      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "lora_name": "placeholder.safetensors",
       "strength_model": 0,
       "model": [
         "485",
@@ -3595,7 +3595,7 @@
   },
   "389": {
     "inputs": {
-      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "lora_name": "placeholder.safetensors",
       "strength_model": 0,
       "model": [
         "386",
@@ -5230,7 +5230,7 @@
   },
   "485": {
     "inputs": {
-      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "lora_name": "placeholder.safetensors",
       "strength_model": 0,
       "model": [
         "212",
@@ -7312,7 +7312,7 @@
   },
   "676": {
     "inputs": {
-      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "lora_name": "placeholder.safetensors",
       "strength_model": 0,
       "model": [
         "678",
@@ -7326,7 +7326,7 @@
   },
   "677": {
     "inputs": {
-      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "lora_name": "placeholder.safetensors",
       "strength_model": 0,
       "model": [
         "74",
@@ -7340,7 +7340,7 @@
   },
   "678": {
     "inputs": {
-      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "lora_name": "placeholder.safetensors",
       "strength_model": 0,
       "model": [
         "677",
@@ -7354,7 +7354,7 @@
   },
   "679": {
     "inputs": {
-      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "lora_name": "placeholder.safetensors",
       "strength_model": 0,
       "model": [
         "681",
@@ -7368,7 +7368,7 @@
   },
   "680": {
     "inputs": {
-      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "lora_name": "placeholder.safetensors",
       "strength_model": 0,
       "model": [
         "389",
@@ -7382,7 +7382,7 @@
   },
   "681": {
     "inputs": {
-      "lora_name": "sd_xl_offset_example-lora_1.0.safetensors",
+      "lora_name": "placeholder.safetensors",
       "strength_model": 0,
       "model": [
         "680",

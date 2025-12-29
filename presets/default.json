@@ -55,13 +55,6 @@
     "default_save_metadata_to_images": true,
     "model_list": [
         "checkpoints,juggernautXL_juggXIByRundiffusion.safetensors,7105350536,0,",
-        "loras,sd_xl_offset_example-lora_1.0.safetensors,49553604,0,",
-        "controlnet,ip-adapter-plus-face_sdxl_vit-h.bin,1013454761,0,",
-        "controlnet,ip-adapter-plus_sdxl_vit-h.bin,1013454427,0,",
-        "loras,ip-adapter-faceid-plusv2_sdxl_lora.safetensors,371842896,0,",
-        "loras,sdxl_lightning_4step_lora.safetensors,393854592,0,",
-        "upscale_models,fooocus_upscaler_s409985e5.bin,33636613,0,",
-        "loras,Hyper-SDXL-8steps-lora.safetensors,787359648,0,",
-        "inpaint,inpaint_v26.fooocus.patch,1323362033,0,"
+        "loras,sd_xl_offset_example-lora_1.0.safetensors,49553604,0,"
     ]
 }

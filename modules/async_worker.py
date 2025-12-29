@@ -1172,14 +1172,16 @@ def worker():
             inpaint_image = HWC3(inpaint_image)
             if isinstance(inpaint_image, np.ndarray) and isinstance(inpaint_mask, np.ndarray) \
                     and (np.any(inpaint_mask > 127) or len(async_task.outpaint_selections) > 0):
-                progressbar(async_task, 1, '下载放大模型 ...')
-                modules.config.downloading_upscale_model()
+                if async_task.task_class in ['Fooocus']:
+                    progressbar(async_task, 1, '下载放大模型 ...')
+                    modules.config.downloading_upscale_model()
                 if inpaint_parameterized:
-                    progressbar(async_task, 1, '下载重绘模型 ...')
-                    inpaint_head_model_path, inpaint_patch_model_path = modules.config.downloading_inpaint_models(
-                        async_task.inpaint_engine)
-                    base_model_additional_loras += [(inpaint_patch_model_path, 1.0)]
-                    logger.info(f'[Inpaint] Current inpaint model is {inpaint_patch_model_path}')
+                    if async_task.task_class in ['Fooocus']:
+                        progressbar(async_task, 1, '下载重绘模型 ...')
+                        inpaint_head_model_path, inpaint_patch_model_path = modules.config.downloading_inpaint_models(
+                            async_task.inpaint_engine)
+                        base_model_additional_loras += [(inpaint_patch_model_path, 1.0)]
+                        logger.info(f'[Inpaint] Current inpaint model is {inpaint_patch_model_path}')
                     if async_task.refiner_model_name == 'None':
                         use_synthetic_refiner = True
                         async_task.refiner_switch = 0.8
@@ -1231,8 +1233,9 @@ def worker():
             
             if advance_progress:
                 current_progress += 1
-            progressbar(async_task, current_progress, '下载放大模型 ...')
-            modules.config.downloading_upscale_model()
+            if async_task.task_class in ['Fooocus']:
+                progressbar(async_task, current_progress, '下载放大模型 ...')
+                modules.config.downloading_upscale_model()
         return uov_input_image, skip_prompt_processing, steps
 
     def prepare_enhance_prompt(prompt: str, fallback_prompt: str):
@@ -1273,11 +1276,12 @@ def worker():
                 return current_progress, img, prompt, negative_prompt
 
         if 'inpaint' in goals and inpaint_parameterized:
-            progressbar(async_task, current_progress, '下载重绘模型 ...')
-            inpaint_head_model_path, inpaint_patch_model_path = modules.config.downloading_inpaint_models(
-                inpaint_engine)
-            if inpaint_patch_model_path not in base_model_additional_loras:
-                base_model_additional_loras += [(inpaint_patch_model_path, 1.0)]
+            if async_task.task_class in ['Fooocus']:
+                progressbar(async_task, current_progress, '下载重绘模型 ...')
+                inpaint_head_model_path, inpaint_patch_model_path = modules.config.downloading_inpaint_models(
+                    inpaint_engine)
+                if inpaint_patch_model_path not in base_model_additional_loras:
+                    base_model_additional_loras += [(inpaint_patch_model_path, 1.0)]
         progressbar(async_task, current_progress, '准备增强提示词 ...')
         # positive and negative conditioning aren't available here anymore, process prompt again
         tasks_enhance, use_expansion, loras, current_progress = process_prompt(
