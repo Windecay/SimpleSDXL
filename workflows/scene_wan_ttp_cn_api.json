@@ -36,7 +36,7 @@
         1
       ],
       "clip": [
-        "150",
+        "236",
         0
       ]
     },
@@ -100,7 +100,7 @@
         0
       ],
       "clip": [
-        "150",
+        "236",
         0
       ]
     },
@@ -130,16 +130,6 @@
     "class_type": "UnetLoaderGGUF",
     "_meta": {
       "title": "Lownoise模型加载器"
-    }
-  },
-  "150": {
-    "inputs": {
-      "clip_name": "umt5-xxl-encoder-Q8_0.gguf",
-      "type": "wan"
-    },
-    "class_type": "CLIPLoaderGGUF",
-    "_meta": {
-      "title": "CLIP加载器"
     }
   },
   "151": {
@@ -477,7 +467,7 @@
         0
       ],
       "on_false": [
-        "203",
+        "235",
         0
       ]
     },
@@ -580,7 +570,7 @@
     "inputs": {
       "seed": 42,
       "resolution": [
-        "214",
+        "234",
         0
       ],
       "max_resolution": 0,
@@ -594,7 +584,7 @@
       "offload_device": "cpu",
       "enable_debug": false,
       "image": [
-        "193",
+        "233",
         0
       ],
       "dit": [
@@ -877,6 +867,136 @@
     "class_type": "easy boolean",
     "_meta": {
       "title": "switch_option1"
+    }
+  },
+  "229": {
+    "inputs": {
+      "width_factor": 2,
+      "height_factor": 2,
+      "overlap_rate": 0.2,
+      "image": [
+        "232",
+        0
+      ]
+    },
+    "class_type": "TTP_Tile_image_size",
+    "_meta": {
+      "title": "TTP_Tile_image_size"
+    }
+  },
+  "230": {
+    "inputs": {
+      "value": "round(a/16)*16",
+      "a": [
+        "229",
+        1
+      ]
+    },
+    "class_type": "SimpleMath+",
+    "_meta": {
+      "title": "🔧 Simple Math"
+    }
+  },
+  "231": {
+    "inputs": {
+      "value": "round(a/16)*16",
+      "a": [
+        "229",
+        0
+      ]
+    },
+    "class_type": "SimpleMath+",
+    "_meta": {
+      "title": "🔧 Simple Math"
+    }
+  },
+  "232": {
+    "inputs": {
+      "shorter_edge": [
+        "214",
+        0
+      ],
+      "images": [
+        "193",
+        0
+      ]
+    },
+    "class_type": "ResizeImagesByShorterEdge",
+    "_meta": {
+      "title": "Resize Images by Shorter Edge"
+    }
+  },
+  "233": {
+    "inputs": {
+      "tile_width": [
+        "231",
+        0
+      ],
+      "tile_height": [
+        "230",
+        0
+      ],
+      "image": [
+        "232",
+        0
+      ]
+    },
+    "class_type": "TTP_Image_Tile_Batch",
+    "_meta": {
+      "title": "TTP_Image_Tile_Batch"
+    }
+  },
+  "234": {
+    "inputs": {
+      "side": "Shortest",
+      "image": [
+        "233",
+        0
+      ]
+    },
+    "class_type": "easy imageSizeBySide",
+    "_meta": {
+      "title": "ImageSize (Side)"
+    }
+  },
+  "235": {
+    "inputs": {
+      "padding": 64,
+      "tiles": [
+        "203",
+        0
+      ],
+      "positions": [
+        "233",
+        1
+      ],
+      "original_size": [
+        "233",
+        2
+      ],
+      "grid_size": [
+        "233",
+        3
+      ]
+    },
+    "class_type": "TTP_Image_Assy",
+    "_meta": {
+      "title": "TTP_Image_Assy"
+    }
+  },
+  "236": {
+    "inputs": {
+      "clip_name": "umt5-xxl-encoder-Q8_0.gguf",
+      "type": "wan",
+      "device": "default",
+      "any": [
+        "235",
+        0
+      ]
+    },
+    "class_type": "CLIPLoader_Any",
+    "_meta": {
+      "title": "Load CLIP (Any)"
     }
   },
   "166:139": {

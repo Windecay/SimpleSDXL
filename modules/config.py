@@ -1288,8 +1288,7 @@ def downloading_controlnet_pose():
 
 def downloading_controlnet_union():
     load_file_from_url(
-        url='https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/controlnet/xinsir_cn_union_sdxl_1.0_promax.safetensors'
-        'https://huggingface.co/xinsir/controlnet-openpose-sdxl-1.0/resolve/main/diffusion_pytorch_model.safetensors',
+        url='https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/controlnet/xinsir_cn_union_sdxl_1.0_promax.safetensors',
         model_dir=paths_controlnet[0],
         file_name='xinsir_cn_union_sdxl_1.0_promax.safetensors'
     )

@@ -1196,18 +1196,19 @@ def worker():
                 async_task.mixing_image_prompt_and_vary_upscale or \
                 async_task.mixing_image_prompt_and_inpaint:
             goals.append('cn')
-            progressbar(async_task, 1, '下载控制模型 ...')
-            if len(async_task.cn_tasks[flags.cn_canny]) > 0:
-                controlnet_canny_path = modules.config.downloading_controlnet_union() #modules.config.downloading_controlnet_canny()
-            if len(async_task.cn_tasks[flags.cn_cpds]) > 0:
-                controlnet_cpds_path = modules.config.downloading_controlnet_union() #modules.config.downloading_controlnet_cpds()
-            if len(async_task.cn_tasks[flags.cn_pose]) > 0:
-                controlnet_pose_path = modules.config.downloading_controlnet_union() #modules.config.downloading_controlnet_pose()
-            if len(async_task.cn_tasks[flags.cn_ip]) > 0:
-                clip_vision_path, ip_negative_path, ip_adapter_path = modules.config.downloading_ip_adapters('ip')
-            if len(async_task.cn_tasks[flags.cn_ip_face]) > 0:
-                clip_vision_path, ip_negative_path, ip_adapter_face_path = modules.config.downloading_ip_adapters(
-                    'face')
+            if async_task.task_class in ['Fooocus']:
+                progressbar(async_task, 1, '下载控制模型 ...')
+                if len(async_task.cn_tasks[flags.cn_canny]) > 0:
+                    controlnet_canny_path = modules.config.downloading_controlnet_union() #modules.config.downloading_controlnet_canny()
+                if len(async_task.cn_tasks[flags.cn_cpds]) > 0:
+                    controlnet_cpds_path = modules.config.downloading_controlnet_union() #modules.config.downloading_controlnet_cpds()
+                if len(async_task.cn_tasks[flags.cn_pose]) > 0:
+                    controlnet_pose_path = modules.config.downloading_controlnet_union() #modules.config.downloading_controlnet_pose()
+                if len(async_task.cn_tasks[flags.cn_ip]) > 0:
+                    clip_vision_path, ip_negative_path, ip_adapter_path = modules.config.downloading_ip_adapters('ip')
+                if len(async_task.cn_tasks[flags.cn_ip_face]) > 0:
+                    clip_vision_path, ip_negative_path, ip_adapter_face_path = modules.config.downloading_ip_adapters(
+                        'face')
         if async_task.current_tab == 'enhance' and async_task.enhance_input_image is not None and async_task.task_class in ['Fooocus']:
             goals.append('enhance')
             skip_prompt_processing = True

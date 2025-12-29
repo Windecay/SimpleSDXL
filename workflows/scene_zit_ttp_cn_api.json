@@ -36,7 +36,7 @@
         1
       ],
       "clip": [
-        "230",
+        "241",
         0
       ]
     },
@@ -100,7 +100,7 @@
         0
       ],
       "clip": [
-        "230",
+        "241",
         0
       ]
     },
@@ -435,7 +435,7 @@
         0
       ],
       "on_false": [
-        "203",
+        "240",
         0
       ]
     },
@@ -538,7 +538,7 @@
     "inputs": {
       "seed": 42,
       "resolution": [
-        "214",
+        "239",
         0
       ],
       "max_resolution": 0,
@@ -552,7 +552,7 @@
       "offload_device": "cpu",
       "enable_debug": false,
       "image": [
-        "193",
+        "238",
         0
       ],
       "dit": [
@@ -595,7 +595,7 @@
       "decode_tile_size": 1024,
       "decode_tile_overlap": 128,
       "tile_debug": "false",
-      "offload_device": "none",
+      "offload_device": "cpu",
       "cache_model": false
     },
     "class_type": "SeedVR2LoadVAEModel",
@@ -736,17 +736,6 @@
       "title": "Load Diffusion Model"
     }
   },
-  "230": {
-    "inputs": {
-      "clip_name": "qwen_3_4b.safetensors",
-      "type": "lumina2",
-      "device": "default"
-    },
-    "class_type": "CLIPLoader",
-    "_meta": {
-      "title": "Load CLIP"
-    }
-  },
   "231": {
     "inputs": {
       "vae_name": "ae.safetensors"
@@ -779,6 +768,136 @@
     "class_type": "VAEDecode",
     "_meta": {
       "title": "VAE Decode"
+    }
+  },
+  "234": {
+    "inputs": {
+      "width_factor": 2,
+      "height_factor": 2,
+      "overlap_rate": 0.2,
+      "image": [
+        "237",
+        0
+      ]
+    },
+    "class_type": "TTP_Tile_image_size",
+    "_meta": {
+      "title": "TTP_Tile_image_size"
+    }
+  },
+  "235": {
+    "inputs": {
+      "value": "round(a/16)*16",
+      "a": [
+        "234",
+        1
+      ]
+    },
+    "class_type": "SimpleMath+",
+    "_meta": {
+      "title": "🔧 Simple Math"
+    }
+  },
+  "236": {
+    "inputs": {
+      "value": "round(a/16)*16",
+      "a": [
+        "234",
+        0
+      ]
+    },
+    "class_type": "SimpleMath+",
+    "_meta": {
+      "title": "🔧 Simple Math"
+    }
+  },
+  "237": {
+    "inputs": {
+      "shorter_edge": [
+        "214",
+        0
+      ],
+      "images": [
+        "193",
+        0
+      ]
+    },
+    "class_type": "ResizeImagesByShorterEdge",
+    "_meta": {
+      "title": "Resize Images by Shorter Edge"
+    }
+  },
+  "238": {
+    "inputs": {
+      "tile_width": [
+        "236",
+        0
+      ],
+      "tile_height": [
+        "235",
+        0
+      ],
+      "image": [
+        "237",
+        0
+      ]
+    },
+    "class_type": "TTP_Image_Tile_Batch",
+    "_meta": {
+      "title": "TTP_Image_Tile_Batch"
+    }
+  },
+  "239": {
+    "inputs": {
+      "side": "Shortest",
+      "image": [
+        "238",
+        0
+      ]
+    },
+    "class_type": "easy imageSizeBySide",
+    "_meta": {
+      "title": "ImageSize (Side)"
+    }
+  },
+  "240": {
+    "inputs": {
+      "padding": 64,
+      "tiles": [
+        "203",
+        0
+      ],
+      "positions": [
+        "238",
+        1
+      ],
+      "original_size": [
+        "238",
+        2
+      ],
+      "grid_size": [
+        "238",
+        3
+      ]
+    },
+    "class_type": "TTP_Image_Assy",
+    "_meta": {
+      "title": "TTP_Image_Assy"
+    }
+  },
+  "241": {
+    "inputs": {
+      "clip_name": "qwen_3_4b.safetensors",
+      "type": "lumina2",
+      "device": "default",
+      "any": [
+        "240",
+        0
+      ]
+    },
+    "class_type": "CLIPLoader_Any",
+    "_meta": {
+      "title": "Load CLIP (Any)"
     }
   },
   "166:112": {
