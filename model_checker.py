@@ -5,6 +5,7 @@ import time
 import requests
 import queue
 import platform
+import hashlib
 from tqdm import tqdm
 from colorama import init, Fore, Style
 import threading
@@ -592,7 +593,7 @@ def validate_files(packages):
 
 
     if missing_package_names:
-        print(f"{Fore.RED}△以下包体缺失文件，请选择你想要的模块下载：{Style.RESET_ALL}")
+        print(f"{Fore.RED}△以下模型包缺失文件，请选择你想要的模块下载：{Style.RESET_ALL}")
         for package_name in missing_package_names:
             percentage = package_percentages.get(package_name, 0)
             total_size_gb = package_sizes.get(package_name, 0)
@@ -1119,7 +1120,7 @@ def get_download_links_for_package(packages, download_list_path):
     return valid_files
 
 def delete_package(package_name, packages):
-    """删除指定包体文件（基于config路径配置）"""
+    """删除指定模型包文件（基于config路径配置）"""
     try:
         path_mapping = load_model_paths()
     except Exception as e:
@@ -1127,11 +1128,11 @@ def delete_package(package_name, packages):
         return
 
     if package_name not in packages:
-        print(f"{Fore.RED}× 无效的包体名称！{Style.RESET_ALL}")
+        print(f"{Fore.RED}× 无效的模型包名称！{Style.RESET_ALL}")
         return
 
     package = packages[package_name]
-    print(f"\n{Fore.CYAN}△ 开始处理包体：{package['name']}{Style.RESET_ALL}")
+    print(f"\n{Fore.CYAN}△ 开始处理模型包：{package['name']}{Style.RESET_ALL}")
 
     file_refs = defaultdict(list)
     for pkg_name, pkg_info in packages.items():
@@ -1251,7 +1252,7 @@ def delete_package(package_name, packages):
                         shared_files.append(default_path)
 
     if shared_files:
-        print(f"\n{Fore.YELLOW}△ 以下文件被其他包体共享：{Style.RESET_ALL}")
+        print(f"\n{Fore.YELLOW}△ 以下文件被其他模型包共享：{Style.RESET_ALL}")
         for path in shared_files:
             print(f"  {path}")
 
@@ -1267,7 +1268,7 @@ def delete_package(package_name, packages):
                 print(f"  {path} (大小未知)")
 
         print(f"{Fore.CYAN}△ 总计释放空间: {total_size/1024/1024/1024:.2f}GB{Style.RESET_ALL}")
-        
+
         print(f"\n{Fore.GREEN}是否确认删除？(y/n): {Style.RESET_ALL}", flush=True)
         confirm = input()
         if confirm.lower() == 'y':
@@ -1279,13 +1280,129 @@ def delete_package(package_name, packages):
                     success += 1
                 except Exception as e:
                     print(f"{Fore.RED}× 删除失败: {path} ({str(e)}){Style.RESET_ALL}")
-            
-            print(f"\n{Fore.GREEN}✓ 包体{selected_package['name']}孤立文件已清除{Style.RESET_ALL}")
+
+            print(f"\n{Fore.GREEN}✓ 模型包{selected_package['name']}孤立文件已清除{Style.RESET_ALL}")
             validate_files(packages)
         else:
             print(f"{Fore.BLUE}× 操作已取消{Style.RESET_ALL}")
     else:
         print(f"{Fore.BLUE}△ 未找到可安全删除的文件{Style.RESET_ALL}")
+
+def delete_package_force(package_name, packages):
+    """强制删除指定模型包文件（不检查关联性）"""
+    try:
+        path_mapping = load_model_paths()
+    except Exception as e:
+        print(f"{Fore.RED}× 路径配置加载失败: {str(e)}{Style.RESET_ALL}")
+        return
+
+    if package_name not in packages:
+        print(f"{Fore.RED}× 无效的模型包名称！{Style.RESET_ALL}")
+        return
+
+    package = packages[package_name]
+    print(f"\n{Fore.RED}!!! 正在执行强制删除操作 !!!{Style.RESET_ALL}")
+    print(f"{Fore.CYAN}△ 开始处理模型包：{package['name']}{Style.RESET_ALL}")
+
+    delete_candidates = []
+
+    for file_entry in package["files"]:
+        path_with_url = file_entry[0]
+        url_pattern = r'https?://[^\s/$.?#].[^\s]*'
+        url_match = re.search(url_pattern, path_with_url)
+
+        if url_match:
+            url = url_match.group(0)
+            path_part = path_with_url.split(url)[0].rstrip('/')
+            file_name = os.path.basename(url)
+            found = False
+
+            if path_part:
+                path_parts = path_part.split('/')
+                file_type = path_parts[0] if path_parts else ""
+                rel_path = '/'.join(path_parts[1:]) if len(path_parts) > 1 else ""
+
+                for base_dir in path_mapping.get(file_type, []):
+                    if rel_path:
+                        full_path = os.path.join(base_dir, rel_path, file_name)
+                    else:
+                        full_path = os.path.join(base_dir, file_name)
+                    if os.path.exists(full_path):
+                        delete_candidates.append(full_path)
+                        found = True
+                        break
+
+            if not found:
+                if path_part:
+                    path_parts = path_part.split('/')
+                    if path_parts:
+                        file_type = path_parts[0]
+                        rel_path = '/'.join(path_parts[1:]) if len(path_parts) > 1 else ""
+                        default_base_dir = os.path.join(simplemodels_root, file_type)
+                        if rel_path:
+                            default_path = os.path.join(default_base_dir, rel_path, file_name)
+                        else:
+                            default_path = os.path.join(default_base_dir, file_name)
+                    else:
+                        default_base_dir = simplemodels_root
+                        default_path = os.path.join(default_base_dir, file_name)
+                else:
+                    default_base_dir = simplemodels_root
+                    default_path = os.path.join(default_base_dir, file_name)
+
+                if os.path.exists(default_path):
+                    delete_candidates.append(default_path)
+        else:
+            path_parts = path_with_url.split('/')
+            if len(path_parts) < 1: continue
+
+            file_type = path_parts[0]
+            rel_path = '/'.join(path_parts[1:]) if len(path_parts) > 1 else ""
+            found = False
+
+            for base_dir in path_mapping.get(file_type, []):
+                full_path = os.path.join(base_dir, rel_path)
+                if os.path.exists(full_path):
+                    delete_candidates.append(full_path)
+                    found = True
+                    break
+
+            if not found:
+                default_path = os.path.join(simplemodels_root, file_type, rel_path)
+                if os.path.exists(default_path):
+                    delete_candidates.append(default_path)
+
+    if delete_candidates:
+        print(f"\n{Fore.RED}△ 以下文件将被【强制删除】（不检查其他模型包依赖）：{Style.RESET_ALL}")
+        total_size = 0
+        for path in delete_candidates:
+            try:
+                size = os.path.getsize(path)
+                print(f"  {path} ({size/1024/1024:.1f}MB)")
+                total_size += size
+            except:
+                print(f"  {path} (大小未知)")
+
+        print(f"{Fore.CYAN}△ 总计释放空间: {total_size/1024/1024/1024:.2f}GB{Style.RESET_ALL}")
+
+        print(f"\n{Fore.RED}此操作不可逆且可能破坏其他模型包完整性，是否确认强制删除？(输入 'force' 确认): {Style.RESET_ALL}", flush=True)
+        confirm = input().lower()
+        if confirm == 'force':
+            success = 0
+            for path in delete_candidates:
+                try:
+                    os.remove(path)
+                    print(f"{Fore.GREEN}✓ 已删除: {path}{Style.RESET_ALL}")
+                    success += 1
+                except Exception as e:
+                    print(f"{Fore.RED}× 删除失败: {path} ({str(e)}){Style.RESET_ALL}")
+
+            print(f"\n{Fore.GREEN}✓ 模型包{package['name']}文件已强制清除{Style.RESET_ALL}")
+            validate_files(packages)
+        else:
+            print(f"{Fore.BLUE}× 操作已取消{Style.RESET_ALL}")
+    else:
+        print(f"{Fore.BLUE}△ 未找到该模型包的任何文件{Style.RESET_ALL}")
 
 def get_gpu_arch_str():
     """获取GPU架构字符串，如sm120等"""
@@ -1606,7 +1723,7 @@ packages = {
             ("vae/ae.safetensors", 335304388),
             ("loras/flux1-turbo.safetensors", 694082424),
             ("inpaint/groundingdino_swint_ogc.pth", 693997677),
-            ("inpaint/https://hf-mirror.com/ShilongLiu/GroundingDINO/resolve/main/GroundingDINO_SwinT_OGC.cfg.py", 1006),
+            ("inpaint/https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/inpaint/GroundingDINO_SwinT_OGC.cfg.py", 1006),
             ("inpaint/sam_vit_h_4b8939.pth", 2564550879),
             ("style_models/flux1-redux-dev.safetensors", 129063232),
             ("insightface/models/antelopev2/1k3d68.onnx", 143607619),
@@ -1657,7 +1774,7 @@ packages = {
         "note": "万物迁移-默认模型[Fluxdev_fp8]|显存需求：★★★☆ 速度：★★★",
         "files": [
             ("inpaint/groundingdino_swint_ogc.pth", 693997677),
-            ("inpaint/https://hf-mirror.com/ShilongLiu/GroundingDINO/resolve/main/GroundingDINO_SwinT_OGC.cfg.py", 1006),
+            ("inpaint/https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/inpaint/GroundingDINO_SwinT_OGC.cfg.py", 1006),
             ("checkpoints/flux1-fill-dev-OneReward_fp8.safetensors", 11902532704),
             ("checkpoints/flux-hyp8-Q5_K_M.gguf", 8421981408),
             ("clip/clip_l.safetensors", 246144152),
@@ -1686,7 +1803,7 @@ packages = {
             ("loras/removal_timestep_alpha-2-1740.safetensors",89746016)
         ],
         "download_links": [
-        "【选配】一键消除基于FluxAIO组件扩展，请检查所需包体。部分文件、Lora点击生成会自动下载。"
+        "【选配】一键消除基于FluxAIO组件扩展，请检查所需模型包。"
         ]
     },
         "Illustrious_package": {
@@ -2114,7 +2231,7 @@ packages = {
             ("gemma3/https://www.modelscope.cn/models/google/gemma-3-4b-it/resolve/master/tokenizer.model", 4689074),
             ("gemma3/https://www.modelscope.cn/models/google/gemma-3-4b-it/resolve/master/tokenizer_config.json", 1156999),
             ("vae/ae.safetensors", 335304388),
-            ("upscale_models/https://hf-mirror.com/Kim2091/AnimeSharp/resolve/main/4x-AnimeSharp.pth",67010245)
+            ("upscale_models/https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/upscale_models/4x-AnimeSharp.pth",67010245)
         ],
         "download_links": []
     },
@@ -2264,6 +2381,169 @@ OBSOLETE_MODELS = [
     "Z-Image-Turbo-Fun-Controlnet-Union-2.0.safetensors",
     "Z-Image-Turbo-Fun-Controlnet-Union-2.1.safetensors",
 ]
+
+MODELSCOPE_FILE_CACHE = {}
+
+def get_modelscope_file_sha256(url):
+    """
+    尝试从ModelScope API获取文件的SHA256
+    URL格式: https://www.modelscope.cn/models/{namespace}/{repo_name}/resolve/{revision}/{file_path}
+    API格式: https://modelscope.cn/api/v1/models/{namespace}/{repo_name}/repo/files?Revision={revision}&Recursive=true
+    """
+    pattern = r'https?://(?:www\.)?modelscope\.cn/models/([^/]+)/([^/]+)/resolve/([^/]+)/(.*)'
+    match = re.match(pattern, url)
+
+    if not match:
+        return None
+
+    namespace, repo_name, revision, file_path = match.groups()
+    cache_key = (namespace, repo_name, revision)
+
+    try:
+        from urllib.parse import unquote
+        file_path = unquote(file_path)
+    except:
+        pass
+
+    if cache_key not in MODELSCOPE_FILE_CACHE:
+        api_url = f"https://modelscope.cn/api/v1/models/{namespace}/{repo_name}/repo/files?Revision={revision}&Recursive=true"
+        try:
+            print(f"{Fore.CYAN}正在获取官方校验数据: {namespace}/{repo_name} ({revision})...{Style.RESET_ALL}")
+            # 设置较短超时，避免卡住
+            response = requests.get(api_url, timeout=15)
+            if response.status_code == 200:
+                data = response.json()
+                file_map = {}
+                if 'Data' in data and 'Files' in data['Data']:
+                    for f in data['Data']['Files']:
+                        if f['Type'] == 'blob':
+                            file_map[f['Path']] = f['Sha256']
+                MODELSCOPE_FILE_CACHE[cache_key] = file_map
+                print(f"{Fore.GREEN}√ 获取成功，已缓存 {len(file_map)} 个文件的特征值{Style.RESET_ALL}")
+            else:
+                print(f"{Fore.RED}无法获取官方数据 (HTTP {response.status_code}){Style.RESET_ALL}")
+                MODELSCOPE_FILE_CACHE[cache_key] = None
+        except Exception as e:
+            print(f"{Fore.RED}获取官方数据失败: {e}{Style.RESET_ALL}")
+            MODELSCOPE_FILE_CACHE[cache_key] = None
+
+    file_map = MODELSCOPE_FILE_CACHE.get(cache_key)
+    if file_map:
+        return file_map.get(file_path)
+    return None
+
+def calculate_sha256(file_path):
+    """计算文件的SHA256哈希值"""
+    sha256_hash = hashlib.sha256()
+    try:
+        with open(file_path, "rb") as f:
+            # Read and update hash string value in blocks of 4K
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        return sha256_hash.hexdigest()
+    except Exception as e:
+        return f"Error: {e}"
+
+def verify_package_strict(package_id, packages):
+    """严格校验包内文件的SHA256"""
+    # Find package
+    target_package = None
+    for pkg_name, pkg_info in packages.items():
+        if pkg_info["id"] == package_id:
+            target_package = pkg_info
+            break
+
+    if not target_package:
+        print(f"{Fore.RED}△未找到ID为 {package_id} 的模型包{Style.RESET_ALL}")
+        return
+
+    print(f"{Fore.CYAN}正在严格校验模型包: {target_package['name']} (计算SHA256需要时间，请耐心等待)...{Style.RESET_ALL}")
+
+    path_mapping = load_model_paths()
+    root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+
+    files_and_sizes = target_package["files"]
+
+    for expected_path, expected_size in files_and_sizes:
+        expected_filename = os.path.basename(expected_path)
+        path_parts = expected_path.split('/')
+        path_type = path_parts[0] if len(path_parts) > 0 else ''
+        sub_path = '/'.join(path_parts[1:]) if len(path_parts) > 1 else ''
+
+        search_dirs = sorted(
+            path_mapping.get(path_type, []),
+            key=lambda x: (
+                0 if "SimpleModels" in x else
+                1 if any(part == "models" for part in x.split(os.sep)) else
+                2,
+                x
+            )
+        )
+        if not search_dirs:
+            simplemodels_default = os.path.join(root, "SimpleModels")
+            search_dirs = [os.path.join(simplemodels_default, path_type)]
+
+        found = False
+        actual_path = None
+
+        url_pattern = r'https?://[^\s/$.?#].[^\s]*'
+        url_match = re.search(url_pattern, expected_path)
+        if url_match:
+            local_dir = expected_path.split(url_match.group(0))[0].rstrip('/')
+            file_name = os.path.basename(url_match.group(0))
+
+            for base_dir in search_dirs:
+                actual_full_path = os.path.join(base_dir, local_dir.replace(path_type, "", 1).lstrip('/'), file_name)
+                actual_full_path = os.path.normpath(actual_full_path)
+
+                if os.path.exists(actual_full_path):
+                    actual_path = actual_full_path
+                    found = True
+                    break
+
+        if not found:
+            for base_dir in search_dirs:
+                full_path = os.path.join(base_dir, sub_path) if sub_path else os.path.join(base_dir, os.path.basename(expected_path))
+                if os.path.exists(full_path):
+                    actual_path = full_path
+                    found = True
+                    break
+
+        if found and actual_path:
+            print(f"正在计算: {os.path.basename(actual_path)} ...", end="", flush=True)
+            sha256_val = calculate_sha256(actual_path)
+            print(f"\r{Fore.GREEN}文件: {os.path.basename(actual_path)}{Style.RESET_ALL}")
+            print(f"  路径: {actual_path}")
+            print(f"  SHA256: {Fore.YELLOW}{sha256_val}{Style.RESET_ALL}")
+            print(f"  大小: {os.path.getsize(actual_path)} bytes (预期: {expected_size})")
+
+            # 尝试获取官方SHA256
+            official_sha256 = None
+            url_pattern = r'https?://[^\s/$.?#].[^\s]*'
+            url_match_in_def = re.search(url_pattern, expected_path)
+
+            target_url = None
+            if url_match_in_def:
+                target_url = url_match_in_def.group(0)
+            else:
+                target_url = f"{DEFAULT_DOWNLOAD_PREFIX}SimpleModels/{expected_path}"
+
+            if target_url:
+                official_sha256 = get_modelscope_file_sha256(target_url)
+
+            if official_sha256:
+                if sha256_val.lower() == official_sha256.lower():
+                     print(f"  校验结果: {Fore.GREEN}√ 通过 (与官方一致){Style.RESET_ALL}")
+                else:
+                     print(f"  校验结果: {Fore.RED}× 失败 (官方: {official_sha256}){Style.RESET_ALL}")
+            else:
+                 print(f"  校验结果: {Fore.YELLOW}? 未能获取官方数据，请人工比对{Style.RESET_ALL}")
+
+        else:
+            print(f"{Fore.RED}×文件缺失: {expected_path}{Style.RESET_ALL}")
+
+    print(f"\n{Fore.CYAN}校验完成。{Style.RESET_ALL}")
+
 def main():
     print()
     print_colored("★★★★★★★★★★★★★★★★★★欢迎使用SimpleAI模型检测器★★★★★★★★★★★★★★★★★★", Fore.CYAN)
@@ -2287,22 +2567,44 @@ if __name__ == "__main__":
     main()
     print()
     while True:
-        print(f">>>按下【{Fore.YELLOW}Enter回车{Style.RESET_ALL}】----------------启动全部文件下载<<<     备注：支持断点续传，顺序从小文件开始。")
-        print(f">>>输入【{Fore.YELLOW}包体编号{Style.RESET_ALL}】+【{Fore.YELLOW}回车{Style.RESET_ALL}】----------启动预置包补全<<<     备注：可输入多个编号，例如1,5,7")
-        print(f">>>数字【{Fore.YELLOW}0{Style.RESET_ALL}】+【{Fore.YELLOW}回车{Style.RESET_ALL}】-清理日志/下载/图片缓存与坏文件<<<     备注：△谨慎执行。慎防误删私有模型")
-        print(f">>>输入【{Fore.YELLOW}DEL{Style.RESET_ALL}】【{Fore.YELLOW}包体编号{Style.RESET_ALL}】----------删除已有包体文件<<<     备注：△谨慎执行。自动避开关联文件")
-        print(f">>>输入【{Fore.YELLOW}R{Style.RESET_ALL}】+【{Fore.YELLOW}回车{Style.RESET_ALL}】-----------------------重新检测<<<     备注：再玩一遍，玩不腻")
-        print(f">>>输入【{Fore.YELLOW}S{Style.RESET_ALL}】+【{Fore.YELLOW}回车{Style.RESET_ALL}】-----------------下载模型预览图<<<     备注：只下载checkpoints和lora预览图")
-        print(f">>>输入【{Fore.YELLOW}H{Style.RESET_ALL}】+【{Fore.YELLOW}回车{Style.RESET_ALL}】--------切换下载源到Huggingface<<<     备注：当前使用源：{current_source}")
-        print(f">>>输入【{Fore.YELLOW}M{Style.RESET_ALL}】+【{Fore.YELLOW}回车{Style.RESET_ALL}】--------切换下载源到ModelScope<<<<     备注：当前使用源：{current_source}")
+        print(f">>>输入【{Fore.YELLOW}ALL{Style.RESET_ALL}】 【{Fore.YELLOW}回车{Style.RESET_ALL}】----------------启动全部文件下载<<<     备注：支持断点续传，顺序从小文件开始。")
+        print(f">>>输入【{Fore.YELLOW}模型包编号{Style.RESET_ALL}】 【{Fore.YELLOW}回车{Style.RESET_ALL}】----------启动预置包补全<<<     备注：可输入多个编号，例如1,5,7")
+        print(f">>>数字【{Fore.YELLOW}0{Style.RESET_ALL}】 【{Fore.YELLOW}回车{Style.RESET_ALL}】-清理日志/下载/图片缓存与坏文件<<<     备注：△谨慎执行。慎防误删私有模型")
+        print(f">>>输入【{Fore.YELLOW}DEL{Style.RESET_ALL}】【{Fore.YELLOW}模型包编号{Style.RESET_ALL}】----------删除已有模型包文件<<<     备注：△谨慎执行。自动避开关联文件")
+        print(f">>>输入【{Fore.YELLOW}*DEL{Style.RESET_ALL}】【{Fore.YELLOW}模型包编号{Style.RESET_ALL}】-------强制删除模型包文件<<<     备注：△谨慎执行。不检查关联性直接删除")
+        print(f">>>输入【{Fore.YELLOW}R{Style.RESET_ALL}】 【{Fore.YELLOW}回车{Style.RESET_ALL}】-----------------------重新检测<<<     备注：再玩一遍，玩不腻")
+        print(f">>>输入【{Fore.YELLOW}S{Style.RESET_ALL}】 【{Fore.YELLOW}回车{Style.RESET_ALL}】-----------------下载模型预览图<<<     备注：只下载checkpoints和lora预览图")
+        print(f">>>输入【{Fore.YELLOW}SHA{Style.RESET_ALL}】【{Fore.YELLOW}模型包编号{Style.RESET_ALL}】-------------校验模型包SHA256<<<     备注：严格校验,支持多个编号")
+        print(f">>>输入【{Fore.YELLOW}H{Style.RESET_ALL}】 【{Fore.YELLOW}回车{Style.RESET_ALL}】--------切换下载源到Huggingface<<<     备注：当前使用源：{current_source}")
+        print(f">>>输入【{Fore.YELLOW}M{Style.RESET_ALL}】 【{Fore.YELLOW}回车{Style.RESET_ALL}】--------切换下载源到ModelScope<<<<     备注：当前使用源：{current_source}")
         print("请选择操作(不需要括号):", flush=True)  # 启动器场景：保留换行符以便立即显示
         user_input = input()
 
         stripped_input = user_input.strip()
 
-        if user_input == "":
+        if stripped_input.lower() == "all":
             print("※启动自动下载模块,支持断点续传，关闭窗口可中断。")
             auto_download_missing_files_with_retry(max_threads=5)
+        elif stripped_input.lower().startswith("sha"):
+            input_content = stripped_input[3:].strip()
+            # 支持逗号分隔的多个ID，如 "1,3,5" 或 "1，3，5"
+            normalized_input = input_content.replace('，', ',')
+            if ',' in normalized_input:
+                pkg_ids = normalized_input.split(',')
+                valid_ids = []
+                for pid in pkg_ids:
+                    pid = pid.strip()
+                    if pid.isdigit():
+                        valid_ids.append(int(pid))
+                    elif pid: # 忽略空字符串
+                         print(f"{Fore.RED}△无效的模型包编号：{pid}{Style.RESET_ALL}")
+
+                for pid in valid_ids:
+                    verify_package_strict(pid, packages)
+            elif input_content.isdigit():
+                verify_package_strict(int(input_content), packages)
+            else:
+                 print(f"{Fore.RED}△输入格式错误，请输入类似 sha 1 或 sha 1,3,5 来校验对应模型包。{Style.RESET_ALL}")
         elif ',' in stripped_input or '，' in stripped_input:
             selected_packages = {}
             normalized_input = stripped_input.replace('，', ',')
@@ -2312,7 +2614,7 @@ if __name__ == "__main__":
             for pkg_id_str in package_ids:
                 pkg_id_str = pkg_id_str.strip()
                 if not pkg_id_str.isdigit():
-                    print(f"{Fore.RED}△输入格式错误：'{pkg_id_str}' 不是有效的包体编号{Style.RESET_ALL}")
+                    print(f"{Fore.RED}△输入格式错误：'{pkg_id_str}' 不是有效的模型包编号{Style.RESET_ALL}")
                     valid_input = False
                     break
 
@@ -2326,12 +2628,12 @@ if __name__ == "__main__":
                         break
 
                 if not found:
-                    print(f"{Fore.RED}△包体编号{package_id} 无效，请输入正确的包体ID。{Style.RESET_ALL}")
+                    print(f"{Fore.RED}△模型包编号{package_id} 无效，请输入正确的模型包ID。{Style.RESET_ALL}")
                     valid_input = False
                     break
 
             if valid_input and selected_packages:
-                print(f"{Fore.GREEN}√已选择 {len(selected_packages)} 个包体，正在生成合并的下载列表...{Style.RESET_ALL}")
+                print(f"{Fore.GREEN}√已选择 {len(selected_packages)} 个模型包，正在生成合并的下载列表...{Style.RESET_ALL}")
                 get_download_links_for_package(selected_packages, "downloadlist.txt")
                 auto_download_missing_files_with_retry(max_threads=5)
         elif stripped_input.isdigit():
@@ -2350,28 +2652,52 @@ if __name__ == "__main__":
                 delete_specific_image_files()
                 delete_log_files()
             else:
-                print(f"{Fore.RED}△包体编号{package_id} 无效，请输入正确的包体ID。{Style.RESET_ALL}")
+                print(f"{Fore.RED}△模型包编号{package_id} 无效，请输入正确的模型包ID。{Style.RESET_ALL}")
+        elif stripped_input.lower().startswith("*del"):
+            try:
+                path_mapping = load_model_paths()
+                package_id_str = stripped_input[4:].strip()
+
+                if not package_id_str.isdigit():
+                    print(f"{Fore.RED}△输入格式错误，请输入类似 *del1 来强制删除对应模型包。{Style.RESET_ALL}")
+                else:
+                    package_id = int(package_id_str)
+                    selected_package = None
+                    selected_pkg_name = None
+
+                    for pkg_name, pkg_info in packages.items():
+                        if pkg_info["id"] == package_id:
+                            selected_package = pkg_info
+                            selected_pkg_name = pkg_name
+                            break
+
+                    if selected_package:
+                        delete_package_force(selected_pkg_name, packages)
+                    else:
+                        print(f"{Fore.RED}△无效的模型包编号！{Style.RESET_ALL}")
+            except Exception as e:
+                print(f"{Fore.RED}△强制删除过程中发生错误：{str(e)}{Style.RESET_ALL}")
         elif stripped_input.lower().startswith("del"):
             try:
                 path_mapping = load_model_paths()
                 package_id_str = stripped_input[3:].strip()
-                
+
                 if not package_id_str.isdigit():
-                    print(f"{Fore.RED}△输入格式错误，请输入类似 del1 来删除对应包体。{Style.RESET_ALL}")
+                    print(f"{Fore.RED}△输入格式错误，请输入类似 del1 来删除对应模型包。{Style.RESET_ALL}")
                 else:
                     package_id = int(package_id_str)
                     selected_package = None
-                    
+
                     for pkg_name, pkg_info in packages.items():
                         if pkg_info["id"] == package_id:
                             selected_package = pkg_info
                             break
-                    
+
                     if selected_package:
-                        print(f"{Fore.YELLOW}△即将删除包体：[{selected_package['name']}]{Style.RESET_ALL}")
+                        print(f"{Fore.YELLOW}△即将删除模型包：[{selected_package['name']}]{Style.RESET_ALL}")
                         delete_package(pkg_name, packages)
                     else:
-                        print(f"{Fore.RED}△无效的包体编号！{Style.RESET_ALL}")
+                        print(f"{Fore.RED}△无效的模型包编号！{Style.RESET_ALL}")
             except Exception as e:
                 print(f"{Fore.RED}△删除过程中发生错误：{str(e)}{Style.RESET_ALL}")
         elif stripped_input.lower() == "r":
@@ -2393,4 +2719,4 @@ if __name__ == "__main__":
             print(f"{Fore.GREEN}√下载源已切换到ModelScope：{CURRENT_DOWNLOAD_PREFIX}{Style.RESET_ALL}")
             print(f"{Fore.YELLOW}※提示：此切换只在本次运行有效，重启程序后将恢复默认设置。{Style.RESET_ALL}")
         else:
-            print(f"{Fore.RED}△无效的输入，请输入回车或有效的包体编号（不需要括号）。{Style.RESET_ALL}")
+            print(f"{Fore.RED}△无效的输入，请输入回车或有效的模型包编号（不需要括号）。{Style.RESET_ALL}")

@@ -72,7 +72,7 @@
         "gemma3,tokenizer.model,4689074,0,https://www.modelscope.cn/models/google/gemma-3-4b-it/resolve/master/tokenizer.model",
         "gemma3,tokenizer_config.json,1156999,0,https://www.modelscope.cn/models/google/gemma-3-4b-it/resolve/master/tokenizer_config.json",
         "vae,ae.safetensors,335304388,0,",
-        "upscale_models,4x-AnimeSharp.pth,67010245,0,https://hf-mirror.com/Kim2091/AnimeSharp/resolve/main/4x-AnimeSharp.pth"
+        "upscale_models,4x-AnimeSharp.pth,67010245,0,https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/upscale_models/4x-AnimeSharp.pth"
     ]
 }
 
