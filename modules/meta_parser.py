@@ -296,6 +296,11 @@ def switch_layout_template(presetdata: dict | str, state_params, preset_url=''):
         results.append(get_layout_visible_inter('input_image_checkbox', visible, inter))
     else:
         results.append(get_layout_toggle_visible_inter('input_image_checkbox', visible, inter))
+    if is_scene_frontend:
+        if 'prompt_panel_checkbox' in visible:
+            visible.remove('prompt_panel_checkbox')
+        if 'prompt_panel_checkbox' in inter:
+            inter.remove('prompt_panel_checkbox')
     results.append(get_layout_toggle_visible_inter('prompt_panel_checkbox', visible, inter))
     enhance_checkbox_value = presetdata_dict.get('enhance_checkbox', False)
     results.append(get_layout_update_and_visible_inter(enhance_checkbox_value, 'enhance_checkbox', visible, inter))
