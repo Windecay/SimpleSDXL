@@ -2,6 +2,17 @@ var re_num = /^[.\d]+$/;
 
 var original_lines = {};
 var translated_lines = {};
+var reverseLocalization = null;
+
+function getReverseLocalization() {
+    if (reverseLocalization === null && window.localization) {
+        reverseLocalization = {};
+        for (const [en, cn] of Object.entries(window.localization)) {
+            reverseLocalization[cn] = en;
+        }
+    }
+    return reverseLocalization;
+}
 
 const browser={
     device: function(){
@@ -59,11 +70,9 @@ function processTextNode(node) {
     // 新增反向查找逻辑以修复自定义风格悬浮图错位的问题
     let originalText = text;
     if (tl === undefined) {
-        for (const [en, cn] of Object.entries(localization)) {
-            if (cn === text) {
-                originalText = en;
-                break;
-            }
+        const rev = getReverseLocalization();
+        if (rev && rev[text]) {
+            originalText = rev[text];
         }
     }
 
@@ -102,87 +111,277 @@ function processNode(node) {
 }
 
 function refresh_style_localization() {
+    const start = performance.now();
     processNode(document.querySelector('.style_selections'));
+    console.log(`[Timing] refresh_style_localization took ${performance.now() - start}ms`);
 }
 
 let styleGridOriginalElements = [];
+let styleGridHandlersAttached = false;
+let isHandlingClick = false;
+let lastKnownGoodStyles = new Set();
+
+function init_style_grid_handlers() {
+    if (styleGridHandlersAttached) {
+        const currentContainer = document.querySelector(".style_grid");
+        if (currentContainer && currentContainer.getAttribute('data-handlers-attached') !== 'true') {
+            styleGridHandlersAttached = false;
+        } else {
+            return;
+        }
+    }
+    const container = document.querySelector(".style_grid");
+    if (!container) return;
+
+    container.setAttribute('data-handlers-attached', 'true');
+
+    container.addEventListener('click', (e) => {
+        const btn = e.target.closest('.style-button');
+        if (!btn) return;
+
+        const styleName = btn.getAttribute('data-style-name');
+        if (!styleName) return;
+
+        const selections = document.querySelector('.style_selections');
+        if (!selections) return;
+
+        const labels = selections.querySelectorAll('label');
+        let found = false;
+        const cleanStyle = styleName.toLowerCase().replace(/[- _]/g, '');
+
+        for (const label of labels) {
+            const originalText = label.getAttribute('data-original-text');
+            const innerSpan = label.querySelector('span');
+            const spanOriginalText = innerSpan ? innerSpan.getAttribute('data-original-text') : null;
+            const labelText = label.textContent.trim();
+
+            const checkTexts = [originalText, spanOriginalText, labelText];
+            for (let text of checkTexts) {
+                if (!text) continue;
+                const cleanText = text.toLowerCase().replace(/[- _]/g, '');
+                if (cleanText === cleanStyle) {
+                    const input = label.querySelector('input[type="checkbox"]');
+                    if (input) {
+                        isHandlingClick = true;
+
+                        const isCurrentlyChecked = input.checked;
+                        const willBeChecked = !isCurrentlyChecked;
+
+                        if (willBeChecked) {
+                            lastKnownGoodStyles.add(cleanStyle);
+                        } else {
+                            lastKnownGoodStyles.delete(cleanStyle);
+                        }
+
+                        input.checked = willBeChecked;
+                        input.dispatchEvent(new Event('change', { bubbles: true }));
+
+                        const isSpecialStyle = cleanStyle.includes('fooocusv2') || cleanStyle.includes('fooocuspony') || cleanStyle.includes('sd15');
+                        if (isSpecialStyle) {
+                            label.click();
+                        }
+
+                        sync_style_grid_state();
+
+                        setTimeout(() => {
+                            isHandlingClick = false;
+                            sync_style_grid_state();
+                        }, 800);
+                        found = true;
+                        break;
+                    }
+                }
+            }
+            if (found) break;
+        }
+    });
+
+    container.addEventListener('contextmenu', (e) => {
+        const btn = e.target.closest('.style-button');
+        if (!btn) return;
+        e.preventDefault();
+        const styleDataRaw = btn.parentElement.getAttribute('data-style-data');
+        if (!styleDataRaw) return;
+        try {
+            const styleData = JSON.parse(styleDataRaw);
+            const prompt = styleData.prompt || '';
+            const negativePrompt = styleData.negative_prompt || '';
+            const promptTextarea = document.querySelector('#positive_prompt textarea, #positive_prompt [data-testid="textbox"]');
+            const negativePromptTextarea = document.querySelector('#negative_prompt textarea, #negative_prompt [data-testid="textbox"]');
+            if (promptTextarea && prompt) {
+                const current = promptTextarea.value.trim();
+                promptTextarea.value = current ? current + ", " + prompt : prompt;
+                promptTextarea.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+            if (negativePromptTextarea && negativePrompt) {
+                const current = negativePromptTextarea.value.trim();
+                negativePromptTextarea.value = current ? current + ", " + negativePrompt : negativePrompt;
+                negativePromptTextarea.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+        } catch (err) {}
+    });
+
+    styleGridHandlersAttached = true;
+    const selections = document.querySelector('.style_selections');
+    if (selections) {
+        const observer = new MutationObserver(() => { sync_style_grid_state(); });
+        observer.observe(selections, { childList: true, subtree: true, attributes: true });
+        sync_style_grid_state();
+    }
+}
+
+function sync_style_grid_state() {
+    const selections = document.querySelector('.style_selections');
+    if (!selections) return;
+    const container = document.querySelector(".style_grid");
+    if (!container) return;
+
+    const labels = selections.querySelectorAll('label');
+    const selectedStyles = new Set();
+    const rev = getReverseLocalization();
+
+    labels.forEach(label => {
+        const input = label.querySelector('input[type="checkbox"]');
+        if (input && input.checked) {
+            const innerSpan = label.querySelector('span');
+            let text = label.getAttribute('data-original-text') || 
+                       (innerSpan ? innerSpan.getAttribute('data-original-text') : null) ||
+                       label.textContent.trim();
+
+            const cleanText = text.toLowerCase().replace(/[- _]/g, '');
+            const revText = (rev && rev[text]) ? rev[text] : null;
+            const cleanRevText = revText ? revText.toLowerCase().replace(/[- _]/g, '') : null;
+
+            if (cleanText) selectedStyles.add(cleanText);
+            if (cleanRevText) selectedStyles.add(cleanRevText);
+        }
+    });
+
+    if (isHandlingClick) {
+        selectedStyles.clear();
+        lastKnownGoodStyles.forEach(s => selectedStyles.add(s));
+    } else {
+        if (selectedStyles.size > 0) {
+            selectedStyles.forEach(s => lastKnownGoodStyles.add(s));
+        } else {
+        }
+    }
+
+    const buttons = container.querySelectorAll('.style-button');
+    buttons.forEach(btn => {
+        const styleName = btn.getAttribute('data-style-name');
+        if (!styleName) return;
+        const cleanName = styleName.toLowerCase().replace(/[- _]/g, '');
+        if (selectedStyles.has(cleanName)) {
+            btn.classList.add('primary');
+            btn.classList.remove('secondary');
+        } else {
+            btn.classList.remove('primary');
+            btn.classList.add('secondary');
+        }
+    });
+
+    const styleItems = container.querySelectorAll('.style_item');
+    styleItems.forEach(item => {
+        const btn = item.querySelector('button');
+        const rawName = btn?.getAttribute('data-style-name');
+        if (!rawName) return;
+        const cleanName = rawName.toLowerCase().replace(/[- _]/g, '');
+        const isSelected = selectedStyles.has(cleanName);
+
+        if (isSelected) {
+            btn.classList.add('primary');
+            btn.classList.remove('secondary');
+            item.style.order = 0;
+        } else {
+            btn.classList.remove('primary');
+            btn.classList.add('secondary');
+            item.style.order = 1;
+        }
+    });
+}
 
 function refresh_style_layout() {
+    const start = performance.now();
     const container = document.querySelector(".style_grid");
-    if (container) {
+    if (!container) return;
 
-        if (styleGridOriginalElements.length === 0) {
-            styleGridOriginalElements = [...container.querySelectorAll('.style_item')];
+    init_style_grid_handlers();
+
+    const selections = document.querySelector('.style_selections');
+    if (!selections) return;
+
+    const checkedInputs = selections.querySelectorAll('input:checked');
+    let selectedStylesClean = new Set();
+    const rev = getReverseLocalization();
+
+    checkedInputs.forEach(cb => {
+        const label = cb.parentElement;
+        const innerSpan = label.querySelector('span');
+        let text = label.getAttribute('data-original-text') ||
+                   (innerSpan ? innerSpan.getAttribute('data-original-text') : null) ||
+                   label.textContent.trim();
+
+        const revText = (rev && rev[text]) ? rev[text] : null;
+
+        if (text) {
+            selectedStylesClean.add(text.toLowerCase().replace(/[- _]/g, ''));
         }
+        if (revText) {
+            selectedStylesClean.add(revText.toLowerCase().replace(/[- _]/g, ''));
+        }
+    });
 
-        const sortedStyles = Array.from(document.querySelectorAll('.style_selections input:checked'))
-            .map(cb => cb.nextElementSibling.textContent.trim());
-
-        const searchBar = gradioApp().querySelector('textarea[data-testid="textbox"][placeholder*="搜索风格"], textarea[data-testid="textbox"][placeholder*="search styles"]');
-        const searchText = (searchBar?.value?.trim() || '').toLowerCase();
-
-        const selectedItems = sortedStyles.map(name =>
-            styleGridOriginalElements.find(item => {
-                const btn = item.querySelector('button');
-                const btnText = btn?.textContent.trim();
-                return btnText === name;
-            })
-        ).filter(Boolean);
-
-        const visibleUnselected = styleGridOriginalElements.filter(item => {
-            const btn = item.querySelector('button');
-
-            const rawOriginalText = btn?.getAttribute('data-original-text') || '';
-            const rawTranslatedText = btn?.textContent || '';
-
-            const cleanOriginal = rawOriginalText.trim().toLowerCase();
-            const cleanTranslated = rawTranslatedText.trim().toLowerCase();
-
-            return !selectedItems.some(selected => selected === item) &&
-                   (cleanOriginal.includes(searchText) ||
-                    cleanTranslated.includes(searchText));
-        });
-
-        visibleUnselected.forEach(item => {
-            const btnText = item.querySelector('button')?.textContent.trim();
-        });
-
-        const hiddenItems = styleGridOriginalElements.filter(item =>
-            ![...selectedItems, ...visibleUnselected].includes(item)
-        );
-
-        const finalOrder = [...selectedItems, ...visibleUnselected, ...hiddenItems];
-
-        container.innerHTML = '';
-        finalOrder.forEach(item => {
-            const isHidden = hiddenItems.includes(item);
-            item.style.display = isHidden ? 'none' : 'block';
-            item.style.opacity = isHidden ? '0' : '1';
-            item.style.pointerEvents = isHidden ? 'none' : 'all';
-            container.appendChild(item);
-        });
+    if (isHandlingClick) {
+        selectedStylesClean.clear();
+        lastKnownGoodStyles.forEach(s => selectedStylesClean.add(s));
+    } else {
+        if (selectedStylesClean.size > 0) {
+            selectedStylesClean.forEach(s => lastKnownGoodStyles.add(s));
+        }
     }
-        document.querySelectorAll('.style-button').forEach(button => {
-            const rawName = button.getAttribute('data-original-text') || button.textContent.trim();
-            const styleName = rawName
-                .toLowerCase()
-                .replace(/ /g, '_')
-                .replace(/[^a-z0-9_]/g, '');
 
-            const imagePath = `file=sdxl_styles/samples/${styleName}.jpg`;
+    if (styleGridOriginalElements.length === 0) {
+        styleGridOriginalElements = [...container.querySelectorAll('.style_item')];
+        console.log("[Style] Cached original elements:", styleGridOriginalElements.length);
+    }
 
-            const img = new Image();
-            img.onload = () => {
-                button.style.backgroundImage = `url(${imagePath})`;
-            };
-            img.onerror = () => {
-                button.style.backgroundImage = "url('file=sdxl_styles/samples/default_style.jpg')";
-            };
-            img.src = imagePath;
+    const searchBar = gradioApp().querySelector('textarea[data-testid="textbox"][placeholder*="搜索风格"], textarea[data-testid="textbox"][placeholder*="search styles"]');
+    const searchText = (searchBar?.value?.trim() || '').toLowerCase();
 
-            button.style.backgroundSize = 'cover';
-        });
-    setTimeout(() => gradioApp().dispatchEvent(new Event('resize')), 50);
+    styleGridOriginalElements.forEach((item) => {
+        const btn = item.querySelector('button');
+        const btnText = btn?.textContent.trim();
+        const rawName = btn?.getAttribute('data-style-name') || btnText;
+        if (!rawName) return;
+
+        const cleanName = rawName.toLowerCase().replace(/[- _]/g, '');
+        const isSelected = selectedStylesClean.has(cleanName);
+
+        const matchesSearch = cleanName.includes(searchText.replace(/[- _]/g, '')) || 
+                              btnText.toLowerCase().includes(searchText);
+        const isVisible = isSelected || matchesSearch;
+
+        if (isVisible) {
+            item.style.setProperty('display', 'block', 'important');
+            item.style.order = isSelected ? 0 : 1;
+
+            if (!btn.style.backgroundImage || btn.style.backgroundImage === 'none') {
+                const styleName = rawName.toLowerCase().replace(/ /g, '_').replace(/[^a-z0-9_]/g, '');
+                btn.style.backgroundImage = `url("file=sdxl_styles/samples/${styleName}.jpg")`;
+            }
+
+            if (isSelected) {
+                btn.classList.add('primary');
+                btn.classList.remove('secondary');
+            } else {
+                btn.classList.add('secondary');
+                btn.classList.remove('primary');
+            }
+        } else {
+            item.style.setProperty('display', 'none', 'important');
+        }
+    });
 }
 
 

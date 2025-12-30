@@ -255,14 +255,13 @@ function initStylePreviewOverlay() {
             return;
         }
 
-        const dataInput = container.querySelector('.style_data_input textarea');
-        if (!dataInput) {
-            console.log('Data input not found in:', container);
+        const styleDataRaw = container.getAttribute('data-style-data');
+        if (!styleDataRaw) {
             return;
         }
 
         try {
-            const styleData = JSON.parse(dataInput.value || '{}');
+            const styleData = JSON.parse(styleDataRaw || '{}');
             textOverlay.innerHTML = `
                 <div style="font-weight:bold; margin-bottom: 6px; font-size: 14px">${styleData.name || ''}</div>
                 ${styleData.prompt ? `<div style="color:#ddd;font-size:12px;margin:4px 0">Prompt: ${styleData.prompt}</div>` : ''}
@@ -294,19 +293,17 @@ function initStylePreviewOverlay() {
         }
     });
     document.addEventListener('click', function(e) {
-        if (e.target.closest('.style-button')) return;
-        const container = e.target.closest('.style_item');
-        if (!container) return;
-        const styleButton = container.querySelector('.style-button');
-        if (styleButton) {
-            e.stopPropagation();
-            const clickEvent = new MouseEvent('click', {
-                bubbles: true,
-                cancelable: true,
-                clientX: e.clientX,
-                clientY: e.clientY
-            });
-            styleButton.dispatchEvent(clickEvent);
+        const btn = e.target.closest('.style-button');
+        if (!btn) return;
+
+        const styleName = btn.getAttribute('data-style-name') || btn.textContent.trim();
+        const checkboxes = document.querySelectorAll('.style_selections input[type="checkbox"]');
+        for (const cb of checkboxes) {
+            const label = cb.nextElementSibling;
+            if (label && label.textContent.trim() === styleName) {
+                cb.click();
+                break;
+            }
         }
     });
     document.addEventListener('contextmenu', function(e) {

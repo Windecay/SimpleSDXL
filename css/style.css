@@ -1036,38 +1036,40 @@ div.block.tagHelper.active {
   margin: 8px !important;
 }
 .style_grid {
-  gap: 1px !important;
-  row-gap: 1px !important;
-  column-gap: 1px !important;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  min-width: 0;
+  display: grid !important;
+  gap: 4px !important;
+  grid-template-columns: repeat(5, 1fr) !important;
+  width: 100% !important;
+  padding: 8px !important;
+  max-height: 900px !important; /* 限制最大高度，防止纵向拉伸过长 */
+  min-height: 100px;
 }
 .style_item {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 0px !important;
-  padding: 2px !important;
-  border: 1px solid #e0e0e0;
-  border-radius: 6px;
-  min-width: 0;
-  max-width: 90px!important;
+  display: block !important;
+  width: 100% !important;
+  min-width: 80px !important; /* 防止搜索时过度缩小 */
+  aspect-ratio: 1 / 1 !important;
+  position: relative !important;
   overflow: visible !important;
 }
 .style-button {
-  font-size: 10px !important;
-  padding: 0px 0px !important;
-  width: 80px;
-  height: 80px;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 80px !important; /* 确保图标高度 */
+  border-radius: 8px !important;
+  background-size: cover !important;
+  background-position: center !important;
+  border: 2px solid transparent !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: center !important;
+  padding-bottom: 6px !important;
   color: white !important;
-  text-shadow:
-    1px 1px 2px black,
-    -1px -1px 2px black,
-    1px -1px 2px black,
-    -1px 1px 2px black; 
-    display: flex !important;
-    align-items: flex-end !important;
-    justify-content: center !important; 
-    padding-bottom: 8px !important; 
+  font-size: 12px !important; /* 稍微调大字体 */
+  font-weight: 600 !important;
+  text-shadow: 1px 1px 3px black, -1px -1px 3px black, 1px -1px 3px black, -1px 1px 3px black !important;
+  transition: transform 0.1s ease, border-color 0.2s !important;
 }
 .style-button:hover {
   transform: scale(1.1);
@@ -1084,6 +1086,25 @@ button.style-button.primary {
   z-index: 1;
   animation: border-pulse 0.8s infinite alternate;
 }
+
+button.style-button.primary::after {
+  content: '✓';
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: #f97316;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+  text-shadow: none;
+}
+
 
 .tab-nav.scroll-hide {
   position: sticky !important;
@@ -1150,8 +1171,6 @@ button.gallery-item {
 }
 
 .missing-model-modal {
-  position: fixed;
-  top: 0;
   left: 0;
   width: 100%;
   height: 100%;

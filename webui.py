@@ -1467,72 +1467,35 @@ with shared.gradio_root:
                                                     label='Selected Styles',
                                                     elem_classes=['style_selections'])
                 gradio_receiver_style_selections = gr.Textbox(elem_id='gradio_receiver_style_selections', visible=False)
-                buttons = []
 
-                with gr.Column(visible=False, elem_id="scrollable-box") as visual_layout_container:
-                    with gr.Blocks(elem_id="style_visual_container"):
-                        with gr.Row(elem_classes=["style_grid"], elem_id="style_grid"):
-                            for style in legal_style_names:
-                                style_data = modules.sdxl_styles.get_style_config(style)
-                                with gr.Column(scale=1, min_width=80, elem_classes=["style_item"]):
-                                    gr.Textbox(visible=False,
-                                        elem_id=f"style_data_{style}",value=json.dumps(style_data),
-                                        elem_classes=["style_data_input"],interactive=False,)
+                def generate_style_grid_html():
+                    import json
+                    html = ""
+                    for style in legal_style_names:
+                        style_data = modules.sdxl_styles.get_style_config(style)
+                        is_primary = style in modules.config.default_styles
+                        variant_class = "primary" if is_primary else "secondary"
+                        style_data_json = json.dumps(style_data).replace('"', '&quot;')
+                        html += f"""
+                        <div class="style_item" data-style-data="{style_data_json}">
+                            <button class="style-button {variant_class}" data-style-name="{style}">{style}</button>
+                        </div>
+                        """
+                    return html
 
-                                    button = gr.Button(value=style,
-                                                       elem_classes=["style-button"],
-                                                       elem_id="style-button",
-                                                       variant="secondary" if style not in modules.config.default_styles else "primary")
-                                    buttons.append(button)
-                                    style_state = gr.State(value=style)
-
-                                    button.click(fn=lambda selected_styles, current_style: ((gr.update(variant="secondary"), [s for s in selected_styles if s != current_style])
-                                        if current_style in selected_styles
-                                        else (gr.update(variant="primary"), selected_styles + [current_style])),
-                                        inputs=[style_selections, style_state],
-                                        outputs=[button, style_selections])
+                with gr.Column(visible=False, elem_id="style_visual_layout_container", elem_classes=["scrollable-box"]) as visual_layout_container:
+                    style_grid_html = gr.HTML(value=generate_style_grid_html(), elem_classes=["style_grid"], elem_id="style_grid")
 
                 has_loaded = gr.State(value=0)
-                filtered_sorted_styles = gr.State(value=legal_style_names.copy())
 
                 def toggle_layout(use_visual, current_loaded):
                                   new_loaded = 0 if use_visual and current_loaded == 0 else current_loaded
                                   return [gr.update(visible=not use_visual),gr.update(visible=use_visual),new_loaded]
 
-                def filter_styles(query, use_visual, selected_styles):
-                    query_lower = query.strip().lower()
-                    global has_loaded
-                    if not has_loaded.value == 0:
-                        has_loaded.value = 0
-                    filtered_styles = [s for s in filtered_sorted_styles.value
-                                       if (query_lower in s.lower()) or
-                                       (query_lower in style_sorter.localization_key(s).lower()) or
-                                       (s in selected_styles)]
-                    sorted_styles = []
-                    for s in legal_style_names:
-                        if s in selected_styles and s in filtered_styles:
-                            sorted_styles.append(s)
-                    for s in legal_style_names:
-                        if s not in selected_styles and s in filtered_styles:
-                            sorted_styles.append(s)
-
-                    updates = []
-                    for style in legal_style_names:
-                        visible = style in filtered_styles
-                        updates.append(gr.update(visible=visible))
-                    updates.append(gr.update(choices=sorted_styles))
-                    return updates + [gr.update(choices=sorted_styles)] + [sorted_styles]
-
-                def update_button_variants(selected_styles):
-                    variants = []
-                    for style in legal_style_names:
-                        variants.append("primary" if style in selected_styles else "secondary")
-                    return [gr.update(variant=v,) for v in variants]
-
-                style_selections.change(update_button_variants,
+                style_selections.change(fn=None,
                                         inputs=style_selections,
-                                        outputs=buttons).then(
-                    lambda: None,_js='() => {refresh_style_layout(); }')
+                                        outputs=None,
+                                        _js='() => { refresh_style_layout(); }')
 
                 prompt.change(lambda x,y: calculateTokenCounter(x,y), inputs=[prompt, style_selections], outputs=prompt_token_counter)
 
@@ -1873,37 +1836,18 @@ with shared.gradio_root:
                                     outputs=[style_selections, visual_layout_container, has_loaded],
                                     queue=False,
                                     show_progress=False) \
-                                .then(lambda: None, _js='() => {refresh_style_layout(); }') \
-                                .then(filter_styles,
-                                    inputs=[style_search_bar, style_preview_checkbox, style_selections],
-                                    outputs=buttons + [style_selections] + [filtered_sorted_styles],
-                                    queue=False,
-                                    show_progress=False) \
                                 .then(lambda x,y: ads.set_user_default_value("style_preview_checkbox",x,y), inputs=[style_preview_checkbox, state_topbar]) \
-                                .then(lambda: None, _js='()=>{refresh_style_localization();}')
+                                .then(lambda: None, _js='()=>{refresh_style_localization(); refresh_style_layout();}')
 
-                    style_search_bar.change(style_sorter.search_styles,
-                                        inputs=[style_selections, style_search_bar],
-                                        outputs=style_selections,
-                                        queue=False,
-                                        show_progress=False) \
-                                    .then(filter_styles,
-                                        inputs=[style_search_bar, style_preview_checkbox, style_selections],
-                                        outputs=buttons + [style_selections] + [filtered_sorted_styles],
-                                        queue=False,
-                                        show_progress=False) \
-                                    .then(lambda: None,_js='()=>{refresh_style_localization(); refresh_style_layout();}')
+                    style_search_bar.change(fn=None,
+                                        inputs=None,
+                                        outputs=None,
+                                        _js='()=>{refresh_style_layout();}')
 
-                    gradio_receiver_style_selections.input(style_sorter.sort_styles,
-                                                       inputs=style_selections,
-                                                       outputs=style_selections,
-                                                       queue=False,
-                                                       show_progress=False) \
-                                                    .then(filter_styles,
-                                                       inputs=[style_search_bar, style_preview_checkbox, style_selections],
-                                                       outputs=buttons + [style_selections] + [filtered_sorted_styles],queue=False,
-                                                       show_progress=False) \
-                                                    .then(lambda: None, _js='()=>{refresh_style_localization();}')
+                    gradio_receiver_style_selections.input(fn=None,
+                                                       inputs=None,
+                                                       outputs=None,
+                                                       _js='()=>{refresh_style_layout();}')
                     no_welcome_checkbox.change(
                         lambda x,y: ads.set_admin_default_value("no_welcome_checkbox", x, y),
                         inputs=[no_welcome_checkbox, state_topbar],
