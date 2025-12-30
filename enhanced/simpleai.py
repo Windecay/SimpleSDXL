@@ -40,6 +40,15 @@ def is_port_available(port, host='127.0.0.1'):
         logger.warning(f"检查端口 {port} 时出错: {e}")
         return False
 def find_available_port(start_port=8187, max_attempts=100, suppress_logging=False):
+    # Detect Clash Fake IP range (198.18.0.0/15) and avoid using it
+    try:
+        host_ip = socket.gethostbyname(socket.gethostname())
+        if host_ip.startswith('198.18.') or host_ip.startswith('198.19.'):
+             if not suppress_logging:
+                 logger.warning(f"Detected Clash Fake IP: {host_ip}. Forcing localhost for backend check.")
+    except Exception:
+        pass
+
     excluded_ports = {8188}
 
     for i in range(max_attempts):
@@ -47,7 +56,7 @@ def find_available_port(start_port=8187, max_attempts=100, suppress_logging=Fals
         if port in excluded_ports:
             continue
 
-        if is_port_available(port):
+        if is_port_available(port, '127.0.0.1'):
             if i > 0 and not suppress_logging:
                 logger.info(f"端口 {start_port} 被占用，自动切换到端口: {port}")
             elif not suppress_logging:
@@ -80,7 +89,6 @@ def reset_simpleai_args():
             logger.info(f"端口 {args_manager.args.backend_port} 被占用，自动切换到端口: {available_port}")
     else:
         available_port = find_available_port(8187)
-        logger.info(f"使用默认后端端口: {available_port}")
 
     shared.sysinfo["loopback_port"] = available_port
     comfyclient_pipeline.COMFYUI_ENDPOINT_PORT = shared.sysinfo["loopback_port"]
@@ -520,6 +528,8 @@ self_contact = '''
 Wiki: <a target= "_blank" href="http://simpai.cn">http://simpai.cn</a><br>
 开源代码:<br>
 Github: <a target= "_blank" href="https://github.com/metercai/SimpleSDXL">https://github.com/metercai/SimpleSDXL</a><br>
+当前分支:<br>
+Github: <a target= "_blank" href="https://github.com/Windecay/SimpleSDXL">https://github.com/Windecay/SimpleSDXL</a><br>
 学习交流:<br>
 QQ群: 1005085136<br>
 商务合作:<br>

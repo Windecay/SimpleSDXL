@@ -2609,6 +2609,76 @@ if ads.get_admin_default('p2p_active_checkbox'):
 if ads.get_admin_default('p2p_remote_process'):
     p2p_task.init_p2p_task(worker, model_management, shared.token, minicpm)
 
+# Fix for global proxy issues causing "Expecting value: line 1 column 1"
+for key in ['NO_PROXY', 'no_proxy']:
+    current_val = os.environ.get(key, '')
+    if 'localhost' not in current_val:
+        os.environ[key] = f"localhost,127.0.0.1,0.0.0.0,{current_val}".strip(',')
+
+import socket
+import psutil
+
+def get_best_local_ip():
+    best_ip = '127.0.0.1'
+    try:
+        for interface, snics in psutil.net_if_addrs().items():
+            for snic in snics:
+                if snic.family == socket.AF_INET:
+                    ip = snic.address
+                    # Skip loopback
+                    if ip == '127.0.0.1':
+                        continue
+
+                    if ip.startswith('198.18.') or ip.startswith('198.19.'):
+                        continue
+
+                    if ip.startswith('169.254.'):
+                        continue
+
+                    if ip.startswith('192.168.') or ip.startswith('10.') or (ip.startswith('172.') and 16 <= int(ip.split('.')[1]) <= 31):
+                        return ip
+
+                    best_ip = ip
+    except Exception as e:
+        logging.error(f"Error detecting network interfaces: {e}")
+        pass
+
+    return best_ip
+
+current_listen = args_manager.args.listen
+
+def is_fake_or_suspicious_ip(ip):
+    if not ip: return False
+    if ip.startswith("198.18.") or ip.startswith("198.19."):
+        return True
+    return False
+
+is_listen_invalid = (
+    current_listen is None or
+    current_listen == "0.0.0.0" or
+    current_listen == "127.0.0.1" or
+    is_fake_or_suspicious_ip(current_listen)
+)
+
+if is_listen_invalid:
+    try:
+        hostname = socket.gethostname()
+        local_ip = socket.gethostbyname(hostname)
+
+        if is_fake_or_suspicious_ip(local_ip) or is_fake_or_suspicious_ip(current_listen):
+            logging.warning(f"Detected Fake/Proxy IP configuration (Listen: {current_listen}, Resolved: {local_ip}).")
+            best_ip = get_best_local_ip()
+            if best_ip != '127.0.0.1':
+                logging.info(f"Forcing Gradio to bind to valid LAN IP: {best_ip}")
+                args_manager.args.listen = best_ip
+            else:
+                logging.info(f"Could not find a better LAN IP, falling back to 0.0.0.0 to ensure accessibility.")
+                args_manager.args.listen = "0.0.0.0"
+    except Exception as e:
+        if is_fake_or_suspicious_ip(current_listen):
+             args_manager.args.listen = "0.0.0.0"
+        pass
+
 shared.gradio_root.launch(
     inbrowser=args_manager.args.in_browser,
     server_name=args_manager.args.listen,
