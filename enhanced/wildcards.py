@@ -154,20 +154,25 @@ def get_words_with_wildcard(wildcard, rng, method='R', number=1, start_at=1):
 
 
 def compile_arrays(text, rng):
-    global wildcards, wildcards_max_bfs_depth, array_regex, tag_regex1, tag_regex2, tag_regex3, tag_regex4, tag_regex5
+    global wildcards, wildcards_max_bfs_depth, array_regex, tag_regex1, tag_regex2, tag_regex3, tag_regex4, tag_regex5, tag_regex6
 
     _ = get_wildcards_samples()
     tag_arrays = array_regex.findall(text)
     arrays = []
-    mult = 1
+    mult = 0
     seed_fixed = True
     if len(tag_arrays)>0:
         for tag in tag_arrays:
+            # Skip if no wildcard marker
+            if '__' not in tag:
+                continue
+
             colon_counter = tag.count(':')
             wildcard = ''
             number = 1
             method = 'R'
             start_at = 1
+            found = False
             if colon_counter == 2:
                 parts = tag_regex5.findall(tag)
                 if parts:
@@ -177,6 +182,7 @@ def compile_arrays(text, rng):
                     if parts[2]:
                         number = int(parts[2])
                     start_at = int(parts[3])
+                    found = True
                 else:
                     parts = tag_regex6.findall(tag)
                     if parts:
@@ -184,12 +190,14 @@ def compile_arrays(text, rng):
                         wildcard = parts[0]
                         number = int(parts[1])
                         start_at = int(parts[2])
+                        found = True
             elif colon_counter == 1:
                 parts = tag_regex3.findall(tag)
                 if parts:
                     parts = list(parts[0])
                     wildcard = parts[0]
                     number = int(parts[1])
+                    found = True
                 else:
                     parts = tag_regex4.findall(tag)
                     if parts:
@@ -198,35 +206,50 @@ def compile_arrays(text, rng):
                         method = parts[1]
                         if parts[2]:
                             number = int(parts[2])
+                        found = True
             elif colon_counter == 0:
                 parts = tag_regex1.findall(tag)
                 if parts:
-                    words = parts[0].split(',')
-                    words = [x.strip() for x in words]
-                    text = text.replace(tag, ','.join(words))
-                    arrays.append(words)
-                    mult *= len(words)
-                    continue
-                else:
-                    parts = tag_regex0.findall(tag)
-                    if parts:
-                        words = parts[0].split(';')
-                        words = [x.strip() for x in words]
-                        text = text.replace(tag, ';'.join(words))
-                        arrays.append(words)
-                        mult *= len(words)
-                        seed_fixed = False
-                        continue
-            words = get_words_with_wildcard(wildcard, rng, method, number, start_at)
-            delimiter = ',' if method.isupper() else ';'
-            text = text.replace(tag, delimiter.join(words), 1)
-            arrays.append(words)
-            mult *= len(words)
-            if delimiter == ';':
-                seed_fixed = False
-    else:
-        mult = 0
-    
+                    sub_parts = tag_regex2.findall(parts[0])
+                    if sub_parts:
+                        wildcard = sub_parts[0]
+                        found = True
+
+            if found:
+                words = get_words_with_wildcard(wildcard, rng, method, number, start_at)
+                delimiter = ',' if method.isupper() else ';'
+                text = text.replace(f'[{tag}]', delimiter.join(words), 1)
+                if delimiter == ';':
+                    seed_fixed = False
+
+    # Support for naked wildcards with parameters (e.g. __wildcard__:3)
+    def get_replacement(wildcard, method, number, start_at):
+        words = get_words_with_wildcard(wildcard, rng, method, number, start_at)
+        delimiter = ',' if method.isupper() else ';'
+        if delimiter == ';':
+            nonlocal seed_fixed
+            seed_fixed = False
+        return delimiter.join(words)
+
+    # Regex 5: __name__:M[N]:S
+    text = tag_regex5.sub(lambda m: get_replacement(
+        m.group(1), m.group(2), int(m.group(3)) if m.group(3) else 1, int(m.group(4))
+    ), text)
+
+    # Regex 6: __name__:N:S
+    text = tag_regex6.sub(lambda m: get_replacement(
+        m.group(1), 'R', int(m.group(2)), int(m.group(3))
+    ), text)
+
+    # Regex 4: __name__:M[N]
+    text = tag_regex4.sub(lambda m: get_replacement(
+        m.group(1), m.group(2), int(m.group(3)) if m.group(3) else 1, 1
+    ), text)
+
+    # Regex 3: __name__:N
+    text = tag_regex3.sub(lambda m: get_replacement(
+        m.group(1), 'R', int(m.group(2)), 1
+    ), text)
 
     logger.info(f'Copmile text in prompt to arrays: {text} -> arrays:{arrays}, mult:{mult}')
     return text, arrays, mult, seed_fixed
@@ -322,7 +345,7 @@ def add_wildcards_and_array_to_prompt(wildcard, prompt, state_params):
             if len(prompt)==1 or len(prompt)>2 and prompt[-2]!='_':
                 prompt = prompt[:-1]
     else:
-        state_params["array_wildcards_mode"] = '['
+        state_params["array_wildcards_mode"] = '_'
     
     if state_params["array_wildcards_mode"] == '[':
         new_tag = f'[__{wildcard}__]'
