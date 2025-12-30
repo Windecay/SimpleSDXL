@@ -7,12 +7,20 @@ import torch
 import os
 
 from nodes import MAX_RESOLUTION
+from ultralytics import YOLO
 import comfy.samplers
 
 RES4 = False
-plugin_path = os.path.join(os.path.dirname(__file__), "..", "RES4LYF")
+current_dir = os.path.dirname(os.path.abspath(__file__))
+plugin_path = os.path.join(current_dir, "..", "RES4LYF")
 if os.path.exists(plugin_path):
     RES4 = True
+    
+class AnyType(str):
+    def __ne__(self, __value: object) -> bool:
+        return False
+    
+any_type = AnyType("*")
 
 def get_schedulers(remove = []):
     schedulers = comfy.samplers.KSampler.SCHEDULERS
@@ -23,26 +31,22 @@ def get_schedulers(remove = []):
 class detailerKSamplerSchedulerFallback:
     @classmethod
     def INPUT_TYPES(cls):
-        all_schedulers = get_schedulers()
-        fallback_schedulers = get_schedulers(['beta57']) + ['AYS SDXL', 'AYS SD1', 'AYS SVD', 'GITS[coeff=1.2]', 'LTXV[default]', 'OSS FLUX', 'OSS Wan', 'OSS Chroma']
         return {
             "required": {
-                "scheduler": (all_schedulers, {"forceInput": True}),
-                "fallback_scheduler": (fallback_schedulers,),
+                "scheduler": (get_schedulers(), {"forceInput": True}),
+                "fallback_scheduler": (get_schedulers(['beta57']) + ['AYS SDXL', 'AYS SD1', 'AYS SVD', 'GITS[coeff=1.2]', 'LTXV[default]', 'OSS FLUX', 'OSS Wan', 'OSS Chroma'],),
             },
         }
-
-    RETURN_TYPES = (get_schedulers() + ['AYS SDXL', 'AYS SD1', 'AYS SVD', 'GITS[coeff=1.2]', 'LTXV[default]', 'OSS FLUX', 'OSS Wan', 'OSS Chroma'],)
+    
+    RETURN_TYPES = get_schedulers(['beta57']) + ['AYS SDXL', 'AYS SD1', 'AYS SVD', 'GITS[coeff=1.2]', 'LTXV[default]', 'OSS FLUX', 'OSS Wan', 'OSS Chroma'],
     RETURN_NAMES = ("SCHEDULER",)
     FUNCTION = "main"
-    CATEGORY = "utils"
+    CATEGORY = "lhyNodes/Utils"
     
     def main(self, scheduler, fallback_scheduler):
-        fallback_schedulers = get_schedulers(['beta57']) + ['AYS SDXL', 'AYS SD1', 'AYS SVD', 'GITS[coeff=1.2]', 'LTXV[default]', 'OSS FLUX', 'OSS Wan', 'OSS Chroma']
-        if scheduler not in fallback_schedulers:
+        if scheduler not in get_schedulers(['beta57']) + ['AYS SDXL', 'AYS SD1', 'AYS SVD', 'GITS[coeff=1.2]', 'LTXV[default]', 'OSS FLUX', 'OSS Wan', 'OSS Chroma']:
             return (fallback_scheduler,)
         return(scheduler,)
-
 
 class effKSamplerSchedulerFallback:
     @classmethod
@@ -57,7 +61,7 @@ class effKSamplerSchedulerFallback:
     RETURN_TYPES = get_schedulers(['bong_tangent', 'beta57']) + ["AYS SD1", "AYS SDXL", "AYS SVD", "GITS"],
     RETURN_NAMES = ("SCHEDULER",)
     FUNCTION = "main"
-    CATEGORY = "utils"
+    CATEGORY = "lhyNodes/Utils"
     
     def main(self, scheduler, fallback_scheduler):
         if scheduler not in get_schedulers(['bong_tangent', 'beta57']) + ["AYS SD1", "AYS SDXL", "AYS SVD", "GITS"]:
@@ -77,7 +81,7 @@ class KSamplerSchedulerFallback:
     RETURN_TYPES = get_schedulers(),
     RETURN_NAMES = ("SCHEDULER",)
     FUNCTION = "main"
-    CATEGORY = "utils"
+    CATEGORY = "lhyNodes/Utils"
     
     def main(self, scheduler, fallback_scheduler):
         if scheduler not in get_schedulers():
@@ -109,7 +113,7 @@ class KSamplerConfig:
     RETURN_TYPES = ("INT", "FLOAT", comfy.samplers.KSampler.SAMPLERS, get_schedulers())
     RETURN_NAMES = ("STEPS", "CFG", "SAMPLER", "SCHEDULER")
     FUNCTION = "main"
-    CATEGORY = "utils"
+    CATEGORY = "lhyNodes/Utils"
     
     def main(self, steps_total, cfg, sampler_name, scheduler):
         return (
@@ -134,7 +138,7 @@ class MaskToSAMCoords:
     RETURN_TYPES = ("STRING",)
     RETURN_NAMES = ("coordinates",)
     FUNCTION = "convert"
-    CATEGORY = "mask"
+    CATEGORY = "lhyNodes/Mask"
     
     def convert(self, mask: torch.Tensor, threshold, max_regions, points_per_region):
         mask_np = mask[0].cpu().numpy()
@@ -193,7 +197,7 @@ class MaskToSAMCoordsV2:
     RETURN_TYPES = ("STRING", "STRING",)
     RETURN_NAMES = ("coordinates_positive", "coordinates_negative",)
     FUNCTION = "convert"
-    CATEGORY = "mask"
+    CATEGORY = "lhyNodes/Mask"
     
     def convert(self, mask: torch.Tensor, threshold, max_regions, points_per_region, negative_color, image: torch.Tensor = None):
         color_map = {
@@ -273,7 +277,7 @@ class StrFormat:
     RETURN_TYPES = ("STRING",)
     RETURN_NAMES = ("string",)
     FUNCTION = "main"
-    CATEGORY = 'utils/mxToolkit'
+    CATEGORY = 'lhyNodes/String'
     
     def main(self, format, value1, value2, value3, value4, value5, value6):
         return (format.format(value1, value2, value3, value4, value5, value6),)
@@ -302,7 +306,7 @@ class StrFormatAdv:
     RETURN_TYPES = ("STRING",)
     RETURN_NAMES = ("string",)
     FUNCTION = "main"
-    CATEGORY = 'utils/mxToolkit'
+    CATEGORY = 'lhyNodes/String'
     
     def main(self, format, value1, switch1, value2, switch2, value3, switch3, value4, switch4, value5, switch5, value6, switch6):
         v1 = value1 if switch1 else ""
@@ -340,7 +344,7 @@ class CSVRandomPicker:
     
     RETURN_TYPES = ("STRING",)
     FUNCTION = "pick_random_items"
-    CATEGORY = "Custom/Utils"
+    CATEGORY = "lhyNodes/String"
     
     @classmethod
     def IS_CHANGED(cls, *args, **kwargs):
@@ -395,7 +399,7 @@ class CSVRandomPickerAdv:
     
     RETURN_TYPES = ("STRING",)
     FUNCTION = "pick_random_items"
-    CATEGORY = "Custom/Utils"
+    CATEGORY = "lhyNodes/String"
     
     @classmethod
     def IS_CHANGED(cls, *args, **kwargs):
@@ -420,6 +424,132 @@ class CSVRandomPickerAdv:
         result = output_separator.join(selected_items)
         return (result,)
 
+class YoloFaceReformer:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "images": ("IMAGE", ),
+                "threshold": ("FLOAT", {"default": 0.25, "min": 0.0, "max": 1.0, "step": 0.01}),
+                "batch_size": ("INT", {"default": 32, "min": 1, "max": 1024, "step": 1}),
+                "enabled": ("BOOLEAN", {"default": True, "tooltip": "Whether to process the image sequence."}),
+            }
+        }
+    
+    RETURN_TYPES = ("IMAGE",)
+    RETURN_NAMES = ("images",)
+    FUNCTION = "process"
+    CATEGORY = "lhyNode/WanAnimate"
+    DESCRIPTION = "Automatically reuse the previous detected face when none is found. Optimized for large inputs via batching."
+    
+    def process(self, images, threshold, batch_size, enabled):
+        if not enabled:
+            return (images,)
+        
+        model = YOLO(os.path.join(current_dir, "models", "yolov8n-face.pt"))
+        
+        invalid_face = 0
+        total_frames = images.shape[0]
+        processed_faces = []
+        pbar = comfy.utils.ProgressBar(total_frames)
+        
+        print(f"YoloFaceReformer: Processing {total_frames} frames in batches of {batch_size}...")
+        for i in range(0, total_frames, batch_size):
+            batch_start = i
+            batch_end = min(i + batch_size, total_frames)
+            image_batch = images[batch_start:batch_end]
+            
+            current_batch_number = (i // batch_size) + 1
+            images_bchw_batch = image_batch.permute(0, 3, 1, 2)
+            results_batch = model(images_bchw_batch, conf=threshold, verbose=False)
+            
+            for j, result in enumerate(results_batch):
+                current_frame_index = batch_start + j
+                has_detection = len(result.boxes) > 0
+                
+                if has_detection:
+                    frame_to_add = images[current_frame_index]
+                else:
+                    invalid_face += 1
+                    if not processed_faces:
+                        frame_to_add = images[current_frame_index]
+                    else:
+                        frame_to_add = processed_faces[-1]
+                        
+                processed_faces.append(frame_to_add)
+                pbar.update(1)
+                
+        if not processed_faces:
+            return (torch.zeros_like(images)[:0],)
+        
+        print(f"Discarded {invalid_face} invalid face frames.")
+        final_faces_batch = torch.stack(processed_faces, dim=0)
+        return (final_faces_batch,)
+
+class PoseReformer:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "images": ("IMAGE", ),
+                "enabled": ("BOOLEAN", {"default": True, "tooltip": "Whether to process the image sequence."}),
+            }
+        }
+    
+    RETURN_TYPES = ("IMAGE",)
+    RETURN_NAMES = ("images",)
+    FUNCTION = "process"
+    CATEGORY = "lhyNode/WanAnimate"
+    DESCRIPTION = "Automatically reuse the previous detected pose when none is found in current frame."
+    
+    def process(self, images, enabled):
+        if not enabled:
+            return (images,)
+        
+        poses = []
+        for i, image in enumerate(images):
+            if torch.max(image) != 0.0 or i == 0:
+                poses.append(image.unsqueeze(0))
+            else:
+                poses.append(poses[-1])
+        final_poses = torch.cat(poses, dim=0)
+        return (final_poses,)
+
+class CudaDevicePatcher:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "any": (any_type,),
+                "device": ("STRING", {"default": ""}),
+            }
+        }
+    
+    RETURN_TYPES = (any_type, "STRING")
+    RETURN_NAMES = ("any", "original")
+    OUTPUT_NODE = True
+    FUNCTION = "main"
+    CATEGORY = "lhyNode/utils"
+    
+    def main(self, any, device):
+        ori = os.environ.get("CUDA_VISIBLE_DEVICES", "")
+        os.environ["CUDA_VISIBLE_DEVICES"] = device
+        print(f'[CUDA_VISIBLE_DEVICES] set to "{device}"')
+        return (any, ori)
+
+class noneNode:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {}
+    
+    RETURN_TYPES = (any_type,)
+    RETURN_NAMES = ("None",)
+    FUNCTION = "main"
+    CATEGORY = "lhyNode/utils"
+    
+    def main(self):
+        return (None,)
+
 NODE_CLASS_MAPPINGS = {
     "detailerKSamplerSchedulerFallback": detailerKSamplerSchedulerFallback,
     "effKSamplerSchedulerFallback": effKSamplerSchedulerFallback,
@@ -431,6 +561,10 @@ NODE_CLASS_MAPPINGS = {
     "StrFormatAdv": StrFormatAdv,
     "CSVRandomPicker": CSVRandomPicker,
     "CSVRandomPickerAdv": CSVRandomPickerAdv,
+    "YoloFaceReformer": YoloFaceReformer,
+    "PoseReformer": PoseReformer,
+    "CudaDevicePatcher": CudaDevicePatcher,
+    "noneNode": noneNode,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -444,4 +578,8 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "StrFormatAdv": "String Format (Advanced)",
     "CSVRandomPicker": "CSV RandomPicker",
     "CSVRandomPickerAdv": "CSV RandomPicker (Advanced)",
+    "YoloFaceReformer": "WanAnimate Face Reformer",
+    "PoseReformer": "WanAnimate Pose Reformer",
+    "CudaDevicePatcher": "Set Cuda Device",
+    "noneNode": "None",
 }

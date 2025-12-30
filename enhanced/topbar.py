@@ -25,6 +25,7 @@ import enhanced.superprompter as superprompter
 import enhanced.comfy_task as comfy_task
 import ldm_patched.modules.model_management
 import logging
+import threading
 import time
 from enhanced.logger import format_name
 logger = logging.getLogger(format_name(__name__))
@@ -651,25 +652,26 @@ def down_absent_model(state_params):
 
 reset_layout_num = 0
 
-def reset_layout_params(prompt, negative_prompt, state_params, is_generating, inpaint_mode, comfyd_active_checkbox):
-    global system_message, preset_down_note_info, reset_layout_num1, reset_layout_num2
+def reset_layout_ui(prompt, negative_prompt, state_params, is_generating, inpaint_mode, comfyd_active_checkbox, bar_button = None):
+    global system_message, preset_down_note_info, reset_layout_num
+
+    if bar_button is not None:
+        state_params.update({"bar_button": bar_button})
 
     state_params.update({"__message": system_message})
     system_message = 'system message was displayed!'
     if '__preset' not in state_params.keys() or 'bar_button' not in state_params.keys() or state_params["__preset"]==state_params['bar_button']:
-        return refresh_nav_bars(state_params) + [gr.update()] * reset_layout_num + update_after_identity_sub(state_params)
+        return refresh_nav_bars(state_params) + [gr.update()] * reset_layout_num + [state_params]
     preset = state_params["bar_button"] if '\u2B07' not in state_params["bar_button"] else state_params["bar_button"].replace('\u2B07', '')
     logger.info(f'Reset_context: preset={state_params["__preset"]}-->{preset}, theme={state_params["__theme"]}, lang={state_params["__lang"]}')
     if not args_manager.args.disable_backend and '\u2B07' in state_params["bar_button"]:
         gr.Info(preset_down_note_info)
-        # if shared.token.is_admin(state_params["user"].get_did()):
-        #     download_model_files(preset, state_params["user"].get_did(), True)
 
     state_params.update({"__preset": preset})
 
     config_preset = config.try_get_preset_content(preset, state_params["user"].get_did())
     preset_prepared = meta_parser.parse_meta_from_preset(config_preset)
-    
+
     engine = preset_prepared.get('engine', {}).get('backend_engine', 'Fooocus')
     engine_type = preset_prepared.get('engine', {}).get('engine_type', 'image')
     state_params.update({"engine": engine})
@@ -693,79 +695,46 @@ def reset_layout_params(prompt, negative_prompt, state_params, is_generating, in
         'task_method': task_method,
         'is_mobile': state_params["__is_mobile"] })
 
-    if comfyd_active_checkbox:
-        comfyd.stop()
-   
-    default_model = preset_prepared.get('base_model')
-    previous_default_models = preset_prepared.get('previous_default_models', [])
-    checkpoint_downloads = preset_prepared.get('checkpoint_downloads', {})
-    embeddings_downloads = preset_prepared.get('embeddings_downloads', {})
-    lora_downloads = preset_prepared.get('lora_downloads', {})
-    vae_downloads = preset_prepared.get('vae_downloads', {})
-
-    model_dtype = preset_prepared.get('engine', {}).get('backend_params', {}).get('base_model_dtype', '')
-    if engine == 'SD3x' and  model_dtype == 'auto':
-        base_model = comfy_task.get_default_base_SD3m_name()
-        if shared.modelsinfo.exists_model(catalog="checkpoints", model_path=base_model):
-            default_model = base_model
-            preset_prepared['base_model'] = base_model
-            checkpoint_downloads = {}
-    if engine == 'Flux' and default_model=='auto':
-        default_model = comfy_task.get_default_base_Flux_name('FluxS' in preset)
-        preset_prepared['base_model'] = default_model
-        if shared.modelsinfo.exists_model(catalog="checkpoints", model_path=default_model):
-            checkpoint_downloads = {}
-        else:
-            checkpoint_downloads = {default_model: comfy_task.flux_model_urls[default_model]}
-            if 'merged' in default_model:
-                preset_prepared.update({'default_overwrite_step': 6})
-
-    download_models(default_model, previous_default_models, checkpoint_downloads, embeddings_downloads, lora_downloads, vae_downloads)
-
+    state_params['__preset_prepared'] = preset_prepared # Cache for reset_layout_values
     preset_url = preset_prepared.get('reference', get_preset_inc_url(preset))
     state_params.update({"__preset_url":preset_url})
     state_params.update({'preset_store': False})
 
     results = refresh_nav_bars(state_params)
     results += meta_parser.switch_layout_template(preset_prepared, state_params, preset_url)
-    results += meta_parser.load_parameter_button_click(preset_prepared, is_generating, inpaint_mode, no_welcome=ads.get_admin_default("no_welcome_checkbox"))
+
+    return results + [state_params]
+
+def reset_layout_values(state_params, is_generating, inpaint_mode):
+    preset = state_params["__preset"]
+
+    preset_prepared = state_params.get('__preset_prepared', None)
+    if preset_prepared is None:
+        config_preset = config.try_get_preset_content(preset, state_params["user"].get_did())
+        preset_prepared = meta_parser.parse_meta_from_preset(config_preset)
+
+        task_method = state_params.get("task_method", "text2image")
+        preset_prepared.update({
+            'preset': preset,
+            'task_method': task_method,
+            'is_mobile': state_params["__is_mobile"] })
+
+    results = meta_parser.load_parameter_button_click(preset_prepared, is_generating, inpaint_mode, no_welcome=ads.get_admin_default("no_welcome_checkbox"))
     results += update_after_identity_sub(state_params)
+
+    reset_ui_results = [None, None, None] + \
+               ["None"]*4 + [False]*2 + \
+               [gr.update(visible=False),False,[],"base",gr.update(variant="secondary"),gr.update(variant="secondary")] + \
+               [gr.update(visible=False) for _ in config.default_loras] + \
+               [False for _ in config.default_loras] + \
+               [[] for _ in config.default_loras] + \
+               [gr.update(variant="secondary") for _ in config.default_loras]
+    results += reset_ui_results
 
     sync_intput_reserved()
     ldm_patched.modules.model_management.print_memory_info("after switched preset")
+
     return results
-
-
-def download_models(default_model, previous_default_models, checkpoint_downloads, embeddings_downloads, lora_downloads, vae_downloads):
-
-    if shared.args.disable_preset_download:
-        logger.info('Skipped model download.')
-        return default_model, checkpoint_downloads
-
-    if not shared.args.always_download_new_model:
-        if not os.path.isfile(shared.modelsinfo.get_file_path_by_name('checkpoints', default_model)):
-            for alternative_model_name in previous_default_models:
-                if os.path.isfile(shared.modelsinfo.get_file_path_by_name('checkpoints', alternative_model_name)):
-                    logger.info(f'You do not have [{default_model}] but you have [{alternative_model_name}].')
-                    logger.info(f'Fooocus will use [{alternative_model_name}] to avoid downloading new models, '
-                          f'but you are not using the latest models.')
-                    logger.info('Use --always-download-new-model to avoid fallback and always get new models.')
-                    checkpoint_downloads = {}
-                    default_model = alternative_model_name
-                    break
-
-    for file_name, url in checkpoint_downloads.items():
-        model_dir = os.path.dirname(shared.modelsinfo.get_file_path_by_name('checkpoints', file_name))
-        load_file_from_url(url=url, model_dir=model_dir, file_name=os.path.basename(file_name))
-    for file_name, url in embeddings_downloads.items():
-        load_file_from_url(url=url, model_dir=config.paths_embeddings[0], file_name=file_name)
-    for file_name, url in lora_downloads.items():
-        model_dir = os.path.dirname(shared.modelsinfo.get_file_path_by_name('loras', file_name))
-        load_file_from_url(url=url, model_dir=model_dir, file_name=os.path.basename(file_name))
-    for file_name, url in vae_downloads.items():
-        load_file_from_url(url=url, model_dir=config.paths_vae[0], file_name=file_name)
-
-    return default_model, checkpoint_downloads
 
 def check_admin_exists():
     try:
@@ -1183,3 +1152,7 @@ def prompt_token_prediction(text, style_selections):
     return len(tokenizer.tokenize(text))
 
 #system_message = get_system_message()
+
+def stop_comfyd_background(comfyd_active_checkbox):
+    if comfyd_active_checkbox:
+        threading.Thread(target=comfyd.stop).start()

@@ -2551,30 +2551,28 @@ with shared.gradio_root:
                         .then(fn=lambda x: None, inputs=system_params, _js='(x)=>{refresh_topbar_status_js(x);}')
 
     reset_layout_params = nav_bars + reset_preset_layout + reset_preset_func + scene_frontend_ctrls + load_data_outputs + after_identity
+    reset_layout_ui_outputs = nav_bars + reset_preset_layout + reset_preset_func + scene_frontend_ctrls
+    reset_layout_values_outputs = load_data_outputs + after_identity + \
+                                  [scene_canvas_image, scene_input_image1, scene_input_image2, scene_lora_model, scene_lora_model_2, scene_lora_model_3, scene_lora_model_4, scene_use_lora, quick_enhance, model_gallery, gallery_visible, current_previews, active_target, base_preview_btn, refiner_preview_btn] + \
+                                  lora_galleries + lora_gallery_visible + lora_current_previews + lora_preview_btns
+
     topbar.reset_layout_num = len(reset_layout_params) - len(nav_bars) - len(after_identity)
     reset_preset_inputs = [prompt, negative_prompt, state_topbar, state_is_generating, inpaint_mode, comfyd_active_checkbox]
+    reset_values_inputs = [state_topbar, state_is_generating, inpaint_mode]
 
     for i in range(shared.BUTTON_NUM):
-        bar_buttons[i].click(topbar.check_absent_model, inputs=[bar_buttons[i], state_topbar]) \
-               .then(topbar.reset_layout_params, inputs=reset_preset_inputs, outputs=reset_layout_params, show_progress=False) \
-               .then(fn=lambda: [None, None, None], inputs=[], outputs=[scene_canvas_image, scene_input_image1, scene_input_image2], queue=False, show_progress=False) \
-               .then(fn=lambda: ["None"]*4 + [False]*2, inputs=[], outputs=[scene_lora_model, scene_lora_model_2, scene_lora_model_3, scene_lora_model_4, scene_use_lora, quick_enhance], queue=False, show_progress=False) \
-               .then(fn=lambda x: None, inputs=system_params, _js='(x)=>{refresh_topbar_status_js(x);}') \
-               .then(lambda: None, _js='()=>{refresh_style_localization();}') \
-               .then(lambda: None, _js='()=>{refresh_scene_localization();}') \
+        bar_buttons[i].click(topbar.reset_layout_ui, inputs=reset_preset_inputs + [bar_buttons[i]], outputs=reset_layout_ui_outputs + [state_topbar], show_progress=False) \
+               .then(topbar.reset_layout_values, inputs=reset_values_inputs, outputs=reset_layout_values_outputs, show_progress=False) \
+               .then(fn=lambda x: None, inputs=system_params, _js='(x)=>{refresh_topbar_status_js(x); refresh_style_localization(); refresh_scene_localization();}') \
                .then(update_describe_output_tags, inputs=engine_class_display, outputs=describe_output_tags, queue=False, show_progress=False) \
                .then(inpaint_mode_change, inputs=[inpaint_mode, inpaint_engine_state, outpaint_selections, state_topbar], outputs=[inpaint_additional_prompt, outpaint_selections, example_inpaint_prompts, inpaint_disable_initial_latent, inpaint_engine, inpaint_strength, inpaint_respective_field], show_progress=False, queue=False) \
                .then(inpaint_engine_state_change, inputs=[inpaint_engine_state, state_topbar] + enhance_inpaint_mode_ctrls, outputs=enhance_inpaint_engine_ctrls, queue=False, show_progress=False)  \
-               .then(fn=lambda: [gr.update(visible=False),False,[],"base",gr.update(variant="secondary"),gr.update(variant="secondary")]
-                     + [gr.update(visible=False) for _ in lora_galleries]
-                     + [False for _ in lora_gallery_visible]
-                     + [[] for _ in lora_current_previews]
-                     + [gr.update(variant="secondary") for _ in lora_preview_btns],
-                    outputs=[model_gallery, gallery_visible, current_previews, active_target, base_preview_btn, refiner_preview_btn] + lora_galleries + lora_gallery_visible + lora_current_previews + lora_preview_btns) \
-               .then(check_and_show_missing_models, inputs=[bar_buttons[i], state_topbar], outputs=[missing_model_modal, missing_model_list, missing_model_btn])
+               .then(check_and_show_missing_models, inputs=[bar_buttons[i], state_topbar], outputs=[missing_model_modal, missing_model_list, missing_model_btn]) \
+               .then(topbar.stop_comfyd_background, inputs=[comfyd_active_checkbox], queue=False)
     shared.gradio_root.load(fn=lambda x: x, inputs=system_params, outputs=state_topbar, _js=topbar.get_system_params_js, queue=False, show_progress=False) \
                       .then(topbar.init_nav_bars, inputs=[state_topbar] + admin_ctrls, outputs=[progress_window, language_ui, background_theme, preset_instruction] + user_app_ctrls + admin_ctrls, show_progress=False) \
-                      .then(topbar.reset_layout_params, inputs=reset_preset_inputs, outputs=reset_layout_params, show_progress=False) \
+                      .then(topbar.reset_layout_ui, inputs=reset_preset_inputs, outputs=reset_layout_ui_outputs + [state_topbar], show_progress=False) \
+                      .then(topbar.reset_layout_values, inputs=reset_values_inputs, outputs=reset_layout_values_outputs, show_progress=False) \
                       .then(fn=lambda x: None, inputs=system_params, _js='(x)=>{refresh_topbar_status_js(x);}') \
                       .then(topbar.sync_message, inputs=state_topbar) \
                       .then(inpaint_mode_change, inputs=[inpaint_mode, inpaint_engine_state, outpaint_selections, state_topbar], outputs=[inpaint_additional_prompt, outpaint_selections, example_inpaint_prompts, inpaint_disable_initial_latent, inpaint_engine, inpaint_strength, inpaint_respective_field], show_progress=False, queue=False) \
