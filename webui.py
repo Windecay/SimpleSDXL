@@ -421,8 +421,11 @@ with shared.gradio_root:
 
                 def download_models(state_params):
                     preset_name = state_params.get('__preset', '')
+                    empty_buttons_update = [gr.update() for _ in range(len(bar_buttons))]
+
                     if not preset_name:
-                        return gr.update(visible=True)
+                        yield [gr.update(visible=True), gr.update()] + empty_buttons_update
+                        return
 
                     user_session = state_params.get('__session', '')
                     ua_hash = state_params.get('ua_hash', '')
@@ -432,17 +435,43 @@ with shared.gradio_root:
 
                     if is_guest:
                         gr.Info("游客模式下无法下载模型，请使用外置的模型管理器补全")
-                        return gr.update(visible=False)
+                        yield [gr.update(visible=False), gr.update()] + empty_buttons_update
+                        return
 
                     gr.Info(f"开始下载预置包的模型: {preset_name}，请耐心等待...可于控制台查看下载进度")
                     model_loader.download_model_files(preset_name, async_task=True)
-                    return gr.update(visible=True)
+
+                    while True:
+                        missing_models = model_loader.get_missing_model_list(preset_name)
+                        if not missing_models:
+                            break
+
+                        display_data = []
+                        for cata, path_file, human_size, url in missing_models:
+                            model_name = os.path.basename(path_file)
+                            status = model_loader.get_download_status(model_name)
+                            if status:
+                                if "error" in status:
+                                    action_text = f"Error: {status['error']}"
+                                else:
+                                    percent = status['percent']
+                                    action_text = f"Downloading: {percent:.1f}%"
+                            else:
+                                action_text = f"下载 {model_name}"
+                            display_data.append([model_name, human_size, action_text])
+
+                        yield [gr.update(visible=True), gr.update(value=display_data)] + empty_buttons_update
+                        time.sleep(1)
+
+                    nav_updates = topbar.refresh_nav_bars(state_params)
+                    button_updates = nav_updates[1 : 1 + len(bar_buttons)]
+                    yield [gr.update(visible=False), gr.update(value=[])] + button_updates
 
                 def close_missing_model_modal():
                     return gr.update(visible=False)
 
                 close_missing_model_btn.click(close_missing_model_modal, outputs=missing_model_modal)
-                missing_model_btn.click(download_models, inputs=[state_topbar], outputs=missing_model_modal, api_name="download_models")
+                missing_model_btn.click(download_models, inputs=[state_topbar], outputs=[missing_model_modal, missing_model_list] + bar_buttons, api_name="download_models")
 
                 with gr.Row(elem_id='main_layout_row'):
                     with gr.Column(scale=2, visible=True, elem_classes='preview_column'):

@@ -18,9 +18,12 @@ logger = logging.getLogger(format_name(__name__))
 
 thread_pool = ThreadPoolExecutor(max_workers=6)
 download_tasks = set()
+download_progress = {}
 task_lock = threading.Lock()
 
 async def download_file_with_progress(url: str, file_path: str, size: int=0):
+    global download_progress
+    file_name = os.path.basename(file_path)
     timeout = int(max(60.0, size / (1024 * 1024)))
     logger.info(f'the download file timeout: {timeout}s')
     async with httpx.AsyncClient(follow_redirects=True, timeout=timeout) as client:
@@ -63,13 +66,25 @@ async def download_file_with_progress(url: str, file_path: str, size: int=0):
                     with open(partial_file_path, mode) as f:
                         async for chunk in response.aiter_bytes():
                             f.write(chunk)
-                            progress_bar.update(len(chunk))
+                            chunk_len = len(chunk)
+                            progress_bar.update(chunk_len)
+
+                            current_size = progress_bar.n
+                            if total_size > 0:
+                                percent = (current_size / total_size) * 100
+                                download_progress[file_name] = {
+                                    "percent": percent,
+                                    "current": current_size,
+                                    "total": total_size
+                                }
 
             downloaded_size = os.path.getsize(partial_file_path)
             if downloaded_size == total_size or downloaded_size == size:
                 os.rename(partial_file_path, file_path)
                 shared.modelsinfo.refresh_file('add', file_path, url)
                 logger.info(f"文件下载完成: {file_path}")
+                if file_name in download_progress:
+                    del download_progress[file_name]
             else:
                 logger.error(f"下载的文件大小不符，预期 {total_size} 字节，实际 {downloaded_size} 字节")
                 raise Exception(f"下载的文件大小不符，预期 {total_size} 字节，实际 {downloaded_size} 字节")
@@ -77,9 +92,13 @@ async def download_file_with_progress(url: str, file_path: str, size: int=0):
             logger.error(f"下载失败: {e}")
             logger.error(f"请求 URL: {e.request.url}")
             logger.error(f"重定向 URL: {e.response.headers.get('Location')}")
+            if file_name in download_progress:
+                download_progress[file_name]["error"] = str(e)
             raise
         except Exception as e:
             logger.error(f"下载过程中发生错误: {e}")
+            if file_name in download_progress:
+                download_progress[file_name]["error"] = str(e)
             raise
 
 
@@ -334,6 +353,9 @@ def get_missing_model_list(preset_name, user_did=None):
 
     return missing_models_with_details
 
+def get_download_status(file_name):
+    global download_progress
+    return download_progress.get(file_name)
 
 default_download_url_prefix = 'https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels'
 def download_model_files(preset, user_did=None, async_task=False):

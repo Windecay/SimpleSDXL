@@ -80,6 +80,8 @@
 	"inpaint,groundingdino_swint_ogc.pth,693997677,0,",
 	"clip,EVA02_CLIP_L_336_psz14_s6B.pt,856461210,0,",
 	"inpaint,sam_vit_h_4b8939.pth,2564550879,0,",
-    "loras,comfyui_portrait_lora64.safetensors,612742344,0,"
+    "loras,comfyui_portrait_lora64.safetensors,612742344,0,",
+    "controlnet,detection_Resnet50_Final.pth,109497761,0,",
+    "controlnet,parsing_bisenet.pth,53289463,0,"
     	]
 }
