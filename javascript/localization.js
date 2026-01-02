@@ -1,5 +1,46 @@
 var re_num = /^[.\d]+$/;
 
+window.globalAutoAddLoraTriggerWord = function(triggerWordElemId, modelElemId, directTriggerWord) {
+    try {
+        function getGradioRoot() {
+            const elems = document.getElementsByTagName('gradio-app');
+            const elem = elems.length == 0 ? document : elems[0];
+            return elem.shadowRoot ? elem.shadowRoot : elem;
+        }
+
+        function addTriggerWordToPrompt(triggerWord) {
+            const root = getGradioRoot();
+            const positivePrompt = root.querySelector('#positive_prompt textarea');
+            if (positivePrompt) {
+                const currentText = positivePrompt.value.trim();
+                const separator = currentText ? ', ' : '';
+                positivePrompt.value = currentText + separator + triggerWord;
+                positivePrompt.dispatchEvent(new Event('input', { bubbles: true }));
+                console.log('Added trigger word to prompt:', triggerWord);
+            } else {
+                console.error('Positive prompt textarea not found');
+            }
+        }
+
+        if (typeof directTriggerWord === 'string') {
+            addTriggerWordToPrompt(directTriggerWord);
+        } else {
+            const root = getGradioRoot();
+            const triggerWordElem = root.querySelector(`#${triggerWordElemId} textarea`);
+            const modelElem = root.querySelector(`#${modelElemId}`);
+
+            if (modelElem && modelElem.value !== 'None' && triggerWordElem && triggerWordElem.value) {
+                addTriggerWordToPrompt(triggerWordElem.value);
+            }
+        }
+    } catch (error) {
+        console.error('Error in globalAutoAddLoraTriggerWord:', error);
+    }
+};
+
+// Alias for backward compatibility if needed, but we will update webui.py
+window.autoAddLoraTriggerWord = window.globalAutoAddLoraTriggerWord;
+
 var original_lines = {};
 var translated_lines = {};
 var reverseLocalization = null;
@@ -17,7 +58,6 @@ function getReverseLocalization() {
 const browser={
     device: function(){
            var u = navigator.userAgent;
-           // console.log(navigator);
            return {
                 is_mobile: !!u.match(/AppleWebKit.*Mobile.*/),
                 is_pc: (u.indexOf('Macintosh') > -1 || u.indexOf('Windows NT') > -1),
@@ -78,28 +118,31 @@ function processTextNode(node) {
     }
 
     if (tl !== undefined) {
-        node.textContent = tl;
+        if (node.textContent.trim() !== tl) {
+            node.textContent = tl;
+        }
     }
 
     if (originalText && node.parentElement) {
         let p = node.parentElement;
 
-        if (p.nodeName === 'SPAN' || p.nodeName === 'LABEL') {
+        if ((p.nodeName === 'SPAN' || p.nodeName === 'LABEL') && p.getAttribute("data-original-text") !== originalText) {
              p.setAttribute("data-original-text", originalText);
         }
 
         let label = p.closest('label');
-        if (label) {
+        if (label && label.getAttribute("data-original-text") !== originalText) {
              label.setAttribute("data-original-text", originalText);
-
-             label.querySelectorAll('span').forEach(span => {
-                 span.setAttribute("data-original-text", originalText);
-             });
         }
 
         let closestSpan = p.closest('span');
-        if (closestSpan) {
+        if (closestSpan && closestSpan.getAttribute("data-original-text") !== originalText) {
             closestSpan.setAttribute("data-original-text", originalText);
+        }
+
+        let galleryDiv = p.closest('div.gallery');
+        if (galleryDiv && galleryDiv.getAttribute("data-original-text") !== originalText) {
+             galleryDiv.setAttribute("data-original-text", originalText);
         }
     }
 }
@@ -161,8 +204,6 @@ function init_style_grid_handlers() {
         const styleName = btn.getAttribute('data-style-name');
         if (!styleName) return;
 
-        // console.log(`[StyleClick] Attempting to toggle style: ${styleName}`);
-
         const selections = document.querySelector('.style_selections');
         if (!selections) return;
 
@@ -191,8 +232,6 @@ function init_style_grid_handlers() {
             const cleanIdentity = identity.toLowerCase().replace(/[- _]/g, '');
 
             if (cleanIdentity === cleanStyle) {
-                // console.log(`[StyleClick] Found matching checkbox for ${styleName}. Currently checked: ${input.checked}`);
-
                 const willBeChecked = !input.checked;
                 isHandlingClick = true;
 
@@ -204,13 +243,19 @@ function init_style_grid_handlers() {
 
                 input.click();
 
-                // console.log(`[StyleClick] Clicked checkbox. New expected state: ${willBeChecked}, lastKnownGoodStyles now has:`, Array.from(lastKnownGoodStyles));
+                window.styleExpectedState = {
+                    name: cleanStyle,
+                    state: willBeChecked,
+                    timestamp: Date.now()
+                };
 
                 sync_style_grid_state();
 
                 setTimeout(() => {
-                    isHandlingClick = false;
-                    sync_style_grid_state();
+                    if (isHandlingClick) {
+                        isHandlingClick = false;
+                        sync_style_grid_state();
+                    }
                 }, 2000);
 
                 found = true;
@@ -282,6 +327,17 @@ function init_style_grid_handlers() {
                 }
 
                 if (eventType === 'mousedown') {
+                    if (targetBtn.closest('.preset_store') || targetBtn.classList.contains('bar_button')) {
+                         isHandlingClick = false;
+                         lastKnownGoodStyles.clear();
+                         window.styleExpectedState = null; // Clear any pending style enforcement
+
+                         // Set a global lock to prevent style syncing from interfering with preset loading
+                         window.presetLoadingLock = Date.now();
+
+                         return;
+                    }
+
                     isHandlingClick = false;
                     lastKnownGoodStyles.clear();
                     lastAvailableStyleSet.clear();
@@ -349,7 +405,6 @@ function sync_style_grid_state() {
             }
         }
         if (changed && isHandlingClick) {
-            // console.log(`[Style] Available styles changed (Preset switch detected), releasing click lock.`);
             isHandlingClick = false;
         }
     }
@@ -375,17 +430,36 @@ function sync_style_grid_state() {
         if (identity) {
             const cleanText = identity.toLowerCase().replace(/[- _]/g, '');
 
-            if (isHandlingClick) {
-                if (lastKnownGoodStyles.has(cleanText)) {
-                    selectedStyles.add(cleanText);
-                    if (!input.checked) {
-                        // console.log(`[StyleSync] Forcing restore for: ${identity}`);
-                        input.checked = true;
+            // Check lock first
+            if (window.presetLoadingLock && Date.now() - window.presetLoadingLock < 500) {
+                isHandlingClick = false;
+                lastKnownGoodStyles = new Set(currentDOMSelected);
+                // We still let the function run to update UI classes
+            }
+            // Enforce expected state if mismatch detected within 1s (Only if not locked)
+            else if (window.styleExpectedState &&
+                window.styleExpectedState.name === cleanText &&
+                Date.now() - window.styleExpectedState.timestamp < 1000) {
+
+                if (input.checked !== window.styleExpectedState.state) {
+                    // console.warn(`[StyleSync] State mismatch for ${identity}! Expected ${window.styleExpectedState.state}, got ${input.checked}. Enforcing and notifying.`);
+                    input.checked = window.styleExpectedState.state;
+                    // Dispatch event to ensure Gradio frontend framework is aware of the change
+                    input.dispatchEvent(new Event('change', { bubbles: true }));
+                    input.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+            }
+
+            if (isHandlingClick && (!window.presetLoadingLock || Date.now() - window.presetLoadingLock >= 500)) {
+                if (input.checked) {
+                    if (!lastKnownGoodStyles.has(cleanText)) {
+                            lastKnownGoodStyles.add(cleanText);
                     }
+                    selectedStyles.add(cleanText);
                 } else {
-                    if (input.checked) {
-                        // console.log(`[StyleSync] Forcing uncheck for: ${identity}`);
-                        input.checked = false;
+
+                    if (lastKnownGoodStyles.has(cleanText)) {
+                            lastKnownGoodStyles.delete(cleanText);
                     }
                 }
             } else {
@@ -400,10 +474,6 @@ function sync_style_grid_state() {
     if (!isHandlingClick) {
         lastKnownGoodStyles = new Set(currentDOMSelected);
     }
-
-    // if (selectedStyles.size > 0) {
-    //     console.log(`[StyleSync] Currently selected styles:`, Array.from(selectedStyles));
-    // }
 
     const buttons = container.querySelectorAll('.style-button');
     buttons.forEach(btn => {
@@ -489,7 +559,6 @@ function refresh_style_layout() {
     if (gridContainer) {
         if (styleGridOriginalElements.length === 0) {
             styleGridOriginalElements = [...gridContainer.querySelectorAll('.style_item')];
-            // console.log("[Style] Cached original elements:", styleGridOriginalElements.length);
         }
 
         styleGridOriginalElements.forEach((item) => {

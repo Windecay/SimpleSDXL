@@ -1737,7 +1737,7 @@ with shared.gradio_root:
                                 fn=send_trigger_to_prompt,
                                 inputs=[lora_model, lora_trigger_word],
                                 outputs=[lora_send_to_prompt_btns[i]]
-                            ).then(fn=None, _js=f"autoAddLoraTriggerWord('{lora_trigger_word.elem_id}', '{lora_model.elem_id}')")
+                            ).then(fn=None, _js=f"() => {{ if(window.globalAutoAddLoraTriggerWord) window.globalAutoAddLoraTriggerWord('{lora_trigger_word.elem_id}', '{lora_model.elem_id}') }}")
                         with gr.Row():
                             lora_gallery = gr.Gallery(label=f"LoRA {i + 1} Previews", columns=4, rows=2, height="auto", visible=False, elem_classes="lora-gallery")
                             lora_galleries.append(lora_gallery)
@@ -1753,7 +1753,7 @@ with shared.gradio_root:
                             inputs=[lora_models[i]],
                             outputs=[lora_trigger_words[i]],
                             queue=False, show_progress=False
-                        ).then(fn=None, _js=f"autoAddLoraTriggerWord('{lora_trigger_words[i].elem_id}', '{lora_models[i].elem_id}')")
+                        ).then(fn=None, _js=f"() => {{ if(window.globalAutoAddLoraTriggerWord) window.globalAutoAddLoraTriggerWord('{lora_trigger_words[i].elem_id}', '{lora_models[i].elem_id}') }}")
 
                     scene_lora_models = [scene_lora_model, scene_lora_model_2, scene_lora_model_3, scene_lora_model_4]
                     scene_lora_weights = [scene_lora_weight, scene_lora_weight_2, scene_lora_weight_3, scene_lora_weight_4]
