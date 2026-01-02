@@ -269,7 +269,7 @@ function init_style_grid_handlers() {
                     const bg = targetBtn.style.background || '';
                     const color = targetBtn.style.color || '';
 
-                    if (color === 'white' || bg.includes('secondary-200') || (bg !== '' && targetBtn.closest('.preset_store'))) {
+                    if (color === 'white' || bg.includes('secondary-200') || (targetBtn.closest('.preset_store') && targetBtn.classList.contains('primary'))) {
                          isAlreadyActive = true;
                     }
                 }
