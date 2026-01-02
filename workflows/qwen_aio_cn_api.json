@@ -1499,7 +1499,7 @@
         1
       ],
       "latent_image": [
-        "270",
+        "799",
         0
       ]
     },
@@ -1550,7 +1550,7 @@
         1
       ],
       "latent_image": [
-        "270",
+        "799",
         0
       ]
     },
@@ -1593,7 +1593,7 @@
     },
     "class_type": "VAELoader",
     "_meta": {
-      "title": "Load VAE"
+      "title": "vae_model"
     }
   },
   "337": {
@@ -2432,15 +2432,15 @@
         0
       ],
       "value0": [
-        "798",
+        "800",
         0
       ],
       "value1": [
-        "798",
+        "800",
         0
       ],
       "value2": [
-        "798",
+        "800",
         0
       ]
     },
@@ -3619,11 +3619,11 @@
         0
       ],
       "on_true": [
-        "798",
+        "800",
         0
       ],
       "on_false": [
-        "798",
+        "800",
         0
       ]
     },
@@ -3639,11 +3639,11 @@
         0
       ],
       "on_true": [
-        "798",
+        "800",
         0
       ],
       "on_false": [
-        "798",
+        "800",
         0
       ]
     },
@@ -3809,7 +3809,7 @@
       ],
       "denoise": 1,
       "model": [
-        "798",
+        "800",
         0
       ],
       "positive": [
@@ -5319,9 +5319,9 @@
   },
   "790": {
     "inputs": {
-      "strength": 1,
+      "strength": 2,
       "start_percent": 0,
-      "end_percent": 1,
+      "end_percent": 0.6,
       "positive": [
         "767",
         0
@@ -5465,6 +5465,35 @@
     "class_type": "LoraLoaderModelOnly",
     "_meta": {
       "title": "lora_8"
+    }
+  },
+  "799": {
+    "inputs": {
+      "samples": [
+        "270",
+        0
+      ],
+      "mask": [
+        "300",
+        0
+      ]
+    },
+    "class_type": "SetLatentNoiseMask",
+    "_meta": {
+      "title": "Set Latent Noise Mask"
+    }
+  },
+  "800": {
+    "inputs": {
+      "strength": 0.95,
+      "model": [
+        "798",
+        0
+      ]
+    },
+    "class_type": "CFGNorm",
+    "_meta": {
+      "title": "CFGNorm"
     }
   }
 }

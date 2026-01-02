@@ -1732,7 +1732,9 @@ packages = {
             ("insightface/models/antelopev2/glintr100.onnx", 260665334),
             ("insightface/models/antelopev2/scrfd_10g_bnkps.onnx", 16923827),
             ("clip/EVA02_CLIP_L_336_psz14_s6B.pt", 856461210),
-            ("loras/comfyui_portrait_lora64.safetensors",612742344)
+            ("loras/comfyui_portrait_lora64.safetensors",612742344),
+            ("controlnet/detection_Resnet50_Final.pth", 109497761),
+            ("controlnet/parsing_bisenet.pth", 53289463),
         ],
         "download_links": []
     },
@@ -2072,17 +2074,17 @@ packages = {
     },
     "qwen_aio_package": {
         "id":26,
-        "name": "[26]Qwen全功能预置包",
-        "note": "QwenImage全功能预置包|显存需求：★★★★ 速度:★★",
+        "name": "[26]Qwen_Image2512全功能预置包",
+        "note": "Qwen_Image2512全功能预置包|显存需求：★★★★★ 速度:★★",
         "files": [
-            ("checkpoints/qwen-image-Q4_K_M.gguf", 13065746976),
+            ("diffusion_models/https://www.modelscope.cn/models/Comfy-Org/Qwen-Image_ComfyUI/resolve/master/split_files/diffusion_models/qwen_image_2512_fp8_e4m3fn.safetensors", 20430679144),
             ("controlnet/Qwen-Image-InstantX-ControlNet-Union.safetensors", 3536027816),
             ("controlnet/lllyasviel/Annotators/ZoeD_M12_N.pt", 1443406099),
             ("controlnet/parsing_bisenet.pth", 53289463),
             ("upscale_models/4x-UltraSharp.pth", 66961958),
             ("clip/qwen_2.5_vl_7b_fp8_scaled.safetensors", 9384670680),
             ("vae/qwen_image_vae.safetensors", 253806246),
-            ("loras/https://www.modelscope.cn/models/lightx2v/Qwen-Image-Lightning/resolve/master/Qwen-Image-Lightning-8steps-V2.0-bf16.safetensors", 849608296),
+            ("loras/https://www.modelscope.cn/models/lightx2v/Qwen-Image-2512-Lightning/resolve/master/Qwen-Image-2512-Lightning-4steps-V1.0-bf16.safetensors", 849608296),
             ("upscale_models/4xNomosUniDAT_bokeh_jpg.safetensors", 154152604),
             ("controlnet/Qwen-Image-InstantX-ControlNet-Inpainting.safetensors", 4234599432)
         ],
@@ -2090,8 +2092,8 @@ packages = {
     },
     "qwen_image_edit_plus_package": {
         "id":27,
-        "name": "[27]QwenPlus图像编辑预置包",
-        "note": "Qwen_Image_EditPlus指令编辑图像|显存需求：★★★★★ 速度:★☆",
+        "name": "[27]QwenEdit+2511图像编辑预置包",
+        "note": "Qwen_Image_Edit+2511指令编辑图像|显存需求：★★★★★ 速度:★☆",
         "files": [
             ("diffusion_models/https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/diffusion_models/qwen_image_edit_2511_fp8mixed.safetensors", 20533762817),
             ("loras/https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/loras/Qwen-Image-Edit-2511-Lightning-4steps-V1.0-bf16.safetensors", 849608296),
@@ -2380,6 +2382,7 @@ OBSOLETE_MODELS = [
     "Z-Image-Turbo-Fun-Controlnet-Union.safetensors",
     "Z-Image-Turbo-Fun-Controlnet-Union-2.0.safetensors",
     "Z-Image-Turbo-Fun-Controlnet-Union-2.1.safetensors",
+    "qwen-image-Q4_K_M.gguf"
 ]
 
 MODELSCOPE_FILE_CACHE = {}
