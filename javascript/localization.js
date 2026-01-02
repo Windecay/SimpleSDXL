@@ -66,13 +66,14 @@ function processTextNode(node) {
     if (!canBeTranslated(node, text)) return;
 
     var tl = getTranslation(text);
-
-    // 新增反向查找逻辑以修复自定义风格悬浮图错位的问题
     let originalText = text;
+
     if (tl === undefined) {
         const rev = getReverseLocalization();
         if (rev && rev[text]) {
             originalText = rev[text];
+        } else {
+            tl = text;
         }
     }
 
@@ -81,7 +82,25 @@ function processTextNode(node) {
     }
 
     if (originalText && node.parentElement) {
-        node.parentElement.setAttribute("data-original-text", originalText);
+        let p = node.parentElement;
+
+        if (p.nodeName === 'SPAN' || p.nodeName === 'LABEL') {
+             p.setAttribute("data-original-text", originalText);
+        }
+
+        let label = p.closest('label');
+        if (label) {
+             label.setAttribute("data-original-text", originalText);
+
+             label.querySelectorAll('span').forEach(span => {
+                 span.setAttribute("data-original-text", originalText);
+             });
+        }
+
+        let closestSpan = p.closest('span');
+        if (closestSpan) {
+            closestSpan.setAttribute("data-original-text", originalText);
+        }
     }
 }
 
@@ -111,15 +130,15 @@ function processNode(node) {
 }
 
 function refresh_style_localization() {
-    const start = performance.now();
     processNode(document.querySelector('.style_selections'));
-    console.log(`[Timing] refresh_style_localization took ${performance.now() - start}ms`);
 }
 
 let styleGridOriginalElements = [];
+let styleSelectionsOriginalElements = [];
 let styleGridHandlersAttached = false;
 let isHandlingClick = false;
 let lastKnownGoodStyles = new Set();
+let lastAvailableStyleSet = new Set(); // 记录上一次看到的可用风格集合
 
 function init_style_grid_handlers() {
     if (styleGridHandlersAttached) {
@@ -142,6 +161,8 @@ function init_style_grid_handlers() {
         const styleName = btn.getAttribute('data-style-name');
         if (!styleName) return;
 
+        // console.log(`[StyleClick] Attempting to toggle style: ${styleName}`);
+
         const selections = document.querySelector('.style_selections');
         if (!selections) return;
 
@@ -149,50 +170,55 @@ function init_style_grid_handlers() {
         let found = false;
         const cleanStyle = styleName.toLowerCase().replace(/[- _]/g, '');
 
+        const rev = getReverseLocalization();
+
         for (const label of labels) {
-            const originalText = label.getAttribute('data-original-text');
-            const innerSpan = label.querySelector('span');
-            const spanOriginalText = innerSpan ? innerSpan.getAttribute('data-original-text') : null;
+            const input = label.querySelector('input[type="checkbox"]');
+            if (!input) continue;
+
             const labelText = label.textContent.trim();
 
-            const checkTexts = [originalText, spanOriginalText, labelText];
-            for (let text of checkTexts) {
-                if (!text) continue;
-                const cleanText = text.toLowerCase().replace(/[- _]/g, '');
-                if (cleanText === cleanStyle) {
-                    const input = label.querySelector('input[type="checkbox"]');
-                    if (input) {
-                        isHandlingClick = true;
-
-                        const isCurrentlyChecked = input.checked;
-                        const willBeChecked = !isCurrentlyChecked;
-
-                        if (willBeChecked) {
-                            lastKnownGoodStyles.add(cleanStyle);
-                        } else {
-                            lastKnownGoodStyles.delete(cleanStyle);
-                        }
-
-                        input.checked = willBeChecked;
-                        input.dispatchEvent(new Event('change', { bubbles: true }));
-
-                        const isSpecialStyle = cleanStyle.includes('fooocusv2') || cleanStyle.includes('fooocuspony') || cleanStyle.includes('sd15');
-                        if (isSpecialStyle) {
-                            label.click();
-                        }
-
-                        sync_style_grid_state();
-
-                        setTimeout(() => {
-                            isHandlingClick = false;
-                            sync_style_grid_state();
-                        }, 800);
-                        found = true;
-                        break;
-                    }
-                }
+            let identity = (input.value && input.value !== 'on') ? input.value : null;
+            
+            if (!identity) {
+                identity = label.getAttribute('data-original-text') || 
+                           (label.querySelector('span') ? label.querySelector('span').getAttribute('data-original-text') : null) ||
+                           (rev ? rev[labelText] : null) ||
+                           labelText;
             }
-            if (found) break;
+
+            if (!identity) continue;
+            const cleanIdentity = identity.toLowerCase().replace(/[- _]/g, '');
+
+            if (cleanIdentity === cleanStyle) {
+                // console.log(`[StyleClick] Found matching checkbox for ${styleName}. Currently checked: ${input.checked}`);
+
+                const willBeChecked = !input.checked;
+                isHandlingClick = true;
+
+                if (willBeChecked) {
+                    lastKnownGoodStyles.add(cleanStyle);
+                } else {
+                    lastKnownGoodStyles.delete(cleanStyle);
+                }
+
+                input.click();
+
+                // console.log(`[StyleClick] Clicked checkbox. New expected state: ${willBeChecked}, lastKnownGoodStyles now has:`, Array.from(lastKnownGoodStyles));
+
+                sync_style_grid_state();
+
+                setTimeout(() => {
+                    isHandlingClick = false;
+                    sync_style_grid_state();
+                }, 2000);
+
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            console.warn(`[StyleClick] Could not find checkbox matching style: ${styleName}`);
         }
     });
 
@@ -222,6 +248,60 @@ function init_style_grid_handlers() {
     });
 
     styleGridHandlersAttached = true;
+
+    ['mousedown', 'click'].forEach(eventType => {
+        document.addEventListener(eventType, (e) => {
+            const target = e.target;
+
+            let targetBtn = null;
+            if (target.classList.contains('bar_button')) {
+                targetBtn = target;
+            } else {
+                targetBtn = target.closest('button');
+                if (targetBtn && !targetBtn.closest('.preset_store') && !targetBtn.classList.contains('bar_button')) {
+                    targetBtn = null;
+                }
+            }
+
+            if (targetBtn) {
+                let isAlreadyActive = false;
+                if (targetBtn) {
+                    const bg = targetBtn.style.background || '';
+                    const color = targetBtn.style.color || '';
+
+                    if (color === 'white' || bg.includes('secondary-200') || (bg !== '' && targetBtn.closest('.preset_store'))) {
+                         isAlreadyActive = true;
+                    }
+                }
+
+                if (isAlreadyActive) {
+                    e.stopImmediatePropagation();
+                    e.stopPropagation();
+                    e.preventDefault();
+                    return;
+                }
+
+                if (eventType === 'mousedown') {
+                    isHandlingClick = false;
+                    lastKnownGoodStyles.clear();
+                    lastAvailableStyleSet.clear();
+
+                    const selections = document.querySelector('.style_selections');
+                    if (selections) {
+                        const inputs = selections.querySelectorAll('input[type="checkbox"]');
+                        inputs.forEach(input => {
+                            if (input.checked) {
+                                input.checked = false;
+                            }
+                        });
+                    }
+
+                    sync_style_grid_state();
+                }
+            }
+        }, true);
+    });
+
     const selections = document.querySelector('.style_selections');
     if (selections) {
         const observer = new MutationObserver(() => { sync_style_grid_state(); });
@@ -237,35 +317,93 @@ function sync_style_grid_state() {
     if (!container) return;
 
     const labels = selections.querySelectorAll('label');
-    const selectedStyles = new Set();
+    const currentAvailableStyles = new Set();
     const rev = getReverseLocalization();
 
     labels.forEach(label => {
         const input = label.querySelector('input[type="checkbox"]');
-        if (input && input.checked) {
-            const innerSpan = label.querySelector('span');
-            let text = label.getAttribute('data-original-text') || 
-                       (innerSpan ? innerSpan.getAttribute('data-original-text') : null) ||
-                       label.textContent.trim();
-
-            const cleanText = text.toLowerCase().replace(/[- _]/g, '');
-            const revText = (rev && rev[text]) ? rev[text] : null;
-            const cleanRevText = revText ? revText.toLowerCase().replace(/[- _]/g, '') : null;
-
-            if (cleanText) selectedStyles.add(cleanText);
-            if (cleanRevText) selectedStyles.add(cleanRevText);
+        if (!input) return;
+        let identity = (input.value && input.value !== 'on') ? input.value : null;
+        if (!identity) {
+            const labelText = label.textContent.trim();
+            identity = label.getAttribute('data-original-text') ||
+                       (label.querySelector('span') ? label.querySelector('span').getAttribute('data-original-text') : null) ||
+                       (rev ? rev[labelText] : null) ||
+                       labelText;
+        }
+        if (identity) {
+            currentAvailableStyles.add(identity.toLowerCase().replace(/[- _]/g, ''));
         }
     });
 
-    if (isHandlingClick) {
-        selectedStyles.clear();
-        lastKnownGoodStyles.forEach(s => selectedStyles.add(s));
-    } else {
-        if (selectedStyles.size > 0) {
-            selectedStyles.forEach(s => lastKnownGoodStyles.add(s));
+    if (lastAvailableStyleSet.size > 0) {
+        let changed = false;
+        if (currentAvailableStyles.size !== lastAvailableStyleSet.size) {
+            changed = true;
         } else {
+            for (let s of currentAvailableStyles) {
+                if (!lastAvailableStyleSet.has(s)) {
+                    changed = true;
+                    break;
+                }
+            }
+        }
+        if (changed && isHandlingClick) {
+            // console.log(`[Style] Available styles changed (Preset switch detected), releasing click lock.`);
+            isHandlingClick = false;
         }
     }
+    lastAvailableStyleSet = currentAvailableStyles;
+
+    const selectedStyles = new Set();
+    const currentDOMSelected = new Set();
+
+    labels.forEach(label => {
+        const input = label.querySelector('input[type="checkbox"]');
+        if (!input) return;
+
+        const labelText = label.textContent.trim();
+        let identity = (input.value && input.value !== 'on') ? input.value : null;
+
+        if (!identity) {
+            identity = label.getAttribute('data-original-text') ||
+                       (label.querySelector('span') ? label.querySelector('span').getAttribute('data-original-text') : null) ||
+                       (rev ? rev[labelText] : null) ||
+                       labelText;
+        }
+
+        if (identity) {
+            const cleanText = identity.toLowerCase().replace(/[- _]/g, '');
+
+            if (isHandlingClick) {
+                if (lastKnownGoodStyles.has(cleanText)) {
+                    selectedStyles.add(cleanText);
+                    if (!input.checked) {
+                        // console.log(`[StyleSync] Forcing restore for: ${identity}`);
+                        input.checked = true;
+                    }
+                } else {
+                    if (input.checked) {
+                        // console.log(`[StyleSync] Forcing uncheck for: ${identity}`);
+                        input.checked = false;
+                    }
+                }
+            } else {
+                if (input.checked) {
+                    selectedStyles.add(cleanText);
+                    currentDOMSelected.add(cleanText);
+                }
+            }
+        }
+    });
+
+    if (!isHandlingClick) {
+        lastKnownGoodStyles = new Set(currentDOMSelected);
+    }
+
+    // if (selectedStyles.size > 0) {
+    //     console.log(`[StyleSync] Currently selected styles:`, Array.from(selectedStyles));
+    // }
 
     const buttons = container.querySelectorAll('.style-button');
     buttons.forEach(btn => {
@@ -303,85 +441,121 @@ function sync_style_grid_state() {
 
 function refresh_style_layout() {
     const start = performance.now();
-    const container = document.querySelector(".style_grid");
-    if (!container) return;
+    const gridContainer = document.querySelector(".style_grid");
+    const selectionsContainer = document.querySelector('.style_selections');
+    
+    if (!gridContainer && !selectionsContainer) return;
 
-    init_style_grid_handlers();
+    if (gridContainer) {
+        init_style_grid_handlers();
+    }
 
-    const selections = document.querySelector('.style_selections');
-    if (!selections) return;
+    if (!selectionsContainer) return;
 
-    const checkedInputs = selections.querySelectorAll('input:checked');
+    const labels = selectionsContainer.querySelectorAll('label');
     let selectedStylesClean = new Set();
     const rev = getReverseLocalization();
 
-    checkedInputs.forEach(cb => {
-        const label = cb.parentElement;
-        const innerSpan = label.querySelector('span');
-        let text = label.getAttribute('data-original-text') ||
-                   (innerSpan ? innerSpan.getAttribute('data-original-text') : null) ||
-                   label.textContent.trim();
+    labels.forEach(label => {
+        const cb = label.querySelector('input[type="checkbox"]');
+        if (!cb) return;
 
-        const revText = (rev && rev[text]) ? rev[text] : null;
+        const labelText = label.textContent.trim();
+        let identity = (cb.value && cb.value !== 'on') ? cb.value : null;
 
-        if (text) {
-            selectedStylesClean.add(text.toLowerCase().replace(/[- _]/g, ''));
+        if (!identity) {
+            identity = label.getAttribute('data-original-text') ||
+                       (label.querySelector('span') ? label.querySelector('span').getAttribute('data-original-text') : null) ||
+                       (rev ? rev[labelText] : null) ||
+                       labelText;
         }
-        if (revText) {
-            selectedStylesClean.add(revText.toLowerCase().replace(/[- _]/g, ''));
+
+        if (identity) {
+            const cleanText = identity.toLowerCase().replace(/[- _]/g, '');
+            if (cb.checked) {
+                selectedStylesClean.add(cleanText);
+            }
         }
     });
 
     if (isHandlingClick) {
-        selectedStylesClean.clear();
         lastKnownGoodStyles.forEach(s => selectedStylesClean.add(s));
-    } else {
-        if (selectedStylesClean.size > 0) {
-            selectedStylesClean.forEach(s => lastKnownGoodStyles.add(s));
-        }
-    }
-
-    if (styleGridOriginalElements.length === 0) {
-        styleGridOriginalElements = [...container.querySelectorAll('.style_item')];
-        console.log("[Style] Cached original elements:", styleGridOriginalElements.length);
     }
 
     const searchBar = gradioApp().querySelector('textarea[data-testid="textbox"][placeholder*="搜索风格"], textarea[data-testid="textbox"][placeholder*="search styles"]');
     const searchText = (searchBar?.value?.trim() || '').toLowerCase();
+    const cleanSearchText = searchText.replace(/[- _]/g, '');
 
-    styleGridOriginalElements.forEach((item) => {
-        const btn = item.querySelector('button');
-        const btnText = btn?.textContent.trim();
-        const rawName = btn?.getAttribute('data-style-name') || btnText;
-        if (!rawName) return;
-
-        const cleanName = rawName.toLowerCase().replace(/[- _]/g, '');
-        const isSelected = selectedStylesClean.has(cleanName);
-
-        const matchesSearch = cleanName.includes(searchText.replace(/[- _]/g, '')) || 
-                              btnText.toLowerCase().includes(searchText);
-        const isVisible = isSelected || matchesSearch;
-
-        if (isVisible) {
-            item.style.setProperty('display', 'block', 'important');
-            item.style.order = isSelected ? 0 : 1;
-
-            if (!btn.style.backgroundImage || btn.style.backgroundImage === 'none') {
-                const styleName = rawName.toLowerCase().replace(/ /g, '_').replace(/[^a-z0-9_]/g, '');
-                btn.style.backgroundImage = `url("file=sdxl_styles/samples/${styleName}.jpg")`;
-            }
-
-            if (isSelected) {
-                btn.classList.add('primary');
-                btn.classList.remove('secondary');
-            } else {
-                btn.classList.add('secondary');
-                btn.classList.remove('primary');
-            }
-        } else {
-            item.style.setProperty('display', 'none', 'important');
+    if (gridContainer) {
+        if (styleGridOriginalElements.length === 0) {
+            styleGridOriginalElements = [...gridContainer.querySelectorAll('.style_item')];
+            // console.log("[Style] Cached original elements:", styleGridOriginalElements.length);
         }
-    });
+
+        styleGridOriginalElements.forEach((item) => {
+            const btn = item.querySelector('button');
+            const btnText = btn?.textContent.trim();
+            const rawName = btn?.getAttribute('data-style-name') || btnText;
+            if (!rawName) return;
+
+            const cleanName = rawName.toLowerCase().replace(/[- _]/g, '');
+            const isSelected = selectedStylesClean.has(cleanName);
+
+            const matchesSearch = cleanName.includes(cleanSearchText) || 
+                                  btnText.toLowerCase().includes(searchText);
+            const isVisible = isSelected || matchesSearch;
+
+            if (isVisible) {
+                item.style.setProperty('display', 'block', 'important');
+                item.style.order = isSelected ? 0 : 1;
+
+                if (!btn.style.backgroundImage || btn.style.backgroundImage === 'none') {
+                    const styleName = rawName.toLowerCase().replace(/ /g, '_').replace(/[^a-z0-9_]/g, '');
+                    btn.style.backgroundImage = `url("file=sdxl_styles/samples/${styleName}.jpg")`;
+                }
+
+                if (isSelected) {
+                    btn.classList.add('primary');
+                    btn.classList.remove('secondary');
+                } else {
+                    btn.classList.add('secondary');
+                    btn.classList.remove('primary');
+                }
+            } else {
+                item.style.setProperty('display', 'none', 'important');
+            }
+        });
+    }
+
+    const checkboxGroup = selectionsContainer.querySelector('.wrap[data-testid="checkbox-group"]');
+    if (checkboxGroup) {
+        const labels = checkboxGroup.querySelectorAll('label');
+        labels.forEach((label) => {
+            const labelText = label.textContent.trim();
+            const identity = label.getAttribute('data-original-text') ||
+                             (label.querySelector('span') ? label.querySelector('span').getAttribute('data-original-text') : null) ||
+                             (rev ? rev[labelText] : null) ||
+                             labelText;
+
+            if (!identity) return;
+
+            const cleanText = identity.toLowerCase().replace(/[- _]/g, '');
+            const isSelected = selectedStylesClean.has(cleanText);
+            
+            const translatedText = label.textContent.trim().toLowerCase();
+            
+            const matchesSearch = cleanText.includes(cleanSearchText) || 
+                                  translatedText.includes(searchText);
+            const isVisible = isSelected || matchesSearch;
+
+            if (isVisible) {
+                label.style.setProperty('display', 'flex', 'important');
+                label.style.order = isSelected ? 0 : 1;
+            } else {
+                label.style.setProperty('display', 'none', 'important');
+            }
+        });
+    }
 }
 
 

@@ -1038,11 +1038,27 @@ div.block.tagHelper.active {
 .style_grid {
   display: grid !important;
   gap: 4px !important;
-  grid-template-columns: repeat(5, 1fr) !important;
   width: 100% !important;
   padding: 8px !important;
   max-height: 900px !important; /* 限制最大高度，防止纵向拉伸过长 */
   min-height: 100px;
+  /* 基础方案：使用 Media Queries 强制控制列数 */
+  /* 默认（小屏/窄屏）：3 列 */
+  grid-template-columns: repeat(3, 1fr) !important;
+}
+
+/* 中等屏幕：4 列 */
+@media (min-width: 1280px) {
+  .style_grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+}
+
+/* 大屏幕：5 列 */
+@media (min-width: 1600px) {
+  .style_grid {
+    grid-template-columns: repeat(5, 1fr) !important;
+  }
 }
 .style_item {
   display: block !important;

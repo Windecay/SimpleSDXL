@@ -754,7 +754,8 @@ function setupAutoTranslate() {
 
 onUiLoaded(setupAutoTranslate);
 
-window.autoAddLoraTriggerWord = function(triggerWordElemId, modelElemId, directTriggerWord) {
+onUiLoaded(() => {
+    window.autoAddLoraTriggerWord = function(triggerWordElemId, modelElemId, directTriggerWord) {
     try {
         function addTriggerWordToPrompt(triggerWord) {
             const positivePrompt = gradioApp().querySelector('#positive_prompt textarea');
@@ -783,3 +784,4 @@ window.autoAddLoraTriggerWord = function(triggerWordElemId, modelElemId, directT
         console.error('Error in autoAddLoraTriggerWord:', error);
     }
 };
+});

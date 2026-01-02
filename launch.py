@@ -74,9 +74,9 @@ def check_base_environment():
     base_pkg = "simpleai_base"
     ver_required = "0.3.31"
     REINSTALL_BASE = False #if '_dev' not in version.get_branch() else True
-    base_branch = "release"
-    if '--dev' in (sys.argv):
-        base_branch = 'dev'
+    base_branch = "dev"
+    # if '--dev' in (sys.argv):
+    #     base_branch = 'dev'
     base_url = f"https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/{base_branch}"
     #base_url = f"https://hf-mirror.com/metercai/SimpleSDXL2/resolve/main/libs/{base_branch}"
     base_file = {
@@ -258,12 +258,13 @@ def check_base_environment():
             logger.info(f'有任何疑问可到SimpleSDXL的QQ群交流: 1005085136')
             sys.exit(0)
         if platform.system() == 'Windows' and is_installed("facexlib") and is_installed("insightface") and (not is_installed("cpm_kernels") or not is_installed_version("bitsandbytes", "0.45.5")):
-            logger.info(f'运行环境中缺乏必要组件或组件版本不匹配, SimpleSDXL2的程序环境包已升级。请参照 https://hf-mirror.com/metercai/SimpleSDXL2/ 的指引, 下载安装最新程序环境包.')
-            logger.info(f'The program running environment lacks necessary components. The program environment package for SimpleSDXL2 has been upgraded. Please go to https://hf-mirror.com/metercai/SimpleSDXL2/ Download and install the latest program environment package.')
+            logger.info(f'运行环境中缺乏必要组件或组件版本不匹配, 或最新程序环境已升级。请参考SimpAI.cn的安装说明重新部署。')
+            logger.info(f'The program running environment lacks necessary components, or the latest program environment package has been upgraded. Please refer to the installation instructions on SimpAI.cn to redeploy.')
             logger.info(f'有任何疑问可到SimpleSDXL的QQ群交流: 1005085136')
             sys.exit(0)
     else:
-        logger.info(f'系统环境已升级, 请到 https://hf-mirror.com/metercai/SimpleSDXL2/ 下载最新版本进行升级: SimpAI_dev.exe.7z0505')
+        logger.info(f'环境缺失必要组件或系统不匹配。请参考SimpAI.cn的安装说明重新部署。')
+        logger.info(f'The program running environment lacks necessary components or the system does not match. Please refer to the installation instructions on SimpAI.cn to redeploy.')
 
     if not is_installed(base_pkg):
         logger.error(f"FATAL ERROR: {base_pkg} is not installed and could not be downloaded/installed.")
@@ -613,18 +614,18 @@ logger.info(f'Env_ready_code: {env_ready_code}')
 #    print(f'有任何疑问可到SimpleSDXL的QQ群交流: 1005085136')
 #    sys.exit(0)
 
-if not shared.args.disable_backend:
+# if not shared.args.disable_backend:
     # config.default_base_model_name, config.checkpoint_downloads = download_models(
     #     config.default_base_model_name, config.previous_default_models, config.checkpoint_downloads,
     #     config.embeddings_downloads, config.lora_downloads, config.vae_downloads)
 
     # 检查默认模型是否存在
-    default_model_path = shared.modelsinfo.get_file_path_by_name('diffusion_models', config.default_base_model_name)
-    if not os.path.exists(default_model_path):
-        logger.error(f"默认模型尚未下载: {config.default_base_model_name}")
-        logger.error(f"请运行模型检测器或手动下载模型到: {os.path.dirname(default_model_path)}")
-        # 设置标志以便UI显示错误信息
-        shared.args.absent_model = True
+    # default_model_path = shared.modelsinfo.get_file_path_by_name('diffusion_models', config.default_base_model_name)
+    # if not os.path.exists(default_model_path):
+    #     logger.error(f"默认模型尚未下载: {config.default_base_model_name}")
+    #     logger.error(f"请运行模型检测器或手动下载模型到: {os.path.dirname(default_model_path)}")
+    #     # 设置标志以便UI显示错误信息
+    #     shared.args.absent_model = True
 
 config.update_files()
 init_cache(config.model_filenames, config.paths_checkpoints, config.lora_filenames, config.paths_loras)

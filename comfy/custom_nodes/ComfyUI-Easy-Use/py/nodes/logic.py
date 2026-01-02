@@ -1406,9 +1406,10 @@ class showAnything:
             pass
         else:
             workflow = extra_pnginfo[0]["workflow"]
-            node = next((x for x in workflow["nodes"] if str(x["id"]) == unique_id[0]), None)
-            if node:
-                node["widgets_values"] = [values]
+            if isinstance(workflow, dict) and "nodes" in workflow:
+                node = next((x for x in workflow["nodes"] if str(x["id"]) == unique_id[0]), None)
+                if node:
+                    node["widgets_values"] = [values]
         if isinstance(values, list) and len(values) == 1:
             return {"ui": {"text": values}, "result": (values[0],), }
         else:

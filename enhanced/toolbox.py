@@ -472,8 +472,8 @@ def save_preset(*args):
         preset["default_image_number"] = image_number
 
         preset["checkpoint_downloads"] = {}
-        if refiner_model and refiner_model != 'None':
-            preset["checkpoint_downloads"].update({refiner_model: get_muid_link("checkpoints/"+refiner_model)})
+        # if refiner_model and refiner_model != 'None':
+        #     # preset["checkpoint_downloads"].update({refiner_model: get_muid_link("checkpoints/"+refiner_model)})
 
         preset["embeddings_downloads"] = {}
         prompt_tags = re.findall(r'[\(](.*?)[)]', negative_prompt) + re.findall(r'[\(](.*?)[)]', prompt)
