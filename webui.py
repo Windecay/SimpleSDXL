@@ -2261,14 +2261,14 @@ with shared.gradio_root:
 
         def cache_input_image_func(tab, uov, inpaint, layer, enhance, scene1, scene_canvas):
             img = None
-            if tab == 'uov': img = uov
-            elif tab == 'inpaint': 
+            if tab == 'uov_tab': img = uov
+            elif tab == 'inpaint_tab':
                 if isinstance(inpaint, dict):
                     img = inpaint.get('image')
                 else:
                     img = inpaint
-            elif tab == 'layer': img = layer
-            elif tab == 'enhance': img = enhance
+            elif tab == 'layer_tab': img = layer
+            elif tab == 'enhance_tab': img = enhance
             elif tab == 'scene' or (tab and 'scene' in tab): 
                 if scene_canvas is not None:
                      if isinstance(scene_canvas, dict):
@@ -2280,10 +2280,20 @@ with shared.gradio_root:
                     img = scene1
 
             if img is None:
-                 if uov is not None: 
+                 # Fallback logic if tab doesn't match or image is missing in current tab
+                 if scene_canvas is not None:
+                     if isinstance(scene_canvas, dict):
+                         img = scene_canvas.get('image')
+                     else:
+                         img = scene_canvas
+
+                 if img is None and scene1 is not None:
+                     img = scene1
+
+                 if img is None and uov is not None:
                      img = uov
 
-                 if img is None and inpaint is not None: 
+                 if img is None and inpaint is not None:
                      if isinstance(inpaint, dict):
                         img = inpaint.get('image')
                      else:
@@ -2294,15 +2304,6 @@ with shared.gradio_root:
 
                  if img is None and enhance is not None: 
                      img = enhance
-
-                 if img is None and scene_canvas is not None:
-                     if isinstance(scene_canvas, dict):
-                         img = scene_canvas.get('image')
-                     else:
-                         img = scene_canvas
-
-                 if img is None and scene1 is not None: 
-                     img = scene1
 
             return process_image_for_html(img)
 
@@ -2417,7 +2418,7 @@ with shared.gradio_root:
         protections = [random_button, super_prompter, background_theme, image_tools_checkbox] + nav_bars
         generate_button.click(lambda v, a: (v, a, gr.update(value=None, visible=False), gr.update(value=None, visible=False), gr.update(visible=True if v else False), gr.update(visible=True if a else False)), inputs=[scene_video, scene_audio], outputs=[scene_video_backup, scene_audio_backup, scene_video, scene_audio, scene_video_placeholder, scene_audio_placeholder], queue=False, show_progress=False) \
             .then(cache_input_image_func, inputs=[current_tab, uov_input_image, inpaint_input_image, layer_input_image, enhance_input_image, scene_input_image1, scene_canvas_image], outputs=[cached_input_image]) \
-            .then(lambda: (False, gr.update(visible=False), gr.update(visible=True), gr.update(visible=False, size='sm')), outputs=[comparison_state, comparison_box, progress_gallery, compare_btn]) \
+            .then(lambda: (False, gr.update(visible=False), gr.update(), gr.update(visible=False, size='sm')), outputs=[comparison_state, comparison_box, progress_gallery, compare_btn]) \
             .then(topbar.process_before_generation, inputs=[state_topbar, seed_random, image_seed, params_backend] + scene_params[:15] + [scene_video_backup, scene_audio_backup], outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating, index_radio, image_toolbox, prompt_info_box, image_seed] + protections + [preset_store, identity_dialog], show_progress=False) \
             .then(topbar.wait_for_minicpm_completion, outputs=[], show_progress=False) \
             .then(topbar.avoid_empty_prompt_for_scene, inputs=[prompt, state_topbar, scene_input_image1, scene_theme, scene_additional_prompt, scene_additional_prompt_2], outputs=prompt, show_progress=True) \
