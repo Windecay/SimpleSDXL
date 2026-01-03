@@ -113,36 +113,74 @@ def init_or_load_translator_model(method='Slim Model'):
     logger.info(f'init_or_load_translator_model: {method}')
     if method != g_model_type or g_tokenizer is None or g_model is None:
         if method == "Big Model":
+            # NLLB-200 requires several files to work with AutoTokenizer and AutoModel
+            required_files = [
+                'config.json',
+                'pytorch_model.bin',
+                'tokenizer_config.json',
+                'sentencepiece.bpe.model',
+                'special_tokens_map.json',
+                'tokenizer.json'
+            ]
+            hf_repo = "facebook/nllb-200-distilled-600M"
+
             if not os.path.exists(translator_path):
                 os.makedirs(translator_path)
                 url = 'https://gitee.com/metercai/SimpleSDXL/releases/download/win64/nllb_200_distilled_600m.tar.gz'
                 cached_file = os.path.join(translator_path, 'nllb_200_distilled_600m.tar.gz')
-                download(url, cached_file, progressbar=True)
-                with tarfile.open(cached_file, 'r:gz') as tarf:
-                    tarf.extractall(translator_path)
-                os.remove(cached_file)
-            if not os.path.exists(os.path.join(translator_path, 'pytorch_model.bin')):
-                load_file_from_url(
-                    url='https://huggingface.co/facebook/nllb-200-distilled-600M/resolve/main/pytorch_model.bin',
-                    model_dir=translator_path,
-                    file_name='pytorch_model.bin')
+                try:
+                    download(url, cached_file, progressbar=True)
+                    with tarfile.open(cached_file, 'r:gz') as tarf:
+                        tarf.extractall(translator_path)
+                    os.remove(cached_file)
+                except Exception as e:
+                    logger.warning(f"Failed to download or extract from Gitee: {e}. Will try Hugging Face.")
+
+            # Check and download each missing file from Hugging Face
+            for file_name in required_files:
+                file_path = os.path.join(translator_path, file_name)
+                if not os.path.exists(file_path):
+                    load_file_from_url(
+                        url=f'https://huggingface.co/{hf_repo}/resolve/main/{file_name}',
+                        model_dir=translator_path,
+                        file_name=file_name)
+
             logger.info(f'load model form : {translator_path}')
             g_tokenizer = AutoTokenizer.from_pretrained(translator_path, src_lang="zho_Hans")
             g_model = AutoModelForSeq2SeqLM.from_pretrained(translator_path)
         else:
+            # Opus-MT requires several files
+            required_files = [
+                'config.json',
+                'pytorch_model.bin',
+                'source.spm',
+                'target.spm',
+                'vocab.json',
+                'tokenizer_config.json'
+            ]
+            hf_repo = "Helsinki-NLP/opus-mt-zh-en"
+
             if not os.path.exists(translator_slim_path):
                 os.makedirs(translator_slim_path)
                 url = 'https://gitee.com/metercai/SimpleSDXL/releases/download/win64/opus_mt_zh_en.tar.gz'
                 cached_file = os.path.join(translator_slim_path, 'opus_mt_zh_en.tar.gz')
-                download(url, cached_file, progressbar=True)
-                with tarfile.open(cached_file, 'r:gz') as tarf:
-                    tarf.extractall(translator_slim_path)
-                os.remove(cached_file)
-            if not os.path.exists(os.path.join(translator_slim_path, 'pytorch_model.bin')):
-                load_file_from_url(
-                    url='https://huggingface.co/Helsinki-NLP/opus-mt-zh-en/resolve/main/pytorch_model.bin',
-                    model_dir=translator_slim_path,
-                    file_name='pytorch_model.bin')
+                try:
+                    download(url, cached_file, progressbar=True)
+                    with tarfile.open(cached_file, 'r:gz') as tarf:
+                        tarf.extractall(translator_slim_path)
+                    os.remove(cached_file)
+                except Exception as e:
+                    logger.warning(f"Failed to download or extract from Gitee: {e}. Will try Hugging Face.")
+
+            # Check and download each missing file from Hugging Face
+            for file_name in required_files:
+                file_path = os.path.join(translator_slim_path, file_name)
+                if not os.path.exists(file_path):
+                    load_file_from_url(
+                        url=f'https://huggingface.co/{hf_repo}/resolve/main/{file_name}',
+                        model_dir=translator_slim_path,
+                        file_name=file_name)
+
             logger.info(f'load slim model form : {translator_slim_path}')
             g_tokenizer = AutoTokenizer.from_pretrained(translator_slim_path)
             g_model = AutoModelForSeq2SeqLM.from_pretrained(translator_slim_path).eval()

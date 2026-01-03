@@ -189,7 +189,7 @@ def get_path_in_user_dir(filename, user_did=None, catalog=None):
         path_file = shared.token.get_path_in_user_dir(user_did, path)
         if not os.path.exists(os.path.dirname(path_file)):
             for cata in ["presets", "workflows", "styles", "wildcards"]:
-                os.makedirs(os.path.join(os.path.dirname(path_file), cata))
+                os.makedirs(os.path.join(os.path.dirname(path_file), cata), exist_ok=True)
         if catalog: 
             path_file = os.path.join(path_file, filename)
         path_file = os.path.abspath(path_file)

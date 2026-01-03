@@ -1787,7 +1787,15 @@ packages = {
             ("style_models/flux1-redux-dev.safetensors", 129063232),
             ("upscale_models/4x-UltraSharp.pth", 66961958),
             ("rembg/General.safetensors", 884878856),
-            ("loras/comfyui_subject_lora16.safetensors", 153268392)
+            ("loras/comfyui_subject_lora16.safetensors", 153268392),
+            ("llms/Helsinki-NLP/opus-mt-zh-en/config.json", 1394),
+            ("llms/Helsinki-NLP/opus-mt-zh-en/generation_config.json", 293),
+            ("llms/Helsinki-NLP/opus-mt-zh-en/metadata.json", 1477),
+            ("llms/Helsinki-NLP/opus-mt-zh-en/pytorch_model.bin", 312087009),
+            ("llms/Helsinki-NLP/opus-mt-zh-en/source.spm", 804677),
+            ("llms/Helsinki-NLP/opus-mt-zh-en/target.spm", 806530),
+            ("llms/Helsinki-NLP/opus-mt-zh-en/tokenizer_config.json", 44),
+            ("llms/Helsinki-NLP/opus-mt-zh-en/vocab.json", 1617902),
         ],
         "download_links": [
         "【选配】https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/checkpoints/flux1-fill-dev-OneReward_fp8.safetensors"
@@ -1802,7 +1810,15 @@ packages = {
             ("clip/clip_l.safetensors", 246144152),
             ("clip/t5xxl_fp8_e4m3fn.safetensors", 4893934904),
             ("vae/ae.safetensors", 335304388),
-            ("loras/removal_timestep_alpha-2-1740.safetensors",89746016)
+            ("loras/removal_timestep_alpha-2-1740.safetensors",89746016),
+            ("llms/Helsinki-NLP/opus-mt-zh-en/config.json", 1394),
+            ("llms/Helsinki-NLP/opus-mt-zh-en/generation_config.json", 293),
+            ("llms/Helsinki-NLP/opus-mt-zh-en/metadata.json", 1477),
+            ("llms/Helsinki-NLP/opus-mt-zh-en/pytorch_model.bin", 312087009),
+            ("llms/Helsinki-NLP/opus-mt-zh-en/source.spm", 804677),
+            ("llms/Helsinki-NLP/opus-mt-zh-en/target.spm", 806530),
+            ("llms/Helsinki-NLP/opus-mt-zh-en/tokenizer_config.json", 44),
+            ("llms/Helsinki-NLP/opus-mt-zh-en/vocab.json", 1617902),
         ],
         "download_links": [
         "【选配】一键消除基于FluxAIO组件扩展，请检查所需模型包。"

@@ -661,13 +661,17 @@ def reset_layout_ui(prompt, negative_prompt, state_params, is_generating, inpain
     state_params.update({"__message": system_message})
     system_message = 'system message was displayed!'
     if '__preset' not in state_params.keys() or 'bar_button' not in state_params.keys() or state_params["__preset"]==state_params['bar_button']:
-        return refresh_nav_bars(state_params) + [gr.update()] * reset_layout_num + [state_params]
+        # Default reset for comparison UI when not switching
+        comparison_default = [gr.update(), gr.update(), gr.update(), gr.update(), gr.update()]
+        return refresh_nav_bars(state_params) + [gr.update()] * reset_layout_num + [state_params] + comparison_default
     preset = state_params["bar_button"] if '\u2B07' not in state_params["bar_button"] else state_params["bar_button"].replace('\u2B07', '')
     logger.info(f'Reset_context: preset={state_params["__preset"]}-->{preset}, theme={state_params["__theme"]}, lang={state_params["__lang"]}')
     if not args_manager.args.disable_backend and '\u2B07' in state_params["bar_button"]:
         gr.Info(preset_down_note_info)
 
     state_params.update({"__preset": preset})
+
+    comparison_outputs = [False, gr.update(visible=False), gr.update(visible=False), gr.update(visible=False), gr.update(visible=True, value=get_welcome_image(preset, state_params["__is_mobile"], no_welcome=ads.get_admin_default("no_welcome_checkbox")))]
 
     config_preset = config.try_get_preset_content(preset, state_params["user"].get_did())
     preset_prepared = meta_parser.parse_meta_from_preset(config_preset)
@@ -703,7 +707,10 @@ def reset_layout_ui(prompt, negative_prompt, state_params, is_generating, inpain
     results = refresh_nav_bars(state_params)
     results += meta_parser.switch_layout_template(preset_prepared, state_params, preset_url)
 
-    return results + [state_params]
+    # comparison_state, comparison_box, progress_gallery, compare_btn, progress_window
+    comparison_outputs = [False, gr.update(visible=False), gr.update(visible=False), gr.update(visible=False), gr.update(visible=True, value=get_welcome_image(preset, state_params["__is_mobile"], no_welcome=ads.get_admin_default("no_welcome_checkbox")))]
+    
+    return results + [state_params] + comparison_outputs
 
 def reset_layout_values(state_params, is_generating, inpaint_mode):
     preset = state_params["__preset"]

@@ -1,3 +1,6 @@
+import io
+import base64
+import numpy as np
 import gradio as gr
 import os
 import json
@@ -346,17 +349,19 @@ logo_imag_url = f'/file={logo_imag_path}'
 
 with shared.gradio_root:
     state_topbar = gr.State({})
+    cached_input_image = gr.State(None)
     params_backend = gr.State({})
     system_params = gr.JSON({}, visible=False)
     gallery_index_stat = gr.Textbox(value='', visible=False)
     currentTask = gr.State(worker.AsyncTask(args=[]))
     inpaint_engine_state = gr.State('empty')
     state_is_generating = gr.State(False)
+    comparison_state = gr.State(False)
     scene_video_backup = gr.State(None)
     scene_audio_backup = gr.State(None)
     with gr.Row():
         with gr.Column(scale=2):
-            with gr.Group():
+            with gr.Group(elem_id='main_content'):
                 with gr.Row():
                     start_timestamp = gr.Textbox(visible=False)
                     bar_store_button = gr.Button(value='PresetStore', size='sm', min_width=50, elem_id='bar_store', elem_classes='bar_store')
@@ -480,6 +485,7 @@ with shared.gradio_root:
                                                 elem_classes=['main_view'], value="presets/welcome/welcome.png", interactive=False, show_download_button=False)
                             progress_gallery = gr.Gallery(label='Finished Images', show_label=True, object_fit='contain', elem_id='finished_gallery',
                                                 height=520, visible=False, elem_classes=['main_view', 'image_gallery'])
+                            comparison_box = gr.HTML(visible=False, elem_id='comparison_box')
                             progress_video = gr.Video(label='Generated Video', show_label=True, visible=False, height=768, 
                                                 elem_classes=['main_view', 'video_player'], elem_id='video_player', autoplay=True, show_share_button=False)
                             gallery = gr.Gallery(label='Gallery', show_label=True, object_fit='contain', visible=False, height=768,
@@ -489,6 +495,8 @@ with shared.gradio_root:
                         progress_html = gr.HTML(value=modules.html.make_progress_html(32, 'Progress 32%'), visible=False,
                                             elem_id='progress-bar', elem_classes='progress-bar')
 
+                        with gr.Row():
+                            compare_btn = gr.Button("🖼️ Compare Input/Output", visible=False, size='sm')
                         with gr.Group(visible=False, elem_classes='infobox_group') as prompt_info_container:
                             prompt_info_box = gr.Markdown(toolbox.make_infobox_markdown(None, args_manager.args.theme), visible=False, elem_id='infobox', elem_classes='infobox')
                             prompt_info_close_btn = gr.Button(value='×', size='sm', elem_classes=['note_close_btn'], min_width=30, visible=False)
@@ -2239,8 +2247,164 @@ with shared.gradio_root:
             .then(style_sorter.sort_styles, inputs=style_selections, outputs=style_selections, queue=False, show_progress=False)
 
         model_check = [prompt, negative_prompt, base_model, refiner_model] + lora_ctrls
+
+        def process_image_for_html(img):
+            if img is None: return None
+            if isinstance(img, str): return f"/file={img}"
+            if isinstance(img, np.ndarray):
+                pil_img = Image.fromarray(img)
+                buffered = io.BytesIO()
+                pil_img.save(buffered, format="PNG")
+                img_str = base64.b64encode(buffered.getvalue()).decode()
+                return f"data:image/png;base64,{img_str}"
+            return None
+
+        def cache_input_image_func(tab, uov, inpaint, layer, enhance, scene1, scene_canvas):
+            img = None
+            if tab == 'uov': img = uov
+            elif tab == 'inpaint': 
+                if isinstance(inpaint, dict):
+                    img = inpaint.get('image')
+                else:
+                    img = inpaint
+            elif tab == 'layer': img = layer
+            elif tab == 'enhance': img = enhance
+            elif tab == 'scene' or (tab and 'scene' in tab): 
+                if scene_canvas is not None:
+                     if isinstance(scene_canvas, dict):
+                         img = scene_canvas.get('image')
+                     else:
+                         img = scene_canvas
+
+                if img is None and scene1 is not None:
+                    img = scene1
+
+            if img is None:
+                 if uov is not None: 
+                     img = uov
+
+                 if img is None and inpaint is not None: 
+                     if isinstance(inpaint, dict):
+                        img = inpaint.get('image')
+                     else:
+                        img = inpaint
+
+                 if img is None and layer is not None: 
+                     img = layer
+
+                 if img is None and enhance is not None: 
+                     img = enhance
+
+                 if img is None and scene_canvas is not None:
+                     if isinstance(scene_canvas, dict):
+                         img = scene_canvas.get('image')
+                     else:
+                         img = scene_canvas
+
+                 if img is None and scene1 is not None: 
+                     img = scene1
+
+            return process_image_for_html(img)
+
+        def toggle_comparison(is_comp, input_img, gallery_output):
+            if is_comp:
+                 # Switch back to Gallery
+                 return False, gr.update(visible=False), gr.update(visible=True)
+
+            if not input_img:
+                return False, gr.update(visible=False), gr.update(visible=True)
+
+            output_img = None
+            if gallery_output and len(gallery_output) > 0:
+                first_item = gallery_output[0]
+
+                if isinstance(first_item, (list, tuple)):
+                    img_data = first_item[0]
+                    if isinstance(img_data, dict):
+                         output_img = img_data.get('name') or img_data.get('data')
+                    else:
+                         output_img = img_data
+                elif isinstance(first_item, dict):
+                    output_img = first_item.get('name') or first_item.get('data')
+                else:
+                    output_img = first_item
+
+            if not output_img:
+                return False, gr.update(visible=False), gr.update(visible=True)
+
+            output_img_url = f"/file={output_img}" if isinstance(output_img, str) and not output_img.startswith("data:") else output_img
+
+            input_img_url = input_img
+            if isinstance(input_img, str) and not input_img.startswith("data:") and not input_img.startswith("/file="):
+                 input_img_url = f"/file={input_img}"
+
+            import time
+            unique_id = f"comp_{int(time.time() * 1000)}"
+            html = f"""
+            <div id="{unique_id}" class="comparison-wrapper"
+                onclick="this.classList.toggle('fullscreen-mode');"
+                onmousemove="
+                    var rect = this.querySelector('.comparison-content').getBoundingClientRect();
+                    var x = event.clientX - rect.left;
+                    var per = (x / rect.width) * 100;
+                    per = Math.max(0, Math.min(100, per));
+                    this.querySelector('.overlay').style.width = per + '%';
+                ">
+                <div class="comparison-content">
+                    <img class="comp-img outer-img" src="{output_img_url}" draggable="false" 
+                        onload="
+                            var wrapper = this.closest('.comparison-wrapper');
+                            var inner = wrapper.querySelector('.inner-img');
+                            inner.style.width = this.width + 'px';
+                            inner.style.height = this.height + 'px';
+                        "
+                    />
+                    <div class="overlay">
+                        <img class="comp-img inner-img" src="{input_img_url}" draggable="false" />
+                    </div>
+                    <div class="label" style="left: 10px;">Input</div>
+                    <div class="label" style="right: 10px;">Output</div>
+                </div>
+                <!-- Inline script to handle resize and initial sync more robustly -->
+                <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" 
+                     style="display:none" 
+                     onload="
+                        var wrapper = document.getElementById('{unique_id}');
+                        if(wrapper) {{
+                             var outer = wrapper.querySelector('.outer-img');
+                             var inner = wrapper.querySelector('.inner-img');
+                             function sync() {{
+                                 if(outer && inner && outer.offsetWidth > 0) {{
+                                     inner.style.width = outer.offsetWidth + 'px';
+                                     inner.style.height = outer.offsetHeight + 'px';
+                                 }}
+                             }}
+                             sync();
+                             setInterval(sync, 500); // Periodic check for safety
+                             window.addEventListener('resize', sync);
+                        }}
+                     "
+                />
+            </div>
+            """
+            return True, gr.update(value=html, visible=True), gr.update(visible=False)
+
+        def check_comparison_visibility(input_img, gallery_output, state_topbar):
+            engine_type = state_topbar.get('engine_type')
+            if not engine_type:
+                engine_type = state_topbar.get('default_engine', {}).get('engine_type')
+
+            if engine_type == 'video':
+                return gr.update(visible=False, size='sm')
+            if input_img and gallery_output and len(gallery_output) > 0:
+                 return gr.update(visible=True, size='sm')
+            return gr.update(visible=False, size='sm')
+
+        compare_btn.click(toggle_comparison, inputs=[comparison_state, cached_input_image, progress_gallery], outputs=[comparison_state, comparison_box, progress_gallery])
         protections = [random_button, super_prompter, background_theme, image_tools_checkbox] + nav_bars
         generate_button.click(lambda v, a: (v, a, gr.update(value=None, visible=False), gr.update(value=None, visible=False), gr.update(visible=True if v else False), gr.update(visible=True if a else False)), inputs=[scene_video, scene_audio], outputs=[scene_video_backup, scene_audio_backup, scene_video, scene_audio, scene_video_placeholder, scene_audio_placeholder], queue=False, show_progress=False) \
+            .then(cache_input_image_func, inputs=[current_tab, uov_input_image, inpaint_input_image, layer_input_image, enhance_input_image, scene_input_image1, scene_canvas_image], outputs=[cached_input_image]) \
+            .then(lambda: gr.update(visible=False, size='sm'), outputs=[compare_btn]) \
             .then(topbar.process_before_generation, inputs=[state_topbar, seed_random, image_seed, params_backend] + scene_params[:15] + [scene_video_backup, scene_audio_backup], outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating, index_radio, image_toolbox, prompt_info_box, image_seed] + protections + [preset_store, identity_dialog], show_progress=False) \
             .then(topbar.wait_for_minicpm_completion, outputs=[], show_progress=False) \
             .then(topbar.avoid_empty_prompt_for_scene, inputs=[prompt, state_topbar, scene_input_image1, scene_theme, scene_additional_prompt, scene_additional_prompt_2], outputs=prompt, show_progress=True) \
@@ -2252,6 +2416,7 @@ with shared.gradio_root:
             .then(fn=get_task, inputs=ctrls, outputs=currentTask) \
             .then(fn=generate_clicked, inputs=[currentTask, state_topbar], outputs=[progress_html, progress_window, progress_gallery, progress_video, gallery]) \
             .then(topbar.process_after_generation, inputs=state_topbar, outputs=[generate_button, stop_button, skip_button, state_is_generating, gallery_index, index_radio] + protections + [gallery_index_stat, history_link], show_progress=False) \
+            .then(check_comparison_visibility, inputs=[cached_input_image, progress_gallery, state_topbar], outputs=[compare_btn]) \
             .then(lambda state, v_bak, a_bak: (gr.update(value=v_bak if not isinstance(v_bak, dict) else v_bak.get('name'), visible='scene_video' not in state.get("scene_frontend", {}).get('disvisible', [])), gr.update(value=a_bak if not isinstance(a_bak, dict) else a_bak.get('name'), visible='scene_audio' not in state.get("scene_frontend", {}).get('disvisible', [])), gr.update(visible=False), gr.update(visible=False)), inputs=[state_topbar, scene_video_backup, scene_audio_backup], outputs=[scene_video, scene_audio, scene_video_placeholder, scene_audio_placeholder], queue=False, show_progress=False) \
             .then(lambda x: None, inputs=gallery_index_stat, queue=False, show_progress=False, _js='(x)=>{refresh_finished_images_catalog_label(x);}') \
             .then(fn=lambda: None, _js='playNotification').then(fn=lambda: None, _js='refresh_grid_delayed') \
@@ -2266,6 +2431,7 @@ with shared.gradio_root:
             .then(fn=get_task, inputs=ctrls_preview, outputs=currentTask) \
             .then(fn=generate_clicked, inputs=[currentTask, state_topbar], outputs=[progress_html, progress_window, progress_gallery, progress_video, gallery]) \
             .then(topbar.process_after_generation, inputs=state_topbar, outputs=[generate_button, stop_button, skip_button, state_is_generating, gallery_index, index_radio] + protections + [gallery_index_stat, history_link], show_progress=False) \
+            .then(check_comparison_visibility, inputs=[cached_input_image, progress_gallery, state_topbar], outputs=[compare_btn]) \
             .then(lambda state, v_bak, a_bak: (gr.update(value=v_bak if not isinstance(v_bak, dict) else v_bak.get('name'), visible='scene_video' not in state.get("scene_frontend", {}).get('disvisible', [])), gr.update(value=a_bak if not isinstance(a_bak, dict) else a_bak.get('name'), visible='scene_audio' not in state.get("scene_frontend", {}).get('disvisible', [])), gr.update(visible=False), gr.update(visible=False)), inputs=[state_topbar, scene_video_backup, scene_audio_backup], outputs=[scene_video, scene_audio, scene_video_placeholder, scene_audio_placeholder], queue=False, show_progress=False)
 
         for notification_file in ['notification.ogg', 'notification.mp3']:
@@ -2534,7 +2700,7 @@ with shared.gradio_root:
     reset_values_inputs = [state_topbar, state_is_generating, inpaint_mode]
 
     for i in range(shared.BUTTON_NUM):
-        bar_buttons[i].click(topbar.reset_layout_ui, inputs=reset_preset_inputs + [bar_buttons[i]], outputs=reset_layout_ui_outputs + [state_topbar], show_progress=False) \
+        bar_buttons[i].click(topbar.reset_layout_ui, inputs=reset_preset_inputs + [bar_buttons[i]], outputs=reset_layout_ui_outputs + [state_topbar, comparison_state, comparison_box, progress_gallery, compare_btn, progress_window], show_progress=False) \
                .then(topbar.reset_layout_values, inputs=reset_values_inputs, outputs=reset_layout_values_outputs, show_progress=False) \
                .then(fn=lambda x: None, inputs=system_params, _js='(x)=>{refresh_topbar_status_js(x); refresh_style_localization(); refresh_scene_localization();}') \
                .then(update_describe_output_tags, inputs=engine_class_display, outputs=describe_output_tags, queue=False, show_progress=False) \
@@ -2544,7 +2710,7 @@ with shared.gradio_root:
                .then(topbar.stop_comfyd_background, inputs=[comfyd_active_checkbox], queue=False)
     shared.gradio_root.load(fn=lambda x: x, inputs=system_params, outputs=state_topbar, _js=topbar.get_system_params_js, queue=False, show_progress=False) \
                       .then(topbar.init_nav_bars, inputs=[state_topbar] + admin_ctrls, outputs=[progress_window, language_ui, background_theme, preset_instruction] + user_app_ctrls + admin_ctrls, show_progress=False) \
-                      .then(topbar.reset_layout_ui, inputs=reset_preset_inputs, outputs=reset_layout_ui_outputs + [state_topbar], show_progress=False) \
+                      .then(topbar.reset_layout_ui, inputs=reset_preset_inputs, outputs=reset_layout_ui_outputs + [state_topbar, comparison_state, comparison_box, progress_gallery, compare_btn, progress_window], show_progress=False) \
                       .then(topbar.reset_layout_values, inputs=reset_values_inputs, outputs=reset_layout_values_outputs, show_progress=False) \
                       .then(fn=lambda x: None, inputs=system_params, _js='(x)=>{refresh_topbar_status_js(x);}') \
                       .then(topbar.sync_message, inputs=state_topbar) \
