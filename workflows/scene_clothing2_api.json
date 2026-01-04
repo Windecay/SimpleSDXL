@@ -110,8 +110,9 @@
   },
   "35": {
     "inputs": {
+      "strength": 1,
       "model": [
-        "178",
+        "255",
         0
       ]
     },
@@ -252,7 +253,7 @@
       "downsampling_function": "area",
       "mode": "autocrop with mask",
       "weight": 1,
-      "autocrop_margin": 0.05000000000000001,
+      "autocrop_margin": 0.05,
       "conditioning": [
         "33",
         0
@@ -354,26 +355,6 @@
     "class_type": "easy string",
     "_meta": {
       "title": "additional_prompt"
-    }
-  },
-  "178": {
-    "inputs": {
-      "object_to_patch": "diffusion_model",
-      "residual_diff_threshold": [
-        "253",
-        12
-      ],
-      "start": 0,
-      "end": 0.7000000000000002,
-      "max_consecutive_cache_hits": 3,
-      "model": [
-        "240",
-        0
-      ]
-    },
-    "class_type": "ApplyFBCacheOnModel",
-    "_meta": {
-      "title": "Apply First Block Cache"
     }
   },
   "180": {
@@ -571,7 +552,7 @@
       "matting_method": "SegmentAnything",
       "sam_model": "sam_vit_h (2.56GB)",
       "grounding_dino_model": "GroundingDINO_SwinT_OGC (694MB)",
-      "sam_threshold": 0.30000000000000004,
+      "sam_threshold": 0.3,
       "sam_prompt": [
         "170",
         0
@@ -612,7 +593,7 @@
       "downsampling_function": "area",
       "mode": "keep aspect ratio",
       "weight": 1,
-      "autocrop_margin": 0.05000000000000001,
+      "autocrop_margin": 0.05,
       "conditioning": [
         "33",
         0
@@ -772,7 +753,7 @@
       "downsampling_function": "area",
       "mode": "keep aspect ratio",
       "weight": 1,
-      "autocrop_margin": 0.05000000000000001,
+      "autocrop_margin": 0.05,
       "conditioning": [
         "33",
         0
@@ -1007,8 +988,9 @@
   },
   "243": {
     "inputs": {
+      "strength": 1,
       "model": [
-        "244",
+        "254",
         0
       ]
     },
@@ -1017,29 +999,10 @@
       "title": "Differential Diffusion"
     }
   },
-  "244": {
-    "inputs": {
-      "object_to_patch": "diffusion_model",
-      "residual_diff_threshold": [
-        "253",
-        12
-      ],
-      "start": 0,
-      "end": 0.8000000000000002,
-      "max_consecutive_cache_hits": 3,
-      "model": [
-        "245",
-        0
-      ]
-    },
-    "class_type": "ApplyFBCacheOnModel",
-    "_meta": {
-      "title": "Apply First Block Cache"
-    }
-  },
   "245": {
     "inputs": {
       "sage_attention": "auto",
+      "allow_compile": false,
       "model": [
         "237",
         0
@@ -1052,8 +1015,8 @@
   },
   "248": {
     "inputs": {
-      "crop_size_mult": 1.0000000000000002,
-      "bbox_smooth_alpha": 0.5000000000000001,
+      "crop_size_mult": 1,
+      "bbox_smooth_alpha": 0.5,
       "original_images": [
         "205",
         0
@@ -1097,6 +1060,44 @@
     "class_type": "GeneralInput",
     "_meta": {
       "title": "GeneralInput"
+    }
+  },
+  "254": {
+    "inputs": {
+      "reuse_threshold": [
+        "253",
+        12
+      ],
+      "start_percent": 0.15,
+      "end_percent": 0.8,
+      "verbose": false,
+      "model": [
+        "245",
+        0
+      ]
+    },
+    "class_type": "EasyCache",
+    "_meta": {
+      "title": "EasyCache"
+    }
+  },
+  "255": {
+    "inputs": {
+      "reuse_threshold": [
+        "253",
+        12
+      ],
+      "start_percent": 0.15,
+      "end_percent": 0.8,
+      "verbose": false,
+      "model": [
+        "240",
+        0
+      ]
+    },
+    "class_type": "EasyCache",
+    "_meta": {
+      "title": "EasyCache"
     }
   }
 }

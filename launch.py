@@ -481,11 +481,9 @@ def download_models(default_model, previous_default_models, checkpoint_downloads
 def is_port_available(port, host='127.0.0.1'):
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.settimeout(1)
-            result = s.connect_ex((host, port))
-            return result != 0
-    except Exception as e:
-        logger.warning(f"检查端口 {port} 时出错: {e}")
+            s.bind((host, port))
+            return True
+    except Exception:
         return False
 
 def find_available_port(start_port=7865, max_attempts=100):

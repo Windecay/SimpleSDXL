@@ -265,6 +265,7 @@
   "21": {
     "inputs": {
       "sage_attention": "auto",
+      "allow_compile": false,
       "model": [
         "50",
         0

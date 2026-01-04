@@ -1623,7 +1623,7 @@
       "mode": 0,
       "inputs": [],
       "outputs": [],
-      "title": " 此工作流于SimpAI_comfyd后端发布ver1.1 Design by 冰華",
+      "title": " 此工作流于SimpAI_comfyd后端发布ver1.2 Design by 冰華",
       "properties": {
         "fontSize": 20,
         "fontFamily": "Arial",
@@ -5960,8 +5960,8 @@
         }
       },
       "widgets_values": [
-        "Qwen3-VL-4B-Instruct-GGUF\\Qwen3VL-4B-Instruct-Q8_0.gguf",
-        "Qwen3-VL-4B-Instruct-GGUF\\mmproj-Qwen3VL-4B-Instruct-Q8_0.gguf",
+        "Qwen3-VL-4B-Instruct-abliterated\\Qwen3-VL-4B-Instruct-abliterated-v1.Q8_0.gguf",
+        "Qwen3-VL-4B-Instruct-abliterated\\Qwen3-VL-4B-Instruct-abliterated-v1.mmproj-Q8_0.gguf",
         "Qwen3-VL",
         false,
         8192,
@@ -6286,12 +6286,12 @@
         }
       },
       "widgets_values": [
-        "https://www.modelscope.cn/models/Qwen/Qwen3-VL-4B-Instruct-GGUF/resolve/master/mmproj-Qwen3VL-4B-Instruct-Q8_0.gguf",
-        "https://www.modelscope.cn/models/Qwen/Qwen3-VL-4B-Instruct-GGUF/resolve/master/Qwen3VL-4B-Instruct-Q8_0.gguf",
+        "https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/LLM/Qwen3-VL-4B-Instruct-abliterated/Qwen3-VL-4B-Instruct-abliterated-v1.mmproj-Q8_0.gguf",
+        "https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/LLM/Qwen3-VL-4B-Instruct-abliterated/Qwen3-VL-4B-Instruct-abliterated-v1.Q8_0.gguf",
         "",
         "",
         "",
-        "LLM\\Qwen3-VL-4B-Instruct-GGUF",
+        "LLM\\Qwen3-VL-4B-Instruct-abliterated",
         true,
         false
       ]

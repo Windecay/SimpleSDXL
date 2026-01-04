@@ -33,11 +33,9 @@ def init_modelsinfo(models_root, path_map):
 def is_port_available(port, host='127.0.0.1'):
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.settimeout(1)
-            result = s.connect_ex((host, port))
-            return result != 0
-    except Exception as e:
-        logger.warning(f"检查端口 {port} 时出错: {e}")
+            s.bind((host, port))
+            return True
+    except Exception:
         return False
 def find_available_port(start_port=8187, max_attempts=100, suppress_logging=False):
     # Detect Clash Fake IP range (198.18.0.0/15) and avoid using it

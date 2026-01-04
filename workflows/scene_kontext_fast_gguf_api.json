@@ -141,7 +141,7 @@
       "spacing_width": 0,
       "spacing_color": "white",
       "image1": [
-        "58",
+        "53",
         0
       ],
       "image2": [
@@ -221,7 +221,7 @@
         0
       ],
       "on_true": [
-        "58",
+        "53",
         0
       ],
       "on_false": [
@@ -265,6 +265,7 @@
   "21": {
     "inputs": {
       "sage_attention": "auto",
+      "allow_compile": false,
       "model": [
         "50",
         0
@@ -502,7 +503,7 @@
   "43": {
     "inputs": {
       "image": [
-        "58",
+        "53",
         0
       ]
     },
@@ -516,7 +517,7 @@
       "lora_name": "placeholder.safetensors",
       "strength_model": 0,
       "model": [
-        "29",
+        "57",
         0
       ]
     },
@@ -661,34 +662,16 @@
   },
   "57": {
     "inputs": {
-      "mask": [
-        "22",
-        1
-      ]
-    },
-    "class_type": "easy isMaskEmpty",
-    "_meta": {
-      "title": "Is Mask Empty"
-    }
-  },
-  "58": {
-    "inputs": {
-      "boolean": [
-        "57",
-        0
-      ],
-      "on_true": [
-        "22",
-        0
-      ],
-      "on_false": [
-        "53",
+      "lora_name": "flux1-turbo.safetensors",
+      "strength_model": 1,
+      "model": [
+        "29",
         0
       ]
     },
-    "class_type": "easy ifElse",
+    "class_type": "LoraLoaderModelOnly",
     "_meta": {
-      "title": "If else"
+      "title": "LoraLoaderModelOnly"
     }
   }
 }

@@ -2421,7 +2421,7 @@ with shared.gradio_root:
         protections = [random_button, super_prompter, background_theme, image_tools_checkbox] + nav_bars
         generate_button.click(lambda v, a: (v, a, gr.update(value=None, visible=False), gr.update(value=None, visible=False), gr.update(visible=True if v else False), gr.update(visible=True if a else False)), inputs=[scene_video, scene_audio], outputs=[scene_video_backup, scene_audio_backup, scene_video, scene_audio, scene_video_placeholder, scene_audio_placeholder], queue=False, show_progress=False) \
             .then(cache_input_image_func, inputs=[current_tab, uov_input_image, inpaint_input_image, layer_input_image, enhance_input_image, scene_input_image1, scene_canvas_image], outputs=[cached_input_image]) \
-            .then(lambda: (False, gr.update(visible=False), gr.update(visible=False), gr.update(visible=True), gr.update(visible=False, size='sm')), outputs=[comparison_state, comparison_box, progress_window, progress_gallery, compare_btn]) \
+            .then(lambda: (False, gr.update(visible=False), gr.update(visible=False), gr.update(value=None, visible=True), gr.update(visible=False, size='sm')), outputs=[comparison_state, comparison_box, progress_window, progress_gallery, compare_btn]) \
             .then(topbar.process_before_generation, inputs=[state_topbar, seed_random, image_seed, params_backend] + scene_params[:15] + [scene_video_backup, scene_audio_backup], outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating, index_radio, image_toolbox, prompt_info_box, image_seed] + protections + [preset_store, identity_dialog], show_progress=False) \
             .then(topbar.wait_for_minicpm_completion, outputs=[], show_progress=False) \
             .then(topbar.avoid_empty_prompt_for_scene, inputs=[prompt, state_topbar, scene_input_image1, scene_theme, scene_additional_prompt, scene_additional_prompt_2], outputs=prompt, show_progress=True) \
@@ -2444,7 +2444,7 @@ with shared.gradio_root:
         ctrls_preview = [debug_true_state if c == debugging_cn_preprocessor else c for c in ctrls]
 
         preview_preprocessing.click(lambda v, a: (v, a, gr.update(value=None, visible=False), gr.update(value=None, visible=False), gr.update(visible=True if v else False), gr.update(visible=True if a else False)), inputs=[scene_video, scene_audio], outputs=[scene_video_backup, scene_audio_backup, scene_video, scene_audio, scene_video_placeholder, scene_audio_placeholder], queue=False, show_progress=False) \
-            .then(lambda: (False, gr.update(visible=False), gr.update(visible=True), gr.update(visible=False, size='sm')), outputs=[comparison_state, comparison_box, progress_gallery, compare_btn]) \
+            .then(lambda: (False, gr.update(visible=False), gr.update(value=None, visible=True), gr.update(visible=False, size='sm')), outputs=[comparison_state, comparison_box, progress_gallery, compare_btn]) \
             .then(topbar.process_before_generation, inputs=[state_topbar, seed_random, image_seed, params_backend] + scene_params[:14] + [scene_params[16], scene_video_backup, scene_audio_backup], outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating, index_radio, image_toolbox, prompt_info_box, image_seed] + protections + [preset_store, identity_dialog], show_progress=False) \
             .then(fn=get_task, inputs=ctrls_preview, outputs=currentTask) \
             .then(fn=generate_clicked, inputs=[currentTask, state_topbar], outputs=[progress_html, progress_window, progress_gallery, progress_video, gallery]) \

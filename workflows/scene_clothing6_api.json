@@ -110,8 +110,9 @@
   },
   "35": {
     "inputs": {
+      "strength": 1,
       "model": [
-        "178",
+        "315",
         0
       ]
     },
@@ -252,7 +253,7 @@
       "downsampling_function": "area",
       "mode": "autocrop with mask",
       "weight": 1,
-      "autocrop_margin": 0.05000000000000001,
+      "autocrop_margin": 0.05,
       "conditioning": [
         "33",
         0
@@ -366,26 +367,6 @@
     "class_type": "easy string",
     "_meta": {
       "title": "additional_prompt"
-    }
-  },
-  "178": {
-    "inputs": {
-      "object_to_patch": "diffusion_model",
-      "residual_diff_threshold": [
-        "208",
-        0
-      ],
-      "start": 0,
-      "end": 0.7000000000000002,
-      "max_consecutive_cache_hits": 3,
-      "model": [
-        "238",
-        0
-      ]
-    },
-    "class_type": "ApplyFBCacheOnModel",
-    "_meta": {
-      "title": "Apply First Block Cache"
     }
   },
   "180": {
@@ -583,7 +564,7 @@
       "matting_method": "SegmentAnything",
       "sam_model": "sam_vit_h (2.56GB)",
       "grounding_dino_model": "GroundingDINO_SwinT_OGC (694MB)",
-      "sam_threshold": 0.30000000000000004,
+      "sam_threshold": 0.3,
       "sam_prompt": [
         "170",
         0
@@ -624,7 +605,7 @@
       "downsampling_function": "area",
       "mode": "keep aspect ratio",
       "weight": 1,
-      "autocrop_margin": 0.05000000000000001,
+      "autocrop_margin": 0.05,
       "conditioning": [
         "33",
         0
@@ -784,7 +765,7 @@
       "downsampling_function": "area",
       "mode": "keep aspect ratio",
       "weight": 1,
-      "autocrop_margin": 0.05000000000000001,
+      "autocrop_margin": 0.05,
       "conditioning": [
         "33",
         0
@@ -1008,11 +989,11 @@
       "invert_mask": false,
       "blend_mode": "normal",
       "opacity": 100,
-      "x_percent": 50.00000000000001,
-      "y_percent": 50.00000000000001,
+      "x_percent": 50,
+      "y_percent": 50,
       "mirror": "None",
-      "scale": 1.0000000000000002,
-      "aspect_ratio": 1.0000000000000002,
+      "scale": 1,
+      "aspect_ratio": 1,
       "rotate": 0,
       "transform_method": "lanczos",
       "anti_aliasing": 0,
@@ -1119,9 +1100,9 @@
         "312",
         8
       ],
-      "denoise": 0.15000000000000002,
+      "denoise": 0.15,
       "model": [
-        "276",
+        "316",
         0
       ],
       "positive": [
@@ -1226,6 +1207,7 @@
   },
   "275": {
     "inputs": {
+      "strength": 1,
       "model": [
         "310",
         0
@@ -1234,26 +1216,6 @@
     "class_type": "DifferentialDiffusion",
     "_meta": {
       "title": "Differential Diffusion"
-    }
-  },
-  "276": {
-    "inputs": {
-      "object_to_patch": "diffusion_model",
-      "residual_diff_threshold": [
-        "208",
-        0
-      ],
-      "start": 0,
-      "end": 1,
-      "max_consecutive_cache_hits": 3,
-      "model": [
-        "275",
-        0
-      ]
-    },
-    "class_type": "ApplyFBCacheOnModel",
-    "_meta": {
-      "title": "Apply First Block Cache"
     }
   },
   "277": {
@@ -1526,34 +1488,15 @@
   },
   "297": {
     "inputs": {
+      "strength": 1,
       "model": [
-        "299",
+        "314",
         0
       ]
     },
     "class_type": "DifferentialDiffusion",
     "_meta": {
       "title": "Differential Diffusion"
-    }
-  },
-  "299": {
-    "inputs": {
-      "object_to_patch": "diffusion_model",
-      "residual_diff_threshold": [
-        "208",
-        0
-      ],
-      "start": 0,
-      "end": 0.8000000000000002,
-      "max_consecutive_cache_hits": 3,
-      "model": [
-        "309",
-        0
-      ]
-    },
-    "class_type": "ApplyFBCacheOnModel",
-    "_meta": {
-      "title": "Apply First Block Cache"
     }
   },
   "308": {
@@ -1573,6 +1516,7 @@
   "309": {
     "inputs": {
       "sage_attention": "auto",
+      "allow_compile": false,
       "model": [
         "281",
         0
@@ -1586,6 +1530,7 @@
   "310": {
     "inputs": {
       "sage_attention": "auto",
+      "allow_compile": false,
       "model": [
         "264",
         0
@@ -1598,8 +1543,8 @@
   },
   "311": {
     "inputs": {
-      "crop_size_mult": 1.0000000000000002,
-      "bbox_smooth_alpha": 0.5000000000000001,
+      "crop_size_mult": 1,
+      "bbox_smooth_alpha": 0.5,
       "original_images": [
         "205",
         0
@@ -1643,6 +1588,63 @@
     "class_type": "SeedInput",
     "_meta": {
       "title": "SeedInput"
+    }
+  },
+  "314": {
+    "inputs": {
+      "reuse_threshold": [
+        "208",
+        0
+      ],
+      "start_percent": 0.15,
+      "end_percent": 0.8,
+      "verbose": false,
+      "model": [
+        "309",
+        0
+      ]
+    },
+    "class_type": "EasyCache",
+    "_meta": {
+      "title": "EasyCache"
+    }
+  },
+  "315": {
+    "inputs": {
+      "reuse_threshold": [
+        "208",
+        0
+      ],
+      "start_percent": 0.15,
+      "end_percent": 0.8,
+      "verbose": false,
+      "model": [
+        "238",
+        0
+      ]
+    },
+    "class_type": "EasyCache",
+    "_meta": {
+      "title": "EasyCache"
+    }
+  },
+  "316": {
+    "inputs": {
+      "reuse_threshold": [
+        "208",
+        0
+      ],
+      "start_percent": 0.15,
+      "end_percent": 0.8,
+      "verbose": false,
+      "model": [
+        "275",
+        0
+      ]
+    },
+    "class_type": "EasyCache",
+    "_meta": {
+      "title": "EasyCache"
     }
   }
 }
