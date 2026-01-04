@@ -791,8 +791,16 @@ class VAE:
         do_tile = False
         if self.latent_dim == 2 and samples_in.ndim == 5:
             samples_in = samples_in[:, :, 0]
+        old_benchmark = None
         try:
             memory_used = self.memory_used_decode(samples_in.shape, self.vae_dtype)
+            if model_management.is_device_cuda(self.device):
+                torch.cuda.synchronize()
+                # Explicitly disable cudnn benchmark during VAE decode to prevent cold start lag/peak
+                old_benchmark = torch.backends.cudnn.benchmark
+                torch.backends.cudnn.benchmark = False
+                
+            model_management.soft_empty_cache()
             model_management.load_models_gpu([self.patcher], memory_required=memory_used, force_full_load=self.disable_offload)
             free_memory = model_management.get_free_memory(self.device)
             batch_number = int(free_memory / memory_used)
@@ -806,11 +814,15 @@ class VAE:
                 pixel_samples[x:x+batch_number] = out
         except model_management.OOM_EXCEPTION:
             logging.warning("Warning: Ran out of memory when regular VAE decoding, retrying with tiled VAE decoding.")
+            model_management.soft_empty_cache()
             #NOTE: We don't know what tensors were allocated to stack variables at the time of the
             #exception and the exception itself refs them all until we get out of this except block.
             #So we just set a flag for tiler fallback so that tensor gc can happen once the
             #exception is fully off the books.
             do_tile = True
+        finally:
+            if old_benchmark is not None:
+                torch.backends.cudnn.benchmark = old_benchmark
 
         if do_tile:
             dims = samples_in.ndim - 2
@@ -881,6 +893,7 @@ class VAE:
 
         except model_management.OOM_EXCEPTION:
             logging.warning("Warning: Ran out of memory when regular VAE encoding, retrying with tiled VAE encoding.")
+            model_management.soft_empty_cache()
             #NOTE: We don't know what tensors were allocated to stack variables at the time of the
             #exception and the exception itself refs them all until we get out of this except block.
             #So we just set a flag for tiler fallback so that tensor gc can happen once the
