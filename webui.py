@@ -1418,16 +1418,19 @@ with shared.gradio_root:
                                         label='Content Type', 
                                         choices=flags.describe_types,
                                         value=modules.config.default_describe_content_type, visible= not MiniCPM.get_enable(),
-                                        info='To use natural language, go to settings to enable MiniCPM')
-                                    describe_prompt = gr.Textbox(label="MiniCPM enabled: Enter additional prompts (optional).", show_label=True, max_lines=1, placeholder="Type additional prompt for describe image.", visible=MiniCPM.get_enable())
+                                        info='To use natural language, go to settings to enable VLM')
+                                    describe_prompt = gr.Textbox(label="VLM enabled: Enter additional prompts (optional).", show_label=True, lines=1, max_lines=10, placeholder="Type additional prompt for describe image.", visible=MiniCPM.get_enable())
                                     with gr.Row():
                                         describe_apply_styles = gr.Checkbox(label='Apply Styles', value=modules.config.default_describe_apply_prompts_checkbox, visible=not MiniCPM.get_enable())
                                         describe_output_tags = gr.Checkbox(label='Output with tags', value=False, visible=MiniCPM.get_enable(), min_width=50)
                                         describe_output_chinese = gr.Checkbox(label='Output in Chinese', value=False, visible=MiniCPM.get_enable(), min_width=50)
                                         describe_output_artist = gr.Checkbox(label='Artist', value=False, visible=MiniCPM.get_enable(), min_width=50)
                                 describe_image_size = gr.Button(label='Original Size / Recommended Size', elem_id='describe_image_size', visible=False)
-                                describe_btn = gr.Button(value='Describe this Image into Prompt')
-                                gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/1363" target="_blank">\U0001F4D4 Documentation</a>')
+                                with gr.Row():
+                                    describe_btn = gr.Button(value='⚡ Execute Instruction' if MiniCPM.get_enable() else 'Describe this Image into Prompt')
+                                    unload_btn = gr.Button(value='Unload Models', min_width=150)
+                                with gr.Column(visible=MiniCPM.get_enable()) as vlm_describe_col:
+                                    vlm_status_info = gr.HTML(value=f'<div style="margin-bottom: 5px;"> 🤖 <b>VLM Model:</b> <span style="color: #2196F3;">{MiniCPM.current_version}</span></div>')
 
                                 def trigger_show_image_properties(image):
                                     image_size = modules.util.get_image_size_info(image, modules.flags.available_aspect_ratios[0])
@@ -1915,10 +1918,10 @@ with shared.gradio_root:
                                         comfyd_active_checkbox = gr.Checkbox(label='Enable Comfyd always active', value=ads.get_admin_default('comfyd_active_checkbox') and not args_manager.args.disable_comfyd and not args_manager.args.disable_backend, info='Enabling will improve execution speed.')
                                         fast_comfyd_checkbox = gr.Checkbox(label='Enable optimizations for Comfyd', value=ads.get_admin_default('fast_comfyd_checkbox'), info='Effective for some Nvidia cards.')
                                     with gr.Row():
-                                        minicpm_checkbox = gr.Checkbox(label='Enable MiniCPM', value=ads.get_admin_default('minicpm_checkbox'), info='Enable it for describe, translate and expand.')
+                                        minicpm_checkbox = gr.Checkbox(label='Enable VLM', value=ads.get_admin_default('minicpm_checkbox'), info='Enable it for describe, translate and expand.')
                                         advanced_logs = gr.Checkbox(label='Enable advanced logs', value=ads.get_admin_default('advanced_logs'), info='Enabling with more infomation in logs.')
                                         with gr.Column():
-                                            minicpm_version = gr.Dropdown(label='MiniCPM Version', choices=['MiniCPMv26', 'MiniCPMv45'], value=ads.get_admin_default('minicpm_version'), info='Select the MiniCPM model version to use')
+                                            minicpm_version = gr.Dropdown(label='VLM Version', choices=['MiniCPMv26', 'MiniCPMv45', 'Qwen3-VL-4B-Instruct-abliterated', 'Qwen3-VL-8B-Instruct-abliterated'], value=ads.get_admin_default('minicpm_version'), info='Select the VLM model version to use')
                                     with gr.Column(visible=True if not args_manager.args.disable_backend else False):
                                         reserved_vram = gr.Slider(label='Reserved VRAM(GB)', minimum=0, maximum=24, step=0.1, value=ads.get_admin_default('reserved_vram'), info='Reserve VRAM to prevent OOM or Slow inference.')
                                         cache_ram = gr.Slider(label='Cache RAM(GB)', minimum=0, maximum=96, step=0.1, value=ads.get_admin_default('cache_ram'), info='[BETA]Set RAM cache threshold. 0: Classic; >0: RAM Pressure mode (auto-purge when available RAM is low).')
@@ -1995,7 +1998,7 @@ with shared.gradio_root:
                 def toggle_minicpm(x, state):
                     MiniCPM.set_enable(x)
                     ads.set_admin_default_value('minicpm_checkbox', x, state) 
-                    return gr.update(visible=not x), gr.update(visible=x), gr.update(visible=x), gr.update(visible= x), gr.update(visible=not x), gr.update(visible=x)
+                    return gr.update(visible=not x), gr.update(visible=x), gr.update(visible=x), gr.update(visible= x), gr.update(visible=not x), gr.update(visible=x), gr.update(visible=x), gr.update(value='⚡ Execute Instruction' if x else 'Describe this Image into Prompt')
 
                 translation_methods.change(lambda x,y: ads.set_admin_default_value('translation_methods',x,y), inputs=[translation_methods, state_topbar])
                 backfill_prompt.change(lambda x,y: ads.set_user_default_value("backfill_prompt",x,y), inputs=[backfill_prompt, state_topbar])
@@ -2009,8 +2012,8 @@ with shared.gradio_root:
                 metadata_scheme.change(lambda x,y: ads.set_user_default_value("metadata_scheme", x, y), inputs=[metadata_scheme, state_topbar])
 
                 fast_comfyd_checkbox.change(simpleai.start_fast_comfyd, inputs=[fast_comfyd_checkbox, state_topbar])
-                minicpm_checkbox.change(toggle_minicpm, inputs=[minicpm_checkbox, state_topbar], outputs=[describe_apply_styles, describe_output_tags, describe_output_chinese, describe_output_artist, describe_methods, describe_prompt], queue=False, show_progress=False)
-                minicpm_version.change(fn=lambda version, state: [minicpm.set_version(version), ads.set_admin_default_value('minicpm_version', version, state)][-1], inputs=[minicpm_version, state_topbar], outputs=None)
+                minicpm_checkbox.change(toggle_minicpm, inputs=[minicpm_checkbox, state_topbar], outputs=[describe_apply_styles, describe_output_tags, describe_output_chinese, describe_output_artist, describe_methods, describe_prompt, vlm_describe_col, describe_btn], queue=False, show_progress=False).then(None, _js="() => localizeWholePage()")
+                minicpm_version.change(fn=lambda version, state: [minicpm.set_version(version), ads.set_admin_default_value('minicpm_version', version, state), gr.update(value=f'<div style="margin-bottom: 5px;">🤖 <b>VLM Model:</b> <span style="color: #2196F3;">{version}</span></div>')][-1], inputs=[minicpm_version, state_topbar], outputs=vlm_status_info)
                 reserved_vram.change(lambda x,y: ads.set_admin_default_value('reserved_vram',x,y), inputs=[reserved_vram, state_topbar])
                 cache_ram.change(lambda x,y: ads.set_admin_default_value('cache_ram',x,y), inputs=[cache_ram, state_topbar])
                 advanced_logs.change(simpleai.change_advanced_logs, inputs=[advanced_logs, state_topbar])
@@ -2065,7 +2068,7 @@ with shared.gradio_root:
             super_prompter.click(
                 lambda x, y, z, i, s, state_is_generating:
                     (logger.info('Using superprompter'), enhanced.superprompter.answer(input_text=enhanced.translator.convert(f'{y}{x}', z)))[1] if check_generating_state(state_is_generating) else
-                    (logger.info('Using miniCPM'), minicpm.extended_prompt(x, y, i, s, z))[1],
+                    (logger.info('Using VLM'), minicpm.extended_prompt(x, y, i, s, z))[1],
                 inputs=[prompt, super_prompter_prompt, translation_methods, scene_input_image1, state_topbar, state_is_generating],
                 outputs=prompt,
                 queue=False,
@@ -2418,7 +2421,7 @@ with shared.gradio_root:
         protections = [random_button, super_prompter, background_theme, image_tools_checkbox] + nav_bars
         generate_button.click(lambda v, a: (v, a, gr.update(value=None, visible=False), gr.update(value=None, visible=False), gr.update(visible=True if v else False), gr.update(visible=True if a else False)), inputs=[scene_video, scene_audio], outputs=[scene_video_backup, scene_audio_backup, scene_video, scene_audio, scene_video_placeholder, scene_audio_placeholder], queue=False, show_progress=False) \
             .then(cache_input_image_func, inputs=[current_tab, uov_input_image, inpaint_input_image, layer_input_image, enhance_input_image, scene_input_image1, scene_canvas_image], outputs=[cached_input_image]) \
-            .then(lambda: (False, gr.update(visible=False), gr.update(), gr.update(visible=False, size='sm')), outputs=[comparison_state, comparison_box, progress_gallery, compare_btn]) \
+            .then(lambda: (False, gr.update(visible=False), gr.update(visible=False), gr.update(visible=True), gr.update(visible=False, size='sm')), outputs=[comparison_state, comparison_box, progress_window, progress_gallery, compare_btn]) \
             .then(topbar.process_before_generation, inputs=[state_topbar, seed_random, image_seed, params_backend] + scene_params[:15] + [scene_video_backup, scene_audio_backup], outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating, index_radio, image_toolbox, prompt_info_box, image_seed] + protections + [preset_store, identity_dialog], show_progress=False) \
             .then(topbar.wait_for_minicpm_completion, outputs=[], show_progress=False) \
             .then(topbar.avoid_empty_prompt_for_scene, inputs=[prompt, state_topbar, scene_input_image1, scene_theme, scene_additional_prompt, scene_additional_prompt_2], outputs=prompt, show_progress=True) \
@@ -2455,7 +2458,7 @@ with shared.gradio_root:
                 break
 
         def trigger_describe(modes, img, apply_styles, output_tags, output_chinese, output_artist, describe_prompt=""):
-            if img is None and output_tags:
+            if img is None:
                 logger.info("Image is None in trigger_describe, skipping image description")
                 return gr.update(), gr.update()
 
@@ -2512,6 +2515,35 @@ with shared.gradio_root:
                            queue=True) \
             .then(fn=style_sorter.sort_styles, inputs=style_selections, outputs=style_selections, queue=False, show_progress=False) \
             .then(lambda: None, _js='()=>{refresh_style_localization();}')
+
+        def unload_models_clicked(state_is_generating):
+            is_worker_processing = modules.async_worker.worker_processing is not None
+            has_pending_tasks = modules.async_worker.pending_tasks > 0
+
+            if check_generating_state(state_is_generating, has_pending_tasks, is_worker_processing):
+                logger.info("Generation is in progress or pending, skipping model unload")
+                return
+
+            minicpm.free_model()
+
+            try:
+                import extras.interrogate
+                extras.interrogate.free_model()
+            except Exception:
+                pass
+
+            try:
+                import extras.wd14tagger
+                extras.wd14tagger.free_model()
+            except Exception:
+                pass
+
+            model_management.unload_all_models()
+            model_management.soft_empty_cache()
+            logger.info("Models unloaded manually.")
+            return
+
+        unload_btn.click(unload_models_clicked, inputs=[state_is_generating], show_progress=True)
 
         def trigger_auto_describe_for_scene(state, canvas_image, img, scene_theme, additional_prompt, additional_prompt_2, state_is_generating):
             is_worker_processing = worker.worker_processing is not None

@@ -14,7 +14,8 @@
         offsetX: 0,
         offsetY: 0,
         hasAdminAPI: false,
-        initialPositionMoved: false // 新增初始位置标记
+        initialPositionMoved: false, // 新增初始位置标记
+        isReconnectVisible: false    // 是否显示重连按钮
     };
 
     // ==================== 移动设备检测 ====================
@@ -247,6 +248,7 @@
 
     function updateStatusUI(statusType, queueSize, ramUsed, ramTotal, vramUsed, vramTotal, onlineUsers, onlineDomainUsers, onlineNodes) {
         statusIndicator.innerHTML = '';
+        state.isReconnectVisible = (statusType === 'exception' || statusType === 'disconnected');
         
         if (state.hasAdminAPI) {
             statusIndicator.appendChild(backToAdminBtn);
@@ -271,16 +273,17 @@
         firstRow.appendChild(statusEl);
 
         if (statusType === 'connected') {
-	    const queueBadge = document.createElement('span');
+            const queueBadge = document.createElement('span');
             queueBadge.className = 'queue-badge';
             queueBadge.textContent = `队列: ${queueSize}`;
             firstRow.appendChild(queueBadge);
-	} else if (statusType === 'exception') {
-	    firstRow.appendChild(reconnectBtn);
-	} else {
-            const retryText = document.createElement('span');
-            retryText.textContent = ` (${state.retryCount * CHECK_INTERVAL / 1000}s)`;
-            firstRow.appendChild(retryText);
+        } else if (statusType === 'exception' || statusType === 'disconnected') {
+            firstRow.appendChild(reconnectBtn);
+            if (statusType === 'disconnected') {
+                const retryText = document.createElement('span');
+                retryText.textContent = ` (${state.retryCount * CHECK_INTERVAL / 1000}s)`;
+                firstRow.appendChild(retryText);
+            }
         }
 	    
         statusIndicator.appendChild(firstRow);
@@ -512,9 +515,8 @@
     }
     // ==================== 避让行为逻辑 ====================
     function initAvoidanceBehavior() {
-
         statusContainer.addEventListener('mouseenter', (e) => {
-            if (state.isDragging) return;
+            if (state.isDragging || state.isReconnectVisible) return;
             // 新增初始位置强制下移逻辑
             if (!state.initialPositionMoved) {
                 const rect = statusContainer.getBoundingClientRect();

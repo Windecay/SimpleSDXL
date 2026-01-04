@@ -246,6 +246,7 @@ paths_clip = get_dir_or_set_default('path_clip', [f'{path_models_root}/clip/'], 
 paths_clip_vision = get_dir_or_set_default('path_clip_vision', [f'{path_models_root}/clip_vision/'], True)
 path_fooocus_expansion = get_dir_or_set_default('path_fooocus_expansion', f'{path_models_root}/prompt_expansion/fooocus_expansion/')
 paths_llms = get_dir_or_set_default('path_llms', [f'{path_models_root}/llms/'], True)
+paths_LLM = get_dir_or_set_default('path_LLM', [f'{path_models_root}/LLM/'], True)
 paths_wildcards = get_dir_or_set_default('path_wildcards', [f'{path_models_root}/wildcards/'], True)
 paths_safety_checker = get_dir_or_set_default('path_safety_checker', [f'{path_models_root}/safety_checker/'], True)
 path_sam = paths_inpaint[0]
@@ -278,6 +279,7 @@ model_cata_map = {
     'clip': paths_clip,
     'clip_vision': paths_clip_vision,
     'llms': paths_llms,
+    'LLM': paths_LLM,
     'unet': paths_unet,
     'rembg': paths_rembg,
     'layer_model': paths_layer_model,

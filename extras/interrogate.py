@@ -61,4 +61,16 @@ class Interrogator:
         return caption
 
 
-default_interrogator = Interrogator().interrogate
+_interrogator = Interrogator()
+default_interrogator = _interrogator.interrogate
+
+
+def free_model():
+    if _interrogator.blip_model is not None:
+        _interrogator.blip_model.model.to('cpu')
+        del _interrogator.blip_model
+        _interrogator.blip_model = None
+    import torch
+    import gc
+    torch.cuda.empty_cache()
+    gc.collect()

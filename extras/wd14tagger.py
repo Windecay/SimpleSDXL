@@ -27,6 +27,17 @@ global_csv = None
 current_model_name = None
 
 
+def free_model():
+    global global_model, global_csv, current_model_name
+    if global_model is not None:
+        del global_model
+        global_model = None
+    global_csv = None
+    current_model_name = None
+    import gc
+    gc.collect()
+
+
 def default_interrogator(image, threshold=0.35, character_threshold=0.85, exclude_tags=""):
     global global_model, global_csv, current_model_name
 
