@@ -39,6 +39,73 @@ class LlamaCppVLM:
         }
         return handlers.get(name)
 
+    def _get_layer_count(self, path):
+        import struct
+        def read_u32(f):
+            return struct.unpack("<I", f.read(4))[0]
+        def read_u64(f):
+            return struct.unpack("<Q", f.read(8))[0]
+        def read_string(f):
+            ln = read_u64(f)
+            return f.read(ln).decode("utf-8")
+        def read_value(f):
+            vtype = read_u32(f)
+            if vtype == 0: return struct.unpack("<B", f.read(1))[0]
+            if vtype == 1: return struct.unpack("<b", f.read(1))[0]
+            if vtype == 2: return struct.unpack("<H", f.read(2))[0]
+            if vtype == 3: return struct.unpack("<h", f.read(2))[0]
+            if vtype == 4: return struct.unpack("<I", f.read(4))[0]
+            if vtype == 5: return struct.unpack("<i", f.read(4))[0]
+            if vtype == 6: return struct.unpack("<f", f.read(4))[0]
+            if vtype == 7: return struct.unpack("<?", f.read(1))[0]
+            if vtype == 8: return read_string(f)
+            if vtype == 9:
+                atype = read_u32(f)
+                count = read_u64(f)
+                return [read_value_of_type(f, atype) for _ in range(count)]
+            if vtype == 10: return struct.unpack("<Q", f.read(8))[0]
+            if vtype == 11: return struct.unpack("<q", f.read(8))[0]
+            if vtype == 12: return struct.unpack("<d", f.read(8))[0]
+            raise ValueError(f"Unknown value type {vtype}")
+        def read_value_of_type(f, atype):
+            if atype == 0: return struct.unpack("<B", f.read(1))[0]
+            if atype == 1: return struct.unpack("<b", f.read(1))[0]
+            if atype == 2: return struct.unpack("<H", f.read(2))[0]
+            if atype == 3: return struct.unpack("<h", f.read(2))[0]
+            if atype == 4: return struct.unpack("<I", f.read(4))[0]
+            if atype == 5: return struct.unpack("<i", f.read(4))[0]
+            if atype == 6: return struct.unpack("<f", f.read(4))[0]
+            if atype == 7: return struct.unpack("<?", f.read(1))[0]
+            if atype == 8: return read_string(f)
+            if atype == 10: return struct.unpack("<Q", f.read(8))[0]
+            if atype == 11: return struct.unpack("<q", f.read(8))[0]
+            if atype == 12: return struct.unpack("<d", f.read(8))[0]
+            raise ValueError(f"Unknown array item type {atype}")
+
+        try:
+            with open(path, "rb") as f:
+                if f.read(4) != b"GGUF":
+                    raise ValueError("Not a GGUF file")
+                version = read_u32(f)
+                tensor_count = read_u64(f)
+                kv_count = read_u64(f)
+                for _ in range(kv_count):
+                    key = read_string(f)
+                    value = read_value(f)
+                    if key.lower().endswith(".block_count"):
+                        return int(value)
+        except Exception as e:
+            logger.debug(f"Fast GGUF parse failed: {e}. Trying GGUFReader...")
+            try:
+                from gguf import GGUFReader
+                reader = GGUFReader(path)
+                for key in reader.fields.keys():
+                    if key.endswith(".block_count") or key == "block_count":
+                        return int(reader.get_field(key).parts[-1][0])
+            except Exception as e2:
+                logger.error(f"GGUFReader also failed: {e2}")
+        return 32
+
     def load_model(self, model_name, chat_handler_name, n_gpu_layers=-1, n_ctx=8192):
         with self.lock:
             model_path = os.path.join(config.paths_LLM[0], model_name)
@@ -48,17 +115,17 @@ class LlamaCppVLM:
             self.free_model()
 
             logger.info(f"Loading Main LLM from: {model_path}")
-            
+
             handler_class = self.get_chat_handler_class(chat_handler_name)
+            mmproj_path = None
             if handler_class:
                 model_dir = os.path.dirname(model_path)
-                mmproj_path = None
                 if os.path.exists(model_dir):
                     for f in os.listdir(model_dir):
                         if "mmproj" in f.lower() and f.endswith(".gguf"):
                             mmproj_path = os.path.join(model_dir, f)
                             break
-                
+
                 if mmproj_path:
                     logger.info(f"Using mmproj: {mmproj_path}")
                     try:
@@ -68,7 +135,44 @@ class LlamaCppVLM:
                 else:
                     logger.warning(f"No mmproj file found in {model_dir}. Some models may fail to load.")
                     self.chat_handler = handler_class(verbose=False)
-            
+
+            # Auto calculate n_gpu_layers if it's -1
+            if n_gpu_layers == -1:
+                try:
+                    # Get free VRAM in GB
+                    free_vram_bytes = ldm_patched.modules.model_management.get_free_memory()
+                    vram_limit_gb = free_vram_bytes / (1024 ** 3)
+
+                    # Buffer to prevent OOM (0.6GB)
+                    vram_buffer = 0.6
+                    available_vram_gb = vram_limit_gb - vram_buffer
+
+                    if available_vram_gb > 0:
+                        total_layers = self._get_layer_count(model_path)
+                        # GGUF size estimation with 1.55 overhead factor
+                        gguf_size_gb = os.path.getsize(model_path) * 1.55 / (1024 ** 3)
+                        layer_size_gb = gguf_size_gb / total_layers
+
+                        if mmproj_path:
+                            mmproj_size_gb = os.path.getsize(mmproj_path) * 1.55 / (1024 ** 3)
+                            n_gpu_layers = max(1, int((available_vram_gb - mmproj_size_gb) / layer_size_gb))
+                        else:
+                            n_gpu_layers = max(1, int(available_vram_gb / layer_size_gb))
+
+                        n_gpu_layers = min(n_gpu_layers, total_layers)
+
+                        # logger.info(f"Free: {vram_limit_gb:.2f}GB, Available: {available_vram_gb:.2f}GB")
+                        # logger.info(f"Model: {os.path.basename(model_path)}, Layers: {total_layers}, LayerSize: {layer_size_gb*1024:.2f}MB")
+                        # if mmproj_path:
+                        #     logger.info(f"MMProj: {os.path.basename(mmproj_path)}, EstimatedSize: {mmproj_size_gb*1024:.2f}MB")
+                        logger.info(f"Result: n_gpu_layers = {n_gpu_layers}")
+                    else:
+                        logger.warning(f"Not enough VRAM available ({vram_limit_gb:.2f}GB). Using CPU.")
+                        n_gpu_layers = 0
+                except Exception as e:
+                    logger.warning(f"Calculation failed: {e}. Using default -1.")
+                    n_gpu_layers = -1
+
             self.llm = Llama(
                 model_path=model_path,
                 chat_handler=self.chat_handler,
