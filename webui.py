@@ -2458,28 +2458,28 @@ with shared.gradio_root:
                 break
 
         def trigger_describe(modes, img, apply_styles, output_tags, output_chinese, output_artist, describe_prompt=""):
-            if img is None:
-                logger.info("Image is None in trigger_describe, skipping image description")
+            if img is None and not MiniCPM.get_enable():
+                logger.info("Image is None in trigger_describe and VLM is not enabled, skipping image description")
                 return gr.update(), gr.update()
 
             describe_images = []
             styles = set()
 
-            if flags.describe_type_photo in modes and not MiniCPM.get_enable():
+            if img is not None and flags.describe_type_photo in modes and not MiniCPM.get_enable():
                 from extras.interrogate import default_interrogator as default_interrogator_photo
                 describe_images.append(default_interrogator_photo(img))
                 styles.update(["Fooocus V2", "Fooocus Enhance", "Fooocus Sharp"])
 
-            if flags.describe_type_anime in modes and (not MiniCPM.get_enable() or (MiniCPM.get_enable() and output_tags)):
+            if img is not None and flags.describe_type_anime in modes and (not MiniCPM.get_enable() or (MiniCPM.get_enable() and output_tags)):
                 from extras.wd14tagger import default_interrogator as default_interrogator_anime
                 describe_images.append(default_interrogator_anime(img))
                 styles.update(["Fooocus V2", "Fooocus Masterpiece"])
             
-            if (flags.describe_type_artist in modes and (not MiniCPM.get_enable()) or ((MiniCPM.get_enable() and output_artist))):
+            if img is not None and (flags.describe_type_artist in modes and (not MiniCPM.get_enable()) or ((MiniCPM.get_enable() and output_artist))):
                 artist_result = get_artist_tags_string(img, None)
                 describe_images.append(artist_result)
 
-            if MiniCPM.get_enable() and not output_tags and not output_artist and len(describe_images) == 0:
+            if MiniCPM.get_enable() and (img is None or (not output_tags and not output_artist and len(describe_images) == 0)):
                 describe_images.append(minicpm.interrogate(img, output_chinese, additional_prompt=describe_prompt))
                 styles.update([])
 
