@@ -1,0 +1,15 @@
+[project]
+name = "comfyui-prompt-control"
+description = "Provides nodes for prompt editing and LoRA scheduling, advanced regional prompting (including attention masking) and more, all controlled through your text prompt"
+version = "2.1.1"
+license = { file = "LICENSE" }
+# some lark versions older than 1.1.9 apparently have a bug that breaks things, see https://github.com/asagi4/comfyui-prompt-control/issues/35
+dependencies = ["lark >= 1.1.9"]
+
+[project.urls]
+Repository = "https://github.com/asagi4/comfyui-prompt-control"
+
+[tool.comfy]
+PublisherId = "asagi4"
+DisplayName = "ComfyUI Prompt Control"
+Icon = ""

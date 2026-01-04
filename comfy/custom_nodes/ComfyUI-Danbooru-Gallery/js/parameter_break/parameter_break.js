@@ -90,9 +90,9 @@ app.registerExtension({
                         const paramName = paramMeta.name;
                         const paramType = paramMeta.param_type;
 
-                        // 如果是下拉菜单类型，清空选项
-                        if (paramType === 'dropdown') {
-                            logger.info(`[PB] 清空下拉菜单 '${paramName}' 的选项`);
+                        // 如果是下拉菜单或枚举类型，清空选项
+                        if (paramType === 'dropdown' || paramType === 'enum') {
+                            logger.info(`[PB] 清空下拉菜单/枚举 '${paramName}' 的选项`);
                             this.syncOptionsToPanel(paramName, []);
                         }
                     }
@@ -122,9 +122,9 @@ app.registerExtension({
                 const paramName = paramMeta.name;
                 const paramType = paramMeta.param_type;
 
-                // 只处理下拉菜单类型的参数
-                if (paramType !== 'dropdown') {
-                    logger.info(`[PB] 参数 '${paramName}' 不是下拉菜单类型，跳过`);
+                // 只处理下拉菜单和枚举类型的参数
+                if (paramType !== 'dropdown' && paramType !== 'enum') {
+                    logger.info(`[PB] 参数 '${paramName}' 不是下拉菜单或枚举类型，跳过`);
                     return;
                 }
 
@@ -377,16 +377,25 @@ app.registerExtension({
                                 outputType = "*";
                             }
 
+                            // 获取枚举/下拉菜单的选项
+                            let options = [];
+                            let value = param.value || '';
+                            if (param.type === 'enum' || param.type === 'dropdown') {
+                                options = param.options || param.config?.options || [];
+                            }
+
                             paramMeta.push({
                                 name: param.name,
                                 type: outputType,
                                 order: order,
                                 param_type: param.type,
                                 param_id: param.id,  // 添加参数ID用于追踪连接
-                                output_index: order  // 添加输出索引，用于 ParameterControlPanel 查找
+                                output_index: order,  // 添加输出索引，用于 ParameterControlPanel 查找
+                                options: options,  // 枚举/下拉菜单的选项列表
+                                value: value  // 当前选中的值
                             });
 
-                            logger.info(`[PB] 创建参数元数据: ${param.name}, type: ${param.type}, output_index: ${order}, param_id: ${param.id}`);
+                            logger.info(`[PB] 创建参数元数据: ${param.name}, type: ${param.type}, output_index: ${order}, param_id: ${param.id}, options: ${options.length}个`);
 
                             order++;
                         }

@@ -13,6 +13,64 @@ import { createLogger } from '../global/logger_client.js';
 // 创建logger实例
 const logger = createLogger('parameter_control_panel');
 
+// ====== 性能优化：节流和防抖工具函数 ======
+/**
+ * 节流函数 - 限制函数在指定时间内最多执行一次（带尾调用支持）
+ * @param {Function} func 需要节流的函数
+ * @param {number} delay 节流延迟（毫秒）
+ */
+function throttle(func, delay) {
+    let lastCall = 0;
+    let trailingTimeout = null;
+    let lastArgs = null;
+    let lastThis = null;
+
+    const throttled = function (...args) {
+        const now = Date.now();
+        const remaining = delay - (now - lastCall);
+        lastArgs = args;
+        lastThis = this;
+
+        if (remaining <= 0 || remaining > delay) {
+            if (trailingTimeout) {
+                clearTimeout(trailingTimeout);
+                trailingTimeout = null;
+            }
+            lastCall = now;
+            func.apply(this, args);
+        } else if (!trailingTimeout) {
+            // 添加尾调用，确保最后一次调用不会丢失
+            trailingTimeout = setTimeout(() => {
+                lastCall = Date.now();
+                trailingTimeout = null;
+                func.apply(lastThis, lastArgs);
+            }, remaining);
+        }
+    };
+
+    throttled.cancel = () => {
+        clearTimeout(trailingTimeout);
+        trailingTimeout = null;
+        lastArgs = null;
+        lastThis = null;
+    };
+
+    return throttled;
+}
+
+/**
+ * 防抖函数 - 延迟执行函数，直到停止调用指定时间后才执行
+ * @param {Function} func 需要防抖的函数
+ * @param {number} delay 防抖延迟（毫秒）
+ */
+function debounce(func, delay) {
+    let timeout;
+    return function (...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), delay);
+    };
+}
+
 // 工具函数：加载Marked.js库（与workflow_description一致）
 let markedLoaded = false;
 let markedLoadPromise = null;
@@ -105,7 +163,23 @@ const translations = {
         description: "参数说明",
         descriptionPlaceholder: "输入参数说明（支持Markdown格式）",
         descriptionLockedHint: "锁定模式下无法修改说明",
-        multiline: "多行文本"
+        multiline: "多行文本",
+        taglist: "标签列表",
+        taglistEmpty: "暂无标签，输入后回车添加",
+        taglistPlaceholder: "输入标签后回车添加（支持逗号分隔批量添加）",
+        enum: "枚举",
+        enumOptions: "枚举选项",
+        enumOptionsPlaceholder: "每行一个选项（将作为枚举值）",
+        enumDataSource: "数据源",
+        enumHint: "枚举参数可与枚举切换节点联动，实现值的动态选择",
+        copyParameter: "复制参数",
+        pasteParameter: "粘贴参数",
+        parameterCopied: "参数已复制到剪贴板",
+        parameterPasted: "参数已粘贴",
+        clipboardEmpty: "剪贴板为空",
+        clipboardInvalid: "剪贴板数据无效",
+        copyFailed: "复制失败",
+        lockedModeNoPaste: "锁定模式下无法粘贴"
     },
     en: {
         title: "Parameter Control Panel",
@@ -165,7 +239,23 @@ const translations = {
         description: "Description",
         descriptionPlaceholder: "Enter description (Markdown supported)",
         descriptionLockedHint: "Cannot modify description in locked mode",
-        multiline: "Multiline"
+        multiline: "Multiline",
+        taglist: "Tag List",
+        taglistEmpty: "No tags, press Enter to add",
+        taglistPlaceholder: "Enter tag and press Enter (comma-separated for batch)",
+        enum: "Enum",
+        enumOptions: "Enum Options",
+        enumOptionsPlaceholder: "One option per line (as enum values)",
+        enumDataSource: "Data Source",
+        enumHint: "Enum parameters can be linked with Enum Switch nodes for dynamic value selection",
+        copyParameter: "Copy Parameter",
+        pasteParameter: "Paste Parameter",
+        parameterCopied: "Parameter copied to clipboard",
+        parameterPasted: "Parameter pasted",
+        clipboardEmpty: "Clipboard is empty",
+        clipboardInvalid: "Invalid clipboard data",
+        copyFailed: "Copy failed",
+        lockedModeNoPaste: "Cannot paste in locked mode"
     }
 };
 
@@ -538,20 +628,14 @@ app.registerExtension({
 
             // 监听来自GMM的参数值变化事件
             this._pcpEventHandler = (e) => {
-                logger.info('[PCP-DEBUG] 收到事件:', e.type, e.detail);
-                logger.info('[PCP-DEBUG] 当前节点ID:', this.id, '类型:', typeof this.id);
-                logger.info('[PCP-DEBUG] 事件nodeId:', e.detail?.nodeId, '类型:', typeof e.detail?.nodeId);
-
                 // 宽松比较：支持字符串和数字的比较
                 if (e.detail && String(e.detail.nodeId) === String(this.id)) {
-                    logger.info('[PCP] 收到GMM的参数值变化通知:', e.detail);
+                    logger.debug('[PCP] 收到GMM的参数值变化通知:', e.detail);
                     this.refreshParameterUI(e.detail.paramName, e.detail.newValue);
-                } else {
-                    logger.info('[PCP-DEBUG] 事件不是给当前节点的, nodeId不匹配', String(e.detail?.nodeId), '!=', String(this.id));
                 }
             };
             window.addEventListener('pcp-param-value-changed', this._pcpEventHandler);
-            logger.info('[PCP] 已注册参数值变化事件监听器, 节点ID:', this.id, '类型:', typeof this.id);
+            logger.debug('[PCP] 已注册参数值变化事件监听器, 节点ID:', this.id);
 
             return result;
         };
@@ -665,7 +749,10 @@ app.registerExtension({
                     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
                     font-size: 13px;
                     color: #E0E0E0;
-                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+                    /* 性能优化：启用 GPU 加速和 CSS Containment */
+                    will-change: transform;
+                    contain: layout style paint;
+                    transform: translateZ(0);
                 }
 
                 .pcp-content {
@@ -691,7 +778,7 @@ app.registerExtension({
                     border-radius: 6px;
                     padding: 4px 8px;
                     cursor: pointer;
-                    transition: all 0.2s ease;
+                    transition: background-color 0.2s ease, opacity 0.2s ease, border-color 0.2s ease;
                     font-size: 14px;
                     min-width: 32px;
                     opacity: 0.5;
@@ -730,7 +817,7 @@ app.registerExtension({
                     color: #E0E0E0;
                     font-size: 12px;
                     cursor: pointer;
-                    transition: all 0.2s ease;
+                    transition: background-color 0.2s ease, opacity 0.2s ease, border-color 0.2s ease;
                 }
 
                 .pcp-preset-search:focus {
@@ -821,7 +908,7 @@ app.registerExtension({
                     border-radius: 4px;
                     padding: 4px 8px;
                     cursor: pointer;
-                    transition: all 0.2s ease;
+                    transition: background-color 0.2s ease, opacity 0.2s ease, border-color 0.2s ease;
                     font-size: 14px;
                     display: flex;
                     align-items: center;
@@ -880,28 +967,23 @@ app.registerExtension({
                     border-radius: 6px;
                     padding: 8px 10px;
                     margin-bottom: 6px;
-                    transition: all 0.2s ease;
                     cursor: move;
+                    /* 性能优化：CSS Containment 隔离重排影响 */
+                    contain: layout style;
                 }
 
                 .pcp-parameter-item:hover {
                     border-color: rgba(116, 55, 149, 0.5);
-                    box-shadow: 0 2px 8px rgba(116, 55, 149, 0.2);
-                    transform: translateY(-1px);
                 }
 
                 /* 参数项警告样式 - 当锁定值不存在时 */
                 .pcp-parameter-item-warning {
                     border: 2px solid #ff4444 !important;
-                    box-shadow: 0 0 12px rgba(255, 68, 68, 0.4) !important;
                     background: linear-gradient(135deg, rgba(255, 68, 68, 0.08) 0%, rgba(255, 68, 68, 0.05) 100%) !important;
-                    transition: all 0.3s ease !important;
                 }
 
                 .pcp-parameter-item-warning:hover {
                     border-color: #ff6666 !important;
-                    box-shadow: 0 0 16px rgba(255, 68, 68, 0.5) !important;
-                    transform: translateY(-1px) !important;
                 }
 
                 .pcp-parameter-item.dragging {
@@ -926,7 +1008,7 @@ app.registerExtension({
                     position: relative;
                     padding-left: 18px;
                     user-select: none;
-                    transition: all 0.2s ease;
+                    transition: background-color 0.2s ease, opacity 0.2s ease, border-color 0.2s ease;
                 }
 
                 /* 拖拽手柄图标 */
@@ -939,7 +1021,7 @@ app.registerExtension({
                     font-size: 14px;
                     color: #666;
                     opacity: 0.5;
-                    transition: all 0.2s ease;
+                    transition: background-color 0.2s ease, opacity 0.2s ease, border-color 0.2s ease;
                     letter-spacing: -2px;
                 }
 
@@ -958,7 +1040,7 @@ app.registerExtension({
                     border-radius: 4px;
                     padding: 4px 6px;
                     cursor: pointer;
-                    transition: all 0.2s ease;
+                    transition: background-color 0.2s ease, opacity 0.2s ease, border-color 0.2s ease;
                     display: flex;
                     align-items: center;
                     justify-content: center;
@@ -980,7 +1062,7 @@ app.registerExtension({
                     border-radius: 4px;
                     padding: 4px 6px;
                     cursor: pointer;
-                    transition: all 0.2s ease;
+                    transition: background-color 0.2s ease, opacity 0.2s ease, border-color 0.2s ease;
                     display: flex;
                     align-items: center;
                     justify-content: center;
@@ -1003,14 +1085,12 @@ app.registerExtension({
                     border-radius: 8px;
                     padding: 10px 12px;
                     cursor: move;
-                    box-shadow: 0 2px 8px rgba(116, 55, 149, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-                    transition: all 0.3s ease;
+                    /* 性能优化：CSS Containment */
+                    contain: layout style;
                 }
 
                 .pcp-separator:hover {
                     border-color: rgba(147, 112, 219, 0.5);
-                    box-shadow: 0 4px 12px rgba(116, 55, 149, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15);
-                    transform: translateY(-1px);
                     background: linear-gradient(135deg, rgba(116, 55, 149, 0.2) 0%, rgba(147, 112, 219, 0.15) 100%);
                 }
 
@@ -1107,9 +1187,20 @@ app.registerExtension({
                     padding: 3px 6px;
                     color: #E0E0E0;
                     font-size: 11px;
-                    width: 50px;
+                    min-width: 50px;
+                    width: auto;
                     text-align: center;
                     flex-shrink: 0;
+                    -moz-appearance: textfield;
+                }
+
+                .pcp-slider-value::-webkit-outer-spin-button,
+                .pcp-slider-value::-webkit-inner-spin-button {
+                    -webkit-appearance: none;
+                    display: none;
+                    margin: 0;
+                    width: 0;
+                    height: 0;
                 }
 
                 .pcp-slider-value:focus {
@@ -1126,7 +1217,7 @@ app.registerExtension({
                     background: rgba(0, 0, 0, 0.3);
                     border-radius: 12px;
                     cursor: pointer;
-                    transition: all 0.3s ease;
+                    transition: background-color 0.3s ease, border-color 0.3s ease;
                     border: 1px solid rgba(255, 255, 255, 0.1);
                     flex-shrink: 0;
                     margin-left: auto;
@@ -1145,7 +1236,7 @@ app.registerExtension({
                     height: 18px;
                     background: #fff;
                     border-radius: 50%;
-                    transition: all 0.3s ease;
+                    transition: background-color 0.3s ease, border-color 0.3s ease;
                     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
                 }
 
@@ -1153,45 +1244,111 @@ app.registerExtension({
                     left: 28px;
                 }
 
-                /* 下拉菜单样式 */
-                .pcp-dropdown {
+                /* 下拉菜单样式 - 增强版 */
+                .pcp-dropdown,
+                .pcp-enum-select {
                     flex: 1;
-                    background: rgba(0, 0, 0, 0.3);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                    border-radius: 6px;
-                    padding: 4px 8px;
-                    color: #E0E0E0;
-                    font-size: 12px;
-                    min-width: 80px;
-                    max-width: 100%; /* 限制最大宽度 */
-                    transition: all 0.2s ease;
+                    background: linear-gradient(135deg, rgba(0, 0, 0, 0.35) 0%, rgba(20, 20, 30, 0.4) 100%);
+                    border: 1px solid rgba(255, 255, 255, 0.12);
+                    border-radius: 8px;
+                    padding: 8px 32px 8px 12px;
+                    color: #E8E8E8;
+                    font-size: 13px;
+                    min-width: 100px;
+                    max-width: 100%;
+                    height: 36px;
+                    transition: background-color 0.25s ease, border-color 0.25s ease;
                     cursor: pointer;
-                    /* 文本溢出处理 */
                     overflow: hidden;
                     text-overflow: ellipsis;
                     white-space: nowrap;
+                    /* 自定义下拉箭头 */
+                    appearance: none;
+                    -webkit-appearance: none;
+                    -moz-appearance: none;
+                    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23B0B0B0' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+                    background-repeat: no-repeat;
+                    background-position: right 10px center;
+                    background-size: 14px;
                 }
 
-                .pcp-dropdown:focus {
+                /* Hover 状态 */
+                .pcp-dropdown:hover,
+                .pcp-enum-select:hover {
+                    border-color: rgba(116, 55, 149, 0.5);
+                    background-color: rgba(0, 0, 0, 0.45);
+                    box-shadow: 0 2px 8px rgba(116, 55, 149, 0.15);
+                }
+
+                /* Focus 状态 */
+                .pcp-dropdown:focus,
+                .pcp-enum-select:focus {
                     outline: none;
                     border-color: #743795;
-                    background: rgba(0, 0, 0, 0.4);
+                    background-color: rgba(0, 0, 0, 0.5);
+                    box-shadow: 0 0 0 3px rgba(116, 55, 149, 0.2), 0 4px 12px rgba(116, 55, 149, 0.25);
                 }
 
-                /* 下拉菜单选项样式 */
-                .pcp-dropdown option {
-                    background: #3d2951; /* 深紫色背景 */
-                    color: #E0E0E0; /* 白色文字 */
-                    padding: 6px 8px;
+                /* 下拉选项样式 */
+                .pcp-dropdown option,
+                .pcp-enum-select option {
+                    background: #2a2a3a;
+                    color: #E8E8E8;
+                    padding: 10px 12px;
+                    font-size: 13px;
                 }
 
-                .pcp-dropdown option:hover {
-                    background: #4d3561; /* 悬停时稍亮的紫色 */
+                .pcp-dropdown option:hover,
+                .pcp-enum-select option:hover {
+                    background: linear-gradient(135deg, #3d2951 0%, #4d3561 100%);
                 }
 
-                .pcp-dropdown option:checked {
-                    background: #5d4171; /* 选中时更亮的紫色 */
+                .pcp-dropdown option:checked,
+                .pcp-enum-select option:checked {
+                    background: linear-gradient(135deg, #743795 0%, #8b4ba8 100%);
+                    color: #fff;
                     font-weight: 500;
+                }
+
+                /* 禁用状态 */
+                .pcp-dropdown:disabled,
+                .pcp-enum-select:disabled {
+                    opacity: 0.5;
+                    cursor: not-allowed;
+                }
+
+                /* 枚举/下拉容器样式 */
+                .pcp-enum-container,
+                .pcp-dropdown-container {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    flex: 1;
+                    min-width: 0;
+                    overflow: hidden;
+                    padding: 2px 0;
+                }
+
+                /* 枚举/下拉指示器图标 */
+                .pcp-enum-indicator,
+                .pcp-dropdown-indicator {
+                    font-size: 16px;
+                    opacity: 0.8;
+                    flex-shrink: 0;
+                    width: 28px;
+                    height: 28px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: rgba(116, 55, 149, 0.15);
+                    border-radius: 6px;
+                    transition: background-color 0.2s ease, opacity 0.2s ease, border-color 0.2s ease;
+                }
+
+                .pcp-enum-container:hover .pcp-enum-indicator,
+                .pcp-dropdown-container:hover .pcp-dropdown-indicator {
+                    background: rgba(116, 55, 149, 0.25);
+                    transform: scale(1.05);
                 }
 
                 /* 图像参数样式 */
@@ -1215,7 +1372,7 @@ app.registerExtension({
                     text-overflow: ellipsis;
                     white-space: nowrap;
                     cursor: pointer;
-                    transition: all 0.2s ease;
+                    transition: background-color 0.2s ease, opacity 0.2s ease, border-color 0.2s ease;
                 }
 
                 .pcp-image-filename:hover {
@@ -1231,7 +1388,7 @@ app.registerExtension({
                     cursor: pointer;
                     font-size: 14px;
                     flex-shrink: 0;
-                    transition: all 0.2s ease;
+                    transition: background-color 0.2s ease, opacity 0.2s ease, border-color 0.2s ease;
                 }
 
                 .pcp-image-clear-button:hover {
@@ -1248,7 +1405,7 @@ app.registerExtension({
                     cursor: pointer;
                     font-size: 14px;
                     flex-shrink: 0;
-                    transition: all 0.2s ease;
+                    transition: background-color 0.2s ease, opacity 0.2s ease, border-color 0.2s ease;
                 }
 
                 .pcp-image-upload-button:hover {
@@ -1289,6 +1446,140 @@ app.registerExtension({
                     border-radius: 4px;
                 }
 
+                /* TagList 标签列表样式 */
+                .pcp-taglist-container {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 6px;
+                    flex: 1;
+                    min-width: 0;
+                }
+
+                .pcp-taglist-wrapper {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 4px;
+                    min-height: 28px;
+                    padding: 4px;
+                    background: rgba(0, 0, 0, 0.2);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 6px;
+                }
+
+                .pcp-taglist-empty {
+                    color: #666;
+                    font-size: 11px;
+                    font-style: italic;
+                    padding: 2px 6px;
+                }
+
+                .pcp-taglist-tag {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 4px;
+                    padding: 2px 8px;
+                    border-radius: 4px;
+                    font-size: 11px;
+                    border: 1px solid;
+                    cursor: pointer;
+                    transition: background-color 0.2s ease, opacity 0.2s ease, border-color 0.2s ease;
+                    user-select: none;
+                    position: relative;
+                }
+
+                .pcp-taglist-tag:hover {
+                    transform: translateY(-1px);
+                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+                }
+
+                .pcp-taglist-tag.disabled {
+                    opacity: 0.6;
+                    text-decoration: line-through;
+                    background: rgba(128, 128, 128, 0.2) !important;
+                    border-color: #666 !important;
+                    color: #888 !important;
+                }
+
+                .pcp-taglist-tag-text {
+                    max-width: 150px;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+
+                .pcp-taglist-tag-delete {
+                    cursor: pointer;
+                    font-size: 14px;
+                    font-weight: bold;
+                    opacity: 0.6;
+                    transition: opacity 0.2s ease;
+                    line-height: 1;
+                }
+
+                .pcp-taglist-tag-delete:hover {
+                    opacity: 1;
+                    color: #ff6b6b;
+                }
+
+                .pcp-taglist-input {
+                    flex: 1;
+                    background: rgba(0, 0, 0, 0.3);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 4px;
+                    padding: 4px 8px;
+                    color: #E0E0E0;
+                    font-size: 11px;
+                }
+
+                .pcp-taglist-input:focus {
+                    outline: none;
+                    border-color: #743795;
+                    background: rgba(0, 0, 0, 0.4);
+                }
+
+                .pcp-taglist-input::placeholder {
+                    color: #666;
+                }
+
+                /* Tag 拖拽排序样式 */
+                .pcp-taglist-tag[draggable="true"] {
+                    cursor: grab;
+                }
+
+                .pcp-taglist-tag[draggable="true"]:active {
+                    cursor: grabbing;
+                }
+
+                .pcp-taglist-tag.pcp-tag-dragging {
+                    opacity: 0.4;
+                    transform: scale(0.95);
+                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+                }
+
+                .pcp-taglist-tag.pcp-tag-drag-over-left::before {
+                    content: '';
+                    position: absolute;
+                    left: -3px;
+                    top: 2px;
+                    bottom: 2px;
+                    width: 3px;
+                    background-color: #743795;
+                    border-radius: 2px;
+                    box-shadow: 0 0 6px #743795;
+                }
+
+                .pcp-taglist-tag.pcp-tag-drag-over-right::after {
+                    content: '';
+                    position: absolute;
+                    right: -3px;
+                    top: 2px;
+                    bottom: 2px;
+                    width: 3px;
+                    background-color: #743795;
+                    border-radius: 2px;
+                    box-shadow: 0 0 6px #743795;
+                }
+
                 /* 底部按钮 */
                 .pcp-add-parameter-container {
                     padding: 12px;
@@ -1307,7 +1598,7 @@ app.registerExtension({
                     cursor: pointer;
                     font-size: 13px;
                     font-weight: 500;
-                    transition: all 0.2s ease;
+                    transition: background-color 0.2s ease, opacity 0.2s ease, border-color 0.2s ease;
                     display: flex;
                     align-items: center;
                     justify-content: center;
@@ -1349,7 +1640,7 @@ app.registerExtension({
                     padding: 24px;
                     min-width: 600px;
                     max-width: 800px;
-                    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+                    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.8);
                 }
 
                 .pcp-dialog h3 {
@@ -1420,7 +1711,7 @@ app.registerExtension({
                     cursor: pointer;
                     font-size: 13px;
                     font-weight: 500;
-                    transition: all 0.2s ease;
+                    transition: background-color 0.2s ease, opacity 0.2s ease, border-color 0.2s ease;
                 }
 
                 .pcp-dialog-button-primary {
@@ -1454,7 +1745,7 @@ app.registerExtension({
                     border: 2px solid #555;
                     border-radius: 6px;
                     cursor: pointer;
-                    transition: all 0.2s ease;
+                    transition: background-color 0.2s ease, opacity 0.2s ease, border-color 0.2s ease;
                 }
 
                 .pcp-color-picker:hover {
@@ -1486,7 +1777,7 @@ app.registerExtension({
                     border: 2px solid #555;
                     border-radius: 6px;
                     cursor: pointer;
-                    transition: all 0.2s ease;
+                    transition: background-color 0.2s ease, opacity 0.2s ease, border-color 0.2s ease;
                     position: relative;
                 }
 
@@ -1723,6 +2014,57 @@ app.registerExtension({
                         transform: translateX(-30px);
                     }
                 }
+
+                /* 参数条目右键菜单 */
+                .pcp-context-menu {
+                    position: fixed;
+                    min-width: 160px;
+                    background: #2a2a3a;
+                    border: 1px solid rgba(116, 55, 149, 0.4);
+                    border-radius: 8px;
+                    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+                    z-index: 9999999999;
+                    opacity: 0;
+                    transform: scale(0.95);
+                    transition: opacity 0.15s ease, transform 0.15s ease;
+                    overflow: hidden;
+                }
+
+                .pcp-context-menu-visible {
+                    opacity: 1;
+                    transform: scale(1);
+                }
+
+                .pcp-context-menu-item {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    padding: 10px 14px;
+                    cursor: pointer;
+                    transition: background 0.15s ease;
+                    font-size: 13px;
+                    color: #E0E0E0;
+                    user-select: none;
+                }
+
+                .pcp-context-menu-item:hover {
+                    background: rgba(116, 55, 149, 0.3);
+                }
+
+                .pcp-context-menu-item.disabled {
+                    opacity: 0.4;
+                    cursor: not-allowed;
+                    pointer-events: none;
+                }
+
+                .pcp-context-menu-icon {
+                    font-size: 14px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 18px;
+                    height: 18px;
+                }
             `;
             document.head.appendChild(style);
         };
@@ -1848,50 +2190,73 @@ app.registerExtension({
 
         // 更新参数列表显示
         nodeType.prototype.updateParametersList = function () {
-            const listContainer = this.customUI.querySelector('#pcp-parameters-list');
-
-            // 保存所有textarea的当前高度（修复锁定时高度重置问题）
-            const textareaHeights = new Map();
-            const existingItems = Array.from(listContainer.children);
-            existingItems.forEach((item, index) => {
-                const textarea = item.querySelector('.pcp-string-textarea');
-                if (textarea) {
-                    // 使用参数索引作为key，保存实际渲染高度
-                    textareaHeights.set(index, textarea.style.height || `${textarea.offsetHeight}px`);
+            try {
+                // 检查 customUI 是否存在
+                if (!this.customUI) {
+                    logger.warn('[PCP] customUI 不存在，跳过参数列表更新');
+                    return;
                 }
-            });
 
-            listContainer.innerHTML = '';
-
-            // 确保所有参数都有ID（兼容旧数据）
-            this.properties.parameters.forEach(param => {
-                if (!param.id) {
-                    param.id = `param_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-                    logger.info(`[PCP] 为参数 '${param.name}' 补充ID:`, param.id);
+                const listContainer = this.customUI.querySelector('#pcp-parameters-list');
+                if (!listContainer) {
+                    logger.warn('[PCP] 参数列表容器不存在');
+                    return;
                 }
-            });
 
-            this.properties.parameters.forEach((param, index) => {
-                const paramItem = this.createParameterItem(param, index);
-                listContainer.appendChild(paramItem);
+                // 确保 parameters 数组存在
+                if (!this.properties.parameters) {
+                    this.properties.parameters = [];
+                }
 
-                // 恢复textarea高度
-                if (textareaHeights.has(index)) {
-                    const textarea = paramItem.querySelector('.pcp-string-textarea');
-                    if (textarea) {
-                        textarea.style.height = textareaHeights.get(index);
+                // 保存所有textarea的当前高度（使用 param.id 作为 key）
+                const textareaHeights = new Map();
+                const existingItems = Array.from(listContainer.children);
+                existingItems.forEach((item) => {
+                    const paramId = item.dataset.paramId;
+                    const textarea = item.querySelector('.pcp-string-textarea');
+                    if (textarea && paramId) {
+                        textareaHeights.set(paramId, textarea.style.height || `${textarea.offsetHeight}px`);
                     }
-                }
-            });
+                });
 
-            // 更新节点输出
-            this.updateOutputs();
+                // 确保所有参数都有ID（兼容旧数据）
+                this.properties.parameters.forEach(param => {
+                    if (!param.id) {
+                        param.id = `param_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                        logger.info(`[PCP] 为参数 '${param.name}' 补充ID:`, param.id);
+                    }
+                });
 
-            // 通知连接的 ParameterBreak 节点更新
-            this.notifyConnectedBreakNodes();
+                // ====== 性能优化：使用 DocumentFragment 批量插入 DOM ======
+                const fragment = document.createDocumentFragment();
+                this.properties.parameters.forEach((param, index) => {
+                    const paramItem = this.createParameterItem(param, index);
+                    fragment.appendChild(paramItem);
 
-            // 检查并修复from_connection类型的dropdown缺失options问题
-            this.recheckFromConnectionDropdowns();
+                    // 恢复textarea高度（使用 param.id 作为 key）
+                    if (textareaHeights.has(param.id)) {
+                        const textarea = paramItem.querySelector('.pcp-string-textarea');
+                        if (textarea) {
+                            textarea.style.height = textareaHeights.get(param.id);
+                        }
+                    }
+                });
+
+                // 一次性清空并添加所有元素
+                listContainer.innerHTML = '';
+                listContainer.appendChild(fragment);
+
+                // 更新节点输出
+                this.updateOutputs();
+
+                // 通知连接的 ParameterBreak 节点更新
+                this.notifyConnectedBreakNodes();
+
+                // 检查并修复from_connection类型的dropdown缺失options问题
+                this.recheckFromConnectionDropdowns();
+            } catch (error) {
+                logger.error('[PCP] 更新参数列表失败:', error);
+            }
         };
 
         // 恢复所有需要显示的左上角提示
@@ -2389,6 +2754,13 @@ app.registerExtension({
                     });
                 }
 
+                // 右键菜单事件
+                item.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.showParameterContextMenu(e.clientX, e.clientY, param.id);
+                });
+
                 return item;
             }
 
@@ -2460,6 +2832,12 @@ app.registerExtension({
                     break;
                 case 'image':
                     control.appendChild(this.createImage(param));
+                    break;
+                case 'taglist':
+                    control.appendChild(this.createTagList(param));
+                    break;
+                case 'enum':
+                    control.appendChild(this.createEnum(param));
                     break;
             }
 
@@ -2548,7 +2926,7 @@ app.registerExtension({
             if (description && description.trim()) {
                 let isTooltipVisible = false;
 
-                const controlSelector = '.pcp-slider-container, .pcp-switch, .pcp-dropdown-container, .pcp-string-input, .pcp-string-textarea, .pcp-image-container, .pcp-parameter-edit, .pcp-parameter-delete';
+                const controlSelector = '.pcp-slider-container, .pcp-switch, .pcp-dropdown-container, .pcp-string-input, .pcp-string-textarea, .pcp-image-container, .pcp-taglist-container, .pcp-parameter-edit, .pcp-parameter-delete';
 
                 item.addEventListener('mousemove', (e) => {
                     const isInControl = e.target.closest(controlSelector);
@@ -2567,6 +2945,13 @@ app.registerExtension({
                     isTooltipVisible = false;
                 });
             }
+
+            // 右键菜单事件
+            item.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.showParameterContextMenu(e.clientX, e.clientY, param.id);
+            });
 
             return item;
         };
@@ -2713,11 +3098,13 @@ app.registerExtension({
             valueInput.draggable = false;
 
             // 同步滑条和输入框
+            // ====== 性能优化：使用节流减少 syncConfig 调用频率 ======
+            const throttledSyncConfig = throttle(() => this.syncConfig(), 100);
             slider.addEventListener('input', (e) => {
                 const newValue = parseFloat(e.target.value);
                 valueInput.value = newValue;
                 param.value = newValue;
-                this.syncConfig();
+                throttledSyncConfig();
             });
 
             valueInput.addEventListener('change', (e) => {
@@ -2790,12 +3177,6 @@ app.registerExtension({
         nodeType.prototype.createDropdown = function (param) {
             const container = document.createElement('div');
             container.className = 'pcp-dropdown-container';
-            container.style.display = 'flex';
-            container.style.alignItems = 'center';
-            container.style.gap = '8px';
-            container.style.flex = '1';
-            container.style.minWidth = '0'; // 允许被压缩，防止挤出按钮
-            container.style.overflow = 'hidden'; // 隐藏溢出内容
 
             const select = document.createElement('select');
             select.className = 'pcp-dropdown';
@@ -2808,9 +3189,6 @@ app.registerExtension({
             // 添加数据源状态指示器
             const indicator = document.createElement('span');
             indicator.className = 'pcp-dropdown-indicator';
-            indicator.style.fontSize = '14px';
-            indicator.style.opacity = '0.7';
-            indicator.style.flexShrink = '0';
 
             if (dataSource === 'from_connection') {
                 indicator.textContent = '🔗';
@@ -2874,6 +3252,152 @@ app.registerExtension({
             return container;
         };
 
+        // 创建枚举UI
+        nodeType.prototype.createEnum = function (param) {
+            const container = document.createElement('div');
+            container.className = 'pcp-enum-container';
+
+            const select = document.createElement('select');
+            select.className = 'pcp-enum-select';
+            select.dataset.paramName = param.name;
+            select.dataset.paramId = param.id;
+
+            const config = param.config || {};
+            const dataSource = config.data_source || 'custom';
+
+            // 添加数据源状态指示器
+            const indicator = document.createElement('span');
+            indicator.className = 'pcp-enum-indicator';
+
+            if (dataSource === 'custom') {
+                indicator.textContent = '🔢';
+                indicator.title = '自定义枚举选项';
+            } else {
+                indicator.textContent = '📁';
+                indicator.title = '从' + dataSource + '获取选项';
+            }
+
+            // 阻止下拉菜单触发拖拽
+            select.addEventListener('mousedown', (e) => {
+                e.stopPropagation();
+            });
+            select.addEventListener('dragstart', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+            });
+            select.draggable = false;
+
+            // 加载选项
+            const loadOptions = (options) => {
+                select.innerHTML = '';
+                options.forEach(opt => {
+                    const option = document.createElement('option');
+                    option.value = opt;
+                    option.textContent = opt;
+                    if (param.value === opt) {
+                        option.selected = true;
+                    }
+                    select.appendChild(option);
+                });
+            };
+
+            if (dataSource === 'custom') {
+                const options = config.options || [];
+                loadOptions(options);
+            } else {
+                // 动态数据源
+                this.loadDataSource(dataSource).then(options => {
+                    loadOptions(options);
+                    // 更新 config.options 以便后续使用
+                    if (!param.config) param.config = {};
+                    param.config.options = options;
+                });
+            }
+
+            // 选择事件 - 同步值并通知关联的 EnumSwitch 节点
+            select.addEventListener('change', (e) => {
+                param.value = e.target.value;
+                this.syncConfig();
+
+                // 发送枚举变更事件到关联的 EnumSwitch 节点
+                this.notifyEnumSwitchNodes(param);
+            });
+
+            // 组装container
+            container.appendChild(indicator);
+            container.appendChild(select);
+
+            return container;
+        };
+
+        // 通知关联的 EnumSwitch 节点
+        nodeType.prototype.notifyEnumSwitchNodes = function(param) {
+            const options = param.config?.options || [];
+            const selectedValue = param.value || '';
+
+            // 通过自定义事件广播
+            if (this.graph) {
+                // 遍历所有节点，找到连接到此 PCP 的 EnumSwitch 节点
+                for (const node of this.graph._nodes) {
+                    if (node.type === 'EnumSwitch') {
+                        // 检查是否连接到此 PCP（直接连接或通过 ParameterBreak）
+                        const enumInput = node.inputs && node.inputs[0];
+                        if (enumInput && enumInput.link != null) {
+                            const link = this.graph.links[enumInput.link];
+                            if (link) {
+                                let originNodeId = link.origin_id;
+                                let shouldNotify = false;
+
+                                // 检查是否直接连接到此 PCP
+                                if (originNodeId === this.id) {
+                                    shouldNotify = true;
+                                } else {
+                                    // 检查是否通过 ParameterBreak 连接
+                                    const originNode = this.graph.getNodeById(originNodeId);
+                                    if (originNode && originNode.type === 'ParameterBreak') {
+                                        // 检查 ParameterBreak 是否连接到此 PCP
+                                        const pbInput = originNode.inputs && originNode.inputs[0];
+                                        if (pbInput && pbInput.link != null) {
+                                            const pbLink = this.graph.links[pbInput.link];
+                                            if (pbLink && pbLink.origin_id === this.id) {
+                                                shouldNotify = true;
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if (shouldNotify) {
+                                    window.dispatchEvent(new CustomEvent('enum-switch-update', {
+                                        detail: {
+                                            targetNodeId: node.id,
+                                            options: options,
+                                            selectedValue: selectedValue,
+                                            panelNodeId: this.id,
+                                            paramName: param.name
+                                        }
+                                    }));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 也通过后端 API 发送通知（用于刷新后恢复）
+            fetch('/danbooru_gallery/pcp/notify_enum_change', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    source_node_id: this.id,
+                    param_name: param.name,
+                    options: options,
+                    selected_value: selectedValue
+                })
+            }).catch(error => {
+                logger.warn('[PCP] 通知枚举变更失败:', error);
+            });
+        };
+
         // 创建字符串UI
         nodeType.prototype.createString = function (param) {
             const container = document.createElement('div');
@@ -2917,22 +3441,30 @@ app.registerExtension({
             }
 
             // 输入事件
+            // ====== 性能优化：使用防抖减少 syncConfig 调用频率 ======
+            const debouncedSyncConfig = debounce(() => this.syncConfig(), 300);
             input.addEventListener('input', (e) => {
                 param.value = e.target.value;
-                this.syncConfig();
+                debouncedSyncConfig();
             });
 
             // 监听textarea高度变化并持久化保存
             if (isMultiline) {
+                // ====== 性能优化：使用防抖减少 ResizeObserver 回调频率 ======
+                const debouncedResizeSyncConfig = debounce(() => this.syncConfig(), 500);
                 const resizeObserver = new ResizeObserver(() => {
                     const currentHeight = input.style.height || `${input.offsetHeight}px`;
                     if (!param.config) param.config = {};
                     if (param.config.textareaHeight !== currentHeight) {
                         param.config.textareaHeight = currentHeight;
-                        this.syncConfig();
+                        debouncedResizeSyncConfig();
                     }
                 });
                 resizeObserver.observe(input);
+
+                // 存储 ResizeObserver 引用以便在节点移除时清理
+                if (!this._resizeObservers) this._resizeObservers = [];
+                this._resizeObservers.push(resizeObserver);
             }
 
             // 聚焦样式
@@ -3167,6 +3699,216 @@ app.registerExtension({
             return container;
         };
 
+        // 创建标签列表UI
+        nodeType.prototype.createTagList = function (param) {
+            const container = document.createElement('div');
+            container.className = 'pcp-taglist-container';
+
+            const tagsWrapper = document.createElement('div');
+            tagsWrapper.className = 'pcp-taglist-wrapper';
+
+            // 6色循环
+            const tagColors = [
+                { bg: 'rgba(139, 195, 74, 0.3)', border: '#8BC34A', text: '#E0E0E0' },   // 浅绿色
+                { bg: 'rgba(3, 169, 244, 0.3)', border: '#03A9F4', text: '#E0E0E0' },    // 浅蓝色
+                { bg: 'rgba(255, 152, 0, 0.3)', border: '#FF9800', text: '#E0E0E0' },    // 橙色
+                { bg: 'rgba(156, 39, 176, 0.3)', border: '#9C27B0', text: '#E0E0E0' },   // 紫色
+                { bg: 'rgba(233, 30, 99, 0.3)', border: '#E91E63', text: '#E0E0E0' },    // 粉色
+                { bg: 'rgba(0, 150, 136, 0.3)', border: '#009688', text: '#E0E0E0' },    // 青绿色
+            ];
+            let colorIndex = 0;
+
+            // 初始化 value 为数组
+            if (!param.value || !Array.isArray(param.value)) {
+                param.value = [];
+            }
+
+            // 渲染所有标签
+            const renderTags = () => {
+                tagsWrapper.innerHTML = '';
+                colorIndex = 0;
+
+                if (param.value.length === 0) {
+                    const emptyHint = document.createElement('span');
+                    emptyHint.className = 'pcp-taglist-empty';
+                    emptyHint.textContent = t('taglistEmpty');
+                    tagsWrapper.appendChild(emptyHint);
+                    return;
+                }
+
+                param.value.forEach((tag, index) => {
+                    const tagEl = document.createElement('span');
+                    tagEl.className = 'pcp-taglist-tag' + (tag.enabled ? '' : ' disabled');
+
+                    const color = tagColors[colorIndex % tagColors.length];
+                    colorIndex++;
+
+                    if (tag.enabled) {
+                        tagEl.style.background = color.bg;
+                        tagEl.style.borderColor = color.border;
+                        tagEl.style.color = color.text;
+                    }
+
+                    // 标签文本
+                    const textSpan = document.createElement('span');
+                    textSpan.className = 'pcp-taglist-tag-text';
+                    textSpan.textContent = tag.text;
+                    tagEl.appendChild(textSpan);
+
+                    // 删除按钮
+                    const deleteBtn = document.createElement('span');
+                    deleteBtn.className = 'pcp-taglist-tag-delete';
+                    deleteBtn.innerHTML = '&times;';
+                    deleteBtn.title = '删除标签';
+                    tagEl.appendChild(deleteBtn);
+
+                    // 双击切换启用/禁用
+                    tagEl.addEventListener('dblclick', (e) => {
+                        e.stopPropagation();
+                        tag.enabled = !tag.enabled;
+                        this.syncConfig();
+                        renderTags();
+                    });
+
+                    // 删除按钮点击
+                    deleteBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        param.value.splice(index, 1);
+                        this.syncConfig();
+                        renderTags();
+                    });
+
+                    // ========== 拖拽排序功能 ==========
+                    tagEl.draggable = true;
+                    tagEl.dataset.index = index;
+
+                    // 拖拽开始
+                    tagEl.addEventListener('dragstart', (e) => {
+                        e.stopPropagation();
+                        e.dataTransfer.effectAllowed = 'move';
+                        e.dataTransfer.setData('text/plain', index.toString());
+                        tagEl.classList.add('pcp-tag-dragging');
+                        tagsWrapper._dragSourceIndex = index;
+                    });
+
+                    // 拖拽结束
+                    tagEl.addEventListener('dragend', (e) => {
+                        e.stopPropagation();
+                        tagEl.classList.remove('pcp-tag-dragging');
+                        tagsWrapper.querySelectorAll('.pcp-taglist-tag').forEach(el => {
+                            el.classList.remove('pcp-tag-drag-over-left', 'pcp-tag-drag-over-right');
+                        });
+                        tagsWrapper._dragSourceIndex = null;
+                    });
+
+                    // 拖拽经过 - 根据鼠标 X 坐标判断放置在左侧还是右侧
+                    tagEl.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.dataTransfer.dropEffect = 'move';
+
+                        const rect = tagEl.getBoundingClientRect();
+                        const midX = rect.left + rect.width / 2;
+
+                        if (e.clientX < midX) {
+                            tagEl.classList.remove('pcp-tag-drag-over-right');
+                            tagEl.classList.add('pcp-tag-drag-over-left');
+                        } else {
+                            tagEl.classList.remove('pcp-tag-drag-over-left');
+                            tagEl.classList.add('pcp-tag-drag-over-right');
+                        }
+                    });
+
+                    // 拖拽离开
+                    tagEl.addEventListener('dragleave', (e) => {
+                        e.stopPropagation();
+                        tagEl.classList.remove('pcp-tag-drag-over-left', 'pcp-tag-drag-over-right');
+                    });
+
+                    // 放置
+                    tagEl.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        tagEl.classList.remove('pcp-tag-drag-over-left', 'pcp-tag-drag-over-right');
+
+                        const fromIndex = tagsWrapper._dragSourceIndex;
+                        if (fromIndex === null || fromIndex === undefined || fromIndex === index) {
+                            return;
+                        }
+
+                        const rect = tagEl.getBoundingClientRect();
+                        const midX = rect.left + rect.width / 2;
+                        let toIndex = index;
+
+                        if (e.clientX > midX) {
+                            toIndex++;
+                        }
+
+                        if (fromIndex < toIndex) {
+                            toIndex--;
+                        }
+
+                        if (fromIndex === toIndex) {
+                            return;
+                        }
+
+                        // 执行数组重排序
+                        const [movedItem] = param.value.splice(fromIndex, 1);
+                        param.value.splice(toIndex, 0, movedItem);
+
+                        this.syncConfig();
+                        renderTags();
+                    });
+
+                    // 阻止拖拽冒泡到父元素
+                    tagEl.addEventListener('mousedown', (e) => e.stopPropagation());
+
+                    tagsWrapper.appendChild(tagEl);
+                });
+            };
+
+            // 添加标签输入框
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'pcp-taglist-input';
+            input.placeholder = t('taglistPlaceholder');
+
+            // 回车添加标签
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const text = input.value.trim();
+                    if (text) {
+                        // 支持逗号分隔批量添加
+                        const newTags = text.split(',').map(t => t.trim()).filter(t => t);
+                        newTags.forEach(tagText => {
+                            // 检查是否已存在
+                            const exists = param.value.some(t => t.text === tagText);
+                            if (!exists) {
+                                param.value.push({ text: tagText, enabled: true });
+                            }
+                        });
+                        input.value = '';
+                        this.syncConfig();
+                        renderTags();
+                    }
+                }
+            });
+
+            // 阻止输入框触发拖拽
+            input.addEventListener('mousedown', (e) => e.stopPropagation());
+
+            // 组装容器
+            container.appendChild(tagsWrapper);
+            container.appendChild(input);
+
+            // 初始渲染
+            renderTags();
+
+            return container;
+        };
+
         // ==================== 辅助方法 ====================
 
         // 加载数据源
@@ -3367,6 +4109,224 @@ app.registerExtension({
             }
         };
 
+        // ==================== 右键菜单系统 ====================
+
+        // 显示参数条目右键菜单
+        nodeType.prototype.showParameterContextMenu = function (x, y, paramId) {
+            // 删除已存在的菜单
+            this.removeParameterContextMenu();
+
+            const param = this.getParameterById(paramId);
+            if (!param) return;
+
+            // 检查剪贴板是否有数据
+            const clipboardData = localStorage.getItem('pcp_clipboard_parameter');
+            const hasClipboardData = !!clipboardData;
+
+            // 锁定模式下粘贴不可用
+            const canPaste = hasClipboardData && !this.properties.locked;
+
+            // 创建菜单DOM
+            const menu = document.createElement('div');
+            menu.className = 'pcp-context-menu';
+            menu.innerHTML = `
+                <div class="pcp-context-menu-item" data-action="copy">
+                    <span class="pcp-context-menu-icon">📋</span>
+                    <span>${t('copyParameter')}</span>
+                </div>
+                <div class="pcp-context-menu-item ${canPaste ? '' : 'disabled'}" data-action="paste">
+                    <span class="pcp-context-menu-icon">📥</span>
+                    <span>${t('pasteParameter')}</span>
+                </div>
+            `;
+
+            // 计算菜单位置（边界检测）
+            const menuWidth = 160;
+            const menuHeight = 80;
+            const padding = 10;
+
+            let menuX = x;
+            let menuY = y;
+
+            // 右侧边界检测
+            if (menuX + menuWidth > window.innerWidth - padding) {
+                menuX = window.innerWidth - menuWidth - padding;
+            }
+
+            // 底部边界检测
+            if (menuY + menuHeight > window.innerHeight - padding) {
+                menuY = window.innerHeight - menuHeight - padding;
+            }
+
+            menu.style.left = `${menuX}px`;
+            menu.style.top = `${menuY}px`;
+
+            // 添加到页面
+            document.body.appendChild(menu);
+            this._contextMenuElement = menu;
+            this._contextMenuParamId = paramId;
+
+            // 显示动画
+            requestAnimationFrame(() => {
+                menu.classList.add('pcp-context-menu-visible');
+            });
+
+            // 绑定菜单项事件
+            const copyItem = menu.querySelector('[data-action="copy"]');
+            const pasteItem = menu.querySelector('[data-action="paste"]');
+
+            copyItem.addEventListener('click', () => {
+                this.copyParameter(paramId);
+                this.removeParameterContextMenu();
+            });
+
+            if (canPaste) {
+                pasteItem.addEventListener('click', () => {
+                    this.pasteParameterAfter(paramId);
+                    this.removeParameterContextMenu();
+                });
+            }
+
+            // 点击外部关闭菜单
+            const closeMenu = (e) => {
+                if (!menu.contains(e.target)) {
+                    this.removeParameterContextMenu();
+                }
+            };
+            // 延迟添加，避免当前右键点击立即触发关闭
+            setTimeout(() => {
+                document.addEventListener('click', closeMenu);
+            }, 100);
+            this._contextMenuCloseHandler = closeMenu;
+
+            // ESC键关闭
+            const escHandler = (e) => {
+                if (e.key === 'Escape') {
+                    this.removeParameterContextMenu();
+                }
+            };
+            document.addEventListener('keydown', escHandler);
+            this._contextMenuEscHandler = escHandler;
+
+            logger.info('[PCP] 右键菜单已显示');
+        };
+
+        // 移除右键菜单
+        nodeType.prototype.removeParameterContextMenu = function () {
+            if (this._contextMenuElement) {
+                this._contextMenuElement.remove();
+                this._contextMenuElement = null;
+                this._contextMenuParamId = null;
+            }
+            // 清理事件监听器
+            if (this._contextMenuCloseHandler) {
+                document.removeEventListener('click', this._contextMenuCloseHandler);
+                this._contextMenuCloseHandler = null;
+            }
+            if (this._contextMenuEscHandler) {
+                document.removeEventListener('keydown', this._contextMenuEscHandler);
+                this._contextMenuEscHandler = null;
+            }
+        };
+
+        // 复制参数到剪贴板
+        nodeType.prototype.copyParameter = function (paramId) {
+            const param = this.getParameterById(paramId);
+            if (!param) {
+                this.showToast(t('error'), 'error');
+                return;
+            }
+
+            // 深拷贝参数数据（排除 ID，因为粘贴时会生成新 ID）
+            const paramData = JSON.parse(JSON.stringify(param));
+            delete paramData.id;
+
+            // 添加复制时间戳和来源标识
+            const clipboardData = {
+                version: 1,
+                timestamp: Date.now(),
+                source: 'pcp',
+                parameter: paramData
+            };
+
+            // 存储到 localStorage
+            try {
+                localStorage.setItem('pcp_clipboard_parameter', JSON.stringify(clipboardData));
+                this.showToast(t('parameterCopied'), 'success');
+                logger.info('[PCP] 参数已复制:', param.name);
+            } catch (error) {
+                logger.error('[PCP] 复制参数失败:', error);
+                this.showToast(t('copyFailed'), 'error');
+            }
+        };
+
+        // 在指定参数后粘贴
+        nodeType.prototype.pasteParameterAfter = function (afterParamId) {
+            // 锁定模式下禁止粘贴
+            if (this.properties.locked) {
+                this.showToast(t('lockedModeNoPaste'), 'error');
+                return;
+            }
+
+            // 从 localStorage 读取剪贴板数据
+            const clipboardStr = localStorage.getItem('pcp_clipboard_parameter');
+            if (!clipboardStr) {
+                this.showToast(t('clipboardEmpty'), 'warning');
+                return;
+            }
+
+            let clipboardData;
+            try {
+                clipboardData = JSON.parse(clipboardStr);
+            } catch (error) {
+                logger.error('[PCP] 解析剪贴板数据失败:', error);
+                this.showToast(t('clipboardInvalid'), 'error');
+                return;
+            }
+
+            // 验证剪贴板数据格式
+            if (!clipboardData.parameter || clipboardData.source !== 'pcp') {
+                this.showToast(t('clipboardInvalid'), 'error');
+                return;
+            }
+
+            // 深拷贝参数数据
+            const newParam = JSON.parse(JSON.stringify(clipboardData.parameter));
+
+            // 生成新 ID
+            newParam.id = `param_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+            // 处理参数名称重复（非分隔符类型）
+            if (newParam.type !== 'separator') {
+                let baseName = newParam.name;
+                let counter = 1;
+                let newName = baseName;
+
+                while (this.checkParameterNameDuplicate(newName)) {
+                    newName = `${baseName}_${counter}`;
+                    counter++;
+                }
+                newParam.name = newName;
+            }
+
+            // 找到插入位置
+            const afterIndex = this.getParameterIndexById(afterParamId);
+            if (afterIndex === -1) {
+                // 如果找不到指定位置，添加到末尾
+                this.properties.parameters.push(newParam);
+            } else {
+                // 在指定位置后插入
+                this.properties.parameters.splice(afterIndex + 1, 0, newParam);
+            }
+
+            // 更新UI和同步配置
+            this.updateParametersList();
+            this.syncConfig();
+
+            this.showToast(t('parameterPasted'), 'success');
+            logger.info('[PCP] 参数已粘贴:', newParam.name);
+        };
+
         // ==================== 对话框系统 ====================
 
         // 显示参数创建/编辑对话框
@@ -3394,9 +4354,11 @@ app.registerExtension({
                             <option value="slider" ${param?.type === 'slider' ? 'selected' : ''}>${t('slider')}</option>
                             <option value="switch" ${param?.type === 'switch' ? 'selected' : ''}>${t('switch')}</option>
                             <option value="dropdown" ${param?.type === 'dropdown' ? 'selected' : ''}>${t('dropdown')}</option>
+                            <option value="enum" ${param?.type === 'enum' ? 'selected' : ''}>${t('enum')}</option>
                             <option value="string" ${param?.type === 'string' ? 'selected' : ''}>${t('string')}</option>
                             <option value="image" ${param?.type === 'image' ? 'selected' : ''}>${t('image')}</option>
                             <option value="separator" ${param?.type === 'separator' ? 'selected' : ''}>${t('separator')}</option>
+                            <option value="taglist" ${param?.type === 'taglist' ? 'selected' : ''}>${t('taglist')}</option>
                         </select>
                     </div>
 
@@ -3742,6 +4704,86 @@ app.registerExtension({
                             </div>
                         `;
                         break;
+
+                    case 'taglist':
+                        const taglistConfig = param?.config || {};
+                        const taglistDescription = taglistConfig.description || '';
+                        configPanel.innerHTML = `
+                            <div class="pcp-dialog-field">
+                                <label class="pcp-dialog-label">${t('description')}</label>
+                                <textarea class="pcp-dialog-textarea pcp-param-description" id="pcp-param-description"
+                                          placeholder="${t('descriptionPlaceholder')}"
+                                          rows="3">${taglistDescription}</textarea>
+                            </div>
+                            <div class="pcp-dialog-field">
+                                <p style="color: #999; font-size: 12px; margin: 0;">
+                                    💡 标签列表：双击标签切换启用/禁用状态，禁用的标签不会出现在输出中
+                                </p>
+                            </div>
+                        `;
+                        break;
+
+                    case 'enum':
+                        const enumConfig = param?.config || {};
+                        const enumDataSource = enumConfig.data_source || 'custom';
+                        const enumDescription = enumConfig.description || '';
+                        const enumOptionsText = Array.isArray(enumConfig.options)
+                            ? enumConfig.options.join('\n')
+                            : '';
+
+                        configPanel.innerHTML = `
+                            <div class="pcp-dialog-field">
+                                <label class="pcp-dialog-label">${t('description')}</label>
+                                <textarea class="pcp-dialog-textarea pcp-param-description" id="pcp-param-description"
+                                          placeholder="${t('descriptionPlaceholder')}"
+                                          rows="3">${enumDescription}</textarea>
+                            </div>
+                            <div class="pcp-dialog-field">
+                                <label class="pcp-dialog-label">${t('enumDataSource')}</label>
+                                <select class="pcp-dialog-select" id="pcp-enum-source">
+                                    <option value="custom" ${enumDataSource === 'custom' ? 'selected' : ''}>${t('custom')}</option>
+                                    <option value="checkpoint" ${enumDataSource === 'checkpoint' ? 'selected' : ''}>${t('checkpoint')}</option>
+                                    <option value="lora" ${enumDataSource === 'lora' ? 'selected' : ''}>${t('lora')}</option>
+                                    <option value="sampler" ${enumDataSource === 'sampler' ? 'selected' : ''}>${t('sampler')}</option>
+                                    <option value="scheduler" ${enumDataSource === 'scheduler' ? 'selected' : ''}>${t('scheduler')}</option>
+                                </select>
+                            </div>
+                            <div class="pcp-dialog-field" id="pcp-enum-options-field">
+                                <label class="pcp-dialog-label">${t('enumOptions')}</label>
+                                <textarea class="pcp-dialog-textarea" id="pcp-enum-options"
+                                          placeholder="${t('enumOptionsPlaceholder')}">${enumOptionsText}</textarea>
+                            </div>
+                            <div class="pcp-dialog-field">
+                                <p style="color: #999; font-size: 12px; margin: 0; padding: 8px; background: rgba(116, 55, 149, 0.1); border-radius: 4px;">
+                                    💡 ${t('enumHint')}
+                                </p>
+                            </div>
+                        `;
+
+                        // 根据数据源显示/隐藏选项输入框
+                        const enumSourceSelect = configPanel.querySelector('#pcp-enum-source');
+                        const enumOptionsField = configPanel.querySelector('#pcp-enum-options-field');
+
+                        const updateEnumOptionsField = () => {
+                            const source = enumSourceSelect.value;
+                            if (source === 'custom') {
+                                enumOptionsField.style.display = 'block';
+                            } else {
+                                enumOptionsField.style.display = 'none';
+                            }
+                        };
+
+                        enumSourceSelect.addEventListener('change', updateEnumOptionsField);
+                        updateEnumOptionsField();
+
+                        // 锁定模式下禁用数据源选择器
+                        if (isEdit && this.properties.locked) {
+                            enumSourceSelect.disabled = true;
+                            enumSourceSelect.style.opacity = '0.6';
+                            enumSourceSelect.style.cursor = 'not-allowed';
+                            enumSourceSelect.title = '锁定模式下无法修改数据源';
+                        }
+                        break;
                 }
             };
 
@@ -3905,6 +4947,36 @@ app.registerExtension({
                     case 'image':
                         // 图像类型：默认值为空字符串（未上传图像）
                         defaultValue = '';
+                        break;
+
+                    case 'taglist':
+                        // 标签列表类型：默认值为空数组
+                        defaultValue = [];
+                        break;
+
+                    case 'enum':
+                        const enumSourceSelect = configPanel.querySelector('#pcp-enum-source');
+                        const enumOptionsTextarea = configPanel.querySelector('#pcp-enum-options');
+
+                        config.data_source = enumSourceSelect.value;
+
+                        if (config.data_source === 'custom') {
+                            const enumOptionsText = enumOptionsTextarea.value.trim();
+                            config.options = enumOptionsText.split('\n').map(s => s.trim()).filter(s => s);
+
+                            if (config.options.length === 0) {
+                                this.showToast(t('invalidInput') + ': ' + t('enumOptions'), 'error');
+                                return;
+                            }
+
+                            defaultValue = config.options[0];
+                        } else {
+                            // 动态数据源：延迟加载选项
+                            if (param?.config?.options) {
+                                config.options = param.config.options;
+                            }
+                            defaultValue = '';
+                        }
                         break;
                 }
 
@@ -4268,10 +5340,8 @@ app.registerExtension({
 
             // 如果是switch类型，更新switch的状态
             if (param.type === 'switch') {
-                logger.info('[PCP-DEBUG] 查找switch元素，param.id:', param.id);
                 // 正确的选择器：.pcp-switch 而不是 .pcp-switch-container
                 const switchElement = container.querySelector(`[data-param-id="${param.id}"] .pcp-switch`);
-                logger.info('[PCP-DEBUG] switchElement 找到:', !!switchElement);
 
                 if (switchElement) {
                     // 直接操作 .pcp-switch 的 active class
@@ -4280,7 +5350,7 @@ app.registerExtension({
                     } else {
                         switchElement.classList.remove('active');
                     }
-                    logger.info('[PCP] Switch UI已更新:', paramName, newValue);
+                    logger.debug('[PCP] Switch UI已更新:', paramName, newValue);
 
                     // 如果启用了左上角提示，显示/隐藏提示
                     if (param.config?.show_top_left_notice) {
@@ -4296,7 +5366,7 @@ app.registerExtension({
                         }
                     }
                 } else {
-                    logger.warn('[PCP-DEBUG] switchElement 未找到，selector:', `[data-param-id="${param.id}"] .pcp-switch`);
+                    logger.debug('[PCP] switchElement 未找到，param.id:', param.id);
                 }
             }
 
@@ -4641,6 +5711,13 @@ app.registerExtension({
                     return param.value ? 'True' : 'False';
                 case 'dropdown':
                     return param.value;
+                case 'taglist':
+                    // 只显示启用的标签，用逗号分隔
+                    if (Array.isArray(param.value)) {
+                        const enabledTags = param.value.filter(t => t.enabled).map(t => t.text);
+                        return enabledTags.length > 0 ? enabledTags.join(', ') : '(无)';
+                    }
+                    return '(无)';
                 default:
                     return String(param.value);
             }
@@ -4746,7 +5823,13 @@ app.registerExtension({
 
             // 延迟更新UI，确保DOM已加载
             setTimeout(() => {
-                logger.info('[PCP] 🔄 onConfigure: 开始处理工作流配置');
+                // 检查节点是否仍然有效
+                if (!this.graph) {
+                    logger.warn('[PCP] 节点已被移除，跳过配置处理');
+                    return;
+                }
+
+                logger.debug('[PCP] onConfigure: 开始处理工作流配置');
                 if (this.customUI) {
                     this.updateParametersList();
                     this.loadPresetsList();
@@ -4756,10 +5839,10 @@ app.registerExtension({
                     this.restoreTopLeftNotices();
 
                     // 刷新下拉菜单选项列表（工作流初始化时）
-                    logger.info('[PCP] 🔄 onConfigure: 触发下拉菜单选项刷新');
+                    logger.debug('[PCP] onConfigure: 触发下拉菜单选项刷新');
                     this.refreshAllDropdownsOnWorkflowLoad();
                 } else {
-                    logger.warn('[PCP] ⚠️ onConfigure: customUI 不存在，跳过UI更新');
+                    logger.warn('[PCP] onConfigure: customUI 不存在，跳过UI更新');
                 }
 
                 // 将工作流数据同步到后端内存
@@ -4768,7 +5851,7 @@ app.registerExtension({
                 }
             }, 100);
 
-            logger.info('[PCP] 反序列化:', this.properties.parameters?.length || 0, '个参数, 锁定状态:', this.properties.locked);
+            logger.debug('[PCP] 反序列化:', this.properties.parameters?.length || 0, '个参数, 锁定状态:', this.properties.locked);
         };
 
         // ==================== 节点生命周期钩子 ====================
@@ -4780,11 +5863,21 @@ app.registerExtension({
                 onRemoved.apply(this, arguments);
             }
 
+            // 移除右键菜单（如果存在）
+            this.removeParameterContextMenu();
+
             // 移除参数值变化事件监听器
             if (this._pcpEventHandler) {
                 window.removeEventListener('pcp-param-value-changed', this._pcpEventHandler);
                 this._pcpEventHandler = null;
                 logger.info('[PCP] 已移除参数值变化事件监听器');
+            }
+
+            // 清理 ResizeObserver 实例
+            if (this._resizeObservers) {
+                this._resizeObservers.forEach(observer => observer.disconnect());
+                this._resizeObservers = null;
+                logger.info('[PCP] 已清理 ResizeObserver 实例');
             }
 
             // 移除全局样式（如果是最后一个节点）

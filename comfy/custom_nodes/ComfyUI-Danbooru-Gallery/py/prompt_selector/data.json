@@ -1,8 +1,16 @@
 {
     "version": "1.6",
+    "settings": {
+        "language": "zh-CN",
+        "separator": ", ",
+        "save_selection": true
+    },
+    "last_modified": "2026-01-05T02:58:28.088594",
     "categories": [
         {
+            "id": "cat-02158ebd",
             "name": "默认/其他",
+            "updated_at": "2026-01-05T02:58:28.075026",
             "prompts": [
                 {
                     "id": "162d8279-524a-4561-bdca-e7389135891d",
@@ -99,11 +107,12 @@
                     "last_used": null,
                     "updated_at": "2025-11-04T21:28:50.308514"
                 }
-            ],
-            "updated_at": "2025-11-28T14:52:23.414763"
+            ]
         },
         {
+            "id": "cat-4013dd1e",
             "name": "默认/画师串",
+            "updated_at": "2026-01-05T02:58:28.075026",
             "prompts": [
                 {
                     "id": "prompt-1762916608170",
@@ -236,11 +245,12 @@
                     "last_used": null,
                     "updated_at": "2025-11-04T21:28:50.308514"
                 }
-            ],
-            "updated_at": "2025-11-28T14:52:23.414776"
+            ]
         },
         {
+            "id": "cat-020e87fd",
             "name": "默认/角色",
+            "updated_at": "2026-01-05T02:58:28.075026",
             "prompts": [
                 {
                     "id": "081b0931-515b-4519-8dd7-2c797cc43e72",
@@ -451,14 +461,7 @@
                     "last_used": null,
                     "updated_at": "2025-11-04T21:28:50.308514"
                 }
-            ],
-            "updated_at": "2025-11-28T14:52:23.414788"
+            ]
         }
-    ],
-    "settings": {
-        "language": "zh-CN",
-        "separator": ", ",
-        "save_selection": true
-    },
-    "last_modified": "2025-11-28T14:52:23.414760"
+    ]
 }

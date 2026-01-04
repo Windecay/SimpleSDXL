@@ -1,0 +1,9 @@
+numpy
+opencv_python
+Pillow
+Requests
+torch
+torchvision
+piexif
+onnxruntime
+onnxruntime-gpu

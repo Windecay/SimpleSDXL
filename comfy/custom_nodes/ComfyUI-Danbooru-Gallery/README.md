@@ -31,14 +31,17 @@
   - [🎨 Krita 集成](#-krita-集成-open-in-krita)
   - [⚡ 组执行管理器](#-组执行管理器-group-executor-manager)
   - [🔇 组静音管理器](#-组静音管理器-group-mute-manager)
+  - [✅ 组是否启用](#-组是否启用-group-is-enabled)
   - [🧭 快速组导航器](#-快速组导航器-quick-group-navigation)
   - [🖼️ 图像缓存节点](#-图像缓存节点-image-cache-nodes)
   - [📝 文本缓存节点](#-文本缓存节点-text-cache-nodes)
   - [📐 分辨率大师简化版](#-分辨率大师简化版-resolution-master-simplify)
   - [📦 简易Checkpoint加载器](#-简易checkpoint加载器-simple-checkpoint-loader)
+  - [📦 模型名称提取器](#-模型名称提取器-model-name-extractor)
   - [🔔 简易通知](#-简易通知-simple-notify)
   - [✂️ 简易字符串分隔](#-简易字符串分隔-simple-string-split)
   - [🔀 简易值切换](#-简易值切换-simple-value-switch)
+  - [🔄 枚举切换](#-枚举切换-enum-switch)
 - [安装说明](#安装说明)
 - [系统要求](#系统要求)
 - [高级功能](#高级功能)
@@ -992,6 +995,40 @@ A: 请确保:
 
 ---
 
+### ✅ 组是否启用 (Group Is Enabled)
+
+**检测组静音管理器中被管理组的启用状态**
+
+组是否启用节点用于在运行时获取被组静音管理器管理的组的启用状态，输出布尔值供条件分支等节点使用。
+
+#### 核心功能
+- 🎯 **动态组列表**: 下拉菜单自动显示所有被组静音管理器管理的组
+- 📊 **运行时检测**: 在工作流执行时实时获取组的启用状态
+- ✅ **布尔输出**: 输出 True（组启用）或 False（组禁用/静音/bypass）
+- 🔗 **多管理器支持**: 支持多个组静音管理器节点的组列表合并
+
+#### 使用方法
+1. 添加 `Danbooru > 组是否启用 (Group Is Enabled)` 节点
+2. 从下拉菜单中选择要检测的组（仅显示被组静音管理器管理的组）
+3. 将输出连接到条件分支或其他需要布尔值的节点
+
+#### 输入参数
+| 参数名 | 类型 | 说明 |
+|--------|------|------|
+| group_name | combo | 选择被组静音管理器管理的组 |
+
+#### 输出
+| 输出名 | 类型 | 说明 |
+|--------|------|------|
+| is_enabled | BOOLEAN | 组是否启用（True/False） |
+
+#### 使用场景
+- **条件分支控制**: 根据组的启用状态选择不同的执行路径
+- **状态监控**: 在工作流中获取组的当前状态
+- **自动化控制**: 与其他节点联动实现自动化逻辑
+
+---
+
 ### 🧭 快速组导航器 (Quick Group Navigation)
 
 **全局悬浮球式组导航和快捷键跳转工具**
@@ -1253,6 +1290,41 @@ A: 请确保:
 
 ---
 
+### 📦 模型名称提取器 (Model Name Extractor)
+
+**从模型对象提取底模名称的工具节点**
+
+模型名称提取器用于从工作流中提取当前使用的 checkpoint 模型名称，配合 Save Image Plus 节点使用，将模型信息保存到图像元数据中。
+
+#### 核心功能
+- 🔍 **自动提取**: 自动从 metadata_collector 获取底模名称
+- 🔗 **直通传递**: MODEL 直接传递，不影响工作流
+- 🛡️ **备用名称**: 支持设置无法获取时的备用名称
+
+#### 使用方法
+1. 添加 `danbooru > 模型名称提取器 (Model Name Extractor)` 节点
+2. 将 Checkpoint 加载器的 MODEL 输出连接到本节点的 model 输入
+3. 将 model_name 输出连接到 Save Image Plus 的 checkpoint_name 输入
+
+#### 工作流示例
+```
+[Checkpoint Loader] --MODEL--> [Model Name Extractor]
+        |                              |
+        |                         model_name
+        v                              |
+   [KSampler] -----------------------> v
+        |                      [Save Image Plus]
+        v                              ^
+   [VAE Decode] ------image------------+
+```
+
+#### 应用场景
+- **元数据记录**: 自动获取底模名称用于图像元数据保存
+- **Civitai 兼容**: 确保上传到 Civitai 时正确显示模型信息
+- **工作流简化**: 无需手动输入模型名称
+
+---
+
 ### 🔔 简易通知 (Simple Notify)
 
 **系统通知和音效二合一节点**
@@ -1446,6 +1518,93 @@ A: 请确保:
 
 ---
 
+### 🔄 枚举切换 (Enum Switch)
+
+**基于枚举值的多输入选择节点**
+
+枚举切换节点根据枚举值从多个输入中选择一个进行输出。输入引脚数量由枚举选项动态决定，输出类型根据下游连接自动推断。配合参数控制面板的枚举参数使用，实现灵活的条件分支控制。
+
+#### 核心功能
+- 🔄 **枚举驱动**: 根据枚举值自动选择对应输入
+- 🔌 **动态输入引脚**: 输入数量随枚举选项自动调整
+- 🎯 **类型推断**: 输出类型根据下游节点连接自动推断
+- 🔗 **自动关联**: 连接到参数控制面板时自动同步枚举配置
+- ⚡ **惰性求值**: 仅执行选中的输入分支，提升性能
+- 💾 **持久化**: 枚举配置随工作流保存
+
+#### 工作原理
+
+1. **枚举选项同步**：连接到 ParameterBreak 的枚举输出时，自动获取枚举选项列表
+2. **动态引脚创建**：根据选项数量创建对应的输入引脚（如 3 个选项 → 3 个输入）
+3. **类型推断**：当输出连接到下游节点时，推断类型并更新所有输入引脚类型
+4. **选择执行**：运行时仅请求选中枚举值对应的输入（惰性求值优化）
+
+#### 使用方法
+1. 添加 `Danbooru > 枚举切换 (Enum Switch)` 节点
+2. 在参数控制面板中创建枚举类型参数（选择数据源或自定义选项）
+3. 通过 ParameterBreak 将枚举参数输出连接到 EnumSwitch 的 `enum_value` 输入
+4. EnumSwitch 自动创建对应数量的输入引脚
+5. 连接各分支的数据到对应输入引脚
+6. 将 EnumSwitch 输出连接到下游节点
+7. 在参数控制面板中切换枚举值，即可选择不同输入
+
+#### 使用示例
+
+**模型切换场景**：
+```
+参数控制面板 (enum: "写实|动漫|3D")
+  ↓ parameters
+ParameterBreak
+  ↓ enum_value
+EnumSwitch
+  ↓ input_0 ← 写实模型输出
+  ↓ input_1 ← 动漫模型输出
+  ↓ input_2 ← 3D模型输出
+  ↓ output → 后续节点（自动推断为 MODEL 类型）
+```
+
+**提示词切换场景**：
+```
+参数控制面板 (enum: "人物|风景|建筑")
+  ↓ parameters
+ParameterBreak
+  ↓ enum_value
+EnumSwitch
+  ↓ input_0 ← 人物提示词
+  ↓ input_1 ← 风景提示词
+  ↓ input_2 ← 建筑提示词
+  ↓ output → CLIP Text Encode
+```
+
+#### 枚举参数数据源
+
+参数控制面板的枚举参数支持以下数据源（与下拉菜单一致）：
+- **自定义**: 手动输入选项列表
+- **从连接获取**: 从 ParameterBreak 连接的目标节点获取
+- **Checkpoint**: 自动加载 checkpoint 模型列表
+- **LoRA**: 自动加载 LoRA 模型列表
+- **采样器**: sampler 列表
+- **调度器**: scheduler 列表
+
+#### 右键菜单
+- **🔄 重新同步配置**: 手动触发从连接的 PCP 同步枚举配置
+- **📋 查看枚举选项**: 显示当前枚举选项列表
+
+#### 应用场景
+- **模型切换**: 快速切换不同类型的模型
+- **提示词切换**: 在不同提示词方案间切换
+- **参数预设**: 切换不同的参数配置组合
+- **条件分支**: 根据用户选择执行不同的处理流程
+- **A/B 测试**: 方便对比不同配置的生成效果
+
+#### 技术特点
+- **惰性求值**: 使用 `check_lazy_status` 仅请求选中输入，未选中的分支不会执行
+- **通配符类型**: 使用 `AnyType("*")` 支持任意 ComfyUI 类型
+- **事件驱动**: 监听 `enum-switch-update` 事件实时响应枚举变更
+- **工作流兼容**: 完整支持序列化/反序列化，工作流加载时自动恢复配置
+
+---
+
 ## 安装说明
 
 ### 方法一：ComfyUI Manager 安装（推荐）
@@ -1582,6 +1741,9 @@ ComfyUI-Danbooru-Gallery/
 ├── group_mute_manager/             # 组静音管理器
 │   ├── __init__.py
 │   └── group_mute_manager.py
+├── group_is_enabled/               # 组是否启用
+│   ├── __init__.py
+│   └── group_is_enabled.py
 ├── quick_group_navigation/         # 快速组导航器
 │   └── __init__.py
 ├── image_cache_save/               # 图像缓存保存节点
@@ -1612,6 +1774,9 @@ ComfyUI-Danbooru-Gallery/
 ├── simple_checkpoint_loader_with_name/  # 简易Checkpoint加载器
 │   ├── __init__.py
 │   └── simple_checkpoint_loader_with_name.py
+├── model_name_extractor/            # 模型名称提取器
+│   ├── __init__.py
+│   └── model_name_extractor.py
 ├── simple_notify/                  # 简易通知
 │   ├── __init__.py
 │   ├── simple_notify.py
@@ -1622,6 +1787,9 @@ ComfyUI-Danbooru-Gallery/
 ├── simple_value_switch/            # 简易值切换
 │   ├── __init__.py
 │   └── simple_value_switch.py
+├── enum_switch/                    # 枚举切换
+│   ├── __init__.py
+│   └── enum_switch.py
 ├── open_in_krita/                  # Open In Krita (Krita集成)
 │   ├── __init__.py
 │   ├── open_in_krita.py            # 主节点逻辑
@@ -1655,6 +1823,8 @@ ComfyUI-Danbooru-Gallery/
 │   │   └── group_executor_manager.js
 │   ├── group_mute_manager/         # 组静音管理器前端
 │   │   └── group_mute_manager.js
+│   ├── group_is_enabled/           # 组是否启用前端
+│   │   └── group_is_enabled.js
 │   ├── quick_group_navigation/     # 快速组导航器前端
 │   │   ├── quick_group_navigation.js
 │   │   ├── floating_navigator.js
@@ -1679,6 +1849,8 @@ ComfyUI-Danbooru-Gallery/
 │   ├── simple_checkpoint_loader_with_name/  # 简易Checkpoint加载器前端（预留）
 │   ├── simple_notify/              # 简易通知前端
 │   │   └── simple_notify.js
+│   ├── enum_switch/                # 枚举切换前端
+│   │   └── enum_switch.js
 │   ├── open_in_krita/              # Open In Krita 前端
 │   │   ├── open_in_krita.js
 │   │   └── setup_dialog.js

@@ -1,0 +1,44 @@
+{
+  "api_channel": "openrouter",
+  "channel_models": {},
+  "channels_config": {
+    "openrouter": {
+      "api_url": "https://openrouter.ai/api/v1",
+      "api_key": ""
+    },
+    "gemini_api": {
+      "api_url": "https://generativelanguage.googleapis.com/v1beta",
+      "api_key": ""
+    },
+    "gemini_cli": {
+      "api_url": "gemini_cli_mode",
+      "api_key": ""
+    },
+    "deepseek": {
+      "api_url": "https://api.deepseek.com/v1",
+      "api_key": ""
+    },
+    "openai_compatible": {
+      "api_url": "",
+      "api_key": ""
+    }
+  },
+  "timeout": 30,
+  "custom_prompt": "You are an AI assistant for Stable Diffusion. Your task is to replace features in a prompt.\nYour goal is to take the features described in the 'New Character Prompt' and intelligently merge them into the 'Original Prompt'.\nThe 'Features to Replace' list tells you which categories of features (like hair style, eye color, clothing) should be taken from the 'New Character Prompt'.\nRespond with only the new, modified prompt, without any explanations.\n\n**Original Prompt:**\n{original_prompt}\n\n**New Character Prompt:**\n{character_prompt}\n\n**Features to Replace (guide):**\n{target_features}\n\n**New Prompt:**",
+  "language": "zh",
+  "active_preset_name": "default",
+  "presets": [
+    {
+      "name": "default",
+      "features": [
+        "hair style",
+        "hair color",
+        "hair ornament",
+        "eye color",
+        "unique body parts",
+        "body shape",
+        "ear shape"
+      ]
+    }
+  ]
+}

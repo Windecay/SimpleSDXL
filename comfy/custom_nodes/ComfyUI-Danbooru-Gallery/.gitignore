@@ -1,0 +1,118 @@
+# 本地配置文件
+settings.json
+user_settings.json
+*_config.json
+*_settings.json
+
+# Debug配置文件（需要提交）
+# config.json - 已从忽略列表移除
+
+# Claude相关文件
+.claude/
+
+# 缓存目录（数据文件，不包括代码模块）
+cache/
+# 但是不忽略 py/shared/cache/ 代码模块
+!py/shared/cache/
+
+# 工具相关目录
+.kilocode/
+.qoder/
+
+# Python 相关
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# 虚拟环境
+venv/
+env/
+ENV/
+
+# IDE 相关
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 操作系统相关
+.DS_Store
+Thumbs.db
+
+# 日志文件
+*.log
+log/*
+!log/.gitkeep
+!log/README.md
+# 新日志系统目录
+logs/*
+!logs/.gitkeep
+
+# 临时文件
+*.tmp
+*.temp
+temp_*
+
+# Cache files
+py/character_feature_swap/cache/
+py/save_image_plus/hash_cache.json
+
+# Prompt Selector specific
+py/prompt_selector/preview/
+py/prompt_selector/data.json
+py/prompt_selector/data.json.backup_*
+py/prompt_selector/.tmp_*.json
+
+# Multi Character Editor specific
+py/multi_character_editor/settings/
+
+# Workflow Description specific
+py/workflow_description/settings.json
+
+# Open In Krita specific
+py/open_in_krita/settings.json
+
+# Has Next Executor Group specific
+py/has_next_executor_group/setting.json
+
+# 参考项目/外部项目
+Comfyui-LG_GroupExecutor-main/
+rgthree-comfy-main/
+Comfyui-Resolution-Master-main/
+comfyui-adaptiveprompts-main/
+ComfyUI-Custom-Scripts-main/
+ComfyUI-Easy-Use-main/
+ComfyUI_Mira/
+ComfyUI-Lora-Manager-main/
+WeiLin-Comfyui-Tools-main/
+ComfyUI-KJNodes-main/
+cg-image-filter-main/
+ComfyUI-CRZnodes-main/
+cg-krita-main/
+krita-ai-diffusion-main/
+comfyui-tooling-nodes-main/
+
+# claude code
+.serena/
+.spec-workflow/
+nul
+CLAUDE.md
