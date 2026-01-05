@@ -38,12 +38,11 @@ def is_port_available(port, host='127.0.0.1'):
     except Exception:
         return False
 def find_available_port(start_port=8187, max_attempts=100, suppress_logging=False):
-    # Detect Clash Fake IP range (198.18.0.0/15) and avoid using it
+    host = '0.0.0.0'
     try:
         host_ip = socket.gethostbyname(socket.gethostname())
-        if host_ip.startswith('198.18.') or host_ip.startswith('198.19.'):
-             if not suppress_logging:
-                 logger.warning(f"Detected Clash Fake IP: {host_ip}. Forcing localhost for backend check.")
+        if (host_ip.startswith('198.18.') or host_ip.startswith('198.19.')) and not suppress_logging:
+            logger.warning(f"Detected Clash Fake IP: {host_ip}. Backend will still check 0.0.0.0 for binding.")
     except Exception:
         pass
 
@@ -54,7 +53,7 @@ def find_available_port(start_port=8187, max_attempts=100, suppress_logging=Fals
         if port in excluded_ports:
             continue
 
-        if is_port_available(port, '127.0.0.1'):
+        if is_port_available(port, host):
             if i > 0 and not suppress_logging:
                 logger.info(f"端口 {start_port} 被占用，自动切换到端口: {port}")
             elif not suppress_logging:
@@ -64,7 +63,7 @@ def find_available_port(start_port=8187, max_attempts=100, suppress_logging=Fals
     import random
     for _ in range(20):
         port = random.randint(10000, 65535)
-        if port not in range(8180, 8200) and is_port_available(port):
+        if port not in range(8180, 8200) and is_port_available(port, host):
             if not suppress_logging:
                 logger.warning(f"常规端口范围被占用，使用随机端口: {port}")
             return port
