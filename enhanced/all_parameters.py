@@ -124,7 +124,7 @@ default = {
     'fast_comfyd_checkbox': False,
     'reserved_vram': 0,
     'minicpm_checkbox': False,
-    'minicpm_version': 'MiniCPMv26',
+    'minicpm_version': 'Qwen3-VL-4B-Instruct-abliterated',
     'advanced_logs': False,
     'wavespeed_strength': 0.12,
     'cache_ram': 0,

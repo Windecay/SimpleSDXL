@@ -1418,7 +1418,7 @@ with shared.gradio_root:
                                         label='Content Type', 
                                         choices=flags.describe_types,
                                         value=modules.config.default_describe_content_type, visible= not MiniCPM.get_enable(),
-                                        info='To use natural language, go to settings to enable VLM')
+                                        info="To use Agent features, go to ↗ 'Identity' settings to enable VLM")
                                     describe_prompt = gr.Textbox(label="VLM enabled: Enter additional prompts (optional).", show_label=True, lines=1, max_lines=10, placeholder="Type additional prompt for describe image.", visible=MiniCPM.get_enable())
                                     with gr.Row():
                                         describe_apply_styles = gr.Checkbox(label='Apply Styles', value=modules.config.default_describe_apply_prompts_checkbox, visible=not MiniCPM.get_enable())
@@ -1921,7 +1921,7 @@ with shared.gradio_root:
                                         minicpm_checkbox = gr.Checkbox(label='Enable VLM', value=ads.get_admin_default('minicpm_checkbox'), info='Enable it for describe, translate and expand.')
                                         advanced_logs = gr.Checkbox(label='Enable advanced logs', value=ads.get_admin_default('advanced_logs'), info='Enabling with more infomation in logs.')
                                         with gr.Column():
-                                            minicpm_version = gr.Dropdown(label='VLM Version', choices=['MiniCPMv26', 'MiniCPMv45', 'Qwen3-VL-4B-Instruct-abliterated', 'Qwen3-VL-8B-Instruct-abliterated'], value=ads.get_admin_default('minicpm_version'), info='Select the VLM model version to use')
+                                            minicpm_version = gr.Dropdown(label='VLM Version', choices=['Qwen3-VL-4B-Instruct-abliterated', 'Qwen3-VL-8B-Instruct-abliterated', 'MiniCPMv45', 'MiniCPMv26'], value=ads.get_admin_default('minicpm_version'), info='Select the VLM model version to use')
                                     with gr.Column(visible=True if not args_manager.args.disable_backend else False):
                                         reserved_vram = gr.Slider(label='Reserved VRAM(GB)', minimum=0, maximum=24, step=0.1, value=ads.get_admin_default('reserved_vram'), info='Reserve VRAM to prevent OOM or Slow inference.')
                                         cache_ram = gr.Slider(label='Cache RAM(GB)', minimum=0, maximum=96, step=0.1, value=ads.get_admin_default('cache_ram'), info='[BETA]Set RAM cache threshold. 0: Classic; >0: RAM Pressure mode (auto-purge when available RAM is low).')

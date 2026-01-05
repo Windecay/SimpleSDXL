@@ -89,12 +89,12 @@ class MiniCPM:
     @classmethod
     def set_version(cls, version):
         if not version or version == 'None':
-            version = "MiniCPMv26"
+            version = "Qwen3-VL-4B-Instruct-abliterated"
 
         config_data = cls.VERSIONS.get(version)
         if not config_data:
-            logger.warning(f"未知 VLM 版本: {version}。回退到 MiniCPMv26")
-            version = "MiniCPMv26"
+            logger.warning(f"未知 VLM 版本: {version}。回退到 Qwen3-VL-4B-Instruct-abliterated")
+            version = "Qwen3-VL-4B-Instruct-abliterated"
             config_data = cls.VERSIONS[version]
 
         with cls.lock:

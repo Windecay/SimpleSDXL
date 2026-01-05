@@ -218,7 +218,7 @@
   "Describe Image": "图像内容反推",
   "Image to be described": "要反推的图片",
   "Content Type": "类型选择",
-  "To use natural language, go to settings to enable VLM": "若要使用自然语言，前往开启VLM",
+  "To use Agent features, go to ↗ 'Identity' settings to enable VLM": "若要使用智能体功能，请前往 ↗ “我的”设置启用VLM",
 
   "Photograph": "写实照片",
   "Art/Anime": "艺术/动漫",
