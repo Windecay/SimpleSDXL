@@ -370,6 +370,12 @@ def start_comfyui(asyncio_loop=None):
         init_custom_nodes=(not args.disable_all_custom_nodes) or len(args.whitelist_custom_nodes) > 0,
         init_api_nodes=not args.disable_api_nodes
     ))
+
+    import torch
+    if torch.backends.cudnn.benchmark:
+        logging.info("Disabling torch.backends.cudnn.benchmark.")
+        torch.backends.cudnn.benchmark = False
+
     hook_breaker_ac10a0.restore_functions()
 
     cuda_malloc_warning()
