@@ -626,9 +626,12 @@ def process_after_generation(state_params):
     
 
     if len(state_params["__output_list"]) > 0 and engine_type == 'image':
-        output_index = state_params["__output_list"][0].split('/')[0]
-        gallery_util.refresh_images_catalog(output_index, True, user_did)
-        gallery_util.parse_html_log(output_index, True, user_did)
+        try:
+            output_index = state_params["__output_list"][0].split('/')[0]
+            gallery_util.refresh_images_catalog(output_index, True, user_did)
+            gallery_util.parse_html_log(output_index, True, user_did)
+        except Exception as e:
+            logger.error(f'Error in post-generation gallery processing: {e}')
    
     return results
 

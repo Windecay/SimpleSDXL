@@ -116,7 +116,7 @@ def generate_clicked(task: worker.AsyncTask, state):
                 gr.update(visible=False, value=None), \
                 gr.update(visible=False), \
                 gr.update(visible=False)
-            if qsize==1 or worker.get_processing_id() == task.task_id:
+            if qsize<=1 or worker.get_processing_id() == task.task_id:
                 ready_flag = True
                 break
         else:
@@ -130,7 +130,7 @@ def generate_clicked(task: worker.AsyncTask, state):
     
     execution_start_time = time.perf_counter()
     finished = False
-    ready_flag = True if qsize==1 else ready_flag
+    ready_flag = True if qsize<=1 else ready_flag
     MAX_WAIT_TIME = 1800 if task.content_type == 'image' else 7200
     POLL_INTERVAL = 0.08
     in_progress = False
@@ -146,13 +146,13 @@ def generate_clicked(task: worker.AsyncTask, state):
 
     while not finished:
         current_time = time.time()
-        if (current_time - last_update_time > MAX_WAIT_TIME and in_progress) or not ready_flag:
+        if (current_time - last_update_time > MAX_WAIT_TIME) or not ready_flag:
             yield gr.update(visible=True, value=modules.html.make_progress_html(0, '生图任务已超时!')), \
                 gr.update(visible=True), \
                 gr.update(visible=False), \
                 gr.update(visible=False), \
                 gr.update(visible=False)
-            logger.error(f"Task timeout after {MAX_WAIT_TIME} seconds")
+            logger.error(f"Task timeout after {MAX_WAIT_TIME} seconds, ready_flag={ready_flag}, last_update_time={last_update_time}")
             task.last_stop = 'stop'
             worker.worker.stop_processing(task, 0, 'timeout')
             if (task.processing):
