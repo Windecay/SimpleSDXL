@@ -486,7 +486,7 @@ def is_port_available(port, host='127.0.0.1'):
     except Exception:
         return False
 
-def find_available_port(start_port=7865, max_attempts=100):
+def find_available_port(start_port=7865, max_attempts=100, suppress_logging=False):
     excluded_ports = {7890, 8188}
 
     for i in range(max_attempts):
@@ -497,10 +497,11 @@ def find_available_port(start_port=7865, max_attempts=100):
         host = shared.args.listen if hasattr(shared.args, 'listen') else '127.0.0.1'
 
         if is_port_available(port, host):
-            if i > 0:
-                logger.info(f"端口 {start_port} 被占用，自动切换到端口: {port}")
-            else:
-                logger.info(f"前端使用端口: {port}")
+            if not suppress_logging:
+                if i > 0:
+                    logger.info(f"端口 {start_port} 被占用，自动切换到端口: {port}")
+                else:
+                    logger.info(f"前端使用端口: {port}")
             return port
 
     return None
@@ -522,13 +523,23 @@ def reset_env_args():
         if is_ipynb():
             shared.args.listen = '127.0.0.1'
         else:
-            shared.args.listen = shared.sysinfo["local_ip"]
+            from enhanced.simpleai import is_fake_or_suspicious_ip, get_best_local_ip
+            local_ip = shared.sysinfo["local_ip"]
+            if is_fake_or_suspicious_ip(local_ip):
+                best_ip = get_best_local_ip()
+                if best_ip != '127.0.0.1':
+                    logger.info(f"检测到 Fake IP ({local_ip})，切换到本地 IP: {best_ip}")
+                    shared.args.listen = best_ip
+                else:
+                    shared.args.listen = local_ip
+            else:
+                shared.args.listen = local_ip
     if '--port' not in sys.argv:
         shared.args.port = shared.sysinfo["local_port"]
 
     host = shared.args.listen
     if not is_port_available(shared.args.port, host):
-        available_port = find_available_port(shared.args.port + 1)
+        available_port = find_available_port(shared.args.port + 1, suppress_logging=True)
         if available_port:
             logger.info(f"端口 {shared.args.port} 被占用，自动切换到: {available_port}")
             shared.args.port = available_port

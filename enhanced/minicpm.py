@@ -43,6 +43,15 @@ class MiniCPM:
             "model_url": "https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/MiniCPM-V-4_5-int4.zip",
             "is_llamacpp": False
         },
+        "Qwen3-VL-2B-Instruct-abliterated": {
+            "model": "Qwen3-VL-2B-Instruct-abliterated",
+            "model_file": "Qwen3-VL-2B-Instruct-abliterated",
+            "model_urls": {
+                "Huihui-Qwen3-VL-2B-Instruct-abliterated.Q8_0.gguf": "https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/LLM/Qwen3-VL-2B-Instruct-abliterated/Huihui-Qwen3-VL-2B-Instruct-abliterated.Q8_0.gguf",
+                "Huihui-Qwen3-VL-2B-Instruct-abliterated.mmproj-Q8_0.gguf": "https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/LLM/Qwen3-VL-2B-Instruct-abliterated/Huihui-Qwen3-VL-2B-Instruct-abliterated.mmproj-Q8_0.gguf"
+            },
+            "is_llamacpp": True
+        },
         "Qwen3-VL-4B-Instruct-abliterated": {
             "model": "Qwen3-VL-4B-Instruct-abliterated",
             "model_file": "Qwen3-VL-4B-Instruct-abliterated",

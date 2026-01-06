@@ -1921,7 +1921,7 @@ with shared.gradio_root:
                                         minicpm_checkbox = gr.Checkbox(label='Enable VLM', value=ads.get_admin_default('minicpm_checkbox'), info='Enable it for describe, translate and expand.')
                                         advanced_logs = gr.Checkbox(label='Enable advanced logs', value=ads.get_admin_default('advanced_logs'), info='Enabling with more infomation in logs.')
                                         with gr.Column():
-                                            minicpm_version = gr.Dropdown(label='VLM Version', choices=['Qwen3-VL-4B-Instruct-abliterated', 'Qwen3-VL-8B-Instruct-abliterated', 'MiniCPMv45', 'MiniCPMv26'], value=ads.get_admin_default('minicpm_version'), info='Select the VLM model version to use')
+                                            minicpm_version = gr.Dropdown(label='VLM Version', choices=['Qwen3-VL-2B-Instruct-abliterated', 'Qwen3-VL-4B-Instruct-abliterated', 'Qwen3-VL-8B-Instruct-abliterated', 'MiniCPMv45', 'MiniCPMv26'], value=ads.get_admin_default('minicpm_version'), info='Select the VLM model version to use')
                                     with gr.Column(visible=True if not args_manager.args.disable_backend else False):
                                         reserved_vram = gr.Slider(label='Reserved VRAM(GB)', minimum=0, maximum=24, step=0.1, value=ads.get_admin_default('reserved_vram'), info='Reserve VRAM to prevent OOM or Slow inference.')
                                         cache_ram = gr.Slider(label='Cache RAM(GB)', minimum=0, maximum=96, step=0.1, value=ads.get_admin_default('cache_ram'), info='[BETA]Set RAM cache threshold. 0: Classic; >0: RAM Pressure mode (auto-purge when available RAM is low).')
@@ -2802,46 +2802,13 @@ for key in ['NO_PROXY', 'no_proxy']:
 import socket
 import psutil
 
-def get_best_local_ip():
-    best_ip = '127.0.0.1'
-    try:
-        for interface, snics in psutil.net_if_addrs().items():
-            for snic in snics:
-                if snic.family == socket.AF_INET:
-                    ip = snic.address
-                    # Skip loopback
-                    if ip == '127.0.0.1':
-                        continue
-
-                    if ip.startswith('198.18.') or ip.startswith('198.19.'):
-                        continue
-
-                    if ip.startswith('169.254.'):
-                        continue
-
-                    if ip.startswith('192.168.') or ip.startswith('10.') or (ip.startswith('172.') and 16 <= int(ip.split('.')[1]) <= 31):
-                        return ip
-
-                    best_ip = ip
-    except Exception as e:
-        logging.error(f"Error detecting network interfaces: {e}")
-        pass
-
-    return best_ip
-
 current_listen = args_manager.args.listen
-
-def is_fake_or_suspicious_ip(ip):
-    if not ip: return False
-    if ip.startswith("198.18.") or ip.startswith("198.19."):
-        return True
-    return False
 
 is_listen_invalid = (
     current_listen is None or
     current_listen == "0.0.0.0" or
     current_listen == "127.0.0.1" or
-    is_fake_or_suspicious_ip(current_listen)
+    simpleai.is_fake_or_suspicious_ip(current_listen)
 )
 
 if is_listen_invalid:
@@ -2849,18 +2816,39 @@ if is_listen_invalid:
         hostname = socket.gethostname()
         local_ip = socket.gethostbyname(hostname)
 
-        if is_fake_or_suspicious_ip(local_ip) or is_fake_or_suspicious_ip(current_listen):
+        if simpleai.is_fake_or_suspicious_ip(local_ip) or simpleai.is_fake_or_suspicious_ip(current_listen):
             logging.warning(f"Detected Fake/Proxy IP configuration (Listen: {current_listen}, Resolved: {local_ip}).")
-            best_ip = get_best_local_ip()
+            best_ip = simpleai.get_best_local_ip()
             if best_ip != '127.0.0.1':
                 logging.info(f"Forcing Gradio to bind to valid LAN IP: {best_ip}")
                 args_manager.args.listen = best_ip
+                
+                # Re-check port availability because IP has changed
+                if not simpleai.is_port_available(args_manager.args.port, best_ip):
+                    new_port = simpleai.find_available_port(args_manager.args.port, host=best_ip, suppress_logging=True)
+                    if new_port != args_manager.args.port:
+                        logging.info(f"Port {args_manager.args.port} is occupied on {best_ip}, automatically switched to: {new_port}")
+                        args_manager.args.port = new_port
             else:
                 logging.info(f"Could not find a better LAN IP, falling back to 0.0.0.0 to ensure accessibility.")
                 args_manager.args.listen = "0.0.0.0"
+                
+                # Re-check for 0.0.0.0 as well
+                if not simpleai.is_port_available(args_manager.args.port, "0.0.0.0"):
+                    new_port = simpleai.find_available_port(args_manager.args.port, host="0.0.0.0", suppress_logging=True)
+                    if new_port != args_manager.args.port:
+                        logging.info(f"Port {args_manager.args.port} is occupied on 0.0.0.0, automatically switched to: {new_port}")
+                        args_manager.args.port = new_port
     except Exception as e:
-        if is_fake_or_suspicious_ip(current_listen):
+        if simpleai.is_fake_or_suspicious_ip(current_listen):
              args_manager.args.listen = "0.0.0.0"
+             
+             # Re-check for 0.0.0.0
+             if not simpleai.is_port_available(args_manager.args.port, "0.0.0.0"):
+                 new_port = simpleai.find_available_port(args_manager.args.port, host="0.0.0.0", suppress_logging=True)
+                 if new_port != args_manager.args.port:
+                     logging.info(f"Port {args_manager.args.port} is occupied on 0.0.0.0, automatically switched to: {new_port}")
+                     args_manager.args.port = new_port
         pass
 
 shared.gradio_root.launch(

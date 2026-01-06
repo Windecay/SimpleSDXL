@@ -17,6 +17,7 @@ from simpleai_base.models_info import ModelsInfo, sync_model_info
 from simpleai_base.simpleai_base import export_identity_qrcode_svg, import_identity_qrcode
 import socket
 import logging
+import psutil
 from enhanced.logger import format_name
 logger = logging.getLogger(format_name(__name__))
 
@@ -30,6 +31,40 @@ def init_modelsinfo(models_root, path_map):
     if not shared.modelsinfo:
         shared.modelsinfo = ModelsInfo(models_info_path, path_map)
     return shared.modelsinfo
+
+def get_best_local_ip():
+    best_ip = '127.0.0.1'
+    try:
+        for interface, snics in psutil.net_if_addrs().items():
+            for snic in snics:
+                if snic.family == socket.AF_INET:
+                    ip = snic.address
+                    # Skip loopback
+                    if ip == '127.0.0.1':
+                        continue
+
+                    if ip.startswith('198.18.') or ip.startswith('198.19.'):
+                        continue
+
+                    if ip.startswith('169.254.'):
+                        continue
+
+                    if ip.startswith('192.168.') or ip.startswith('10.') or (ip.startswith('172.') and 16 <= int(ip.split('.')[1]) <= 31):
+                        return ip
+
+                    best_ip = ip
+    except Exception as e:
+        logger.error(f"Error detecting network interfaces: {e}")
+        pass
+
+    return best_ip
+
+def is_fake_or_suspicious_ip(ip):
+    if not ip: return False
+    if ip.startswith("198.18.") or ip.startswith("198.19."):
+        return True
+    return False
+
 def is_port_available(port, host='127.0.0.1'):
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -37,8 +72,9 @@ def is_port_available(port, host='127.0.0.1'):
             return True
     except Exception:
         return False
-def find_available_port(start_port=8187, max_attempts=100, suppress_logging=False):
-    host = '0.0.0.0'
+def find_available_port(start_port=8187, max_attempts=100, suppress_logging=False, host=None):
+    if host is None:
+        host = '0.0.0.0'
     try:
         host_ip = socket.gethostbyname(socket.gethostname())
         if (host_ip.startswith('198.18.') or host_ip.startswith('198.19.')) and not suppress_logging:
