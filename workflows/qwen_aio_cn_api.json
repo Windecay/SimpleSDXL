@@ -3425,6 +3425,20 @@
       "title": "i2i_ip_fn2"
     }
   },
+  "587": {
+    "inputs": {
+      "sage_attention": "auto",
+      "allow_compile": false,
+      "model": [
+        "494",
+        0
+      ]
+    },
+    "class_type": "PathchSageAttentionKJ",
+    "_meta": {
+      "title": "Patch Sage Attention KJ"
+    }
+  },
   "594": {
     "inputs": {
       "boolean": [
@@ -5078,7 +5092,7 @@
       "lora_name": "placeholder.safetensors",
       "strength_model": 0,
       "model": [
-        "494",
+        "587",
         0
       ]
     },

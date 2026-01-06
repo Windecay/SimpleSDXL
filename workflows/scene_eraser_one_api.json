@@ -248,7 +248,7 @@
       ],
       "return_with_leftover_noise": "disable",
       "model": [
-        "427",
+        "428",
         0
       ],
       "positive": [
@@ -580,6 +580,20 @@
     "class_type": "EasyCache",
     "_meta": {
       "title": "EasyCache"
+    }
+  },
+  "428": {
+    "inputs": {
+      "sage_attention": "auto",
+      "allow_compile": false,
+      "model": [
+        "427",
+        0
+      ]
+    },
+    "class_type": "PathchSageAttentionKJ",
+    "_meta": {
+      "title": "Patch Sage Attention KJ"
     }
   }
 }

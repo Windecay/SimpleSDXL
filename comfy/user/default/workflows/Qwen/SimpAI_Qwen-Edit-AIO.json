@@ -1,8 +1,8 @@
 {
   "id": "b058853e-412f-4f02-95e2-abe2a40ebc2e",
   "revision": 0,
-  "last_node_id": 288,
-  "last_link_id": 2977,
+  "last_node_id": 289,
+  "last_link_id": 2979,
   "nodes": [
     {
       "id": 2,
@@ -2917,61 +2917,6 @@
       "bgcolor": "#335"
     },
     {
-      "id": 64,
-      "type": "ModelPatchTorchSettings",
-      "pos": [
-        1680,
-        800
-      ],
-      "size": [
-        307.443359375,
-        58
-      ],
-      "flags": {
-        "collapsed": false,
-        "pinned": true
-      },
-      "order": 117,
-      "mode": 0,
-      "inputs": [
-        {
-          "label": "model",
-          "name": "model",
-          "type": "MODEL",
-          "link": 2896
-        }
-      ],
-      "outputs": [
-        {
-          "label": "MODEL",
-          "name": "MODEL",
-          "type": "MODEL",
-          "links": [
-            2897
-          ]
-        }
-      ],
-      "title": "Model Patch Torch",
-      "properties": {
-        "Node name for S&R": "ModelPatchTorchSettings",
-        "ue_properties": {
-          "version": "7.3",
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {}
-        },
-        "ttNbgOverride": {
-          "bgcolor": "#3f5159",
-          "groupcolor": "#3f789e",
-          "color": "#2a363b"
-        }
-      },
-      "widgets_values": [
-        true
-      ],
-      "color": "#2a363b",
-      "bgcolor": "#3f5159"
-    },
-    {
       "id": 264,
       "type": "NunchakuQwenImageLoraStack",
       "pos": [
@@ -3466,13 +3411,13 @@
       "flags": {
         "pinned": true
       },
-      "order": 120,
+      "order": 122,
       "mode": 0,
       "inputs": [
         {
           "name": "model",
           "type": "MODEL",
-          "link": 2897
+          "link": 2979
         }
       ],
       "outputs": [
@@ -4717,7 +4662,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 122,
+      "order": 123,
       "mode": 0,
       "inputs": [
         {
@@ -4775,7 +4720,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 123,
+      "order": 124,
       "mode": 0,
       "inputs": [
         {
@@ -5751,12 +5696,12 @@
         }
       ],
       "properties": {
+        "Node name for S&R": "SimpleBatchDownloader",
         "ue_properties": {
           "widget_ue_connectable": {},
           "input_ue_unconnectable": {},
           "version": "7.3"
-        },
-        "Node name for S&R": "SimpleBatchDownloader"
+        }
       },
       "widgets_values": [
         "https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/LLM/Qwen3-VL-4B-Instruct-abliterated/Qwen3-VL-4B-Instruct-abliterated-v1.mmproj-Q8_0.gguf",
@@ -5920,13 +5865,14 @@
         }
       ],
       "properties": {
+        "Node name for S&R": "ShowText|pysssss",
         "ue_properties": {
           "widget_ue_connectable": {},
           "input_ue_unconnectable": {},
           "version": "7.3"
-        },
-        "Node name for S&R": "ShowText|pysssss"
-      }
+        }
+      },
+      "widgets_values": []
     },
     {
       "id": 131,
@@ -6091,6 +6037,107 @@
         }
       },
       "widgets_values": []
+    },
+    {
+      "id": 289,
+      "type": "PathchSageAttentionKJ",
+      "pos": [
+        1680,
+        850
+      ],
+      "size": [
+        310,
+        82
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 120,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 2978
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            2979
+          ]
+        }
+      ],
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "Node name for S&R": "PathchSageAttentionKJ"
+      },
+      "widgets_values": [
+        "auto",
+        false
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 64,
+      "type": "ModelPatchTorchSettings",
+      "pos": [
+        1680,
+        760
+      ],
+      "size": [
+        307.443359375,
+        58
+      ],
+      "flags": {
+        "collapsed": false,
+        "pinned": true
+      },
+      "order": 117,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "model",
+          "name": "model",
+          "type": "MODEL",
+          "link": 2896
+        }
+      ],
+      "outputs": [
+        {
+          "label": "MODEL",
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            2978
+          ]
+        }
+      ],
+      "title": "Model Patch Torch",
+      "properties": {
+        "Node name for S&R": "ModelPatchTorchSettings",
+        "ue_properties": {
+          "version": "7.3",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "ttNbgOverride": {
+          "bgcolor": "#3f5159",
+          "groupcolor": "#3f789e",
+          "color": "#2a363b"
+        }
+      },
+      "widgets_values": [
+        true
+      ],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
     }
   ],
   "links": [
@@ -6503,14 +6550,6 @@
       "MODEL"
     ],
     [
-      2897,
-      64,
-      0,
-      219,
-      0,
-      "MODEL"
-    ],
-    [
       2898,
       264,
       0,
@@ -6805,6 +6844,22 @@
       287,
       0,
       "*"
+    ],
+    [
+      2978,
+      64,
+      0,
+      289,
+      0,
+      "MODEL"
+    ],
+    [
+      2979,
+      289,
+      0,
+      219,
+      0,
+      "MODEL"
     ]
   ],
   "groups": [
@@ -7082,10 +7137,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.28531167061100193,
+      "scale": 0.8140274938684039,
       "offset": [
-        1499.8753745357246,
-        1152.3595073346821
+        -1491.2874751491763,
+        102.99950559958495
       ]
     },
     "ue_links": [
@@ -7114,7 +7169,7 @@
         "type": "VAE"
       }
     ],
-    "frontendVersion": "1.34.9",
+    "frontendVersion": "1.35.9",
     "VHS_latentpreview": true,
     "VHS_latentpreviewrate": 8,
     "VHS_MetadataImage": true,

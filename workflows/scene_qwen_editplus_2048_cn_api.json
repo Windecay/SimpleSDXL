@@ -321,7 +321,7 @@
       ],
       "denoise": 1,
       "model": [
-        "131",
+        "165",
         0
       ],
       "positive": [
@@ -979,7 +979,7 @@
   },
   "151": {
     "inputs": {
-      "value": 2.0
+      "value": 2
     },
     "class_type": "easy float",
     "_meta": {
@@ -1145,6 +1145,20 @@
     "class_type": "easy float",
     "_meta": {
       "title": "var_number4"
+    }
+  },
+  "165": {
+    "inputs": {
+      "sage_attention": "auto",
+      "allow_compile": false,
+      "model": [
+        "131",
+        0
+      ]
+    },
+    "class_type": "PathchSageAttentionKJ",
+    "_meta": {
+      "title": "Patch Sage Attention KJ"
     }
   }
 }

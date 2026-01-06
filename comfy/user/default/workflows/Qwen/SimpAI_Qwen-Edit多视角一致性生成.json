@@ -1,8 +1,8 @@
 {
   "id": "16fe6802-970e-4261-9c38-1f7e0fc60e5a",
   "revision": 0,
-  "last_node_id": 1324,
-  "last_link_id": 2027,
+  "last_node_id": 1325,
+  "last_link_id": 2029,
   "nodes": [
     {
       "id": 10,
@@ -465,7 +465,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 415,
+      "order": 416,
       "mode": 0,
       "inputs": [
         {
@@ -514,7 +514,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 416,
+      "order": 417,
       "mode": 0,
       "inputs": [
         {
@@ -853,7 +853,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 417,
+      "order": 418,
       "mode": 0,
       "inputs": [
         {
@@ -1656,7 +1656,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 418,
+      "order": 419,
       "mode": 0,
       "inputs": [
         {
@@ -1904,7 +1904,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 419,
+      "order": 420,
       "mode": 0,
       "inputs": [
         {
@@ -2152,7 +2152,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 420,
+      "order": 421,
       "mode": 0,
       "inputs": [
         {
@@ -2201,7 +2201,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 421,
+      "order": 422,
       "mode": 0,
       "inputs": [
         {
@@ -4495,7 +4495,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 422,
+      "order": 423,
       "mode": 0,
       "inputs": [
         {
@@ -5380,7 +5380,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 423,
+      "order": 424,
       "mode": 0,
       "inputs": [
         {
@@ -5976,6 +5976,7 @@
           "type": "STRING"
         },
         {
+          "dir": 3,
           "name": "any_05",
           "type": "STRING",
           "link": null
@@ -6319,7 +6320,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 424,
+      "order": 425,
       "mode": 0,
       "inputs": [
         {
@@ -6349,6 +6350,7 @@
           "type": "LATENT"
         },
         {
+          "dir": 3,
           "name": "any_05",
           "type": "LATENT",
           "link": null
@@ -7407,7 +7409,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 425,
+      "order": 426,
       "mode": 0,
       "inputs": [
         {
@@ -7439,6 +7441,7 @@
           "link": null
         },
         {
+          "dir": 3,
           "name": "any_05",
           "type": "LATENT",
           "link": null
@@ -7487,7 +7490,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 426,
+      "order": 427,
       "mode": 0,
       "inputs": [
         {
@@ -7628,6 +7631,7 @@
           "link": null
         },
         {
+          "dir": 3,
           "name": "any_05",
           "type": "STRING",
           "link": null
@@ -7677,7 +7681,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 427,
+      "order": 428,
       "mode": 0,
       "inputs": [
         {
@@ -7809,7 +7813,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 428,
+      "order": 429,
       "mode": 0,
       "inputs": [
         {
@@ -8084,7 +8088,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 429,
+      "order": 430,
       "mode": 0,
       "inputs": [
         {
@@ -8476,6 +8480,7 @@
           "link": null
         },
         {
+          "dir": 3,
           "name": "any_05",
           "type": "STRING",
           "link": null
@@ -8685,7 +8690,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 430,
+      "order": 431,
       "mode": 0,
       "inputs": [
         {
@@ -8717,6 +8722,7 @@
           "link": null
         },
         {
+          "dir": 3,
           "name": "any_05",
           "type": "LATENT",
           "link": null
@@ -8937,7 +8943,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 431,
+      "order": 432,
       "mode": 0,
       "inputs": [
         {
@@ -9234,7 +9240,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 432,
+      "order": 433,
       "mode": 0,
       "inputs": [
         {
@@ -9626,6 +9632,7 @@
           "link": null
         },
         {
+          "dir": 3,
           "name": "any_05",
           "type": "STRING",
           "link": null
@@ -9835,7 +9842,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 433,
+      "order": 434,
       "mode": 0,
       "inputs": [
         {
@@ -9867,6 +9874,7 @@
           "link": null
         },
         {
+          "dir": 3,
           "name": "any_05",
           "type": "LATENT",
           "link": null
@@ -10087,7 +10095,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 434,
+      "order": 435,
       "mode": 0,
       "inputs": [
         {
@@ -10440,6 +10448,7 @@
           "link": null
         },
         {
+          "dir": 3,
           "name": "any_05",
           "type": "STRING",
           "link": null
@@ -10649,7 +10658,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 435,
+      "order": 436,
       "mode": 0,
       "inputs": [
         {
@@ -10681,6 +10690,7 @@
           "link": null
         },
         {
+          "dir": 3,
           "name": "any_05",
           "type": "LATENT",
           "link": null
@@ -10957,7 +10967,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 436,
+      "order": 437,
       "mode": 0,
       "inputs": [
         {
@@ -11236,7 +11246,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 437,
+      "order": 438,
       "mode": 0,
       "inputs": [
         {
@@ -11589,6 +11599,7 @@
           "link": null
         },
         {
+          "dir": 3,
           "name": "any_05",
           "type": "STRING",
           "link": null
@@ -11798,7 +11809,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 438,
+      "order": 439,
       "mode": 0,
       "inputs": [
         {
@@ -11830,6 +11841,7 @@
           "link": null
         },
         {
+          "dir": 3,
           "name": "any_05",
           "type": "LATENT",
           "link": null
@@ -12106,7 +12118,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 439,
+      "order": 440,
       "mode": 0,
       "inputs": [
         {
@@ -12385,7 +12397,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 440,
+      "order": 441,
       "mode": 0,
       "inputs": [
         {
@@ -12738,6 +12750,7 @@
           "link": null
         },
         {
+          "dir": 3,
           "name": "any_05",
           "type": "STRING",
           "link": null
@@ -12947,7 +12960,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 441,
+      "order": 442,
       "mode": 0,
       "inputs": [
         {
@@ -12979,6 +12992,7 @@
           "link": null
         },
         {
+          "dir": 3,
           "name": "any_05",
           "type": "LATENT",
           "link": null
@@ -13255,7 +13269,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 442,
+      "order": 443,
       "mode": 0,
       "inputs": [
         {
@@ -13534,7 +13548,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 443,
+      "order": 444,
       "mode": 0,
       "inputs": [
         {
@@ -13951,7 +13965,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 444,
+      "order": 445,
       "mode": 0,
       "inputs": [
         {
@@ -14262,6 +14276,7 @@
           "link": null
         },
         {
+          "dir": 3,
           "name": "any_05",
           "type": "STRING",
           "link": null
@@ -14385,7 +14400,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 445,
+      "order": 446,
       "mode": 0,
       "inputs": [
         {
@@ -14517,7 +14532,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 446,
+      "order": 447,
       "mode": 0,
       "inputs": [
         {
@@ -14549,6 +14564,7 @@
           "link": null
         },
         {
+          "dir": 3,
           "name": "any_05",
           "type": "LATENT",
           "link": null
@@ -15103,7 +15119,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 447,
+      "order": 448,
       "mode": 0,
       "inputs": [
         {
@@ -15135,6 +15151,7 @@
           "link": null
         },
         {
+          "dir": 3,
           "name": "any_05",
           "type": "LATENT",
           "link": null
@@ -15525,6 +15542,7 @@
           "link": null
         },
         {
+          "dir": 3,
           "name": "any_05",
           "type": "STRING",
           "link": null
@@ -15734,7 +15752,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 448,
+      "order": 449,
       "mode": 0,
       "inputs": [
         {
@@ -15766,6 +15784,7 @@
           "link": null
         },
         {
+          "dir": 3,
           "name": "any_05",
           "type": "LATENT",
           "link": null
@@ -15975,7 +15994,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 449,
+      "order": 450,
       "mode": 0,
       "inputs": [
         {
@@ -16353,6 +16372,7 @@
           "link": null
         },
         {
+          "dir": 3,
           "name": "any_05",
           "type": "STRING",
           "link": null
@@ -16562,7 +16582,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 450,
+      "order": 451,
       "mode": 0,
       "inputs": [
         {
@@ -16594,6 +16614,7 @@
           "link": null
         },
         {
+          "dir": 3,
           "name": "any_05",
           "type": "LATENT",
           "link": null
@@ -16827,7 +16848,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 451,
+      "order": 452,
       "mode": 0,
       "inputs": [
         {
@@ -16936,7 +16957,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 452,
+      "order": 453,
       "mode": 0,
       "inputs": [
         {
@@ -17101,7 +17122,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 453,
+      "order": 454,
       "mode": 0,
       "inputs": [
         {
@@ -17233,7 +17254,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 454,
+      "order": 455,
       "mode": 0,
       "inputs": [
         {
@@ -17517,6 +17538,7 @@
           "link": null
         },
         {
+          "dir": 3,
           "name": "any_05",
           "type": "STRING",
           "link": null
@@ -17565,7 +17587,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 455,
+      "order": 456,
       "mode": 0,
       "inputs": [
         {
@@ -17845,7 +17867,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 456,
+      "order": 457,
       "mode": 0,
       "inputs": [
         {
@@ -18041,7 +18063,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 457,
+      "order": 458,
       "mode": 0,
       "inputs": [
         {
@@ -18236,7 +18258,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 458,
+      "order": 459,
       "mode": 0,
       "inputs": [
         {
@@ -18515,6 +18537,7 @@
           "link": null
         },
         {
+          "dir": 3,
           "name": "any_05",
           "type": "STRING",
           "link": null
@@ -18724,7 +18747,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 459,
+      "order": 460,
       "mode": 0,
       "inputs": [
         {
@@ -18756,6 +18779,7 @@
           "link": null
         },
         {
+          "dir": 3,
           "name": "any_05",
           "type": "LATENT",
           "link": null
@@ -18991,7 +19015,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 460,
+      "order": 461,
       "mode": 0,
       "inputs": [
         {
@@ -19597,7 +19621,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 461,
+      "order": 462,
       "mode": 0,
       "inputs": [
         {
@@ -19629,6 +19653,7 @@
           "link": null
         },
         {
+          "dir": 3,
           "name": "any_05",
           "type": "LATENT",
           "link": null
@@ -19850,7 +19875,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 462,
+      "order": 463,
       "mode": 0,
       "inputs": [
         {
@@ -20470,7 +20495,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 463,
+      "order": 464,
       "mode": 0,
       "inputs": [
         {
@@ -20502,6 +20527,7 @@
           "link": null
         },
         {
+          "dir": 3,
           "name": "any_05",
           "type": "LATENT",
           "link": null
@@ -20723,7 +20749,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 464,
+      "order": 465,
       "mode": 0,
       "inputs": [
         {
@@ -21058,7 +21084,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 465,
+      "order": 466,
       "mode": 0,
       "inputs": [
         {
@@ -21191,7 +21217,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 466,
+      "order": 467,
       "mode": 0,
       "inputs": [
         {
@@ -21239,7 +21265,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 467,
+      "order": 468,
       "mode": 0,
       "inputs": [
         {
@@ -21372,7 +21398,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 468,
+      "order": 469,
       "mode": 0,
       "inputs": [
         {
@@ -21420,7 +21446,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 469,
+      "order": 470,
       "mode": 0,
       "inputs": [
         {
@@ -21553,7 +21579,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 470,
+      "order": 471,
       "mode": 0,
       "inputs": [
         {
@@ -22527,7 +22553,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 471,
+      "order": 472,
       "mode": 0,
       "inputs": [
         {
@@ -22659,7 +22685,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 472,
+      "order": 473,
       "mode": 0,
       "inputs": [
         {
@@ -22691,6 +22717,7 @@
           "link": null
         },
         {
+          "dir": 3,
           "name": "any_05",
           "type": "LATENT",
           "link": null
@@ -22982,7 +23009,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 474,
+      "order": 475,
       "mode": 0,
       "inputs": [
         {
@@ -23960,6 +23987,7 @@
           "link": null
         },
         {
+          "dir": 3,
           "name": "any_05",
           "type": "STRING",
           "link": null
@@ -26205,6 +26233,7 @@
           "link": null
         },
         {
+          "dir": 3,
           "name": "any_05",
           "type": "CLIP",
           "link": null
@@ -26273,6 +26302,7 @@
           "link": null
         },
         {
+          "dir": 3,
           "name": "any_05",
           "type": "VAE",
           "link": null
@@ -26582,6 +26612,7 @@
           "link": null
         },
         {
+          "dir": 3,
           "name": "any_05",
           "type": "MODEL",
           "link": null
@@ -26650,6 +26681,7 @@
           "link": null
         },
         {
+          "dir": 3,
           "name": "any_05",
           "type": "MODEL",
           "link": null
@@ -26718,6 +26750,7 @@
           "link": null
         },
         {
+          "dir": 3,
           "name": "any_05",
           "type": "MODEL",
           "link": null
@@ -26783,7 +26816,7 @@
           "name": "MODEL",
           "type": "MODEL",
           "links": [
-            2026
+            2028
           ]
         }
       ],
@@ -26877,13 +26910,13 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 414,
+      "order": 415,
       "mode": 0,
       "inputs": [
         {
           "name": "MODEL",
           "type": "MODEL",
-          "link": 2026
+          "link": 2029
         }
       ],
       "outputs": [
@@ -27003,7 +27036,7 @@
         778.7777777777778
       ],
       "flags": {},
-      "order": 473,
+      "order": 474,
       "mode": 0,
       "inputs": [
         {
@@ -27097,6 +27130,52 @@
       ],
       "color": "#2a363b",
       "bgcolor": "#3f5159"
+    },
+    {
+      "id": 1325,
+      "type": "PathchSageAttentionKJ",
+      "pos": [
+        1770,
+        -1190
+      ],
+      "size": [
+        210,
+        100
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 414,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 2028
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            2029
+          ]
+        }
+      ],
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "Node name for S&R": "PathchSageAttentionKJ"
+      },
+      "widgets_values": [
+        "auto",
+        false
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
     }
   ],
   "links": [
@@ -31021,19 +31100,27 @@
       "MODEL"
     ],
     [
-      2026,
-      938,
-      0,
-      957,
-      0,
-      "MODEL"
-    ],
-    [
       2027,
       1322,
       0,
       1323,
       1,
+      "MODEL"
+    ],
+    [
+      2028,
+      938,
+      0,
+      1325,
+      0,
+      "MODEL"
+    ],
+    [
+      2029,
+      1325,
+      0,
+      957,
+      0,
       "MODEL"
     ]
   ],
@@ -32218,7 +32305,8 @@
               "Node name for S&R": "FluxKontextMultiReferenceLatentMethod",
               "ue_properties": {
                 "widget_ue_connectable": {},
-                "input_ue_unconnectable": {}
+                "input_ue_unconnectable": {},
+                "version": "7.3"
               }
             },
             "widgets_values": [
@@ -32263,7 +32351,8 @@
               "Node name for S&R": "FluxKontextMultiReferenceLatentMethod",
               "ue_properties": {
                 "widget_ue_connectable": {},
-                "input_ue_unconnectable": {}
+                "input_ue_unconnectable": {},
+                "version": "7.3"
               }
             },
             "widgets_values": [
@@ -32278,7 +32367,7 @@
               820
             ],
             "size": [
-              239.89901733398438,
+              249.9341796875,
               168
             ],
             "flags": {},
@@ -32368,7 +32457,7 @@
               620
             ],
             "size": [
-              239.89901733398438,
+              249.9341796875,
               168
             ],
             "flags": {},
@@ -33308,7 +33397,8 @@
               "Node name for S&R": "FluxKontextMultiReferenceLatentMethod",
               "ue_properties": {
                 "widget_ue_connectable": {},
-                "input_ue_unconnectable": {}
+                "input_ue_unconnectable": {},
+                "version": "7.3"
               }
             },
             "widgets_values": [
@@ -33451,7 +33541,8 @@
               "Node name for S&R": "FluxKontextMultiReferenceLatentMethod",
               "ue_properties": {
                 "widget_ue_connectable": {},
-                "input_ue_unconnectable": {}
+                "input_ue_unconnectable": {},
+                "version": "7.3"
               }
             },
             "widgets_values": [
@@ -34193,7 +34284,8 @@
               "Node name for S&R": "FluxKontextMultiReferenceLatentMethod",
               "ue_properties": {
                 "widget_ue_connectable": {},
-                "input_ue_unconnectable": {}
+                "input_ue_unconnectable": {},
+                "version": "7.3"
               }
             },
             "widgets_values": [
@@ -34442,7 +34534,8 @@
               "Node name for S&R": "FluxKontextMultiReferenceLatentMethod",
               "ue_properties": {
                 "widget_ue_connectable": {},
-                "input_ue_unconnectable": {}
+                "input_ue_unconnectable": {},
+                "version": "7.3"
               }
             },
             "widgets_values": [
@@ -35184,7 +35277,8 @@
               "Node name for S&R": "FluxKontextMultiReferenceLatentMethod",
               "ue_properties": {
                 "widget_ue_connectable": {},
-                "input_ue_unconnectable": {}
+                "input_ue_unconnectable": {},
+                "version": "7.3"
               }
             },
             "widgets_values": [
@@ -35433,7 +35527,8 @@
               "Node name for S&R": "FluxKontextMultiReferenceLatentMethod",
               "ue_properties": {
                 "widget_ue_connectable": {},
-                "input_ue_unconnectable": {}
+                "input_ue_unconnectable": {},
+                "version": "7.3"
               }
             },
             "widgets_values": [
@@ -36175,7 +36270,8 @@
               "Node name for S&R": "FluxKontextMultiReferenceLatentMethod",
               "ue_properties": {
                 "widget_ue_connectable": {},
-                "input_ue_unconnectable": {}
+                "input_ue_unconnectable": {},
+                "version": "7.3"
               }
             },
             "widgets_values": [
@@ -36424,7 +36520,8 @@
               "Node name for S&R": "FluxKontextMultiReferenceLatentMethod",
               "ue_properties": {
                 "widget_ue_connectable": {},
-                "input_ue_unconnectable": {}
+                "input_ue_unconnectable": {},
+                "version": "7.3"
               }
             },
             "widgets_values": [
@@ -37370,7 +37467,8 @@
               "Node name for S&R": "FluxKontextMultiReferenceLatentMethod",
               "ue_properties": {
                 "widget_ue_connectable": {},
-                "input_ue_unconnectable": {}
+                "input_ue_unconnectable": {},
+                "version": "7.3"
               }
             },
             "widgets_values": [
@@ -37415,7 +37513,8 @@
               "Node name for S&R": "FluxKontextMultiReferenceLatentMethod",
               "ue_properties": {
                 "widget_ue_connectable": {},
-                "input_ue_unconnectable": {}
+                "input_ue_unconnectable": {},
+                "version": "7.3"
               }
             },
             "widgets_values": [
@@ -38157,7 +38256,8 @@
               "Node name for S&R": "FluxKontextMultiReferenceLatentMethod",
               "ue_properties": {
                 "widget_ue_connectable": {},
-                "input_ue_unconnectable": {}
+                "input_ue_unconnectable": {},
+                "version": "7.3"
               }
             },
             "widgets_values": [
@@ -38406,7 +38506,8 @@
               "Node name for S&R": "FluxKontextMultiReferenceLatentMethod",
               "ue_properties": {
                 "widget_ue_connectable": {},
-                "input_ue_unconnectable": {}
+                "input_ue_unconnectable": {},
+                "version": "7.3"
               }
             },
             "widgets_values": [
@@ -39100,7 +39201,7 @@
               820
             ],
             "size": [
-              239.89901733398438,
+              249.9341796875,
               168
             ],
             "flags": {},
@@ -39190,7 +39291,7 @@
               620
             ],
             "size": [
-              239.89901733398438,
+              249.9341796875,
               168
             ],
             "flags": {},
@@ -39327,7 +39428,8 @@
               "Node name for S&R": "FluxKontextMultiReferenceLatentMethod",
               "ue_properties": {
                 "widget_ue_connectable": {},
-                "input_ue_unconnectable": {}
+                "input_ue_unconnectable": {},
+                "version": "7.3"
               }
             },
             "widgets_values": [
@@ -39372,7 +39474,8 @@
               "Node name for S&R": "FluxKontextMultiReferenceLatentMethod",
               "ue_properties": {
                 "widget_ue_connectable": {},
-                "input_ue_unconnectable": {}
+                "input_ue_unconnectable": {},
+                "version": "7.3"
               }
             },
             "widgets_values": [
@@ -40114,7 +40217,8 @@
               "Node name for S&R": "FluxKontextMultiReferenceLatentMethod",
               "ue_properties": {
                 "widget_ue_connectable": {},
-                "input_ue_unconnectable": {}
+                "input_ue_unconnectable": {},
+                "version": "7.3"
               }
             },
             "widgets_values": [
@@ -40159,7 +40263,8 @@
               "Node name for S&R": "FluxKontextMultiReferenceLatentMethod",
               "ue_properties": {
                 "widget_ue_connectable": {},
-                "input_ue_unconnectable": {}
+                "input_ue_unconnectable": {},
+                "version": "7.3"
               }
             },
             "widgets_values": [
@@ -41211,7 +41316,8 @@
               "Node name for S&R": "FluxKontextMultiReferenceLatentMethod",
               "ue_properties": {
                 "widget_ue_connectable": {},
-                "input_ue_unconnectable": {}
+                "input_ue_unconnectable": {},
+                "version": "7.3"
               }
             },
             "widgets_values": [
@@ -41354,7 +41460,8 @@
               "Node name for S&R": "FluxKontextMultiReferenceLatentMethod",
               "ue_properties": {
                 "widget_ue_connectable": {},
-                "input_ue_unconnectable": {}
+                "input_ue_unconnectable": {},
+                "version": "7.3"
               }
             },
             "widgets_values": [
@@ -42300,7 +42407,8 @@
               "Node name for S&R": "FluxKontextMultiReferenceLatentMethod",
               "ue_properties": {
                 "widget_ue_connectable": {},
-                "input_ue_unconnectable": {}
+                "input_ue_unconnectable": {},
+                "version": "7.3"
               }
             },
             "widgets_values": [
@@ -42345,7 +42453,8 @@
               "Node name for S&R": "FluxKontextMultiReferenceLatentMethod",
               "ue_properties": {
                 "widget_ue_connectable": {},
-                "input_ue_unconnectable": {}
+                "input_ue_unconnectable": {},
+                "version": "7.3"
               }
             },
             "widgets_values": [
@@ -43087,7 +43196,8 @@
               "Node name for S&R": "FluxKontextMultiReferenceLatentMethod",
               "ue_properties": {
                 "widget_ue_connectable": {},
-                "input_ue_unconnectable": {}
+                "input_ue_unconnectable": {},
+                "version": "7.3"
               }
             },
             "widgets_values": [
@@ -43132,7 +43242,8 @@
               "Node name for S&R": "FluxKontextMultiReferenceLatentMethod",
               "ue_properties": {
                 "widget_ue_connectable": {},
-                "input_ue_unconnectable": {}
+                "input_ue_unconnectable": {},
+                "version": "7.3"
               }
             },
             "widgets_values": [
@@ -44078,7 +44189,8 @@
               "Node name for S&R": "FluxKontextMultiReferenceLatentMethod",
               "ue_properties": {
                 "widget_ue_connectable": {},
-                "input_ue_unconnectable": {}
+                "input_ue_unconnectable": {},
+                "version": "7.3"
               }
             },
             "widgets_values": [
@@ -44123,7 +44235,8 @@
               "Node name for S&R": "FluxKontextMultiReferenceLatentMethod",
               "ue_properties": {
                 "widget_ue_connectable": {},
-                "input_ue_unconnectable": {}
+                "input_ue_unconnectable": {},
+                "version": "7.3"
               }
             },
             "widgets_values": [
@@ -45273,7 +45386,8 @@
               "Node name for S&R": "FluxKontextMultiReferenceLatentMethod",
               "ue_properties": {
                 "widget_ue_connectable": {},
-                "input_ue_unconnectable": {}
+                "input_ue_unconnectable": {},
+                "version": "7.3"
               }
             },
             "widgets_values": [
@@ -45318,7 +45432,8 @@
               "Node name for S&R": "FluxKontextMultiReferenceLatentMethod",
               "ue_properties": {
                 "widget_ue_connectable": {},
-                "input_ue_unconnectable": {}
+                "input_ue_unconnectable": {},
+                "version": "7.3"
               }
             },
             "widgets_values": [
@@ -46119,7 +46234,7 @@
               820
             ],
             "size": [
-              239.89901733398438,
+              249.9341796875,
               168
             ],
             "flags": {},
@@ -46239,7 +46354,8 @@
               "Node name for S&R": "FluxKontextMultiReferenceLatentMethod",
               "ue_properties": {
                 "widget_ue_connectable": {},
-                "input_ue_unconnectable": {}
+                "input_ue_unconnectable": {},
+                "version": "7.3"
               }
             },
             "widgets_values": [
@@ -46284,7 +46400,8 @@
               "Node name for S&R": "FluxKontextMultiReferenceLatentMethod",
               "ue_properties": {
                 "widget_ue_connectable": {},
-                "input_ue_unconnectable": {}
+                "input_ue_unconnectable": {},
+                "version": "7.3"
               }
             },
             "widgets_values": [
@@ -46490,13 +46607,13 @@
       4
     ],
     "VHS_latentpreviewrate": 8,
-    "frontendVersion": "1.34.9",
+    "frontendVersion": "1.35.9",
     "VHS_latentpreview": true,
     "ds": {
-      "scale": 1.1918176537727305,
+      "scale": 0.9849732675807692,
       "offset": [
-        4447.544976363055,
-        1317.8165120356987
+        -606.2458285795477,
+        1666.7239024983062
       ]
     },
     "qgn_navigation_groups": [],

@@ -1,8 +1,8 @@
 {
   "id": "39df14d7-7f9c-488e-98e1-79732aab1cf5",
   "revision": 0,
-  "last_node_id": 355,
-  "last_link_id": 7717,
+  "last_node_id": 356,
+  "last_link_id": 7719,
   "nodes": [
     {
       "id": 16,
@@ -1261,8 +1261,8 @@
         -530
       ],
       "size": [
-        146.4380859375,
-        26
+        113.34228515625,
+        15
       ],
       "flags": {
         "pinned": true,
@@ -1913,7 +1913,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 126,
+      "order": 127,
       "mode": 0,
       "inputs": [
         {
@@ -2303,6 +2303,7 @@
           "link": null
         },
         {
+          "dir": 3,
           "name": "any_05",
           "type": "IMAGE",
           "link": null
@@ -2877,6 +2878,7 @@
           "link": null
         },
         {
+          "dir": 3,
           "name": "any_05",
           "type": "MODEL",
           "link": null
@@ -3081,7 +3083,7 @@
           "name": "MODEL",
           "type": "MODEL",
           "links": [
-            7132
+            7718
           ]
         }
       ],
@@ -3106,77 +3108,20 @@
       "bgcolor": "#3f5159"
     },
     {
-      "id": 265,
-      "type": "ModelSamplingAuraFlow",
-      "pos": [
-        2870,
-        -270
-      ],
-      "size": [
-        250,
-        58
-      ],
-      "flags": {
-        "collapsed": false,
-        "pinned": true
-      },
-      "order": 102,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "model",
-          "type": "MODEL",
-          "link": 7132
-        }
-      ],
-      "outputs": [
-        {
-          "name": "MODEL",
-          "type": "MODEL",
-          "links": [
-            3199
-          ]
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.3.48",
-        "Node name for S&R": "ModelSamplingAuraFlow",
-        "ue_properties": {
-          "version": "7.3",
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {}
-        },
-        "enableTabs": false,
-        "tabWidth": 65,
-        "tabXOffset": 10,
-        "hasSecondTab": false,
-        "secondTabText": "Send Back",
-        "secondTabOffset": 80,
-        "secondTabWidth": 65
-      },
-      "widgets_values": [
-        3
-      ],
-      "color": "#223",
-      "bgcolor": "#335"
-    },
-    {
       "id": 266,
       "type": "CFGNorm",
       "pos": [
         2880,
-        -180
+        -60
       ],
       "size": [
         240,
         60
       ],
       "flags": {
-        "collapsed": false,
-        "pinned": true
+        "collapsed": false
       },
-      "order": 113,
+      "order": 119,
       "mode": 0,
       "inputs": [
         {
@@ -3224,17 +3169,16 @@
       "type": "SetNode",
       "pos": [
         2950,
-        -90
+        30
       ],
       "size": [
         210,
         58
       ],
       "flags": {
-        "collapsed": true,
-        "pinned": true
+        "collapsed": true
       },
-      "order": 119,
+      "order": 125,
       "mode": 0,
       "inputs": [
         {
@@ -3362,6 +3306,7 @@
           "link": 109
         },
         {
+          "dir": 3,
           "name": "any_05",
           "type": "MODEL",
           "link": null
@@ -3517,7 +3462,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 127,
+      "order": 128,
       "mode": 0,
       "inputs": [
         {
@@ -3759,6 +3704,7 @@
           "link": null
         },
         {
+          "dir": 3,
           "name": "any_05",
           "type": "VAE",
           "link": null
@@ -3879,6 +3825,7 @@
           "link": null
         },
         {
+          "dir": 3,
           "name": "any_05",
           "type": "CLIP",
           "link": null
@@ -4001,7 +3948,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 125,
+      "order": 126,
       "mode": 4,
       "inputs": [
         {
@@ -4469,6 +4416,7 @@
           "link": null
         },
         {
+          "dir": 3,
           "name": "any_05",
           "type": "MODEL",
           "link": null
@@ -5174,6 +5122,7 @@
           "link": null
         },
         {
+          "dir": 3,
           "name": "any_05",
           "type": "LATENT",
           "link": null
@@ -5897,7 +5846,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 129,
+      "order": 130,
       "mode": 0,
       "inputs": [
         {
@@ -5940,7 +5889,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 131,
+      "order": 132,
       "mode": 0,
       "inputs": [
         {
@@ -5986,7 +5935,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 130,
+      "order": 131,
       "mode": 0,
       "inputs": [
         {
@@ -6410,7 +6359,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 128,
+      "order": 129,
       "mode": 0,
       "inputs": [
         {
@@ -6532,6 +6481,107 @@
       ],
       "color": "#232",
       "bgcolor": "#353"
+    },
+    {
+      "id": 265,
+      "type": "ModelSamplingAuraFlow",
+      "pos": [
+        2870,
+        -150
+      ],
+      "size": [
+        250,
+        58
+      ],
+      "flags": {
+        "collapsed": false
+      },
+      "order": 113,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 7719
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            3199
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.48",
+        "Node name for S&R": "ModelSamplingAuraFlow",
+        "ue_properties": {
+          "version": "7.3",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "enableTabs": false,
+        "tabWidth": 65,
+        "tabXOffset": 10,
+        "hasSecondTab": false,
+        "secondTabText": "Send Back",
+        "secondTabOffset": 80,
+        "secondTabWidth": 65
+      },
+      "widgets_values": [
+        3
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 356,
+      "type": "PathchSageAttentionKJ",
+      "pos": [
+        2870,
+        -270
+      ],
+      "size": [
+        250,
+        82
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 102,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 7718
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            7719
+          ]
+        }
+      ],
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "Node name for S&R": "PathchSageAttentionKJ"
+      },
+      "widgets_values": [
+        "auto",
+        false
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
     }
   ],
   "links": [
@@ -7120,14 +7170,6 @@
       "MODEL"
     ],
     [
-      7132,
-      334,
-      0,
-      265,
-      0,
-      "MODEL"
-    ],
-    [
       7133,
       331,
       0,
@@ -7398,6 +7440,22 @@
       320,
       0,
       "*"
+    ],
+    [
+      7718,
+      334,
+      0,
+      356,
+      0,
+      "MODEL"
+    ],
+    [
+      7719,
+      356,
+      0,
+      265,
+      0,
+      "MODEL"
     ]
   ],
   "groups": [
@@ -7630,10 +7688,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 3.504938994814012,
+      "scale": 1.116781577942504,
       "offset": [
-        528.6699700374193,
-        -1060.4104502312532
+        -2356.8918413033844,
+        573.740977404317
       ]
     },
     "ue_links": [
@@ -7662,7 +7720,7 @@
         "type": "VAE"
       }
     ],
-    "frontendVersion": "1.34.9",
+    "frontendVersion": "1.35.9",
     "VHS_latentpreview": true,
     "VHS_latentpreviewrate": 8,
     "VHS_MetadataImage": true,
