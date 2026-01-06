@@ -1,8 +1,8 @@
 {
   "id": "8e907f65-5b37-494d-a053-b1c690adb8e0",
   "revision": 0,
-  "last_node_id": 501,
-  "last_link_id": 1540,
+  "last_node_id": 502,
+  "last_link_id": 1546,
   "nodes": [
     {
       "id": 58,
@@ -4725,7 +4725,6 @@
           "link": null
         },
         {
-          "dir": 3,
           "name": "any_05",
           "type": "CLIP",
           "link": null
@@ -5738,7 +5737,7 @@
           "name": "STRING",
           "type": "STRING",
           "links": [
-            1494
+            1543
           ]
         }
       ],
@@ -5909,7 +5908,7 @@
           "name": "*",
           "type": "*",
           "links": [
-            1498
+            1544
           ]
         }
       ],
@@ -5944,10 +5943,10 @@
       "inputs": [],
       "outputs": [
         {
-          "name": "llamamodel",
+          "name": "llama_model",
           "type": "LLAMACPPMODEL",
           "links": [
-            1488
+            1546
           ]
         }
       ],
@@ -5963,10 +5962,10 @@
         "Qwen3-VL-4B-Instruct-abliterated\\Qwen3-VL-4B-Instruct-abliterated-v1.Q8_0.gguf",
         "Qwen3-VL-4B-Instruct-abliterated\\Qwen3-VL-4B-Instruct-abliterated-v1.mmproj-Q8_0.gguf",
         "Qwen3-VL",
-        false,
         8192,
         -1,
-        false
+        0,
+        0
       ]
     },
     {
@@ -5992,7 +5991,7 @@
           "name": "parameters",
           "type": "LLAMACPPARAMS",
           "links": [
-            1489
+            1541
           ]
         }
       ],
@@ -6017,7 +6016,6 @@
         0,
         0.1,
         5,
-        0,
         0
       ]
     },
@@ -6042,7 +6040,7 @@
         {
           "name": "STRING",
           "type": "STRING",
-          "link": 1495
+          "link": 1545
         }
       ],
       "outputs": [
@@ -6063,84 +6061,6 @@
       },
       "widgets_values": [
         "extent_prompt"
-      ]
-    },
-    {
-      "id": 471,
-      "type": "llama_cpp_instruct_adv",
-      "pos": [
-        1820,
-        -1420
-      ],
-      "size": [
-        400,
-        610
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 123,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "llamamodel",
-          "type": "LLAMACPPMODEL",
-          "link": 1488
-        },
-        {
-          "name": "parameters",
-          "type": "LLAMACPPARAMS",
-          "link": 1489
-        },
-        {
-          "name": "images",
-          "shape": 7,
-          "type": "IMAGE",
-          "link": 1540
-        },
-        {
-          "name": "custom_prompt",
-          "type": "STRING",
-          "widget": {
-            "name": "custom_prompt"
-          },
-          "link": 1494
-        },
-        {
-          "name": "seed",
-          "type": "INT",
-          "widget": {
-            "name": "seed"
-          },
-          "link": 1498
-        }
-      ],
-      "outputs": [
-        {
-          "name": "output",
-          "type": "STRING",
-          "links": [
-            1495
-          ]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "llama_cpp_instruct_adv",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.3"
-        }
-      },
-      "widgets_values": [
-        "Normal - Describe",
-        "",
-        "'''你是一个视频描述提示词的撰写专家，你的任务是根据用户给你输入的图像，和原始提示词，发挥合理的想象，让这张图动起来，你要强调潜在的动态内容。具体要求如下\n你需要根据图片的内容想象出运动的主体\n输入的两张图像是视频首尾帧图像，第一张图像是视频首帧，第二张图像是视频尾帧，我需要你帮我设计一个提示词来描述从首帧到尾帧的过渡，详细包含主体动作，元素的变化，镜头的移动等等，最后只需要给我你设计的这个提示词。\n你输出的结果应强调图片中的动态部分，保留主体的动作。\n你需要给出对视频描述的动态内容，不要有过多的对于静态场景的描述。\n禁止出现\"随后画面突然切换\"的内容，画面元素需要缓慢有序的过渡。\n如果用户没有输入任何提示词，则只根据图像内容开始生成过渡画面。\n你需要输出中文\nprompt 示例：\n1. 镜头前推，角色的头上突然出现一顶动漫风格的厨师帽，随后身上的衣服逐渐被替换成动漫风格的围裙，场景元素逐渐弹出，变成了动漫风格的厨房，最后角色也变成了动漫风格的角色，在厨房里面烹饪。\n现在用户给与你一份原始提示词：",
-        "images",
-        24,
-        256,
-        0,
-        "randomize"
       ]
     },
     {
@@ -8346,7 +8266,7 @@
           "name": "IMAGE",
           "type": "IMAGE",
           "links": [
-            1540
+            1542
           ]
         }
       ],
@@ -8361,6 +8281,103 @@
         }
       },
       "widgets_values": []
+    },
+    {
+      "id": 502,
+      "type": "llama_cpp_instruct_adv",
+      "pos": [
+        1820,
+        -1420
+      ],
+      "size": [
+        400,
+        610
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 123,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "llama_model",
+          "type": "LLAMACPPMODEL",
+          "link": 1546
+        },
+        {
+          "name": "parameters",
+          "shape": 7,
+          "type": "LLAMACPPARAMS",
+          "link": 1541
+        },
+        {
+          "name": "images",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 1542
+        },
+        {
+          "name": "queue_handler",
+          "shape": 7,
+          "type": "*",
+          "link": null
+        },
+        {
+          "name": "custom_prompt",
+          "type": "STRING",
+          "widget": {
+            "name": "custom_prompt"
+          },
+          "link": 1543
+        },
+        {
+          "name": "seed",
+          "type": "INT",
+          "widget": {
+            "name": "seed"
+          },
+          "link": 1544
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "STRING",
+          "links": [
+            1545
+          ]
+        },
+        {
+          "name": "output_list",
+          "shape": 6,
+          "type": "STRING",
+          "links": null
+        },
+        {
+          "name": "state_uid",
+          "type": "INT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "Node name for S&R": "llama_cpp_instruct_adv"
+      },
+      "widgets_values": [
+        "Normal - Describe",
+        "",
+        "'''你是一个视频描述提示词的撰写专家，你的任务是根据用户给你输入的图像，和原始提示词，发挥合理的想象，让这张图动起来，你要强调潜在的动态内容。具体要求如下\n你需要根据图片的内容想象出运动的主体\n输入的两张图像是视频首尾帧图像，第一张图像是视频首帧，第二张图像是视频尾帧，我需要你帮我设计一个提示词来描述从首帧到尾帧的过渡，详细包含主体动作，元素的变化，镜头的移动等等，最后只需要给我你设计的这个提示词。\n你输出的结果应强调图片中的动态部分，保留主体的动作。\n你需要给出对视频描述的动态内容，不要有过多的对于静态场景的描述。\n禁止出现\"随后画面突然切换\"的内容，画面元素需要缓慢有序的过渡。\n如果用户没有输入任何提示词，则只根据图像内容开始生成过渡画面。\n你需要输出中文\nprompt 示例：\n1. 镜头前推，角色的头上突然出现一顶动漫风格的厨师帽，随后身上的衣服逐渐被替换成动漫风格的围裙，场景元素逐渐弹出，变成了动漫风格的厨房，最后角色也变成了动漫风格的角色，在厨房里面烹饪。\n现在用户给与你一份原始提示词：",
+        "images",
+        24,
+        256,
+        0,
+        "randomize",
+        false,
+        false
+      ]
     }
   ],
   "links": [
@@ -9237,38 +9254,6 @@
       "LATENT"
     ],
     [
-      1488,
-      468,
-      0,
-      471,
-      0,
-      "LLAMACPPMODEL"
-    ],
-    [
-      1489,
-      469,
-      0,
-      471,
-      1,
-      "LLAMACPPARAMS"
-    ],
-    [
-      1494,
-      385,
-      0,
-      471,
-      3,
-      "STRING"
-    ],
-    [
-      1495,
-      471,
-      0,
-      465,
-      0,
-      "STRING"
-    ],
-    [
       1496,
       424,
       0,
@@ -9283,14 +9268,6 @@
       470,
       1,
       "IMAGE"
-    ],
-    [
-      1498,
-      472,
-      0,
-      471,
-      4,
-      "INT"
     ],
     [
       1499,
@@ -9533,12 +9510,52 @@
       "IMAGE"
     ],
     [
-      1540,
+      1541,
+      469,
+      0,
+      502,
+      1,
+      "LLAMACPPARAMS"
+    ],
+    [
+      1542,
       501,
       0,
-      471,
+      502,
       2,
       "IMAGE"
+    ],
+    [
+      1543,
+      385,
+      0,
+      502,
+      4,
+      "STRING"
+    ],
+    [
+      1544,
+      472,
+      0,
+      502,
+      5,
+      "INT"
+    ],
+    [
+      1545,
+      502,
+      0,
+      465,
+      0,
+      "STRING"
+    ],
+    [
+      1546,
+      468,
+      0,
+      502,
+      0,
+      "LLAMACPPMODEL"
     ]
   ],
   "groups": [
@@ -9758,11 +9775,11 @@
     "ds": {
       "scale": 0.9743585500000013,
       "offset": [
-        -1080.3717544242181,
-        1977.2295327517484
+        -1270.5824053426477,
+        1740.4925823212018
       ]
     },
-    "frontendVersion": "1.34.9",
+    "frontendVersion": "1.35.9",
     "node_versions": {
       "ComfyUI-WanVideoWrapper": "5a2383621a05825d0d0437781afcb8552d9590fd",
       "comfy-core": "0.3.26",

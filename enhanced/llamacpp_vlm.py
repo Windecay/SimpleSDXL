@@ -213,6 +213,8 @@ class LlamaCppVLM:
 
         def image_to_base64(img_np):
             img = Image.fromarray(img_np)
+            if img.mode != 'RGB':
+                img = img.convert('RGB')
             buffered = io.BytesIO()
             img.save(buffered, format="JPEG", quality=85)
             return base64.b64encode(buffered.getvalue()).decode('utf-8')
@@ -228,6 +230,8 @@ class LlamaCppVLM:
             if isinstance(image, np.ndarray):
                 base64_image = image_to_base64(image)
             elif isinstance(image, Image.Image):
+                if image.mode != 'RGB':
+                    image = image.convert('RGB')
                 buffered = io.BytesIO()
                 image.save(buffered, format="JPEG", quality=85)
                 base64_image = base64.b64encode(buffered.getvalue()).decode('utf-8')

@@ -1,8 +1,8 @@
 {
   "id": "81b35da8-6ab1-4239-b2f4-04e129009a64",
   "revision": 0,
-  "last_node_id": 552,
-  "last_link_id": 2111,
+  "last_node_id": 553,
+  "last_link_id": 2117,
   "nodes": [
     {
       "id": 203,
@@ -257,7 +257,7 @@
         -1430
       ],
       "size": [
-        210.2994140625,
+        218.659765625,
         88
       ],
       "flags": {
@@ -315,7 +315,7 @@
         -1220
       ],
       "size": [
-        210.2994140625,
+        218.659765625,
         88
       ],
       "flags": {
@@ -588,7 +588,7 @@
         -570
       ],
       "size": [
-        270,
+        277.3462890625,
         78
       ],
       "flags": {
@@ -1336,7 +1336,7 @@
         -1030
       ],
       "size": [
-        210,
+        213.464453125,
         150
       ],
       "flags": {
@@ -1391,7 +1391,7 @@
         -840
       ],
       "size": [
-        210,
+        210.0396484375,
         246
       ],
       "flags": {
@@ -1450,7 +1450,7 @@
         -550
       ],
       "size": [
-        210,
+        213.464453125,
         150
       ],
       "flags": {
@@ -1907,7 +1907,8 @@
             "lora_name": "None",
             "weight": 1,
             "enabled": true,
-            "parent_id": null
+            "parent_id": null,
+            "clip_weight": 1
           },
           {
             "id": "lora1761035802886",
@@ -1917,7 +1918,8 @@
             "lora_name": "None",
             "weight": 1,
             "enabled": true,
-            "parent_id": null
+            "parent_id": null,
+            "clip_weight": 1
           },
           {
             "id": "lora1761035805251",
@@ -1927,7 +1929,8 @@
             "lora_name": "None",
             "weight": 1,
             "enabled": true,
-            "parent_id": null
+            "parent_id": null,
+            "clip_weight": 1
           },
           {
             "id": "lora1761035808871",
@@ -1937,7 +1940,8 @@
             "lora_name": "None",
             "weight": 1,
             "enabled": true,
-            "parent_id": null
+            "parent_id": null,
+            "clip_weight": 1
           },
           {
             "id": "lora1761035863526",
@@ -1947,7 +1951,8 @@
             "lora_name": "None",
             "weight": 1,
             "enabled": true,
-            "parent_id": null
+            "parent_id": null,
+            "clip_weight": 1
           }
         ]
       },
@@ -1957,7 +1962,8 @@
       "customTextWidth": 80,
       "folderColor": "#30353c",
       "loraEntryColor": "#3a3a3a",
-      "enabledStateColor": "#4CAF50"
+      "enabledStateColor": "#4CAF50",
+      "separateWeights": false
     },
     {
       "id": 359,
@@ -2049,7 +2055,8 @@
             "lora_name": "None",
             "weight": 1,
             "enabled": true,
-            "parent_id": null
+            "parent_id": null,
+            "clip_weight": 1
           },
           {
             "id": "lora1761035802886",
@@ -2059,7 +2066,8 @@
             "lora_name": "None",
             "weight": 1,
             "enabled": true,
-            "parent_id": null
+            "parent_id": null,
+            "clip_weight": 1
           },
           {
             "id": "lora1761035805251",
@@ -2069,7 +2077,8 @@
             "lora_name": "None",
             "weight": 1,
             "enabled": true,
-            "parent_id": null
+            "parent_id": null,
+            "clip_weight": 1
           },
           {
             "id": "lora1761035808871",
@@ -2079,7 +2088,8 @@
             "lora_name": "None",
             "weight": 1,
             "enabled": true,
-            "parent_id": null
+            "parent_id": null,
+            "clip_weight": 1
           },
           {
             "id": "lora1761035863526",
@@ -2089,7 +2099,8 @@
             "lora_name": "None",
             "weight": 1,
             "enabled": true,
-            "parent_id": null
+            "parent_id": null,
+            "clip_weight": 1
           }
         ]
       },
@@ -2099,7 +2110,8 @@
       "customTextWidth": 80,
       "folderColor": "#30353c",
       "loraEntryColor": "#3a3a3a",
-      "enabledStateColor": "#4CAF50"
+      "enabledStateColor": "#4CAF50",
+      "separateWeights": false
     },
     {
       "id": 360,
@@ -3439,7 +3451,7 @@
         -1320
       ],
       "size": [
-        210,
+        210.0396484375,
         250
       ],
       "flags": {
@@ -3498,7 +3510,7 @@
         -360
       ],
       "size": [
-        210,
+        210.0396484375,
         250
       ],
       "flags": {
@@ -4103,7 +4115,7 @@
         {
           "name": "STRING",
           "type": "STRING",
-          "link": 2063
+          "link": 2116
         }
       ],
       "outputs": [
@@ -6420,7 +6432,7 @@
           "name": "parameters",
           "type": "LLAMACPPARAMS",
           "links": [
-            2058
+            2112
           ]
         }
       ],
@@ -6445,7 +6457,6 @@
         0,
         0.1,
         5,
-        0,
         0
       ]
     },
@@ -6472,7 +6483,7 @@
           "name": "*",
           "type": "*",
           "links": [
-            2059
+            2115
           ]
         }
       ],
@@ -6486,92 +6497,6 @@
       },
       "widgets_values": [
         "seed"
-      ]
-    },
-    {
-      "id": 517,
-      "type": "llama_cpp_instruct_adv",
-      "pos": [
-        1820,
-        -1440
-      ],
-      "size": [
-        440,
-        410
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 112,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "llamamodel",
-          "type": "LLAMACPPMODEL",
-          "link": 2057
-        },
-        {
-          "name": "parameters",
-          "type": "LLAMACPPARAMS",
-          "link": 2058
-        },
-        {
-          "name": "images",
-          "shape": 7,
-          "type": "IMAGE",
-          "link": null
-        },
-        {
-          "name": "custom_prompt",
-          "type": "STRING",
-          "widget": {
-            "name": "custom_prompt"
-          },
-          "link": 2061
-        },
-        {
-          "name": "system_prompt",
-          "type": "STRING",
-          "widget": {
-            "name": "system_prompt"
-          },
-          "link": 2060
-        },
-        {
-          "name": "seed",
-          "type": "INT",
-          "widget": {
-            "name": "seed"
-          },
-          "link": 2059
-        }
-      ],
-      "outputs": [
-        {
-          "name": "output",
-          "type": "STRING",
-          "links": [
-            2063
-          ]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "llama_cpp_instruct_adv",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.3"
-        }
-      },
-      "widgets_values": [
-        "Normal - Describe",
-        "",
-        "",
-        "images",
-        24,
-        256,
-        0,
-        "randomize"
       ]
     },
     {
@@ -6593,10 +6518,10 @@
       "inputs": [],
       "outputs": [
         {
-          "name": "llamamodel",
+          "name": "llama_model",
           "type": "LLAMACPPMODEL",
           "links": [
-            2057
+            2117
           ]
         }
       ],
@@ -6612,10 +6537,10 @@
         "Qwen3-VL-4B-Instruct-abliterated\\Qwen3-VL-4B-Instruct-abliterated-v1.Q8_0.gguf",
         "Qwen3-VL-4B-Instruct-abliterated\\Qwen3-VL-4B-Instruct-abliterated-v1.mmproj-Q8_0.gguf",
         "Qwen3-VL",
-        false,
         8192,
         -1,
-        false
+        0,
+        0
       ]
     },
     {
@@ -6641,7 +6566,7 @@
           "name": "STRING",
           "type": "STRING",
           "links": [
-            2061
+            2113
           ]
         }
       ],
@@ -6681,7 +6606,7 @@
           "name": "positive",
           "type": "STRING",
           "links": [
-            2060
+            2114
           ]
         }
       ],
@@ -7165,7 +7090,7 @@
         -960
       ],
       "size": [
-        241.915625,
+        250.8365234375,
         82
       ],
       "flags": {
@@ -7365,7 +7290,7 @@
         -1300
       ],
       "size": [
-        262.45078125,
+        272.2740234375,
         146
       ],
       "flags": {
@@ -7553,7 +7478,7 @@
         -1050
       ],
       "size": [
-        157.3892578125,
+        161.3404296875,
         26
       ],
       "flags": {
@@ -7653,7 +7578,7 @@
         -1070
       ],
       "size": [
-        210,
+        213.0337890625,
         60
       ],
       "flags": {
@@ -7860,7 +7785,7 @@
         -790
       ],
       "size": [
-        157.3892578125,
+        161.3404296875,
         60
       ],
       "flags": {
@@ -7984,7 +7909,7 @@
         -600
       ],
       "size": [
-        241.915625,
+        250.8365234375,
         82
       ],
       "flags": {
@@ -8301,7 +8226,7 @@
         -160
       ],
       "size": [
-        214.9341796875,
+        220.2662109375,
         406
       ],
       "flags": {
@@ -9249,8 +9174,8 @@
         -1660
       ],
       "size": [
-        113.34228515625,
-        15
+        146.4380859375,
+        26
       ],
       "flags": {
         "pinned": true,
@@ -9648,7 +9573,7 @@
         110
       ],
       "size": [
-        210.060546875,
+        214.595703125,
         218
       ],
       "flags": {
@@ -10389,7 +10314,7 @@
         -70
       ],
       "size": [
-        210,
+        213.464453125,
         150
       ],
       "flags": {
@@ -10431,6 +10356,111 @@
         "https://www.modelscope.cn/models/windecay/rife/resolve/master/flownet.pkl",
         "controlnet\\rife",
         true,
+        false
+      ]
+    },
+    {
+      "id": 553,
+      "type": "llama_cpp_instruct_adv",
+      "pos": [
+        1820,
+        -1440
+      ],
+      "size": [
+        440,
+        414
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 112,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "llama_model",
+          "type": "LLAMACPPMODEL",
+          "link": 2117
+        },
+        {
+          "name": "parameters",
+          "shape": 7,
+          "type": "LLAMACPPARAMS",
+          "link": 2112
+        },
+        {
+          "name": "images",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "queue_handler",
+          "shape": 7,
+          "type": "*",
+          "link": null
+        },
+        {
+          "name": "custom_prompt",
+          "type": "STRING",
+          "widget": {
+            "name": "custom_prompt"
+          },
+          "link": 2113
+        },
+        {
+          "name": "system_prompt",
+          "type": "STRING",
+          "widget": {
+            "name": "system_prompt"
+          },
+          "link": 2114
+        },
+        {
+          "name": "seed",
+          "type": "INT",
+          "widget": {
+            "name": "seed"
+          },
+          "link": 2115
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "STRING",
+          "links": [
+            2116
+          ]
+        },
+        {
+          "name": "output_list",
+          "shape": 6,
+          "type": "STRING",
+          "links": null
+        },
+        {
+          "name": "state_uid",
+          "type": "INT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "Node name for S&R": "llama_cpp_instruct_adv"
+      },
+      "widgets_values": [
+        "Normal - Describe",
+        "",
+        "",
+        "images",
+        24,
+        256,
+        0,
+        "randomize",
+        false,
         false
       ]
     }
@@ -11541,54 +11571,6 @@
       "LATENT"
     ],
     [
-      2057,
-      518,
-      0,
-      517,
-      0,
-      "LLAMACPPMODEL"
-    ],
-    [
-      2058,
-      516,
-      0,
-      517,
-      1,
-      "LLAMACPPARAMS"
-    ],
-    [
-      2059,
-      519,
-      0,
-      517,
-      5,
-      "INT"
-    ],
-    [
-      2060,
-      520,
-      0,
-      517,
-      4,
-      "STRING"
-    ],
-    [
-      2061,
-      385,
-      0,
-      517,
-      3,
-      "STRING"
-    ],
-    [
-      2063,
-      517,
-      0,
-      462,
-      0,
-      "STRING"
-    ],
-    [
       2065,
       523,
       0,
@@ -11891,6 +11873,54 @@
       436,
       0,
       "*"
+    ],
+    [
+      2112,
+      516,
+      0,
+      553,
+      1,
+      "LLAMACPPARAMS"
+    ],
+    [
+      2113,
+      385,
+      0,
+      553,
+      4,
+      "STRING"
+    ],
+    [
+      2114,
+      520,
+      0,
+      553,
+      5,
+      "STRING"
+    ],
+    [
+      2115,
+      519,
+      0,
+      553,
+      6,
+      "INT"
+    ],
+    [
+      2116,
+      553,
+      0,
+      462,
+      0,
+      "STRING"
+    ],
+    [
+      2117,
+      518,
+      0,
+      553,
+      0,
+      "LLAMACPPMODEL"
     ]
   ],
   "groups": [
@@ -12108,13 +12138,13 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 1.4265583530550079,
+      "scale": 1.2968712300500072,
       "offset": [
-        -931.6514848370006,
-        237.845288366002
+        -1512.1693512476481,
+        1555.763607745577
       ]
     },
-    "frontendVersion": "1.33.10",
+    "frontendVersion": "1.35.9",
     "node_versions": {
       "ComfyUI-WanVideoWrapper": "5a2383621a05825d0d0437781afcb8552d9590fd",
       "comfy-core": "0.3.26",

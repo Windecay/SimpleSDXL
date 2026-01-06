@@ -1,8 +1,8 @@
 {
   "id": "00000000-0000-0000-0000-000000000000",
   "revision": 0,
-  "last_node_id": 276,
-  "last_link_id": 567,
+  "last_node_id": 277,
+  "last_link_id": 574,
   "nodes": [
     {
       "id": 3,
@@ -1789,7 +1789,7 @@
         250
       ],
       "size": [
-        157.3892578125,
+        161.3404296875,
         26
       ],
       "flags": {
@@ -2514,7 +2514,8 @@
             "lora_name": "None",
             "weight": 1,
             "enabled": true,
-            "parent_id": null
+            "parent_id": null,
+            "clip_weight": 1
           },
           {
             "id": "lora1761035802886",
@@ -2524,7 +2525,8 @@
             "lora_name": "None",
             "weight": 1,
             "enabled": true,
-            "parent_id": null
+            "parent_id": null,
+            "clip_weight": 1
           },
           {
             "id": "lora1761035805251",
@@ -2534,7 +2536,8 @@
             "lora_name": "None",
             "weight": 1,
             "enabled": true,
-            "parent_id": null
+            "parent_id": null,
+            "clip_weight": 1
           },
           {
             "id": "lora1761035808871",
@@ -2544,7 +2547,8 @@
             "lora_name": "None",
             "weight": 1,
             "enabled": true,
-            "parent_id": null
+            "parent_id": null,
+            "clip_weight": 1
           },
           {
             "id": "lora1761035863526",
@@ -2554,7 +2558,8 @@
             "lora_name": "None",
             "weight": 1,
             "enabled": true,
-            "parent_id": null
+            "parent_id": null,
+            "clip_weight": 1
           }
         ]
       },
@@ -2564,7 +2569,8 @@
       "customTextWidth": 80,
       "folderColor": "#30353c",
       "loraEntryColor": "#3a3a3a",
-      "enabledStateColor": "#4CAF50"
+      "enabledStateColor": "#4CAF50",
+      "separateWeights": false
     },
     {
       "id": 131,
@@ -2656,7 +2662,8 @@
             "lora_name": "Wan22_A14B_T2V_LOW_Lightning_4steps_lora_250928_rank64_fp16.safetensors",
             "weight": 0.8,
             "enabled": true,
-            "parent_id": null
+            "parent_id": null,
+            "clip_weight": 0.8
           },
           {
             "id": "lora1761035802886",
@@ -2666,7 +2673,8 @@
             "lora_name": "Wan2.1_T2V_14B_FusionX_LoRA.safetensors",
             "weight": 0.2,
             "enabled": true,
-            "parent_id": null
+            "parent_id": null,
+            "clip_weight": 0.2
           },
           {
             "id": "lora1761035805251",
@@ -2676,7 +2684,8 @@
             "lora_name": "WAN2.2-LowNoise_SmartphoneSnapshotPhotoReality_v3_by-AI_Characters.safetensors",
             "weight": 0.5,
             "enabled": true,
-            "parent_id": null
+            "parent_id": null,
+            "clip_weight": 0.5
           },
           {
             "id": "lora1761035808871",
@@ -2686,7 +2695,8 @@
             "lora_name": "Wan2.2-Fun-A14B-InP-LOW-HPS2.1_resized_dynamic_avg_rank_15_bf16.safetensors",
             "weight": 0.5,
             "enabled": true,
-            "parent_id": null
+            "parent_id": null,
+            "clip_weight": 0.5
           }
         ]
       },
@@ -2696,7 +2706,8 @@
       "customTextWidth": 80,
       "folderColor": "#30353c",
       "loraEntryColor": "#3a3a3a",
-      "enabledStateColor": "#4CAF50"
+      "enabledStateColor": "#4CAF50",
+      "separateWeights": false
     },
     {
       "id": 133,
@@ -3411,7 +3422,7 @@
         10
       ],
       "size": [
-        210,
+        210.0396484375,
         250
       ],
       "flags": {
@@ -3593,7 +3604,7 @@
         -370
       ],
       "size": [
-        210,
+        213.464453125,
         150
       ],
       "flags": {
@@ -3648,7 +3659,7 @@
         -180
       ],
       "size": [
-        210,
+        213.464453125,
         150
       ],
       "flags": {
@@ -3703,7 +3714,7 @@
         300
       ],
       "size": [
-        210,
+        213.464453125,
         150
       ],
       "flags": {
@@ -3758,7 +3769,7 @@
         490
       ],
       "size": [
-        210,
+        213.464453125,
         150
       ],
       "flags": {
@@ -3813,7 +3824,7 @@
         680
       ],
       "size": [
-        210,
+        213.464453125,
         150
       ],
       "flags": {
@@ -3909,7 +3920,7 @@
         870
       ],
       "size": [
-        210,
+        213.464453125,
         150
       ],
       "flags": {
@@ -4897,7 +4908,7 @@
         790
       ],
       "size": [
-        210,
+        212.9859375,
         58
       ],
       "flags": {
@@ -4941,7 +4952,7 @@
         -650
       ],
       "size": [
-        210,
+        214.448828125,
         58
       ],
       "flags": {
@@ -6105,7 +6116,7 @@
           "name": "IMAGE",
           "type": "IMAGE",
           "links": [
-            562
+            569
           ]
         }
       ],
@@ -6215,7 +6226,7 @@
         520
       ],
       "size": [
-        186.9478515625,
+        195.23984375,
         122
       ],
       "flags": {
@@ -6320,7 +6331,7 @@
           "shape": 3,
           "type": "STRING",
           "links": [
-            559
+            570
           ]
         }
       ],
@@ -6356,7 +6367,7 @@
           "name": "*",
           "type": "*",
           "links": [
-            563
+            571
           ]
         }
       ],
@@ -6773,7 +6784,7 @@
         180
       ],
       "size": [
-        160,
+        161.3404296875,
         30
       ],
       "flags": {
@@ -7320,7 +7331,7 @@
         {
           "name": "STRING",
           "type": "STRING",
-          "link": 561
+          "link": 573
         }
       ],
       "outputs": [
@@ -7363,7 +7374,7 @@
         {
           "name": "text",
           "type": "STRING",
-          "link": 560
+          "link": 572
         }
       ],
       "outputs": [
@@ -7383,85 +7394,6 @@
         }
       },
       "widgets_values": []
-    },
-    {
-      "id": 273,
-      "type": "llama_cpp_instruct_adv",
-      "pos": [
-        2580,
-        630
-      ],
-      "size": [
-        370,
-        326
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 115,
-      "mode": 4,
-      "inputs": [
-        {
-          "name": "llamamodel",
-          "type": "LLAMACPPMODEL",
-          "link": 557
-        },
-        {
-          "name": "parameters",
-          "type": "LLAMACPPARAMS",
-          "link": 558
-        },
-        {
-          "name": "images",
-          "shape": 7,
-          "type": "IMAGE",
-          "link": 562
-        },
-        {
-          "name": "custom_prompt",
-          "type": "STRING",
-          "widget": {
-            "name": "custom_prompt"
-          },
-          "link": 559
-        },
-        {
-          "name": "seed",
-          "type": "INT",
-          "widget": {
-            "name": "seed"
-          },
-          "link": 563
-        }
-      ],
-      "outputs": [
-        {
-          "name": "output",
-          "type": "STRING",
-          "links": [
-            560,
-            561
-          ]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "llama_cpp_instruct_adv",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.3"
-        }
-      },
-      "widgets_values": [
-        "Prompt Style - Detailed",
-        "",
-        "",
-        "images",
-        24,
-        256,
-        0,
-        "randomize"
-      ]
     },
     {
       "id": 272,
@@ -7486,7 +7418,7 @@
           "name": "parameters",
           "type": "LLAMACPPARAMS",
           "links": [
-            558
+            568
           ]
         }
       ],
@@ -7511,7 +7443,6 @@
         0,
         0.1,
         5,
-        0,
         0
       ]
     },
@@ -7534,10 +7465,10 @@
       "inputs": [],
       "outputs": [
         {
-          "name": "llamamodel",
+          "name": "llama_model",
           "type": "LLAMACPPMODEL",
           "links": [
-            557
+            574
           ]
         }
       ],
@@ -7553,9 +7484,9 @@
         "Qwen3-VL-4B-Instruct-abliterated\\Qwen3-VL-4B-Instruct-abliterated-v1.Q8_0.gguf",
         "Qwen3-VL-4B-Instruct-abliterated\\Qwen3-VL-4B-Instruct-abliterated-v1.mmproj-Q8_0.gguf",
         "Qwen3-VL",
-        false,
         8192,
         -1,
+        0,
         false
       ]
     },
@@ -7612,7 +7543,7 @@
         1060
       ],
       "size": [
-        210,
+        210.0396484375,
         250
       ],
       "flags": {
@@ -7820,6 +7751,104 @@
       "widgets_values": [
         "",
         "Toggle all"
+      ]
+    },
+    {
+      "id": 277,
+      "type": "llama_cpp_instruct_adv",
+      "pos": [
+        2580,
+        630
+      ],
+      "size": [
+        370,
+        414
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 115,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "llama_model",
+          "type": "LLAMACPPMODEL",
+          "link": 574
+        },
+        {
+          "name": "parameters",
+          "shape": 7,
+          "type": "LLAMACPPARAMS",
+          "link": 568
+        },
+        {
+          "name": "images",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 569
+        },
+        {
+          "name": "queue_handler",
+          "shape": 7,
+          "type": "*",
+          "link": null
+        },
+        {
+          "name": "custom_prompt",
+          "type": "STRING",
+          "widget": {
+            "name": "custom_prompt"
+          },
+          "link": 570
+        },
+        {
+          "name": "seed",
+          "type": "INT",
+          "widget": {
+            "name": "seed"
+          },
+          "link": 571
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "STRING",
+          "links": [
+            572,
+            573
+          ]
+        },
+        {
+          "name": "output_list",
+          "shape": 6,
+          "type": "STRING",
+          "links": null
+        },
+        {
+          "name": "state_uid",
+          "type": "INT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "Node name for S&R": "llama_cpp_instruct_adv"
+      },
+      "widgets_values": [
+        "Prompt Style - Detailed",
+        "",
+        "",
+        "images",
+        24,
+        256,
+        0,
+        "randomize",
+        false,
+        false
       ]
     }
   ],
@@ -8873,62 +8902,6 @@
       "INT"
     ],
     [
-      557,
-      274,
-      0,
-      273,
-      0,
-      "LLAMACPPMODEL"
-    ],
-    [
-      558,
-      272,
-      0,
-      273,
-      1,
-      "LLAMACPPARAMS"
-    ],
-    [
-      559,
-      242,
-      0,
-      273,
-      3,
-      "STRING"
-    ],
-    [
-      560,
-      273,
-      0,
-      234,
-      0,
-      "STRING"
-    ],
-    [
-      561,
-      273,
-      0,
-      263,
-      0,
-      "STRING"
-    ],
-    [
-      562,
-      235,
-      0,
-      273,
-      2,
-      "IMAGE"
-    ],
-    [
-      563,
-      243,
-      0,
-      273,
-      4,
-      "INT"
-    ],
-    [
       566,
       275,
       1,
@@ -8943,6 +8916,62 @@
       275,
       0,
       "*"
+    ],
+    [
+      568,
+      272,
+      0,
+      277,
+      1,
+      "LLAMACPPARAMS"
+    ],
+    [
+      569,
+      235,
+      0,
+      277,
+      2,
+      "IMAGE"
+    ],
+    [
+      570,
+      242,
+      0,
+      277,
+      4,
+      "STRING"
+    ],
+    [
+      571,
+      243,
+      0,
+      277,
+      5,
+      "INT"
+    ],
+    [
+      572,
+      277,
+      0,
+      234,
+      0,
+      "STRING"
+    ],
+    [
+      573,
+      277,
+      0,
+      263,
+      0,
+      "STRING"
+    ],
+    [
+      574,
+      274,
+      0,
+      277,
+      0,
+      "LLAMACPPMODEL"
     ]
   ],
   "groups": [
@@ -9130,13 +9159,13 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.19487171000001013,
+      "scale": 0.5559917313492528,
       "offset": [
-        2417.500190399444,
-        1380.3169106056107
+        -973.0609702993933,
+        176.35237666107741
       ]
     },
-    "frontendVersion": "1.33.10",
+    "frontendVersion": "1.35.9",
     "VHS_latentpreview": true,
     "VHS_latentpreviewrate": 8,
     "VHS_MetadataImage": true,
