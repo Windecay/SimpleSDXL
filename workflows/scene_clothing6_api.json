@@ -1596,7 +1596,7 @@
         "208",
         0
       ],
-      "start_percent": 0.15,
+      "start_percent": 0.30,
       "end_percent": 0.8,
       "verbose": false,
       "model": [
@@ -1615,7 +1615,7 @@
         "208",
         0
       ],
-      "start_percent": 0.15,
+      "start_percent": 0.30,
       "end_percent": 0.8,
       "verbose": false,
       "model": [
@@ -1634,7 +1634,7 @@
         "208",
         0
       ],
-      "start_percent": 0.15,
+      "start_percent": 0.30,
       "end_percent": 0.8,
       "verbose": false,
       "model": [

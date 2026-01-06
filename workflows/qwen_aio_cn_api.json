@@ -5485,7 +5485,7 @@
   },
   "800": {
     "inputs": {
-      "strength": 0.95,
+      "strength": 0.98,
       "model": [
         "798",
         0

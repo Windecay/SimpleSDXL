@@ -1353,7 +1353,7 @@
         "338",
         12
       ],
-      "start_percent": 0.15,
+      "start_percent": 0.30,
       "end_percent": 0.8,
       "verbose": false,
       "model": [
@@ -1372,7 +1372,7 @@
         "338",
         12
       ],
-      "start_percent": 0.15,
+      "start_percent": 0.30,
       "end_percent": 0.8,
       "verbose": false,
       "model": [
@@ -1391,7 +1391,7 @@
         "338",
         12
       ],
-      "start_percent": 0.15,
+      "start_percent": 0.30,
       "end_percent": 0.8,
       "verbose": false,
       "model": [

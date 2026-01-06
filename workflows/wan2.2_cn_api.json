@@ -248,7 +248,7 @@
     },
     "class_type": "UnetLoaderGGUF",
     "_meta": {
-      "title": "base_model2"
+      "title": "base_model_gguf2"
     }
   },
   "26": {
@@ -284,7 +284,7 @@
     },
     "class_type": "UnetLoaderGGUF",
     "_meta": {
-      "title": "base_model"
+      "title": "base_model_gguf"
     }
   },
   "32": {

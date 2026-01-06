@@ -218,26 +218,6 @@
       "title": "Blend Inpaint"
     }
   },
-  "356": {
-    "inputs": {
-      "object_to_patch": "diffusion_model",
-      "residual_diff_threshold": [
-        "357",
-        0
-      ],
-      "start": 0.3,
-      "end": 0.8,
-      "max_consecutive_cache_hits": 2,
-      "model": [
-        "309",
-        0
-      ]
-    },
-    "class_type": "ApplyFBCacheOnModel",
-    "_meta": {
-      "title": "Apply First Block Cache"
-    }
-  },
   "357": {
     "inputs": {
       "value": 0
@@ -268,7 +248,7 @@
       ],
       "return_with_leftover_noise": "disable",
       "model": [
-        "356",
+        "427",
         0
       ],
       "positive": [
@@ -581,6 +561,25 @@
     "class_type": "ConditioningZeroOut",
     "_meta": {
       "title": "ConditioningZeroOut"
+    }
+  },
+  "427": {
+    "inputs": {
+      "reuse_threshold": [
+        "357",
+        0
+      ],
+      "start_percent": 0.3,
+      "end_percent": 0.8,
+      "verbose": false,
+      "model": [
+        "309",
+        0
+      ]
+    },
+    "class_type": "EasyCache",
+    "_meta": {
+      "title": "EasyCache"
     }
   }
 }

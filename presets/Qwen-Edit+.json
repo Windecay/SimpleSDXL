@@ -31,9 +31,9 @@
                 "var_number3_min": 0.95,
                 "var_number3_max": 1.05,
                 "var_number3": {
-                    "Edit-2511-1024px": 0.95,
-                    "Edit-2511-1536px": 0.95,
-                    "Edit-2511-2048px": 0.95
+                    "Edit-2511-1024px": 0.98,
+                    "Edit-2511-1536px": 0.98,
+                    "Edit-2511-2048px": 0.98
                 },
                 "var_number4_title": "颜色匹配原图",
                 "var_number4_min": 0,

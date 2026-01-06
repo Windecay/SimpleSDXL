@@ -1,0 +1,1336 @@
+/**
+ * 通用弹窗样式
+ * 提供可复用的弹窗组件样式
+ */
+
+/* 弹窗基础样式 */
+.popup_container {
+    position: fixed;
+    z-index: 10180;
+    /* background-color: rgba(30, 30, 30, 0.95); */
+    background-color: var(--p-content-background);
+    border: 1px solid var(--p-content-border-color);
+    /* border: 1px solid rgba(255, 255, 255, 0.2); */
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    min-width: 600px;
+    max-width: 600px;
+    min-height: 200px;
+    max-height: 80vh;
+    /* 使用视窗高度的80%作为最大高度 */
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    backdrop-filter: blur(8px) !important;
+    padding: 0;
+    transform-origin: top center;
+    will-change: transform, opacity, left, top;
+    transition: transform 0.2s ease-in-out, opacity 0.2s ease-in-out;
+}
+
+/* 弹窗动画类 */
+.popup-up {
+    animation: clipFadeInDown 0.2s ease-in-out;
+}
+
+.popup-down {
+    animation: clipFadeInUp 0.2s ease-in-out;
+}
+
+.popup-closing-up {
+    animation: clipFadeOutUp 0.2s ease-in-out forwards;
+    pointer-events: none;
+}
+
+.popup-closing-down {
+    animation: clipFadeOutDown 0.2s ease-in-out forwards;
+    pointer-events: none;
+}
+
+/* 弹窗标题栏 */
+.popup_title_bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 0;
+    user-select: none;
+    gap: 10px;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.popup_title {
+    font-size: 12px;
+    font-weight: bold;
+    /* color: rgba(255, 255, 255, 0.8); */
+    color: var(--p-text-color);
+    white-space: nowrap;
+}
+
+/* 弹窗按钮基础样式 */
+.popup_btn {
+    background: none;
+    border: none;
+    /* color: rgba(255, 255, 255, 0.6); */
+    color: var(--p-button-text-secondary-color);
+    cursor: pointer;
+    padding: 2px;
+    line-height: 1;
+    transition: all 0.2s ease;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+}
+
+/* 添加 PrimeIcons 尺寸控制 */
+.popup_btn .pi {
+    font-size: 12px;
+}
+
+.popup_btn:hover {
+    /* color: rgba(255, 255, 255, 0.9); */
+    color: var(--p-button-text-secondary-color);
+    background-color: color-mix(in srgb, var(--comfy-menu-secondary-bg), transparent 50%);
+}
+
+/* 弹窗中的SVG图标继承基础样式，无需重复定义 */
+
+/* 弹窗按钮图标样式 - 兼容旧的img和新的svg */
+.popup_btn_icon {
+    width: 12px;
+    height: 12px;
+}
+
+/* 搜索框容器 */
+.popup_search_container {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-width: 100px;
+    justify-content: flex-end;
+    z-index: 2;
+    /* 确保搜索框在标题栏之上 */
+}
+
+.popup_search_input {
+    width: 200px;
+    padding: 4px 28px 4px 8px;
+    background-color: color-mix(in srgb, var(--comfy-menu-secondary-bg), transparent 60%);
+    border: none;
+    border-radius: 10px;
+    color: var(--p-inputtext-color);
+    font-size: 12px;
+    outline: none;
+    transition: all 0.2s ease;
+    position: relative;
+    z-index: 2;
+    /* 确保输入框在标题栏之上 */
+}
+
+.popup_search_input:focus {
+    border-color: rgba(255, 255, 255, 0.4);
+    background-color: color-mix(in srgb, var(--p-primary-500), transparent 95%);
+    width: 260px;
+    z-index: 2;
+    /* 确保聚焦时在标题栏之上 */
+}
+
+/* 搜索框清除按钮 */
+.popup_search_container .popup_btn {
+    position: absolute;
+    right: 2px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: none;
+    z-index: 3;
+    /* 确保清除按钮在最上层 */
+}
+
+/* 操作按钮容器 */
+.popup_actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+    /* 确保操作按钮在标题栏之上 */
+}
+
+/* 搜索结果列表 */
+.tag_search_result_list {
+    padding: 8px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    flex: 1;
+    height: 100%;
+    box-sizing: border-box;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--p-button-text-secondary-color), transparent 50%) transparent;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    gap: 4px;
+    justify-content: flex-start;
+}
+
+.search_result_tag_item {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    flex-shrink: 0;
+    white-space: nowrap;
+    font-size: 13px;
+}
+
+.search_result_tag_item:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-1px);
+}
+
+.search_result_tag_item .tag_category_path {
+    margin-left: 8px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.search_result_tag_item.used {
+    background-color: rgba(40, 120, 40, 0.4);
+    border-color: rgba(40, 120, 40, 0.6);
+}
+
+.search_result_tag_item.used:hover {
+    background-color: rgba(40, 120, 40, 0.6);
+    border-color: rgba(40, 120, 40, 0.8);
+}
+
+/* 弹窗操作按钮 */
+.popup_action_btn {
+    background: none;
+    border: none;
+    color: var(--p-text-muted-color);
+    cursor: pointer;
+    font-size: 10px;
+    padding: 5px 8px;
+    border-radius: 16px;
+    transition: all 0.2s ease;
+}
+
+.popup_action_btn:hover {
+    background-color: color-mix(in srgb, var(--comfy-menu-secondary-bg), transparent 50%);
+    color: var(--p-text-muted-color);
+}
+
+.popup_action_btn:active {
+    transform: scale(0.95);
+}
+
+/* 弹窗内容区域 */
+.popup_content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--p-button-text-secondary-color), transparent 50%) transparent;
+    min-height: 0;
+    /* 允许flex收缩 */
+}
+
+.popup_content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.popup_content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.popup_content::-webkit-scrollbar-thumb {
+    background-color: color-mix(in srgb, var(--p-button-text-secondary-color), transparent 50%);
+    border-radius: 3px;
+}
+
+/* 弹窗列表项 */
+.popup_list_item {
+    padding: 10px 10px;
+    font-size: 14px;
+    cursor: pointer;
+    /* color: rgba(255, 255, 255, 0.7); */
+    color: var(--p-text-muted-color);
+    transition: all 0.2s ease;
+    /* border-bottom: 0px solid rgba(255, 255, 255, 0.05); */
+    background-color: color-mix(in srgb, var(--comfy-menu-secondary-bg), transparent 70%);
+    position: relative;
+    user-select: none;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    min-height: 24px;
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+/* 添加原生tooltip的样式优化 */
+.popup_list_item[title] {
+    position: relative;
+}
+
+/* 确保tooltip在其他元素之上 */
+.popup_list_item[title]:hover {
+    z-index: 1000;
+}
+
+/* 交替背景色 */
+.popup_list_item:nth-child(even) {
+    background-color: var(--p-dialog-background);
+}
+
+/* 当前节点的标识（左侧色条） */
+.popup_list_item.current_node::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background-color: rgba(0, 255, 100, 0.7);
+    z-index: 1;
+    /* 确保色条在内容之上 */
+}
+
+/* 鼠标悬停效果 */
+.popup_list_item:hover {
+    /* background-color: rgba(211, 16, 16, 0.862); */
+    background-color: color-mix(in srgb, var(--p-primary-500), transparent 84%);
+}
+
+/* 历史记录标识信息 */
+.popup_list_item .history_meta {
+    display: flex;
+    gap: 4px;
+    font-size: 11px;
+    /* color: rgba(255, 255, 255, 0.5); */
+    color: var(--p-text-muted-color);
+    flex-shrink: 0;
+    min-width: 4px;
+    margin-top: 2px;
+    background-color: color-mix(in srgb, var(--comfy-menu-secondary-bg), transparent 30%);
+    border-radius: 6px;
+}
+
+.popup_list_item .history_meta .node_id,
+.popup_list_item .history_meta .input_id,
+.popup_list_item .history_meta .translated,
+.popup_list_item .history_meta .original,
+.popup_list_item .history_meta .expanded {
+    background-color: var(--comfy-menu-secondary-bg);
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-family: monospace;
+}
+
+.popup_list_item .history_meta .node_id {
+    color: rgb(100, 200, 255);
+}
+
+.popup_list_item .history_meta .input_id {
+    color: rgb(135, 133, 131);
+}
+
+/* 译文标签样式 - 紫色 */
+.popup_list_item .history_meta .translated {
+    color: rgb(180, 120, 255);
+}
+
+/* 反推提示词标签样式 - 蓝色 */
+.popup_list_item .history_meta .caption {
+    color: rgb(64, 158, 255);
+}
+
+/* 原文标签样式 - 蓝色 */
+.popup_list_item .history_meta .original {
+    color: rgb(100, 160, 255);
+}
+
+/* 扩写标签样式 - 绿色 */
+.popup_list_item .history_meta .expanded {
+    color: var(--p-green-500);
+}
+
+/* 历史内容样式 */
+.popup_list_item .history_content {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.4;
+    font-size: 14px;
+    min-width: 0;
+}
+
+/* 弹窗空状态提示 */
+.popup_empty {
+    padding: 20px;
+    text-align: center;
+    /* color: rgba(255, 255, 255, 0.4); */
+    color: var(--p-text-muted-color);
+    font-size: 14px;
+    user-select: none;
+}
+
+/* 危险操作按钮样式 */
+.popup_action_btn.danger {
+    color: rgba(255, 100, 100, 0.8);
+}
+
+.popup_action_btn.danger:hover {
+    background-color: rgba(255, 100, 100, 0.2);
+    color: rgba(255, 100, 100, 1);
+}
+
+/* 手风琴样式 */
+.tag_accordion {
+    transition: all 0.3s ease;
+    width: 100%;
+    margin-bottom: 4px;
+    border-radius: 6px;
+    overflow: hidden;
+    /* 移除整体的指针样式，只在标题和标签上保留 */
+    /* background-color: rgba(40, 40, 40, 0.5); */
+}
+
+.tag_accordion_header {
+    padding: 4px 14px;
+    background-color: color-mix(in srgb, var(--comfy-menu-secondary-bg), transparent 60%);
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s ease;
+    border-radius: 6px;
+}
+
+.tag_accordion_header:hover {
+    background-color: color-mix(in srgb, var(--p-surface-400), transparent 80%);
+
+}
+
+.tag_accordion_header.active {
+    background-color: color-mix(in srgb, var(--p-primary-400), transparent 85%);
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.tag_accordion_title {
+    flex: 1;
+    font-size: 12px;
+    /* color: rgba(255, 255, 255, 0.9); */
+    color: var(--p-text-muted-color);
+    font-weight: 500;
+}
+
+.tag_accordion_icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    /* color: rgba(255, 255, 255, 0.6); */
+    color: var(--p-text-muted-color);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 添加手风琴图标尺寸控制 */
+.tag_accordion_icon .pi {
+    font-size: 12px;
+    transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* 加号图标样式 */
+.accordion_add_icon {
+    margin-right: 6px;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: all 0.2s ease;
+    width: 18px;
+    height: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.accordion_add_icon:hover {
+    opacity: 1;
+    color: var(--p-primary-500);
+    background-color: color-mix(in srgb, var(--p-primary-500), transparent 85%);
+    transform: scale(1.1);
+}
+
+.tag_accordion_icon img,
+.tag_accordion_icon .svg-icon,
+.accordion_arrow_icon {
+    width: 10px;
+    height: 10px;
+    transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.tag_accordion_icon img,
+.tag_accordion_icon .svg-icon svg {
+    filter: brightness(1.5);
+}
+
+.tag_accordion_content {
+    display: block;
+    max-height: 0;
+    padding: 0;
+    background-color: color-mix(in srgb, var(--comfy-menu-secondary-bg), transparent 90%);
+    overflow: hidden;
+    cursor: default;
+    /* 确保内容区域使用默认指针 */
+    /* 移除CSS过渡，改为JavaScript控制动画 */
+}
+
+.tag_accordion_content.active {
+    display: block;
+    max-height: none;
+    /* 移除高度限制，让内容自适应 */
+    padding: 2px 0;
+    overflow: visible;
+    /* 移除滚动条，让父容器处理滚动 */
+    cursor: default;
+    /* 确保激活状态下内容区域也使用默认指针 */
+}
+
+/* 优化手风琴动画性能 */
+.tag_accordion_content {
+    will-change: max-height, padding;
+    /* 提示浏览器优化这些属性的动画 */
+    transform: translateZ(0);
+    /* 启用硬件加速 */
+    backface-visibility: hidden;
+    /* 避免背面可见性问题 */
+}
+
+/* 旋转图标优化 */
+.rotate-180 {
+    transform: rotate(180deg);
+}
+
+.pi.rotate-180,
+.accordion_arrow_icon.rotate-180 {
+    transform: rotate(180deg);
+}
+
+/* 标签容器样式 */
+.tag_category_container {
+    flex: 1;
+    overflow: visible;
+    /* 移除滚动条，让父容器处理滚动 */
+    padding: 4px;
+    position: relative;
+    min-height: 0;
+    /* 允许flex收缩 */
+}
+
+/* 标签项样式 */
+.tag_item {
+    display: inline-block;
+    margin: 4px;
+    padding: 4px 10px;
+    background-color: color-mix(in srgb, var(--comfy-menu-secondary-bg), transparent 10%);
+    /* border: 1px solid rgba(255, 255, 255, 0.1); */
+    border-radius: 12px;
+    cursor: pointer;
+    /* 确保默认使用指针光标 */
+    transition: all 0.2s ease;
+    position: relative;
+    z-index: 1;
+    user-select: none;
+}
+
+.tag_item:hover {
+    background-color: color-mix(in srgb, var(--p-primary-500), transparent 84%);
+    ;
+    border-color: rgba(255, 255, 255, 0.2);
+    z-index: 10210;
+}
+
+.tag_item_text {
+    font-size: 14px;
+    /* color: rgba(255, 255, 255, 0.731); */
+    color: var(--p-inputtext-color);
+}
+
+/* 标签使用状态样式 */
+.tag_item.used {
+    background-color: rgba(40, 120, 40, 0.8);
+    border-color: rgba(100, 255, 100, 0.2);
+}
+
+.tag_item.used:hover {
+    background-color: rgba(50, 140, 50, 0.9);
+}
+
+.tag_item.used .tag_item_text {
+    color: rgba(200, 255, 200, 0.9);
+}
+
+/* 自定义滚动条样式 */
+.tag_category_container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.tag_category_container::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.tag_category_container::-webkit-scrollbar-thumb {
+    background-color: color-mix(in srgb, var(--p-button-text-secondary-color), transparent 50%);
+    border-radius: 3px;
+}
+
+.tag_category_container::-webkit-scrollbar-thumb:hover {
+    background-color: color-mix(in srgb, var(--p-button-text-secondary-color), transparent 50%);
+}
+
+/* 自定义 tooltip 样式 */
+.tag_tooltip {
+    position: fixed;
+    padding: 8px 12px;
+    background-color: color-mix(in srgb, var(--bg-color), transparent 10%);
+    /* color: white; */
+    color: var(--p-inputtext-color);
+    font-size: 12px;
+    border-radius: 8px;
+    white-space: pre-line;
+    max-width: 300px;
+    word-wrap: break-word;
+    line-height: 1.6;
+    z-index: 10250;
+    pointer-events: none;
+    animation: clipFadeInDown 0.2s ease-in-out;
+    transform-origin: top center;
+    will-change: transform, opacity;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* 添加 tooltip 中分类路径的样式 */
+.tag_tooltip .tooltip_path {
+    display: block;
+    font-size: 12px;
+    color: color-mix(in srgb, var(--p-inputtext-color), transparent 60%);
+    margin-top: 4px;
+}
+
+/* ---可滚动Tabs栏样式--- */
+.popup_container .popup_tabs_container {
+    position: relative;
+    border-bottom: 1px solid var(--p-content-border-color);
+    /* background-color: rgba(30, 30, 30, 0.8); */
+    background-color: color-mix(in srgb, var(--comfy-menu-secondary-bg), transparent 60%);
+    user-select: none;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    padding: 0;
+}
+
+/* 滚动区域 */
+.popup_container .popup_tabs_scroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    padding: 2px 0 0;
+    position: relative;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+/* 隐藏滚动条 */
+.popup_container .popup_tabs_scroll::-webkit-scrollbar {
+    display: none;
+    /* Chrome, Safari, Opera */
+}
+
+/* Tabs栏 */
+.popup_container .popup_tabs {
+    display: inline-flex;
+    flex-wrap: nowrap;
+    gap: 2px;
+    padding: 4px 0 0;
+    position: relative;
+}
+
+/* 为第一个标签添加左侧边距 */
+.popup_container .popup_tabs .popup_tab:first-child {
+    margin-left: 6px;
+}
+
+/* 单个Tab标签 */
+.popup_container .popup_tab {
+    display: inline-block;
+    padding: 4px 10px 8px 10px;
+    font-size: 12px;
+    /* color: rgba(255, 255, 255, 0.6); */
+    color: var(--p-text-muted-color);
+    background-color: transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    max-width: 120px;
+    position: relative;
+    border-radius: 0;
+}
+
+/* Tab激活状态 - 添加底部高亮条 */
+.popup_container .popup_tab.active {
+    /* color: rgba(255, 255, 255, 0.9); */
+    color: var(--p-listbox-option-selected-color);
+    background-color: transparent;
+    box-shadow: none;
+}
+
+/* 底部高亮条基础样式 */
+.popup_container .popup_tab::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 100%;
+    height: 2px;
+    background-color: rgba(100, 180, 255, 0.8);
+    border-radius: 2px 2px 0 0;
+    transform-origin: center;
+    transform: translateX(-50%) scaleX(0);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+}
+
+/* 底部高亮条激活状态 */
+.popup_container .popup_tab.active::after {
+    transform: translateX(-50%) scaleX(1);
+}
+
+/* 底部高亮条退出动画 */
+.popup_container .popup_tab.active.exiting::after {
+    transform: translateX(-50%) scaleX(0);
+}
+
+/* 当前节点的底部高亮条颜色 */
+.popup_container .popup_tab.current_node::after {
+    background-color: var(--p-green-500);
+}
+
+/* Tab悬停效果 */
+.popup_container .popup_tab:hover {
+    /* color: rgba(255, 255, 255, 0.9); */
+    color: var(--p-inputtext-color);
+
+}
+
+/* 当前节点标识 */
+.popup_container .popup_tab.current_node {
+    background-color: transparent;
+    /* color: rgba(200, 255, 200, 0.8); */
+    color: var(--p-listbox-option-selected-color);
+}
+
+.popup_container .popup_tab.current_node.active {
+    background-color: transparent;
+    color: var(--p-green-500);
+    box-shadow: none;
+}
+
+.popup_container .popup_tab.current_node:hover {
+    background-color: rgba(0, 170, 80, 0.1);
+    border-radius: 8px 8px 0 0;
+}
+
+/* Tab内容容器 */
+.popup_container .popup_tab_content {
+    display: none;
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--p-button-text-secondary-color), transparent 50%) transparent;
+    padding-bottom: 8px;
+    min-height: 0;
+    /* 允许flex收缩 */
+}
+
+.popup_container .popup_tab_content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.popup_container .popup_tab_content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.popup_container .popup_tab_content::-webkit-scrollbar-thumb {
+    background-color: color-mix(in srgb, var(--p-button-text-secondary-color), transparent 50%);
+    border-radius: 3px;
+}
+
+.popup_container .popup_tab_content.active {
+    display: flex;
+    flex-direction: column;
+}
+
+/* 滚动指示器 - 漂浮设计 */
+.popup_container .tabs_scroll_indicator {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--p-text-muted-color);
+    cursor: pointer;
+    z-index: 10;
+    pointer-events: auto;
+    transition: color 0.2s ease;
+    border: none;
+}
+
+/* 添加滚动指示器图标尺寸控制 */
+.popup_container .tabs_scroll_indicator .pi {
+    font-size: 14px;
+    transition: transform 0.2s ease;
+}
+
+/* 左侧滚动指示器 */
+.popup_container .tabs_scroll_indicator.left {
+    left: 0;
+    background: linear-gradient(to right,
+            var(--p-content-background) 0%,
+            var(--p-content-background) 40%,
+            transparent 100%);
+}
+
+/* 右侧滚动指示器 */
+.popup_container .tabs_scroll_indicator.right {
+    right: 0;
+    background: linear-gradient(to left,
+            var(--p-content-background) 0%,
+            var(--p-content-background) 40%,
+            transparent 100%);
+}
+
+.popup_container .tabs_scroll_indicator:hover {
+    color: var(--p-text-color);
+}
+
+.popup_container .tabs_scroll_indicator:hover .pi {
+    transform: scale(1.2);
+}
+
+/* 滚动指示器图标样式 */
+.popup_container .scroll_indicator_icon {
+    width: 12px;
+    height: 12px;
+    display: block;
+    filter: brightness(1.5);
+}
+
+/* 左侧滚动指示器图标旋转 */
+.popup_container .rotate_left {
+    transform: rotate(-90deg);
+}
+
+/* 右侧滚动指示器图标旋转 */
+.popup_container .rotate_right {
+    transform: rotate(-90deg);
+}
+
+.popup_container .rotate-180 {
+    transform: rotate(180deg);
+}
+
+/* 拖动时的样式 */
+.popup_container.dragging {
+    opacity: 0.95;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.popup_title_bar.dragging {
+    cursor: grabbing !important;
+}
+
+/* ---窗口大小调节功能样式--- */
+/* 窗口大小调节手柄 */
+.popup_resize_handle {
+    position: absolute !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 14px !important;
+    height: 18px !important;
+    cursor: se-resize !important;
+    border-radius: 0 0 8px 0;
+    z-index: 1001 !important;
+    /* 确保在最上层 */
+    background: transparent;
+    transition: opacity 0.2s ease;
+    color: color-mix(in srgb, var(--p-button-text-secondary-color), transparent 50%);
+    opacity: 0.7;
+    pointer-events: auto !important;
+    /* 确保可以接收鼠标事件 */
+}
+
+.popup_resize_handle:hover {
+    opacity: 1 !important;
+    color: var(--fg-color);
+}
+
+/* 确保图标正确显示 */
+.popup_resize_handle .svg-icon {
+    width: 12px !important;
+    height: 12px !important;
+    display: block !important;
+    pointer-events: none;
+    /* 图标不接收事件，让父元素处理 */
+}
+
+/* 窗口调节中的样式 */
+.popup_container.resizing {
+    transition: none !important;
+    user-select: none;
+}
+
+.popup_container.resizing .popup_resize_handle {
+    opacity: 1 !important;
+}
+
+/* 标签弹窗特定样式 */
+.popup_container.tag_popup {
+    resize: none;
+    /* 禁用原生的resize功能，使用自定义的 */
+    max-width: none;
+    /* 移除宽度限制，允许调节宽度 */
+    min-width: 300px;
+    /* 设置最小宽度 */
+    min-height: 200px;
+    /* 设置最小高度 */
+    max-height: none;
+    /* 移除高度限制，允许调节高度 */
+}
+
+/* 确保内容在调节时不会溢出 */
+.popup_container.resizing .tag_category_container,
+.popup_container.resizing .popup_tab_content {
+    overflow: hidden;
+}
+
+/* 标签弹窗的内容区域适应动态高度 */
+.popup_container.tag_popup .popup_tab_content {
+    flex: 1;
+    min-height: 0;
+    /* 允许flex收缩 */
+    overflow-y: auto;
+    /* 只有标签页内容容器有滚动条 */
+    overflow-x: hidden;
+}
+
+.popup_container.tag_popup .tag_category_container {
+    flex: 1;
+    min-height: 0;
+    /* 允许flex收缩 */
+    overflow: visible;
+    /* 移除滚动条，让父容器处理 */
+}
+
+/* 确保手风琴内容不产生滚动条 */
+.popup_container.tag_popup .tag_accordion_content {
+    overflow: visible !important;
+}
+
+.popup_container.tag_popup .tag_accordion_content.active {
+    overflow: visible !important;
+}
+
+.popup_container.tag_popup .tag_search_result_list {
+    max-height: none !important;
+    /* 移除固定高度限制 */
+    height: 100% !important;
+    /* 占满可用高度 */
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    align-content: flex-start !important;
+    justify-content: flex-start !important;
+    gap: 4px !important;
+    position: relative !important;
+    /* 为无匹配消息的绝对定位提供参考 */
+    margin: 0 !important;
+    padding: 8px !important;
+    overflow-y: auto !important;
+    /* 确保垂直滚动可用 */
+    overflow-x: hidden !important;
+    /* 防止水平滚动 */
+    box-sizing: border-box !important;
+    /* 确保padding计算在内 */
+    min-height: 0 !important;
+    /* 允许flex收缩 */
+}
+
+/* 搜索结果列表的滚动条样式 */
+.tag_search_result_list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.tag_search_result_list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.tag_search_result_list::-webkit-scrollbar-thumb {
+    background-color: color-mix(in srgb, var(--p-button-text-secondary-color), transparent 50%);
+    border-radius: 3px;
+}
+
+/* 搜索结果空消息样式 */
+.search_empty_message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: var(--p-text-muted-color);
+    font-size: 14px;
+    width: 100%;
+    pointer-events: none;
+    user-select: none;
+}
+
+/* 搜索状态下的特殊样式 */
+.popup_container.tag_popup:has(.tag_search_result_list) .popup_tabs_container,
+.popup_container.tag_popup:has(.tag_search_result_list) .tag_category_container {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+/* 确保搜索结果列表的父容器有正确的高度和溢出设置 */
+.popup_container.tag_popup:has(.tag_search_result_list) {
+    overflow: hidden;
+}
+
+.popup_container.tag_popup:has(.tag_search_result_list)>*:not(.popup_title_bar) {
+    height: calc(100% - 60px);
+    /* 减去标题栏高度 */
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.popup_container.tag_popup .tag_search_result_list:empty::after {
+    content: '';
+    display: block;
+    height: 100%;
+    min-height: 300px;
+}
+
+/* ====================== 按钮右键菜单样式 ====================== */
+
+/* 菜单容器样式 */
+.button-context-menu {
+    position: fixed;
+    background-color: var(--p-content-background);
+    border: 1px solid var(--p-content-border-color);
+    border-radius: 8px;
+    min-width: 100px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    z-index: 10215;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    color: var(--p-text-color, #ddd);
+    backdrop-filter: blur(8px) !important;
+    overflow: hidden;
+}
+
+/* 菜单显示状态 */
+.button-context-menu.button-menu-visible {
+    opacity: 1;
+    transform: translateY(0);
+    animation: clipFadeInDown 0.2s ease-in-out;
+}
+
+/* 菜单项列表 */
+.button-menu-list {
+    list-style: none;
+    margin: 0;
+    padding: 4px;
+}
+
+/* 菜单项 */
+.button-menu-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background-color 0.1s ease;
+    user-select: none;
+}
+
+/* 菜单项悬停状态 */
+.button-menu-item:hover {
+    background-color: color-mix(in srgb, var(--p-primary-500), transparent 84%);
+    border-radius: 4px;
+}
+
+/* 菜单分隔线 */
+.button-menu-separator {
+    height: 1px;
+    margin: 4px 0;
+    background-color: var(--p-content-border-color, #444);
+}
+
+/* 菜单图标 */
+.button-menu-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+    color: var(--p-text-muted-color, #aaa);
+}
+
+/* 菜单图标中的SVG */
+.button-menu-icon svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+}
+
+/* 菜单标签 */
+.button-menu-label {
+    flex: 1;
+    color: var(--p-text-muted-color, #aaa);
+    white-space: nowrap;
+    /* 防止文本换行 */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* 过长时显示省略号 */
+}
+
+/* 快捷键提示 */
+.button-menu-shortcut {
+    color: var(--p-text-muted-color, #999);
+    margin-left: 8px;
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+/* 禁用菜单项 */
+.button-menu-item-disabled {
+    opacity: 0.5;
+    cursor: default;
+    pointer-events: none;
+}
+
+/* 禁用菜单项悬停状态 */
+.button-menu-item-disabled:hover {
+    background-color: transparent;
+}
+
+/* 选中状态的菜单项 */
+.button-menu-item.selected {
+    background-color: color-mix(in srgb, var(--p-primary-500), transparent 90%);
+}
+
+.button-menu-item.selected .button-menu-label,
+.button-menu-item.selected .button-menu-icon {
+    color: var(--p-listbox-option-selected-color, #fff);
+}
+
+/* 菜单项激活状态 */
+.button-menu-item:active {
+    background-color: color-mix(in srgb, var(--p-primary-500), transparent 70%);
+}
+
+/* 菜单项键盘焦点状态 */
+.button-menu-item-focus {
+    background-color: color-mix(in srgb, var(--p-primary-500), transparent 84%);
+    outline: none;
+}
+
+/* 菜单项键盘焦点状态下的标签 */
+.button-menu-item-focus .button-menu-label {
+    color: var(--p-inputtext-color, #fff);
+}
+
+/* 激活状态图标样式 */
+.active-status {
+    color: var(--p-green-500, #4caf50) !important;
+}
+
+/* 未激活状态图标样式 */
+.inactive-status {
+    color: var(--p-text-muted-color, #aaa) !important;
+}
+
+/* ===== 子菜单扩展样式（按钮右键菜单） ===== */
+/* 允许容器显示子菜单 */
+.button-context-menu {
+    overflow: visible;
+    min-width: 140px;
+}
+
+/* 右侧箭头图标 */
+.button-menu-right-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 8px;
+    color: var(--p-text-muted-color, #aaa);
+    font-size: 12px;
+}
+
+/* 子菜单容器（默认在父项右侧，位置由JS动态调整） */
+.button-submenu {
+    position: absolute;
+    top: 0;
+    left: 100%;
+    margin-left: 2px;
+    background-color: var(--p-content-background);
+    border: 1px solid var(--p-content-border-color);
+    border-radius: 8px;
+    min-width: 20px;
+    /* 增加宽度以容纳长模型名 */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transform: translateX(-6px);
+    pointer-events: none;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    overflow: visible;
+    /* 改为visible以支持嵌套子菜单溢出 */
+    z-index: 10216;
+    /* 高于父菜单 */
+}
+
+/* 第三级及更深层子菜单的z-index递增 */
+.button-submenu .button-submenu {
+    z-index: 10217;
+}
+
+.button-submenu .button-submenu .button-submenu {
+    z-index: 10218;
+}
+
+/* 悬停显示子菜单 - 支持嵌套 */
+.button-menu-item.submenu-open>.button-submenu,
+.button-menu-item-has-children:hover>.button-submenu {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+}
+
+/* 确保所有有子菜单的菜单项都有 position: relative，作为子菜单的定位参考点 */
+.button-menu-item-has-children {
+    position: relative;
+}
+
+/* 确认对话框特定样式 - 紧凑型 */
+.popup_container.confirm-dialog {
+    min-width: 320px !important;
+    max-width: 420px !important;
+    width: auto !important;
+    height: auto !important;
+    min-height: auto !important;
+}
+
+.popup_container.confirm-dialog .popup_content {
+    flex: 0 0 auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+}
+
+/* ---标签跨分类拖拽样式--- */
+
+/* 拖拽时标签的样式 */
+.tag_item.tag-dragging {
+    opacity: 0.8;
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    cursor: grabbing;
+}
+
+/* 可放置区域的高亮样式 */
+.tag-drop-zone {
+    position: relative;
+    background-color: color-mix(in srgb, var(--p-primary-500), transparent 92%) !important;
+    border: 2px dashed var(--p-primary-400) !important;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+/* 可放置区域的脉冲动画 */
+.tag-drop-zone::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border: 2px solid var(--p-primary-400);
+    border-radius: 10px;
+    opacity: 0;
+    animation: dropZonePulse 1.5s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes dropZonePulse {
+
+    0%,
+    100% {
+        opacity: 0;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.5;
+        transform: scale(1.02);
+    }
+}
+
+/* 拖拽时的幽灵元素 */
+.tag-ghost {
+    opacity: 0.4;
+    background-color: color-mix(in srgb, var(--p-primary-500), transparent 85%) !important;
+    border: 1px dashed var(--p-primary-500) !important;
+}
+
+/* 标签抓取光标 */
+.tag_popup .tag_item {
+    cursor: pointer;
+}
+
+.tag_popup .tag_item:active {
+    cursor: grabbing;
+}

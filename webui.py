@@ -2310,33 +2310,39 @@ with shared.gradio_root:
 
             return process_image_for_html(img)
 
-        def toggle_comparison(is_comp, input_img, gallery_output):
+        def toggle_comparison(is_comp, input_img, gallery_output, final_gallery):
             if is_comp:
                  # Switch back to Gallery
-                 return False, gr.update(visible=False), gr.update(visible=True)
+                 return False, gr.update(visible=False), gr.update(visible=True), gr.update(visible=False), gr.update(visible=False), gr.update(visible=False)
 
             if not input_img:
-                return False, gr.update(visible=False), gr.update(visible=True)
+                return False, gr.update(visible=False), gr.update(visible=True), gr.update(visible=False), gr.update(visible=False), gr.update(visible=False)
 
             output_img = None
-            if gallery_output and len(gallery_output) > 0:
-                first_item = gallery_output[0]
-
-                if isinstance(first_item, (list, tuple)):
-                    img_data = first_item[0]
-                    if isinstance(img_data, dict):
-                         output_img = img_data.get('name') or img_data.get('data')
+            
+            # Try to find output image from progress gallery first, then final gallery
+            for output in [gallery_output, final_gallery]:
+                if output and len(output) > 0:
+                    first_item = output[0]
+                    if isinstance(first_item, (list, tuple)):
+                        img_data = first_item[0]
+                        if isinstance(img_data, dict):
+                             output_img = img_data.get('name') or img_data.get('data')
+                        else:
+                             output_img = img_data
+                    elif isinstance(first_item, dict):
+                        output_img = first_item.get('name') or first_item.get('data')
                     else:
-                         output_img = img_data
-                elif isinstance(first_item, dict):
-                    output_img = first_item.get('name') or first_item.get('data')
-                else:
-                    output_img = first_item
+                        output_img = first_item
+                    
+                    if output_img:
+                        break
 
             if not output_img:
-                return False, gr.update(visible=False), gr.update(visible=True)
+                return False, gr.update(visible=False), gr.update(visible=True), gr.update(visible=False), gr.update(visible=False), gr.update(visible=False)
 
             output_img_url = f"/file={output_img}" if isinstance(output_img, str) and not output_img.startswith("data:") else output_img
+
 
             input_img_url = input_img
             if isinstance(input_img, str) and not input_img.startswith("data:") and not input_img.startswith("/file="):
@@ -2404,7 +2410,7 @@ with shared.gradio_root:
                 />
             </div>
             """
-            return True, gr.update(value=html, visible=True), gr.update(visible=False)
+            return True, gr.update(value=html, visible=True), gr.update(visible=False), gr.update(visible=False), gr.update(visible=False), gr.update(visible=False)
 
         def check_comparison_visibility(input_img, gallery_output, state_topbar):
             engine_type = state_topbar.get('engine_type')
@@ -2417,11 +2423,11 @@ with shared.gradio_root:
                  return gr.update(visible=True, size='sm')
             return gr.update(visible=False, size='sm')
 
-        compare_btn.click(toggle_comparison, inputs=[comparison_state, cached_input_image, progress_gallery], outputs=[comparison_state, comparison_box, progress_gallery], show_progress=False)
+        compare_btn.click(toggle_comparison, inputs=[comparison_state, cached_input_image, progress_gallery, gallery], outputs=[comparison_state, comparison_box, progress_gallery, gallery, progress_window, progress_video], show_progress=False)
         protections = [random_button, super_prompter, background_theme, image_tools_checkbox] + nav_bars
         generate_button.click(lambda v, a: (v, a, gr.update(value=None, visible=False), gr.update(value=None, visible=False), gr.update(visible=True if v else False), gr.update(visible=True if a else False)), inputs=[scene_video, scene_audio], outputs=[scene_video_backup, scene_audio_backup, scene_video, scene_audio, scene_video_placeholder, scene_audio_placeholder], queue=False, show_progress=False) \
             .then(cache_input_image_func, inputs=[current_tab, uov_input_image, inpaint_input_image, layer_input_image, enhance_input_image, scene_input_image1, scene_canvas_image], outputs=[cached_input_image]) \
-            .then(lambda: (False, gr.update(visible=False), gr.update(visible=False), gr.update(value=None, visible=True), gr.update(visible=False, size='sm')), outputs=[comparison_state, comparison_box, progress_window, progress_gallery, compare_btn]) \
+            .then(lambda: (False, gr.update(visible=False), gr.update(visible=False), gr.update(visible=False), gr.update(value=None, visible=True), gr.update(visible=False, size='sm')), outputs=[comparison_state, comparison_box, progress_window, gallery, progress_gallery, compare_btn]) \
             .then(topbar.process_before_generation, inputs=[state_topbar, seed_random, image_seed, params_backend] + scene_params[:15] + [scene_video_backup, scene_audio_backup], outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating, index_radio, image_toolbox, prompt_info_box, image_seed] + protections + [preset_store, identity_dialog], show_progress=False) \
             .then(topbar.wait_for_minicpm_completion, outputs=[], show_progress=False) \
             .then(topbar.avoid_empty_prompt_for_scene, inputs=[prompt, state_topbar, scene_input_image1, scene_theme, scene_additional_prompt, scene_additional_prompt_2], outputs=prompt, show_progress=True) \
@@ -2444,7 +2450,7 @@ with shared.gradio_root:
         ctrls_preview = [debug_true_state if c == debugging_cn_preprocessor else c for c in ctrls]
 
         preview_preprocessing.click(lambda v, a: (v, a, gr.update(value=None, visible=False), gr.update(value=None, visible=False), gr.update(visible=True if v else False), gr.update(visible=True if a else False)), inputs=[scene_video, scene_audio], outputs=[scene_video_backup, scene_audio_backup, scene_video, scene_audio, scene_video_placeholder, scene_audio_placeholder], queue=False, show_progress=False) \
-            .then(lambda: (False, gr.update(visible=False), gr.update(value=None, visible=True), gr.update(visible=False, size='sm')), outputs=[comparison_state, comparison_box, progress_gallery, compare_btn]) \
+            .then(lambda: (False, gr.update(visible=False), gr.update(visible=False), gr.update(visible=False), gr.update(value=None, visible=True), gr.update(visible=False, size='sm')), outputs=[comparison_state, comparison_box, progress_window, gallery, progress_gallery, compare_btn]) \
             .then(topbar.process_before_generation, inputs=[state_topbar, seed_random, image_seed, params_backend] + scene_params[:14] + [scene_params[16], scene_video_backup, scene_audio_backup], outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating, index_radio, image_toolbox, prompt_info_box, image_seed] + protections + [preset_store, identity_dialog], show_progress=False) \
             .then(fn=get_task, inputs=ctrls_preview, outputs=currentTask) \
             .then(fn=generate_clicked, inputs=[currentTask, state_topbar], outputs=[progress_html, progress_window, progress_gallery, progress_video, gallery]) \
