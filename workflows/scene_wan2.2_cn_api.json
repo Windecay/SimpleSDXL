@@ -381,10 +381,7 @@
         "21",
         5
       ],
-      "cfg": [
-        "113",
-        0
-      ],
+      "cfg": 1,
       "sampler_name": "uni_pc",
       "scheduler": "simple",
       "start_at_step": [

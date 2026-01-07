@@ -1,4 +1,10 @@
 import os
+if os.name == 'nt' and "CUDA_PATH" in os.environ:
+    _cuda_path = os.environ["CUDA_PATH"]
+    _cuda_bin = os.path.join(_cuda_path, "bin")
+    if not os.path.exists(_cuda_bin):
+        del os.environ["CUDA_PATH"]
+
 import gc
 import torch
 import numpy as np
