@@ -5304,7 +5304,7 @@
         "Node name for S&R": "PathchSageAttentionKJ"
       },
       "widgets_values": [
-        "auto",
+        "disabled",
         false
       ],
       "color": "#223",

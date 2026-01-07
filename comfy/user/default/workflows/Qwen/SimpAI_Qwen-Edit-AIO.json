@@ -5993,7 +5993,7 @@
         }
       },
       "widgets_values": [
-        "auto",
+        "disabled",
         false
       ],
       "color": "#223",
