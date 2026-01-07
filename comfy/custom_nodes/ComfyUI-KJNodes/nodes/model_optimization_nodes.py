@@ -39,7 +39,12 @@ if not _initialized:
 
 
 def get_sage_func(sage_attention, allow_compile=False):
-    logging.info(f"Using sage attention mode: {sage_attention}")
+    if sage_attention != "disabled" and torch.cuda.is_available():
+        device = torch.cuda.current_device()
+        capability = torch.cuda.get_device_capability(device)
+        if capability[0] == 8 and capability[1] == 6: # Ampere RTX 30 series
+             sage_attention = "sageattn_qk_int8_pv_fp16_cuda"
+             logging.info(f"KJNodes: Detected RTX 30 series GPU (CC 8.6), hard-specifying sage_attention to: {sage_attention}")
     from sageattention import sageattn
     if sage_attention == "auto":
         def sage_func(q, k, v, is_causal=False, attn_mask=None, tensor_layout="NHD"):
@@ -68,7 +73,7 @@ def get_sage_func(sage_attention, allow_compile=False):
         else:
             def sage_func(q, k, v, is_causal=False, attn_mask=None, **kwargs):
                 return sageattn3_blackwell(q.transpose(1, 2), k.transpose(1, 2), v.transpose(1, 2), is_causal=is_causal, attn_mask=attn_mask, per_block_mean=False).transpose(1, 2)
-
+    logging.info(f"Final SageAttention mode specified: {sage_attention}")
     if not allow_compile:
         sage_func = torch.compiler.disable()(sage_func)
 

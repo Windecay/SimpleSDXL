@@ -1149,7 +1149,7 @@
   },
   "165": {
     "inputs": {
-      "sage_attention": "disabled",
+      "sage_attention": "auto",
       "allow_compile": false,
       "model": [
         "131",
