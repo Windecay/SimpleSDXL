@@ -373,7 +373,7 @@ def print_instructions():
     time.sleep(0.1)
     print(f"{Fore.GREEN}★{Style.RESET_ALL}打开默认浏览器设置，关闭GPU加速、或图形加速的选项。{Fore.GREEN}★{Style.RESET_ALL}大内存(64+)与固态硬盘存放模型有助于减少模型加载时间。{Fore.GREEN}★{Style.RESET_ALL}")
     time.sleep(0.1)
-    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：1005085136{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:25.12.29{Fore.GREEN}★{Style.RESET_ALL}")
+    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：1005085136{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:26.01.09{Fore.GREEN}★{Style.RESET_ALL}")
     print()
     time.sleep(0.1)
     
@@ -850,6 +850,11 @@ def download_file_with_resume(link, file_path, position, result_queue, max_retri
                     if current_time - last_update_time > 60:
                         raise requests.exceptions.Timeout("下载超时，超过60秒没有数据")
                     last_update_time = current_time
+
+                # 校验文件大小
+                downloaded_size = os.path.getsize(partial_file_path)
+                if downloaded_size != total_size:
+                    raise Exception(f"文件大小校验失败：预期 {total_size} 字节，实际 {downloaded_size} 字节")
 
             final_file_path = os.path.normpath(file_path)
             partial_file_path = os.path.normpath(partial_file_path)
