@@ -442,7 +442,7 @@ def controlnet_load_state_dict(control_model, sd):
     missing, unexpected = control_model.load_state_dict(sd, strict=False)
 
     if len(missing) > 0:
-        logging.warning("missing controlnet keys: {}".format(missing))
+        logging.debug("missing controlnet keys: {}".format(missing))
 
     if len(unexpected) > 0:
         logging.debug("unexpected controlnet keys: {}".format(unexpected))

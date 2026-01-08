@@ -139,7 +139,7 @@ class CLIP:
                 for c in state_dict:
                     m, u = self.load_sd(c)
                     if len(m) > 0:
-                        logging.warning("clip missing: {}".format(m))
+                        logging.debug("clip missing: {}".format(m))
 
                     if len(u) > 0:
                         logging.debug("clip unexpected: {}".format(u))
@@ -148,7 +148,7 @@ class CLIP:
                 if len(m) > 0:
                     m_filter = list(filter(lambda a: ".logit_scale" not in a and ".transformer.text_projection.weight" not in a, m))
                     if len(m_filter) > 0:
-                        logging.warning("clip missing: {}".format(m))
+                        logging.debug("clip missing: {}".format(m))
                     else:
                         logging.debug("clip missing: {}".format(m))
 
@@ -667,7 +667,7 @@ class VAE:
 
         m, u = self.first_stage_model.load_state_dict(sd, strict=False)
         if len(m) > 0:
-            logging.warning("Missing VAE keys {}".format(m))
+            logging.debug("Missing VAE keys {}".format(m))
 
         if len(u) > 0:
             logging.debug("Leftover VAE keys {}".format(u))
