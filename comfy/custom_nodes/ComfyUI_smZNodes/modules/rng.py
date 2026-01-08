@@ -1,5 +1,6 @@
 import torch
 import numpy as np
+import comfy.nested_tensor
 from comfy.model_patcher import ModelPatcher
 from . import shared, rng_philox
 
@@ -38,6 +39,16 @@ def randn_without_seed(x, generator=None, randn_source="cpu"):
         return torch.randn(x.size(), dtype=x.dtype, layout=x.layout, device=generator.device, generator=generator).to(device=x.device)
 
 def prepare_noise(latent_image, seed, noise_inds=None, device='cpu'):
+    if hasattr(latent_image, "is_nested") and latent_image.is_nested:
+        tensors = latent_image.unbind()
+        noises = []
+        for t in tensors:
+            noises.append(prepare_noise_inner(t, seed, noise_inds, device))
+        return comfy.nested_tensor.NestedTensor(noises)
+    else:
+        return prepare_noise_inner(latent_image, seed, noise_inds, device)
+
+def prepare_noise_inner(latent_image, seed, noise_inds=None, device='cpu'):
     """
     creates random noise given a latent image and a seed.
     optional arg skip can be used to skip and discard x number of noise generations for a given seed
