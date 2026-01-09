@@ -8,7 +8,7 @@
                 "version": "m1.1",
                 "theme": ["MultiAngle-1024px","MultiAngle-1536px","MultiAngle-2048px"],
                 "theme_title": "Qwen-MultiAngle自由视角",
-                "disvisible": ["scene_additional_prompt","scene_additional_prompt_2", "scene_video", "scene_audio","scene_canvas_image","scene_input_image2",
+                "disvisible": ["scene_additional_prompt", "scene_video", "scene_audio","scene_canvas_image","scene_input_image2",
                 "scene_var_number","scene_var_number2","scene_switch_option2"],
                 "task_method": {
                     "MultiAngle-1024px": "qwen_multiangle_cn",
@@ -48,6 +48,12 @@
                     "MultiAngle-1024px": false,
                     "MultiAngle-1536px": false,
                     "MultiAngle-2048px": false
+                },
+                "additional_prompt_title_2": "视角参数",
+                "additional_prompt_2": {
+                    "MultiAngle-1024px": "front view, eye level, medium shot, {\"horizontal\":0,\"vertical\":0,\"zoom\":5}",
+                    "MultiAngle-1536px": "front view, eye level, medium shot, {\"horizontal\":0,\"vertical\":0,\"zoom\":5}",
+                    "MultiAngle-2048px": "front view, eye level, medium shot, {\"horizontal\":0,\"vertical\":0,\"zoom\":5}"
                 },
                 "aspect_ratio" : [ "1024|1:1", "756|9:16", "832|2:3", "1216|4:3", "1248|3:2", "1344|16:9"]
             }

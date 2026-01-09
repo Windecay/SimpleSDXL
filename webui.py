@@ -549,26 +549,8 @@ with shared.gradio_root:
                         # Qwen Multiangle Camera Control
                         with gr.Accordion("3D Camera Control", open=False, visible=False) as camera_control_accordion:
                             gr.HTML(value=qwen_multiangle.get_viewer_html(), elem_id="qwen_viewer_container")
-                            
-                            # Hidden parameter carrier (visible=True for DOM presence, hidden via CSS)
-                            gr.HTML("""<style>#qwen_params_json { display: none !important; }</style>""")
-                            qwen_params_json = gr.Textbox(
-                                visible=True, 
-                                elem_id="qwen_params_json", 
-                                value='{"horizontal": 0, "vertical": 0, "zoom": 5.0}',
-                                show_label=False,
-                                container=False
-                            )
-                            
-                            with gr.Row(visible=False):
-                                qwen_h = gr.Number(value=0, elem_id="qwen_h", label="H")
-                                qwen_v = gr.Number(value=0, elem_id="qwen_v", label="V")
-                                qwen_z = gr.Number(value=5.0, elem_id="qwen_z", label="Z")
-                            
-                            apply_camera_prompt = gr.Button("Apply Camera Prompt", size="sm")
-                            
+
                             qwen_image_data = gr.Textbox(visible=False, elem_id="qwen_image_data")
-                            
                             qwen_image_data.change(
                                 fn=None,
                                 _js="""(val) => {
@@ -583,8 +565,6 @@ with shared.gradio_root:
                                 inputs=[qwen_image_data],
                                 outputs=None
                             )
-                            
-
 
                         def check_camera_control_visibility(theme, state):
                             if theme and 'multiangle' in theme.lower():
@@ -600,10 +580,12 @@ with shared.gradio_root:
                             if image is None:
                                 return None
                             try:
-                                # Convert numpy array to base64
-                                # image is numpy array (H, W, C)
                                 if isinstance(image, np.ndarray):
                                     pil_image = Image.fromarray(image)
+                                    max_size = 224
+                                    if pil_image.width > max_size or pil_image.height > max_size:
+                                        pil_image.thumbnail((max_size, max_size), Image.Resampling.LANCZOS)
+                                    
                                     buffered = io.BytesIO()
                                     pil_image.save(buffered, format="PNG")
                                     img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
@@ -613,18 +595,12 @@ with shared.gradio_root:
                                 return None
                             return None
 
-                        scene_input_image1.change(
-                            update_qwen_image,
-                            inputs=[scene_input_image1],
-                            outputs=[qwen_image_data],
-                            queue=False,
-                            show_progress=False
-                        )
+                        scene_input_image1.change(update_qwen_image, inputs=[scene_input_image1], outputs=[qwen_image_data], queue=False, show_progress=False)
                         scene_video = gr.Video(label="Video (Upload)", visible=False, source="upload", height=400)
                         scene_video_placeholder = gr.HTML('<div style="height: 400px; display: flex; align-items: center; justify-content: center; border: 2px dashed #ccc; border-radius: 8px; background: rgba(128,128,128,0.1); color: #888; font-size: 16px;"><span>Hide When Generating...</span></div>', visible=False)
                         scene_audio = gr.Audio(label="Audio (Upload)", visible=False, source="upload", type="filepath")
                         scene_audio_placeholder = gr.HTML('<div style="padding: 20px; text-align: center; border: 2px dashed #ccc; border-radius: 8px; background: rgba(128,128,128,0.1); color: #888;">Hide When Generating...</div>', visible=False)
-                        scene_additional_prompt_2 = gr.Textbox(label="Blessing words", show_label=True, max_lines=1, visible=False, elem_classes='scene_input_2')
+                        scene_additional_prompt_2 = gr.Textbox(label="Blessing words", show_label=True, max_lines=1, visible=False, elem_classes='scene_input_2', elem_id='scene_additional_prompt_2')
                         scene_var_number = gr.Slider(label='Duration(s)', minimum=0, maximum=60, step=1, value=3, visible=False)
                         scene_var_number2 = gr.Slider(label='Int Value 2', minimum=0, maximum=60, step=1, value=1, visible=False)
                         scene_var_number3 = gr.Slider(label='Float Value 1', minimum=0.0, maximum=1.0, step=0.01, value=0.0, visible=False)
@@ -863,30 +839,6 @@ with shared.gradio_root:
                         if isinstance(default_prompt, str) and default_prompt != '':
                             shared.gradio_root.load(lambda: default_prompt, outputs=prompt)
 
-                        def apply_qwen_prompt(json_str, current_prompt):
-                            try:
-                                params = json.loads(json_str)
-                                h = params.get('horizontal', 0)
-                                v = params.get('vertical', 0)
-                                z = params.get('zoom', 5.0)
-                            except Exception as e:
-                                print(f"Error parsing Qwen params: {e}")
-                                h, v, z = 0, 0, 5.0
-
-                            prompt_part = qwen_multiangle.generate_prompt(h, v, z)
-                            if not prompt_part:
-                                return current_prompt
-                            if current_prompt:
-                                if prompt_part in current_prompt:
-                                    return current_prompt
-                                return current_prompt + ", " + prompt_part
-                            return prompt_part
-
-                        apply_camera_prompt.click(
-                            apply_qwen_prompt,
-                            inputs=[qwen_params_json, prompt],
-                            outputs=[prompt]
-                        )
                     with gr.Column(scale=2, min_width=40) as prompt_internal_panel:
                         random_button = gr.Button(value="RandomPrompt", elem_classes='type_row_half', size="sm", min_width = 70)
                         super_prompter = gr.Button(value="SuperPrompt", interactive=False, elem_classes='type_row_half', size="sm", min_width = 70)

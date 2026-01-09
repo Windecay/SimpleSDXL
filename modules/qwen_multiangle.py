@@ -1,66 +1,3 @@
-
-import numpy as np
-from PIL import Image
-import base64
-import io
-
-def generate_prompt(horizontal_angle, vertical_angle, zoom):
-    """
-    Generates a prompt based on the camera angles and zoom.
-    Logic ported from ComfyUI-qwenmultiangle/nodes.py
-    """
-    try:
-        horizontal_angle = float(horizontal_angle)
-        vertical_angle = float(vertical_angle)
-        zoom = float(zoom)
-    except (ValueError, TypeError):
-        return ""
-
-    h_angle = horizontal_angle % 360
-    if h_angle < 22.5 or h_angle >= 337.5:
-        h_direction = "front view"
-    elif h_angle < 67.5:
-        h_direction = "front-right view"
-    elif h_angle < 112.5:
-        h_direction = "right side view"
-    elif h_angle < 157.5:
-        h_direction = "back-right view"
-    elif h_angle < 202.5:
-        h_direction = "back view"
-    elif h_angle < 247.5:
-        h_direction = "back-left view"
-    elif h_angle < 292.5:
-        h_direction = "left side view"
-    else:
-        h_direction = "front-left view"
-
-    if vertical_angle < -15:
-        v_direction = "low angle"
-    elif vertical_angle < 15:
-        v_direction = "eye level"
-    elif vertical_angle < 45:
-        v_direction = "high angle"
-    elif vertical_angle < 75:
-        v_direction = "bird's eye view"
-    else:
-        v_direction = "top-down view"
-
-    if zoom < 2:
-        distance = "wide shot"
-    elif zoom < 4:
-        distance = "medium-wide shot"
-    elif zoom < 6:
-        distance = "medium shot"
-    elif zoom < 8:
-        distance = "medium close-up"
-    else:
-        distance = "close-up"
-
-    prompt = f"{h_direction}, {v_direction}, {distance}"
-    prompt += f" (horizontal: {int(horizontal_angle)}, vertical: {int(vertical_angle)}, zoom: {zoom:.1f})"
-
-    return prompt
-
 VIEWER_HTML = r"""
 <!DOCTYPE html>
 <html>
@@ -693,7 +630,7 @@ VIEWER_HTML = r"""
                         img.onload = () => {
                             const tex = new THREE.Texture(img);
                             tex.needsUpdate = true;
-                            tex.encoding = THREE.sRGBEncoding;
+                            // tex.encoding = THREE.sRGBEncoding; // Disabled to prevent darkness issue on default renderer
                             planeMat.map = tex;
                             planeMat.color.set(0xffffff);
                             planeMat.needsUpdate = true;
@@ -805,6 +742,56 @@ def get_viewer_html():
             }
         }
 
+        function generatePrompt(horizontal_angle, vertical_angle, zoom) {
+            const h_angle = horizontal_angle % 360;
+            let h_direction;
+            if (h_angle < 22.5 || h_angle >= 337.5) {
+                h_direction = "front view";
+            } else if (h_angle < 67.5) {
+                h_direction = "front-right view";
+            } else if (h_angle < 112.5) {
+                h_direction = "right side view";
+            } else if (h_angle < 157.5) {
+                h_direction = "back-right view";
+            } else if (h_angle < 202.5) {
+                h_direction = "back view";
+            } else if (h_angle < 247.5) {
+                h_direction = "back-left view";
+            } else if (h_angle < 292.5) {
+                h_direction = "left side view";
+            } else {
+                h_direction = "front-left view";
+            }
+
+            let v_direction;
+            if (vertical_angle < -15) {
+                v_direction = "low angle";
+            } else if (vertical_angle < 15) {
+                v_direction = "eye level";
+            } else if (vertical_angle < 45) {
+                v_direction = "high angle";
+            } else if (vertical_angle < 75) {
+                v_direction = "bird&#39;s eye view";
+            } else {
+                v_direction = "top-down view";
+            }
+
+            let distance;
+            if (zoom < 2) {
+                distance = "wide shot";
+            } else if (zoom < 4) {
+                distance = "medium-wide shot";
+            } else if (zoom < 6) {
+                distance = "medium shot";
+            } else if (zoom < 8) {
+                distance = "medium close-up";
+            } else {
+                distance = "close-up";
+            }
+
+            return h_direction + ", " + v_direction + ", " + distance;
+        }
+
         window.addEventListener("message", function(event) {
             if (event.data && event.data.type === "ANGLE_UPDATE") {
                 // Try to find components - they might be rendered later
@@ -813,11 +800,13 @@ def get_viewer_html():
                 updateGradioInput("qwen_z", event.data.zoom);
                 
                 // Update JSON param carrier
-                updateGradioInput("qwen_params_json", JSON.stringify({
+                const prompt = generatePrompt(event.data.horizontal, event.data.vertical, event.data.zoom);
+                const json_data = JSON.stringify({
                     horizontal: event.data.horizontal,
                     vertical: event.data.vertical,
                     zoom: event.data.zoom
-                }));
+                });
+                updateGradioInput("scene_additional_prompt_2", prompt + "," + json_data);
             }
         });
     })()'>

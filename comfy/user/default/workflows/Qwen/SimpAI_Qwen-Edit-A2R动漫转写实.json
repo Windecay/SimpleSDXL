@@ -1,8 +1,8 @@
 {
   "id": "39df14d7-7f9c-488e-98e1-79732aab1cf5",
   "revision": 0,
-  "last_node_id": 356,
-  "last_link_id": 7719,
+  "last_node_id": 360,
+  "last_link_id": 7724,
   "nodes": [
     {
       "id": 16,
@@ -18,7 +18,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 58,
+      "order": 59,
       "mode": 0,
       "inputs": [
         {
@@ -57,7 +57,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 59,
+      "order": 60,
       "mode": 0,
       "inputs": [
         {
@@ -145,7 +145,7 @@
       ],
       "size": [
         660,
-        26
+        20
       ],
       "flags": {
         "pinned": true,
@@ -188,7 +188,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 71,
+      "order": 72,
       "mode": 4,
       "inputs": [
         {
@@ -409,7 +409,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 76,
+      "order": 77,
       "mode": 0,
       "inputs": [
         {
@@ -501,7 +501,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 56,
+      "order": 57,
       "mode": 0,
       "inputs": [
         {
@@ -549,7 +549,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 57,
+      "order": 58,
       "mode": 0,
       "inputs": [
         {
@@ -594,7 +594,7 @@
       ],
       "size": [
         521.240234375,
-        26
+        20
       ],
       "flags": {
         "pinned": true,
@@ -604,7 +604,7 @@
       "mode": 0,
       "inputs": [],
       "outputs": [],
-      "title": " 此工作流于SimpAI_comfyd后端发布ver1.4 Design by 冰華",
+      "title": " 此工作流于SimpAI_comfyd后端发布ver1.5 Design by 冰華",
       "properties": {
         "fontSize": 20,
         "fontFamily": "Arial",
@@ -679,7 +679,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 92,
+      "order": 93,
       "mode": 0,
       "inputs": [
         {
@@ -762,7 +762,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 54,
+      "order": 55,
       "mode": 0,
       "inputs": [
         {
@@ -973,7 +973,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 108,
+      "order": 110,
       "mode": 0,
       "inputs": [
         {
@@ -1013,7 +1013,7 @@
       ],
       "size": [
         250,
-        26
+        25
       ],
       "flags": {
         "pinned": true,
@@ -1082,8 +1082,8 @@
         -530
       ],
       "size": [
-        143.5943359375,
-        26
+        113.34228515625,
+        15
       ],
       "flags": {
         "pinned": true,
@@ -1208,7 +1208,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 60,
+      "order": 61,
       "mode": 0,
       "inputs": [
         {
@@ -1338,7 +1338,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 104,
+      "order": 106,
       "mode": 0,
       "inputs": [
         {
@@ -1384,7 +1384,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 105,
+      "order": 107,
       "mode": 0,
       "inputs": [
         {
@@ -1512,7 +1512,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 95,
+      "order": 96,
       "mode": 0,
       "inputs": [
         {
@@ -1567,7 +1567,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 81,
+      "order": 82,
       "mode": 0,
       "inputs": [
         {
@@ -1822,7 +1822,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 94,
+      "order": 95,
       "mode": 4,
       "inputs": [
         {
@@ -1865,7 +1865,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 93,
+      "order": 94,
       "mode": 4,
       "inputs": [
         {
@@ -1913,7 +1913,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 127,
+      "order": 129,
       "mode": 0,
       "inputs": [
         {
@@ -2055,7 +2055,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 61,
+      "order": 62,
       "mode": 0,
       "inputs": [
         {
@@ -2149,7 +2149,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 75,
+      "order": 76,
       "mode": 0,
       "inputs": [
         {
@@ -2230,7 +2230,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 63,
+      "order": 64,
       "mode": 0,
       "inputs": [
         {
@@ -2275,7 +2275,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 122,
+      "order": 124,
       "mode": 0,
       "inputs": [
         {
@@ -2399,7 +2399,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 65,
+      "order": 66,
       "mode": 4,
       "inputs": [
         {
@@ -2458,7 +2458,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 97,
+      "order": 98,
       "mode": 4,
       "inputs": [
         {
@@ -2499,7 +2499,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 82,
+      "order": 83,
       "mode": 4,
       "inputs": [
         {
@@ -2628,7 +2628,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 83,
+      "order": 84,
       "mode": 4,
       "inputs": [
         {
@@ -2669,7 +2669,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 66,
+      "order": 67,
       "mode": 4,
       "inputs": [
         {
@@ -2710,7 +2710,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 55,
+      "order": 56,
       "mode": 0,
       "inputs": [
         {
@@ -2850,7 +2850,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 77,
+      "order": 78,
       "mode": 0,
       "inputs": [
         {
@@ -2919,7 +2919,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 90,
+      "order": 91,
       "mode": 0,
       "inputs": [
         {
@@ -3053,163 +3053,6 @@
       "separateWeights": false
     },
     {
-      "id": 334,
-      "type": "ModelPatchTorchSettings",
-      "pos": [
-        2870,
-        -360
-      ],
-      "size": [
-        252.095703125,
-        58
-      ],
-      "flags": {
-        "collapsed": false,
-        "pinned": true
-      },
-      "order": 91,
-      "mode": 0,
-      "inputs": [
-        {
-          "label": "model",
-          "name": "model",
-          "type": "MODEL",
-          "link": 7133
-        }
-      ],
-      "outputs": [
-        {
-          "label": "MODEL",
-          "name": "MODEL",
-          "type": "MODEL",
-          "links": [
-            7718
-          ]
-        }
-      ],
-      "title": "Model Patch Torch",
-      "properties": {
-        "Node name for S&R": "ModelPatchTorchSettings",
-        "ue_properties": {
-          "version": "7.3",
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {}
-        },
-        "ttNbgOverride": {
-          "bgcolor": "#3f5159",
-          "groupcolor": "#3f789e",
-          "color": "#2a363b"
-        }
-      },
-      "widgets_values": [
-        true
-      ],
-      "color": "#2a363b",
-      "bgcolor": "#3f5159"
-    },
-    {
-      "id": 266,
-      "type": "CFGNorm",
-      "pos": [
-        2880,
-        -60
-      ],
-      "size": [
-        240,
-        60
-      ],
-      "flags": {
-        "collapsed": false
-      },
-      "order": 119,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "model",
-          "type": "MODEL",
-          "link": 3199
-        }
-      ],
-      "outputs": [
-        {
-          "name": "patched_model",
-          "type": "MODEL",
-          "links": [
-            3200
-          ]
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.3.50",
-        "Node name for S&R": "CFGNorm",
-        "ue_properties": {
-          "widget_ue_connectable": {
-            "strength": true
-          },
-          "version": "7.3",
-          "input_ue_unconnectable": {}
-        },
-        "enableTabs": false,
-        "tabWidth": 65,
-        "tabXOffset": 10,
-        "hasSecondTab": false,
-        "secondTabText": "Send Back",
-        "secondTabOffset": 80,
-        "secondTabWidth": 65
-      },
-      "widgets_values": [
-        1
-      ],
-      "color": "#223",
-      "bgcolor": "#335"
-    },
-    {
-      "id": 264,
-      "type": "SetNode",
-      "pos": [
-        2950,
-        30
-      ],
-      "size": [
-        210,
-        58
-      ],
-      "flags": {
-        "collapsed": true
-      },
-      "order": 125,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "MODEL",
-          "type": "MODEL",
-          "link": 3200
-        }
-      ],
-      "outputs": [
-        {
-          "name": "*",
-          "type": "*",
-          "links": null
-        }
-      ],
-      "title": "Set_Origin_MODEL",
-      "properties": {
-        "previousName": "Origin_MODEL",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "version": "7.3",
-          "input_ue_unconnectable": {}
-        }
-      },
-      "widgets_values": [
-        "Origin_MODEL"
-      ],
-      "color": "#223",
-      "bgcolor": "#335"
-    },
-    {
       "id": 64,
       "type": "ModelPatchTorchSettings",
       "pos": [
@@ -3224,7 +3067,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 112,
+      "order": 114,
       "mode": 0,
       "inputs": [
         {
@@ -3278,7 +3121,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 101,
+      "order": 102,
       "mode": 0,
       "inputs": [
         {
@@ -3348,7 +3191,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 118,
+      "order": 120,
       "mode": 0,
       "inputs": [
         {
@@ -3404,7 +3247,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 124,
+      "order": 126,
       "mode": 0,
       "inputs": [
         {
@@ -3462,7 +3305,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 128,
+      "order": 130,
       "mode": 0,
       "inputs": [
         {
@@ -3626,7 +3469,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 85,
+      "order": 86,
       "mode": 0,
       "inputs": [
         {
@@ -3676,7 +3519,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 68,
+      "order": 69,
       "mode": 0,
       "inputs": [
         {
@@ -3746,7 +3589,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 84,
+      "order": 85,
       "mode": 0,
       "inputs": [
         {
@@ -3797,7 +3640,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 67,
+      "order": 68,
       "mode": 0,
       "inputs": [
         {
@@ -3948,7 +3791,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 126,
+      "order": 128,
       "mode": 4,
       "inputs": [
         {
@@ -4004,7 +3847,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 120,
+      "order": 122,
       "mode": 4,
       "inputs": [
         {
@@ -4068,7 +3911,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 62,
+      "order": 63,
       "mode": 4,
       "inputs": [
         {
@@ -4127,7 +3970,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 80,
+      "order": 81,
       "mode": 4,
       "inputs": [
         {
@@ -4170,7 +4013,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 103,
+      "order": 105,
       "mode": 4,
       "inputs": [
         {
@@ -4228,7 +4071,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 114,
+      "order": 116,
       "mode": 4,
       "inputs": [
         {
@@ -4278,7 +4121,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 69,
+      "order": 70,
       "mode": 2,
       "inputs": [
         {
@@ -4333,7 +4176,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 70,
+      "order": 71,
       "mode": 2,
       "inputs": [
         {
@@ -4388,7 +4231,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 78,
+      "order": 79,
       "mode": 0,
       "inputs": [
         {
@@ -4457,7 +4300,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 74,
+      "order": 75,
       "mode": 4,
       "inputs": [
         {
@@ -4708,7 +4551,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 88,
+      "order": 89,
       "mode": 0,
       "inputs": [
         {
@@ -4759,7 +4602,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 117,
+      "order": 119,
       "mode": 0,
       "inputs": [
         {
@@ -4817,7 +4660,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 72,
+      "order": 73,
       "mode": 0,
       "inputs": [
         {
@@ -4871,7 +4714,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 86,
+      "order": 87,
       "mode": 0,
       "inputs": [
         {
@@ -5010,7 +4853,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 98,
+      "order": 99,
       "mode": 0,
       "inputs": [
         {
@@ -5094,7 +4937,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 79,
+      "order": 80,
       "mode": 0,
       "inputs": [
         {
@@ -5205,7 +5048,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 123,
+      "order": 125,
       "mode": 0,
       "inputs": [
         {
@@ -5248,7 +5091,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 110,
+      "order": 112,
       "mode": 4,
       "inputs": [
         {
@@ -5295,7 +5138,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 111,
+      "order": 113,
       "mode": 4,
       "inputs": [
         {
@@ -5346,7 +5189,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 100,
+      "order": 101,
       "mode": 4,
       "inputs": [
         {
@@ -5405,7 +5248,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 87,
+      "order": 88,
       "mode": 4,
       "inputs": [
         {
@@ -5450,7 +5293,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 73,
+      "order": 74,
       "mode": 0,
       "inputs": [
         {
@@ -5546,7 +5389,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 107,
+      "order": 109,
       "mode": 4,
       "inputs": [
         {
@@ -5587,7 +5430,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 96,
+      "order": 97,
       "mode": 4,
       "inputs": [
         {
@@ -5646,7 +5489,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 121,
+      "order": 123,
       "mode": 4,
       "inputs": [
         {
@@ -5687,7 +5530,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 106,
+      "order": 108,
       "mode": 4,
       "inputs": [
         {
@@ -5746,7 +5589,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 116,
+      "order": 118,
       "mode": 4,
       "inputs": [
         {
@@ -5788,7 +5631,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 64,
+      "order": 65,
       "mode": 0,
       "inputs": [
         {
@@ -5846,7 +5689,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 130,
+      "order": 133,
       "mode": 0,
       "inputs": [
         {
@@ -5889,7 +5732,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 132,
+      "order": 135,
       "mode": 0,
       "inputs": [
         {
@@ -5935,7 +5778,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 131,
+      "order": 134,
       "mode": 0,
       "inputs": [
         {
@@ -6057,7 +5900,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 99,
+      "order": 100,
       "mode": 0,
       "inputs": [
         {
@@ -6104,7 +5947,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 109,
+      "order": 111,
       "mode": 0,
       "inputs": [
         {
@@ -6272,7 +6115,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 89,
+      "order": 90,
       "mode": 0,
       "inputs": [
         {
@@ -6359,7 +6202,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 129,
+      "order": 132,
       "mode": 0,
       "inputs": [
         {
@@ -6402,7 +6245,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 115,
+      "order": 117,
       "mode": 4,
       "inputs": [
         {
@@ -6483,26 +6326,410 @@
       "bgcolor": "#353"
     },
     {
-      "id": 265,
-      "type": "ModelSamplingAuraFlow",
+      "id": 264,
+      "type": "SetNode",
       "pos": [
-        2870,
-        -150
+        2960,
+        40
       ],
       "size": [
-        250,
+        210,
         58
       ],
       "flags": {
-        "collapsed": false
+        "collapsed": true,
+        "pinned": true
       },
-      "order": 113,
+      "order": 131,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "link": 3200
+        }
+      ],
+      "outputs": [
+        {
+          "name": "*",
+          "type": "*",
+          "links": null
+        }
+      ],
+      "title": "Set_Origin_MODEL",
+      "properties": {
+        "previousName": "Origin_MODEL",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.3",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "Origin_MODEL"
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 334,
+      "type": "ModelPatchTorchSettings",
+      "pos": [
+        2870,
+        -370
+      ],
+      "size": [
+        252.095703125,
+        58
+      ],
+      "flags": {
+        "collapsed": false,
+        "pinned": true
+      },
+      "order": 92,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "model",
+          "name": "model",
+          "type": "MODEL",
+          "link": 7133
+        }
+      ],
+      "outputs": [
+        {
+          "label": "MODEL",
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            7718,
+            7724
+          ]
+        }
+      ],
+      "title": "Model Patch Torch",
+      "properties": {
+        "Node name for S&R": "ModelPatchTorchSettings",
+        "ue_properties": {
+          "version": "7.3",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "ttNbgOverride": {
+          "bgcolor": "#3f5159",
+          "groupcolor": "#3f789e",
+          "color": "#2a363b"
+        }
+      },
+      "widgets_values": [
+        true
+      ],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 358,
+      "type": "PathchSageAttentionKJ",
+      "pos": [
+        2680,
+        -30
+      ],
+      "size": [
+        210,
+        90
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 104,
       "mode": 0,
       "inputs": [
         {
           "name": "model",
           "type": "MODEL",
-          "link": 7719
+          "link": 7724
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            7720
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PathchSageAttentionKJ",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        "auto",
+        false
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 356,
+      "type": "PathchSageAttentionKJ",
+      "pos": [
+        2910,
+        -30
+      ],
+      "size": [
+        220,
+        82
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 103,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 7718
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            7723
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PathchSageAttentionKJ",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        "sageattn_qk_int8_pv_fp16_cuda",
+        false
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 357,
+      "type": "GetGPUInfo",
+      "pos": [
+        2680,
+        100
+      ],
+      "size": [
+        270.5171875,
+        166
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 54,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "compute_capability",
+          "type": "STRING",
+          "links": null
+        },
+        {
+          "name": "major_version",
+          "type": "INT",
+          "links": null
+        },
+        {
+          "name": "minor_version",
+          "type": "INT",
+          "links": null
+        },
+        {
+          "name": "is_turing_plus_SM75",
+          "type": "BOOLEAN",
+          "links": null
+        },
+        {
+          "name": "is_ampere_plus_SM80",
+          "type": "BOOLEAN",
+          "links": null
+        },
+        {
+          "name": "is_ampere_consumer_plus_SM86",
+          "type": "BOOLEAN",
+          "links": null
+        },
+        {
+          "name": "is_ada_plus_SM89",
+          "type": "BOOLEAN",
+          "links": [
+            7721
+          ]
+        },
+        {
+          "name": "is_hopper_plus_SM90",
+          "type": "BOOLEAN",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "GetGPUInfo",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 359,
+      "type": "easy ifElse",
+      "pos": [
+        2970,
+        250
+      ],
+      "size": [
+        210,
+        78
+      ],
+      "flags": {
+        "collapsed": true,
+        "pinned": true
+      },
+      "order": 115,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "on_true",
+          "type": "*",
+          "link": 7720
+        },
+        {
+          "name": "on_false",
+          "type": "*",
+          "link": 7723
+        },
+        {
+          "name": "boolean",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "boolean"
+          },
+          "link": 7721
+        }
+      ],
+      "outputs": [
+        {
+          "name": "*",
+          "type": "*",
+          "links": [
+            7722
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "easy ifElse",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        false
+      ]
+    },
+    {
+      "id": 266,
+      "type": "CFGNorm",
+      "pos": [
+        2910,
+        -210
+      ],
+      "size": [
+        220,
+        58
+      ],
+      "flags": {
+        "collapsed": false,
+        "pinned": true
+      },
+      "order": 127,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 3199
+        }
+      ],
+      "outputs": [
+        {
+          "name": "patched_model",
+          "type": "MODEL",
+          "links": [
+            3200
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.50",
+        "Node name for S&R": "CFGNorm",
+        "ue_properties": {
+          "widget_ue_connectable": {
+            "strength": true
+          },
+          "version": "7.3",
+          "input_ue_unconnectable": {}
+        },
+        "enableTabs": false,
+        "tabWidth": 65,
+        "tabXOffset": 10,
+        "hasSecondTab": false,
+        "secondTabText": "Send Back",
+        "secondTabOffset": 80,
+        "secondTabWidth": 65
+      },
+      "widgets_values": [
+        1
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 265,
+      "type": "ModelSamplingAuraFlow",
+      "pos": [
+        2670,
+        -210
+      ],
+      "size": [
+        220,
+        60
+      ],
+      "flags": {
+        "collapsed": false,
+        "pinned": true
+      },
+      "order": 121,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 7722
         }
       ],
       "outputs": [
@@ -6533,52 +6760,6 @@
       },
       "widgets_values": [
         3
-      ],
-      "color": "#223",
-      "bgcolor": "#335"
-    },
-    {
-      "id": 356,
-      "type": "PathchSageAttentionKJ",
-      "pos": [
-        2870,
-        -270
-      ],
-      "size": [
-        250,
-        82
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 102,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "model",
-          "type": "MODEL",
-          "link": 7718
-        }
-      ],
-      "outputs": [
-        {
-          "name": "MODEL",
-          "type": "MODEL",
-          "links": [
-            7719
-          ]
-        }
-      ],
-      "properties": {
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {}
-        },
-        "Node name for S&R": "PathchSageAttentionKJ"
-      },
-      "widgets_values": [
-        "sageattn_qk_int8_pv_fp16_cuda",
-        false
       ],
       "color": "#223",
       "bgcolor": "#335"
@@ -7450,10 +7631,42 @@
       "MODEL"
     ],
     [
-      7719,
-      356,
+      7720,
+      358,
+      0,
+      359,
+      0,
+      "MODEL"
+    ],
+    [
+      7721,
+      357,
+      6,
+      359,
+      2,
+      "BOOLEAN"
+    ],
+    [
+      7722,
+      359,
       0,
       265,
+      0,
+      "MODEL"
+    ],
+    [
+      7723,
+      356,
+      0,
+      359,
+      1,
+      "MODEL"
+    ],
+    [
+      7724,
+      334,
+      0,
+      358,
       0,
       "MODEL"
     ]
@@ -7683,15 +7896,30 @@
       "flags": {
         "pinned": true
       }
+    },
+    {
+      "id": 26,
+      "title": "SageAttention适配(找不到节点可跳过)",
+      "bounding": [
+        2670,
+        -120,
+        460,
+        400
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {
+        "pinned": true
+      }
     }
   ],
   "config": {},
   "extra": {
     "ds": {
-      "scale": 1.116781577942504,
+      "scale": 1.015255979947731,
       "offset": [
-        -2356.8918413033844,
-        573.740977404317
+        -1626.2197133649647,
+        726.3528943881968
       ]
     },
     "ue_links": [

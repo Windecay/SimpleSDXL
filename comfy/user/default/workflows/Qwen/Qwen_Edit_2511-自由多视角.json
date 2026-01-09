@@ -1,8 +1,8 @@
 {
   "id": "ad18abd3-bdee-4f80-8fae-d15d4f845b9d",
   "revision": 0,
-  "last_node_id": 126,
-  "last_link_id": 264,
+  "last_node_id": 131,
+  "last_link_id": 271,
   "nodes": [
     {
       "id": 97,
@@ -18,7 +18,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 21,
+      "order": 22,
       "mode": 0,
       "inputs": [
         {
@@ -73,7 +73,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 22,
+      "order": 28,
       "mode": 0,
       "inputs": [
         {
@@ -128,7 +128,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 28,
+      "order": 32,
       "mode": 0,
       "inputs": [
         {
@@ -168,62 +168,6 @@
       ]
     },
     {
-      "id": 104,
-      "type": "VAEEncode",
-      "pos": [
-        310,
-        310
-      ],
-      "size": [
-        187.5,
-        60
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 16,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "pixels",
-          "type": "IMAGE",
-          "link": 234
-        },
-        {
-          "name": "vae",
-          "type": "VAE",
-          "link": 235
-        }
-      ],
-      "outputs": [
-        {
-          "name": "LATENT",
-          "type": "LATENT",
-          "links": [
-            242
-          ]
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.5.1",
-        "Node name for S&R": "VAEEncode",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "version": "7.3",
-          "input_ue_unconnectable": {}
-        },
-        "enableTabs": false,
-        "tabWidth": 65,
-        "tabXOffset": 10,
-        "hasSecondTab": false,
-        "secondTabText": "Send Back",
-        "secondTabOffset": 80,
-        "secondTabWidth": 65
-      },
-      "widgets_values": []
-    },
-    {
       "id": 108,
       "type": "TextEncodeQwenImageEditPlus",
       "pos": [
@@ -237,7 +181,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 15,
+      "order": 16,
       "mode": 0,
       "inputs": [
         {
@@ -316,13 +260,13 @@
       "flags": {
         "pinned": true
       },
-      "order": 27,
+      "order": 31,
       "mode": 0,
       "inputs": [
         {
           "name": "model",
           "type": "MODEL",
-          "link": 264
+          "link": 268
         }
       ],
       "outputs": [
@@ -369,7 +313,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 17,
+      "order": 23,
       "mode": 0,
       "inputs": [
         {
@@ -407,7 +351,7 @@
           "widget": {
             "name": "prompt"
           },
-          "link": 251
+          "link": 271
         }
       ],
       "outputs": [
@@ -457,7 +401,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 14,
+      "order": 15,
       "mode": 0,
       "inputs": [
         {
@@ -519,7 +463,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 30,
+      "order": 34,
       "mode": 0,
       "inputs": [
         {
@@ -576,7 +520,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 10,
+      "order": 11,
       "mode": 0,
       "inputs": [
         {
@@ -739,7 +683,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 29,
+      "order": 33,
       "mode": 0,
       "inputs": [
         {
@@ -813,7 +757,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 31,
+      "order": 35,
       "mode": 0,
       "inputs": [
         {
@@ -976,7 +920,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 12,
+      "order": 13,
       "mode": 4,
       "inputs": [
         {
@@ -1128,7 +1072,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 19,
+      "order": 20,
       "mode": 4,
       "inputs": [
         {
@@ -1169,7 +1113,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 13,
+      "order": 14,
       "mode": 4,
       "inputs": [
         {
@@ -1210,7 +1154,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 18,
+      "order": 19,
       "mode": 4,
       "inputs": [
         {
@@ -1265,7 +1209,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 23,
+      "order": 24,
       "mode": 4,
       "inputs": [
         {
@@ -1322,7 +1266,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 26,
+      "order": 29,
       "mode": 4,
       "inputs": [
         {
@@ -1363,7 +1307,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 24,
+      "order": 25,
       "mode": 4,
       "inputs": [
         {
@@ -1480,51 +1424,6 @@
       ]
     },
     {
-      "id": 126,
-      "type": "PathchSageAttentionKJ",
-      "pos": [
-        -390,
-        -100
-      ],
-      "size": [
-        390,
-        110
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 25,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "model",
-          "type": "MODEL",
-          "link": 263
-        }
-      ],
-      "outputs": [
-        {
-          "name": "MODEL",
-          "type": "MODEL",
-          "links": [
-            264
-          ]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "PathchSageAttentionKJ",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.3"
-        }
-      },
-      "widgets_values": [
-        "sageattn_qk_int8_pv_fp16_cuda",
-        false
-      ]
-    },
-    {
       "id": 110,
       "type": "LoraLoaderModelOnly",
       "pos": [
@@ -1538,7 +1437,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 20,
+      "order": 21,
       "mode": 0,
       "inputs": [
         {
@@ -1552,7 +1451,8 @@
           "name": "MODEL",
           "type": "MODEL",
           "links": [
-            263
+            263,
+            269
           ]
         }
       ],
@@ -1655,7 +1555,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 11,
+      "order": 12,
       "mode": 0,
       "inputs": [
         {
@@ -1670,7 +1570,7 @@
           "name": "prompt",
           "type": "STRING",
           "links": [
-            251
+            270
           ]
         }
       ],
@@ -1687,6 +1587,332 @@
         36,
         4.5,
         ""
+      ]
+    },
+    {
+      "id": 126,
+      "type": "PathchSageAttentionKJ",
+      "pos": [
+        370,
+        380
+      ],
+      "size": [
+        210,
+        82
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 26,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 263
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            267
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PathchSageAttentionKJ",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        "sageattn_qk_int8_pv_fp16_cuda",
+        false
+      ]
+    },
+    {
+      "id": 128,
+      "type": "GetGPUInfo",
+      "pos": [
+        70,
+        260
+      ],
+      "size": [
+        270.5171875,
+        166
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 10,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "compute_capability",
+          "type": "STRING",
+          "links": null
+        },
+        {
+          "name": "major_version",
+          "type": "INT",
+          "links": null
+        },
+        {
+          "name": "minor_version",
+          "type": "INT",
+          "links": null
+        },
+        {
+          "name": "is_turing_plus_SM75",
+          "type": "BOOLEAN",
+          "links": null
+        },
+        {
+          "name": "is_ampere_plus_SM80",
+          "type": "BOOLEAN",
+          "links": null
+        },
+        {
+          "name": "is_ampere_consumer_plus_SM86",
+          "type": "BOOLEAN",
+          "links": null
+        },
+        {
+          "name": "is_ada_plus_SM89",
+          "type": "BOOLEAN",
+          "links": [
+            265
+          ]
+        },
+        {
+          "name": "is_hopper_plus_SM90",
+          "type": "BOOLEAN",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "GetGPUInfo",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 129,
+      "type": "PathchSageAttentionKJ",
+      "pos": [
+        370,
+        250
+      ],
+      "size": [
+        210,
+        90
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 27,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 269
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            266
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PathchSageAttentionKJ",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        "auto",
+        false
+      ]
+    },
+    {
+      "id": 130,
+      "type": "easy ifElse",
+      "pos": [
+        650,
+        280
+      ],
+      "size": [
+        210,
+        120
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 30,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "on_true",
+          "type": "*",
+          "link": 266
+        },
+        {
+          "name": "on_false",
+          "type": "*",
+          "link": 267
+        },
+        {
+          "name": "boolean",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "boolean"
+          },
+          "link": 265
+        }
+      ],
+      "outputs": [
+        {
+          "name": "*",
+          "type": "*",
+          "links": [
+            268
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "easy ifElse",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        false
+      ]
+    },
+    {
+      "id": 104,
+      "type": "VAEEncode",
+      "pos": [
+        650,
+        90
+      ],
+      "size": [
+        187.5,
+        60
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 17,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "pixels",
+          "type": "IMAGE",
+          "link": 234
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 235
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            242
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.5.1",
+        "Node name for S&R": "VAEEncode",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.3",
+          "input_ue_unconnectable": {}
+        },
+        "enableTabs": false,
+        "tabWidth": 65,
+        "tabXOffset": 10,
+        "hasSecondTab": false,
+        "secondTabText": "Send Back",
+        "secondTabOffset": 80,
+        "secondTabWidth": 65
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 131,
+      "type": "StringConcatenate",
+      "pos": [
+        -900,
+        150
+      ],
+      "size": [
+        380,
+        270
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 18,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "string_a",
+          "type": "STRING",
+          "widget": {
+            "name": "string_a"
+          },
+          "link": 270
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            271
+          ]
+        }
+      ],
+      "title": "下面一栏填写自定义提示词",
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.8.2",
+        "Node name for S&R": "StringConcatenate",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        "",
+        "",
+        ","
       ]
     }
   ],
@@ -1860,14 +2086,6 @@
       "IMAGE"
     ],
     [
-      251,
-      109,
-      0,
-      103,
-      5,
-      "STRING"
-    ],
-    [
       253,
       106,
       0,
@@ -1940,12 +2158,60 @@
       "MODEL"
     ],
     [
-      264,
+      265,
+      128,
+      6,
+      130,
+      2,
+      "BOOLEAN"
+    ],
+    [
+      266,
+      129,
+      0,
+      130,
+      0,
+      "MODEL"
+    ],
+    [
+      267,
       126,
+      0,
+      130,
+      1,
+      "MODEL"
+    ],
+    [
+      268,
+      130,
       0,
       94,
       0,
       "MODEL"
+    ],
+    [
+      269,
+      110,
+      0,
+      129,
+      0,
+      "MODEL"
+    ],
+    [
+      270,
+      109,
+      0,
+      131,
+      0,
+      "STRING"
+    ],
+    [
+      271,
+      131,
+      0,
+      103,
+      5,
+      "STRING"
     ]
   ],
   "groups": [
@@ -1993,15 +2259,30 @@
       "flags": {
         "pinned": true
       }
+    },
+    {
+      "id": 4,
+      "title": "SageAttention适配(找不到节点可跳过)",
+      "bounding": [
+        60,
+        170,
+        820,
+        310
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {
+        "pinned": true
+      }
     }
   ],
   "config": {},
   "extra": {
     "ds": {
-      "scale": 1.2911881705657802,
+      "scale": 0.8818988939046385,
       "offset": [
-        -279.0905513035894,
-        1182.6694085647723
+        1070.8637508255276,
+        632.9507936055542
       ]
     },
     "frontendVersion": "1.35.9",

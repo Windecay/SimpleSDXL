@@ -548,7 +548,7 @@
   "172": {
     "inputs": {
       "prompt": [
-        "2",
+        "177",
         0
       ],
       "clip": [
@@ -617,6 +617,32 @@
     "class_type": "FluxKontextMultiReferenceLatentMethod",
     "_meta": {
       "title": "FluxKontextMultiReferenceLatentMethod"
+    }
+  },
+  "176": {
+    "inputs": {
+      "value": "front view, eye level, medium shot, {\"horizontal\":0,\"vertical\":0,\"zoom\":5}"
+    },
+    "class_type": "easy string",
+    "_meta": {
+      "title": "additional_prompt"
+    }
+  },
+  "177": {
+    "inputs": {
+      "string_a": [
+        "176",
+        0
+      ],
+      "string_b": [
+        "2",
+        0
+      ],
+      "delimiter": ","
+    },
+    "class_type": "StringConcatenate",
+    "_meta": {
+      "title": "Concatenate"
     }
   }
 }
