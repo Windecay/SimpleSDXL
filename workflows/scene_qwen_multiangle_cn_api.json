@@ -533,7 +533,7 @@
       "keep_proportion": "total_pixels",
       "pad_color": "0, 0, 0",
       "crop_position": "center",
-      "divisible_by": 8,
+      "divisible_by": 16,
       "device": "cpu",
       "image": [
         "43",
