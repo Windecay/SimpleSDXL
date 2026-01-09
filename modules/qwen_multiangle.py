@@ -17,6 +17,8 @@ VIEWER_HTML = r"""
             overflow: hidden;
             background: #0a0a0f;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         #container {
@@ -787,6 +789,11 @@ VIEWER_HTML = r"""
             let lastMouseY = 0;
 
             function onPointerDown(event) {
+                // Prevent default text selection behavior
+                if (event.preventDefault) {
+                    event.preventDefault();
+                }
+
                 getMousePos(event);
                 
                 if (state.cameraView) {
