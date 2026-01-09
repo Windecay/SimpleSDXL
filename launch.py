@@ -243,9 +243,9 @@ def check_base_environment():
                 if llama_url:
                     print('check llama_cpp_python...')
                     has_update_llama = download_if_updated(llama_url, llama_path)
-                    if has_update_llama or not is_installed_version('llama_cpp_python', '0.3.16'):
+                    if has_update_llama or not is_installed_version('llama_cpp_python', '0.3.16') or need_reinstall:
                         print(f'ready to install {llama_path}')
-                        run(f'"{python}" -m pip install -U {llama_path}', f'Install {llama_path}', live=True)
+                        run(f'"{python}" -m pip install -U --force-reinstall --no-deps {llama_path}', f'Install {llama_path}', live=True)
         except Exception as e:
             print(f'Error installing llama_cpp_python: {str(e)}')
             print('Skipping llama_cpp_python installation and continuing...')
@@ -487,7 +487,7 @@ def is_port_available(port, host='127.0.0.1'):
         return False
 
 def find_available_port(start_port=7865, max_attempts=100, suppress_logging=False):
-    excluded_ports = {7890, 8188}
+    excluded_ports = {7890, 8187, 8188, 8189, 8190}
 
     for i in range(max_attempts):
         port = start_port + i

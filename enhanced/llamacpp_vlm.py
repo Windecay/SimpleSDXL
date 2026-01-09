@@ -1,24 +1,130 @@
 import os
-if os.name == 'nt' and "CUDA_PATH" in os.environ:
-    _cuda_path = os.environ["CUDA_PATH"]
-    _cuda_bin = os.path.join(_cuda_path, "bin")
-    if not os.path.exists(_cuda_bin):
-        del os.environ["CUDA_PATH"]
-
 import gc
 import torch
 import numpy as np
 import logging
 import threading
 from PIL import Image
-from llama_cpp import Llama
-from llama_cpp.llama_chat_format import (
-    Llava15ChatHandler, Llava16ChatHandler, MoondreamChatHandler,
-    NanoLlavaChatHandler, Llama3VisionAlphaChatHandler, MiniCPMv26ChatHandler,
-    Qwen25VLChatHandler, Qwen3VLChatHandler
-)
-import modules.config as config
+
 from enhanced.logger import format_name
+logger = logging.getLogger(format_name(__name__))
+
+def setup_cuda_environment():
+    """
+    Setup CUDA environment variables to prioritize portable CUDA and avoid version mismatches.
+    """
+    import platform
+    import glob
+
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.dirname(current_dir)
+    portable_root = os.path.dirname(project_root)
+
+    cuda_paths = []
+    is_portable = False
+
+    if os.name == 'nt':
+        python_embeded = os.path.join(portable_root, 'python_embeded')
+        if os.path.exists(python_embeded):
+            is_portable = True
+            site_packages = os.path.join(python_embeded, 'Lib', 'site-packages')
+            if os.path.exists(site_packages):
+                nvidia_paths = glob.glob(os.path.join(site_packages, 'nvidia', '*', 'bin'))
+                cuda_paths.extend(nvidia_paths)
+
+                torch_lib = os.path.join(site_packages, 'torch', 'lib')
+                if os.path.exists(torch_lib):
+                    cuda_paths.append(torch_lib)
+
+            bin_path = os.path.join(python_embeded, 'bin')
+            if os.path.exists(bin_path):
+                cuda_paths.append(bin_path)
+    else:
+        try:
+            import sys
+            for path in sys.path:
+                if 'site-packages' in path:
+                    nvidia_paths = glob.glob(os.path.join(path, 'nvidia', '*', 'lib'))
+                    if nvidia_paths:
+                        is_portable = True
+                        cuda_paths.extend(nvidia_paths)
+        except Exception as e:
+            logger.debug(f"Failed to search site-packages for CUDA: {e}")
+
+    if is_portable and cuda_paths:
+        logger.info(f"Detected portable environment. Prioritizing CUDA paths: {cuda_paths}")
+
+        for env_var in ["CUDA_PATH", "CUDA_HOME", "CUDA_ROOT"]:
+            if env_var in os.environ:
+                logger.info(f"Unsetting global {env_var}={os.environ[env_var]} to force portable CUDA usage")
+                del os.environ[env_var]
+
+        if os.name == 'nt':
+            current_path = os.environ.get("PATH", "")
+            new_path = ";".join(cuda_paths) + ";" + current_path
+            os.environ["PATH"] = new_path
+        else:
+            current_ld = os.environ.get("LD_LIBRARY_PATH", "")
+            new_ld = ":".join(cuda_paths) + (":" + current_ld if current_ld else "")
+            os.environ["LD_LIBRARY_PATH"] = new_ld
+
+    if not is_portable:
+        if os.name == 'nt':
+            if "CUDA_PATH" in os.environ:
+                _cuda_path = os.environ["CUDA_PATH"]
+                _cuda_bin = os.path.join(_cuda_path, "bin")
+                if not os.path.exists(_cuda_bin):
+                    del os.environ["CUDA_PATH"]
+                    logger.info("Removed invalid CUDA_PATH from environment")
+        else:
+            std_cuda_paths = ["/usr/local/cuda/lib64"]
+            try:
+                found_paths = glob.glob("/usr/local/cuda-*/lib64")
+                if found_paths:
+                    std_cuda_paths.extend(sorted(found_paths, reverse=True))
+            except:
+                pass
+
+            for path in std_cuda_paths:
+                if os.path.exists(path):
+                    current_ld = os.environ.get("LD_LIBRARY_PATH", "")
+                    if path not in current_ld:
+                        os.environ["LD_LIBRARY_PATH"] = path + (":" + current_ld if current_ld else "")
+                        logger.info(f"Added system CUDA path {path} to LD_LIBRARY_PATH")
+
+    if not os.name == 'nt':
+        ld_path = os.environ.get("LD_LIBRARY_PATH", "")
+        if "cuda-13" in ld_path and "cuda-12" not in ld_path:
+            has_12 = False
+            for p in ld_path.split(":"):
+                if p and os.path.exists(os.path.join(p, "libcublas.so.12")):
+                    has_12 = True
+                    break
+            if not has_12:
+                logger.warning("Detected CUDA 13 but libcublas.so.12 is missing. Clearing CUDA paths to avoid crash.")
+                new_ld = ":".join([p for p in ld_path.split(":") if "cuda" not in p.lower()])
+                os.environ["LD_LIBRARY_PATH"] = new_ld
+
+setup_cuda_environment()
+
+try:
+    from llama_cpp import Llama
+    from llama_cpp.llama_chat_format import (
+        Llava15ChatHandler, Llava16ChatHandler, MoondreamChatHandler,
+        NanoLlavaChatHandler, Llama3VisionAlphaChatHandler, MiniCPMv26ChatHandler,
+        Qwen25VLChatHandler, Qwen3VLChatHandler
+    )
+    LLAMA_CPP_AVAILABLE = True
+except Exception as e:
+    logger.error(f"Failed to import llama_cpp: {e}")
+    logger.error("Please ensure CUDA libraries are correctly installed and in your library path.")
+    Llama = None
+    Llava15ChatHandler = Llava16ChatHandler = MoondreamChatHandler = None
+    NanoLlavaChatHandler = Llama3VisionAlphaChatHandler = MiniCPMv26ChatHandler = None
+    Qwen25VLChatHandler = Qwen3VLChatHandler = None
+    LLAMA_CPP_AVAILABLE = False
+
+import modules.config as config
 import ldm_patched.modules.model_management
 
 logger = logging.getLogger(format_name(__name__))
@@ -113,6 +219,10 @@ class LlamaCppVLM:
         return 32
 
     def load_model(self, model_name, chat_handler_name, n_gpu_layers=-1, n_ctx=8192):
+        if not LLAMA_CPP_AVAILABLE:
+            logger.error("llama-cpp-python is not correctly installed or CUDA libraries are missing.")
+            return
+
         with self.lock:
             model_path = os.path.join(config.paths_LLM[0], model_name)
             if self.llm is not None and self.current_model_path == model_path and self.current_chat_handler_name == chat_handler_name:
