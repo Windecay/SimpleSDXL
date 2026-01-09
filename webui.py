@@ -582,7 +582,7 @@ with shared.gradio_root:
                             try:
                                 if isinstance(image, np.ndarray):
                                     pil_image = Image.fromarray(image)
-                                    max_size = 224
+                                    max_size = 512
                                     if pil_image.width > max_size or pil_image.height > max_size:
                                         pil_image.thumbnail((max_size, max_size), Image.Resampling.LANCZOS)
                                     
