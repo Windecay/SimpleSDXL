@@ -253,7 +253,11 @@ VIEWER_HTML = r"""
             }
 
             let v_direction;
-            if (state.elevation < -15) {
+            if (state.elevation < -60) {
+                v_direction = "worm's eye view";
+            } else if (state.elevation < -30) {
+                v_direction = "extreme low angle";
+            } else if (state.elevation < -15) {
                 v_direction = "low angle";
             } else if (state.elevation < 15) {
                 v_direction = "eye level";
@@ -307,7 +311,11 @@ VIEWER_HTML = r"""
 
             // Vertical mapping for Qwen format
             let v_direction;
-            if (v_angle < -15) {
+            if (v_angle < -60) {
+                v_direction = "worm's-eye view";
+            } else if (v_angle < -30) {
+                v_direction = "extreme low-angle shot";
+            } else if (v_angle < -15) {
                 v_direction = "low-angle shot";
             } else if (v_angle < 15) {
                 v_direction = "eye-level shot";
@@ -639,7 +647,7 @@ VIEWER_HTML = r"""
             // Elevation Arc
             const arcPoints = [];
             for (let i = 0; i <= 32; i++) {
-                const angle = (-30 + (120 * i / 32)) * Math.PI / 180;
+                const angle = (-90 + (180 * i / 32)) * Math.PI / 180;
                 arcPoints.push(new THREE.Vector3(
                     ELEV_ARC_X,
                     ELEVATION_RADIUS * Math.sin(angle) + CENTER.y,
@@ -839,7 +847,7 @@ VIEWER_HTML = r"""
                     state.elevation += deltaY * 0.5;
                     
                     // Clamp elevation
-                    state.elevation = Math.max(-30, Math.min(90, state.elevation));
+                    state.elevation = Math.max(-90, Math.min(90, state.elevation));
                     
                     // Normalize azimuth
                     if (state.azimuth < 0) state.azimuth += 360;
@@ -909,7 +917,7 @@ VIEWER_HTML = r"""
                         const relY = intersect.y - CENTER.y;
                         const relZ = intersect.z;
                         let angle = Math.atan2(relY, relZ) * (180 / Math.PI);
-                        angle = Math.max(-30, Math.min(90, angle));
+                        angle = Math.max(-90, Math.min(90, angle));
                         liveElevation = angle;
                         state.elevation = Math.round(liveElevation);
                         updateDisplay();
@@ -1210,7 +1218,11 @@ def get_viewer_html():
             }
 
             let v_direction;
-            if (vertical_angle < -15) {
+            if (vertical_angle < -60) {
+                v_direction = "worm&#39;s eye view";
+            } else if (vertical_angle < -30) {
+                v_direction = "extreme low angle";
+            } else if (vertical_angle < -15) {
                 v_direction = "low angle";
             } else if (vertical_angle < 15) {
                 v_direction = "eye level";
