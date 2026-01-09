@@ -1,3 +1,4 @@
+
 VIEWER_HTML = r"""
 <!DOCTYPE html>
 <html>
@@ -86,6 +87,61 @@ VIEWER_HTML = r"""
         .param-value.zoom {
             color: #FFB800;
         }
+
+        #view-btn {
+            position: absolute;
+            right: 8px;
+            bottom: 100%;
+            margin-bottom: 8px;
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            border: 1px solid rgba(233, 61, 130, 0.4);
+            background: rgba(10, 10, 15, 0.8);
+            color: #E93D82;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        #view-btn:hover {
+            background: rgba(233, 61, 130, 0.2);
+            border-color: #E93D82;
+        }
+
+        #view-btn:active {
+            transform: scale(0.95);
+        }
+
+        #reset-btn {
+            position: absolute;
+            right: 8px;
+            bottom: 8px;
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            border: 1px solid rgba(233, 61, 130, 0.4);
+            background: rgba(10, 10, 15, 0.8);
+            color: #E93D82;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        #reset-btn:hover {
+            background: rgba(233, 61, 130, 0.2);
+            border-color: #E93D82;
+        }
+
+        #reset-btn:active {
+            transform: scale(0.95);
+        }
     </style>
 </head>
 <body>
@@ -105,6 +161,8 @@ VIEWER_HTML = r"""
                 <div class="param-label">Zoom</div>
                 <div class="param-value zoom" id="z-value">5.0</div>
             </div>
+            <button id="view-btn" title="Toggle Camera View">👁️</button>
+            <button id="reset-btn" title="Reset to defaults">↺</button>
         </div>
     </div>
 
@@ -115,7 +173,9 @@ VIEWER_HTML = r"""
             azimuth: 0,
             elevation: 0,
             distance: 5,
-            imageUrl: null
+            imageUrl: null,
+            useDefaultPrompts: false,
+            cameraView: false
         };
 
         let threeScene = null;
@@ -126,6 +186,7 @@ VIEWER_HTML = r"""
         const vValueEl = document.getElementById('v-value');
         const zValueEl = document.getElementById('z-value');
         const promptPreviewEl = document.getElementById('prompt-preview');
+        const viewBtn = document.getElementById('view-btn');
 
         function generatePromptPreview() {
             const h_angle = state.azimuth % 360;
@@ -177,11 +238,64 @@ VIEWER_HTML = r"""
             return h_direction + ", " + v_direction + ", " + distance;
         }
 
+        function generateQwenPrompt() {
+            const h_angle = state.azimuth % 360;
+            const v_angle = state.elevation;
+
+            // Horizontal mapping
+            let h_direction;
+            if (h_angle < 22.5 || h_angle >= 337.5) {
+                h_direction = "front view";
+            } else if (h_angle < 67.5) {
+                h_direction = "front-right quarter view";
+            } else if (h_angle < 112.5) {
+                h_direction = "right side view";
+            } else if (h_angle < 157.5) {
+                h_direction = "back-right quarter view";
+            } else if (h_angle < 202.5) {
+                h_direction = "back view";
+            } else if (h_angle < 247.5) {
+                h_direction = "back-left quarter view";
+            } else if (h_angle < 292.5) {
+                h_direction = "left side view";
+            } else {
+                h_direction = "front-left quarter view";
+            }
+
+            // Vertical mapping for Qwen format
+            let v_direction;
+            if (v_angle < -15) {
+                v_direction = "low-angle shot";
+            } else if (v_angle < 15) {
+                v_direction = "eye-level shot";
+            } else if (v_angle < 75) {
+                v_direction = "elevated shot";
+            } else {
+                v_direction = "high-angle shot";
+            }
+
+            // Distance mapping
+            let distance;
+            if (state.distance < 2) {
+                distance = "wide shot";
+            } else if (state.distance < 6) {
+                distance = "medium shot";
+            } else {
+                distance = "close-up";
+            }
+
+            return h_direction + " " + v_direction + " " + distance;
+        }
+
         function updateDisplay() {
             hValueEl.textContent = Math.round(state.azimuth) + '°';
             vValueEl.textContent = Math.round(state.elevation) + '°';
             zValueEl.textContent = state.distance.toFixed(1);
-            promptPreviewEl.textContent = generatePromptPreview();
+            if (state.useDefaultPrompts) {
+                promptPreviewEl.textContent = generateQwenPrompt();
+            } else {
+                promptPreviewEl.textContent = generatePromptPreview();
+            }
         }
 
         function sendAngleUpdate() {
@@ -189,9 +303,45 @@ VIEWER_HTML = r"""
                 type: 'ANGLE_UPDATE',
                 horizontal: Math.round(state.azimuth),
                 vertical: Math.round(state.elevation),
-                zoom: Math.round(state.distance * 10) / 10
+                zoom: Math.round(state.distance * 10) / 10,
+                useDefaultPrompts: state.useDefaultPrompts || false
             }, '*');
         }
+
+        function resetToDefaults() {
+            state.azimuth = 0;
+            state.elevation = 0;
+            state.distance = 5.0;
+            state.useDefaultPrompts = false;
+            state.cameraView = false;
+            if (threeScene) {
+                threeScene.syncFromState();
+                threeScene.setCameraView(false);
+            }
+            updateDisplay();
+            sendAngleUpdate();
+            viewBtn.textContent = '👁️';
+            viewBtn.title = 'Switch to Camera View';
+        }
+
+        // Toggle view handler
+        function toggleView() {
+            state.cameraView = !state.cameraView;
+            if (threeScene) {
+                threeScene.setCameraView(state.cameraView);
+            }
+            if (state.cameraView) {
+                viewBtn.textContent = '▦';
+                viewBtn.title = 'Switch to Overview';
+            } else {
+                viewBtn.textContent = '👁️';
+                viewBtn.title = 'Switch to Camera View';
+            }
+        }
+
+        // Reset button handler
+        document.getElementById('reset-btn').addEventListener('click', resetToDefaults);
+        document.getElementById('view-btn').addEventListener('click', toggleView);
 
         function initThreeJS() {
             const width = container.clientWidth;
@@ -201,15 +351,23 @@ VIEWER_HTML = r"""
             const scene = new THREE.Scene();
             scene.background = new THREE.Color(0x0a0a0f);
 
-            // Camera
+            // Camera (default overview camera)
             const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
             camera.position.set(4, 3.5, 4);
             camera.lookAt(0, 0.3, 0);
+
+            // Preview camera (placed at camera indicator position, looking at image)
+            const previewCamera = new THREE.PerspectiveCamera(50, width / height, 0.1, 100);
+
+            // Camera view state
+            let useCameraView = false;
+            let activeCamera = camera;
 
             // Renderer
             const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
             renderer.setSize(width, height);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.outputEncoding = THREE.sRGBEncoding;
             container.appendChild(renderer.domElement);
 
             // Lighting
@@ -240,18 +398,59 @@ VIEWER_HTML = r"""
             let liveElevation = state.elevation;
             let liveDistance = state.distance;
 
-            // Subject (Image Plane)
-            const planeGeo = new THREE.PlaneGeometry(1.2, 1.2);
-            const planeMat = new THREE.MeshBasicMaterial({
-                color: 0x3a3a4a,
-                side: THREE.DoubleSide
-            });
-            const imagePlane = new THREE.Mesh(planeGeo, planeMat);
+            // Subject (Image Card) - Like a playing card with front image and back grid
+            const cardThickness = 0.02;
+            const cardGeo = new THREE.BoxGeometry(1.2, 1.2, cardThickness);
+
+            // Create grid texture for card back using canvas
+            function createGridTexture() {
+                const canvas = document.createElement('canvas');
+                const size = 256;
+                canvas.width = size;
+                canvas.height = size;
+                const ctx = canvas.getContext('2d');
+
+                // Background
+                ctx.fillStyle = '#1a1a2a';
+                ctx.fillRect(0, 0, size, size);
+
+                // Grid lines
+                ctx.strokeStyle = '#2a2a3a';
+                ctx.lineWidth = 1;
+                const gridSize = 16;
+                for (let i = 0; i <= size; i += gridSize) {
+                    ctx.beginPath();
+                    ctx.moveTo(i, 0);
+                    ctx.lineTo(i, size);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(0, i);
+                    ctx.lineTo(size, i);
+                    ctx.stroke();
+                }
+
+                const texture = new THREE.CanvasTexture(canvas);
+                texture.wrapS = THREE.RepeatWrapping;
+                texture.wrapT = THREE.RepeatWrapping;
+                texture.repeat.set(4, 4);
+                return texture;
+            }
+
+            // Materials: [+X right, -X left, +Y top, -Y bottom, +Z front, -Z back]
+            const frontMat = new THREE.MeshBasicMaterial({ color: 0x3a3a4a }); // Front - will show image
+            const backMat = new THREE.MeshBasicMaterial({ map: createGridTexture() });  // Back - grid pattern
+            const edgeMat = new THREE.MeshBasicMaterial({ color: 0x1a1a2a });  // Edges - darker
+
+            const cardMaterials = [edgeMat, edgeMat, edgeMat, edgeMat, frontMat, backMat];
+            const imagePlane = new THREE.Mesh(cardGeo, cardMaterials);
             imagePlane.position.copy(CENTER);
             scene.add(imagePlane);
 
+            // Keep reference to front material for image updates
+            const planeMat = frontMat;
+
             // Frame
-            const frameGeo = new THREE.EdgesGeometry(planeGeo);
+            const frameGeo = new THREE.EdgesGeometry(cardGeo);
             const frameMat = new THREE.LineBasicMaterial({ color: 0xE93D82 });
             const imageFrame = new THREE.LineSegments(frameGeo, frameMat);
             imageFrame.position.copy(CENTER);
@@ -389,7 +588,11 @@ VIEWER_HTML = r"""
             // Distance Line
             let distanceTube = null;
             function updateDistanceLine(start, end) {
-                if (distanceTube) scene.remove(distanceTube);
+                if (distanceTube) {
+                    scene.remove(distanceTube);
+                    distanceTube.geometry.dispose();
+                    distanceTube.material.dispose();
+                }
                 const path = new THREE.LineCurve3(start, end);
                 const tubeGeo = new THREE.TubeGeometry(path, 1, 0.025, 8, false);
                 const tubeMat = new THREE.MeshBasicMaterial({
@@ -437,6 +640,10 @@ VIEWER_HTML = r"""
                 // Distance line
                 updateDistanceLine(CENTER.clone(), cameraIndicator.position.clone());
 
+                // Update orthographic camera position and orientation
+                previewCamera.position.copy(cameraIndicator.position);
+                previewCamera.lookAt(CENTER);
+
                 // Animate glow ring
                 glowRing.rotation.z += 0.005;
             }
@@ -449,6 +656,8 @@ VIEWER_HTML = r"""
             let isDragging = false;
             let dragTarget = null;
             let hoveredHandle = null;
+            let dragStartMouseY = 0;
+            let dragStartDistance = 0;
 
             function getMousePos(event) {
                 const rect = renderer.domElement.getBoundingClientRect();
@@ -461,8 +670,22 @@ VIEWER_HTML = r"""
                 if (glow) glow.scale.setScalar(scale);
             }
 
+            // Orbit controls logic for camera view
+            let isOrbiting = false;
+            let lastMouseX = 0;
+            let lastMouseY = 0;
+
             function onPointerDown(event) {
                 getMousePos(event);
+                
+                if (state.cameraView) {
+                    isOrbiting = true;
+                    lastMouseX = event.clientX;
+                    lastMouseY = event.clientY;
+                    renderer.domElement.style.cursor = 'grabbing';
+                    return;
+                }
+
                 raycaster.setFromCamera(mouse, camera);
 
                 const handles = [
@@ -475,6 +698,10 @@ VIEWER_HTML = r"""
                     if (raycaster.intersectObject(h.mesh).length > 0) {
                         isDragging = true;
                         dragTarget = h.name;
+
+                        dragStartMouseY = mouse.y;
+                        dragStartDistance = state.distance;
+
                         setHandleScale(h.mesh, h.glow, 1.3);
                         renderer.domElement.style.cursor = 'grabbing';
                         return;
@@ -483,6 +710,33 @@ VIEWER_HTML = r"""
             }
 
             function onPointerMove(event) {
+                if (state.cameraView && isOrbiting) {
+                    const deltaX = event.clientX - lastMouseX;
+                    const deltaY = event.clientY - lastMouseY;
+                    lastMouseX = event.clientX;
+                    lastMouseY = event.clientY;
+
+                    // Update angles
+                    state.azimuth -= deltaX * 0.5;
+                    state.elevation += deltaY * 0.5;
+                    
+                    // Clamp elevation
+                    state.elevation = Math.max(-30, Math.min(90, state.elevation));
+                    
+                    // Normalize azimuth
+                    if (state.azimuth < 0) state.azimuth += 360;
+                    if (state.azimuth >= 360) state.azimuth -= 360;
+
+                    // Sync live values
+                    liveAzimuth = state.azimuth;
+                    liveElevation = state.elevation;
+
+                    updateDisplay();
+                    updateVisuals();
+                    sendAngleUpdate();
+                    return;
+                }
+
                 getMousePos(event);
                 raycaster.setFromCamera(mouse, camera);
 
@@ -545,7 +799,9 @@ VIEWER_HTML = r"""
                         sendAngleUpdate();
                     }
                 } else if (dragTarget === 'distance') {
-                    const newDist = 5 - mouse.y * 5;
+                    const deltaY = mouse.y - dragStartMouseY;
+                    const sensitivity = 15;
+                    const newDist = dragStartDistance - deltaY * sensitivity;
                     liveDistance = Math.max(0, Math.min(10, newDist));
                     state.distance = Math.round(liveDistance * 10) / 10;
                     updateDisplay();
@@ -555,6 +811,12 @@ VIEWER_HTML = r"""
             }
 
             function onPointerUp() {
+                if (isOrbiting) {
+                    isOrbiting = false;
+                    renderer.domElement.style.cursor = 'default';
+                    return;
+                }
+
                 if (isDragging) {
                     const handles = [
                         { mesh: azimuthHandle, glow: azGlow },
@@ -589,17 +851,67 @@ VIEWER_HTML = r"""
 
             // Animation loop
             let time = 0;
+            let isVisible = true;
+
+            // Handle visibility change
+            document.addEventListener('visibilitychange', () => {
+                isVisible = !document.hidden;
+            });
+
             function animate() {
                 requestAnimationFrame(animate);
+
+                if (!isVisible) return;
+
                 time += 0.01;
 
                 const pulse = 1 + Math.sin(time * 2) * 0.03;
                 camGlow.scale.setScalar(pulse);
                 glowRing.rotation.z += 0.003;
 
-                renderer.render(scene, camera);
+                renderer.render(scene, activeCamera);
             }
             animate();
+
+            // Camera view control function (called from message handler)
+            function setCameraView(enabled) {
+                useCameraView = enabled;
+                if (useCameraView) {
+                    activeCamera = previewCamera;
+                    // Hide control elements in camera view
+                    azimuthRing.visible = false;
+                    azimuthHandle.visible = false;
+                    azGlow.visible = false;
+                    elevationArc.visible = false;
+                    elevationHandle.visible = false;
+                    elGlow.visible = false;
+                    distanceHandle.visible = false;
+                    distGlow.visible = false;
+                    if (distanceTube) distanceTube.visible = false;
+                    cameraIndicator.visible = false;
+                    camGlow.visible = false;
+                    glowRing.visible = false;
+                    gridHelper.visible = false;
+                    imageFrame.visible = false;
+                } else {
+                    activeCamera = camera;
+                    // Show control elements
+                    azimuthRing.visible = true;
+                    azimuthHandle.visible = true;
+                    azGlow.visible = true;
+                    elevationArc.visible = true;
+                    elevationHandle.visible = true;
+                    elGlow.visible = true;
+                    distanceHandle.visible = true;
+                    distGlow.visible = true;
+                    if (distanceTube) distanceTube.visible = true;
+                    cameraIndicator.visible = true;
+                    camGlow.visible = true;
+                    glowRing.visible = true;
+                    gridHelper.visible = true;
+                    imageFrame.visible = true;
+                }
+            }
 
             // Resize
             function onResize() {
@@ -607,6 +919,9 @@ VIEWER_HTML = r"""
                 const h = container.clientHeight;
                 camera.aspect = w / h;
                 camera.updateProjectionMatrix();
+                // Update preview camera
+                previewCamera.aspect = w / h;
+                previewCamera.updateProjectionMatrix();
                 renderer.setSize(w, h);
             }
             window.addEventListener('resize', onResize);
@@ -620,6 +935,7 @@ VIEWER_HTML = r"""
                     updateVisuals();
                     updateDisplay();
                 },
+                setCameraView: setCameraView,
                 updateImage: (url) => {
                     if (url) {
                         const img = new Image();
@@ -630,7 +946,7 @@ VIEWER_HTML = r"""
                         img.onload = () => {
                             const tex = new THREE.Texture(img);
                             tex.needsUpdate = true;
-                            // tex.encoding = THREE.sRGBEncoding; // Disabled to prevent darkness issue on default renderer
+                            tex.encoding = THREE.sRGBEncoding;
                             planeMat.map = tex;
                             planeMat.color.set(0xffffff);
                             planeMat.needsUpdate = true;
@@ -677,28 +993,40 @@ VIEWER_HTML = r"""
                 state.distance = data.zoom || 5;
                 if (threeScene) {
                     threeScene.syncFromState();
+                    threeScene.setCameraView(data.cameraView || false);
                 }
             } else if (data.type === 'SYNC_ANGLES') {
                 state.azimuth = data.horizontal || 0;
                 state.elevation = data.vertical || 0;
                 state.distance = data.zoom || 5;
+                state.useDefaultPrompts = data.useDefaultPrompts || false;
                 if (threeScene) {
                     threeScene.syncFromState();
+                    threeScene.setCameraView(data.cameraView || false);
                 }
+                updateDisplay();
             } else if (data.type === 'UPDATE_IMAGE') {
                 state.imageUrl = data.imageUrl;
                 if (threeScene) {
                     threeScene.updateImage(data.imageUrl);
+                }
+            } else if (data.type === 'SET_CAMERA_VIEW') {
+                if (threeScene) {
+                    threeScene.setCameraView(data.cameraView || false);
                 }
             }
         });
 
         // Initialize
         initThreeJS();
-        updateDisplay();
+        // updateDisplay() will be called after VIEWER_READY is sent
+        // to ensure threeScene is ready
 
         // Notify parent that we're ready
         window.parent.postMessage({ type: 'VIEWER_READY' }, '*');
+
+        // Update display after threeScene is ready
+        updateDisplay();
     </script>
 </body>
 </html>
@@ -795,9 +1123,9 @@ def get_viewer_html():
         window.addEventListener("message", function(event) {
             if (event.data && event.data.type === "ANGLE_UPDATE") {
                 // Try to find components - they might be rendered later
-                updateGradioInput("qwen_h", event.data.horizontal);
-                updateGradioInput("qwen_v", event.data.vertical);
-                updateGradioInput("qwen_z", event.data.zoom);
+                // updateGradioInput("qwen_h", event.data.horizontal);
+                // updateGradioInput("qwen_v", event.data.vertical);
+                // updateGradioInput("qwen_z", event.data.zoom);
                 
                 // Update JSON param carrier
                 const prompt = generatePrompt(event.data.horizontal, event.data.vertical, event.data.zoom);
