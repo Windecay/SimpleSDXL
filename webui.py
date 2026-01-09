@@ -115,7 +115,10 @@ def generate_clicked(task: worker.AsyncTask, state):
                 gr.update(visible=True, value=get_welcome_image(is_mobile=is_mobile, is_change=True)), \
                 gr.update(visible=False, value=None), \
                 gr.update(visible=False), \
-                gr.update(visible=False)
+                gr.update(visible=False), \
+                False, \
+                gr.update(visible=False), \
+                gr.update(visible=False, size='sm')
             if qsize<=1 or worker.get_processing_id() == task.task_id:
                 ready_flag = True
                 break
@@ -151,7 +154,10 @@ def generate_clicked(task: worker.AsyncTask, state):
                 gr.update(visible=True), \
                 gr.update(visible=False), \
                 gr.update(visible=False), \
-                gr.update(visible=False)
+                gr.update(visible=False), \
+                False, \
+                gr.update(visible=False), \
+                gr.update(visible=False, size='sm')
             logger.error(f"Task timeout after {MAX_WAIT_TIME} seconds, ready_flag={ready_flag}, last_update_time={last_update_time}")
             task.last_stop = 'stop'
             worker.worker.stop_processing(task, 0, 'timeout')
@@ -162,7 +168,10 @@ def generate_clicked(task: worker.AsyncTask, state):
                 gr.update(visible=True), \
                 gr.update(visible=False), \
                 gr.update(visible=False), \
-                gr.update(visible=False)
+                gr.update(visible=False), \
+                False, \
+                gr.update(visible=False), \
+                gr.update(visible=False, size='sm')
             break
 
         time.sleep(POLL_INTERVAL)
@@ -192,7 +201,10 @@ def generate_clicked(task: worker.AsyncTask, state):
                     gr.update(visible=True, value=image) if image is not None else gr.update(), \
                     gr.update(), \
                     gr.update(visible=False), \
-                    gr.update(visible=False)
+                    gr.update(visible=False), \
+                    False, \
+                    gr.update(visible=False), \
+                    gr.update(visible=False, size='sm')
             if flag == 'results':
                 preview_cache = []
                 last_update_time = current_time
@@ -201,7 +213,10 @@ def generate_clicked(task: worker.AsyncTask, state):
                     gr.update(visible=True), \
                     gr.update(visible=True, value=product), \
                     gr.update(visible=False), \
-                    gr.update(visible=False)
+                    gr.update(visible=False), \
+                    False, \
+                    gr.update(visible=False), \
+                    gr.update(visible=False, size='sm')
             if flag == 'finish':
                 preview_cache = []
                 if not args_manager.args.disable_enhance_output_sorting and is_fooocus:
@@ -219,7 +234,10 @@ def generate_clicked(task: worker.AsyncTask, state):
                     gr.update(visible=False, value=get_welcome_image(is_mobile=is_mobile)), \
                     gr.update(visible=False if has_video else True, value=product), \
                     gr.update(visible=True if has_video else False, value=video_path), \
-                    gr.update(visible=False)
+                    gr.update(visible=False), \
+                    False, \
+                    gr.update(visible=False), \
+                    gr.update(visible=False, size='sm')
                 finished = True
 
                 # delete Fooocus temp images, only keep gradio temp images
@@ -236,7 +254,10 @@ def generate_clicked(task: worker.AsyncTask, state):
                 gr.update(visible=True, value=cached_image), \
                 gr.update(), \
                 gr.update(visible=False), \
-                gr.update(visible=False)
+                gr.update(visible=False), \
+                False, \
+                gr.update(visible=False), \
+                gr.update(visible=False, size='sm')
 
     execution_time = time.perf_counter() - execution_start_time
     logger.info(f'Total time: {execution_time:.2f} seconds')
@@ -2427,7 +2448,6 @@ with shared.gradio_root:
         protections = [random_button, super_prompter, background_theme, image_tools_checkbox] + nav_bars
         generate_button.click(lambda v, a: (v, a, gr.update(value=None, visible=False), gr.update(value=None, visible=False), gr.update(visible=True if v else False), gr.update(visible=True if a else False)), inputs=[scene_video, scene_audio], outputs=[scene_video_backup, scene_audio_backup, scene_video, scene_audio, scene_video_placeholder, scene_audio_placeholder], queue=False, show_progress=False) \
             .then(cache_input_image_func, inputs=[current_tab, uov_input_image, inpaint_input_image, layer_input_image, enhance_input_image, scene_input_image1, scene_canvas_image], outputs=[cached_input_image]) \
-            .then(lambda: (False, gr.update(visible=False), gr.update(visible=False), gr.update(visible=False), gr.update(value=None, visible=True), gr.update(visible=False, size='sm')), outputs=[comparison_state, comparison_box, progress_window, gallery, progress_gallery, compare_btn]) \
             .then(topbar.process_before_generation, inputs=[state_topbar, seed_random, image_seed, params_backend] + scene_params[:15] + [scene_video_backup, scene_audio_backup], outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating, index_radio, image_toolbox, prompt_info_box, image_seed] + protections + [preset_store, identity_dialog], show_progress=False) \
             .then(topbar.wait_for_minicpm_completion, outputs=[], show_progress=False) \
             .then(topbar.avoid_empty_prompt_for_scene, inputs=[prompt, state_topbar, scene_input_image1, scene_theme, scene_additional_prompt, scene_additional_prompt_2], outputs=prompt, show_progress=True) \
@@ -2437,7 +2457,7 @@ with shared.gradio_root:
             outputs=[scene_lora_model, scene_lora_model_2, scene_lora_model_3, scene_lora_model_4]) \
             .then(lambda use_random: select_random_aspect_ratio(use_random), inputs=[random_aspect_ratio_checkbox], outputs=[overwrite_width, overwrite_height, aspect_ratios_selection]) \
             .then(fn=get_task, inputs=ctrls, outputs=currentTask) \
-            .then(fn=generate_clicked, inputs=[currentTask, state_topbar], outputs=[progress_html, progress_window, progress_gallery, progress_video, gallery]) \
+            .then(fn=generate_clicked, inputs=[currentTask, state_topbar], outputs=[progress_html, progress_window, progress_gallery, progress_video, gallery, comparison_state, comparison_box, compare_btn]) \
             .then(topbar.process_after_generation, inputs=state_topbar, outputs=[generate_button, stop_button, skip_button, state_is_generating, gallery_index, index_radio] + protections + [gallery_index_stat, history_link], show_progress=False) \
             .then(check_comparison_visibility, inputs=[cached_input_image, progress_gallery, state_topbar], outputs=[compare_btn]) \
             .then(lambda state, v_bak, a_bak: (gr.update(value=v_bak if not isinstance(v_bak, dict) else v_bak.get('name'), visible='scene_video' not in state.get("scene_frontend", {}).get('disvisible', [])), gr.update(value=a_bak if not isinstance(a_bak, dict) else a_bak.get('name'), visible='scene_audio' not in state.get("scene_frontend", {}).get('disvisible', [])), gr.update(visible=False), gr.update(visible=False)), inputs=[state_topbar, scene_video_backup, scene_audio_backup], outputs=[scene_video, scene_audio, scene_video_placeholder, scene_audio_placeholder], queue=False, show_progress=False) \
@@ -2453,7 +2473,7 @@ with shared.gradio_root:
             .then(lambda: (False, gr.update(visible=False), gr.update(visible=False), gr.update(visible=False), gr.update(value=None, visible=True), gr.update(visible=False, size='sm')), outputs=[comparison_state, comparison_box, progress_window, gallery, progress_gallery, compare_btn]) \
             .then(topbar.process_before_generation, inputs=[state_topbar, seed_random, image_seed, params_backend] + scene_params[:14] + [scene_params[16], scene_video_backup, scene_audio_backup], outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating, index_radio, image_toolbox, prompt_info_box, image_seed] + protections + [preset_store, identity_dialog], show_progress=False) \
             .then(fn=get_task, inputs=ctrls_preview, outputs=currentTask) \
-            .then(fn=generate_clicked, inputs=[currentTask, state_topbar], outputs=[progress_html, progress_window, progress_gallery, progress_video, gallery]) \
+            .then(fn=generate_clicked, inputs=[currentTask, state_topbar], outputs=[progress_html, progress_window, progress_gallery, progress_video, gallery, comparison_state, comparison_box, compare_btn]) \
             .then(topbar.process_after_generation, inputs=state_topbar, outputs=[generate_button, stop_button, skip_button, state_is_generating, gallery_index, index_radio] + protections + [gallery_index_stat, history_link], show_progress=False) \
             .then(check_comparison_visibility, inputs=[cached_input_image, progress_gallery, state_topbar], outputs=[compare_btn]) \
             .then(lambda state, v_bak, a_bak: (gr.update(value=v_bak if not isinstance(v_bak, dict) else v_bak.get('name'), visible='scene_video' not in state.get("scene_frontend", {}).get('disvisible', [])), gr.update(value=a_bak if not isinstance(a_bak, dict) else a_bak.get('name'), visible='scene_audio' not in state.get("scene_frontend", {}).get('disvisible', [])), gr.update(visible=False), gr.update(visible=False)), inputs=[state_topbar, scene_video_backup, scene_audio_backup], outputs=[scene_video, scene_audio, scene_video_placeholder, scene_audio_placeholder], queue=False, show_progress=False)

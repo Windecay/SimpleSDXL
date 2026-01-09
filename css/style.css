@@ -467,6 +467,16 @@ div:has(> #positive_prompt) {
   top: 2px;
 }
 
+#inpaint_canvas img,
+#inpaint_canvas canvas,
+#inpaint_mask_canvas img,
+#inpaint_mask_canvas canvas,
+#scene_canvas img,
+#scene_canvas canvas {
+    max-width: 100% !important;
+    object-fit: contain !important;
+}
+
 .download-button {
     display: none !important;
 }

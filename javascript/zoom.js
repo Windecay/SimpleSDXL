@@ -182,9 +182,7 @@ onUiLoaded(async() => {
             }
 
             const canvasLabels = gradioApp().querySelectorAll(
-                `${elemId} div[data-testid="block-label"][data-original-text="Upload and canvas"],
-                ${elemId} div[data-testid="block-label"][data-original-text="Upload prompt image"],
-                ${elemId} div[data-original-text="Mask Upload"]`
+                `${elemId} div[data-testid="block-label"]`
             );
             canvasLabels.forEach(label => label.style.display = '');
         }
@@ -456,9 +454,7 @@ onUiLoaded(async() => {
             fullScreenMode = true;
             toggleOverlap("on");
             const canvasLabels = gradioApp().querySelectorAll(
-                `${elemId} div[data-testid="block-label"][data-original-text="Upload and canvas"],
-                ${elemId} div[data-testid="block-label"][data-original-text="Upload prompt image"],
-                ${elemId} div[data-original-text="Mask Upload"]`
+                `${elemId} div[data-testid="block-label"]`
             );
             canvasLabels.forEach(label => label.style.display = 'none');
         }
