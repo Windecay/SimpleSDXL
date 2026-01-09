@@ -5092,7 +5092,7 @@
       "lora_name": "placeholder.safetensors",
       "strength_model": 0,
       "model": [
-        "587",
+        "803",
         0
       ]
     },
@@ -5508,6 +5508,47 @@
     "class_type": "CFGNorm",
     "_meta": {
       "title": "CFGNorm"
+    }
+  },
+  "801": {
+    "inputs": {},
+    "class_type": "GetGPUInfo",
+    "_meta": {
+      "title": "Get GPU Info (Compute Capability)"
+    }
+  },
+  "802": {
+    "inputs": {
+      "sage_attention": "sageattn_qk_int8_pv_fp16_cuda",
+      "allow_compile": false,
+      "model": [
+        "494",
+        0
+      ]
+    },
+    "class_type": "PathchSageAttentionKJ",
+    "_meta": {
+      "title": "Patch Sage Attention KJ"
+    }
+  },
+  "803": {
+    "inputs": {
+      "boolean": [
+        "801",
+        6
+      ],
+      "on_true": [
+        "587",
+        0
+      ],
+      "on_false": [
+        "802",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
     }
   }
 }

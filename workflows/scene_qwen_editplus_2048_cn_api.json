@@ -321,7 +321,7 @@
       ],
       "denoise": 1,
       "model": [
-        "165",
+        "168",
         0
       ],
       "positive": [
@@ -1159,6 +1159,47 @@
     "class_type": "PathchSageAttentionKJ",
     "_meta": {
       "title": "Patch Sage Attention KJ"
+    }
+  },
+  "166": {
+    "inputs": {
+      "sage_attention": "sageattn_qk_int8_pv_fp16_cuda",
+      "allow_compile": false,
+      "model": [
+        "131",
+        0
+      ]
+    },
+    "class_type": "PathchSageAttentionKJ",
+    "_meta": {
+      "title": "Patch Sage Attention KJ"
+    }
+  },
+  "167": {
+    "inputs": {},
+    "class_type": "GetGPUInfo",
+    "_meta": {
+      "title": "Get GPU Info (Compute Capability)"
+    }
+  },
+  "168": {
+    "inputs": {
+      "boolean": [
+        "167",
+        6
+      ],
+      "on_true": [
+        "165",
+        0
+      ],
+      "on_false": [
+        "166",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
     }
   }
 }
