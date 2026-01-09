@@ -142,6 +142,41 @@ VIEWER_HTML = r"""
         #reset-btn:active {
             transform: scale(0.95);
         }
+
+        #zoom-slider-container {
+            position: absolute;
+            right: 20px;
+            top: 25%;
+            bottom: 35%;
+            width: 30px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        #zoom-slider-track {
+            position: absolute;
+            width: 4px;
+            height: 100%;
+            background: rgba(255, 184, 0, 0.3);
+            border-radius: 2px;
+            cursor: pointer;
+        }
+
+        #zoom-slider-handle {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: #FFB800;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 184, 0, 0.5);
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
     </style>
 </head>
 <body>
@@ -163,6 +198,10 @@ VIEWER_HTML = r"""
             </div>
             <button id="view-btn" title="Toggle Camera View">👁️</button>
             <button id="reset-btn" title="Reset to defaults">↺</button>
+        </div>
+        <div id="zoom-slider-container">
+            <div id="zoom-slider-track"></div>
+            <div id="zoom-slider-handle"></div>
         </div>
     </div>
 
@@ -187,6 +226,8 @@ VIEWER_HTML = r"""
         const zValueEl = document.getElementById('z-value');
         const promptPreviewEl = document.getElementById('prompt-preview');
         const viewBtn = document.getElementById('view-btn');
+        const zoomSliderContainer = document.getElementById('zoom-slider-container');
+        const zoomSliderHandle = document.getElementById('zoom-slider-handle');
 
         function generatePromptPreview() {
             const h_angle = state.azimuth % 360;
@@ -287,10 +328,77 @@ VIEWER_HTML = r"""
             return h_direction + " " + v_direction + " " + distance;
         }
 
+        function updateZoomSlider() {
+            // Map distance 0-10 to 0-100%
+            // UI Convention: Up is More Zoom (Close up, value 10)
+            // Down is Less Zoom (Wide shot, value 0)
+            // Top (0%) -> 10
+            // Bottom (100%) -> 0
+            const percent = Math.max(0, Math.min(100, ((10 - state.distance) / 10) * 100));
+            zoomSliderHandle.style.top = percent + '%';
+        }
+
+        let isDraggingZoom = false;
+
+        function handleZoomSlider(clientY) {
+            const rect = zoomSliderContainer.getBoundingClientRect();
+            let percent = (clientY - rect.top) / rect.height;
+            percent = Math.max(0, Math.min(1, percent));
+            
+            // 0% (top) -> 10
+            // 100% (bottom) -> 0
+            const newDist = (1 - percent) * 10;
+            const liveDistance = Math.max(0, Math.min(10, newDist));
+            
+            state.distance = Math.round(liveDistance * 10) / 10;
+            
+            updateDisplay();
+            // We need to update visuals if scene exists
+            if (threeScene) {
+                threeScene.syncFromState();
+            }
+            sendAngleUpdate();
+        }
+
+        zoomSliderContainer.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            isDraggingZoom = true;
+            handleZoomSlider(e.clientY);
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (isDraggingZoom) {
+                e.preventDefault();
+                handleZoomSlider(e.clientY);
+            }
+        });
+
+        window.addEventListener('mouseup', () => {
+            isDraggingZoom = false;
+        });
+
+        zoomSliderContainer.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            isDraggingZoom = true;
+            handleZoomSlider(e.touches[0].clientY);
+        }, { passive: false });
+
+        window.addEventListener('touchmove', (e) => {
+            if (isDraggingZoom) {
+                e.preventDefault();
+                handleZoomSlider(e.touches[0].clientY);
+            }
+        }, { passive: false });
+
+        window.addEventListener('touchend', () => {
+            isDraggingZoom = false;
+        });
+
         function updateDisplay() {
             hValueEl.textContent = Math.round(state.azimuth) + '°';
             vValueEl.textContent = Math.round(state.elevation) + '°';
             zValueEl.textContent = state.distance.toFixed(1);
+            updateZoomSlider();
             if (state.useDefaultPrompts) {
                 promptPreviewEl.textContent = generateQwenPrompt();
             } else {
@@ -322,6 +430,7 @@ VIEWER_HTML = r"""
             sendAngleUpdate();
             viewBtn.textContent = '👁️';
             viewBtn.title = 'Switch to Camera View';
+            zoomSliderContainer.style.display = 'none';
         }
 
         // Toggle view handler
@@ -333,9 +442,11 @@ VIEWER_HTML = r"""
             if (state.cameraView) {
                 viewBtn.textContent = '▦';
                 viewBtn.title = 'Switch to Overview';
+                zoomSliderContainer.style.display = 'flex';
             } else {
                 viewBtn.textContent = '👁️';
                 viewBtn.title = 'Switch to Camera View';
+                zoomSliderContainer.style.display = 'none';
             }
         }
 
