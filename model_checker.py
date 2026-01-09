@@ -816,14 +816,30 @@ def download_file_with_resume(link, file_path, position, result_queue, max_retri
                 resume_size = 0
                 headers = {}
 
-            # 添加超时设置，防止无限期等待
             response = requests.get(link, stream=True, headers=headers, timeout=(30, 60))
-            total_size = int(response.headers.get('content-length', 0)) + resume_size
+
+            mode = 'ab'
+            if response.status_code == 200:
+                resume_size = 0
+                mode = 'wb'
+                total_size = int(response.headers.get('content-length', 0))
+            elif response.status_code == 206:
+                # 服务器支持断点续传
+                content_range = response.headers.get('content-range', '')
+                match = re.search(r'/(\d+)$', content_range)
+                if match:
+                    total_size = int(match.group(1))
+                else:
+                    total_size = int(response.headers.get('content-length', 0)) + resume_size
+            else:
+
+                total_size = int(response.headers.get('content-length', 0)) + resume_size
+
             block_size = 8192
 
             os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
-            with open(partial_file_path, 'ab') as file, tqdm(
+            with open(partial_file_path, mode) as file, tqdm(
                     desc=os.path.basename(file_path),
                     total=total_size,
                     unit='iB',
@@ -851,10 +867,13 @@ def download_file_with_resume(link, file_path, position, result_queue, max_retri
                         raise requests.exceptions.Timeout("下载超时，超过60秒没有数据")
                     last_update_time = current_time
 
+                file.flush()
+                os.fsync(file.fileno())
+
                 # 校验文件大小
                 downloaded_size = os.path.getsize(partial_file_path)
                 if downloaded_size != total_size:
-                    raise Exception(f"文件大小校验失败：预期 {total_size} 字节，实际 {downloaded_size} 字节")
+                    raise requests.exceptions.RequestException(f"文件大小校验失败：预期 {total_size} 字节，实际 {downloaded_size} 字节")
 
             final_file_path = os.path.normpath(file_path)
             partial_file_path = os.path.normpath(partial_file_path)
