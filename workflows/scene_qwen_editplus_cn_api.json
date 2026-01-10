@@ -178,7 +178,7 @@
       "lora_name": "placeholder.safetensors",
       "strength_model": 0,
       "model": [
-        "7",
+        "170",
         0
       ]
     },
@@ -1200,6 +1200,66 @@
     "class_type": "easy ifElse",
     "_meta": {
       "title": "If else"
+    }
+  },
+  "169": {
+    "inputs": {
+      "lora_name": "Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors",
+      "strength_model": 1,
+      "model": [
+        "90",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "LoraLoaderModelOnly"
+    }
+  },
+  "170": {
+    "inputs": {
+      "boolean": [
+        "171",
+        0
+      ],
+      "on_true": [
+        "7",
+        0
+      ],
+      "on_false": [
+        "169",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "171": {
+    "inputs": {
+      "comparison": "a < b",
+      "a": [
+        "2",
+        5
+      ],
+      "b": [
+        "172",
+        0
+      ]
+    },
+    "class_type": "easy compare",
+    "_meta": {
+      "title": "Compare"
+    }
+  },
+  "172": {
+    "inputs": {
+      "value": 8
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "Int"
     }
   }
 }

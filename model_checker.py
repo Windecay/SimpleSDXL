@@ -80,6 +80,8 @@ def load_model_paths():
             "fooocus_expansion": [os.path.abspath(os.path.join(script_dir, config.get("path_fooocus_expansion", "")))],
             "llms": [os.path.abspath(os.path.join(script_dir, p)) if not os.path.isabs(p) else p
                         for p in config.get("path_llms", [])],
+            "LLM": [os.path.abspath(os.path.join(script_dir, p)) if not os.path.isabs(p) else p
+                        for p in config.get("path_LLM", [])],
             "safety_checker": [os.path.abspath(os.path.join(script_dir, p)) if not os.path.isabs(p) else p
                         for p in (config.get("path_safety_checker", [])
                             if isinstance(config.get("path_safety_checker"), list)
@@ -166,6 +168,7 @@ def load_model_paths():
             "clip_vision": [os.path.join(simplemodels_root, "clip_vision")],
             "fooocus_expansion": [os.path.join(simplemodels_root, "prompt_expansion", "fooocus_expansion")],
             "llms": [os.path.join(simplemodels_root, "llms")],
+            "LLM": [os.path.join(simplemodels_root, "LLM")],
             "safety_checker": [os.path.join(simplemodels_root, "safety_checker")],
             "unet": [os.path.join(simplemodels_root, "unet")],
             "rembg": [os.path.join(simplemodels_root, "rembg")],
@@ -373,7 +376,7 @@ def print_instructions():
     time.sleep(0.1)
     print(f"{Fore.GREEN}★{Style.RESET_ALL}打开默认浏览器设置，关闭GPU加速、或图形加速的选项。{Fore.GREEN}★{Style.RESET_ALL}大内存(64+)与固态硬盘存放模型有助于减少模型加载时间。{Fore.GREEN}★{Style.RESET_ALL}")
     time.sleep(0.1)
-    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：1005085136{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:26.01.09{Fore.GREEN}★{Style.RESET_ALL}")
+    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：1005085136{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:26.01.10{Fore.GREEN}★{Style.RESET_ALL}")
     print()
     time.sleep(0.1)
     
@@ -449,7 +452,6 @@ def validate_files(packages):
             if not search_dirs:
                 simplemodels_default = os.path.join(root, "SimpleModels")
                 search_dirs = [os.path.join(simplemodels_default, path_type)]
-                print(simplemodels_default)
 
             found = False
             actual_dir = None
@@ -517,6 +519,7 @@ def validate_files(packages):
         os.path.join(simplemodels_root, "clip_vision"),
         os.path.join(simplemodels_root, "fooocus_expansion"),
         os.path.join(simplemodels_root, "llms"),
+        os.path.join(simplemodels_root, "LLM"),
         os.path.join(simplemodels_root, "safety_checker"),
         os.path.join(simplemodels_root, "unet"),
         os.path.join(simplemodels_root, "layer_model"),
@@ -528,6 +531,9 @@ def validate_files(packages):
         os.path.join(simplemodels_root, "SDPose_OOD"),
         os.path.join(simplemodels_root, "jina_clip"),
         os.path.join(simplemodels_root, "gemma3"),
+        os.path.join(simplemodels_root, "nlf"),
+        os.path.join(simplemodels_root, "SEEDVR2"),
+        os.path.join(simplemodels_root, "LLM", "Qwen3-VL-4B-Instruct-abliterated"),
         ]
         for model_root in MODEL_PATHS_TO_SCAN:
             if not os.path.exists(model_root):
@@ -642,7 +648,7 @@ def delete_partial_files():
     scan_categories = [
         'checkpoints', 'loras', 'controlnet', 'embeddings',
         'vae_approx', 'vae', 'upscale_models', 'inpaint', "ipadapter",
-        'clip', 'clip_vision', 'llms', 'unet', 'diffusers', 'model_patches'
+        'clip', 'clip_vision', 'llms', 'LLM', 'unet', 'diffusers', 'model_patches'
     ]
 
     scan_dirs = []
@@ -1667,36 +1673,13 @@ packages = {
         ],
         "download_links": []
     },
-        "MiniCPM_package": {
+        "Qwen3_package": {
         "id": 6,
-        "name": "[6]MiniCPMv26反推扩展包",
+        "name": "[6]Qwen3-VL-4B反推扩展包",
         "note": "本地多模态大语言模型[反推、翻译、扩写]|显存需求：★★ 速度：★★",
         "files": [
-            ("llms/MiniCPMv2_6-prompt-generator/.gitattributes", 1657),
-            ("llms/MiniCPMv2_6-prompt-generator/.mdl", 49),
-            ("llms/MiniCPMv2_6-prompt-generator/.msc", 1655),
-            ("llms/MiniCPMv2_6-prompt-generator/.mv", 36),
-            ("llms/MiniCPMv2_6-prompt-generator/added_tokens.json", 629),
-            ("llms/MiniCPMv2_6-prompt-generator/config.json", 1951),
-            ("llms/MiniCPMv2_6-prompt-generator/configuration.json", 27),
-            ("llms/MiniCPMv2_6-prompt-generator/configuration_minicpm.py", 3280),
-            ("llms/MiniCPMv2_6-prompt-generator/generation_config.json", 121),
-            ("llms/MiniCPMv2_6-prompt-generator/image_processing_minicpmv.py", 16579),
-            ("llms/MiniCPMv2_6-prompt-generator/merges.txt", 1671853),
-            ("llms/MiniCPMv2_6-prompt-generator/modeling_minicpmv.py", 15738),
-            ("llms/MiniCPMv2_6-prompt-generator/modeling_navit_siglip.py", 41835),
-            ("llms/MiniCPMv2_6-prompt-generator/preprocessor_config.json", 714),
-            ("llms/MiniCPMv2_6-prompt-generator/processing_minicpmv.py", 9962),
-            ("llms/MiniCPMv2_6-prompt-generator/pytorch_model-00001-of-00002.bin", 4454731094),
-            ("llms/MiniCPMv2_6-prompt-generator/pytorch_model-00002-of-00002.bin", 1503635286),
-            ("llms/MiniCPMv2_6-prompt-generator/pytorch_model.bin.index.json", 233389),
-            ("llms/MiniCPMv2_6-prompt-generator/resampler.py", 34699),
-            ("llms/MiniCPMv2_6-prompt-generator/special_tokens_map.json", 1041),
-            ("llms/MiniCPMv2_6-prompt-generator/test.py", 1162),
-            ("llms/MiniCPMv2_6-prompt-generator/tokenization_minicpmv_fast.py", 1659),
-            ("llms/MiniCPMv2_6-prompt-generator/tokenizer.json", 7032006),
-            ("llms/MiniCPMv2_6-prompt-generator/tokenizer_config.json", 5663),
-            ("llms/MiniCPMv2_6-prompt-generator/vocab.json", 2776833),
+                ("LLM/Qwen3-VL-4B-Instruct-abliterated/https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/LLM/Qwen3-VL-4B-Instruct-abliterated/Qwen3-VL-4B-Instruct-abliterated-v1.Q8_0.gguf",4280407104),
+                ("LLM/Qwen3-VL-4B-Instruct-abliterated/https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/LLM/Qwen3-VL-4B-Instruct-abliterated/Qwen3-VL-4B-Instruct-abliterated-v1.mmproj-Q8_0.gguf",453974752)
         ],
         "download_links": []
     },
@@ -2137,6 +2120,7 @@ packages = {
         "files": [
             ("diffusion_models/https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/diffusion_models/qwen_image_edit_2511_fp8mixed.safetensors", 20533762817),
             ("loras/https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/loras/Qwen-Image-Edit-2511-Lightning-4steps-V1.0-bf16.safetensors", 849608296),
+            ("loras/https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/loras/Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors", 849608296),
             ("clip/qwen_2.5_vl_7b_fp8_scaled.safetensors", 9384670680),
             ("vae/qwen_image_vae.safetensors", 253806246),
             ("controlnet/hr16/DWPose-TorchScript-BatchSize5/https://www.modelscope.cn/models/svjack/DWPose-TorchScript-BatchSize5/resolve/master/dw-ll_ucoco_384_bs5.torchscript.pt", 135059124),

@@ -510,7 +510,7 @@
       "lora_name": "qwen-image-edit-2511-multiple-angles-lora.safetensors",
       "strength_model": 1,
       "model": [
-        "7",
+        "178",
         0
       ]
     },
@@ -643,6 +643,66 @@
     "class_type": "StringConcatenate",
     "_meta": {
       "title": "Concatenate"
+    }
+  },
+  "178": {
+    "inputs": {
+      "boolean": [
+        "180",
+        0
+      ],
+      "on_true": [
+        "7",
+        0
+      ],
+      "on_false": [
+        "179",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "179": {
+    "inputs": {
+      "lora_name": "Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors",
+      "strength_model": 1,
+      "model": [
+        "90",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "LoraLoaderModelOnly"
+    }
+  },
+  "180": {
+    "inputs": {
+      "comparison": "a < b",
+      "a": [
+        "181",
+        0
+      ],
+      "b": [
+        "2",
+        5
+      ]
+    },
+    "class_type": "easy compare",
+    "_meta": {
+      "title": "Compare"
+    }
+  },
+  "181": {
+    "inputs": {
+      "value": 8
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "Int"
     }
   }
 }
