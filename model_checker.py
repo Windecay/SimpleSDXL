@@ -79,9 +79,13 @@ def load_model_paths():
                             else config.get("path_clip_vision", []))],
             "fooocus_expansion": [os.path.abspath(os.path.join(script_dir, config.get("path_fooocus_expansion", "")))],
             "llms": [os.path.abspath(os.path.join(script_dir, p)) if not os.path.isabs(p) else p
-                        for p in config.get("path_llms", [])],
+                        for p in (config.get("path_llms", [os.path.join(simplemodels_root, "llms")])
+                                if isinstance(config.get("path_llms"), list)
+                                else [config.get("path_llms") or os.path.join(simplemodels_root, "llms")])],
             "LLM": [os.path.abspath(os.path.join(script_dir, p)) if not os.path.isabs(p) else p
-                        for p in config.get("path_LLM", [])],
+                        for p in (config.get("path_llm", config.get("path_LLM", [os.path.join(simplemodels_root, "LLM")]))
+                                if isinstance(config.get("path_llm", config.get("path_LLM")), list)
+                                else [config.get("path_llm", config.get("path_LLM")) or os.path.join(simplemodels_root, "LLM")])],
             "safety_checker": [os.path.abspath(os.path.join(script_dir, p)) if not os.path.isabs(p) else p
                         for p in (config.get("path_safety_checker", [])
                             if isinstance(config.get("path_safety_checker"), list)
