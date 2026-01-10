@@ -681,7 +681,7 @@
   },
   "180": {
     "inputs": {
-      "comparison": "a < b",
+      "comparison": "a > b",
       "a": [
         "181",
         0
