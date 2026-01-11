@@ -466,7 +466,54 @@ def worker():
                 logger.info(f'Task Type == {async_task.content_type}')
                 if async_task.content_type == 'video':
                     extra_data['is_vhs'] = True
-                imgs = comfypipeline.process_flow(client_id, comfy_task.name, comfy_task.params, comfy_task.images, callback=callback, total_steps=comfy_task.steps, extra_data=extra_data)
+                
+                # Monitor thread to detect backend readiness
+                import threading
+                import time
+                import glob
+                
+                def monitor_backend_ready(task):
+                    log_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'comfy', 'user')
+                    if not os.path.exists(log_dir):
+                        logger.info(f"[SimpAI-async_worker] Log directory not found: {log_dir}")
+                        return
+
+                    log_files = glob.glob(os.path.join(log_dir, "*.log"))
+                    if not log_files:
+                        logger.info(f"[SimpAI-async_worker] No log files found in: {log_dir}")
+                        return
+
+                    latest_log = max(log_files, key=os.path.getmtime)
+                    logger.info(f"[SimpAI-async_worker] Monitoring latest log file: {latest_log}")
+                        
+                    try:
+                        with open(latest_log, 'r', encoding='utf-8', errors='ignore') as f:
+                            f.seek(0, 2) # Go to end
+                            while not getattr(task, 'backend_ready_detected', False) and not getattr(task, 'process_flow_finished', False):
+                                line = f.readline()
+                                if not line:
+                                    time.sleep(0.1)
+                                    continue
+
+                                if "Requested to load" in line:
+                                    task.yields.append(['status', 'backend_ready'])
+                                    task.backend_ready_detected = True
+                                    # logger.info(f"[SimpAI-async_worker] Backend ready detected via log: {line.strip()}")
+                                    break
+                    except Exception as e:
+                        logger.info(f"[SimpAI-async_worker] Monitor thread error: {e}")
+                
+                async_task.backend_ready_detected = False
+                async_task.process_flow_finished = False
+                monitor_thread = threading.Thread(target=monitor_backend_ready, args=(async_task,))
+                monitor_thread.daemon = True
+                monitor_thread.start()
+
+                try:
+                    imgs = comfypipeline.process_flow(client_id, comfy_task.name, comfy_task.params, comfy_task.images, callback=callback, total_steps=comfy_task.steps, extra_data=extra_data)
+                finally:
+                    async_task.process_flow_finished = True
+                
                 if inpaint_worker.current_task is not None:
                     imgs = [inpaint_worker.current_task.post_process(x) for x in imgs]
             except ValueError as e:
@@ -479,6 +526,7 @@ def worker():
                 return imgs, [], current_progress
             logger.info(f'comfypipeline.process_flow finished.')
         else:
+            async_task.yields.append(['status', 'backend_ready'])
             if 'cn' in goals:
                 for cn_flag, cn_path in [
                     (flags.cn_canny, controlnet_canny_path),
