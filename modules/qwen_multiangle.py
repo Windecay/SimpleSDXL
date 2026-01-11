@@ -237,63 +237,6 @@ VIEWER_HTML = r"""
             if (h_angle < 22.5 || h_angle >= 337.5) {
                 h_direction = "front view";
             } else if (h_angle < 67.5) {
-                h_direction = "front-right view";
-            } else if (h_angle < 112.5) {
-                h_direction = "right side view";
-            } else if (h_angle < 157.5) {
-                h_direction = "back-right view";
-            } else if (h_angle < 202.5) {
-                h_direction = "back view";
-            } else if (h_angle < 247.5) {
-                h_direction = "back-left view";
-            } else if (h_angle < 292.5) {
-                h_direction = "left side view";
-            } else {
-                h_direction = "front-left view";
-            }
-
-            let v_direction;
-            if (state.elevation < -60) {
-                v_direction = "worm's eye view";
-            } else if (state.elevation < -30) {
-                v_direction = "extreme low angle";
-            } else if (state.elevation < -15) {
-                v_direction = "low angle";
-            } else if (state.elevation < 15) {
-                v_direction = "eye level";
-            } else if (state.elevation < 45) {
-                v_direction = "high angle";
-            } else if (state.elevation < 75) {
-                v_direction = "bird's eye view";
-            } else {
-                v_direction = "top-down view";
-            }
-
-            let distance;
-            if (state.distance < 2) {
-                distance = "wide shot";
-            } else if (state.distance < 4) {
-                distance = "medium-wide shot";
-            } else if (state.distance < 6) {
-                distance = "medium shot";
-            } else if (state.distance < 8) {
-                distance = "medium close-up";
-            } else {
-                distance = "close-up";
-            }
-
-            return h_direction + ", " + v_direction + ", " + distance;
-        }
-
-        function generateQwenPrompt() {
-            const h_angle = state.azimuth % 360;
-            const v_angle = state.elevation;
-
-            // Horizontal mapping
-            let h_direction;
-            if (h_angle < 22.5 || h_angle >= 337.5) {
-                h_direction = "front view";
-            } else if (h_angle < 67.5) {
                 h_direction = "front-right quarter view";
             } else if (h_angle < 112.5) {
                 h_direction = "right side view";
@@ -309,23 +252,23 @@ VIEWER_HTML = r"""
                 h_direction = "front-left quarter view";
             }
 
-            // Vertical mapping for Qwen format
             let v_direction;
-            if (v_angle < -60) {
-                v_direction = "worm's-eye view";
-            } else if (v_angle < -30) {
+            if (state.elevation < -60) {
+                v_direction = "worm's-eye view  camera positioned directly underneath looking straight up,";
+            } else if (state.elevation < -30) {
                 v_direction = "extreme low-angle shot";
-            } else if (v_angle < -15) {
+            } else if (state.elevation < -15) {
                 v_direction = "low-angle shot";
-            } else if (v_angle < 15) {
+            } else if (state.elevation < 15) {
                 v_direction = "eye-level shot";
-            } else if (v_angle < 75) {
+            } else if (state.elevation < 45) {
                 v_direction = "elevated shot";
-            } else {
+            } else if (state.elevation < 75) {
                 v_direction = "high-angle shot";
+            } else {
+                v_direction = "bird's-eye view";
             }
 
-            // Distance mapping
             let distance;
             if (state.distance < 2) {
                 distance = "wide shot";
@@ -335,7 +278,11 @@ VIEWER_HTML = r"""
                 distance = "close-up";
             }
 
-            return h_direction + " " + v_direction + " " + distance;
+            return "<sks> " + h_direction + " " + v_direction + " " + distance;
+        }
+
+        function generateQwenPrompt() {
+            return generatePromptPreview();
         }
 
         function updateZoomSlider() {
@@ -1202,52 +1149,48 @@ def get_viewer_html():
             if (h_angle < 22.5 || h_angle >= 337.5) {
                 h_direction = "front view";
             } else if (h_angle < 67.5) {
-                h_direction = "front-right view";
+                h_direction = "front-right quarter view";
             } else if (h_angle < 112.5) {
                 h_direction = "right side view";
             } else if (h_angle < 157.5) {
-                h_direction = "back-right view";
+                h_direction = "back-right quarter view";
             } else if (h_angle < 202.5) {
                 h_direction = "back view";
             } else if (h_angle < 247.5) {
-                h_direction = "back-left view";
+                h_direction = "back-left quarter view";
             } else if (h_angle < 292.5) {
                 h_direction = "left side view";
             } else {
-                h_direction = "front-left view";
+                h_direction = "front-left quarter view";
             }
 
             let v_direction;
             if (vertical_angle < -60) {
-                v_direction = "worm&#39;s eye view";
+                v_direction = "worm&#39;s-eye view  camera positioned directly underneath looking straight up,";
             } else if (vertical_angle < -30) {
-                v_direction = "extreme low angle";
+                v_direction = "extreme low-angle shot";
             } else if (vertical_angle < -15) {
-                v_direction = "low angle";
+                v_direction = "low-angle shot";
             } else if (vertical_angle < 15) {
-                v_direction = "eye level";
+                v_direction = "eye-level shot";
             } else if (vertical_angle < 45) {
-                v_direction = "high angle";
+                v_direction = "elevated shot";
             } else if (vertical_angle < 75) {
-                v_direction = "bird&#39;s eye view";
+                v_direction = "high-angle shot";
             } else {
-                v_direction = "top-down view";
+                v_direction = "bird&#39;s-eye view";
             }
 
             let distance;
             if (zoom < 2) {
                 distance = "wide shot";
-            } else if (zoom < 4) {
-                distance = "medium-wide shot";
             } else if (zoom < 6) {
                 distance = "medium shot";
-            } else if (zoom < 8) {
-                distance = "medium close-up";
             } else {
                 distance = "close-up";
             }
 
-            return h_direction + ", " + v_direction + ", " + distance;
+            return "<sks> " + h_direction + " " + v_direction + " " + distance;
         }
 
         window.addEventListener("message", function(event) {

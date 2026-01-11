@@ -42,6 +42,9 @@ app.registerExtension({
 
                 widget.computeSize = function (width) {
                     const w = width || 320;
+                    if (node.size && node.size[1] > 100) {
+                        return [w, Math.max(360, node.size[1] - 260)];
+                    }
                     return [w, 360];
                 };
 
@@ -85,11 +88,13 @@ app.registerExtension({
                         const vWidget = node.widgets.find(w => w.name === "vertical_angle");
                         const zWidget = node.widgets.find(w => w.name === "zoom");
                         const defaultPromptsWidget = node.widgets.find(w => w.name === "default_prompts");
+                        const cameraViewWidget = node.widgets.find(w => w.name === "camera_view");
 
                         if (hWidget) hWidget.value = data.horizontal;
                         if (vWidget) vWidget.value = data.vertical;
                         if (zWidget) zWidget.value = data.zoom;
                         if (defaultPromptsWidget) defaultPromptsWidget.value = data.useDefaultPrompts || false;
+                        if (cameraViewWidget) cameraViewWidget.value = data.cameraView || false;
 
                         // Mark graph as changed
                         app.graph.setDirtyCanvas(true, true);

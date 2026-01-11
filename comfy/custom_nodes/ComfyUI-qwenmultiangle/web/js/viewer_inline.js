@@ -20,6 +20,8 @@ export const VIEWER_HTML = `
             overflow: hidden;
             background: #0a0a0f;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         #container {
@@ -91,6 +93,34 @@ export const VIEWER_HTML = `
             color: #FFB800;
         }
 
+        #view-btn {
+            position: absolute;
+            right: 8px;
+            bottom: 100%;
+            margin-bottom: 8px;
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            border: 1px solid rgba(233, 61, 130, 0.4);
+            background: rgba(10, 10, 15, 0.8);
+            color: #E93D82;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        #view-btn:hover {
+            background: rgba(233, 61, 130, 0.2);
+            border-color: #E93D82;
+        }
+
+        #view-btn:active {
+            transform: scale(0.95);
+        }
+
         #reset-btn {
             position: absolute;
             right: 8px;
@@ -117,6 +147,41 @@ export const VIEWER_HTML = `
         #reset-btn:active {
             transform: scale(0.95);
         }
+
+        #zoom-slider-container {
+            position: absolute;
+            right: 20px;
+            top: 25%;
+            bottom: 35%;
+            width: 30px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        #zoom-slider-track {
+            position: absolute;
+            width: 4px;
+            height: 100%;
+            background: rgba(255, 184, 0, 0.3);
+            border-radius: 2px;
+            cursor: pointer;
+        }
+
+        #zoom-slider-handle {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: #FFB800;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 184, 0, 0.5);
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
     </style>
 </head>
 <body>
@@ -136,7 +201,12 @@ export const VIEWER_HTML = `
                 <div class="param-label">Zoom</div>
                 <div class="param-value zoom" id="z-value">5.0</div>
             </div>
+            <button id="view-btn" title="Toggle Camera View">👁️</button>
             <button id="reset-btn" title="Reset to defaults">↺</button>
+        </div>
+        <div id="zoom-slider-container">
+            <div id="zoom-slider-track"></div>
+            <div id="zoom-slider-handle"></div>
         </div>
     </div>
 
@@ -148,7 +218,8 @@ export const VIEWER_HTML = `
             elevation: 0,
             distance: 5,
             imageUrl: null,
-            useDefaultPrompts: false
+            useDefaultPrompts: false,
+            cameraView: false
         };
 
         let threeScene = null;
@@ -159,62 +230,12 @@ export const VIEWER_HTML = `
         const vValueEl = document.getElementById('v-value');
         const zValueEl = document.getElementById('z-value');
         const promptPreviewEl = document.getElementById('prompt-preview');
+        const viewBtn = document.getElementById('view-btn');
+        const zoomSliderContainer = document.getElementById('zoom-slider-container');
+        const zoomSliderHandle = document.getElementById('zoom-slider-handle');
 
         function generatePromptPreview() {
             const h_angle = state.azimuth % 360;
-            let h_direction;
-            if (h_angle < 22.5 || h_angle >= 337.5) {
-                h_direction = "front view";
-            } else if (h_angle < 67.5) {
-                h_direction = "front-right view";
-            } else if (h_angle < 112.5) {
-                h_direction = "right side view";
-            } else if (h_angle < 157.5) {
-                h_direction = "back-right view";
-            } else if (h_angle < 202.5) {
-                h_direction = "back view";
-            } else if (h_angle < 247.5) {
-                h_direction = "back-left view";
-            } else if (h_angle < 292.5) {
-                h_direction = "left side view";
-            } else {
-                h_direction = "front-left view";
-            }
-
-            let v_direction;
-            if (state.elevation < -15) {
-                v_direction = "low angle";
-            } else if (state.elevation < 15) {
-                v_direction = "eye level";
-            } else if (state.elevation < 45) {
-                v_direction = "high angle";
-            } else if (state.elevation < 75) {
-                v_direction = "bird's eye view";
-            } else {
-                v_direction = "top-down view";
-            }
-
-            let distance;
-            if (state.distance < 2) {
-                distance = "wide shot";
-            } else if (state.distance < 4) {
-                distance = "medium-wide shot";
-            } else if (state.distance < 6) {
-                distance = "medium shot";
-            } else if (state.distance < 8) {
-                distance = "medium close-up";
-            } else {
-                distance = "close-up";
-            }
-
-            return h_direction + ", " + v_direction + ", " + distance;
-        }
-
-        function generateQwenPrompt() {
-            const h_angle = state.azimuth % 360;
-            const v_angle = state.elevation;
-
-            // Horizontal mapping
             let h_direction;
             if (h_angle < 22.5 || h_angle >= 337.5) {
                 h_direction = "front view";
@@ -234,19 +255,23 @@ export const VIEWER_HTML = `
                 h_direction = "front-left quarter view";
             }
 
-            // Vertical mapping for Qwen format
             let v_direction;
-            if (v_angle < -15) {
+            if (state.elevation < -60) {
+                v_direction = "worm's-eye view  camera positioned directly underneath looking straight up,";
+            } else if (state.elevation < -30) {
+                v_direction = "extreme low-angle shot";
+            } else if (state.elevation < -15) {
                 v_direction = "low-angle shot";
-            } else if (v_angle < 15) {
+            } else if (state.elevation < 15) {
                 v_direction = "eye-level shot";
-            } else if (v_angle < 75) {
+            } else if (state.elevation < 45) {
                 v_direction = "elevated shot";
-            } else {
+            } else if (state.elevation < 75) {
                 v_direction = "high-angle shot";
+            } else {
+                v_direction = "bird's-eye view";
             }
 
-            // Distance mapping
             let distance;
             if (state.distance < 2) {
                 distance = "wide shot";
@@ -256,13 +281,84 @@ export const VIEWER_HTML = `
                 distance = "close-up";
             }
 
-            return h_direction + " " + v_direction + " " + distance;
+            return "<sks> " + h_direction + " " + v_direction + " " + distance;
         }
+
+        function generateQwenPrompt() {
+            return generatePromptPreview();
+        }
+
+        function updateZoomSlider() {
+            // Map distance 0-10 to 0-100%
+            // UI Convention: Up is More Zoom (Close up, value 10)
+            // Down is Less Zoom (Wide shot, value 0)
+            // Top (0%) -> 10
+            // Bottom (100%) -> 0
+            const percent = Math.max(0, Math.min(100, ((10 - state.distance) / 10) * 100));
+            zoomSliderHandle.style.top = percent + '%';
+        }
+
+        let isDraggingZoom = false;
+
+        function handleZoomSlider(clientY) {
+            const rect = zoomSliderContainer.getBoundingClientRect();
+            let percent = (clientY - rect.top) / rect.height;
+            percent = Math.max(0, Math.min(1, percent));
+            
+            // 0% (top) -> 10
+            // 100% (bottom) -> 0
+            const newDist = (1 - percent) * 10;
+            const liveDistance = Math.max(0, Math.min(10, newDist));
+            
+            state.distance = Math.round(liveDistance * 10) / 10;
+            
+            updateDisplay();
+            // We need to update visuals if scene exists
+            if (threeScene) {
+                threeScene.syncFromState();
+            }
+            sendAngleUpdate();
+        }
+
+        zoomSliderContainer.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            isDraggingZoom = true;
+            handleZoomSlider(e.clientY);
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (isDraggingZoom) {
+                e.preventDefault();
+                handleZoomSlider(e.clientY);
+            }
+        });
+
+        window.addEventListener('mouseup', () => {
+            isDraggingZoom = false;
+        });
+
+        zoomSliderContainer.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            isDraggingZoom = true;
+            handleZoomSlider(e.touches[0].clientY);
+        }, { passive: false });
+
+        window.addEventListener('touchmove', (e) => {
+            if (isDraggingZoom) {
+                e.preventDefault();
+                handleZoomSlider(e.touches[0].clientY);
+            }
+        }, { passive: false });
+
+        window.addEventListener('touchend', () => {
+            isDraggingZoom = false;
+        });
 
         function updateDisplay() {
             hValueEl.textContent = Math.round(state.azimuth) + '°';
             vValueEl.textContent = Math.round(state.elevation) + '°';
             zValueEl.textContent = state.distance.toFixed(1);
+            updateZoomSlider();
             if (state.useDefaultPrompts) {
                 promptPreviewEl.textContent = generateQwenPrompt();
             } else {
@@ -276,7 +372,8 @@ export const VIEWER_HTML = `
                 horizontal: Math.round(state.azimuth),
                 vertical: Math.round(state.elevation),
                 zoom: Math.round(state.distance * 10) / 10,
-                useDefaultPrompts: state.useDefaultPrompts || false
+                useDefaultPrompts: state.useDefaultPrompts || false,
+                cameraView: state.cameraView
             }, '*');
         }
 
@@ -285,15 +382,39 @@ export const VIEWER_HTML = `
             state.elevation = 0;
             state.distance = 5.0;
             state.useDefaultPrompts = false;
+            state.cameraView = false;
             if (threeScene) {
                 threeScene.syncFromState();
+                threeScene.setCameraView(false);
             }
             updateDisplay();
+            sendAngleUpdate();
+            viewBtn.textContent = '👁️';
+            viewBtn.title = 'Switch to Camera View';
+            zoomSliderContainer.style.display = 'none';
+        }
+
+        // Toggle view handler
+        function toggleView() {
+            state.cameraView = !state.cameraView;
+            if (threeScene) {
+                threeScene.setCameraView(state.cameraView);
+            }
+            if (state.cameraView) {
+                viewBtn.textContent = '▦';
+                viewBtn.title = 'Switch to Overview';
+                zoomSliderContainer.style.display = 'flex';
+            } else {
+                viewBtn.textContent = '👁️';
+                viewBtn.title = 'Switch to Camera View';
+                zoomSliderContainer.style.display = 'none';
+            }
             sendAngleUpdate();
         }
 
         // Reset button handler
         document.getElementById('reset-btn').addEventListener('click', resetToDefaults);
+        document.getElementById('view-btn').addEventListener('click', toggleView);
 
         function initThreeJS() {
             const width = container.clientWidth;
@@ -478,7 +599,7 @@ export const VIEWER_HTML = `
             // Elevation Arc
             const arcPoints = [];
             for (let i = 0; i <= 32; i++) {
-                const angle = (-30 + (120 * i / 32)) * Math.PI / 180;
+                const angle = (-90 + (180 * i / 32)) * Math.PI / 180;
                 arcPoints.push(new THREE.Vector3(
                     ELEV_ARC_X,
                     ELEVATION_RADIUS * Math.sin(angle) + CENTER.y,
@@ -608,6 +729,8 @@ export const VIEWER_HTML = `
             let isDragging = false;
             let dragTarget = null;
             let hoveredHandle = null;
+            let dragStartMouseY = 0;
+            let dragStartDistance = 0;
 
             function getMousePos(event) {
                 const rect = renderer.domElement.getBoundingClientRect();
@@ -620,8 +743,27 @@ export const VIEWER_HTML = `
                 if (glow) glow.scale.setScalar(scale);
             }
 
+            // Orbit controls logic for camera view
+            let isOrbiting = false;
+            let lastMouseX = 0;
+            let lastMouseY = 0;
+
             function onPointerDown(event) {
+                // Prevent default text selection behavior
+                if (event.preventDefault) {
+                    event.preventDefault();
+                }
+
                 getMousePos(event);
+                
+                if (state.cameraView) {
+                    isOrbiting = true;
+                    lastMouseX = event.clientX;
+                    lastMouseY = event.clientY;
+                    renderer.domElement.style.cursor = 'grabbing';
+                    return;
+                }
+
                 raycaster.setFromCamera(mouse, camera);
 
                 const handles = [
@@ -634,6 +776,10 @@ export const VIEWER_HTML = `
                     if (raycaster.intersectObject(h.mesh).length > 0) {
                         isDragging = true;
                         dragTarget = h.name;
+
+                        dragStartMouseY = mouse.y;
+                        dragStartDistance = state.distance;
+
                         setHandleScale(h.mesh, h.glow, 1.3);
                         renderer.domElement.style.cursor = 'grabbing';
                         return;
@@ -642,6 +788,33 @@ export const VIEWER_HTML = `
             }
 
             function onPointerMove(event) {
+                if (state.cameraView && isOrbiting) {
+                    const deltaX = event.clientX - lastMouseX;
+                    const deltaY = event.clientY - lastMouseY;
+                    lastMouseX = event.clientX;
+                    lastMouseY = event.clientY;
+
+                    // Update angles
+                    state.azimuth -= deltaX * 0.5;
+                    state.elevation += deltaY * 0.5;
+                    
+                    // Clamp elevation
+                    state.elevation = Math.max(-90, Math.min(90, state.elevation));
+                    
+                    // Normalize azimuth
+                    if (state.azimuth < 0) state.azimuth += 360;
+                    if (state.azimuth >= 360) state.azimuth -= 360;
+
+                    // Sync live values
+                    liveAzimuth = state.azimuth;
+                    liveElevation = state.elevation;
+
+                    updateDisplay();
+                    updateVisuals();
+                    sendAngleUpdate();
+                    return;
+                }
+
                 getMousePos(event);
                 raycaster.setFromCamera(mouse, camera);
 
@@ -696,7 +869,7 @@ export const VIEWER_HTML = `
                         const relY = intersect.y - CENTER.y;
                         const relZ = intersect.z;
                         let angle = Math.atan2(relY, relZ) * (180 / Math.PI);
-                        angle = Math.max(-30, Math.min(90, angle));
+                        angle = Math.max(-90, Math.min(90, angle));
                         liveElevation = angle;
                         state.elevation = Math.round(liveElevation);
                         updateDisplay();
@@ -704,7 +877,9 @@ export const VIEWER_HTML = `
                         sendAngleUpdate();
                     }
                 } else if (dragTarget === 'distance') {
-                    const newDist = 5 - mouse.y * 5;
+                    const deltaY = mouse.y - dragStartMouseY;
+                    const sensitivity = 15;
+                    const newDist = dragStartDistance - deltaY * sensitivity;
                     liveDistance = Math.max(0, Math.min(10, newDist));
                     state.distance = Math.round(liveDistance * 10) / 10;
                     updateDisplay();
@@ -714,6 +889,12 @@ export const VIEWER_HTML = `
             }
 
             function onPointerUp() {
+                if (isOrbiting) {
+                    isOrbiting = false;
+                    renderer.domElement.style.cursor = 'default';
+                    return;
+                }
+
                 if (isDragging) {
                     const handles = [
                         { mesh: azimuthHandle, glow: azGlow },
@@ -906,6 +1087,10 @@ export const VIEWER_HTML = `
                 state.imageUrl = data.imageUrl;
                 if (threeScene) {
                     threeScene.updateImage(data.imageUrl);
+                }
+            } else if (data.type === 'SET_CAMERA_VIEW') {
+                if (threeScene) {
+                    threeScene.setCameraView(data.cameraView || false);
                 }
             }
         });

@@ -236,7 +236,7 @@ class DownloadStatus:
             unit_scale=True,
             desc=filename,
             position=0,
-            leave=True,          # 完成后保留进度条（显示100%）
+            leave=False,         # 完成后保留进度条（显示100%）
             dynamic_ncols=True,  # 动态列宽
             file=sys.stdout,     # 输出到 stdout
             miniters=1,          # 每次迭代都更新
@@ -380,7 +380,7 @@ def print_instructions():
     time.sleep(0.1)
     print(f"{Fore.GREEN}★{Style.RESET_ALL}打开默认浏览器设置，关闭GPU加速、或图形加速的选项。{Fore.GREEN}★{Style.RESET_ALL}大内存(64+)与固态硬盘存放模型有助于减少模型加载时间。{Fore.GREEN}★{Style.RESET_ALL}")
     time.sleep(0.1)
-    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：1005085136{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:26.01.10{Fore.GREEN}★{Style.RESET_ALL}")
+    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：1005085136{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:26.01.12{Fore.GREEN}★{Style.RESET_ALL}")
     print()
     time.sleep(0.1)
     
@@ -857,12 +857,11 @@ def download_file_with_resume(link, file_path, position, result_queue, max_retri
                     position=position,
                     initial=resume_size,
                     dynamic_ncols=True,
-                    leave=True,
+                    leave=False,  # 任务完成后清除进度条，避免视觉残留
                     file=sys.stdout,
                     miniters=1,
                     mininterval=0.1,  # 增加更新间隔，减少性能影响
-                    disable=False,
-                    ncols=100
+                    disable=False
             ) as progress_bar:
                 start_time = time.time()
                 last_update_time = start_time
@@ -888,7 +887,19 @@ def download_file_with_resume(link, file_path, position, result_queue, max_retri
             final_file_path = os.path.normpath(file_path)
             partial_file_path = os.path.normpath(partial_file_path)
             os.rename(partial_file_path, final_file_path)
-            print(f"{Fore.GREEN}√下载完成：{final_file_path}{Style.RESET_ALL}")
+
+            try:
+                official_sha256 = get_modelscope_file_sha256(link, verbose=False)
+                if official_sha256:
+                    local_sha256 = calculate_sha256(final_file_path)
+                    if local_sha256.lower() != official_sha256.lower():
+                        os.remove(final_file_path)
+                        raise requests.exceptions.RequestException(f"SHA256校验失败 (预期: {official_sha256}, 实际: {local_sha256})")
+            except Exception as e:
+                if "SHA256校验失败" in str(e):
+                    raise e
+
+            tqdm.write(f"{Fore.GREEN}√下载完成：{final_file_path}{Style.RESET_ALL}")
 
             if lock:
                 with lock:
@@ -898,15 +909,15 @@ def download_file_with_resume(link, file_path, position, result_queue, max_retri
             return
 
         except (requests.exceptions.RequestException, requests.exceptions.Timeout) as e:
-            print(f"{Fore.RED}△下载失败，正在重试... 错误：{e}{Style.RESET_ALL}")
+            tqdm.write(f"{Fore.RED}△下载失败，正在重试... 错误：{e}{Style.RESET_ALL}")
             retries += 1
             time.sleep(5)
         except Exception as e:
-            print(f"{Fore.RED}发生错误：{e}{Style.RESET_ALL}")
+            tqdm.write(f"{Fore.RED}发生错误：{e}{Style.RESET_ALL}")
             result_queue.put(False)
             return
 
-    print(f"△下载链接失败：{link}")
+    tqdm.write(f"△下载链接失败：{link}")
     result_queue.put(False)
 
 def remove_link_from_downloadlist(link):
@@ -980,16 +991,32 @@ def auto_download_missing_files_with_retry(max_threads=5):
     lock = threading.Lock()
 
     task_queue = queue.Queue()
-    for position, line in enumerate(links):
-        task_queue.put((position, line.strip()))
+    # position 不再直接使用索引，而是通过 Slot 机制动态分配
+    for index, line in enumerate(links):
+        task_queue.put(line.strip())
+
+    # 创建可用 Slot 队列，限制同时显示的进度条数量等于线程数
+    position_slots = queue.Queue()
+    for i in range(max_threads):
+        position_slots.put(i)
 
     def worker():
         while not task_queue.empty():
             try:
-                position, line = task_queue.get_nowait()
+                line = task_queue.get_nowait()
+                
+                # 获取一个可用的 Slot 用于显示进度条
+                try:
+                    position = position_slots.get(timeout=30)
+                except queue.Empty:
+                    # 理论上不应发生，但作为防守
+                    position = 0 
+                
                 link, size = line.split(',')
                 size_mb = int(size) / (1024 * 1024)
-                print(f"{Fore.CYAN}▶ 正在下载: {link} ({size_mb:.1f}MB){Style.RESET_ALL}")
+                
+                # 使用 tqdm.write 避免破坏进度条
+                tqdm.write(f"{Fore.CYAN}▶ 正在下载: {link} ({size_mb:.1f}MB){Style.RESET_ALL}")
 
                 # 检查是否是原始仓库链接
                 if link.startswith(CURRENT_DOWNLOAD_PREFIX):
@@ -1051,29 +1078,22 @@ def auto_download_missing_files_with_retry(max_threads=5):
                     target_base_dir = sorted_base_dir[0]
                     try:
                         os.makedirs(target_base_dir, exist_ok=True)
-                        print(f"{Fore.YELLOW}△自动创建缺失目录: {target_base_dir}{Style.RESET_ALL}")
+                        tqdm.write(f"{Fore.YELLOW}△自动创建缺失目录: {target_base_dir}{Style.RESET_ALL}")
                     except Exception as e:
-                        print(f"{Fore.RED}×目录创建失败[{target_base_dir}]: {str(e)}{Style.RESET_ALL}")
+                        tqdm.write(f"{Fore.RED}×目录创建失败[{target_base_dir}]: {str(e)}{Style.RESET_ALL}")
+                        # 失败也要归还 slot
+                        position_slots.put(position)
+                        task_queue.task_done()
                         continue
 
                 file_name = os.path.basename(relative_path)
                 file_sub_dir = os.path.dirname(relative_path_without_prefix).replace(path_type, "").strip('/')
                 save_dir = os.path.join(target_base_dir, file_sub_dir)
                 file_path = os.path.join(save_dir, file_name)
+                download_file_with_resume(link, file_path, position, result_queue, 5, lock)
 
-                # 使用线程池执行下载，但不阻塞等待
-                thread = threading.Thread(
-                    target=download_file_with_resume,
-                    args=(link, file_path, position, result_queue, 5, lock)
-                )
-                thread.start()
-
-                # 添加超时检测，避免线程卡死
-                thread.join(timeout=300)  # 5分钟超时
-                if thread.is_alive():
-                    print(f"{Fore.RED}×下载超时：{link}，跳过此文件{Style.RESET_ALL}")
-                    result_queue.put(False)
-
+                # 下载完成（无论成功失败），归还 Slot
+                position_slots.put(position)
                 task_queue.task_done()
             except queue.Empty:
                 break
@@ -2415,7 +2435,7 @@ OBSOLETE_MODELS = [
 
 MODELSCOPE_FILE_CACHE = {}
 
-def get_modelscope_file_sha256(url):
+def get_modelscope_file_sha256(url, verbose=True):
     """
     尝试从ModelScope API获取文件的SHA256
     URL格式: https://www.modelscope.cn/models/{namespace}/{repo_name}/resolve/{revision}/{file_path}
@@ -2439,7 +2459,8 @@ def get_modelscope_file_sha256(url):
     if cache_key not in MODELSCOPE_FILE_CACHE:
         api_url = f"https://modelscope.cn/api/v1/models/{namespace}/{repo_name}/repo/files?Revision={revision}&Recursive=true"
         try:
-            print(f"{Fore.CYAN}正在获取官方校验数据: {namespace}/{repo_name} ({revision})...{Style.RESET_ALL}")
+            if verbose:
+                print(f"{Fore.CYAN}正在获取官方校验数据: {namespace}/{repo_name} ({revision})...{Style.RESET_ALL}")
             # 设置较短超时，避免卡住
             response = requests.get(api_url, timeout=15)
             if response.status_code == 200:
@@ -2450,12 +2471,15 @@ def get_modelscope_file_sha256(url):
                         if f['Type'] == 'blob':
                             file_map[f['Path']] = f['Sha256']
                 MODELSCOPE_FILE_CACHE[cache_key] = file_map
-                print(f"{Fore.GREEN}√ 获取成功，已缓存 {len(file_map)} 个文件的特征值{Style.RESET_ALL}")
+                if verbose:
+                    print(f"{Fore.GREEN}√ 获取成功，已缓存 {len(file_map)} 个文件的特征值{Style.RESET_ALL}")
             else:
-                print(f"{Fore.RED}无法获取官方数据 (HTTP {response.status_code}){Style.RESET_ALL}")
+                if verbose:
+                    print(f"{Fore.RED}无法获取官方数据 (HTTP {response.status_code}){Style.RESET_ALL}")
                 MODELSCOPE_FILE_CACHE[cache_key] = None
         except Exception as e:
-            print(f"{Fore.RED}获取官方数据失败: {e}{Style.RESET_ALL}")
+            if verbose:
+                print(f"{Fore.RED}获取官方数据失败: {e}{Style.RESET_ALL}")
             MODELSCOPE_FILE_CACHE[cache_key] = None
 
     file_map = MODELSCOPE_FILE_CACHE.get(cache_key)
@@ -2494,6 +2518,7 @@ def verify_package_strict(package_id, packages):
     root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 
     files_and_sizes = target_package["files"]
+    corrupted_files = []
 
     for expected_path, expected_size in files_and_sizes:
         expected_filename = os.path.basename(expected_path)
@@ -2519,9 +2544,12 @@ def verify_package_strict(package_id, packages):
 
         url_pattern = r'https?://[^\s/$.?#].[^\s]*'
         url_match = re.search(url_pattern, expected_path)
+        
+        target_url = None
         if url_match:
-            local_dir = expected_path.split(url_match.group(0))[0].rstrip('/')
-            file_name = os.path.basename(url_match.group(0))
+            target_url = url_match.group(0)
+            local_dir = expected_path.split(target_url)[0].rstrip('/')
+            file_name = os.path.basename(target_url)
 
             for base_dir in search_dirs:
                 actual_full_path = os.path.join(base_dir, local_dir.replace(path_type, "", 1).lstrip('/'), file_name)
@@ -2531,6 +2559,8 @@ def verify_package_strict(package_id, packages):
                     actual_path = actual_full_path
                     found = True
                     break
+        else:
+            target_url = f"{DEFAULT_DOWNLOAD_PREFIX}SimpleModels/{expected_path}"
 
         if not found:
             for base_dir in search_dirs:
@@ -2550,15 +2580,6 @@ def verify_package_strict(package_id, packages):
 
             # 尝试获取官方SHA256
             official_sha256 = None
-            url_pattern = r'https?://[^\s/$.?#].[^\s]*'
-            url_match_in_def = re.search(url_pattern, expected_path)
-
-            target_url = None
-            if url_match_in_def:
-                target_url = url_match_in_def.group(0)
-            else:
-                target_url = f"{DEFAULT_DOWNLOAD_PREFIX}SimpleModels/{expected_path}"
-
             if target_url:
                 official_sha256 = get_modelscope_file_sha256(target_url)
 
@@ -2567,11 +2588,32 @@ def verify_package_strict(package_id, packages):
                      print(f"  校验结果: {Fore.GREEN}√ 通过 (与官方一致){Style.RESET_ALL}")
                 else:
                      print(f"  校验结果: {Fore.RED}× 失败 (官方: {official_sha256}){Style.RESET_ALL}")
+                     corrupted_files.append((actual_path, target_url, expected_size))
             else:
                  print(f"  校验结果: {Fore.YELLOW}? 未能获取官方数据，请人工比对{Style.RESET_ALL}")
 
         else:
             print(f"{Fore.RED}×文件缺失: {expected_path}{Style.RESET_ALL}")
+
+    if corrupted_files:
+        print(f"\n{Fore.RED}发现 {len(corrupted_files)} 个文件的SHA256与官方不匹配：{Style.RESET_ALL}")
+        for path, _, _ in corrupted_files:
+            print(f"- {path}")
+        
+        print(f"\n{Fore.YELLOW}是否删除这些受损文件并重新下载？(y/n): {Style.RESET_ALL}", end="")
+        choice = input().strip().lower()
+        if choice == 'y':
+            with open("downloadlist.txt", "w") as f1:
+                for path, url, size in corrupted_files:
+                    try:
+                        os.remove(path)
+                        print(f"已删除: {path}")
+                        f1.write(f"{url},{size}\n")
+                    except Exception as e:
+                        print(f"删除失败 {path}: {e}")
+            
+            print("启动自动下载...")
+            auto_download_missing_files_with_retry()
 
     print(f"\n{Fore.CYAN}校验完成。{Style.RESET_ALL}")
 
