@@ -2325,11 +2325,23 @@ with shared.gradio_root:
             if img is None: return None
             if isinstance(img, str): return f"/file={img}"
             if isinstance(img, np.ndarray):
-                pil_img = Image.fromarray(img)
+                # Resize image if it's too large for preview
+                h, w = img.shape[:2]
+                max_side = 2048
+                if h > max_side or w > max_side:
+                    scale = max_side / max(h, w)
+                    new_h, new_w = int(h * scale), int(w * scale)
+                    pil_img = Image.fromarray(img).resize((new_w, new_h), Image.Resampling.LANCZOS)
+                else:
+                    pil_img = Image.fromarray(img)
+                
+                if pil_img.mode == 'RGBA':
+                    pil_img = pil_img.convert('RGB')
+                
                 buffered = io.BytesIO()
-                pil_img.save(buffered, format="PNG")
+                pil_img.save(buffered, format="JPEG", quality=80)
                 img_str = base64.b64encode(buffered.getvalue()).decode()
-                return f"data:image/png;base64,{img_str}"
+                return f"data:image/jpeg;base64,{img_str}"
             return None
 
         def cache_input_image_func(tab, uov, inpaint, layer, enhance, scene1, scene_canvas):
@@ -2495,7 +2507,7 @@ with shared.gradio_root:
 
         compare_btn.click(toggle_comparison, inputs=[comparison_state, cached_input_image, progress_gallery, gallery], outputs=[comparison_state, comparison_box, progress_gallery, gallery, progress_window, progress_video], show_progress=False)
         protections = [random_button, super_prompter, background_theme, image_tools_checkbox] + nav_bars
-        generate_button.click(lambda v, a: (v, a, gr.update(value=None, visible=False), gr.update(value=None, visible=False), gr.update(visible=True if v else False), gr.update(visible=True if a else False)), inputs=[scene_video, scene_audio], outputs=[scene_video_backup, scene_audio_backup, scene_video, scene_audio, scene_video_placeholder, scene_audio_placeholder], queue=False, show_progress=False) \
+        generate_button.click(lambda v, a: (v, a, gr.update(value=None, visible=False), gr.update(value=None, visible=False), gr.update(visible=True if v else False), gr.update(visible=True if a else False), gr.update(interactive=False)), inputs=[scene_video, scene_audio], outputs=[scene_video_backup, scene_audio_backup, scene_video, scene_audio, scene_video_placeholder, scene_audio_placeholder, generate_button], queue=False, show_progress=False) \
             .then(cache_input_image_func, inputs=[current_tab, uov_input_image, inpaint_input_image, layer_input_image, enhance_input_image, scene_input_image1, scene_canvas_image], outputs=[cached_input_image]) \
             .then(topbar.process_before_generation, inputs=[state_topbar, seed_random, image_seed, params_backend] + scene_params[:15] + [scene_video_backup, scene_audio_backup], outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating, index_radio, image_toolbox, prompt_info_box, image_seed] + protections + [preset_store, identity_dialog], show_progress=False) \
             .then(topbar.wait_for_minicpm_completion, outputs=[], show_progress=False) \

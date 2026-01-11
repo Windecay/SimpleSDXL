@@ -15,6 +15,11 @@
                     "MultiAngle-1536px": "qwen_multiangle_1536_cn",
                     "MultiAngle-2048px": "qwen_multiangle_2048_cn"
                 },
+                "prompt": {
+                    "MultiAngle-1024px": " ",
+                    "MultiAngle-1536px": " ",
+                    "MultiAngle-2048px": " "   
+                },
                 "scene_steps_min": 4,
                 "scene_steps_max": 10,
                 "scene_steps": {

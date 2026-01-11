@@ -131,7 +131,7 @@ class QwenMultiangleCameraNode:
             h_direction = "front-left quarter view"
 
         if vertical_angle < -60:
-            v_direction = "worm's-eye view  camera positioned directly underneath looking straight up,"
+            v_direction = "worm's-eye view  extreme low-angle"
         elif vertical_angle < -30:
             v_direction = "extreme low-angle shot"
         elif vertical_angle < -15:

@@ -469,7 +469,7 @@ def refresh_nav_bars(state_params):
         else: 
             results += [gr.update(value='', interactive=False, visible=visible_flag)]
     return results
-def wait_for_minicpm_completion(check_interval=1):
+def wait_for_minicpm_completion(check_interval=0.5):
     try:
         while True:
             processing_status = MiniCPM.get_processing_status()

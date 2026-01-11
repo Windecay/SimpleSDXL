@@ -257,7 +257,7 @@ export const VIEWER_HTML = `
 
             let v_direction;
             if (state.elevation < -60) {
-                v_direction = "worm's-eye view  camera positioned directly underneath looking straight up,";
+                v_direction = "worm's-eye view  extreme low-angle";
             } else if (state.elevation < -30) {
                 v_direction = "extreme low-angle shot";
             } else if (state.elevation < -15) {
