@@ -152,9 +152,9 @@ class QwenMultiangleCameraNode:
         else:
             distance = "close-up"
 
-            prompt = f"{h_direction} {v_direction} {distance}"
-            prompt = f"{h_direction}, {v_direction}, {distance}"
-            prompt += f" (horizontal: {horizontal_angle}, vertical: {vertical_angle}, zoom: {zoom:.1f})"
+        prompt = f"{h_direction} {v_direction} {distance}"
+        prompt = f"{h_direction}, {v_direction}, {distance}"
+        prompt += f" (horizontal: {horizontal_angle}, vertical: {vertical_angle}, zoom: {zoom:.1f})"
 
         # Convert image to base64 for frontend display
         image_base64 = ""
