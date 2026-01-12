@@ -322,8 +322,18 @@ class PromptServer():
                     return response
 
             key_point = request.query.get("p")
-            if not key_point or (not check_entry_point(key_point) and datetime.now().strftime("%Y%m%d%H") not in key_point):
+
+            is_valid_entry = False
+            try:
+                if key_point:
+                    loop = asyncio.get_running_loop()
+                    is_valid_entry = await loop.run_in_executor(None, check_entry_point, key_point)
+            except Exception as e:
+                 traceback.print_exc()
+
+            if not key_point or (not is_valid_entry and datetime.now().strftime("%Y%m%d%H") not in key_point):
                 return web.Response(status=403, text="Invalid identity key / 没有有效的身份标识 !")
+            
             response = web.FileResponse(os.path.join(self.web_root, "index.html"))
             response.set_cookie("sstoken", key_point, max_age=3600*24*30*6, httponly=True, secure=True)
             response.headers['Cache-Control'] = 'no-cache'
