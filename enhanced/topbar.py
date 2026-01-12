@@ -498,6 +498,26 @@ def process_before_generation(state_params, seed_random, image_seed, backend_par
         preset=state_params["__preset"],
         engine_type=state_params.get("engine_type", "image"),
         ))
+
+    user_did = state_params["user"].get_did()
+    if shared.token.is_admin(user_did):
+        admin_outputs = os.path.abspath(os.path.join(shared.token.get_path_in_user_dir(user_did, "outputs"), 'ComfyUI'))
+        if not os.path.exists(admin_outputs):
+            os.makedirs(admin_outputs)
+        
+        # Update runtime
+        if comfyd.is_running():
+            comfyd.modify_variable({"outputs": admin_outputs})
+            
+        # Update startup args for persistence
+        try:
+            for arg in comfyd.comfyd_args:
+                if len(arg) >= 2 and arg[0] == "--output-directory":
+                    arg[1] = admin_outputs
+                    # print(f"Updated Comfyd startup args output directory to: {admin_outputs}")
+                    break
+        except Exception as e:
+            print(f"Error updating comfyd startup args: {e}")
     
     if 'scene_frontend' in state_params:
         scene_frontend = state_params['scene_frontend']
@@ -984,10 +1004,21 @@ def update_after_identity_sub(state):
     state.update({"__finished_nums_pages": f'{finished_nums},{finished_pages}'})
 
     if shared.token.is_admin(user_did):
-        admin_outputs = os.path.join(shared.token.get_path_in_user_dir(user_did, "outputs"), 'ComfyUI')
+        admin_outputs = os.path.abspath(os.path.join(shared.token.get_path_in_user_dir(user_did, "outputs"), 'ComfyUI'))
         if not os.path.exists(admin_outputs):
             os.makedirs(admin_outputs)
+        print(f"Admin user detected. Setting ComfyUI outputs to: {admin_outputs}")
         comfyd.modify_variable({"outputs": admin_outputs})
+        
+        # Update comfyd startup args so restarts use the correct path
+        try:
+            for arg in comfyd.comfyd_args:
+                if len(arg) >= 2 and arg[0] == "--output-directory":
+                    arg[1] = admin_outputs
+                    print(f"Updated Comfyd startup args output directory to: {admin_outputs}")
+                    break
+        except Exception as e:
+            print(f"Error updating comfyd startup args: {e}")
 
     results = [gr.update(choices=output_list, value=None), gr.update(visible=len(output_list)>0, open=False)]
     results += [state['__finished_nums_pages']]

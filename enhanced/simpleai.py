@@ -137,6 +137,11 @@ def reset_simpleai_args():
     comfyd_images_path = os.path.join(shared.path_userhome, 'guest_user')
     comfyd_output = os.path.join(comfyd_images_path, 'comfyd_outputs')
     comfyd_intput = os.path.join(comfyd_images_path, 'comfyd_inputs')
+
+    admin_did = shared.token.get_admin_did()
+    if admin_did:
+        comfyd_output = os.path.abspath(os.path.join(shared.token.get_path_in_user_dir(admin_did, "outputs"), 'ComfyUI'))
+
     if not os.path.exists(comfyd_output):
         os.makedirs(comfyd_output)
     if not os.path.exists(comfyd_intput):
