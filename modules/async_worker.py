@@ -473,6 +473,11 @@ def worker():
                 import glob
                 
                 def monitor_backend_ready(task):
+                    if hasattr(task, 'task_class') and task.task_class == 'Fooocus':
+                        task.yields.append(['status', 'backend_ready'])
+                        task.backend_ready_detected = True
+                        return
+
                     log_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'comfy', 'user')
                     if not os.path.exists(log_dir):
                         logger.info(f"[SimpAI-async_worker] Log directory not found: {log_dir}")
@@ -495,7 +500,7 @@ def worker():
                                     time.sleep(0.1)
                                     continue
 
-                                if "Requested to load" in line:
+                                if "Requested to load" in line or "Creating new runner" in line:
                                     task.yields.append(['status', 'backend_ready'])
                                     task.backend_ready_detected = True
                                     # logger.info(f"[SimpAI-async_worker] Backend ready detected via log: {line.strip()}")
