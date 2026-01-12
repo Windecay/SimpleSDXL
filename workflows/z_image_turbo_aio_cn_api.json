@@ -4449,7 +4449,10 @@
   },
   "701": {
     "inputs": {
-      "model_name": "4x-UltraSharp.pth"
+      "model_name": [
+        "835",
+        0
+      ]
     },
     "class_type": "UpscaleModelLoader",
     "_meta": {
@@ -4977,7 +4980,10 @@
   },
   "761": {
     "inputs": {
-      "model_name": "4x-UltraSharp.pth"
+      "model_name": [
+        "835",
+        0
+      ]
     },
     "class_type": "UpscaleModelLoader",
     "_meta": {
