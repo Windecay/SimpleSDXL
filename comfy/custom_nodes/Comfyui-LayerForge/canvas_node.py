@@ -752,62 +752,87 @@ class BiRefNetMatting:
 
     def load_model(self, model_path):
         from json.decoder import JSONDecodeError
+        import requests
+        from safetensors.torch import load_file
+
+        # Use ComfyUI folder_paths to locate the model
+        target_path = folder_paths.get_full_path("rembg", "General.safetensors")
+        
+        if target_path is None:
+            # Model not found, determine path for download
+            try:
+                rembg_paths = folder_paths.get_folder_paths("rembg")
+                target_dir = rembg_paths[0]
+            except KeyError:
+                # Fallback if rembg not defined in paths
+                target_dir = os.path.join(folder_paths.models_dir, "rembg")
+            
+            target_path = os.path.join(target_dir, "General.safetensors")
+
         try:
-            if model_path not in self.model_cache:
-                full_model_path = os.path.join(self.base_path, "BiRefNet")
-                log_info(f"Loading BiRefNet model from {full_model_path}...")
-                try:
-                    # Try loading with additional configuration to handle compatibility issues
-                    self.model = AutoModelForImageSegmentation.from_pretrained(
-                        "ZhengPeng7/BiRefNet",
-                        trust_remote_code=True,
-                        cache_dir=full_model_path,
-                        # Add force_download=False to use cached version if available
-                        force_download=False,
-                        # Add local_files_only=False to allow downloading if needed
-                        local_files_only=False
-                    )
-                    self.model.eval()
-                    if torch.cuda.is_available():
-                        self.model = self.model.cuda()
-                    self.model_cache[model_path] = self.model
-                    log_info("Model loaded successfully from Hugging Face")
-                except AttributeError as e:
-                    if "'Config' object has no attribute 'is_encoder_decoder'" in str(e):
-                        log_error("Compatibility issue detected with transformers library. This has been fixed in the code.")
-                        log_error("If you're still seeing this error, please clear the model cache and try again.")
-                        raise RuntimeError(
-                            "Model configuration compatibility issue detected. "
-                            f"Please delete the model cache directory '{full_model_path}' and restart ComfyUI. "
-                            "This will download a fresh copy of the model with the updated configuration."
-                        ) from e
-                    else:
-                        raise e
-                except JSONDecodeError as e:                    
-                    log_error(f"JSONDecodeError: Failed to load model from {full_model_path}. The model's config.json may be corrupted.")
-                    raise RuntimeError(
-                        "The matting model's configuration file (config.json) appears to be corrupted. "
-                        f"Please manually delete the directory '{full_model_path}' and try again. "
-                        "This will force a fresh download of the model."
-                    ) from e
-                except Exception as e:
-                    log_error(f"Failed to load model from Hugging Face: {str(e)}")
-                    # Re-raise with a more informative message
-                    raise RuntimeError(
-                        "Failed to download or load the matting model. "
-                        "This could be due to a network issue, file permissions, or a corrupted model cache. "
-                        f"Please check your internet connection and the model cache path: {full_model_path}. "
-                        f"Original error: {str(e)}"
-                    ) from e
+            # Ensure model exists (download logic preserved but modified for direct use)
+            if not os.path.exists(target_path):
+                log_info(f"Model not found at {target_path}, downloading...")
+                download_url = "https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/rembg/General.safetensors"
+                os.makedirs(os.path.dirname(target_path), exist_ok=True)
+                response = requests.get(download_url, stream=True)
+                response.raise_for_status()
+                total_size = int(response.headers.get('content-length', 0))
+                with open(target_path, 'wb') as f, tqdm(
+                    desc="Downloading General.safetensors",
+                    total=total_size,
+                    unit='iB',
+                    unit_scale=True,
+                    unit_divisor=1024,
+                ) as bar:
+                    for chunk in response.iter_content(chunk_size=8192):
+                        size = f.write(chunk)
+                        bar.update(size)
+                log_info("Download complete.")
+
+            if target_path not in self.model_cache:
+                log_info(f"Loading BiRefNet model from {target_path} using local code...")
+
+                current_node_dir = os.path.dirname(os.path.abspath(__file__))
+                custom_nodes_dir = os.path.dirname(current_node_dir)
+                birefnet_node_dir = os.path.join(custom_nodes_dir, "ComfyUI_BiRefNet_ll")
+                
+                if os.path.exists(birefnet_node_dir):
+                    if birefnet_node_dir not in sys.path:
+                        sys.path.append(birefnet_node_dir)
+                    
+                    try:
+                        from birefnet.models.birefnet import BiRefNet
+                        log_info("Successfully imported BiRefNet from ComfyUI_BiRefNet_ll")
+                        
+                        # Instantiate model (bb_index=6 for General)
+                        self.model = BiRefNet(bb_pretrained=False, bb_index=6)
+                        
+                        # Load weights
+                        state_dict = load_file(target_path)
+                        self.model.load_state_dict(state_dict)
+                        
+                        self.model.eval()
+                        if torch.cuda.is_available():
+                            self.model = self.model.cuda()
+                        self.model_cache[target_path] = self.model
+                        log_info("Model loaded successfully using local BiRefNet definition")
+                        
+                    except ImportError as e:
+                        log_error(f"Failed to import BiRefNet from local node: {e}")
+                        raise RuntimeError("ComfyUI_BiRefNet_ll node not found or incompatible. Please install it to use this model without config.")
+                else:
+                    log_error(f"ComfyUI_BiRefNet_ll directory not found at {birefnet_node_dir}")
+                    raise RuntimeError("ComfyUI_BiRefNet_ll custom node is required to load this model format.")
+
             else:
-                self.model = self.model_cache[model_path]
+                self.model = self.model_cache[target_path]
                 log_debug("Using cached model")
 
         except Exception as e:
-            # Catch the re-raised exception or any other error
             log_error(f"Error loading model: {str(e)}")
             log_exception("Model loading failed")
-            raise  # Re-raise the exception to be caught by the execute method
+            raise
 
     def preprocess_image(self, image):
 
@@ -923,74 +948,23 @@ async def check_matting_model(request):
                 "message": "The 'transformers' library is required for the matting feature. Please install it by running: pip install transformers"
             })
         
-        # Check if model exists in cache
-        base_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "models")
-        model_path = os.path.join(base_path, "BiRefNet")
+        # Check custom model path
+        target_path = r"G:\SimpleAI\SimpleModels\rembg\General.safetensors"
         
-        # Look for the actual BiRefNet model structure
-        model_files_exist = False
-        if os.path.exists(model_path):
-            # BiRefNet model from Hugging Face has a specific structure
-            # Check for subdirectories that indicate the model is downloaded
-            existing_items = os.listdir(model_path) if os.path.isdir(model_path) else []
-            
-            # Look for the model subdirectory (usually named with the model ID)
-            model_subdirs = [d for d in existing_items if os.path.isdir(os.path.join(model_path, d)) and 
-                           (d.startswith("models--") or d == "ZhengPeng7--BiRefNet")]
-            
-            if model_subdirs:
-                # Found model subdirectory, check inside for actual model files
-                for subdir in model_subdirs:
-                    subdir_path = os.path.join(model_path, subdir)
-                    # Navigate through the cache structure
-                    if os.path.exists(os.path.join(subdir_path, "snapshots")):
-                        snapshots_path = os.path.join(subdir_path, "snapshots")
-                        snapshot_dirs = os.listdir(snapshots_path) if os.path.isdir(snapshots_path) else []
-                        
-                        for snapshot in snapshot_dirs:
-                            snapshot_path = os.path.join(snapshots_path, snapshot)
-                            snapshot_files = os.listdir(snapshot_path) if os.path.isdir(snapshot_path) else []
-                            
-                            # Check for essential files - BiRefNet uses model.safetensors
-                            has_config = "config.json" in snapshot_files
-                            has_model = "model.safetensors" in snapshot_files or "pytorch_model.bin" in snapshot_files
-                            has_backbone = "backbone_swin.pth" in snapshot_files or "swin_base_patch4_window12_384_22kto1k.pth" in snapshot_files
-                            has_birefnet = "birefnet.pth" in snapshot_files or any(f.endswith(".pth") for f in snapshot_files)
-                            
-                            # Model is valid if it has config and either model.safetensors or other model files
-                            if has_config and (has_model or has_backbone or has_birefnet):
-                                model_files_exist = True
-                                log_info(f"Found model files in: {snapshot_path} (config: {has_config}, model: {has_model})")
-                                break
-                    
-                    if model_files_exist:
-                        break
-            
-            # Also check if there are .pth files directly in the model_path
-            if not model_files_exist:
-                direct_files = existing_items
-                has_config = "config.json" in direct_files
-                has_model_files = any(f.endswith((".pth", ".bin", ".safetensors")) for f in direct_files)
-                model_files_exist = has_config and has_model_files
-                
-                if model_files_exist:
-                    log_info(f"Found model files directly in: {model_path}")
-        
-        if model_files_exist:
-            # Model files exist, assume it's ready
-            log_info("BiRefNet model files detected")
+        if os.path.exists(target_path):
+            log_info(f"BiRefNet model detected at {target_path}")
             return web.json_response({
                 "available": True,
                 "reason": "ready",
                 "message": "Model is ready to use"
             })
         else:
-            log_info(f"BiRefNet model not found in {model_path}")
+            log_info(f"BiRefNet model not found at {target_path}")
             return web.json_response({
                 "available": False,
                 "reason": "not_downloaded",
                 "message": "The matting model needs to be downloaded. This will happen automatically when you first use the matting feature (requires internet connection).",
-                "model_path": model_path
+                "model_path": target_path
             })
             
     except Exception as e:

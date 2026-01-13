@@ -2,8 +2,14 @@
 import random
 import time
 import asyncio
+import warnings
 from functools import lru_cache
-import translators as ts
+
+# Suppress 'Unable to find server backend' warning from translators library
+with warnings.catch_warnings():
+    warnings.filterwarnings("ignore", message=".*Unable to find server backend.*")
+    import translators as ts
+
 from ..utils.common import ProgressBar, log_prepare, log_error, TASK_TRANSLATE, SOURCE_NODE
 
 # Extracted from enhanced/translator.py
