@@ -5,6 +5,7 @@ from .services.baidu import BaiduTranslateService
 from .services.llm import LLMService
 from .services.vlm import VisionService
 from .services.model_list import get_models_from_service
+from .services.third_party_translator import ThirdPartyTranslateService
 import base64
 import json
 import traceback
@@ -1161,6 +1162,45 @@ async def baidu_translate(request):
     except Exception as e:
         error_msg = str(e)
         print(f"{ERROR_PREFIX} 百度翻译请求异常 | 错误:{error_msg}")
+        return web.json_response({"success": False, "error": error_msg})
+    finally:
+        if request_id and request_id in ACTIVE_TASKS:
+            del ACTIVE_TASKS[request_id]
+
+@PromptServer.instance.routes.post(f'{API_PREFIX}/third_party/translate')
+async def third_party_translate(request):
+    """
+    第三方翻译API
+    """
+    request_id = None
+    try:
+        data = await request.json()
+        text = data.get("text")
+        from_lang = data.get("from", "auto")
+        to_lang = data.get("to", "zh")
+        request_id = data.get("request_id")
+
+        if not request_id:
+            return web.json_response({"success": False, "error": "缺少request_id"}, status=400)
+        
+        # 准备阶段日志
+        from_lang_name = {"auto": "自动", "zh": "中文", "en": "英文"}.get(from_lang, from_lang)
+        to_lang_name = {"zh": "中文", "en": "英文"}.get(to_lang, to_lang)
+        log_prepare(TASK_TRANSLATE, request_id, SOURCE_FRONTEND, "Third-Party", None, None, {"Direction": f"{from_lang_name}→{to_lang_name}", "Length": len(text)})
+        
+        # 创建并注册任务
+        task = asyncio.create_task(ThirdPartyTranslateService.translate(text, from_lang, to_lang, request_id, task_type=TASK_TRANSLATE, source=SOURCE_FRONTEND))
+        ACTIVE_TASKS[request_id] = task
+        
+        result = await task
+        
+        return web.json_response(result)
+    except asyncio.CancelledError:
+        print(f"\r{_ANSI_CLEAR_EOL}{WARN_PREFIX} Third-party translation task cancelled | ID:{request_id}", flush=True)
+        return web.json_response({"success": False, "error": "Request cancelled", "cancelled": True}, status=400)
+    except Exception as e:
+        error_msg = str(e)
+        print(f"{ERROR_PREFIX} Third-party translation request error | Error:{error_msg}")
         return web.json_response({"success": False, "error": error_msg})
     finally:
         if request_id and request_id in ACTIVE_TASKS:

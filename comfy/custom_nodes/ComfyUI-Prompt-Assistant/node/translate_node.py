@@ -10,6 +10,7 @@ from comfy.model_management import InterruptProcessingException
 
 from ..services.llm import LLMService
 from ..services.baidu import BaiduTranslateService
+from ..services.third_party_translator import ThirdPartyTranslateService
 from ..utils.common import format_api_error, format_model_with_thinking, generate_request_id, log_prepare, log_error, TASK_TRANSLATE, SOURCE_NODE
 from ..services.thinking_control import build_thinking_suppression
 from .base import LLMNodeBase
@@ -132,6 +133,9 @@ class PromptTranslate(LLMNodeBase):
             # ---百度翻译特殊处理---
             if service_id == 'baidu':
                 request_id, result = self._translate_with_baidu(source_text, detected_lang, to_lang, translate_service, from_lang_name, to_lang_name, unique_id)
+            elif service_id == 'third_party':
+                # ---Third Party APIs---
+                request_id, result = self._translate_with_third_party(source_text, detected_lang, to_lang, translate_service, from_lang_name, to_lang_name, unique_id)
             else:
                 # ---LLM翻译:获取服务配置---
                 from ..config_manager import config_manager
@@ -185,6 +189,25 @@ class PromptTranslate(LLMNodeBase):
             source=SOURCE_NODE
         )
 
+        return request_id, result
+
+    def _translate_with_third_party(self, text, from_lang, to_lang, service_name, from_lang_name, to_lang_name, unique_id):
+        """Use Third Party APIs Translator"""
+        request_id = generate_request_id("trans", "third_party", unique_id)
+        
+        log_prepare(TASK_TRANSLATE, request_id, SOURCE_NODE, "Third-party APIs", None, None, {"Direction": f"{from_lang_name}→{to_lang_name}", "Length": len(text)})
+        
+        result = self._run_llm_task(
+            ThirdPartyTranslateService.translate,
+            service_name,
+            text=text,
+            from_lang=from_lang,
+            to_lang=to_lang,
+            request_id=request_id,
+            task_type=TASK_TRANSLATE,
+            source=SOURCE_NODE
+        )
+        
         return request_id, result
 
     def _translate_with_llm(self, text, from_lang, to_lang, service_id, model_name, service, service_display_name, from_lang_name, to_lang_name, auto_unload, unique_id):

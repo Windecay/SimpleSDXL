@@ -766,8 +766,8 @@ class ConfigManager:
             current_service_id = current_service_info.get('service')
             current_model_name = current_service_info.get('model')
         else:
-            # 未设置，默认使用百度翻译
-            current_service_id = 'baidu'
+            # 未设置，默认使用第三方翻译
+            current_service_id = 'third_party'
             current_model_name = None
         
         # 百度翻译特殊处理（使用独立的baidu_translate配置）
@@ -785,17 +785,28 @@ class ConfigManager:
                 "providers": {}
             }
         
+        # 第三方翻译特殊处理
+        if current_service_id == 'third_party':
+            return {
+                "provider": "third_party",
+                "model": "",
+                "base_url": "",
+                "api_key": "",
+                "temperature": 0.7,
+                "max_tokens": 1000,
+                "top_p": 0.9,
+                "providers": {}
+            }
+
         # 查找对应的LLM服务
         service = self._get_service_by_id(current_service_id)
         if not service:
-            # 服务不存在，回退到百度翻译
-            baidu_config = self.get_baidu_translate_config()
+            # 服务不存在，回退到第三方翻译
             return {
-                "provider": "baidu",
+                "provider": "third_party",
                 "model": "",
                 "base_url": "",
-                "api_key": baidu_config.get('app_id', ''),
-                "secret_key": baidu_config.get('secret_key', ''),
+                "api_key": "",
                 "temperature": 0.7,
                 "max_tokens": 1000,
                 "top_p": 0.9,
@@ -816,14 +827,12 @@ class ConfigManager:
                                 llm_models[0] if llm_models else None)
         
         if not target_model:
-            # 没有可用模型，回退到百度翻译
-            baidu_config = self.get_baidu_translate_config()
+            # 没有可用模型，回退到第三方翻译
             return {
-                "provider": "baidu",
+                "provider": "third_party",
                 "model": "",
                 "base_url": "",
-                "api_key": baidu_config.get('app_id', ''),
-                "secret_key": baidu_config.get('secret_key', ''),
+                "api_key": "",
                 "temperature": 0.7,
                 "max_tokens": 1000,
                 "top_p": 0.9,
@@ -1451,29 +1460,29 @@ class ConfigManager:
             
             # ---百度翻译特殊处理---
             # 百度翻译使用独立的baidu_translate配置,不在model_services中
-            if service_id == 'baidu':
+            if service_id == 'baidu' or service_id == 'third_party':
                 # 百度翻译支持LLM服务类型(旧兼容)和translate服务类型
                 if service_type not in ['llm', 'translate']:
-                    self._log(f"设置当前服务商失败: 百度翻译不支持{service_type}服务类型")
+                    self._log(f"设置当前服务商失败: {service_id}不支持{service_type}服务类型")
                     return False
                 
                 # 确保baidu_translate配置存在
-                if 'baidu_translate' not in config:
+                if service_id == 'baidu' and 'baidu_translate' not in config:
                     config['baidu_translate'] = {"app_id": "", "secret_key": ""}
                 
                 # 确保current_services结构存在
                 if 'current_services' not in config:
                     config['current_services'] = {}
                 
-                # 设置百度为当前服务(无模型概念)
+                # 设置百度或第三方为当前服务(无模型概念)
                 config['current_services'][service_type] = {
-                    "service": "baidu",
+                    "service": service_id,
                     "model": ""
                 }
                 
                 # 保存配置
                 if self.save_config(config):
-                    self._log(f"当前服务商已切换: 百度翻译 ({service_type})")
+                    self._log(f"当前服务商已切换: {service_id} ({service_type})")
                     return True
                 else:
                     self._log("设置当前服务商失败: 保存配置失败")

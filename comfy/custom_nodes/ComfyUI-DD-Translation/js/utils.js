@@ -145,3 +145,58 @@ export async function toggleTranslation() {
         error("切换翻译状态失败");
     }
 }
+
+/**
+ * Check if running in ComfyUI Nodes 2.0 (Vue) mode
+ * @returns {boolean}
+ */
+export function isVueNodes2() {
+    return typeof window.comfyAPI !== 'undefined';
+}
+export function applySuffixHeuristic(key) {
+    if (!key || typeof key !== 'string') return null;
+    const idx = key.lastIndexOf('_');
+    if (idx <= 0) return null;
+    const base = key.slice(0, idx);
+    const suffix = key.slice(idx + 1);
+    if (suffix === 'embeds') return `${base}嵌入`;
+    if (suffix === 'args') return `${base}参数`;
+    return null;
+}
+
+export function shouldSkipNode(node, extraClassList = [], extraClosestSelectors = '') {
+    try {
+        if (!node) return true;
+        if (extraClassList.some(cls => node.classList?.contains(cls))) return true;
+        const container = node.closest?.(extraClosestSelectors || '.workflow-list, .workflow, .workflows, .file-list, .file-browser, .p-tree, .p-treenode, .p-inputtext, .lite-search, .lite-searchbox, .litegraph-searchbox');
+        if (container) return true;
+        if (node.tagName === 'INPUT' || node.tagName === 'TEXTAREA' || node.isContentEditable) return true;
+        return false;
+    } catch {
+        return false;
+    }
+}
+
+/**
+ * 创建观察者（可配置）
+ * @param {HTMLElement} observeTarget
+ * @param {Function} fn
+ * @param {boolean} subtree
+ * @param {Object} options
+ * @returns {MutationObserver|null}
+ */
+export function observeFactory(observeTarget, fn, subtree = false, options = {}) {
+    if (!observeTarget) return null;
+    try {
+        const observer = new MutationObserver(function (mutationsList, observer) {
+            fn(mutationsList, observer);
+        });
+        const defaultOpts = { childList: true, attributes: true, subtree, characterData: false };
+        const observeOptions = Object.assign(defaultOpts, options || {});
+        observer.observe(observeTarget, observeOptions);
+        return observer;
+    } catch (e) {
+        error("创建观察者出错:", e);
+        return null;
+    }
+}

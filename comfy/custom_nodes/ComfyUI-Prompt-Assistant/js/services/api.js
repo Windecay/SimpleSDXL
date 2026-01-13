@@ -289,6 +289,61 @@ class APIService {
     }
 
     /**
+     * 第三方翻译API
+     */
+    static async thirdPartyTranslate(text, from = 'auto', to = 'zh', request_id = null) {
+        // 生成请求ID
+        if (!request_id) {
+            request_id = this.generateRequestId('trans', 'third_party');
+        }
+
+        const controller = new AbortController();
+        const signal = controller.signal;
+        runningRequests.set(request_id, controller);
+
+        try {
+            if (!text || text.trim() === '') {
+                throw new Error('待翻译文本不能为空');
+            }
+
+            // 获取API URL
+            const apiUrl = this.getApiUrl('third_party/translate');
+
+            // 调用后端API
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    text,
+                    from,
+                    to,
+                    request_id
+                }),
+                signal // 传递signal
+            });
+
+            const result = await response.json();
+            return result;
+        } catch (error) {
+            if (error.name === 'AbortError') {
+                logger.debug(`第三方翻译请求被用户中止 | ID: ${request_id}`);
+                return { success: false, error: '请求已取消', cancelled: true };
+            }
+            return {
+                success: false,
+                error: error.message
+            };
+        } finally {
+            // 请求完成后从Map中移除
+            if (runningRequests.has(request_id)) {
+                runningRequests.delete(request_id);
+            }
+        }
+    }
+
+    /**
      * 批量翻译
      */
     static async batchBaiduTranslate(texts, from = 'auto', to = 'zh') {

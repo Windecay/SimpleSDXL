@@ -1,7 +1,9 @@
 import { 
   containsChineseCharacters, 
   nativeTranslatedSettings,
-  error
+  error,
+  isVueNodes2,
+  shouldSkipNode
 } from "./utils.js";
 
 /**
@@ -25,7 +27,7 @@ class TExe {
 
   constructor() {
     // 不需要翻译的CSS类列表
-    this.excludeClass = ["lite-search-item-type"];
+    this.excludeClass = ["lite-search-item-type", "lite-search", "lite-searchbox", "litegraph-searchbox"];
     // 记录已注册的观察者，便于后续管理
     this.observers = [];
   }
@@ -36,13 +38,11 @@ class TExe {
    * @returns {boolean} 是否需要跳过
    */
   tSkip(node) {
-    try {
-      // 判断node.classList 是否包含 excludeClass中的一个
-      return this.excludeClass.some((cls) => node.classList?.contains(cls));
-    } catch (e) {
-      // 如果出错，默认不跳过
-      return false;
-    }
+    return shouldSkipNode(
+      node,
+      this.excludeClass,
+      '.workflow-list, .workflow, .workflows, .file-list, .file-browser, .p-tree, .p-treenode, .p-inputtext'
+    );
   }
   translateKjPopDesc(node) {
     try {
@@ -109,7 +109,7 @@ class TExe {
         // 文本节点
         if (target.nodeValue && !containsChineseCharacters(target.nodeValue)) {
           const translated = this.MT(target.nodeValue);
-          if (translated) {
+          if (translated && translated !== target.nodeValue) {
             target.nodeValue = translated;
           }
         }
@@ -119,7 +119,7 @@ class TExe {
         // 处理 title 属性
         if (target.title && !containsChineseCharacters(target.title)) {
           const titleTranslated = this.MT(target.title);
-          if (titleTranslated) {
+          if (titleTranslated && titleTranslated !== target.title) {
             target.title = titleTranslated;
           }
         }
@@ -128,7 +128,7 @@ class TExe {
         if (target.nodeName === "INPUT" && target.type === "button" && 
             !containsChineseCharacters(target.value)) {
           const valueTranslated = this.MT(target.value);
-          if (valueTranslated) {
+          if (valueTranslated && valueTranslated !== target.value) {
             target.value = valueTranslated;
           }
         }
@@ -136,7 +136,7 @@ class TExe {
         // 处理文本内容
         if (target.innerText && !containsChineseCharacters(target.innerText)) {
           const innerTextTranslated = this.MT(target.innerText);
-          if (innerTextTranslated) {
+          if (innerTextTranslated && innerTextTranslated !== target.innerText) {
             target.innerText = innerTextTranslated;
           }
         }
@@ -147,7 +147,7 @@ class TExe {
           Array.from(target.options).forEach(option => {
             if (option.text && !containsChineseCharacters(option.text)) {
               const optionTextTranslated = this.MT(option.text);
-              if (optionTextTranslated) {
+              if (optionTextTranslated && optionTextTranslated !== option.text) {
                 option.text = optionTextTranslated;
               }
             }
@@ -170,56 +170,137 @@ class TExe {
       error("清理观察者出错:", e);
     }
   }
+
+  /**
+   * Safe text replacement for Vue mode (Text nodes and attributes only)
+   * @param {Node} target 
+   */
+  safeReplaceVue(target) {
+    try {
+      if (!target) return;
+      if (!this.T) return;
+      if (this.tSkip(target)) return;
+
+      // Text Node
+      if (target.nodeType === Node.TEXT_NODE) {
+        if (target.nodeValue && !containsChineseCharacters(target.nodeValue)) {
+          const translated = this.MT(target.nodeValue);
+          if (translated) {
+            target.nodeValue = translated;
+          }
+        }
+        return;
+      }
+
+      // Element Node
+      if (target.nodeType === Node.ELEMENT_NODE) {
+        // Skip actual canvas elements
+        if (target.tagName === 'CANVAS') return;
+        // Skip search overlay containers to avoid input typing stutter
+        const inSearchOverlay = target.closest?.('.lite-search, .lite-searchbox, .litegraph-searchbox');
+        if (inSearchOverlay) return;
+
+        // Attributes
+        if (target.title && !containsChineseCharacters(target.title)) {
+          const t = this.MT(target.title);
+          if (t && t !== target.title) target.title = t;
+        }
+        if (target.placeholder && !containsChineseCharacters(target.placeholder)) {
+           const t = this.MT(target.placeholder);
+           if (t && t !== target.placeholder) target.placeholder = t;
+        }
+        
+        // Button values (if input type=button)
+        if (target.tagName === "INPUT" && target.type === "button" && !containsChineseCharacters(target.value)) {
+            const t = this.MT(target.value);
+            if (t && t !== target.value) target.value = t;
+        }
+
+        // Recurse
+        if (target.childNodes && target.childNodes.length) {
+            Array.from(target.childNodes).forEach(child => this.safeReplaceVue(child));
+        }
+      }
+    } catch (e) {
+      // error("Safe replace error:", e);
+    }
+  }
 }
 
 // 创建翻译执行器实例
 let texe = new TExe();
+
+function applyVueMenuTranslation(T) {
+    try {
+        // 1. Try comfyAPI i18n
+        if (window.comfyAPI && window.comfyAPI.i18n && window.comfyAPI.i18n.addTranslations) {
+            window.comfyAPI.i18n.addTranslations('zh-CN', T.Menu);
+            return;
+        }
+        
+        // Merge node input/widget terms (only snake_case) into menu dictionary for safe text replacement
+        try {
+          const extra = {};
+          const nodes = T.Nodes || {};
+          for (const cls in nodes) {
+            const nt = nodes[cls];
+            if (nt?.inputs) {
+              for (const k in nt.inputs) {
+                const v = nt.inputs[k];
+                if (typeof v === 'string' && !extra[k] && k.includes('_')) extra[k] = v;
+              }
+            }
+            if (nt?.widgets) {
+              for (const k in nt.widgets) {
+                const v = nt.widgets[k];
+                if (typeof v === 'string' && !extra[k] && k.includes('_')) extra[k] = v;
+              }
+            }
+          }
+          texe.T.Menu = Object.assign({}, texe.T.Menu || {}, extra);
+        } catch (e) {}
+        // 2. Fallback: Targeted MutationObservers (avoid sidebar/workflow list)
+        const targets = [
+          document.querySelector('.litegraph'),
+          document.querySelector('.comfyui-menu'),
+          document.querySelector('.comfy-menu'),
+          ...Array.from(document.querySelectorAll('.comfyui-popup')),
+          ...Array.from(document.querySelectorAll('.comfy-modal')),
+          ...Array.from(document.querySelectorAll('.p-dialog'))
+        ].filter(Boolean);
+
+        targets.forEach(t => {
+          texe.safeReplaceVue(t);
+          const obs = observeFactory(t, (mutationsList) => {
+            for (let mutation of mutationsList) {
+              if (mutation.type === 'childList') {
+                mutation.addedNodes.forEach(node => texe.safeReplaceVue(node));
+              } else if (mutation.type === 'attributes') {
+                // Avoid processing attribute changes inside search overlay
+                const skip = mutation.target?.closest?.('.lite-search, .lite-searchbox, .litegraph-searchbox');
+                if (!skip) texe.safeReplaceVue(mutation.target);
+              }
+            }
+          }, true, { attributes: false, characterData: false });
+          if (obs) texe.observers.push(obs);
+        });
+
+
+    } catch (e) {
+        error("Vue mode translation failed:", e);
+    }
+}
 
 export function applyMenuTranslation(T) {
   try {
     texe.cleanupObservers();
     texe.T = T;
     
-    texe.translateAllText(document.querySelector(".litegraph"));
-    
-    const bodyObserver = observeFactory(document.querySelector("body.litegraph"), (mutationsList) => {
-      for (let mutation of mutationsList) {
-        for (const node of mutation.addedNodes) {
-          if (node.classList?.contains("comfy-modal")) {
-            texe.translateAllText(node);
-            observeModalNode(node);
-          } else if (node.classList?.contains("p-dialog-mask")) {
-            const dialog = node.querySelector(".p-dialog");
-            if (dialog) {
-              texe.translateAllText(dialog);
-              observeFactory(dialog, handleSettingsDialog, dialog?.role === "dialog");
-            }
-          } else {
-            texe.translateAllText(node);
-          }
-        }
-      }
-    }, true);
-    
-    texe.observers.push(bodyObserver);
-    
-    document.querySelectorAll(".comfy-modal").forEach(node => {
-      observeModalNode(node);
-    });
-    
-    if (document.querySelector(".comfyui-menu")) {
-      const menuObserver = observeFactory(document.querySelector(".comfyui-menu"), handleComfyNewUIMenu, true);
-      texe.observers.push(menuObserver);
+    if (isVueNodes2()) {
+        applyVueMenuTranslation(T);
+        return;
     }
-    
-    document.querySelectorAll(".comfyui-popup").forEach(node => {
-      const popupObserver = observeFactory(node, handleComfyNewUIMenu, true);
-      texe.observers.push(popupObserver);
-    });
-    
-    handleHistoryAndQueueButtons();
-    handleSettingsDialog();
-    setupSearchBoxObserver();
+    return;
   } catch (e) {
     error("应用菜单翻译出错:", e);
   }
@@ -232,18 +313,15 @@ export function applyMenuTranslation(T) {
  * @param {boolean} subtree 是否观察子树
  * @returns {MutationObserver} 观察者实例
  */
-export function observeFactory(observeTarget, fn, subtree = false) {
+export function observeFactory(observeTarget, fn, subtree = false, options = {}) {
   if (!observeTarget) return null;
   try {
     const observer = new MutationObserver(function (mutationsList, observer) {
       fn(mutationsList, observer);
     });
-
-    observer.observe(observeTarget, {
-      childList: true,
-      attributes: true,
-      subtree: subtree,
-    });
+    const defaultOpts = { childList: true, attributes: true, subtree, characterData: false };
+    const observeOptions = Object.assign(defaultOpts, options || {});
+    observer.observe(observeTarget, observeOptions);
     return observer;
   } catch (e) {
     error("创建观察者出错:", e);
@@ -255,16 +333,7 @@ export function observeFactory(observeTarget, fn, subtree = false) {
  * 处理模态框节点
  * @param {HTMLElement} node 模态框节点
  */
-function observeModalNode(node) {
-  const observer = observeFactory(node, (mutationsList) => {
-    for (let mutation of mutationsList) {
-      texe.translateAllText(mutation.target);
-    }
-  });
-  if (observer) {
-    texe.observers.push(observer);
-  }
-}
+ 
 
 /**
  * 处理ComfyUI新版UI菜单
@@ -272,200 +341,40 @@ function observeModalNode(node) {
  */
 function handleComfyNewUIMenu(mutationsList) {
   for (let mutation of mutationsList) {
-    texe.translateAllText(mutation.target);
-  }
-}
-
-function handleHistoryAndQueueButtons() {
-  const viewHistoryButton = document.getElementById("comfy-view-history-button");
-  const viewQueueButton = document.getElementById("comfy-view-queue-button");
-
-  [viewHistoryButton, viewQueueButton].filter(Boolean).forEach(btn => {
-    const observer = observeFactory(btn, (mutationsList) => {
-      for (let mutation of mutationsList) {
-        if (mutation.type === "childList") {
-          const translatedValue = texe.MT(mutation.target.textContent);
-          if (translatedValue) {
-            mutation.target.innerText = translatedValue;
-          }
-        }
-      }
-    });
-    if (observer) {
-      texe.observers.push(observer);
-    }
-  });
-  
-  if (document.querySelector(".comfy-menu")) {
-    const menuObserver = observeFactory(document.querySelector(".comfy-menu"), handleViewQueueComfyListObserver);
-    if (menuObserver) {
-      texe.observers.push(menuObserver);
-    }
-
-    const comfyLists = document.querySelector(".comfy-menu").querySelectorAll(".comfy-list");
-    if (comfyLists.length > 0) {
-      const list0Observer = observeFactory(comfyLists[0], handleViewQueueComfyListObserver);
-      if (list0Observer) {
-        texe.observers.push(list0Observer);
-      }
-      
-      if (comfyLists.length > 1) {
-        const list1Observer = observeFactory(comfyLists[1], handleViewQueueComfyListObserver);
-        if (list1Observer) {
-          texe.observers.push(list1Observer);
-        }
-      }
+    if (mutation.type === 'childList') {
+      mutation.addedNodes.forEach(node => texe.translateAllText(node));
+    } else if (mutation.type === 'attributes' || mutation.type === 'characterData') {
+      texe.replaceText(mutation.target);
     }
   }
 }
+
+ 
 
 /**
  * 处理视图队列和Comfy列表观察者
  * @param {MutationRecord[]} mutationsList 变更记录列表
  */
-function handleViewQueueComfyListObserver(mutationsList) {
-  for (let mutation of mutationsList) {
-    texe.replaceText(mutation.target);
-    if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
-      for (const node of mutation.addedNodes) {
-        texe.replaceText(node);
-      }
-    }
-  }
-}
+ 
 
 /**
  * 处理设置对话框
  */
-function handleSettingsDialog() {
-  const comfySettingDialog = document.querySelector("#comfy-settings-dialog");
-  if (!comfySettingDialog) return;
-
-  // 老版设置面板的翻译
-  if (comfySettingDialog?.querySelector("tbody")) {
-    const observer = observeFactory(comfySettingDialog.querySelector("tbody"), (mutationsList) => {
-      for (let mutation of mutationsList) {
-        if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
-          translateSettingDialog(comfySettingDialog);
-        }
-      }
-    });
-    if (observer) {
-      texe.observers.push(observer);
-    }
-  }
-
-  // 新版设置面板处理
-  const newSettingsPanels = document.querySelectorAll(".p-dialog-content, .p-tabview-panels");
-  for (const panel of newSettingsPanels) {
-    const observer = observeFactory(panel, handleNewSettingsObserver, true);
-    if (observer) {
-      texe.observers.push(observer);
-    }
-  }
-  
-  // 初始翻译
-  translateSettingDialog(comfySettingDialog);
-}
+ 
 
 /**
  * 处理新版设置观察者
  * @param {MutationRecord[]} mutationsList 变更记录列表
  */
-function handleNewSettingsObserver(mutationsList) {
-  for (let mutation of mutationsList) {
-    if (mutation.type === "childList") {
-      for (const node of mutation.addedNodes) {
-        texe.translateAllText(node);
-      }
-    }
-  }
-}
+ 
 
 /**
  * 翻译设置对话框
  * @param {HTMLElement} comfySettingDialog 设置对话框
  */
-function translateSettingDialog(comfySettingDialog) {
-  if (!comfySettingDialog) return;
-  
-  const comfySettingDialogAllElements = comfySettingDialog.querySelectorAll("*");
-  for (const ele of comfySettingDialogAllElements) {
-    // 跳过已经有中文的元素
-    if (containsChineseCharacters(ele.innerText) || 
-        nativeTranslatedSettings.includes(ele.innerText)) {
-      continue;
-    }
-    
-    let targetLangText = texe.MT(ele.innerText);
-    let titleText = texe.MT(ele.title);
-    if (titleText) ele.title = titleText;
-    if (!targetLangText) {
-      if (ele.nodeName === "INPUT" && ele.type === "button") {
-        targetLangText = texe.MT(ele.value);
-        if (!targetLangText) continue;
-        ele.value = targetLangText;
-      }
-      continue;
-    }
-    texe.replaceText(ele);
-  }
-}
+ 
 
 /**
  * 设置搜索框观察者
  */
-function setupSearchBoxObserver() {
-  const searchObserver = observeFactory(document.querySelector(".litegraph"), (mutationsList, observer) => {
-    // 存储搜索框观察者的引用
-    if (!observer.searchBoxObservers) {
-      observer.searchBoxObservers = [];
-    }
-    
-    for (let mutation of mutationsList) {
-      // 清理旧的搜索框观察者
-      if (mutation.removedNodes.length > 0 && observer.searchBoxObservers.length > 0) {
-        observer.searchBoxObservers.forEach(ob => {
-          if (ob && typeof ob.disconnect === 'function') {
-            ob.disconnect();
-          }
-        });
-        observer.searchBoxObservers = [];
-        continue;
-      }
-      
-      // 处理新添加的搜索框
-      for (const sb of mutation.addedNodes) {
-        if (!sb || !sb.querySelector) continue;
-        const helper = sb.querySelector(".helper");
-        if (!helper) continue;
-        
-        // 观察搜索助手内容变化
-        const helperObserver = observeFactory(helper, (mutationsList) => {
-          for (let mutation of mutationsList) {
-            for (const item of mutation.addedNodes) {
-              if (item.innerText && texe.T.Nodes[item.innerText]) {
-                item.innerText = texe.T.Nodes[item.innerText]["title"] || item.innerText;
-              }
-            }
-          }
-        });
-        
-        if (helperObserver) {
-          observer.searchBoxObservers.push(helperObserver);
-        }
-        
-        // 翻译现有搜索项
-        for (let item of helper.querySelectorAll(".lite-search-item")) {
-          if (item.innerText && texe.T.Nodes[item.innerText]) {
-            item.innerText = texe.T.Nodes[item.innerText]["title"] || item.innerText;
-          }
-        }
-      }
-    }
-  });
-  
-  if (searchObserver) {
-    texe.observers.push(searchObserver);
-  }
-}
+ 

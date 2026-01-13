@@ -1,0 +1,16 @@
+<h4>📋 系统剪贴板模式</h4>
+<table>
+    <tr><td><kbd>Ctrl + C</kbd></td><td>复制选定图层到内部剪贴板 + <strong>系统剪贴板</strong> 作为扁平化图像</td></tr>
+    <tr><td><kbd>Ctrl + V</kbd></td><td><strong>优先级:</strong></td></tr>
+    <tr><td></td><td>1️⃣ 内部剪贴板 (复制的图层)</td></tr>
+    <tr><td></td><td>2️⃣ 系统剪贴板 (图像, 截图)</td></tr>
+    <tr><td></td><td>3️⃣ 系统剪贴板 (文件路径, URLs)</td></tr>
+    <tr><td><kbd>粘贴图像</kbd></td><td>同 Ctrl+V 但遵循 fit_on_add 设置</td></tr>
+    <tr><td><kbd>拖放</kbd></td><td>直接从文件加载图像</td></tr>
+</table>
+<div style="margin-top: 8px; padding: 6px; background: rgba(255,165,0,0.2); border: 1px solid rgba(255,165,0,0.4); border-radius: 4px; font-size: 11px;">
+    ⚠️ <strong>安全提示:</strong> 针对外部图像的 "粘贴图像" 按钮可能因浏览器安全限制而无法工作。请使用 Ctrl+V 或拖放。
+</div>
+<div style="margin-top: 8px; padding: 6px; background: rgba(0,0,0,0.2); border-radius: 4px; font-size: 11px;">
+    💡 <strong>最适合:</strong> 处理截图, 复制的图像, 文件路径和 URLs。
+</div>

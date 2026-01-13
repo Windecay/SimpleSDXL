@@ -36,7 +36,8 @@ const SERVICE_TYPES = {
         configEndpoint: '/config/translate',
         serviceType: 'translate',
         filterKey: 'llm_models',
-        includeBaidu: true
+        includeBaidu: true,
+        includeThirdParty: true
     },
     llm: {
         name: '提示词优化',
@@ -136,6 +137,11 @@ const serviceSelector = {
         // 添加百度翻译选项（仅翻译类型）
         if (config.includeBaidu) {
             options.push({ value: 'baidu', text: '百度翻译' });
+        }
+
+        // 添加第三方翻译选项
+        if (config.includeThirdParty) {
+            options.push({ value: 'third_party', text: '第三方翻译' });
         }
 
         // 过滤并添加其他服务

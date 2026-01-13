@@ -68,17 +68,21 @@ class LLMNodeBase(BaseNode):
         
         与get_llm_service_options的区别:
         - 硬编码添加"百度翻译"选项(百度翻译使用独立配置,不在model_services中)
+        - 硬编码添加"Third-party APIs"选项(第三方API聚合翻译)
         - 专门用于翻译节点和翻译按钮
         
-        返回格式: ["百度翻译", "智谱/glm-4-flash", "Ollama/qwen3:14b", ...]
+        返回格式: ["Third-party APIs", "百度翻译", "智谱/glm-4-flash", "Ollama/qwen3:14b", ...]
         
         返回:
-            List[str]: 服务/模型选项列表(包含百度翻译)
+            List[str]: 服务/模型选项列表(包含百度翻译和Third-party APIs)
         """
         from ...config_manager import config_manager
         
         options = []
         
+        # ---硬编码添加第三方API翻译---
+        options.append("Third-party APIs")
+
         # ---硬编码添加百度翻译---
         # 百度翻译使用独立的baidu_translate配置,不在model_services列表中
         baidu_config = config_manager.load_config().get('baidu_translate', {})
@@ -130,6 +134,10 @@ class LLMNodeBase(BaseNode):
         # ---特殊处理:百度翻译---
         if service_name in ['百度翻译', '百度', 'baidu']:
             return 'baidu', None
+        
+        # ---特殊处理:第三方API翻译---
+        if service_name in ['Third-party APIs', 'Third APIs', 'apis']:
+            return 'third_party', None
         
         # 查找对应的service_id
         services = config_manager.get_all_services()

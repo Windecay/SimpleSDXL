@@ -42,7 +42,7 @@ https://github.com/user-attachments/assets/1ec662ba-da6c-4712-8be7-61168b08940e
 方法2（推荐）：
 直接在Manager或启动器中使用git进行安装
 
-`https://github.com/1761696257/ComfyUI-DD-Translation.git`
+`https://github.com/Dontdrunk/ComfyUI-DD-Translation.git`
 
 方法3（推荐）：
 直接在Manager中搜索插件名称安装
@@ -50,9 +50,34 @@ https://github.com/user-attachments/assets/1ec662ba-da6c-4712-8be7-61168b08940e
 ## 贡献者名单
 感谢以下贡献者对于ComfyUI中文开源生态的支持
 
-- msola-ht丶是小张啊丶alinuo666丶猪的飞行梦丶ZXSZS丶tanglangxia丶AIGCZero丶Artistjjw丶henrylaobai丶FanXiangTM丶xuchenxu168丶LovedeHua丶uiiiaiii丶fuxijun-max丶ANe5s
+- msola-ht丶是小张啊丶alinuo666丶猪的飞行梦丶ZXSZS丶tanglangxia丶AIGCZero丶Artistjjw丶henrylaobai丶FanXiangTM丶xuchenxu168丶LovedeHua丶uiiiaiii丶fuxijun-max丶ANe5s丶cnolka 丶XXXAbit7 丶Yifo98丶xiaobai9009
 
 ## 更新日志
+### v2.1.2(2025-12-29) 
+- 合并贡献者(cnolka) 对于ComfyUI-FL-CosyVoice3插件的翻译完善
+- 合并贡献者(cnolka) 对于ComfyUI-Image-Analysis-Tools插件的翻译完善
+- 合并贡献者(FanXiangTM) 对于ComfyUI-VoxCPM的翻译完善
+
+### v2.1.1(2025-12-15) 
+- 修复了在搜索框输入free丶cfg等关键词会造成界面卡死的问题
+- 修复了之前遗失的tooltips键值翻译逻辑，现在所有节点的tooltips都有了中文翻译
+- 合并了贡献者（xiaobai9009）提交的带tooltips键值的完善ComfyUI-WanVideoWrapper翻译
+
+### v2.1.0(2025-12-10) 
+- 移除了ComfyUI旧版本UI的兼容代码 ，插件不再兼容旧版本ComfyUI界面，这样能解决很多性能问题
+- （如需兼容旧版本ComfyUI界面，请使用v2.0.0之前的版本）
+
+### v2.0.1(2025-12-09) 
+- 移除了ComfyUI模板的翻译文件，ComfyUI官方翻译已经陆续实现了完整的模板中文翻译
+
+### v2.0.0(2025-12-08) 【兼容性更新】
+- 添加了VUE NODES 2.0节点的全面翻译支持，全面适配最新版本的新节点系统，对最新版本UI做全面的兼容性支持
+- 修复了节点输入有些带_符号的翻译内容没有正确翻译的问题
+- 感谢贡献者(Yifo98)提供的新版本兼容示例，修复了ComfyUI Nodes 2.0节点的连线异常问题
+- 合并贡献者(cnolka)的PR，现在通过Comfyui原生设置面板来开关翻译，并移除导致BUG的错误翻译文件
+- 合并贡献者(cnolka) 对于ComfyUI-Easy-SAM3插件的翻译完善
+- 合并贡献者(XXXAbit7)对于Depthflow节点的翻译补全
+
 ### v1.9.20(2025-11-22) 
 - 合并贡献者（ANe5s）对于Comfyui-fluxtrainer插件的翻译完善
 - 合并贡献者（ZXSZS）对于SeedVR2LoadDiTModel与SDPoseOODLoader插件的翻译完善

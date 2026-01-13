@@ -1958,19 +1958,26 @@ class PromptAssistant {
                                 try {
                                     // 获取翻译配置
                                     const configResp = await fetch(APIService.getApiUrl('/config/translate'));
-                                    let isBaidu = false;
+                                    let provider = 'third_party';
 
                                     if (configResp.ok) {
                                         const config = await configResp.json();
-                                        // 检查provider是否为'baidu'
-                                        if (config.provider === 'baidu') {
-                                            isBaidu = true;
+                                        if (config.provider) {
+                                            provider = config.provider;
                                         }
                                     }
 
-                                    if (isBaidu) {
+                                    if (provider === 'baidu') {
                                         // 使用百度翻译服务
                                         result = await APIService.baiduTranslate(
+                                            contentToTranslate,
+                                            langResult.from,
+                                            langResult.to,
+                                            request_id
+                                        );
+                                    } else if (provider === 'third_party') {
+                                        // 使用第三方翻译服务
+                                        result = await APIService.thirdPartyTranslate(
                                             contentToTranslate,
                                             langResult.from,
                                             langResult.to,
@@ -2096,6 +2103,28 @@ class PromptAssistant {
                                 if (!res.ok) throw new Error(`服务器返回错误: ${res.status}`);
                                 UIToolkit.showStatusTip(context.buttonElement, 'success', `已切换到: 百度翻译`);
                                 logger.log(`翻译服务切换 | 服务: 百度翻译`);
+                            } catch (err) {
+                                logger.error(`切换翻译服务失败: ${err.message}`);
+                                UIToolkit.showStatusTip(context.buttonElement, 'error', `切换失败: ${err.message}`);
+                            }
+                        }
+                    });
+
+                    // 第三方翻译项（显示在第二位）
+                    const isThirdPartyCurrent = currentTranslateService === 'third_party';
+                    serviceMenuItems.push({
+                        label: '第三方翻译',
+                        icon: `<span class="pi ${isThirdPartyCurrent ? 'pi-check-circle active-status' : 'pi-circle-off inactive-status'}"></span>`,
+                        onClick: async (context) => {
+                            try {
+                                const res = await fetch(APIService.getApiUrl('/services/current'), {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ service_type: 'translate', service_id: 'third_party' })
+                                });
+                                if (!res.ok) throw new Error(`服务器返回错误: ${res.status}`);
+                                UIToolkit.showStatusTip(context.buttonElement, 'success', `已切换到: 第三方翻译`);
+                                logger.log(`翻译服务切换 | 服务: 第三方翻译`);
                             } catch (err) {
                                 logger.error(`切换翻译服务失败: ${err.message}`);
                                 UIToolkit.showStatusTip(context.buttonElement, 'error', `切换失败: ${err.message}`);
