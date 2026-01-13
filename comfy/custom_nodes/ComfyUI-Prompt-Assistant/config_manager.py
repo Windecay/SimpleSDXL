@@ -258,7 +258,23 @@ class ConfigManager:
         """加载配置文件"""
         try:
             with open(self.config_path, "r", encoding="utf-8") as f:
-                return json.load(f)
+                config = json.load(f)
+            
+            # [Fix] 强制迁移：如果翻译服务是baidu且未配置密钥（默认状态），强制改为third_party
+            try:
+                current_translate = config.get('current_services', {}).get('translate', {})
+                if current_translate.get('service') == 'baidu':
+                    baidu_config = config.get('baidu_translate', {})
+                    # 如果 app_id 为空，说明是默认未配置状态，强制迁移
+                    if not baidu_config.get('app_id'):
+                        current_translate['service'] = 'third_party'
+                        self._log("检测到未配置的默认百度翻译，已自动迁移至第三方翻译")
+                        self.save_config(config)
+            except Exception as e:
+                # 迁移失败不影响主流程，仅记录
+                self._log(f"翻译服务配置自动迁移失败: {str(e)}")
+
+            return config
         except Exception as e:
             self._log(f"加载配置文件失败: {str(e)}")
             return self.default_config

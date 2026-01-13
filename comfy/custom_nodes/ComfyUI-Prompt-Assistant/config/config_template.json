@@ -101,7 +101,7 @@
             "model": "glm-4v-flash"
         },
         "translate": {
-            "service": "baidu",
+            "service": "third_party",
             "model": ""
         }
     }
