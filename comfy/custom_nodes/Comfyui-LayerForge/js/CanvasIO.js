@@ -363,9 +363,7 @@ export class CanvasIO {
             let imageLoaded = false;
             let maskLoaded = false;
             let imageChanged = false;
-            // First, try to get data from connected node's output if available (IMAGES)
-            // Only allow this if reason is manual_import or unspecified (default), but NOT execution
-            // Actually, we want to completely disable auto-add from input unless manually requested
+
             if (allowImage && reason === 'manual_import' && this.canvas.node.inputs && this.canvas.node.inputs[0] && this.canvas.node.inputs[0].link) {
                 const linkId = this.canvas.node.inputs[0].link;
                 const graph = this.canvas.node.graph;
@@ -436,12 +434,27 @@ export class CanvasIO {
                                 // Determine add mode
                                 const fitOnAddWidget = this.canvas.node.widgets.find((w) => w.name === "fit_on_add");
                                 const addMode = (fitOnAddWidget && fitOnAddWidget.value) ? 'fit' : 'center';
+                                
+                                // Check if canvas is empty before adding layers
+                                const wasCanvasEmpty = this.canvas.layers.length === 0;
+                                const addedLayers = [];
+
                                 // Add all images from the batch as separate layers
                                 for (let i = 0; i < sourceNode.imgs.length; i++) {
                                     const img = sourceNode.imgs[i];
-                                    await this.canvas.canvasLayers.addLayerWithImage(img, { name: `Batch Image ${i + 1}` }, // Give each layer a unique name
+                                    const newLayer = await this.canvas.canvasLayers.addLayerWithImage(img, { name: `Batch Image ${i + 1}` }, // Give each layer a unique name
                                     addMode, this.canvas.outputAreaBounds);
+                                    addedLayers.push(newLayer);
                                     log.debug(`Added batch image ${i + 1}/${sourceNode.imgs.length} to canvas`);
+                                }
+
+                                // If canvas was empty and we added layers, select them all and auto-fit output
+                                if (wasCanvasEmpty && addedLayers.length > 0) {
+                                    // Select all added layers
+                                    this.canvas.updateSelection(addedLayers);
+                                    // Auto adjust output area to fit the new selection
+                                    this.canvas.canvasLayers.autoAdjustOutputToSelection();
+                                    log.info("Canvas was empty, auto-adjusted output to imported layers");
                                 }
                                 this.canvas.inputDataLoaded = true;
                                 imageLoaded = true;
@@ -593,6 +606,8 @@ export class CanvasIO {
                 }
                 // Check mask separately - don't skip if only images are unchanged AND mask is actually connected AND allowed
                 const shouldCheckMask = hasMaskInput && allowMask;
+                
+                // Skip reload only if canvas is NOT empty
                 if (backendBatchHash && this.canvas.lastLoadedImageSrc === backendBatchHash && !shouldCheckMask) {
                     log.debug("Backend input data unchanged and no mask to check, skipping reload");
                     this.canvas.inputDataLoaded = true;
@@ -658,35 +673,43 @@ export class CanvasIO {
                 const addMode = (fitOnAddWidget && fitOnAddWidget.value) ? 'fit' : 'center';
                 // Load input image(s) only if image input is actually connected, not already loaded, and allowed
                 // Strict check: only allow manual import OR if canvas is empty to add images to canvas
-                const isCanvasEmpty = this.canvas.layers.length === 0;
-                if (allowImage && (reason === 'manual_import' || isCanvasEmpty) && !imageLoaded && hasImageInput) {
-                    if (inputData.input_images_batch) {
-                        // Handle batch of images
-                        const batch = inputData.input_images_batch;
-                        log.info(`Processing batch of ${batch.length} images from backend`);
-                        for (let i = 0; i < batch.length; i++) {
-                            const imgData = batch[i];
-                            const img = await createImageFromSource(imgData.data);
-                            // Add image to canvas with unique name
-                            await this.canvas.canvasLayers.addLayerWithImage(img, { name: `Batch Image ${i + 1}` }, addMode, this.canvas.outputAreaBounds);
-                            log.debug(`Added batch image ${i + 1}/${batch.length} from backend`);
-                        }
-                        log.info(`All ${batch.length} batch images added from backend`);
-                        this.canvas.render();
-                        this.canvas.saveState();
-                    }
-                    else if (inputData.input_image) {
-                        // Handle single image (backward compatibility)
-                        const img = await createImageFromSource(inputData.input_image);
-                        // Add image to canvas at output area position
-                        await this.canvas.canvasLayers.addLayerWithImage(img, {}, addMode, this.canvas.outputAreaBounds);
-                        log.info("Single input image added as new layer to canvas");
-                        this.canvas.render();
-                        this.canvas.saveState();
-                    }
-                    else {
-                        log.debug("No input image data from backend");
-                    }
+                if (allowImage && reason === 'manual_import' && !imageLoaded && hasImageInput) {
+                    if (this._loadingInputImage) {
+                          log.debug("Already loading input image, skipping concurrent request");
+                     } else {
+                         this._loadingInputImage = true;
+                         try {
+                             if (inputData.input_images_batch) {
+                                // Handle batch of images
+                                const batch = inputData.input_images_batch;
+                                log.info(`Processing batch of ${batch.length} images from backend`);
+                                for (let i = 0; i < batch.length; i++) {
+                                    const imgData = batch[i];
+                                    const img = await createImageFromSource(imgData.data);
+                                    // Add image to canvas with unique name
+                                    await this.canvas.canvasLayers.addLayerWithImage(img, { name: `Batch Image ${i + 1}` }, addMode, this.canvas.outputAreaBounds);
+                                    log.debug(`Added batch image ${i + 1}/${batch.length} from backend`);
+                                }
+                                log.info(`All ${batch.length} batch images added from backend`);
+                                this.canvas.render();
+                                this.canvas.saveState();
+                            }
+                            else if (inputData.input_image) {
+                                // Handle single image (backward compatibility)
+                                const img = await createImageFromSource(inputData.input_image);
+                                // Add image to canvas at output area position
+                                await this.canvas.canvasLayers.addLayerWithImage(img, {}, addMode, this.canvas.outputAreaBounds);
+                                log.info("Single input image added as new layer to canvas");
+                                this.canvas.render();
+                                this.canvas.saveState();
+                            }
+                            else {
+                                log.debug("No input image data from backend");
+                            }
+                         } finally {
+                             this._loadingInputImage = false;
+                         }
+                     }
                 }
                 else if (!hasImageInput && (inputData.input_images_batch || inputData.input_image)) {
                     log.debug("Backend has image data but no image input connected, skipping image load");

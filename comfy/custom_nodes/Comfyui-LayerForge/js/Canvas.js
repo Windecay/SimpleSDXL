@@ -219,6 +219,19 @@ export class Canvas {
             log.info("No saved state found, initializing from node data.");
             await this.canvasIO.initNodeData();
         }
+
+        if (this.layers.length === 0) {
+            const hasImageInput = this.node.inputs && this.node.inputs[0] && this.node.inputs[0].link;
+            if (hasImageInput) {
+                log.info("Canvas is empty after initialization but has input connected. Triggering auto-import.");
+                await this.canvasIO.checkForInputData({ 
+                    allowImage: true, 
+                    allowMask: false, 
+                    reason: "manual_import" 
+                });
+            }
+        }
+
         this.saveState();
         this.render();
         // Dodaj to wywołanie, aby panel renderował się po załadowaniu stanu

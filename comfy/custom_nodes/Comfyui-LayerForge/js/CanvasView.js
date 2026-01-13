@@ -1173,7 +1173,7 @@ app.registerExtension({
                             setTimeout(() => {
                                 log.info("Checking for input data after connection...");
                                 // Only load images here; masks should not auto-load on image connect
-                                canvas.canvasIO.checkForInputData({ allowImage: true, allowMask: false, reason: "image_connect" });
+                                canvas.canvasIO.checkForInputData({ allowImage: true, allowMask: false, reason: "manual_import" });
                             }, 500);
                         }
                         else {
