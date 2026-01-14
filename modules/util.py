@@ -203,13 +203,23 @@ def compress_video(input_path, output_path=None, target_height=480, crf=19):
     Compress video using ffmpeg for preview purposes.
     """
     import subprocess
+    import shutil
+
+    ffmpeg_exe = 'ffmpeg'
+    try:
+        import imageio_ffmpeg
+        ffmpeg_exe = imageio_ffmpeg.get_ffmpeg_exe()
+    except ImportError:
+        if shutil.which('ffmpeg') is None:
+            logger.warning("FFmpeg not found in PATH or imageio_ffmpeg. Skipping video compression.")
+            return input_path
 
     if output_path is None:
         base, ext = os.path.splitext(input_path)
         output_path = f"{base}_preview.mp4"
 
     cmd = [
-        'ffmpeg', '-y',
+        ffmpeg_exe, '-y',
         '-i', input_path,
         '-vf', f'scale=-2:{target_height}',
         '-c:v', 'libx264',
@@ -226,6 +236,9 @@ def compress_video(input_path, output_path=None, target_height=480, crf=19):
     except subprocess.CalledProcessError as e:
         logger.error(f"FFmpeg video compression failed: {e}")
         return input_path # Return original if failed
+    except FileNotFoundError:
+        logger.error(f"FFmpeg executable not found at '{ffmpeg_exe}'. Skipping compression.")
+        return input_path
 
 
 
