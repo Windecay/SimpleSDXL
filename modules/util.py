@@ -198,6 +198,37 @@ def HWC3(x):
         return y
 
 
+def compress_video(input_path, output_path=None, target_height=480, crf=19):
+    """
+    Compress video using ffmpeg for preview purposes.
+    """
+    import subprocess
+
+    if output_path is None:
+        base, ext = os.path.splitext(input_path)
+        output_path = f"{base}_preview.mp4"
+
+    cmd = [
+        'ffmpeg', '-y',
+        '-i', input_path,
+        '-vf', f'scale=-2:{target_height}',
+        '-c:v', 'libx264',
+        '-preset', 'ultrafast',
+        '-crf', str(crf),
+        '-c:a', 'aac', # Re-encode audio to aac to be safe, or copy if compatible
+        '-b:a', '128k',
+        output_path
+    ]
+    
+    try:
+        subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        return output_path
+    except subprocess.CalledProcessError as e:
+        logger.error(f"FFmpeg video compression failed: {e}")
+        return input_path # Return original if failed
+
+
+
 def remove_empty_str(items, default=None):
     items = [x for x in items if x != ""]
     if len(items) == 0 and default is not None:

@@ -34,17 +34,17 @@ class detailerKSamplerSchedulerFallback:
         return {
             "required": {
                 "scheduler": (get_schedulers(), {"forceInput": True}),
-                "fallback_scheduler": (get_schedulers(['beta57']) + ['AYS SDXL', 'AYS SD1', 'AYS SVD', 'GITS[coeff=1.2]', 'LTXV[default]', 'OSS FLUX', 'OSS Wan', 'OSS Chroma'],),
+                "fallback_scheduler": (get_schedulers() + ['AYS SDXL', 'AYS SD1', 'AYS SVD', 'GITS[coeff=1.2]', 'LTXV[default]', 'OSS FLUX', 'OSS Wan', 'OSS Chroma'],),
             },
         }
     
-    RETURN_TYPES = get_schedulers(['beta57']) + ['AYS SDXL', 'AYS SD1', 'AYS SVD', 'GITS[coeff=1.2]', 'LTXV[default]', 'OSS FLUX', 'OSS Wan', 'OSS Chroma'],
+    RETURN_TYPES = get_schedulers() + ['AYS SDXL', 'AYS SD1', 'AYS SVD', 'GITS[coeff=1.2]', 'LTXV[default]', 'OSS FLUX', 'OSS Wan', 'OSS Chroma'],
     RETURN_NAMES = ("SCHEDULER",)
     FUNCTION = "main"
     CATEGORY = "lhyNodes/Utils"
     
     def main(self, scheduler, fallback_scheduler):
-        if scheduler not in get_schedulers(['beta57']) + ['AYS SDXL', 'AYS SD1', 'AYS SVD', 'GITS[coeff=1.2]', 'LTXV[default]', 'OSS FLUX', 'OSS Wan', 'OSS Chroma']:
+        if scheduler not in get_schedulers() + ['AYS SDXL', 'AYS SD1', 'AYS SVD', 'GITS[coeff=1.2]', 'LTXV[default]', 'OSS FLUX', 'OSS Wan', 'OSS Chroma']:
             return (fallback_scheduler,)
         return(scheduler,)
 
@@ -54,17 +54,17 @@ class effKSamplerSchedulerFallback:
         return {
             "required": {
                 "scheduler": (get_schedulers(), {"forceInput": True}),
-                "fallback_scheduler": (get_schedulers(['bong_tangent', 'beta57']) + ["AYS SD1", "AYS SDXL", "AYS SVD", "GITS"],),
+                "fallback_scheduler": (get_schedulers() + ["AYS SD1", "AYS SDXL", "AYS SVD", "GITS"],),
             },
         }
     
-    RETURN_TYPES = get_schedulers(['bong_tangent', 'beta57']) + ["AYS SD1", "AYS SDXL", "AYS SVD", "GITS"],
+    RETURN_TYPES = get_schedulers() + ["AYS SD1", "AYS SDXL", "AYS SVD", "GITS"],
     RETURN_NAMES = ("SCHEDULER",)
     FUNCTION = "main"
     CATEGORY = "lhyNodes/Utils"
     
     def main(self, scheduler, fallback_scheduler):
-        if scheduler not in get_schedulers(['bong_tangent', 'beta57']) + ["AYS SD1", "AYS SDXL", "AYS SVD", "GITS"]:
+        if scheduler not in get_schedulers() + ["AYS SD1", "AYS SDXL", "AYS SVD", "GITS"]:
             return (fallback_scheduler,)
         return(scheduler,)
 

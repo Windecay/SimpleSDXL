@@ -25,6 +25,7 @@ from modules.sdxl_styles import legal_style_names, fooocus_expansion
 from modules.ui_gradio_extensions import reload_javascript
 from modules.auth import auth_enabled, check_auth
 from modules.util import resize_image
+import modules.util as util
 from modules.meta_parser import switch_scene_theme, switch_scene_theme_select, switch_scene_theme_ready_to_gen, get_welcome_image, describe_prompt_for_scene, get_auto_candidate
 
 import comfy.comfy_version as comfy_version
@@ -626,7 +627,20 @@ with shared.gradio_root:
                             return None
 
                         scene_input_image1.change(update_qwen_image, inputs=[scene_input_image1], outputs=[qwen_image_data], queue=False, show_progress=False)
+                        
+                        def on_video_upload(video_path):
+                            if video_path is None:
+                                return None
+                            try:
+                                result = util.compress_video(video_path)
+                                gr.Info("Compression completed!")
+                                return result
+                            except Exception as e:
+                                gr.Warning(f"Compression failed: {e}")
+                                return video_path
+
                         scene_video = gr.Video(label="Video (Upload)", visible=False, source="upload", height=400)
+                        scene_video.upload(on_video_upload, inputs=[scene_video], outputs=[scene_video], show_progress=True)
                         scene_video_placeholder = gr.HTML('<div style="height: 400px; display: flex; align-items: center; justify-content: center; border: 2px dashed #ccc; border-radius: 8px; background: rgba(128,128,128,0.1); color: #888; font-size: 16px;"><span>Hide When Generating...</span></div>', visible=False)
                         scene_audio = gr.Audio(label="Audio (Upload)", visible=False, source="upload", type="filepath")
                         scene_audio_placeholder = gr.HTML('<div style="padding: 20px; text-align: center; border: 2px dashed #ccc; border-radius: 8px; background: rgba(128,128,128,0.1); color: #888;">Hide When Generating...</div>', visible=False)
@@ -2537,7 +2551,7 @@ with shared.gradio_root:
 
         compare_btn.click(toggle_comparison, inputs=[comparison_state, cached_input_image, progress_gallery, gallery], outputs=[comparison_state, comparison_box, progress_gallery, gallery, progress_window, progress_video], show_progress=False)
         protections = [random_button, super_prompter, background_theme, image_tools_checkbox] + nav_bars
-        generate_button.click(lambda v, a: (v, a, gr.update(value=None, visible=False), gr.update(value=None, visible=False), gr.update(visible=True if v else False), gr.update(visible=True if a else False), gr.update(interactive=False), gr.update(interactive=False), gr.update(interactive=False)), inputs=[scene_video, scene_audio], outputs=[scene_video_backup, scene_audio_backup, scene_video, scene_audio, scene_video_placeholder, scene_audio_placeholder, generate_button, skip_button, stop_button], queue=False, show_progress=False) \
+        generate_button.click(lambda v, a, state: (v, a, gr.update(value=None, visible=False), gr.update(value=None, visible=False), gr.update(visible=True if v and 'scene_video' not in state.get("scene_frontend", {}).get('disvisible', []) else False), gr.update(visible=True if a and 'scene_audio' not in state.get("scene_frontend", {}).get('disvisible', []) else False), gr.update(interactive=False), gr.update(interactive=False), gr.update(interactive=False)), inputs=[scene_video, scene_audio, state_topbar], outputs=[scene_video_backup, scene_audio_backup, scene_video, scene_audio, scene_video_placeholder, scene_audio_placeholder, generate_button, skip_button, stop_button], queue=False, show_progress=False) \
             .then(cache_input_image_func, inputs=[current_tab, uov_input_image, inpaint_input_image, layer_input_image, enhance_input_image, scene_input_image1, scene_canvas_image], outputs=[cached_input_image]) \
             .then(topbar.process_before_generation, inputs=[state_topbar, seed_random, image_seed, params_backend] + scene_params[:15] + [scene_video_backup, scene_audio_backup], outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating, index_radio, image_toolbox, prompt_info_box, image_seed] + protections + [preset_store, identity_dialog], show_progress=False) \
             .then(topbar.wait_for_minicpm_completion, outputs=[], show_progress=False) \
