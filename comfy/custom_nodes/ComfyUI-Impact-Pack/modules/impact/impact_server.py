@@ -74,7 +74,7 @@ async def sam_prepare(request):
         if data['sam_model_name'] == 'auto':
             model_name = impact.config.get_config()['sam_editor_model']
 
-        model_path = folder_paths.get_full_path("sams", model_name)
+        model_path = folder_paths.get_full_path("inpaint", model_name)
 
         if model_path is None:
             logging.error(f"[Impact Pack] The '{model_name}' model file cannot be found in any sams model path.")
