@@ -892,8 +892,9 @@ class WanVideoAddStoryMemLatents:
     @classmethod
     def INPUT_TYPES(s):
         return {"required": {
+                    "vae": ("WANVAE",),
                     "embeds": ("WANVIDIMAGE_EMBEDS",),
-                    "memory_latents": ("LATENT",),
+                    "memory_images": ("IMAGE",),
                 }
         }
 
@@ -902,12 +903,67 @@ class WanVideoAddStoryMemLatents:
     FUNCTION = "add"
     CATEGORY = "WanVideoWrapper"
 
-    def add(self, embeds, memory_latents):
+    def add(self, vae, embeds, memory_images):
         updated = dict(embeds)
-        samples = memory_latents["samples"][0]
-        updated["story_mem_latents"] = samples
-
+        story_mem_latents, = WanVideoEncodeLatentBatch().encode(vae, memory_images)
+        updated["story_mem_latents"] = story_mem_latents["samples"].squeeze(2).permute(1, 0, 2, 3)  # [C, T, H, W]
         return (updated,)
+
+
+class WanVideoSVIProEmbeds:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": {
+                    "anchor_samples": ("LATENT", {"tooltip": "Initial start image encoded"}),
+                    "num_frames": ("INT", {"default": 81, "min": 1, "max": 10000, "step": 4, "tooltip": "Number of frames to encode"}),
+                },
+                "optional": {
+                    "prev_samples": ("LATENT", {"tooltip": "Last latent from previous generation"}),
+                    "motion_latent_count": ("INT", {"default": 1, "min": 0, "max": 100, "step": 1, "tooltip": "Number of latents used to continue"}),
+                }
+        }
+
+    RETURN_TYPES = ("WANVIDIMAGE_EMBEDS",)
+    RETURN_NAMES = ("image_embeds",)
+    FUNCTION = "add"
+    CATEGORY = "WanVideoWrapper"
+
+    def add(self, anchor_samples, num_frames, prev_samples=None, motion_latent_count=1):
+
+        anchor_latent = anchor_samples["samples"][0].clone()
+
+        C, T, H, W = anchor_latent.shape
+
+        total_latents = (num_frames - 1) // 4 + 1
+        device = anchor_latent.device
+        dtype = anchor_latent.dtype
+
+        if prev_samples is None or motion_latent_count == 0:
+            padding_size = total_latents - anchor_latent.shape[1]
+            padding = torch.zeros(C, padding_size, H, W, dtype=dtype, device=device)
+            y = torch.concat([anchor_latent, padding], dim=1)
+        else:
+            prev_latent = prev_samples["samples"][0].clone()
+            motion_latent = prev_latent[:, -motion_latent_count:]
+            padding_size = total_latents - anchor_latent.shape[1] - motion_latent.shape[1]
+            padding = torch.zeros(C, padding_size, H, W, dtype=dtype, device=device)
+            y = torch.concat([anchor_latent, motion_latent, padding], dim=1)
+
+        msk = torch.ones(1, num_frames, H, W, device=device, dtype=dtype)
+        msk[:, 1:] = 0
+        msk = torch.concat([torch.repeat_interleave(msk[:, 0:1], repeats=4, dim=1), msk[:, 1:]], dim=1)
+        msk = msk.view(1, msk.shape[1] // 4, 4, H, W)
+        msk = msk.transpose(1, 2)[0]
+
+        image_embeds = {
+            "image_embeds": y,
+            "num_frames": num_frames,
+            "lat_h": H,
+            "lat_w": W,
+            "mask": msk
+        }
+
+        return (image_embeds,)
 
 #region I2V encode
 class WanVideoImageToVideoEncode:
@@ -1847,33 +1903,7 @@ class WanVideoContextOptions:
         }
 
         return (context_options,)
-    
-    
-class WanVideoFlowEdit:
-    @classmethod
-    def INPUT_TYPES(s):
-        return {"required": {
-                "source_embeds": ("WANVIDEOTEXTEMBEDS", ),
-                "skip_steps": ("INT", {"default": 4, "min": 0}),
-                "drift_steps": ("INT", {"default": 0, "min": 0}),
-                "drift_flow_shift": ("FLOAT", {"default": 3.0, "min": 1.0, "max": 30.0, "step": 0.01}),
-                "source_cfg": ("FLOAT", {"default": 6.0, "min": 0.0, "max": 30.0, "step": 0.01}),
-                "drift_cfg": ("FLOAT", {"default": 6.0, "min": 0.0, "max": 30.0, "step": 0.01}),
-            },
-            "optional": {
-                "source_image_embeds": ("WANVIDIMAGE_EMBEDS", ),
-            }
-        }
 
-    RETURN_TYPES = ("FLOWEDITARGS", )
-    RETURN_NAMES = ("flowedit_args",)
-    FUNCTION = "process"
-    CATEGORY = "WanVideoWrapper"
-    DESCRIPTION = "Flowedit options for WanVideo"
-
-    def process(self, **kwargs):
-        return (kwargs,)
-    
 class WanVideoLoopArgs:
     @classmethod
     def INPUT_TYPES(s):
@@ -2143,7 +2173,7 @@ class WanVideoEncodeLatentBatch:
     CATEGORY = "WanVideoWrapper"
     DESCRIPTION = "Encodes a batch of images individually to create a latent video batch where each video is a single frame, useful for I2V init purposes, for example as multiple context window inits"
 
-    def encode(self, vae, images, enable_vae_tiling, tile_x, tile_y, tile_stride_x, tile_stride_y, latent_strength=1.0):
+    def encode(self, vae, images, enable_vae_tiling=False, tile_x=272, tile_y=272, tile_stride_x=144, tile_stride_y=128, latent_strength=1.0):
         vae.to(device)
 
         images = images.clone()
@@ -2249,7 +2279,6 @@ NODE_CLASS_MAPPINGS = {
     "WanVideoEnhanceAVideo": WanVideoEnhanceAVideo,
     "WanVideoContextOptions": WanVideoContextOptions,
     "WanVideoTextEmbedBridge": WanVideoTextEmbedBridge,
-    "WanVideoFlowEdit": WanVideoFlowEdit,
     "WanVideoControlEmbeds": WanVideoControlEmbeds,
     "WanVideoSLG": WanVideoSLG,
     "WanVideoLoopArgs": WanVideoLoopArgs,
@@ -2277,6 +2306,7 @@ NODE_CLASS_MAPPINGS = {
     "WanVideoUniLumosEmbeds": WanVideoUniLumosEmbeds,
     "WanVideoAddTTMLatents": WanVideoAddTTMLatents,
     "WanVideoAddStoryMemLatents": WanVideoAddStoryMemLatents,
+    "WanVideoSVIProEmbeds": WanVideoSVIProEmbeds,
     }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -2292,7 +2322,6 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "WanVideoEnhanceAVideo": "WanVideo Enhance-A-Video",
     "WanVideoContextOptions": "WanVideo Context Options",
     "WanVideoTextEmbedBridge": "WanVideo TextEmbed Bridge",
-    "WanVideoFlowEdit": "WanVideo FlowEdit",
     "WanVideoControlEmbeds": "WanVideo Control Embeds",
     "WanVideoSLG": "WanVideo SLG",
     "WanVideoLoopArgs": "WanVideo Loop Args",
@@ -2319,4 +2348,5 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "WanVideoUniLumosEmbeds": "WanVideo UniLumos Embeds",
     "WanVideoAddTTMLatents": "WanVideo Add TTMLatents",
     "WanVideoAddStoryMemLatents": "WanVideo Add StoryMem Latents",
+    "WanVideoSVIProEmbeds": "WanVideo SVIPro Embeds",
 }

@@ -56,7 +56,7 @@ def _replace_linear(model, compute_dtype, state_dict, prefix="", patches=None, s
         module_prefix = module_prefix.replace("_orig_mod.", "")
         _replace_linear(module, compute_dtype, state_dict, module_prefix, patches, scale_weights, compile_args, modules_to_not_convert)
 
-        if isinstance(module, nn.Linear) and "loras" not in module_prefix and name not in modules_to_not_convert:
+        if isinstance(module, nn.Linear) and "loras" not in module_prefix and "dual_controller" not in module_prefix and name not in modules_to_not_convert:
             weight_key = module_prefix + "weight"
             if weight_key not in state_dict:
                 continue

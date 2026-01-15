@@ -20,7 +20,7 @@ def webpath(fn):
     else:
         web_path = os.path.abspath(fn)
 
-    return f'file={web_path}?{os.path.getmtime(fn)}'
+    return f'file={web_path}?{os.path.getmtime(fn)}&v=layerforge_patch_25'
 
 def load_tips_text():
     tips_path = os.path.join(script_path, 'tips.txt')
@@ -51,6 +51,7 @@ def javascript_html():
     tailwindcss_path = webpath('javascript/tailwindcss_3.4.16.js') 
     papaparse_path = webpath('javascript/papaparse.min_5.4.1.js') 
     sortable_path = webpath('javascript/sortable.min_1.15.2f.js') 
+    layerforge_js_path = webpath('javascript/layerforge_integration.js')
     samples_path = webpath(os.path.abspath('./sdxl_styles/samples/fooocus_v2.jpg'))
     preset_samples_path = webpath(os.path.abspath('./presets/samples/default.jpg'))
     model_path = webpath(modules.config.get_path_models_root())
@@ -73,6 +74,7 @@ def javascript_html():
     head += f'<script type="text/javascript" src="{tailwindcss_path}"></script>\n'
     head += f'<script type="text/javascript" src="{papaparse_path}"></script>\n'
     head += f'<script type="text/javascript" src="{sortable_path}"></script>\n'
+    head += f'<script type="text/javascript" src="{layerforge_js_path}"></script>\n'
     head += f'<meta name="samples-path" content="{samples_path}">\n'
     head += f'<meta name="preset-samples-path" content="{preset_samples_path}">\n'
     head += f'<meta name="model-path" content="{model_path}">\n'

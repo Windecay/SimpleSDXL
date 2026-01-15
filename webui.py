@@ -2984,7 +2984,7 @@ if is_listen_invalid:
                      args_manager.args.port = new_port
         pass
 
-shared.gradio_root.launch(
+app, local_url, share_url = shared.gradio_root.launch(
     inbrowser=args_manager.args.in_browser,
     server_name=args_manager.args.listen,
     server_port=args_manager.args.port,
@@ -2997,5 +2997,51 @@ shared.gradio_root.launch(
         *modules.config.paths_checkpoints,
         *modules.config.paths_loras
     ],
-    blocked_paths=[constants.AUTH_FILENAME]
+    blocked_paths=[constants.AUTH_FILENAME],
+    prevent_thread_lock=True
 )
+
+import threading
+from fastapi import Body
+from fastapi.responses import JSONResponse
+from starlette.concurrency import run_in_threadpool
+import enhanced.layerforge_matting as layerforge_matting
+
+_matting_lock = threading.Lock()
+
+@app.get("/matting/check-model")
+async def matting_check_model():
+    return layerforge_matting.check_model_availability()
+
+@app.post("/matting")
+async def matting_endpoint(payload: dict = Body(...)):
+    try:
+        image_data = payload.get("image")
+        threshold = payload.get("threshold", 0.5)
+        if not isinstance(image_data, str) or not image_data.startswith("data:image"):
+            return JSONResponse(
+                {
+                    "error": "Bad Request",
+                    "details": "Missing or invalid 'image' data URL.",
+                },
+                status_code=400,
+            )
+
+        def safe_process():
+            with _matting_lock:
+                return layerforge_matting.process_matting(image_data, threshold)
+
+        result = await run_in_threadpool(safe_process)
+        return result
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return JSONResponse(
+            {
+                "error": "Matting Error",
+                "details": str(e),
+            },
+            status_code=500,
+        )
+
+threading.Event().wait()

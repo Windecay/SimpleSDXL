@@ -37,15 +37,16 @@ class WanVideoLongCatAvatarExtendEmbeds(io.ComfyNode):
         new_audio_embed = audio_embeds.copy()
 
         audio_features = torch.stack(new_audio_embed["audio_features"])
+        num_audio_features = audio_features.shape[1]
         if audio_features.shape[1] < frames_processed + num_frames:
             deficit = frames_processed + num_frames - audio_features.shape[1]
             if if_not_enough_audio == "pad_with_start":
-                pad = audio_features[:, :1].repeat(1, deficit, 1, 1, 1)
+                pad = audio_features[:, :1].repeat(1, deficit, 1, 1)
                 audio_features = torch.cat([audio_features, pad], dim=1)
             elif if_not_enough_audio == "mirror_from_end":
                 to_add = audio_features[:, -deficit:, :].flip(dims=[1])
                 audio_features = torch.cat([audio_features, to_add], dim=1)
-            log.info(f"Not enough audio features, extended from {new_audio_embed['audio_features'].shape[1]} to {audio_features.shape[1]} frames.")
+            log.warning(f"Not enough audio features, padded with strategy '{if_not_enough_audio}' from {num_audio_features} to {audio_features.shape[1]} frames")
 
         ref_target_masks = new_audio_embed.get("ref_target_masks", None)
         if ref_target_masks is not None:

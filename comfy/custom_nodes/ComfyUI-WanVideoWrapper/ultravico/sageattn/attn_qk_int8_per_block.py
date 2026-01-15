@@ -38,7 +38,7 @@ def _attn_fwd_inner(acc, l_i, m_i, q, q_scale, kv_len, current_flag,
 
         qk = tl.dot(q, k).to(tl.float32) * q_scale * k_scale
 
-        window_th   =  1560 * 21 / 2
+        window_th   =  frame_tokens * window_width / 2
         dist2       = tl.abs(m - n).to(tl.int32)
         dist_mask   = dist2 <= window_th
 
@@ -46,7 +46,7 @@ def _attn_fwd_inner(acc, l_i, m_i, q, q_scale, kv_len, current_flag,
 
         qk = tl.where(dist_mask | negative_mask, qk, qk*multi_factor)
 
-        window3 = (m <= frame_tokens) & (n > 21*frame_tokens)
+        window3 = (m <= frame_tokens) & (n > window_width*frame_tokens)
         qk = tl.where(window3, -1e4, qk)
 
 

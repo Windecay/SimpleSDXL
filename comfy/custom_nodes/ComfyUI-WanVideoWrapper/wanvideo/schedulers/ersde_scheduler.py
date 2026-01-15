@@ -34,7 +34,7 @@ class ERSDEScheduler():
             sigmas.append(0.0)
         self.sigmas = torch.FloatTensor(sigmas)
         self.sigmas = self.shift * self.sigmas / (1 + (self.shift - 1) * self.sigmas)
-        self.timesteps = self.sigmas * self.num_train_timesteps
+        self.timesteps = self.sigmas[:-1] * self.num_train_timesteps
         self.step_index = 0
         self.old_denoised = None
         self.old_denoised_d = None

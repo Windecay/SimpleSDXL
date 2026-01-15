@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LayerForge Editor</title>
+    <link rel="stylesheet" href="/file=javascript/layerforge/js/css/blend_mode_menu.css?v=patch25">
+    <link rel="stylesheet" href="/file=javascript/layerforge/js/css/canvas_view.css?v=patch25">
+    <link rel="stylesheet" href="/file=javascript/layerforge/js/css/custom_shape_menu.css?v=patch25">
+    <link rel="stylesheet" href="/file=javascript/layerforge/js/css/layerforge_mask_editor.css?v=patch25">
+    <link rel="stylesheet" href="/file=javascript/layerforge/js/css/layers_panel.css?v=patch25">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #1e1e1e;
+            color: #fff;
+            overflow: hidden;
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        #editor-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+        #toolbar {
+            height: 40px;
+            background-color: #2d2d2d;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            border-bottom: 1px solid #3d3d3d;
+        }
+        .btn {
+            background-color: #3d3d3d;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            margin-right: 10px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .btn:hover {
+            background-color: #4d4d4d;
+        }
+        .btn-primary {
+            background-color: #007acc;
+        }
+        .btn-primary:hover {
+            background-color: #0098ff;
+        }
+    </style>
+</head>
+<body>
+    <div id="toolbar">
+        <button class="btn btn-primary" id="save-btn">保存并关闭</button>
+        <button class="btn" id="cancel-btn">取消</button>
+        <span style="flex:1"></span>
+        <span id="status-text" style="font-size: 12px; color: #aaa;">就绪</span>
+    </div>
+    <div id="editor-container"></div>
+
+    <script type="module">
+        import { createCanvasWidget } from '/file=javascript/layerforge/js/CanvasView.js?v=patch25';
+        import { app } from '/file=javascript/layerforge/js/comfy_shim.js?v=patch25';
+
+        window.comfy_api_url = "http://127.0.0.1:8188";
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('api_url')) {
+            window.comfy_api_url = urlParams.get('api_url');
+        }
+        
+        const sessionId = urlParams.get('session_id') || "default_session";
+
+        const mockNode = {
+            id: `gradio_layerforge_${sessionId}`,
+            widgets: [],
+            inputs: [{ link: null }],
+            properties: {},
+            addDOMWidget: (name, type, element) => {
+                if (name === "mainContainer") {
+                    const container = document.getElementById('editor-container');
+                    container.innerHTML = '';
+                    container.appendChild(element);
+                }
+            }
+        };
+
+        const mockWidget = {
+            name: "canvas",
+            value: null
+        };
+
+        let canvasInstance = null;
+
+        async function init() {
+            try {
+                const result = await createCanvasWidget(mockNode, mockWidget, app);
+                canvasInstance = result.canvas;
+                
+                window.addEventListener('message', (event) => {
+                    if (event.data.type === 'LOAD_IMAGE' || event.data.type === 'ADD_LAYER') {
+                        const url = event.data.url;
+                        const maskUrl = event.data.maskUrl;
+                        
+                        if (event.data.type === 'LOAD_IMAGE' && canvasInstance && canvasInstance.layers) {
+                            canvasInstance.layers = [];
+                            canvasInstance.render();
+                        }
+
+                        const img = new Image();
+                        img.onload = () => {
+                            if (canvasInstance) {
+                                if (event.data.type === 'LOAD_IMAGE') {
+                                    canvasInstance.canvasLayers.setOutputAreaSize(img.width, img.height);
+                                }
+                                
+                                canvasInstance.canvasLayers.addLayerWithImage(img, {}, 'default');
+                                
+                                if (maskUrl) {
+                                    const maskImg = new Image();
+                                    maskImg.onload = () => {
+                                        if (canvasInstance.maskTool) {
+                                            canvasInstance.maskTool.setMask(maskImg, true);
+                                            canvasInstance.render();
+                                        }
+                                    };
+                                    maskImg.src = maskUrl;
+                                }
+
+                                canvasInstance.render();
+                            } else {
+                                console.error("[LayerForge Child] canvasInstance is null!");
+                            }
+                        };
+                        img.onerror = (err) => {
+                            console.error("[LayerForge Child] Failed to load image object:", err);
+                        };
+                        img.src = url;
+                    }
+                });
+
+                document.getElementById('save-btn').onclick = async () => {
+                    if (!canvasInstance) return;
+                    
+                    try {
+                        document.getElementById('status-text').innerText = "Saving...";
+                        
+                        const blob = await canvasInstance.canvasLayers.getFlattenedCanvasAsBlob();
+                        
+                        let maskBlob = null;
+                        if (canvasInstance.maskTool) {
+                            const maskCanvas = canvasInstance.maskTool.getMaskForOutputArea();
+                            if (maskCanvas) {
+                                maskBlob = await new Promise(resolve => maskCanvas.toBlob(resolve, 'image/png'));
+                            }
+                        }
+                        
+                        if (!blob) {
+                            throw new Error("Failed to generate image blob");
+                        }
+
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                            const base64 = reader.result;
+                            
+                            const maskReader = new FileReader();
+                            maskReader.onloadend = () => {
+                                const maskBase64 = maskReader.result;
+                                
+                                window.parent.postMessage({
+                                    type: 'SAVE_IMAGE',
+                                    data: {
+                                        image: base64,
+                                        mask: maskBase64
+                                    }
+                                }, '*');
+                                
+                                document.getElementById('status-text').innerText = "Saved!";
+                            };
+                            if (maskBlob) {
+                                maskReader.readAsDataURL(maskBlob);
+                            } else {
+                                window.parent.postMessage({
+                                    type: 'SAVE_IMAGE',
+                                    data: {
+                                        image: base64,
+                                        mask: null
+                                    }
+                                }, '*');
+                                document.getElementById('status-text').innerText = "Saved!";
+                            }
+                        };
+                        reader.readAsDataURL(blob);
+                        
+                    } catch (e) {
+                        console.error("Save failed:", e);
+                        document.getElementById('status-text').innerText = "Error: " + e.message;
+                    }
+                };
+
+                document.getElementById('cancel-btn').onclick = () => {
+                    window.parent.postMessage({
+                        type: 'CANCEL'
+                    }, '*');
+                };
+
+                document.getElementById('status-text').innerText = "Ready";
+                
+                window.parent.postMessage({ type: 'READY' }, '*');
+
+            } catch (e) {
+                console.error("Failed to initialize LayerForge:", e);
+                document.getElementById('status-text').innerText = "Error: " + e.message;
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>

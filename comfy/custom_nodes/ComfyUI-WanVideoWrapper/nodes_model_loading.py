@@ -13,7 +13,7 @@ from .wanvideo.wan_video_vae import WanVideoVAE, WanVideoVAE38
 from .custom_linear import _replace_linear
 
 from accelerate import init_empty_weights
-from .utils import set_module_tensor_to_device
+from .utils import set_module_tensor_to_device, get_module_memory_mb_per_device
 
 import folder_paths
 import comfy.model_management as mm
@@ -35,6 +35,9 @@ try:
     from server import PromptServer
 except:
     PromptServer = None
+
+attention_modes = ["sdpa", "flash_attn_2", "flash_attn_3", "sageattn", "sageattn_3", "radial_sage_attention", "sageattn_compiled",
+                    "sageattn_ultravico", "comfy"]
 
 #from city96's gguf nodes
 def update_folder_names_and_paths(key, targets=[]):
@@ -276,7 +279,7 @@ def standardize_lora_key_format(lora_sd):
 
 def compensate_rs_lora_format(lora_sd):
     rank = lora_sd["base_model.model.blocks.0.cross_attn.k.lora_A.weight"].shape[0]
-    alpha = torch.tensor(2 * 128 * rank ** 0.5)
+    alpha = torch.tensor(rank * rank // rank ** 0.5)
     log.info(f"Detected rank stabilized peft lora format with rank {rank}, setting alpha to {alpha} to compensate.")
     new_sd = {}
     for k, v in lora_sd.items():
@@ -827,7 +830,7 @@ def load_weights(transformer, sd=None, weight_dtype=None, base_dtype=None,
             all_tensors.extend(r.tensors)
         for tensor in all_tensors:
             name = rename_fuser_block(tensor.name)
-            if "glob" not in name and "audio_proj" in name:
+            if "glob" not in name and "multitalk_audio_proj" not in name and "audio_proj" in name:
                 name = name.replace("audio_proj", "multitalk_audio_proj")
             load_device = device
             if "vace_blocks." in name:
@@ -861,7 +864,7 @@ def load_weights(transformer, sd=None, weight_dtype=None, base_dtype=None,
             )
             transformer.gguf_patched = True
     else:
-        log.info("Using accelerate to load and assign model weights to device...")
+        log.info("Loading and assigning model weights to device...")
     named_params = transformer.named_parameters()
 
     for name, param in tqdm(named_params,
@@ -922,6 +925,11 @@ def load_weights(transformer, sd=None, weight_dtype=None, base_dtype=None,
             pbar.update(100)
 
     #[print(name, param.device, param.dtype) for name, param in transformer.named_parameters()]
+    memory_on_device = get_module_memory_mb_per_device(transformer)
+    log.info("-" * 25)
+    log.info("Transformer weights loaded:")
+    for dev, mem_mb in memory_on_device.items():
+        log.info(f"Device: {dev:8s} | Memory: {mem_mb:,.2f} MB")
 
     pbar.update_absolute(0)
 
@@ -1006,6 +1014,66 @@ def add_lora_weights(patcher, lora, base_dtype, merge_loras=False):
         del lora_sd
     return patcher, control_lora, unianimate_sd
 
+class WanVideoSetAttentionModeOverride:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "model": ("WANVIDEOMODEL", ),
+                "attention_mode": (attention_modes, {"default": "sdpa"}),
+                "start_step": ("INT", {"default": 0, "min": 0, "max": 10000, "step": 1, "tooltip": "Step to start applying the attention mode override"}),
+                "end_step": ("INT", {"default": 10000, "min": 1, "max": 10000, "step": 1, "tooltip": "Step to end applying the attention mode override"}),
+                "verbose": ("BOOLEAN", {"default": False, "tooltip": "Print verbose info about attention mode override during generation"}),
+            },
+            "optional": {
+                "blocks":("INT", {"forceInput": True} ),
+            }
+        }
+
+    RETURN_TYPES = ("WANVIDEOMODEL",)
+    RETURN_NAMES = ("model", )
+    FUNCTION = "getmodelpath"
+    CATEGORY = "WanVideoWrapper"
+    DESCRIPTION = "Override the attention mode for the model for specific step and/or block range"
+
+    def getmodelpath(self, model, attention_mode, start_step, end_step, verbose, blocks=None):
+        model_clone = model.clone()
+        attention_mode_override = {
+            "mode": attention_mode,
+            "start_step": start_step,
+            "end_step": end_step,
+            "verbose": verbose,
+        }
+        if blocks is not None:
+            attention_mode_override["blocks"] = blocks
+        model_clone.model_options['transformer_options']["attention_mode_override"] = attention_mode_override
+
+        return (model_clone,)
+
+
+class WanVideoUltraVicoSettings:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "model": ("WANVIDEOMODEL", ),
+                "alpha": ("FLOAT", {"default": 0.9, "min": 0.0, "max": 1.0, "step": 0.001, "tooltip": "Alpha value for the decay, higher values mean slower decay"}),
+            },
+        }
+
+    RETURN_TYPES = ("WANVIDEOMODEL",)
+    RETURN_NAMES = ("model", )
+    FUNCTION = "getmodelpath"
+    CATEGORY = "WanVideoWrapper"
+    DESCRIPTION = "Set UltraVico parameters, attention mode still needs to be set to sageattn_ultravico, https://github.com/thu-ml/DiT-Extrapolation"
+
+    def getmodelpath(self, model, alpha):
+        model_clone = model.clone()
+        model_clone.model_options['transformer_options']["ultravico_alpha"] = alpha
+
+        return (model_clone,)
+
+
 #region Model loading
 class WanVideoModelLoader:
     @classmethod
@@ -1020,17 +1088,7 @@ class WanVideoModelLoader:
             "load_device": (["main_device", "offload_device"], {"default": "offload_device", "tooltip": "Initial device to load the model to, NOT recommended with the larger models unless you have 48GB+ VRAM"}),
             },
             "optional": {
-                "attention_mode": ([
-                    "sdpa",
-                    "flash_attn_2",
-                    "flash_attn_3",
-                    "sageattn",
-                    "sageattn_3",
-                    "radial_sage_attention",
-                    "sageattn_compiled",
-                    "sageattn_ultravico",
-                    "comfy"
-                    ], {"default": "sdpa"}),
+                "attention_mode": (attention_modes, {"default": "sdpa"}),
                 "compile_args": ("WANCOMPILEARGS", ),
                 "block_swap_args": ("BLOCKSWAPARGS", ),
                 "lora": ("WANVIDLORA", {"default": None}),
@@ -1235,9 +1293,7 @@ class WanVideoModelLoader:
             lynx_ip_layers = "lite"
 
         model_type = "t2v"
-        if "audio_injector.injector.0.k.weight" in sd:
-            model_type = "s2v"
-        elif not "text_embedding.0.weight" in sd:
+        if not "text_embedding.0.weight" in sd:
             model_type = "no_cross_attn" #minimaxremover
         elif "model_type.Wan2_1-FLF2V-14B-720P" in sd or "img_emb.emb_pos" in sd or "flf2v" in model.lower():
             model_type = "fl2v"
@@ -1247,6 +1303,8 @@ class WanVideoModelLoader:
             model_type = "t2v"
         elif "control_adapter.conv.weight" in sd:
             model_type = "t2v"
+        if "audio_injector.injector.0.k.weight" in sd:
+            model_type = "s2v"
 
         out_dim = 16
         if dim == 5120: #14B
@@ -1623,6 +1681,24 @@ class WanVideoModelLoader:
                     block.ref_attn_v_img = nn.Linear(in_features, out_features)
                     block.ref_attn_norm_k_img = WanRMSNorm(out_features, eps=1e-6)
 
+        if "blocks.0.control_blocks_dense.cross_attn.k.weight" in sd:
+            log.info("LongVie2 model detected, patching model...")
+            from .LongVie2.modules import WanModelDualControl
+            control_layers = 12
+            with init_empty_weights():
+                dual_controller = WanModelDualControl(dim=5120, ffn_dim=13824, eps=1e-06, num_heads=40, control_layers=control_layers)
+                for b in range(control_layers):
+                    transformer.blocks[b].control_blocks_dense = dual_controller.control_blocks_dense[b]
+                    transformer.blocks[b].control_blocks_sparse = dual_controller.control_blocks_sparse[b]
+                    transformer.blocks[b].control_combine_linears = dual_controller.control_combine_linears[b]
+                transformer.dual_controller = nn.Module()
+                transformer.dual_controller.control_initial_combine_linear_dense = dual_controller.control_initial_combine_linear_dense
+                transformer.dual_controller.control_initial_combine_linear_sparse = dual_controller.control_initial_combine_linear_sparse
+                transformer.dual_controller.control_t_mod = dual_controller.control_t_mod
+                transformer.dual_controller.control_text_linear = dual_controller.control_text_linear
+                transformer.dual_controller_freqs = dual_controller.freqs
+
+
         comfy_model.diffusion_model = transformer
         comfy_model.load_device = transformer_load_device
         patcher = comfy.model_patcher.ModelPatcher(comfy_model, device, offload_device)
@@ -1803,6 +1879,7 @@ class WanVideoVAELoader:
                 ),
                 "compile_args": ("WANCOMPILEARGS", ),
                 "use_cpu_cache": ("BOOLEAN", {"default": False, "tooltip": "Reduces VRAM usage, but slows the VAE down a lot"}),
+                "verbose": ("BOOLEAN", {"default": False, "tooltip": "Enables memory usage logging when using the model"}),
             }
         }
 
@@ -1812,7 +1889,7 @@ class WanVideoVAELoader:
     CATEGORY = "WanVideoWrapper"
     DESCRIPTION = "Loads Wan VAE model from 'ComfyUI/models/vae'"
 
-    def loadmodel(self, model_name, precision, compile_args=None, use_cpu_cache=False):
+    def loadmodel(self, model_name, precision, compile_args=None, use_cpu_cache=False, verbose=False):
         dtype = {"bf16": torch.bfloat16, "fp16": torch.float16, "fp32": torch.float32}[precision]
         model_path = folder_paths.get_full_path_or_raise("vae", model_name)
         vae_sd = load_torch_file(model_path, safe_load=True)
@@ -1829,9 +1906,9 @@ class WanVideoVAELoader:
             pruning_rate = 0.0
 
         if vae_sd["model.conv2.weight"].shape[0] == 16:
-            vae = WanVideoVAE(dtype=dtype, pruning_rate=pruning_rate, cpu_cache=use_cpu_cache)
+            vae = WanVideoVAE(dtype=dtype, pruning_rate=pruning_rate, cpu_cache=use_cpu_cache, verbose=verbose)
         elif vae_sd["model.conv2.weight"].shape[0] == 48:
-            vae = WanVideoVAE38(dtype=dtype, pruning_rate=pruning_rate, cpu_cache=use_cpu_cache)
+            vae = WanVideoVAE38(dtype=dtype, pruning_rate=pruning_rate, cpu_cache=use_cpu_cache, verbose=verbose)
 
         vae.load_state_dict(vae_sd)
         del vae_sd
@@ -2043,6 +2120,8 @@ NODE_CLASS_MAPPINGS = {
     "WanVideoTorchCompileSettings": WanVideoTorchCompileSettings,
     "LoadWanVideoT5TextEncoder": LoadWanVideoT5TextEncoder,
     "LoadWanVideoClipTextEncoder": LoadWanVideoClipTextEncoder,
+    "WanVideoSetAttentionModeOverride": WanVideoSetAttentionModeOverride,
+    "WanVideoUltraVicoSettings": WanVideoUltraVicoSettings,
     }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -2061,4 +2140,6 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "WanVideoTorchCompileSettings": "WanVideo Torch Compile Settings",
     "LoadWanVideoT5TextEncoder": "WanVideo T5 Text Encoder Loader",
     "LoadWanVideoClipTextEncoder": "WanVideo CLIP Text Encoder Loader",
+    "WanVideoSetAttentionModeOverride": "WanVideo Set Attention Mode Override",
+    "WanVideoUltraVicoSettings": "WanVideo UltraVico Settings"
     }

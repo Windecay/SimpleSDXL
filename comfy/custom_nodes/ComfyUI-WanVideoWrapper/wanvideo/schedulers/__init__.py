@@ -42,7 +42,7 @@ def _apply_custom_sigmas(sample_scheduler, sigmas, device):
     sample_scheduler.timesteps = (sample_scheduler.sigmas[:-1] * 1000).to(torch.int64).to(device)
     sample_scheduler.num_inference_steps = len(sample_scheduler.timesteps)
 
-def get_scheduler(scheduler, steps, start_step, end_step, shift, device, transformer_dim=5120, flowedit_args=None, denoise_strength=1.0, sigmas=None, log_timesteps=False, enhance_hf=False, **kwargs):
+def get_scheduler(scheduler, steps, start_step, end_step, shift, device, transformer_dim=5120, denoise_strength=1.0, sigmas=None, log_timesteps=False, enhance_hf=False, **kwargs):
     timesteps = None
     if sigmas is not None:
         steps = len(sigmas) - 1

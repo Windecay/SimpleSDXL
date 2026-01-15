@@ -948,24 +948,19 @@ async def check_matting_model(request):
                 "message": "The 'transformers' library is required for the matting feature. Please install it by running: pip install transformers"
             })
         
-        # Check custom model path
-        target_path = r"G:\SimpleAI\SimpleModels\rembg\General.safetensors"
+        # Use ComfyUI folder_paths to locate the model
+        target_path = folder_paths.get_full_path("rembg", "General.safetensors")
         
-        if os.path.exists(target_path):
-            log_info(f"BiRefNet model detected at {target_path}")
-            return web.json_response({
-                "available": True,
-                "reason": "ready",
-                "message": "Model is ready to use"
-            })
-        else:
-            log_info(f"BiRefNet model not found at {target_path}")
-            return web.json_response({
-                "available": False,
-                "reason": "not_downloaded",
-                "message": "The matting model needs to be downloaded. This will happen automatically when you first use the matting feature (requires internet connection).",
-                "model_path": target_path
-            })
+        if target_path is None:
+            # Model not found, determine path for download
+            try:
+                rembg_paths = folder_paths.get_folder_paths("rembg")
+                target_dir = rembg_paths[0]
+            except KeyError:
+                # Fallback if rembg not defined in paths
+                target_dir = os.path.join(folder_paths.models_dir, "rembg")
+            
+            target_path = os.path.join(target_dir, "General.safetensors")
             
     except Exception as e:
         log_error(f"Error checking matting model: {str(e)}")
