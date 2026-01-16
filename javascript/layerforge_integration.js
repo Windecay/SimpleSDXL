@@ -645,6 +645,16 @@
                     return false;
             } catch {
             }
+            try {
+                if (canvas && canvas.getAttribute && canvas.getAttribute('data-layerforge-grid') === '1')
+                    return false;
+            } catch {
+            }
+            try {
+                if (canvas && canvas.getAttribute && canvas.getAttribute('data-layerforge-color-layer') === '1')
+                    return false;
+            } catch {
+            }
             if (canvas.width < 10 || canvas.height < 10) return false;
 
             const w = canvas.width;
@@ -959,6 +969,16 @@
             const candidates = Array.from(canvases).filter((c) => {
                 try {
                     if (c && c.getAttribute && c.getAttribute('data-layerforge-overlay') === '1')
+                        return false;
+                } catch {
+                }
+                try {
+                    if (c && c.getAttribute && c.getAttribute('data-layerforge-grid') === '1')
+                        return false;
+                } catch {
+                }
+                try {
+                    if (c && c.getAttribute && c.getAttribute('data-layerforge-color-layer') === '1')
                         return false;
                 } catch {
                 }

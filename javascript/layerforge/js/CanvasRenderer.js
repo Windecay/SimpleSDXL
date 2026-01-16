@@ -325,6 +325,32 @@ export class CanvasRenderer {
         ctx.rect(bounds.x, bounds.y, bounds.width, bounds.height);
         ctx.stroke();
         ctx.setLineDash([]);
+        ctx.save();
+        const zoom = this.canvas.viewport.zoom;
+        const x1 = bounds.x + bounds.width / 3;
+        const x2 = bounds.x + (bounds.width * 2) / 3;
+        const y1 = bounds.y + bounds.height / 3;
+        const y2 = bounds.y + (bounds.height * 2) / 3;
+        ctx.setLineDash([10 / zoom, 6 / zoom]);
+        ctx.lineCap = 'butt';
+        ctx.lineJoin = 'miter';
+        const drawGrid = (strokeStyle, lineWidth) => {
+            ctx.strokeStyle = strokeStyle;
+            ctx.lineWidth = lineWidth;
+            ctx.beginPath();
+            ctx.moveTo(x1, bounds.y);
+            ctx.lineTo(x1, bounds.y + bounds.height);
+            ctx.moveTo(x2, bounds.y);
+            ctx.lineTo(x2, bounds.y + bounds.height);
+            ctx.moveTo(bounds.x, y1);
+            ctx.lineTo(bounds.x + bounds.width, y1);
+            ctx.moveTo(bounds.x, y2);
+            ctx.lineTo(bounds.x + bounds.width, y2);
+            ctx.stroke();
+        };
+        drawGrid('rgba(0, 0, 0, 0.35)', 2 / zoom);
+        drawGrid('rgba(255, 255, 255, 0.55)', 1 / zoom);
+        ctx.restore();
         // Display dimensions under outputAreaBounds
         const dimensionsText = `${Math.round(bounds.width)}x${Math.round(bounds.height)}`;
         const textWorldX = bounds.x + bounds.width / 2;

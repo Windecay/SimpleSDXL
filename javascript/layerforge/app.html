@@ -58,6 +58,11 @@
     <div id="toolbar">
         <button class="btn btn-primary" id="save-btn">保存并关闭</button>
         <button class="btn" id="cancel-btn">取消</button>
+        <button class="btn" id="paint-toggle">彩色画笔</button>
+        <input id="paint-color" type="color" value="#ff4d4d" style="margin-right:10px;">
+        <input id="paint-size" type="range" min="1" max="160" value="18" style="width:140px; margin-right:10px;">
+        <button class="btn" id="paint-new-layer">新建层</button>
+        <button class="btn" id="paint-clear-layer">清空层</button>
         <span style="flex:1"></span>
         <span id="status-text" style="font-size: 12px; color: #aaa;">就绪</span>
     </div>
@@ -66,6 +71,9 @@
     <script type="module">
         import { createCanvasWidget } from '/file=javascript/layerforge/js/CanvasView.js?v=patch25';
         import { app } from '/file=javascript/layerforge/js/comfy_shim.js?v=patch25';
+        import { createEmptyImage } from '/file=javascript/layerforge/js/utils/ImageUtils.js?v=patch25';
+        import { saveImage } from '/file=javascript/layerforge/js/db.js?v=patch25';
+        import { generateUUID, createCanvas } from '/file=javascript/layerforge/js/utils/CommonUtils.js?v=patch25';
 
         window.comfy_api_url = "http://127.0.0.1:8188";
         
@@ -96,11 +104,276 @@
         };
 
         let canvasInstance = null;
+        let paintEnabled = false;
+        let paintColor = '#ff4d4d';
+        let paintSize = 18;
+        let paintLayer = null;
+        let paintCanvas = null;
+        let paintCtx = null;
+        let isPainting = false;
+        let lastPaintPt = null;
 
         async function init() {
             try {
                 const result = await createCanvasWidget(mockNode, mockWidget, app);
                 canvasInstance = result.canvas;
+
+                const toolbar = document.getElementById('toolbar');
+                const paintToggle = document.getElementById('paint-toggle');
+                const paintColorInput = document.getElementById('paint-color');
+                const paintSizeInput = document.getElementById('paint-size');
+                const paintNewLayerBtn = document.getElementById('paint-new-layer');
+                const paintClearLayerBtn = document.getElementById('paint-clear-layer');
+                const editorContainer = document.getElementById('editor-container');
+
+                const overlay = document.createElement('canvas');
+                overlay.style.position = 'absolute';
+                overlay.style.left = '0';
+                overlay.style.top = '0';
+                overlay.style.width = '100%';
+                overlay.style.height = '100%';
+                overlay.style.pointerEvents = 'none';
+                overlay.style.zIndex = '9999';
+                const overlayHost = canvasInstance?.canvasContainer || canvasInstance?.canvas?.parentElement || editorContainer;
+                overlayHost.appendChild(overlay);
+
+                const updateOverlaySize = () => {
+                    const rect = overlayHost.getBoundingClientRect();
+                    const dpr = window.devicePixelRatio || 1;
+                    const w = Math.max(1, Math.round(rect.width * dpr));
+                    const h = Math.max(1, Math.round(rect.height * dpr));
+                    if (overlay.width !== w || overlay.height !== h) {
+                        overlay.width = w;
+                        overlay.height = h;
+                    }
+                };
+
+                const overlayCtx = overlay.getContext('2d');
+                const clearOverlay = () => {
+                    if (!overlayCtx)
+                        return;
+                    overlayCtx.clearRect(0, 0, overlay.width, overlay.height);
+                };
+
+                const setPaintEnabled = (enabled) => {
+                    paintEnabled = !!enabled;
+                    paintToggle.classList.toggle('btn-primary', paintEnabled);
+                    overlay.style.pointerEvents = paintEnabled ? 'auto' : 'none';
+                    if (!paintEnabled) {
+                        isPainting = false;
+                        lastPaintPt = null;
+                        clearOverlay();
+                    }
+                };
+
+                paintColorInput.addEventListener('input', () => {
+                    paintColor = paintColorInput.value || paintColor;
+                });
+                paintSizeInput.addEventListener('input', () => {
+                    const v = Number.parseInt(paintSizeInput.value, 10);
+                    if (Number.isFinite(v)) {
+                        paintSize = Math.max(1, Math.min(160, v));
+                    }
+                });
+                paintToggle.addEventListener('click', () => {
+                    setPaintEnabled(!paintEnabled);
+                });
+
+                const ensurePaintLayer = async () => {
+                    if (!canvasInstance)
+                        return null;
+                    const bounds = canvasInstance.outputAreaBounds;
+                    const w = Math.max(1, Math.round(bounds.width));
+                    const h = Math.max(1, Math.round(bounds.height));
+                    if (!paintLayer) {
+                        const img = await createEmptyImage(w, h, 'transparent');
+                        paintLayer = await canvasInstance.canvasLayers.addLayerWithImage(img, { name: 'Color Paint' }, 'default', bounds);
+                    } else {
+                        paintLayer.x = bounds.x;
+                        paintLayer.y = bounds.y;
+                        paintLayer.width = w;
+                        paintLayer.height = h;
+                    }
+                    if (!paintCanvas || !paintCtx || paintCanvas.width !== w || paintCanvas.height !== h) {
+                        const created = createCanvas(w, h, '2d', { willReadFrequently: true, alpha: true });
+                        paintCanvas = created.canvas;
+                        paintCtx = created.ctx;
+                        if (paintCtx) {
+                            paintCtx.clearRect(0, 0, w, h);
+                            try {
+                                if (paintLayer?.image) {
+                                    paintCtx.drawImage(paintLayer.image, 0, 0, w, h);
+                                }
+                            } catch {
+                            }
+                        }
+                    }
+                    return paintLayer;
+                };
+
+                const commitPaintLayer = async () => {
+                    if (!canvasInstance || !paintLayer || !paintCanvas)
+                        return;
+                    const dataUrl = paintCanvas.toDataURL('image/png');
+                    const img = new Image();
+                    img.crossOrigin = 'anonymous';
+                    await new Promise((resolve) => {
+                        img.onload = resolve;
+                        img.onerror = resolve;
+                        img.src = dataUrl;
+                    });
+                    const imageId = generateUUID();
+                    await saveImage(imageId, dataUrl);
+                    canvasInstance.imageCache.set(imageId, dataUrl);
+                    paintLayer.image = img;
+                    paintLayer.imageId = imageId;
+                    paintLayer.originalWidth = img.width;
+                    paintLayer.originalHeight = img.height;
+                    canvasInstance.render();
+                    canvasInstance.saveState();
+                };
+
+                paintNewLayerBtn.addEventListener('click', async () => {
+                    if (!canvasInstance)
+                        return;
+                    const bounds = canvasInstance.outputAreaBounds;
+                    const w = Math.max(1, Math.round(bounds.width));
+                    const h = Math.max(1, Math.round(bounds.height));
+                    const img = await createEmptyImage(w, h, 'transparent');
+                    paintLayer = await canvasInstance.canvasLayers.addLayerWithImage(img, { name: `Color Paint ${canvasInstance.layers.length + 1}` }, 'default', bounds);
+                    paintCanvas = null;
+                    paintCtx = null;
+                });
+
+                paintClearLayerBtn.addEventListener('click', async () => {
+                    await ensurePaintLayer();
+                    if (!paintCanvas || !paintCtx)
+                        return;
+                    paintCtx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
+                    await commitPaintLayer();
+                });
+
+                const getWorldFromClient = (clientX, clientY) => {
+                    const c = canvasInstance?.canvas;
+                    if (!c)
+                        return null;
+                    const rect = c.getBoundingClientRect();
+                    const vx = ((clientX - rect.left) * c.width) / rect.width;
+                    const vy = ((clientY - rect.top) * c.height) / rect.height;
+                    const zoom = canvasInstance.viewport.zoom || 1;
+                    const wx = canvasInstance.viewport.x + vx / zoom;
+                    const wy = canvasInstance.viewport.y + vy / zoom;
+                    return { x: wx, y: wy };
+                };
+
+                const getPaintPoint = (e) => {
+                    const w = getWorldFromClient(e.clientX, e.clientY);
+                    if (!w)
+                        return null;
+                    const bounds = canvasInstance.outputAreaBounds;
+                    const px = w.x - bounds.x;
+                    const py = w.y - bounds.y;
+                    const outW = Math.max(1, Math.round(bounds.width));
+                    const outH = Math.max(1, Math.round(bounds.height));
+                    if (px < 0 || py < 0 || px > outW || py > outH)
+                        return null;
+                    return { x: px, y: py };
+                };
+
+                const drawOverlayStroke = (a, b) => {
+                    if (!overlayCtx || !canvasInstance)
+                        return;
+                    overlayCtx.save();
+                    const c = canvasInstance.canvas;
+                    const rect = c.getBoundingClientRect();
+                    const dpr = window.devicePixelRatio || 1;
+                    const sx = overlay.width / (rect.width * dpr);
+                    const sy = overlay.height / (rect.height * dpr);
+                    overlayCtx.setTransform(sx, 0, 0, sy, 0, 0);
+                    overlayCtx.globalAlpha = 1;
+                    overlayCtx.strokeStyle = paintColor;
+                    overlayCtx.lineWidth = paintSize * (canvasInstance.viewport.zoom || 1);
+                    overlayCtx.lineCap = 'round';
+                    overlayCtx.lineJoin = 'round';
+                    const bounds = canvasInstance.outputAreaBounds;
+                    const toScreen = (p) => ({
+                        x: (bounds.x + p.x - canvasInstance.viewport.x) * (canvasInstance.viewport.zoom || 1),
+                        y: (bounds.y + p.y - canvasInstance.viewport.y) * (canvasInstance.viewport.zoom || 1)
+                    });
+                    const as = toScreen(a);
+                    const bs = toScreen(b);
+                    overlayCtx.beginPath();
+                    overlayCtx.moveTo(as.x, as.y);
+                    overlayCtx.lineTo(bs.x, bs.y);
+                    overlayCtx.stroke();
+                    overlayCtx.restore();
+                };
+
+                overlay.addEventListener('pointerdown', async (e) => {
+                    if (!paintEnabled)
+                        return;
+                    e.preventDefault();
+                    e.stopPropagation();
+                    updateOverlaySize();
+                    clearOverlay();
+                    await ensurePaintLayer();
+                    const p = getPaintPoint(e);
+                    if (!p || !paintCtx)
+                        return;
+                    isPainting = true;
+                    lastPaintPt = p;
+                    try {
+                        overlay.setPointerCapture(e.pointerId);
+                    } catch {
+                    }
+                });
+
+                overlay.addEventListener('pointermove', (e) => {
+                    if (!paintEnabled || !isPainting || !paintCtx || !lastPaintPt)
+                        return;
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const p = getPaintPoint(e);
+                    if (!p)
+                        return;
+                    paintCtx.save();
+                    paintCtx.globalAlpha = 1;
+                    paintCtx.strokeStyle = paintColor;
+                    paintCtx.lineWidth = paintSize;
+                    paintCtx.lineCap = 'round';
+                    paintCtx.lineJoin = 'round';
+                    paintCtx.beginPath();
+                    paintCtx.moveTo(lastPaintPt.x, lastPaintPt.y);
+                    paintCtx.lineTo(p.x, p.y);
+                    paintCtx.stroke();
+                    paintCtx.restore();
+                    drawOverlayStroke(lastPaintPt, p);
+                    lastPaintPt = p;
+                    canvasInstance.render();
+                });
+
+                const endPaint = async (e) => {
+                    if (!isPainting)
+                        return;
+                    e.preventDefault();
+                    e.stopPropagation();
+                    isPainting = false;
+                    lastPaintPt = null;
+                    clearOverlay();
+                    try {
+                        overlay.releasePointerCapture(e.pointerId);
+                    } catch {
+                    }
+                    await commitPaintLayer();
+                };
+
+                overlay.addEventListener('pointerup', endPaint);
+                overlay.addEventListener('pointercancel', endPaint);
+                overlay.addEventListener('pointerleave', endPaint);
+
+                const ro = new ResizeObserver(() => updateOverlaySize());
+                ro.observe(editorContainer);
+                updateOverlaySize();
                 
                 window.addEventListener('message', (event) => {
                     if (event.data.type === 'LOAD_IMAGE' || event.data.type === 'ADD_LAYER') {
@@ -117,6 +390,9 @@
                             if (canvasInstance) {
                                 if (event.data.type === 'LOAD_IMAGE') {
                                     canvasInstance.canvasLayers.setOutputAreaSize(img.width, img.height);
+                                    paintLayer = null;
+                                    paintCanvas = null;
+                                    paintCtx = null;
                                 }
                                 
                                 canvasInstance.canvasLayers.addLayerWithImage(img, {}, 'default');
@@ -149,6 +425,13 @@
                     
                     try {
                         document.getElementById('status-text').innerText = "Saving...";
+
+                        if (paintEnabled && isPainting) {
+                            isPainting = false;
+                            lastPaintPt = null;
+                            clearOverlay();
+                            await commitPaintLayer();
+                        }
                         
                         const blob = await canvasInstance.canvasLayers.getFlattenedCanvasAsBlob();
                         
