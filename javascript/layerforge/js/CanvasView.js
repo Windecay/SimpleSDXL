@@ -539,6 +539,38 @@ export async function createCanvasWidget(node, widget, app) {
                             canvas.maskTool.activate();
                             maskBtn.classList.add('primary');
                             maskControls.querySelectorAll('.mask-control').forEach((c) => c.style.display = 'flex');
+                            const previewOpacitySlider = controlPanel.querySelector('#preview-opacity-slider');
+                            if (previewOpacitySlider instanceof HTMLInputElement) {
+                                const value = parseFloat(previewOpacitySlider.value);
+                                canvas.maskTool.setPreviewOpacity(Number.isFinite(value) ? value : 1);
+                                const valueEl = controlPanel.querySelector('#preview-opacity-value');
+                                if (valueEl)
+                                    valueEl.textContent = `${Math.round((Number.isFinite(value) ? value : 1) * 100)}%`;
+                            }
+                            const brushSizeSlider = controlPanel.querySelector('#brush-size-slider');
+                            if (brushSizeSlider instanceof HTMLInputElement) {
+                                const value = parseInt(brushSizeSlider.value);
+                                canvas.maskTool.setBrushSize(Number.isFinite(value) ? value : 20);
+                                const valueEl = controlPanel.querySelector('#brush-size-value');
+                                if (valueEl)
+                                    valueEl.textContent = `${Number.isFinite(value) ? value : 20}px`;
+                            }
+                            const brushStrengthSlider = controlPanel.querySelector('#brush-strength-slider');
+                            if (brushStrengthSlider instanceof HTMLInputElement) {
+                                const value = parseFloat(brushStrengthSlider.value);
+                                canvas.maskTool.setBrushStrength(Number.isFinite(value) ? value : 1);
+                                const valueEl = controlPanel.querySelector('#brush-strength-value');
+                                if (valueEl)
+                                    valueEl.textContent = `${Math.round((Number.isFinite(value) ? value : 1) * 100)}%`;
+                            }
+                            const brushHardnessSlider = controlPanel.querySelector('#brush-hardness-slider');
+                            if (brushHardnessSlider instanceof HTMLInputElement) {
+                                const value = parseFloat(brushHardnessSlider.value);
+                                canvas.maskTool.setBrushHardness(Number.isFinite(value) ? value : 0.5);
+                                const valueEl = controlPanel.querySelector('#brush-hardness-value');
+                                if (valueEl)
+                                    valueEl.textContent = `${Math.round((Number.isFinite(value) ? value : 0.5) * 100)}%`;
+                            }
                         }
                         setTimeout(() => canvas.render(), 0);
                     }
@@ -551,7 +583,7 @@ export async function createCanvasWidget(node, widget, app) {
                         min: "0",
                         max: "1",
                         step: "0.05",
-                        value: "0.5",
+                        value: "1",
                         oninput: (e) => {
                             const value = e.target.value;
                             canvas.maskTool.setPreviewOpacity(parseFloat(value));
@@ -560,7 +592,7 @@ export async function createCanvasWidget(node, widget, app) {
                                 valueEl.textContent = `${Math.round(parseFloat(value) * 100)}%`;
                         }
                     }),
-                    $el("div.slider-value", { id: "preview-opacity-value" }, ["50%"])
+                    $el("div.slider-value", { id: "preview-opacity-value" }, ["100%"])
                 ]),
                 $el("div.painter-slider-container.mask-control", { style: { display: 'none' } }, [
                     $el("label", { for: "brush-size-slider", textContent: "大小:" }),
@@ -588,7 +620,7 @@ export async function createCanvasWidget(node, widget, app) {
                         min: "0",
                         max: "1",
                         step: "0.05",
-                        value: "0.5",
+                        value: "1",
                         oninput: (e) => {
                             const value = e.target.value;
                             canvas.maskTool.setBrushStrength(parseFloat(value));
@@ -597,7 +629,7 @@ export async function createCanvasWidget(node, widget, app) {
                                 valueEl.textContent = `${Math.round(parseFloat(value) * 100)}%`;
                         }
                     }),
-                    $el("div.slider-value", { id: "brush-strength-value" }, ["50%"])
+                    $el("div.slider-value", { id: "brush-strength-value" }, ["100%"])
                 ]),
                 $el("div.painter-slider-container.mask-control", { style: { display: 'none' } }, [
                     $el("label", { for: "brush-hardness-slider", textContent: "硬度:" }),

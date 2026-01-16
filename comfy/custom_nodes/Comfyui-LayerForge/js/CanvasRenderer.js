@@ -662,7 +662,10 @@ export class CanvasRenderer {
         this.strokeOverlayCanvas.style.pointerEvents = 'none';
         this.strokeOverlayCanvas.style.zIndex = '19'; // Below cursor overlay (20)
         // Opacity is now controlled by MaskTool.previewOpacity
-        this.strokeOverlayCanvas.style.opacity = String(this.canvas.maskTool.previewOpacity || 0.5);
+        const opacity = (this.canvas.maskTool && typeof this.canvas.maskTool.previewOpacity === 'number')
+            ? this.canvas.maskTool.previewOpacity
+            : 1;
+        this.strokeOverlayCanvas.style.opacity = String(opacity);
         // Add to DOM
         this.addStrokeOverlayToDOM();
         log.debug('Stroke overlay canvas initialized');

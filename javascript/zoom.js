@@ -374,6 +374,7 @@ onUiLoaded(async() => {
             const useBrushButton = document.querySelector(`${activeElement} button[aria-label="Use brush"]`);
             const BrushRadius = document.querySelector(`${activeElement} input[aria-label="Brush radius"]`)
             const tooltip = document.querySelector(`${activeElement} .canvas-tooltip`);
+            const layerforgeButtons = document.querySelectorAll(`${activeElement} .layerforge-edit-btn`);
 
             if (buttonsVisible) {
                 if (undoButton) undoButton.style.display = 'none';
@@ -382,6 +383,9 @@ onUiLoaded(async() => {
                 if (useBrushButton) useBrushButton.style.display = 'none';
                 if (BrushRadius) BrushRadius.style.display = 'none';
                 if (tooltip) tooltip.style.display = 'none';
+                layerforgeButtons.forEach((btn) => {
+                    btn.style.display = 'none';
+                });
             } else {
                 if (undoButton) undoButton.style.display = '';
                 if (clearButton) clearButton.style.display = '';
@@ -389,6 +393,9 @@ onUiLoaded(async() => {
                 if (useBrushButton) useBrushButton.style.display = '';
                 if (BrushRadius) BrushRadius.style.display = '';
                 if (tooltip) tooltip.style.display = '';
+                layerforgeButtons.forEach((btn) => {
+                    btn.style.display = '';
+                });
             }
 
             buttonsVisible = !buttonsVisible;

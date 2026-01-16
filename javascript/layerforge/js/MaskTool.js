@@ -32,9 +32,9 @@ export class MaskTool {
         this.isOverlayVisible = true;
         this.isActive = false;
         this.brushSize = 20;
-        this._brushStrength = 0.5;
+        this._brushStrength = 1;
         this._brushHardness = 0.5;
-        this._previewOpacity = 0.5; // Default 50% opacity for preview
+        this._previewOpacity = 1; // Default 100% opacity for preview
         this.isDrawing = false;
         this.lastPosition = null;
         const { canvas: previewCanvas, ctx: previewCtx } = createCanvas(1, 1, '2d', { willReadFrequently: true });
