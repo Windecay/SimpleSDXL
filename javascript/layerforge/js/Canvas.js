@@ -50,6 +50,7 @@ export class Canvas {
         this.onHistoryChange = callbacks.onHistoryChange;
         this.onViewportChange = null;
         this.lastMousePosition = { x: 0, y: 0 };
+        this.__didInitialAutoFit = false;
         this.viewport = {
             x: -(this.width / 1.5),
             y: -(this.height / 2),
@@ -237,6 +238,11 @@ export class Canvas {
         // Dodaj to wywołanie, aby panel renderował się po załadowaniu stanu
         if (this.canvasLayersPanel) {
             this.canvasLayersPanel.onLayersChanged();
+        }
+        if (!loaded && !this.__didInitialAutoFit && this.layers.length > 0) {
+            setTimeout(() => {
+                this.fitOutputAreaToView();
+            }, 0);
         }
     }
     /**
@@ -465,6 +471,67 @@ export class Canvas {
         this.canvas.style.height = '100%';
         this.canvas.tabIndex = 0;
         this.canvas.style.outline = 'none';
+    }
+    getViewPixelSize() {
+        const rect = (() => {
+            try {
+                if (this.canvasContainer && this.canvasContainer.getBoundingClientRect) {
+                    return this.canvasContainer.getBoundingClientRect();
+                }
+                return this.canvas.getBoundingClientRect();
+            }
+            catch {
+                return null;
+            }
+        })();
+        const width = rect ? rect.width : (this.canvas?.clientWidth || this.canvas?.width || 0);
+        const height = rect ? rect.height : (this.canvas?.clientHeight || this.canvas?.height || 0);
+        return {
+            width: Math.max(0, Number(width) || 0),
+            height: Math.max(0, Number(height) || 0)
+        };
+    }
+    fitWorldRectToView(rect, options = {}) {
+        const { paddingPx = 40, minZoom = 0.02, maxZoom = 20 } = options;
+        if (!rect || !Number.isFinite(rect.width) || !Number.isFinite(rect.height)) {
+            return false;
+        }
+        const view = this.getViewPixelSize();
+        const viewW = view.width;
+        const viewH = view.height;
+        if (!Number.isFinite(viewW) || !Number.isFinite(viewH) || viewW <= 2 || viewH <= 2) {
+            return false;
+        }
+        const w = Math.max(1e-6, rect.width);
+        const h = Math.max(1e-6, rect.height);
+        const availableW = Math.max(1, viewW - paddingPx * 2);
+        const availableH = Math.max(1, viewH - paddingPx * 2);
+        let zoom = Math.min(availableW / w, availableH / h);
+        zoom = Math.min(maxZoom, Math.max(minZoom, zoom));
+        const centerX = rect.x + rect.width / 2;
+        const centerY = rect.y + rect.height / 2;
+        this.viewport.zoom = zoom;
+        this.viewport.x = centerX - (viewW / (2 * zoom));
+        this.viewport.y = centerY - (viewH / (2 * zoom));
+        if (this.onViewportChange) {
+            try {
+                this.onViewportChange();
+            }
+            catch {
+            }
+        }
+        this.render();
+        return true;
+    }
+    fitOutputAreaToView(options = {}) {
+        if (this.__didInitialAutoFit) {
+            return false;
+        }
+        const ok = this.fitWorldRectToView(this.outputAreaBounds, options);
+        if (ok) {
+            this.__didInitialAutoFit = true;
+        }
+        return ok;
     }
     /**
      * Pobiera współrzędne myszy w układzie świata

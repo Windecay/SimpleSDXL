@@ -185,6 +185,93 @@
         }
     }
 
+    function ensureGlobalMaskStore() {
+        try {
+            if (!window.__layerforgeMaskByFingerprint) {
+                window.__layerforgeMaskByFingerprint = new Map();
+            }
+        } catch {
+        }
+        try {
+            return window.__layerforgeMaskByFingerprint || null;
+        } catch {
+            return null;
+        }
+    }
+
+    function storeMaskForFingerprint(fp, maskDataUrl) {
+        try {
+            if (!fp || !maskDataUrl || typeof maskDataUrl !== 'string' || !maskDataUrl.startsWith('data:image'))
+                return;
+            const store = ensureGlobalMaskStore();
+            if (!store)
+                return;
+            store.set(fp, { mask: maskDataUrl, at: Date.now() });
+            try {
+                sessionStorage.setItem(`layerforge_mask_${fp}`, maskDataUrl);
+            } catch {
+            }
+        } catch {
+        }
+    }
+
+    function getStoredMaskForFingerprint(fp) {
+        try {
+            const store = ensureGlobalMaskStore();
+            if (!store || !fp)
+                return null;
+            const v = store.get(fp);
+            const mask = v?.mask;
+            if (mask && typeof mask === 'string' && mask.startsWith('data:image'))
+                return mask;
+            try {
+                const stored = sessionStorage.getItem(`layerforge_mask_${fp}`);
+                if (stored && typeof stored === 'string' && stored.startsWith('data:image')) {
+                    store.set(fp, { mask: stored, at: Date.now() });
+                    return stored;
+                }
+            } catch {
+            }
+            return null;
+        } catch {
+            return null;
+        }
+    }
+
+    function deleteStoredMaskForFingerprint(fp) {
+        try {
+            const store = ensureGlobalMaskStore();
+            if (!store || !fp)
+                return;
+            store.delete(fp);
+            try {
+                sessionStorage.removeItem(`layerforge_mask_${fp}`);
+            } catch {
+            }
+        } catch {
+        }
+    }
+
+    function getStoredMaskForContainer(imgContainer) {
+        try {
+            const stored = imgContainer?.dataset?.layerforgeLatestMask;
+            if (stored && typeof stored === 'string' && stored.startsWith('data:image')) {
+                return stored;
+            }
+        } catch {
+        }
+        try {
+            const fp = imgContainer?.dataset?.layerforgeImageFingerprint || getImageFingerprint((imgContainer?.querySelector('img')?.src) || '');
+            if (fp) {
+                const m = getStoredMaskForFingerprint(fp);
+                if (m)
+                    return m;
+            }
+        } catch {
+        }
+        return null;
+    }
+
     function clearContainerStoredMask(imgContainer) {
         try {
             delete imgContainer.dataset.layerforgeLatestMask;
@@ -359,6 +446,13 @@
                     try {
                         imgContainer.dataset.layerforgeLatestMask = finalMaskBase64;
                         imgContainer.dataset.layerforgeLatestMaskAt = String(Date.now());
+                    } catch {
+                    }
+                    try {
+                        const fp = imgContainer.dataset.layerforgeImageFingerprint || getImageFingerprint(imageBase64 || (img?.src) || '');
+                        if (fp) {
+                            storeMaskForFingerprint(fp, finalMaskBase64);
+                        }
                     } catch {
                     }
                     const paintMaskOnce = (maskImg) => {
@@ -680,9 +774,13 @@
             }
 
             const data = probeCtx.getImageData(0, 0, tw, th).data;
-            let hasOpaquePixels = false;
-            let hasTransparentPixels = false;
             let opaquePixelCount = 0;
+            let transparentPixelCount = 0;
+            let grayscaleOpaqueCount = 0;
+            let binaryOpaqueCount = 0;
+            let midtoneOpaqueCount = 0;
+            let minLum = 255;
+            let maxLum = 0;
 
             const stride = 4;
             const stepPx = 2;
@@ -690,18 +788,60 @@
             for (let i = 0; i < data.length; i += step) {
                 const a = data[i + 3];
                 if (a > 10) {
-                    hasOpaquePixels = true;
                     opaquePixelCount++;
-                }
-                if (a < 250) {
-                    hasTransparentPixels = true;
-                }
-                if (hasOpaquePixels && hasTransparentPixels && opaquePixelCount > 5) {
-                    return true;
+                    const r = data[i];
+                    const g = data[i + 1];
+                    const b = data[i + 2];
+                    const mx = Math.max(r, g, b);
+                    const mn = Math.min(r, g, b);
+                    if ((mx - mn) <= 12) {
+                        grayscaleOpaqueCount++;
+                    }
+                    const lum = Math.round(0.299 * r + 0.587 * g + 0.114 * b);
+                    if (lum < minLum)
+                        minLum = lum;
+                    if (lum > maxLum)
+                        maxLum = lum;
+                    if (lum <= 32 || lum >= 223) {
+                        binaryOpaqueCount++;
+                    } else {
+                        midtoneOpaqueCount++;
+                    }
+                } else {
+                    transparentPixelCount++;
                 }
             }
 
-            return hasOpaquePixels && hasTransparentPixels && opaquePixelCount > 5;
+            const totalSamples = opaquePixelCount + transparentPixelCount;
+            if (opaquePixelCount <= 5 || totalSamples <= 0)
+                return false;
+
+            const grayscaleRatio = grayscaleOpaqueCount / Math.max(1, opaquePixelCount);
+            if (grayscaleRatio < 0.85)
+                return false;
+
+            const binaryRatio = binaryOpaqueCount / Math.max(1, opaquePixelCount);
+            const midtoneRatio = midtoneOpaqueCount / Math.max(1, opaquePixelCount);
+            const alphaNonZeroRatio = opaquePixelCount / Math.max(1, totalSamples);
+            const lumaRange = maxLum - minLum;
+
+            if (alphaNonZeroRatio > 0.98 && binaryRatio < 0.35 && midtoneRatio > 0.65) {
+                return false;
+            }
+
+            if (transparentPixelCount > 0 && opaquePixelCount > 0) {
+                return true;
+            }
+
+            if (binaryRatio > 0.75) {
+                return true;
+            }
+
+            if (binaryRatio > 0.55 && lumaRange > 64) {
+                return true;
+            }
+
+            return false;
             
         } catch (e) {
             return false;
@@ -1067,6 +1207,17 @@
         let maskUrl = null;
         const img = imgContainer.querySelector('img');
         if (!img) return null;
+        const storedMask = getStoredMaskForContainer(imgContainer);
+        if (storedMask) {
+            try {
+                imgContainer.dataset.layerforgeLatestMask = storedMask;
+                if (!imgContainer.dataset.layerforgeLatestMaskAt) {
+                    imgContainer.dataset.layerforgeLatestMaskAt = String(Date.now());
+                }
+            } catch {
+            }
+            return storedMask;
+        }
 
         const naturalW = img.naturalWidth;
         const naturalH = img.naturalHeight;
@@ -1428,10 +1579,57 @@
                 const fp = getImageFingerprint(img.src || img.getAttribute('src') || '');
                 if (fp) {
                     const prevFp = container.dataset.layerforgeImageFingerprint;
+                    try {
+                        const existingMask = container.dataset.layerforgeLatestMask;
+                        if (prevFp && existingMask && typeof existingMask === 'string' && existingMask.startsWith('data:image')) {
+                            storeMaskForFingerprint(prevFp, existingMask);
+                        }
+                    } catch {
+                    }
+
                     if (prevFp && prevFp !== fp) {
-                        clearContainerStoredMask(container);
+                        const existingAt = (() => {
+                            try {
+                                return Number(container.dataset.layerforgeLatestMaskAt || 0);
+                            } catch {
+                                return 0;
+                            }
+                        })();
+                        const isRecent = existingAt > 0 && (Date.now() - existingAt) < 30000;
+                        const restoredForNew = getStoredMaskForFingerprint(fp);
+                        if (restoredForNew) {
+                            try {
+                                container.dataset.layerforgeLatestMask = restoredForNew;
+                                if (!container.dataset.layerforgeLatestMaskAt) {
+                                    container.dataset.layerforgeLatestMaskAt = String(Date.now());
+                                }
+                            } catch {
+                            }
+                        } else if (isRecent) {
+                            try {
+                                const existingMask = container.dataset.layerforgeLatestMask;
+                                if (existingMask && typeof existingMask === 'string' && existingMask.startsWith('data:image')) {
+                                    storeMaskForFingerprint(fp, existingMask);
+                                }
+                            } catch {
+                            }
+                        } else {
+                            clearContainerStoredMask(container);
+                        }
                     }
                     container.dataset.layerforgeImageFingerprint = fp;
+                    if (!container.dataset.layerforgeLatestMask) {
+                        const restored = getStoredMaskForFingerprint(fp);
+                        if (restored) {
+                            try {
+                                container.dataset.layerforgeLatestMask = restored;
+                                if (!container.dataset.layerforgeLatestMaskAt) {
+                                    container.dataset.layerforgeLatestMaskAt = String(Date.now());
+                                }
+                            } catch {
+                            }
+                        }
+                    }
                 }
             } catch {
             }
@@ -1514,6 +1712,13 @@
                                     if (mergedFp && mergedFp !== storedFp) {
                                         imgContainer.dataset.layerforgeLatestMask = merged;
                                         imgContainer.dataset.layerforgeLatestMaskAt = String(Date.now());
+                                        try {
+                                            const fp = imgContainer.dataset.layerforgeImageFingerprint || getImageFingerprint((imgContainer.querySelector('img')?.src) || '');
+                                            if (fp) {
+                                                storeMaskForFingerprint(fp, merged);
+                                            }
+                                        } catch {
+                                        }
                                         stored = merged;
                                     }
                                 }
@@ -1544,6 +1749,13 @@
                                     if (mergedFp && mergedFp !== currentFp) {
                                         imgContainer.dataset.layerforgeLatestMask = merged;
                                         imgContainer.dataset.layerforgeLatestMaskAt = String(Date.now());
+                                        try {
+                                            const fp = imgContainer.dataset.layerforgeImageFingerprint || getImageFingerprint((imgContainer.querySelector('img')?.src) || '');
+                                            if (fp) {
+                                                storeMaskForFingerprint(fp, merged);
+                                            }
+                                        } catch {
+                                        }
                                     }
                                 } catch {
                                 }

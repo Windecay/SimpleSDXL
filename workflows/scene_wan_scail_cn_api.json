@@ -328,7 +328,7 @@
       "context_schedule": "uniform_standard",
       "context_frames": 81,
       "context_stride": 4,
-      "context_overlap": 48,
+      "context_overlap": 32,
       "freenoise": true,
       "verbose": false,
       "fuse_method": "linear"

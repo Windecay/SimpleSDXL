@@ -1624,9 +1624,6 @@ export class CanvasLayers {
             }
             log.info("=== GENERATING MASK BLOB ===");
             log.info(`Mask Canvas Size: ${maskCanvas.width}x${maskCanvas.height}`);
-            // Rozpocznij z białą maską (nic nie zamaskowane)
-            maskCtx.fillStyle = '#ffffff';
-            maskCtx.fillRect(0, 0, bounds.width, bounds.height);
             // Stwórz canvas do sprawdzenia przezroczystości warstw
             const { canvas: visibilityCanvas, ctx: visibilityCtx } = createCanvas(bounds.width, bounds.height, '2d', { alpha: true });
             if (!visibilityCtx) {
@@ -1641,32 +1638,32 @@ export class CanvasLayers {
             const maskData = maskCtx.getImageData(0, 0, bounds.width, bounds.height);
             for (let i = 0; i < visibilityData.data.length; i += 4) {
                 const alpha = visibilityData.data[i + 3];
-                const maskValue = 255 - alpha; // Odwróć alpha żeby stworzyć maskę
-                maskData.data[i] = maskData.data[i + 1] = maskData.data[i + 2] = maskValue;
-                maskData.data[i + 3] = 255; // Solidna maska
+                const maskValue = 255 - alpha;
+                maskData.data[i] = 255;
+                maskData.data[i + 1] = 255;
+                maskData.data[i + 2] = 255;
+                maskData.data[i + 3] = maskValue;
             }
             maskCtx.putImageData(maskData, 0, 0);
             // Aplikuj maskę narzędzia jeśli istnieje - używaj zoptymalizowanej metody
             const toolMaskCanvas = this.canvas.maskTool.getMaskForOutputArea();
             if (toolMaskCanvas) {
                 log.debug(`[getFlattenedMaskAsBlob] Using optimized output area mask (${toolMaskCanvas.width}x${toolMaskCanvas.height})`);
-                // Zoptymalizowana maska jest już odpowiednio pozycjonowana dla output area
-                // Możemy ją zastosować bezpośrednio
                 const tempMaskData = toolMaskCanvas.getContext('2d', { willReadFrequently: true })?.getImageData(0, 0, toolMaskCanvas.width, toolMaskCanvas.height);
                 if (tempMaskData) {
-                    // Konwertuj dane maski do odpowiedniego formatu
-                    for (let i = 0; i < tempMaskData.data.length; i += 4) {
-                        const alpha = tempMaskData.data[i + 3];
-                        tempMaskData.data[i] = tempMaskData.data[i + 1] = tempMaskData.data[i + 2] = alpha;
-                        tempMaskData.data[i + 3] = 255; // Solidna alpha
+                    const currentMask = maskCtx.getImageData(0, 0, bounds.width, bounds.height);
+                    const cur = currentMask.data;
+                    const add = tempMaskData.data;
+                    for (let i = 0; i < cur.length; i += 4) {
+                        const baseA = cur[i + 3];
+                        const toolA = add[i + 3];
+                        const outA = baseA > toolA ? baseA : toolA;
+                        cur[i] = 255;
+                        cur[i + 1] = 255;
+                        cur[i + 2] = 255;
+                        cur[i + 3] = outA;
                     }
-                    // Stwórz tymczasowy canvas dla przetworzonej maski
-                    const { canvas: tempMaskCanvas, ctx: tempMaskCtx } = createCanvas(toolMaskCanvas.width, toolMaskCanvas.height, '2d', { willReadFrequently: true });
-                    if (tempMaskCtx) {
-                        tempMaskCtx.putImageData(tempMaskData, 0, 0);
-                        maskCtx.globalCompositeOperation = 'screen';
-                        maskCtx.drawImage(tempMaskCanvas, 0, 0);
-                    }
+                    maskCtx.putImageData(currentMask, 0, 0);
                 }
             }
             log.info("=== MASK BLOB GENERATED ===");

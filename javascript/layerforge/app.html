@@ -409,6 +409,74 @@
                                 }
 
                                 canvasInstance.render();
+                                if (event.data.type === 'LOAD_IMAGE') {
+                                    const fitOnce = () => {
+                                        const bounds = canvasInstance.outputAreaBounds;
+                                        if (!bounds || !Number.isFinite(bounds.width) || !Number.isFinite(bounds.height)) {
+                                            return false;
+                                        }
+                                        try {
+                                            if (typeof canvasInstance.fitWorldRectToView === 'function') {
+                                                return !!canvasInstance.fitWorldRectToView(bounds, { paddingPx: 40 });
+                                            }
+                                        } catch {
+                                        }
+                                        try {
+                                            if (typeof canvasInstance.fitOutputAreaToView === 'function') {
+                                                return !!canvasInstance.fitOutputAreaToView({ paddingPx: 40 });
+                                            }
+                                        } catch {
+                                        }
+                                        const containerRect = (() => {
+                                            try {
+                                                return canvasInstance.canvasContainer?.getBoundingClientRect?.() || null;
+                                            } catch {
+                                                return null;
+                                            }
+                                        })();
+                                        const viewW = containerRect?.width || editorContainer?.getBoundingClientRect?.().width || 0;
+                                        const viewH = containerRect?.height || editorContainer?.getBoundingClientRect?.().height || 0;
+                                        if (!Number.isFinite(viewW) || !Number.isFinite(viewH) || viewW <= 2 || viewH <= 2) {
+                                            return false;
+                                        }
+                                        const w = Math.max(1e-6, bounds.width);
+                                        const h = Math.max(1e-6, bounds.height);
+                                        const availableW = Math.max(1, viewW - 80);
+                                        const availableH = Math.max(1, viewH - 80);
+                                        let zoom = Math.min(availableW / w, availableH / h);
+                                        if (!Number.isFinite(zoom) || zoom <= 0) {
+                                            return false;
+                                        }
+                                        zoom = Math.max(0.02, Math.min(20, zoom));
+                                        const centerX = bounds.x + bounds.width / 2;
+                                        const centerY = bounds.y + bounds.height / 2;
+                                        canvasInstance.viewport = canvasInstance.viewport || { x: 0, y: 0, zoom: 1 };
+                                        canvasInstance.viewport.zoom = zoom;
+                                        canvasInstance.viewport.x = centerX - (viewW / (2 * zoom));
+                                        canvasInstance.viewport.y = centerY - (viewH / (2 * zoom));
+                                        try {
+                                            if (typeof canvasInstance.onViewportChange === 'function') {
+                                                canvasInstance.onViewportChange();
+                                            }
+                                        } catch {
+                                        }
+                                        try {
+                                            canvasInstance.render();
+                                        } catch {
+                                        }
+                                        return true;
+                                    };
+                                    let attempts = 0;
+                                    const maxAttempts = 30;
+                                    const step = () => {
+                                        attempts += 1;
+                                        if (fitOnce() || attempts >= maxAttempts) {
+                                            return;
+                                        }
+                                        requestAnimationFrame(step);
+                                    };
+                                    requestAnimationFrame(step);
+                                }
                             } else {
                                 console.error("[LayerForge Child] canvasInstance is null!");
                             }
