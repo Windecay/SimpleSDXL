@@ -84,6 +84,9 @@ def regulate_abcd(x, a, b, c, d):
 
 def compute_initial_abcd(x):
     indices = np.where(x)
+    if len(indices[0]) == 0:
+        h, w = x.shape[:2]
+        return 0, h, 0, w
     a = np.min(indices[0])
     b = np.max(indices[0])
     c = np.min(indices[1])
