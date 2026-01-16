@@ -458,7 +458,7 @@ export async function createCanvasWidget(node, widget, app) {
                 $el("label.clipboard-switch.mask-switch", {
                     id: `toggle-mask-switch-${node.id}`,
                     style: { minWidth: "56px", maxWidth: "56px", width: "56px", paddingLeft: "0", paddingRight: "0" },
-                    title: "Toggle mask overlay visibility on canvas (mask still affects output when disabled)"
+                    title: "切换画布上的遮罩叠加层可见性 (禁用时遮罩仍会影响输出)"
                 }, [
                     $el("input", {
                         type: "checkbox",

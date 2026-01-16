@@ -252,7 +252,7 @@ export class CustomShapeMenu {
         extensionContainer.id = 'output-area-extension-container';
         extensionContainer.className = 'feature-container';
         // Add main extension checkbox
-        const extensionCheckboxContainer = this._createCheckbox('extension-checkbox', () => this.canvas.outputAreaExtensionEnabled, 'Extend output area', (e) => {
+        const extensionCheckboxContainer = this._createCheckbox('extension-checkbox', () => this.canvas.outputAreaExtensionEnabled, '扩展输出区域', (e) => {
             this.canvas.outputAreaExtensionEnabled = e.target.checked;
             if (this.canvas.outputAreaExtensionEnabled) {
                 this.canvas.originalCanvasSize = { width: this.canvas.width, height: this.canvas.height };
@@ -265,7 +265,7 @@ export class CustomShapeMenu {
             this._updateExtensionUI();
             this._updateCanvasSize();
             this.canvas.render();
-        }, "Allows extending the output area boundaries in all directions without changing the custom shape.");
+        }, "允许在不改变自定义形状的情况下向各个方向扩展输出区域边界。");
         extensionContainer.appendChild(extensionCheckboxContainer);
         // Create sliders container
         const slidersContainer = document.createElement('div');

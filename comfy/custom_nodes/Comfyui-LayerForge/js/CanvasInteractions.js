@@ -191,8 +191,18 @@ export class CanvasInteractions {
         const coords = this.getMouseCoordinates(e);
         const mods = this.getModifierState(e);
         if (this.interaction.mode === 'drawingMask') {
+            if (e.button === 2) {
+                this.preventEventDefaults(e);
+                if (this.isPointInSelectedLayers(coords.world.x, coords.world.y)) {
+                    this.canvas.canvasLayers.showBlendModeMenu(coords.world.x, coords.world.y);
+                }
+                return;
+            }
+            if (e.button === 1) {
+                this.startPanning(e);
+                return;
+            }
             this.canvas.maskTool.handleMouseDown(coords.world, coords.view);
-            // Don't render here - mask tool will handle its own drawing
             return;
         }
         if (this.interaction.mode === 'transformingOutputArea') {

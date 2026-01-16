@@ -157,70 +157,112 @@ export class LayerForgeMaskEditor {
         this.overlay.addEventListener('wheel', this.handleWheel.bind(this), { passive: false });
     }
 
-    async open(imageUrl, maskImage = null) {
+    async open(imageUrl, maskImage = null, maskContext = null) {
         this.createUI();
         this.overlay.style.display = 'flex';
         
-        // Reset state
         this.scale = 1;
         this.panX = 0;
         this.panY = 0;
         this.history = [];
         this.historyIndex = -1;
         
-        // Load image
         const img = await this.loadImage(imageUrl);
-        this.width = img.width;
-        this.height = img.height;
         
-        // Setup Container Size
-        // We start by fitting the image to the screen
-        const maxW = window.innerWidth * 0.9;
-        const maxH = window.innerHeight * 0.8;
+        let mImg = null;
+        if (maskImage) {
+            if (!(maskImage instanceof HTMLImageElement) && !(maskImage instanceof HTMLCanvasElement)) {
+                 mImg = await this.loadImage(maskImage);
+            } else {
+                 mImg = maskImage;
+            }
+        }
+        
+        let finalWidth = img.width;
+        let finalHeight = img.height;
+        
+        let maskX = 0;
+        let maskY = 0;
+        let imgX = 0;
+        let imgY = 0;
+        
+        if (mImg) {
+            if (mImg.width !== finalWidth || mImg.height !== finalHeight) {
+                const outputBounds = maskContext?.outputAreaBounds;
+                const maskDrawingAreaBounds = maskContext?.maskDrawingAreaBounds;
+
+                const hasBounds = outputBounds && maskDrawingAreaBounds &&
+                    Number.isFinite(outputBounds.x) &&
+                    Number.isFinite(outputBounds.y) &&
+                    Number.isFinite(outputBounds.width) &&
+                    Number.isFinite(outputBounds.height) &&
+                    Number.isFinite(maskDrawingAreaBounds.x) &&
+                    Number.isFinite(maskDrawingAreaBounds.y) &&
+                    Number.isFinite(maskDrawingAreaBounds.width) &&
+                    Number.isFinite(maskDrawingAreaBounds.height);
+
+                const sizeMatches = hasBounds &&
+                    outputBounds.width === finalWidth &&
+                    outputBounds.height === finalHeight &&
+                    maskDrawingAreaBounds.width === mImg.width &&
+                    maskDrawingAreaBounds.height === mImg.height;
+
+                if (sizeMatches) {
+                    maskX = Math.round(maskDrawingAreaBounds.x - outputBounds.x);
+                    maskY = Math.round(maskDrawingAreaBounds.y - outputBounds.y);
+                } else {
+                    maskX = 0;
+                    maskY = 0;
+                }
+            } else {
+            }
+        }
+        
+        this.width = finalWidth;
+        this.height = finalHeight;
+        
+        const maxW = window.innerWidth * 0.95;
+        const maxH = window.innerHeight * 0.9;
         const scaleW = maxW / this.width;
         const scaleH = maxH / this.height;
-        this.scale = Math.min(scaleW, scaleH, 1);
+        
+        const minScale = Math.min(scaleW, scaleH);
+        
+        if (minScale >= 0.8) {
+            this.scale = 1;
+        } else {
+            this.scale = minScale;
+        }
         
         this.updateTransform();
         
-        // Setup Canvases
-        this.container.innerHTML = ''; // Clear previous
+        this.container.innerHTML = '';
         
-        // Background Image Canvas
         const bg = createCanvas(this.width, this.height);
         this.bgCanvas = bg.canvas;
         this.bgCanvas.className = 'layerforge-mask-editor-canvas-layer';
         this.bgCtx = bg.ctx;
-        this.bgCtx.drawImage(img, 0, 0);
+        this.bgCtx.drawImage(img, imgX, imgY);
         this.container.appendChild(this.bgCanvas);
         
-        // Mask Canvas
         const mask = createCanvas(this.width, this.height);
         this.maskCanvas = mask.canvas;
         this.maskCanvas.className = 'layerforge-mask-editor-canvas-layer';
         this.maskCtx = mask.ctx;
         this.container.appendChild(this.maskCanvas);
         
-        // Load existing mask if provided
-        if (maskImage) {
-             // ensure maskImage is loaded
-            let mImg = maskImage;
-            if (!(maskImage instanceof HTMLImageElement) && !(maskImage instanceof HTMLCanvasElement)) {
-                 // assume src string
-                 mImg = await this.loadImage(maskImage);
-            }
-            this.maskCtx.drawImage(mImg, 0, 0, this.width, this.height);
+        if (mImg) {
+            this.maskCtx.drawImage(mImg, maskX, maskY);
+            
             this.saveState();
         }
 
-        // Cursor/Interaction Canvas
         const cursor = createCanvas(this.width, this.height);
         this.cursorCanvas = cursor.canvas;
         this.cursorCanvas.className = 'layerforge-mask-editor-canvas-layer';
         this.cursorCtx = cursor.ctx;
         this.container.appendChild(this.cursorCanvas);
         
-        // Bind Interaction Events
         this.cursorCanvas.addEventListener('pointerdown', this.handlePointerDown.bind(this));
         window.addEventListener('pointermove', this.handlePointerMove.bind(this));
         window.addEventListener('pointerup', this.handlePointerUp.bind(this));

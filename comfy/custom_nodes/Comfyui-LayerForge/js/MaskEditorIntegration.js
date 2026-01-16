@@ -68,7 +68,19 @@ export class MaskEditorIntegration {
                 }
             }
 
-            const resultCanvas = await layerForgeMaskEditor.open(imageUrl, maskUrl);
+            const outputAreaBounds = this.canvas.outputAreaBounds;
+            const maskCanvas = this.maskTool?.maskCanvas;
+            const maskDrawingAreaBounds = maskCanvas ? {
+                x: this.maskTool.x,
+                y: this.maskTool.y,
+                width: maskCanvas.width,
+                height: maskCanvas.height
+            } : null;
+
+            const resultCanvas = await layerForgeMaskEditor.open(imageUrl, maskUrl, {
+                outputAreaBounds,
+                maskDrawingAreaBounds
+            });
             URL.revokeObjectURL(imageUrl);
 
             if (resultCanvas) {
