@@ -93,7 +93,8 @@
     "inputs": {
       "model_name": "Wan2_1_VAE_bf16.safetensors",
       "precision": "bf16",
-      "use_cpu_cache": false
+      "use_cpu_cache": false,
+      "verbose": false
     },
     "class_type": "WanVideoVAELoader",
     "_meta": {
@@ -157,7 +158,11 @@
       "lora_4": "none",
       "strength_4": 1,
       "low_mem_load": false,
-      "merge_loras": false
+      "merge_loras": false,
+      "prev_lora": [
+        "699",
+        0
+      ]
     },
     "class_type": "WanVideoLoraSelectMulti",
     "_meta": {
@@ -397,6 +402,7 @@
       "draw_hands": true,
       "render_device": "gpu",
       "scale_hands": true,
+      "render_backend": "taichi",
       "nlf_poses": [
         "653",
         0
@@ -826,6 +832,66 @@
     "class_type": "SimpleMath+",
     "_meta": {
       "title": "🔧 Simple Math"
+    }
+  },
+  "696": {
+    "inputs": {
+      "lora": "placeholder.safetensors",
+      "strength": 0,
+      "low_mem_load": false,
+      "merge_loras": false
+    },
+    "class_type": "WanVideoLoraSelect",
+    "_meta": {
+      "title": "WanVideoLoraSelect1"
+    }
+  },
+  "697": {
+    "inputs": {
+      "lora": "placeholder.safetensors",
+      "strength": 0,
+      "low_mem_load": false,
+      "merge_loras": false,
+      "prev_lora": [
+        "696",
+        0
+      ]
+    },
+    "class_type": "WanVideoLoraSelect",
+    "_meta": {
+      "title": "WanVideoLoraSelect2"
+    }
+  },
+  "698": {
+    "inputs": {
+      "lora": "placeholder.safetensors",
+      "strength": 0,
+      "low_mem_load": false,
+      "merge_loras": false,
+      "prev_lora": [
+        "697",
+        0
+      ]
+    },
+    "class_type": "WanVideoLoraSelect",
+    "_meta": {
+      "title": "WanVideoLoraSelect3"
+    }
+  },
+  "699": {
+    "inputs": {
+      "lora": "placeholder.safetensors",
+      "strength": 0,
+      "low_mem_load": false,
+      "merge_loras": false,
+      "prev_lora": [
+        "698",
+        0
+      ]
+    },
+    "class_type": "WanVideoLoraSelect",
+    "_meta": {
+      "title": "WanVideoLoraSelect4"
     }
   }
 }
