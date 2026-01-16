@@ -380,7 +380,7 @@ def print_instructions():
     time.sleep(0.1)
     print(f"{Fore.GREEN}★{Style.RESET_ALL}打开默认浏览器设置，关闭GPU加速、或图形加速的选项。{Fore.GREEN}★{Style.RESET_ALL}大内存(64+)与固态硬盘存放模型有助于减少模型加载时间。{Fore.GREEN}★{Style.RESET_ALL}")
     time.sleep(0.1)
-    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：1005085136{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:26.01.12{Fore.GREEN}★{Style.RESET_ALL}")
+    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：1005085136{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:26.01.17{Fore.GREEN}★{Style.RESET_ALL}")
     print()
     time.sleep(0.1)
     
@@ -2139,12 +2139,13 @@ packages = {
     },
     "qwen_image_edit_plus_package": {
         "id":27,
-        "name": "[27]QwenEdit+2511图像编辑预置包",
+        "name": "[27]QwenEdit+2511图像编辑预置包(含多视角Lora)",
         "note": "Qwen_Image_Edit+2511指令编辑图像|显存需求：★★★★★ 速度:★☆",
         "files": [
             ("diffusion_models/https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/diffusion_models/qwen_image_edit_2511_fp8mixed.safetensors", 20533762817),
             ("loras/https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/loras/Qwen-Image-Edit-2511-Lightning-4steps-V1.0-bf16.safetensors", 849608296),
             ("loras/https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/loras/Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors", 849608296),
+            ("loras/https://www.modelscope.cn/models/fal/Qwen-Image-Edit-2511-Multiple-Angles-LoRA/resolve/master/qwen-image-edit-2511-multiple-angles-lora.safetensors",295140688),
             ("clip/qwen_2.5_vl_7b_fp8_scaled.safetensors", 9384670680),
             ("vae/qwen_image_vae.safetensors", 253806246),
             ("controlnet/hr16/DWPose-TorchScript-BatchSize5/https://www.modelscope.cn/models/svjack/DWPose-TorchScript-BatchSize5/resolve/master/dw-ll_ucoco_384_bs5.torchscript.pt", 135059124),
@@ -2316,6 +2317,19 @@ packages = {
         ],
         "download_links": []
     }, 
+    "flux2-klein-9b-fp8": {
+        "id": 36,
+        "name": "[36]Flux2-Klein-9B-FP8",
+        "note": "Flux2-Klein-9B-FP8|显存需求：★★★ 速度：★★★",
+        "files": [
+            ("diffusion_models/https://www.modelscope.cn/models/Comfy-Org/flux2-klein-9B/resolve/master/split_files/diffusion_models/flux-2-klein-9b-fp8.safetensors", 9433061528),
+            ("text_encoders/https://www.modelscope.cn/models/Comfy-Org/flux2-klein-9B/resolve/master/split_files/text_encoders/qwen_3_8b_fp8mixed.safetensors", 8664848742),
+            ("vae/https://www.modelscope.cn/models/Comfy-Org/flux2-klein-4B/resolve/master/split_files/vae/flux2-vae.safetensors", 336213556),
+            ("controlnet/hr16/DWPose-TorchScript-BatchSize5/https://www.modelscope.cn/models/svjack/DWPose-TorchScript-BatchSize5/resolve/master/dw-ll_ucoco_384_bs5.torchscript.pt", 135059124),
+            ("controlnet/yzd-v/DWPose/https://www.modelscope.cn/models/zhangjin/DWPose/resolve/master/yolox_l.onnx", 216746733),
+        ],
+        "download_links": []
+    }
 }
 
 MANUAL_DOWNLOAD_MAP = {

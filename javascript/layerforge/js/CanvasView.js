@@ -906,11 +906,27 @@ export async function createCanvasWidget(node, widget, app) {
             overflow: "hidden"
         }
     }, [layersPanel]);
+    let pendingTopRaf = null;
+    let lastTop = null;
     const resizeObserver = new ResizeObserver((entries) => {
-        const controlsHeight = entries[0].target.offsetHeight;
-        const newTop = (controlsHeight + 10) + "px";
-        canvasContainer.style.top = newTop;
-        layersPanelContainer.style.top = newTop;
+        const entry = entries && entries[0] ? entries[0] : null;
+        const height = entry?.contentRect?.height ?? entry?.target?.offsetHeight ?? 0;
+        if (!Number.isFinite(height) || height < 0) {
+            return;
+        }
+        if (pendingTopRaf !== null) {
+            cancelAnimationFrame(pendingTopRaf);
+        }
+        pendingTopRaf = requestAnimationFrame(() => {
+            pendingTopRaf = null;
+            const newTop = (height + 10) + "px";
+            if (newTop === lastTop) {
+                return;
+            }
+            lastTop = newTop;
+            canvasContainer.style.top = newTop;
+            layersPanelContainer.style.top = newTop;
+        });
     });
     const controlsElement = controlPanel.querySelector('.controls');
     if (controlsElement) {

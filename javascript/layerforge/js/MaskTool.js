@@ -1465,24 +1465,28 @@ export class MaskTool {
     setMask(image, isFromInputMask = false) {
         const bounds = this.canvasInstance.outputAreaBounds;
         if (isFromInputMask) {
-            // For INPUT MASK - process black background to transparent using luminance
-            // Center like input images
             const centerX = bounds.x + (bounds.width - image.width) / 2;
             const centerY = bounds.y + (bounds.height - image.height) / 2;
-            // Prepare mask where alpha = luminance (white = applied, black = transparent)
             const { canvas: maskCanvas, ctx } = createCanvas(image.width, image.height, '2d', { willReadFrequently: true });
             if (!ctx)
                 throw new Error("Could not create mask processing context");
             ctx.drawImage(image, 0, 0);
             const imgData = ctx.getImageData(0, 0, image.width, image.height);
             const data = imgData.data;
+            let hasAnyNonOpaqueAlpha = false;
+            for (let i = 3; i < data.length; i += 4) {
+                if (data[i] !== 255) {
+                    hasAnyNonOpaqueAlpha = true;
+                    break;
+                }
+            }
             for (let i = 0; i < data.length; i += 4) {
-                const r = data[i], g = data[i + 1], b = data[i + 2];
-                const lum = Math.round(0.299 * r + 0.587 * g + 0.114 * b);
+                const r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3];
+                const maskA = hasAnyNonOpaqueAlpha ? a : Math.max(r, g, b);
                 data[i] = 255; // force white color (color channels ignored downstream)
                 data[i + 1] = 255;
                 data[i + 2] = 255;
-                data[i + 3] = lum; // alpha encodes mask strength: white -> strong, black -> 0
+                data[i + 3] = maskA;
             }
             ctx.putImageData(imgData, 0, 0);
             // Clear target area and apply to chunked system at centered position
@@ -1492,7 +1496,7 @@ export class MaskTool {
             this.updateActiveMaskCanvas(true);
             this.canvasInstance.canvasState.saveMaskState();
             this.canvasInstance.render();
-            log.info(`MaskTool set INPUT MASK at centered position (${centerX}, ${centerY}) using luminance as alpha`);
+            log.info(`MaskTool set INPUT MASK at centered position (${centerX}, ${centerY})`);
         }
         else {
             // For SAM Detector and other sources - just clear and add without processing

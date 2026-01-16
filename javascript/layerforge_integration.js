@@ -489,7 +489,7 @@
                                         return null;
 
                                     const normalizedKey = (c) => String(getCanvasKey(c) || '').toLowerCase();
-                                    const preferKeys = ['drawing', 'mask'];
+                                    const preferKeys = ['mask', 'drawing'];
                                     for (const k of preferKeys) {
                                         const hit = keyed.find((c) => normalizedKey(c) === k);
                                         if (hit)
@@ -867,12 +867,70 @@
             const imgData = ctx.getImageData(0, 0, targetW, targetH);
             const data = imgData.data;
             const thr = Math.max(0, Math.min(255, Math.floor(threshold)));
+            let hasAlpha0 = false;
+            let hasAlphaNon0 = false;
+            for (let i = 3; i < data.length; i += 4) {
+                const a = data[i];
+                if (a === 0)
+                    hasAlpha0 = true;
+                else
+                    hasAlphaNon0 = true;
+                if (hasAlpha0 && hasAlphaNon0)
+                    break;
+            }
+            if (hasAlpha0 && hasAlphaNon0) {
+                for (let i = 0; i < data.length; i += 4) {
+                    const a = data[i + 3];
+                    const v = a > 0 ? 255 : 0;
+                    data[i] = v;
+                    data[i + 1] = v;
+                    data[i + 2] = v;
+                    data[i + 3] = 255;
+                }
+                ctx.putImageData(imgData, 0, 0);
+                return outCanvas;
+            }
+            const pickCorner = (x, y) => {
+                const idx = (y * targetW + x) * 4;
+                return { r: data[idx], g: data[idx + 1], b: data[idx + 2] };
+            };
+            const tl = pickCorner(0, 0);
+            const tr = pickCorner(targetW - 1, 0);
+            const bl = pickCorner(0, targetH - 1);
+            const br = pickCorner(targetW - 1, targetH - 1);
+            const avg = (a, b, c, d, k) => Math.round((a[k] + b[k] + c[k] + d[k]) / 4);
+            const bg = { r: avg(tl, tr, bl, br, 'r'), g: avg(tl, tr, bl, br, 'g'), b: avg(tl, tr, bl, br, 'b') };
+            const diffThreshold = 40;
+            let diffCount = 0;
+            let sameCount = 0;
+            const sampleStridePx = Math.max(1, Math.floor((targetW * targetH) / 200000));
+            const sampleStride = sampleStridePx * 4;
+            for (let i = 0; i < data.length; i += sampleStride) {
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+                const diff = Math.abs(r - bg.r) + Math.abs(g - bg.g) + Math.abs(b - bg.b);
+                if (diff > diffThreshold)
+                    diffCount += 1;
+                else
+                    sameCount += 1;
+            }
+            const useDiff = diffCount > 0 && sameCount > 0;
+            const diffMaskIsDifferent = diffCount < sameCount;
             for (let i = 0; i < data.length; i += 4) {
                 const r = data[i];
                 const g = data[i + 1];
                 const b = data[i + 2];
-                const lum = Math.round(0.299 * r + 0.587 * g + 0.114 * b);
-                const v = lum >= thr ? 255 : 0;
+                let v = 0;
+                if (useDiff) {
+                    const diff = Math.abs(r - bg.r) + Math.abs(g - bg.g) + Math.abs(b - bg.b);
+                    const isDiff = diff > diffThreshold;
+                    v = diffMaskIsDifferent ? (isDiff ? 255 : 0) : (isDiff ? 0 : 255);
+                }
+                else {
+                    const lum = Math.round(0.299 * r + 0.587 * g + 0.114 * b);
+                    v = lum >= thr ? 255 : 0;
+                }
                 data[i] = v;
                 data[i + 1] = v;
                 data[i + 2] = v;
@@ -1139,12 +1197,12 @@
             const keyedCandidates = candidates.filter((c) => getCanvasKey(c));
             if (keyedCandidates.length > 0) {
                 const normalizedKey = (c) => String(getCanvasKey(c) || '').toLowerCase();
-                const preferKeys = ['drawing', 'mask'];
+                const preferKeys = ['mask', 'drawing'];
 
                 let selectedCanvas = null;
                 for (const k of preferKeys) {
                     const hit = keyedCandidates.find((c) => normalizedKey(c) === k);
-                    if (hit && isCanvasLikelyMask(hit)) {
+                    if (hit) {
                         selectedCanvas = hit;
                         break;
                     }
@@ -1246,12 +1304,12 @@
         const keyedCandidates = candidates.filter((c) => getCanvasKey(c));
         if (keyedCandidates.length > 0) {
             const normalizedKey = (c) => String(getCanvasKey(c) || '').toLowerCase();
-            const preferKeys = ['drawing', 'mask'];
+            const preferKeys = ['mask', 'drawing'];
 
             let selectedCanvas = null;
             for (const k of preferKeys) {
                 const hit = keyedCandidates.find((c) => normalizedKey(c) === k);
-                if (hit && isCanvasLikelyMask(hit)) {
+                if (hit) {
                     selectedCanvas = hit;
                     break;
                 }

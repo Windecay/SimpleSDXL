@@ -113,6 +113,18 @@
         let isPainting = false;
         let lastPaintPt = null;
 
+        const prevOnError = window.onerror;
+        window.onerror = (...args) => {
+            const message = args && args[0];
+            if (typeof message === 'string' && message.includes('ResizeObserver loop')) {
+                return true;
+            }
+            if (typeof prevOnError === 'function') {
+                return prevOnError.apply(window, args);
+            }
+            return false;
+        };
+
         async function init() {
             try {
                 const result = await createCanvasWidget(mockNode, mockWidget, app);
@@ -135,6 +147,13 @@
                 overlay.style.pointerEvents = 'none';
                 overlay.style.zIndex = '9999';
                 const overlayHost = canvasInstance?.canvasContainer || canvasInstance?.canvas?.parentElement || editorContainer;
+                try {
+                    const ps = window.getComputedStyle(overlayHost);
+                    if (ps.position === 'static') {
+                        overlayHost.style.position = 'relative';
+                    }
+                } catch {
+                }
                 overlayHost.appendChild(overlay);
 
                 const updateOverlaySize = () => {
@@ -152,6 +171,10 @@
                 const clearOverlay = () => {
                     if (!overlayCtx)
                         return;
+                    try {
+                        overlayCtx.setTransform(1, 0, 0, 1, 0, 0);
+                    } catch {
+                    }
                     overlayCtx.clearRect(0, 0, overlay.width, overlay.height);
                 };
 
@@ -283,25 +306,40 @@
                 const drawOverlayStroke = (a, b) => {
                     if (!overlayCtx || !canvasInstance)
                         return;
+                    const zoom = canvasInstance.viewport.zoom || 1;
+                    const canvasEl = canvasInstance.canvas;
+                    if (!canvasEl)
+                        return;
+                    const overlayRect = overlay.getBoundingClientRect();
+                    const canvasRect = canvasEl.getBoundingClientRect();
+                    if (!overlayRect.width || !overlayRect.height || !canvasRect.width || !canvasRect.height)
+                        return;
+
+                    const scaleX = overlay.width / overlayRect.width;
+                    const scaleY = overlay.height / overlayRect.height;
+                    const originCssX = canvasRect.left - overlayRect.left;
+                    const originCssY = canvasRect.top - overlayRect.top;
+                    const bounds = canvasInstance.outputAreaBounds;
+                    const toOverlay = (p) => {
+                        const worldX = bounds.x + p.x;
+                        const worldY = bounds.y + p.y;
+                        const canvasCssX = (worldX - canvasInstance.viewport.x) * zoom;
+                        const canvasCssY = (worldY - canvasInstance.viewport.y) * zoom;
+                        return {
+                            x: (originCssX + canvasCssX) * scaleX,
+                            y: (originCssY + canvasCssY) * scaleY
+                        };
+                    };
+                    const as = toOverlay(a);
+                    const bs = toOverlay(b);
+
                     overlayCtx.save();
-                    const c = canvasInstance.canvas;
-                    const rect = c.getBoundingClientRect();
-                    const dpr = window.devicePixelRatio || 1;
-                    const sx = overlay.width / (rect.width * dpr);
-                    const sy = overlay.height / (rect.height * dpr);
-                    overlayCtx.setTransform(sx, 0, 0, sy, 0, 0);
+                    overlayCtx.setTransform(1, 0, 0, 1, 0, 0);
                     overlayCtx.globalAlpha = 1;
                     overlayCtx.strokeStyle = paintColor;
-                    overlayCtx.lineWidth = paintSize * (canvasInstance.viewport.zoom || 1);
+                    overlayCtx.lineWidth = paintSize * zoom * ((scaleX + scaleY) / 2);
                     overlayCtx.lineCap = 'round';
                     overlayCtx.lineJoin = 'round';
-                    const bounds = canvasInstance.outputAreaBounds;
-                    const toScreen = (p) => ({
-                        x: (bounds.x + p.x - canvasInstance.viewport.x) * (canvasInstance.viewport.zoom || 1),
-                        y: (bounds.y + p.y - canvasInstance.viewport.y) * (canvasInstance.viewport.zoom || 1)
-                    });
-                    const as = toScreen(a);
-                    const bs = toScreen(b);
                     overlayCtx.beginPath();
                     overlayCtx.moveTo(as.x, as.y);
                     overlayCtx.lineTo(bs.x, bs.y);
@@ -349,7 +387,6 @@
                     paintCtx.restore();
                     drawOverlayStroke(lastPaintPt, p);
                     lastPaintPt = p;
-                    canvasInstance.render();
                 });
 
                 const endPaint = async (e) => {
@@ -371,9 +408,19 @@
                 overlay.addEventListener('pointercancel', endPaint);
                 overlay.addEventListener('pointerleave', endPaint);
 
-                const ro = new ResizeObserver(() => updateOverlaySize());
-                ro.observe(editorContainer);
-                updateOverlaySize();
+                let pendingOverlayResize = false;
+                const scheduleOverlayResize = () => {
+                    if (pendingOverlayResize)
+                        return;
+                    pendingOverlayResize = true;
+                    requestAnimationFrame(() => {
+                        pendingOverlayResize = false;
+                        updateOverlaySize();
+                    });
+                };
+                const ro = new ResizeObserver(() => scheduleOverlayResize());
+                ro.observe(overlayHost);
+                scheduleOverlayResize();
                 
                 window.addEventListener('message', (event) => {
                     if (event.data.type === 'LOAD_IMAGE' || event.data.type === 'ADD_LAYER') {
