@@ -185,6 +185,41 @@
         }
     }
 
+    function getFileFingerprintFromInput(input) {
+        try {
+            const file = input && input.files && input.files[0] ? input.files[0] : null;
+            if (!file)
+                return '';
+            const meta = `${file.name || ''}|${file.size || 0}|${file.type || ''}|${file.lastModified || 0}`;
+            return `f:${hashString32(meta)}`;
+        } catch {
+            return '';
+        }
+    }
+
+    function getPreferredFingerprintForContainer(container, srcOverride) {
+        try {
+            const src = String(srcOverride || (container?.querySelector?.('img')?.getAttribute?.('src') || container?.querySelector?.('img')?.src) || '');
+            if (src && src.startsWith('data:image')) {
+                return getImageFingerprint(src);
+            }
+        } catch {
+        }
+        try {
+            const input = getFileInput(container);
+            const fp = getFileFingerprintFromInput(input);
+            if (fp)
+                return fp;
+        } catch {
+        }
+        try {
+            const src = String(srcOverride || (container?.querySelector?.('img')?.getAttribute?.('src') || container?.querySelector?.('img')?.src) || '');
+            return getImageFingerprint(src);
+        } catch {
+            return '';
+        }
+    }
+
     function ensureGlobalMaskStore() {
         try {
             if (!window.__layerforgeMaskByFingerprint) {
@@ -261,7 +296,7 @@
         } catch {
         }
         try {
-            const fp = imgContainer?.dataset?.layerforgeImageFingerprint || getImageFingerprint((imgContainer?.querySelector('img')?.src) || '');
+            const fp = imgContainer?.dataset?.layerforgeImageFingerprint || getPreferredFingerprintForContainer(imgContainer);
             if (fp) {
                 const m = getStoredMaskForFingerprint(fp);
                 if (m)
@@ -449,7 +484,7 @@
                     } catch {
                     }
                     try {
-                        const fp = imgContainer.dataset.layerforgeImageFingerprint || getImageFingerprint(imageBase64 || (img?.src) || '');
+                        const fp = imgContainer.dataset.layerforgeImageFingerprint || getPreferredFingerprintForContainer(imgContainer, imageBase64 || (img?.src) || '');
                         if (fp) {
                             storeMaskForFingerprint(fp, finalMaskBase64);
                         }
@@ -1546,10 +1581,20 @@
             img.src = base64data;
         }
         try {
-            const nextFp = getImageFingerprint(base64data);
+            const nextFp = getPreferredFingerprintForContainer(container, base64data);
             if (nextFp) {
                 container.dataset.layerforgeImageFingerprint = nextFp;
             }
+        } catch {
+        }
+        try {
+            container.dataset.layerforgeProgrammaticUpdateAt = String(Date.now());
+            setTimeout(() => {
+                try {
+                    delete container.dataset.layerforgeProgrammaticUpdateAt;
+                } catch {
+                }
+            }, 8000);
         } catch {
         }
 
@@ -1565,6 +1610,16 @@
                     dataTransfer.items.add(file);
                     input.files = dataTransfer.files;
 
+                    try {
+                        container.dataset.layerforgeSuppressClearOnFileChange = '1';
+                        setTimeout(() => {
+                            try {
+                                delete container.dataset.layerforgeSuppressClearOnFileChange;
+                            } catch {
+                            }
+                        }, 2000);
+                    } catch {
+                    }
                     input.dispatchEvent(new Event('change', { bubbles: true }));
 
                     setTimeout(() => {
@@ -1634,7 +1689,7 @@
             }
 
             try {
-                const fp = getImageFingerprint(img.src || img.getAttribute('src') || '');
+                const fp = getPreferredFingerprintForContainer(container);
                 if (fp) {
                     const prevFp = container.dataset.layerforgeImageFingerprint;
                     try {
@@ -1646,14 +1701,6 @@
                     }
 
                     if (prevFp && prevFp !== fp) {
-                        const existingAt = (() => {
-                            try {
-                                return Number(container.dataset.layerforgeLatestMaskAt || 0);
-                            } catch {
-                                return 0;
-                            }
-                        })();
-                        const isRecent = existingAt > 0 && (Date.now() - existingAt) < 30000;
                         const restoredForNew = getStoredMaskForFingerprint(fp);
                         if (restoredForNew) {
                             try {
@@ -1663,16 +1710,34 @@
                                 }
                             } catch {
                             }
-                        } else if (isRecent) {
-                            try {
-                                const existingMask = container.dataset.layerforgeLatestMask;
-                                if (existingMask && typeof existingMask === 'string' && existingMask.startsWith('data:image')) {
-                                    storeMaskForFingerprint(fp, existingMask);
-                                }
-                            } catch {
-                            }
                         } else {
-                            clearContainerStoredMask(container);
+                            const allowCarry = (() => {
+                                try {
+                                    const at = Number(container.dataset.layerforgeProgrammaticUpdateAt || 0);
+                                    if (!at)
+                                        return false;
+                                    if ((Date.now() - at) > 8000)
+                                        return false;
+                                    if (!String(prevFp || '').startsWith('d:'))
+                                        return false;
+                                    if (!String(fp || '').startsWith('f:'))
+                                        return false;
+                                    const existingMask = container.dataset.layerforgeLatestMask;
+                                    if (!existingMask || typeof existingMask !== 'string' || !existingMask.startsWith('data:image'))
+                                        return false;
+                                    storeMaskForFingerprint(fp, existingMask);
+                                    container.dataset.layerforgeLatestMask = existingMask;
+                                    if (!container.dataset.layerforgeLatestMaskAt) {
+                                        container.dataset.layerforgeLatestMaskAt = String(Date.now());
+                                    }
+                                    return true;
+                                } catch {
+                                    return false;
+                                }
+                            })();
+                            if (!allowCarry) {
+                                clearContainerStoredMask(container);
+                            }
                         }
                     }
                     container.dataset.layerforgeImageFingerprint = fp;
@@ -1771,7 +1836,7 @@
                                         imgContainer.dataset.layerforgeLatestMask = merged;
                                         imgContainer.dataset.layerforgeLatestMaskAt = String(Date.now());
                                         try {
-                                            const fp = imgContainer.dataset.layerforgeImageFingerprint || getImageFingerprint((imgContainer.querySelector('img')?.src) || '');
+                                            const fp = imgContainer.dataset.layerforgeImageFingerprint || getPreferredFingerprintForContainer(imgContainer);
                                             if (fp) {
                                                 storeMaskForFingerprint(fp, merged);
                                             }
@@ -1808,7 +1873,7 @@
                                         imgContainer.dataset.layerforgeLatestMask = merged;
                                         imgContainer.dataset.layerforgeLatestMaskAt = String(Date.now());
                                         try {
-                                            const fp = imgContainer.dataset.layerforgeImageFingerprint || getImageFingerprint((imgContainer.querySelector('img')?.src) || '');
+                                            const fp = imgContainer.dataset.layerforgeImageFingerprint || getPreferredFingerprintForContainer(imgContainer);
                                             if (fp) {
                                                 storeMaskForFingerprint(fp, merged);
                                             }
@@ -1841,7 +1906,7 @@
                     const mask = c.dataset.layerforgeLatestMask;
                     if (!mask || typeof mask !== 'string' || !mask.startsWith('data:image'))
                         return;
-                    const fp = c.dataset.layerforgeImageFingerprint || getImageFingerprint((c.querySelector('img')?.src) || '');
+                    const fp = c.dataset.layerforgeImageFingerprint || getPreferredFingerprintForContainer(c);
                     if (!fp)
                         return;
                     out.push({ container: c, fp, mask });
@@ -1979,14 +2044,14 @@
             }
 
             try {
-                const active = window.__layerforgeActiveContainer;
-                if (active && active.isConnected) {
-                    const activeMask = active.dataset?.layerforgeLatestMask;
-                    const activeFp = active.dataset?.layerforgeImageFingerprint || getImageFingerprint((active.querySelector('img')?.src) || '');
-                    if (activeMask && activeFp) {
-                        if (!targetFp || activeFp === targetFp) {
-                            return activeMask;
-                        }
+                    const active = window.__layerforgeActiveContainer;
+                    if (active && active.isConnected) {
+                        const activeMask = active.dataset?.layerforgeLatestMask;
+                        const activeFp = active.dataset?.layerforgeImageFingerprint || getPreferredFingerprintForContainer(active);
+                        if (activeMask && activeFp) {
+                            if (!targetFp || activeFp === targetFp) {
+                                return activeMask;
+                            }
                     }
                 }
             } catch {
@@ -2549,6 +2614,29 @@
         }
 
         installSubmissionSyncHook();
+
+        document.addEventListener('change', (e) => {
+            try {
+                const t = e?.target;
+                if (!t || !(t instanceof HTMLInputElement))
+                    return;
+                if (t.type !== 'file')
+                    return;
+                const container = t.closest('.gradio-image') || t.closest('.image-container') || t.closest('div[data-testid="image"]') || t.closest('.image-frame') || t.closest('.svelte-1p9x6n');
+                if (!container)
+                    return;
+                if (container.dataset.layerforgeSuppressClearOnFileChange === '1')
+                    return;
+                clearContainerStoredMask(container);
+                const fp = getPreferredFingerprintForContainer(container);
+                if (fp) {
+                    container.dataset.layerforgeImageFingerprint = fp;
+                } else {
+                    delete container.dataset.layerforgeImageFingerprint;
+                }
+            } catch {
+            }
+        }, true);
 
         const observer = new MutationObserver((mutations) => {
             scanAndInject();
