@@ -2319,12 +2319,23 @@ packages = {
     }, 
     "flux2-klein-9b-fp8": {
         "id": 36,
-        "name": "[36]Flux2-Klein-9B-FP8",
-        "note": "Flux2-Klein-9B-FP8|显存需求：★★★ 速度：★★★",
+        "name": "[36]Flux2-Klein-9B-FP8图像编辑",
+        "note": "Flux2-Klein-9B图像编辑,高效快速|显存需求：★★★ 速度：★★★",
         "files": [
             ("diffusion_models/https://www.modelscope.cn/models/black-forest-labs/FLUX.2-klein-9b-fp8/resolve/master/flux-2-klein-9b-fp8.safetensors", 9433061528),
             ("text_encoders/https://www.modelscope.cn/models/Comfy-Org/flux2-klein-9B/resolve/master/split_files/text_encoders/qwen_3_8b_fp8mixed.safetensors", 8664848742),
             ("vae/https://www.modelscope.cn/models/Comfy-Org/flux2-klein-4B/resolve/master/split_files/vae/flux2-vae.safetensors", 336211292),
+            ("controlnet/hr16/DWPose-TorchScript-BatchSize5/https://www.modelscope.cn/models/svjack/DWPose-TorchScript-BatchSize5/resolve/master/dw-ll_ucoco_384_bs5.torchscript.pt", 135059124),
+            ("controlnet/yzd-v/DWPose/https://www.modelscope.cn/models/zhangjin/DWPose/resolve/master/yolox_l.onnx", 216746733),
+        ],
+        "download_links": []
+    },
+    "qwen-rapid-aio-nsfw": {
+        "id": 37,
+        "name": "[37]Qwen-Rapid-AIO-NSFW",
+        "note": "QwenNSFW图像编辑，解锁限制的版本|显存需求：★★★★★ 速度：★★",
+        "files": [
+            ("checkpoints/https://modelscope.cn/models/Phr00t/Qwen-Rapid-AIO/resolve/master/v20/Qwen-Rapid-AIO-NSFW-v20.safetensors", 28431840903),
             ("controlnet/hr16/DWPose-TorchScript-BatchSize5/https://www.modelscope.cn/models/svjack/DWPose-TorchScript-BatchSize5/resolve/master/dw-ll_ucoco_384_bs5.torchscript.pt", 135059124),
             ("controlnet/yzd-v/DWPose/https://www.modelscope.cn/models/zhangjin/DWPose/resolve/master/yolox_l.onnx", 216746733),
         ],
