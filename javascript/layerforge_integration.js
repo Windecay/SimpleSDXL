@@ -288,6 +288,8 @@
     }
 
     function getStoredMaskForContainer(imgContainer) {
+        if (!containerSupportsMask(imgContainer))
+            return null;
         try {
             const stored = imgContainer?.dataset?.layerforgeLatestMask;
             if (stored && typeof stored === 'string' && stored.startsWith('data:image')) {
@@ -374,6 +376,10 @@
         try {
             window.__layerforgeActiveContainer = imgContainer;
             imgContainer.dataset.layerforgeActive = '1';
+        } catch {
+        }
+        try {
+            imgContainer.dataset.layerforgePersistMask = containerSupportsMask(imgContainer) ? '1' : '0';
         } catch {
         }
 
@@ -467,6 +473,15 @@
 
                 if (imageBase64) {
                     updateGradioImage(imgContainer, imageBase64);
+                }
+
+                if (!containerSupportsMask(imgContainer)) {
+                    try {
+                        clearContainerStoredMask(imgContainer);
+                    } catch {
+                    }
+                    closeModal();
+                    return;
                 }
 
                 const updateMask = async () => {
@@ -1192,6 +1207,40 @@
         }
     }
 
+    function containerSupportsMask(imgContainer) {
+        try {
+            if (!imgContainer)
+                return false;
+            try {
+                const persisted = imgContainer.dataset?.layerforgePersistMask;
+                if (persisted === '1')
+                    return true;
+                if (persisted === '0')
+                    return false;
+            } catch {
+            }
+            try {
+                if (imgContainer.querySelector('.mask'))
+                    return true;
+            } catch {
+            }
+            try {
+                const canvases = imgContainer.querySelectorAll('canvas');
+                for (const c of canvases) {
+                    const key = String(c.getAttribute('key') || c.getAttribute('data-key') || '').toLowerCase();
+                    if (!key)
+                        continue;
+                    if (/mask|draw|drawing|sketch/.test(key))
+                        return true;
+                }
+            } catch {
+            }
+            return false;
+        } catch {
+            return false;
+        }
+    }
+
     function selectMaskCanvasElement(imgContainer) {
         try {
             const img = imgContainer.querySelector('img');
@@ -1297,6 +1346,8 @@
     }
 
     function getMaskFromContainer(imgContainer) {
+        if (!containerSupportsMask(imgContainer))
+            return null;
         let maskUrl = null;
         const img = imgContainer.querySelector('img');
         if (!img) return null;
@@ -1692,65 +1743,73 @@
                 const fp = getPreferredFingerprintForContainer(container);
                 if (fp) {
                     const prevFp = container.dataset.layerforgeImageFingerprint;
-                    try {
-                        const existingMask = container.dataset.layerforgeLatestMask;
-                        if (prevFp && existingMask && typeof existingMask === 'string' && existingMask.startsWith('data:image')) {
-                            storeMaskForFingerprint(prevFp, existingMask);
-                        }
-                    } catch {
-                    }
-
-                    if (prevFp && prevFp !== fp) {
-                        const restoredForNew = getStoredMaskForFingerprint(fp);
-                        if (restoredForNew) {
-                            try {
-                                container.dataset.layerforgeLatestMask = restoredForNew;
-                                if (!container.dataset.layerforgeLatestMaskAt) {
-                                    container.dataset.layerforgeLatestMaskAt = String(Date.now());
-                                }
-                            } catch {
+                    if (containerSupportsMask(container)) {
+                        try {
+                            const existingMask = container.dataset.layerforgeLatestMask;
+                            if (prevFp && existingMask && typeof existingMask === 'string' && existingMask.startsWith('data:image')) {
+                                storeMaskForFingerprint(prevFp, existingMask);
                             }
-                        } else {
-                            const allowCarry = (() => {
+                        } catch {
+                        }
+
+                        if (prevFp && prevFp !== fp) {
+                            const restoredForNew = getStoredMaskForFingerprint(fp);
+                            if (restoredForNew) {
                                 try {
-                                    const at = Number(container.dataset.layerforgeProgrammaticUpdateAt || 0);
-                                    if (!at)
-                                        return false;
-                                    if ((Date.now() - at) > 8000)
-                                        return false;
-                                    if (!String(prevFp || '').startsWith('d:'))
-                                        return false;
-                                    if (!String(fp || '').startsWith('f:'))
-                                        return false;
-                                    const existingMask = container.dataset.layerforgeLatestMask;
-                                    if (!existingMask || typeof existingMask !== 'string' || !existingMask.startsWith('data:image'))
-                                        return false;
-                                    storeMaskForFingerprint(fp, existingMask);
-                                    container.dataset.layerforgeLatestMask = existingMask;
+                                    container.dataset.layerforgeLatestMask = restoredForNew;
                                     if (!container.dataset.layerforgeLatestMaskAt) {
                                         container.dataset.layerforgeLatestMaskAt = String(Date.now());
                                     }
-                                    return true;
                                 } catch {
-                                    return false;
                                 }
-                            })();
-                            if (!allowCarry) {
-                                clearContainerStoredMask(container);
+                            } else {
+                                const allowCarry = (() => {
+                                    try {
+                                        const at = Number(container.dataset.layerforgeProgrammaticUpdateAt || 0);
+                                        if (!at)
+                                            return false;
+                                        if ((Date.now() - at) > 8000)
+                                            return false;
+                                        if (!String(prevFp || '').startsWith('d:'))
+                                            return false;
+                                        if (!String(fp || '').startsWith('f:'))
+                                            return false;
+                                        const existingMask = container.dataset.layerforgeLatestMask;
+                                        if (!existingMask || typeof existingMask !== 'string' || !existingMask.startsWith('data:image'))
+                                            return false;
+                                        storeMaskForFingerprint(fp, existingMask);
+                                        container.dataset.layerforgeLatestMask = existingMask;
+                                        if (!container.dataset.layerforgeLatestMaskAt) {
+                                            container.dataset.layerforgeLatestMaskAt = String(Date.now());
+                                        }
+                                        return true;
+                                    } catch {
+                                        return false;
+                                    }
+                                })();
+                                if (!allowCarry) {
+                                    clearContainerStoredMask(container);
+                                }
                             }
                         }
-                    }
-                    container.dataset.layerforgeImageFingerprint = fp;
-                    if (!container.dataset.layerforgeLatestMask) {
-                        const restored = getStoredMaskForFingerprint(fp);
-                        if (restored) {
-                            try {
-                                container.dataset.layerforgeLatestMask = restored;
-                                if (!container.dataset.layerforgeLatestMaskAt) {
-                                    container.dataset.layerforgeLatestMaskAt = String(Date.now());
+                        container.dataset.layerforgeImageFingerprint = fp;
+                        if (!container.dataset.layerforgeLatestMask) {
+                            const restored = getStoredMaskForFingerprint(fp);
+                            if (restored) {
+                                try {
+                                    container.dataset.layerforgeLatestMask = restored;
+                                    if (!container.dataset.layerforgeLatestMaskAt) {
+                                        container.dataset.layerforgeLatestMaskAt = String(Date.now());
+                                    }
+                                } catch {
                                 }
-                            } catch {
                             }
+                        }
+                    } else {
+                        clearContainerStoredMask(container);
+                        try {
+                            delete container.dataset.layerforgeImageFingerprint;
+                        } catch {
                         }
                     }
                 }
@@ -1903,6 +1962,8 @@
             const out = [];
             nodes.forEach((c) => {
                 try {
+                    if (!containerSupportsMask(c))
+                        return;
                     const mask = c.dataset.layerforgeLatestMask;
                     if (!mask || typeof mask !== 'string' || !mask.startsWith('data:image'))
                         return;
@@ -2042,22 +2103,19 @@
                 if (match)
                     return match.mask;
             }
-
             try {
-                    const active = window.__layerforgeActiveContainer;
-                    if (active && active.isConnected) {
-                        const activeMask = active.dataset?.layerforgeLatestMask;
-                        const activeFp = active.dataset?.layerforgeImageFingerprint || getPreferredFingerprintForContainer(active);
-                        if (activeMask && activeFp) {
-                            if (!targetFp || activeFp === targetFp) {
-                                return activeMask;
-                            }
+                const active = window.__layerforgeActiveContainer;
+                if (targetFp && active && active.isConnected && containerSupportsMask(active)) {
+                    const activeMask = active.dataset?.layerforgeLatestMask;
+                    const activeFp = active.dataset?.layerforgeImageFingerprint || getPreferredFingerprintForContainer(active);
+                    if (activeMask && activeFp && activeFp === targetFp) {
+                        return activeMask;
                     }
                 }
             } catch {
             }
 
-            if (saved.length === 1) {
+            if (!targetFp && saved.length === 1) {
                 return saved[0].mask;
             }
 
@@ -2250,9 +2308,128 @@
             return false;
         }
 
-        function patchBodyIfPossible(body, replacementMask) {
-            if (!replacementMask || typeof replacementMask !== 'string' || !replacementMask.startsWith('data:image'))
+        function patchBodyIfPossible(body) {
+            const saved = collectSavedMaskContainers();
+            if (!saved.length)
                 return { body, changed: false };
+            const maskByFp = new Map();
+            for (const entry of saved) {
+                try {
+                    if (entry && entry.fp && entry.mask) {
+                        maskByFp.set(entry.fp, entry.mask);
+                    }
+                } catch {
+                }
+            }
+            if (!maskByFp.size)
+                return { body, changed: false };
+
+            const getFingerprintFromImageValue = (v) => {
+                try {
+                    if (!v)
+                        return '';
+                    if (typeof v === 'string') {
+                        return getImageFingerprint(v);
+                    }
+                    if (Array.isArray(v)) {
+                        return v.length ? getFingerprintFromImageValue(v[0]) : '';
+                    }
+                    if (typeof v === 'object') {
+                        if (typeof v.data === 'string')
+                            return getImageFingerprint(v.data);
+                        if (typeof v.url === 'string')
+                            return getImageFingerprint(v.url);
+                        if (typeof v.path === 'string')
+                            return getImageFingerprint(v.path);
+                    }
+                    return '';
+                } catch {
+                    return '';
+                }
+            };
+
+            const applyMaskToValue = (replacementMask, container, k, v) => {
+                try {
+                    if (!replacementMask || typeof replacementMask !== 'string' || !replacementMask.startsWith('data:image'))
+                        return false;
+                    if (v === null || typeof v === 'undefined') {
+                        container[k] = replacementMask;
+                        return true;
+                    }
+                    if (typeof v === 'string') {
+                        if (v.startsWith('data:') || v.startsWith('blob:') || v.startsWith('/file=') || v.startsWith('http') || (v.length > 512 && /^[A-Za-z0-9+/=\s]+$/.test(v))) {
+                            container[k] = replacementMask;
+                            return true;
+                        }
+                        return false;
+                    }
+                    if (typeof v === 'object') {
+                        const hasFileShape = typeof v.path === 'string' || typeof v.orig_name === 'string' || typeof v.is_file === 'boolean';
+                        if (hasFileShape) {
+                            container[k] = { data: replacementMask, is_file: false, name: v.orig_name || v.name || 'mask.png' };
+                            return true;
+                        }
+                        if (typeof v.data === 'string' || v.data === null || typeof v.data === 'undefined') {
+                            v.data = replacementMask;
+                            if (typeof v.is_file === 'boolean') {
+                                v.is_file = false;
+                            }
+                            return true;
+                        }
+                        if (typeof v.url === 'string' || v.url === null || typeof v.url === 'undefined') {
+                            v.url = replacementMask;
+                            return true;
+                        }
+                    }
+                } catch {
+                }
+                return false;
+            };
+
+            const replaceMasksByFingerprint = (root) => {
+                try {
+                    let changed = false;
+                    const stack = [{ v: root }];
+                    while (stack.length) {
+                        const { v } = stack.pop();
+                        if (!v)
+                            continue;
+                        if (Array.isArray(v)) {
+                            if (v.length === 2) {
+                                const fp = getFingerprintFromImageValue(v[0]);
+                                const repl = fp ? maskByFp.get(fp) : null;
+                                if (repl) {
+                                    if (applyMaskToValue(repl, v, 1, v[1])) {
+                                        changed = true;
+                                    }
+                                }
+                            }
+                            for (let i = 0; i < v.length; i++) {
+                                stack.push({ v: v[i] });
+                            }
+                            continue;
+                        }
+                        if (typeof v === 'object') {
+                            const hasImageAndMask = Object.prototype.hasOwnProperty.call(v, 'image') && Object.prototype.hasOwnProperty.call(v, 'mask');
+                            if (hasImageAndMask) {
+                                const fp = getFingerprintFromImageValue(v.image);
+                                const repl = fp ? maskByFp.get(fp) : null;
+                                if (repl) {
+                                    if (applyMaskToValue(repl, v, 'mask', v.mask)) {
+                                        changed = true;
+                                    }
+                                }
+                            }
+                            for (const k of Object.keys(v)) {
+                                stack.push({ v: v[k] });
+                            }
+                        }
+                    }
+                    return changed;
+                } catch {
+                    return false;
+                }
+            };
 
             const dataUrlToBlob = (dataUrl) => {
                 try {
@@ -2282,8 +2459,7 @@
                     return { body: text, changed: false };
                 try {
                     const parsed = JSON.parse(text);
-                    const changed = replaceMaskInObject(parsed, replacementMask);
-                    if (changed) {
+                    if (replaceMasksByFingerprint(parsed)) {
                         return { body: JSON.stringify(parsed), changed: true };
                     }
                 }
@@ -2346,7 +2522,7 @@
                     if (typeof v === 'string' && (v.startsWith('{') || v.startsWith('['))) {
                         try {
                             const parsed = JSON.parse(v);
-                            if (replaceMaskInObject(parsed, replacementMask)) {
+                            if (replaceMasksByFingerprint(parsed)) {
                                 next.set(k, JSON.stringify(parsed));
                                 changed = true;
                             }
@@ -2362,25 +2538,11 @@
                 let changed = false;
                 for (const [k, v] of body.entries()) {
                     const key = String(k);
-                    if ((v instanceof File || v instanceof Blob) && /mask/i.test(key)) {
-                        const blob = dataUrlToBlob(replacementMask);
-                        if (blob) {
-                            if (v instanceof File) {
-                                const name = v.name && typeof v.name === 'string' ? v.name : 'mask.png';
-                                next.append(k, new File([blob], name, { type: blob.type }));
-                            }
-                            else {
-                                next.append(k, blob);
-                            }
-                            changed = true;
-                            continue;
-                        }
-                    }
                     if (typeof v === 'string') {
                         if (v.startsWith('{') || v.startsWith('[')) {
                             try {
                                 const parsed = JSON.parse(v);
-                                if (replaceMaskInObject(parsed, replacementMask)) {
+                                if (replaceMasksByFingerprint(parsed)) {
                                     next.append(k, JSON.stringify(parsed));
                                     changed = true;
                                     continue;
@@ -2415,22 +2577,17 @@
                     if (url && /\/queue\/join|\/api\/predict|\/run\/predict/i.test(url) && method === 'POST') {
                         syncAllLayerForgeMasks(true);
                         if (init && typeof init === 'object' && 'body' in init) {
-                            let replacementMask = null;
                             try {
                                 if (typeof init.body === 'string') {
                                     const parsed = JSON.parse(init.body);
                                     if (!looksLikeSubmissionPayload(parsed)) {
                                         return originalFetch.apply(this, args);
                                     }
-                                    replacementMask = selectReplacementMaskFromParsedSubmission(parsed);
                                 }
                             } catch {
                             }
-                            if (!replacementMask) {
-                                return originalFetch.apply(this, args);
-                            }
                             try {
-                                const patched = patchBodyIfPossible(init.body, replacementMask);
+                                const patched = patchBodyIfPossible(init.body);
                                 if (patched.changed) {
                                     args[1] = { ...init, body: patched.body };
                                 } else {
@@ -2452,36 +2609,18 @@
                                         body = await req.clone().text();
                                     }
 
-                                    let replacementMask = null;
                                     if (typeof body === 'string') {
                                         try {
                                             const parsed = JSON.parse(body);
-                                            if (looksLikeSubmissionPayload(parsed)) {
-                                                replacementMask = selectReplacementMaskFromParsedSubmission(parsed);
+                                            if (!looksLikeSubmissionPayload(parsed)) {
+                                                return originalFetch.apply(this, args);
                                             }
                                         } catch {
-                                        }
-                                    } else if (body instanceof URLSearchParams) {
-                                        for (const [k, v] of body.entries()) {
-                                            if (typeof v === 'string' && (v.startsWith('{') || v.startsWith('['))) {
-                                                try {
-                                                    const parsed = JSON.parse(v);
-                                                    if (looksLikeSubmissionPayload(parsed)) {
-                                                        replacementMask = selectReplacementMaskFromParsedSubmission(parsed);
-                                                        if (replacementMask)
-                                                            break;
-                                                    }
-                                                } catch {
-                                                }
-                                            }
+                                            return originalFetch.apply(this, args);
                                         }
                                     }
 
-                                    if (!replacementMask) {
-                                        return originalFetch.apply(this, args);
-                                    }
-
-                                    const patched = patchBodyIfPossible(body, replacementMask);
+                                    const patched = patchBodyIfPossible(body);
                                     if (patched.changed) {
                                         const headers = new Headers(req.headers);
                                         if (patched.body instanceof FormData) {

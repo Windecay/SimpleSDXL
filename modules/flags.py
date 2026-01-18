@@ -183,7 +183,7 @@ comfy_scheduler_list = COMFY_SCHEDULER_NAMES = ['normal', 'karras', 'exponential
 comfy_sampler_list = COMFY_SAMPLER_NAMES = COMFY_KSAMPLER_NAMES + ["ddim", "uni_pc", "uni_pc_bh2", "legacy_rk", "rk", "rk_beta", "deis_3m_ode", "deis_2m_ode", "deis_3m", "deis_2m", "res_6s_ode", "res_5s_ode", "res_3s_ode", "res_2s_ode", "res_3m_ode", "res_2m_ode", "res_6s", "res_5s", "res_3s", "res_2s", "res_3m", "res_2m"]
 
 aspect_ratios_templates = ['SDXL', 'HyDiT', 'Common', 'Flux', 'Wan']
-default_aspect_ratio = ['1152*896', '1024*1024', '1280*768', '1280*720', '832*1216']
+default_aspect_ratio = ['832*1216', '1024*1024', '1280*768', '1280*720', '832*1216']
 available_aspect_ratios = [
     ['704*1408', '704*1344', '720*1280', '768*1344', '768*1280', '832*1216', '832*1152', '864*1152',
     '896*1152', '896*1088', '960*1088', '960*1024', '1024*1024', '1024*960',
@@ -241,7 +241,7 @@ model_file_filter = {
         'Kolors' : ['kolors'],
         'Wan'    : ['wan'],
         'Qwen'   : ['qwen'],
-        'Z-image': [['z_image'], ['z-image'], ['zimage']],
+        'Z-image': [['z_image'], ['z-image'], ['zimage'], ['zit']],
         }
 model_file_filter['Fooocus'] = model_file_filter['SD3x'] + model_file_filter['Flux'] + model_file_filter['HyDiT']
 
