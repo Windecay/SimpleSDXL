@@ -390,7 +390,7 @@ def init_nav_bars(state_params, comfyd_active_checkbox, fast_comfyd_checkbox, re
         state_params.update({"__max_catalog": config.default_image_catalog_max_number })
     state_params.update({"infobox_state": 0})
     state_params.update({"note_box_state": ['',0,0]})
-    state_params.update({"array_wildcards_mode": '['})
+    state_params.update({"array_wildcards_mode": '_'})
     state_params.update({"wildcard_in_wildcards": 'root'})
     state_params.update({"bar_button": config.preset})
     state_params.update({"preset_store": False})

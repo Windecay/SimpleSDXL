@@ -45,7 +45,6 @@ def get_wildcards_samples(path="root", trans=True):
     global wildcards_path, wildcards, wildcards_list, wildcards_translation, wildcards_template, wildcards_weight_range, wildcard_regex
 
     wildcards_list_all = sorted([f[:-4] for f in get_files_from_folder(wildcards_path, ['.txt'], None, variation=True)])
-    wildcards_list_all = [x for x in wildcards_list_all if '_' not in x]
     for wildcard in wildcards_list_all:
         words = open(os.path.join(wildcards_path, f'{wildcard}.txt'), encoding='utf-8').read().splitlines()
         words = [x.split('?')[0] for x in words if x != '' and not wildcard_regex.findall(x)]
@@ -344,6 +343,8 @@ def add_wildcards_and_array_to_prompt(wildcard, prompt, state_params):
             state_params["array_wildcards_mode"] = '_'
             if len(prompt)==1 or len(prompt)>2 and prompt[-2]!='_':
                 prompt = prompt[:-1]
+        else:
+            state_params["array_wildcards_mode"] = '_'
     else:
         state_params["array_wildcards_mode"] = '_'
     

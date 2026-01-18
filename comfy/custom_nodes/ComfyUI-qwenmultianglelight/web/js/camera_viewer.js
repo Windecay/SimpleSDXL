@@ -1,5 +1,8 @@
-
-VIEWER_HTML = r"""
+/**
+ * Inline HTML for the 3D Camera Angle Viewer
+ * Contains the complete Three.js scene for camera angle control
+ */
+export const VIEWER_HTML = `
 <!DOCTYPE html>
 <html>
 <head>
@@ -17,8 +20,6 @@ VIEWER_HTML = r"""
             overflow: hidden;
             background: #0a0a0f;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            user-select: none;
-            -webkit-user-select: none;
         }
 
         #container {
@@ -32,22 +33,7 @@ VIEWER_HTML = r"""
             height: 100%;
         }
 
-        #prompt-preview {
-            position: absolute;
-            top: 8px;
-            left: 8px;
-            right: 8px;
-            background: rgba(10, 10, 15, 0.9);
-            border: 1px solid rgba(233, 61, 130, 0.3);
-            border-radius: 6px;
-            padding: 6px 10px;
-            font-size: 11px;
-            color: #E93D82;
-            backdrop-filter: blur(4px);
-            font-family: 'Consolas', 'Monaco', monospace;
-            word-break: break-all;
-            line-height: 1.4;
-        }
+        /* prompt-preview is now inside color-picker-container */
 
         #info-panel {
             position: absolute;
@@ -90,34 +76,6 @@ VIEWER_HTML = r"""
             color: #FFB800;
         }
 
-        #view-btn {
-            position: absolute;
-            right: 8px;
-            bottom: 100%;
-            margin-bottom: 8px;
-            width: 24px;
-            height: 24px;
-            border-radius: 4px;
-            border: 1px solid rgba(233, 61, 130, 0.4);
-            background: rgba(10, 10, 15, 0.8);
-            color: #E93D82;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            transition: all 0.2s ease;
-        }
-
-        #view-btn:hover {
-            background: rgba(233, 61, 130, 0.2);
-            border-color: #E93D82;
-        }
-
-        #view-btn:active {
-            transform: scale(0.95);
-        }
-
         #reset-btn {
             position: absolute;
             right: 8px;
@@ -145,65 +103,104 @@ VIEWER_HTML = r"""
             transform: scale(0.95);
         }
 
-        #zoom-slider-container {
+        /* Color picker styles */
+        #color-picker-container {
             position: absolute;
-            right: 20px;
-            top: 25%;
-            bottom: 35%;
-            width: 30px;
-            display: none;
+            top: 8px;
+            left: 8px;
+            right: 8px;
+            display: flex;
             align-items: center;
-            justify-content: center;
-            z-index: 10;
-            user-select: none;
-            -webkit-user-select: none;
+            justify-content: space-between;
+            background: rgba(10, 10, 15, 0.9);
+            border: 1px solid rgba(233, 61, 130, 0.3);
+            border-radius: 6px;
+            padding: 6px 10px;
+            backdrop-filter: blur(4px);
         }
 
-        #zoom-slider-track {
-            position: absolute;
-            width: 4px;
-            height: 100%;
-            background: rgba(255, 184, 0, 0.3);
+        #prompt-preview {
+            flex: 1;
+            font-size: 11px;
+            color: #E93D82;
+            font-family: 'Consolas', 'Monaco', monospace;
+            word-break: break-all;
+            line-height: 1.4;
+            margin-right: 12px;
+        }
+
+        #color-section {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        #color-picker-label {
+            font-size: 10px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        #color-picker {
+            width: 24px;
+            height: 24px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            cursor: pointer;
+            padding: 0;
+            background: none;
+        }
+
+        #color-picker::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+
+        #color-picker::-webkit-color-swatch {
+            border: none;
             border-radius: 2px;
-            cursor: pointer;
         }
 
-        #zoom-slider-handle {
-            position: absolute;
-            width: 16px;
-            height: 16px;
-            background: #FFB800;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 0 10px rgba(255, 184, 0, 0.5);
-            left: 50%;
-            transform: translate(-50%, -50%);
+        #color-picker::-moz-color-swatch {
+            border: none;
+            border-radius: 2px;
+        }
+
+        #color-hex-display {
+            font-size: 11px;
+            color: #FFB800;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-weight: 600;
+            min-width: 60px;
         }
     </style>
 </head>
 <body>
     <div id="container">
         <div id="threejs-container"></div>
-        <div id="prompt-preview">front view, eye level, medium shot</div>
+        <div id="color-picker-container">
+            <div id="prompt-preview">light from front, eye level</div>
+            <div id="color-section">
+                <span id="color-picker-label">Color</span>
+                <input type="color" id="color-picker" value="#FFFFFF">
+                <span id="color-hex-display">#FFFFFF</span>
+            </div>
+        </div>
         <div id="info-panel">
             <div class="param-item">
-                <div class="param-label">Horizontal</div>
+                <div class="param-label">Azimuth</div>
                 <div class="param-value" id="h-value">0°</div>
             </div>
             <div class="param-item">
-                <div class="param-label">Vertical</div>
+                <div class="param-label">Elevation</div>
                 <div class="param-value elevation" id="v-value">0°</div>
             </div>
             <div class="param-item">
-                <div class="param-label">Zoom</div>
+                <div class="param-label">Distance</div>
                 <div class="param-value zoom" id="z-value">5.0</div>
             </div>
-            <button id="view-btn" title="Toggle Camera View">👁️</button>
             <button id="reset-btn" title="Reset to defaults">↺</button>
-        </div>
-        <div id="zoom-slider-container">
-            <div id="zoom-slider-track"></div>
-            <div id="zoom-slider-handle"></div>
         </div>
     </div>
 
@@ -214,9 +211,9 @@ VIEWER_HTML = r"""
             azimuth: 0,
             elevation: 0,
             distance: 5,
+            lightColor: "#FFFFFF",
             imageUrl: null,
-            useDefaultPrompts: false,
-            cameraView: false
+            useDefaultPrompts: false
         };
 
         let threeScene = null;
@@ -227,135 +224,118 @@ VIEWER_HTML = r"""
         const vValueEl = document.getElementById('v-value');
         const zValueEl = document.getElementById('z-value');
         const promptPreviewEl = document.getElementById('prompt-preview');
-        const viewBtn = document.getElementById('view-btn');
-        const zoomSliderContainer = document.getElementById('zoom-slider-container');
-        const zoomSliderHandle = document.getElementById('zoom-slider-handle');
+        const colorPicker = document.getElementById('color-picker');
+        const colorHexDisplay = document.getElementById('color-hex-display');
+
+        // Color picker event handler
+        colorPicker.addEventListener('input', (e) => {
+            state.lightColor = e.target.value;
+            colorHexDisplay.textContent = e.target.value.toUpperCase();
+            if (threeScene) {
+                threeScene.syncFromState();
+            }
+            sendAngleUpdate();
+        });
+
+        colorPicker.addEventListener('change', (e) => {
+            state.lightColor = e.target.value;
+            colorHexDisplay.textContent = e.target.value.toUpperCase();
+            if (threeScene) {
+                threeScene.syncFromState();
+            }
+            sendAngleUpdate();
+        });
 
         function generatePromptPreview() {
             const h_angle = state.azimuth % 360;
             let h_direction;
             if (h_angle < 22.5 || h_angle >= 337.5) {
-                h_direction = "front view";
+                h_direction = "light from front";
             } else if (h_angle < 67.5) {
-                h_direction = "front-right quarter view";
+                h_direction = "light from front-right";
             } else if (h_angle < 112.5) {
-                h_direction = "right side view";
+                h_direction = "light from right";
             } else if (h_angle < 157.5) {
-                h_direction = "back-right quarter view";
+                h_direction = "light from back-right";
             } else if (h_angle < 202.5) {
-                h_direction = "back view";
+                h_direction = "light from back";
             } else if (h_angle < 247.5) {
-                h_direction = "back-left quarter view";
+                h_direction = "light from back-left";
             } else if (h_angle < 292.5) {
-                h_direction = "left side view";
+                h_direction = "light from left";
             } else {
-                h_direction = "front-left quarter view";
+                h_direction = "light from front-left";
             }
 
             let v_direction;
-            if (state.elevation < -60) {
-                v_direction = "worm's-eye view  extreme low-angle";
-            } else if (state.elevation < -30) {
-                v_direction = "extreme low-angle shot";
-            } else if (state.elevation < -15) {
-                v_direction = "low-angle shot";
+            if (state.elevation < -15) {
+                v_direction = "from below";
             } else if (state.elevation < 15) {
-                v_direction = "eye-level shot";
+                v_direction = "eye level";
             } else if (state.elevation < 45) {
-                v_direction = "elevated shot";
+                v_direction = "from high angle";
             } else if (state.elevation < 75) {
-                v_direction = "high-angle shot";
+                v_direction = "from above";
             } else {
-                v_direction = "bird's-eye view";
+                v_direction = "overhead";
             }
 
-            let distance;
-            if (state.distance < 2) {
-                distance = "wide shot";
-            } else if (state.distance < 6) {
-                distance = "medium shot";
-            } else {
-                distance = "close-up";
-            }
-
-            return "<sks> " + h_direction + " " + v_direction + " " + distance;
+            return h_direction + ", " + v_direction;
         }
 
         function generateQwenPrompt() {
-            return generatePromptPreview();
-        }
+            const h_angle = state.azimuth % 360;
+            const v_angle = state.elevation;
 
-        function updateZoomSlider() {
-            // Map distance 0-10 to 0-100%
-            // UI Convention: Up is More Zoom (Close up, value 10)
-            // Down is Less Zoom (Wide shot, value 0)
-            // Top (0%) -> 10
-            // Bottom (100%) -> 0
-            const percent = Math.max(0, Math.min(100, ((10 - state.distance) / 10) * 100));
-            zoomSliderHandle.style.top = percent + '%';
-        }
-
-        let isDraggingZoom = false;
-
-        function handleZoomSlider(clientY) {
-            const rect = zoomSliderContainer.getBoundingClientRect();
-            let percent = (clientY - rect.top) / rect.height;
-            percent = Math.max(0, Math.min(1, percent));
-            
-            // 0% (top) -> 10
-            // 100% (bottom) -> 0
-            const newDist = (1 - percent) * 10;
-            const liveDistance = Math.max(0, Math.min(10, newDist));
-            
-            state.distance = Math.round(liveDistance * 10) / 10;
-            
-            updateDisplay();
-            // We need to update visuals if scene exists
-            if (threeScene) {
-                threeScene.syncFromState();
+            // Horizontal mapping
+            let h_direction;
+            if (h_angle < 22.5 || h_angle >= 337.5) {
+                h_direction = "front lighting";
+            } else if (h_angle < 67.5) {
+                h_direction = "front-right lighting";
+            } else if (h_angle < 112.5) {
+                h_direction = "right side lighting";
+            } else if (h_angle < 157.5) {
+                h_direction = "back-right lighting";
+            } else if (h_angle < 202.5) {
+                h_direction = "back lighting";
+            } else if (h_angle < 247.5) {
+                h_direction = "back-left lighting";
+            } else if (h_angle < 292.5) {
+                h_direction = "left side lighting";
+            } else {
+                h_direction = "front-left lighting";
             }
-            sendAngleUpdate();
+
+            // Vertical mapping for Qwen format
+            let v_direction;
+            if (v_angle < -15) {
+                v_direction = "lighting from below";
+            } else if (v_angle < 15) {
+                v_direction = "level lighting";
+            } else if (v_angle < 75) {
+                v_direction = "lighting from above";
+            } else {
+                v_direction = "top-down lighting";
+            }
+
+            // Distance mapping
+            let distance;
+            if (state.distance < 3) {
+                distance = "strong/close lighting";
+            } else if (state.distance < 7) {
+                distance = "medium distance lighting";
+            } else {
+                distance = "soft/far lighting";
+            }
+
+            return h_direction + " " + v_direction + " " + distance;
         }
-
-        zoomSliderContainer.addEventListener('mousedown', (e) => {
-            e.preventDefault();
-            isDraggingZoom = true;
-            handleZoomSlider(e.clientY);
-        });
-
-        window.addEventListener('mousemove', (e) => {
-            if (isDraggingZoom) {
-                e.preventDefault();
-                handleZoomSlider(e.clientY);
-            }
-        });
-
-        window.addEventListener('mouseup', () => {
-            isDraggingZoom = false;
-        });
-
-        zoomSliderContainer.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            isDraggingZoom = true;
-            handleZoomSlider(e.touches[0].clientY);
-        }, { passive: false });
-
-        window.addEventListener('touchmove', (e) => {
-            if (isDraggingZoom) {
-                e.preventDefault();
-                handleZoomSlider(e.touches[0].clientY);
-            }
-        }, { passive: false });
-
-        window.addEventListener('touchend', () => {
-            isDraggingZoom = false;
-        });
 
         function updateDisplay() {
             hValueEl.textContent = Math.round(state.azimuth) + '°';
             vValueEl.textContent = Math.round(state.elevation) + '°';
             zValueEl.textContent = state.distance.toFixed(1);
-            updateZoomSlider();
             if (state.useDefaultPrompts) {
                 promptPreviewEl.textContent = generateQwenPrompt();
             } else {
@@ -369,6 +349,7 @@ VIEWER_HTML = r"""
                 horizontal: Math.round(state.azimuth),
                 vertical: Math.round(state.elevation),
                 zoom: Math.round(state.distance * 10) / 10,
+                lightColor: state.lightColor || "#FFFFFF",
                 useDefaultPrompts: state.useDefaultPrompts || false
             }, '*');
         }
@@ -378,38 +359,15 @@ VIEWER_HTML = r"""
             state.elevation = 0;
             state.distance = 5.0;
             state.useDefaultPrompts = false;
-            state.cameraView = false;
             if (threeScene) {
                 threeScene.syncFromState();
-                threeScene.setCameraView(false);
             }
             updateDisplay();
             sendAngleUpdate();
-            viewBtn.textContent = '👁️';
-            viewBtn.title = 'Switch to Camera View';
-            zoomSliderContainer.style.display = 'none';
-        }
-
-        // Toggle view handler
-        function toggleView() {
-            state.cameraView = !state.cameraView;
-            if (threeScene) {
-                threeScene.setCameraView(state.cameraView);
-            }
-            if (state.cameraView) {
-                viewBtn.textContent = '▦';
-                viewBtn.title = 'Switch to Overview';
-                zoomSliderContainer.style.display = 'flex';
-            } else {
-                viewBtn.textContent = '👁️';
-                viewBtn.title = 'Switch to Camera View';
-                zoomSliderContainer.style.display = 'none';
-            }
         }
 
         // Reset button handler
         document.getElementById('reset-btn').addEventListener('click', resetToDefaults);
-        document.getElementById('view-btn').addEventListener('click', toggleView);
 
         function initThreeJS() {
             const width = container.clientWidth;
@@ -664,7 +622,7 @@ VIEWER_HTML = r"""
                 const path = new THREE.LineCurve3(start, end);
                 const tubeGeo = new THREE.TubeGeometry(path, 1, 0.025, 8, false);
                 const tubeMat = new THREE.MeshBasicMaterial({
-                    color: 0xFFB800,
+                    color: state.lightColor || 0xFFB800,
                     transparent: true,
                     opacity: 0.8
                 });
@@ -724,8 +682,6 @@ VIEWER_HTML = r"""
             let isDragging = false;
             let dragTarget = null;
             let hoveredHandle = null;
-            let dragStartMouseY = 0;
-            let dragStartDistance = 0;
 
             function getMousePos(event) {
                 const rect = renderer.domElement.getBoundingClientRect();
@@ -738,27 +694,8 @@ VIEWER_HTML = r"""
                 if (glow) glow.scale.setScalar(scale);
             }
 
-            // Orbit controls logic for camera view
-            let isOrbiting = false;
-            let lastMouseX = 0;
-            let lastMouseY = 0;
-
             function onPointerDown(event) {
-                // Prevent default text selection behavior
-                if (event.preventDefault) {
-                    event.preventDefault();
-                }
-
                 getMousePos(event);
-                
-                if (state.cameraView) {
-                    isOrbiting = true;
-                    lastMouseX = event.clientX;
-                    lastMouseY = event.clientY;
-                    renderer.domElement.style.cursor = 'grabbing';
-                    return;
-                }
-
                 raycaster.setFromCamera(mouse, camera);
 
                 const handles = [
@@ -771,10 +708,6 @@ VIEWER_HTML = r"""
                     if (raycaster.intersectObject(h.mesh).length > 0) {
                         isDragging = true;
                         dragTarget = h.name;
-
-                        dragStartMouseY = mouse.y;
-                        dragStartDistance = state.distance;
-
                         setHandleScale(h.mesh, h.glow, 1.3);
                         renderer.domElement.style.cursor = 'grabbing';
                         return;
@@ -783,33 +716,6 @@ VIEWER_HTML = r"""
             }
 
             function onPointerMove(event) {
-                if (state.cameraView && isOrbiting) {
-                    const deltaX = event.clientX - lastMouseX;
-                    const deltaY = event.clientY - lastMouseY;
-                    lastMouseX = event.clientX;
-                    lastMouseY = event.clientY;
-
-                    // Update angles
-                    state.azimuth -= deltaX * 0.5;
-                    state.elevation += deltaY * 0.5;
-                    
-                    // Clamp elevation
-                    state.elevation = Math.max(-90, Math.min(90, state.elevation));
-                    
-                    // Normalize azimuth
-                    if (state.azimuth < 0) state.azimuth += 360;
-                    if (state.azimuth >= 360) state.azimuth -= 360;
-
-                    // Sync live values
-                    liveAzimuth = state.azimuth;
-                    liveElevation = state.elevation;
-
-                    updateDisplay();
-                    updateVisuals();
-                    sendAngleUpdate();
-                    return;
-                }
-
                 getMousePos(event);
                 raycaster.setFromCamera(mouse, camera);
 
@@ -872,9 +778,7 @@ VIEWER_HTML = r"""
                         sendAngleUpdate();
                     }
                 } else if (dragTarget === 'distance') {
-                    const deltaY = mouse.y - dragStartMouseY;
-                    const sensitivity = 15;
-                    const newDist = dragStartDistance - deltaY * sensitivity;
+                    const newDist = 5 - mouse.y * 5;
                     liveDistance = Math.max(0, Math.min(10, newDist));
                     state.distance = Math.round(liveDistance * 10) / 10;
                     updateDisplay();
@@ -884,12 +788,6 @@ VIEWER_HTML = r"""
             }
 
             function onPointerUp() {
-                if (isOrbiting) {
-                    isOrbiting = false;
-                    renderer.domElement.style.cursor = 'default';
-                    return;
-                }
-
                 if (isDragging) {
                     const handles = [
                         { mesh: azimuthHandle, glow: azGlow },
@@ -1007,6 +905,19 @@ VIEWER_HTML = r"""
                     liveDistance = state.distance;
                     updateVisuals();
                     updateDisplay();
+                    // Update color picker display
+                    if (state.lightColor) {
+                        colorPicker.value = state.lightColor;
+                        colorHexDisplay.textContent = state.lightColor.toUpperCase();
+                        // Update light color on distance handle (light source indicator)
+                        distHandleMat.color.set(state.lightColor);
+                        distHandleMat.emissive.set(state.lightColor);
+                        distGlowMat.color.set(state.lightColor);
+                        // Update distance line color
+                        if (distanceTube && distanceTube.material) {
+                            distanceTube.material.color.set(state.lightColor);
+                        }
+                    }
                 },
                 setCameraView: setCameraView,
                 updateImage: (url) => {
@@ -1064,6 +975,7 @@ VIEWER_HTML = r"""
                 state.azimuth = data.horizontal || 0;
                 state.elevation = data.vertical || 0;
                 state.distance = data.zoom || 5;
+                state.lightColor = data.lightColor || "#FFFFFF";
                 if (threeScene) {
                     threeScene.syncFromState();
                     threeScene.setCameraView(data.cameraView || false);
@@ -1072,6 +984,7 @@ VIEWER_HTML = r"""
                 state.azimuth = data.horizontal || 0;
                 state.elevation = data.vertical || 0;
                 state.distance = data.zoom || 5;
+                state.lightColor = data.lightColor || "#FFFFFF";
                 state.useDefaultPrompts = data.useDefaultPrompts || false;
                 if (threeScene) {
                     threeScene.syncFromState();
@@ -1082,10 +995,6 @@ VIEWER_HTML = r"""
                 state.imageUrl = data.imageUrl;
                 if (threeScene) {
                     threeScene.updateImage(data.imageUrl);
-                }
-            } else if (data.type === 'SET_CAMERA_VIEW') {
-                if (threeScene) {
-                    threeScene.setCameraView(data.cameraView || false);
                 }
             }
         });
@@ -1103,114 +1012,4 @@ VIEWER_HTML = r"""
     </script>
 </body>
 </html>
-"""
-
-def get_viewer_html():
-    """
-    Returns the HTML for the iframe containing the 3D viewer.
-    Using srcdoc to embed the HTML directly.
-    """
-    import html
-    escaped_html = html.escape(VIEWER_HTML)
-    
-    iframe_code = f'<iframe id="qwen_multiangle_iframe" srcdoc="{escaped_html}" style="width: 100%; height: 400px; border: none; border-radius: 8px; background-color: #0a0a0f;"></iframe>'
-    
-    # Using img onerror to force execution of the script in Gradio's gr.HTML
-    glue_js = """
-    <img src="x" style="display:none" onerror='(function(){
-        // Define the handler function globally or attached to window to prevent re-declaration issues
-        if (window.qwenMultiangleInitialized) {
-            return;
-        }
-        window.qwenMultiangleInitialized = true;
-
-        function updateGradioInput(elemId, value) {
-            const container = document.getElementById(elemId);
-            if (!container) {
-                return;
-            }
-            
-            const input = container.querySelector("input, textarea");
-            if (input) {
-                if (input.value === String(value)) return;
-                
-                // Direct value setting - simple and robust
-                input.value = value;
-                
-                // Dispatch events to notify frameworks
-                input.dispatchEvent(new Event("input", { bubbles: true }));
-                input.dispatchEvent(new Event("change", { bubbles: true }));
-            }
-        }
-
-        function generatePrompt(horizontal_angle, vertical_angle, zoom) {
-            const h_angle = horizontal_angle % 360;
-            let h_direction;
-            if (h_angle < 22.5 || h_angle >= 337.5) {
-                h_direction = "front view";
-            } else if (h_angle < 67.5) {
-                h_direction = "front-right quarter view";
-            } else if (h_angle < 112.5) {
-                h_direction = "right side view";
-            } else if (h_angle < 157.5) {
-                h_direction = "back-right quarter view";
-            } else if (h_angle < 202.5) {
-                h_direction = "back view";
-            } else if (h_angle < 247.5) {
-                h_direction = "back-left quarter view";
-            } else if (h_angle < 292.5) {
-                h_direction = "left side view";
-            } else {
-                h_direction = "front-left quarter view";
-            }
-
-            let v_direction;
-            if (vertical_angle < -60) {
-                v_direction = "worm&#39;s-eye view  camera positioned directly underneath looking straight up,";
-            } else if (vertical_angle < -30) {
-                v_direction = "extreme low-angle shot";
-            } else if (vertical_angle < -15) {
-                v_direction = "low-angle shot";
-            } else if (vertical_angle < 15) {
-                v_direction = "eye-level shot";
-            } else if (vertical_angle < 45) {
-                v_direction = "elevated shot";
-            } else if (vertical_angle < 75) {
-                v_direction = "high-angle shot";
-            } else {
-                v_direction = "bird&#39;s-eye view";
-            }
-
-            let distance;
-            if (zoom < 2) {
-                distance = "wide shot";
-            } else if (zoom < 6) {
-                distance = "medium shot";
-            } else {
-                distance = "close-up";
-            }
-
-            return "<sks> " + h_direction + " " + v_direction + " " + distance;
-        }
-
-        window.addEventListener("message", function(event) {
-            if (event.data && event.data.type === "ANGLE_UPDATE") {
-                // Try to find components - they might be rendered later
-                // updateGradioInput("qwen_h", event.data.horizontal);
-                // updateGradioInput("qwen_v", event.data.vertical);
-                // updateGradioInput("qwen_z", event.data.zoom);
-                
-                // Update JSON param carrier
-                const prompt = generatePrompt(event.data.horizontal, event.data.vertical, event.data.zoom);
-                const json_data = JSON.stringify({
-                    horizontal: event.data.horizontal,
-                    vertical: event.data.vertical,
-                    zoom: event.data.zoom
-                });
-                updateGradioInput("scene_additional_prompt_2", prompt + "," + json_data);
-            }
-        });
-    })()'>
-    """
-    
-    return iframe_code + glue_js
+`;

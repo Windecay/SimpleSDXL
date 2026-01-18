@@ -1,0 +1,19 @@
+[project]
+name = "comfyui-qwenmultiangle-lightning"
+description = "A ComfyUI node for 3D lighting angle control, outputs lighting prompts for relighting image generation"
+version = "1.0.0"
+license = { text = "MIT" }
+readme = "README.md"
+authors = [
+    { name = "aiwood" },
+    { name = "wallen" }
+]
+keywords = ["comfyui", "lighting", "3d", "qwen", "image-generation", "relighting"]
+
+[project.urls]
+Repository = "https://github.com/wallen0322/ComfyUI-qwenmultianglelight"
+
+[tool.comfy]
+PublisherId = "aiwood"
+DisplayName = "Qwen Multiangle Lightning"
+Icon = ""

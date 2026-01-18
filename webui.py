@@ -43,7 +43,8 @@ from enhanced.simpleai import comfyd, p2p_task
 from enhanced.minicpm import MiniCPM, minicpm
 from enhanced.inference_artist import get_artist_tags_string
 import modules.model_loader as model_loader
-import modules.qwen_multiangle as qwen_multiangle
+import enhanced.qwen_multiangle as qwen_multiangle
+import enhanced.qwen_anglelight as qwen_anglelight
 import logging
 logger = logging.getLogger(__name__)
 
@@ -580,6 +581,10 @@ with shared.gradio_root:
                         # Qwen Multiangle Camera Control
                         with gr.Accordion("3D Camera Control", open=False, visible=False) as camera_control_accordion:
                             gr.HTML(value=qwen_multiangle.get_viewer_html(), elem_id="qwen_viewer_container")
+                        
+                        # Qwen Anglelight Lighting Control
+                        with gr.Accordion("3D Lighting Control", open=False, visible=False) as anglelight_control_accordion:
+                            gr.HTML(value=qwen_anglelight.get_viewer_html(), elem_id="qwen_anglelight_viewer_container")
 
                             qwen_image_data = gr.Textbox(visible=False, elem_id="qwen_image_data")
                             qwen_image_data.change(
@@ -592,15 +597,26 @@ with shared.gradio_root:
                                             imageUrl: val
                                         }, '*');
                                     }
+                                    const iframe2 = document.getElementById('qwen_anglelight_iframe');
+                                    if (iframe2 && iframe2.contentWindow) {
+                                        iframe2.contentWindow.postMessage({
+                                            type: 'UPDATE_IMAGE',
+                                            imageUrl: val
+                                        }, '*');
+                                    }
                                 }""",
                                 inputs=[qwen_image_data],
                                 outputs=None
                             )
 
                         def check_camera_control_visibility(theme, state):
-                            if theme and 'multiangle' in theme.lower():
-                                return gr.update(visible=True, open=True)
-                            return gr.update(visible=False)
+                            theme_l = theme.lower() if theme else ''
+                            show_camera = bool(theme_l and 'multiangle' in theme_l)
+                            show_light = bool(theme_l and ('anglelight' in theme_l or 'lightning' in theme_l))
+                            return (
+                                gr.update(visible=show_camera, open=show_camera),
+                                gr.update(visible=show_light, open=show_light),
+                            )
 
                         scene_canvas_image = grh.Image(label='Upload and canvas(1)', show_label=True, source='upload', type='numpy', tool='sketch', height=250, brush_color="#70FF81", mask_color=True, image_mode='RGBA', elem_id='scene_canvas')
                         with gr.Row() as scene_input_images:
@@ -2788,7 +2804,7 @@ with shared.gradio_root:
         scene_theme.select(switch_scene_theme_select, inputs=state_topbar, queue=False, show_progress=False)
         scene_theme.change(switch_scene_theme, inputs=[state_topbar, image_number, scene_canvas_image, scene_input_image1, scene_additional_prompt, scene_additional_prompt_2, scene_var_number, scene_var_number2, scene_var_number3, scene_var_number4, scene_steps, scene_switch_option1, scene_switch_option2, scene_theme], outputs=scene_params[1:], queue=False, show_progress=False) \
                    .then(switch_scene_theme_ready_to_gen, inputs=[state_topbar, image_number, scene_canvas_image, scene_input_image1, scene_additional_prompt, scene_additional_prompt_2, scene_theme, scene_video, scene_audio], outputs=[prompt, generate_button], queue=False, show_progress=True) \
-                   .then(check_camera_control_visibility, inputs=[scene_theme, state_topbar], outputs=[camera_control_accordion], queue=False, show_progress=False)
+                   .then(check_camera_control_visibility, inputs=[scene_theme, state_topbar], outputs=[camera_control_accordion, anglelight_control_accordion], queue=False, show_progress=False)
 
         scene_video.upload(switch_scene_theme_ready_to_gen, inputs=[state_topbar, image_number, scene_canvas_image, scene_input_image1, scene_additional_prompt, scene_additional_prompt_2, scene_theme, scene_video, scene_audio], outputs=[prompt, generate_button], queue=False, show_progress=False)
         scene_video.clear(switch_scene_theme_ready_to_gen, inputs=[state_topbar, image_number, scene_canvas_image, scene_input_image1, scene_additional_prompt, scene_additional_prompt_2, scene_theme, scene_video, scene_audio], outputs=[prompt, generate_button], queue=False, show_progress=False)
@@ -2884,7 +2900,7 @@ with shared.gradio_root:
                .then(fn=lambda x: None, inputs=system_params, _js='(x)=>{refresh_topbar_status_js(x); refresh_style_localization(); refresh_scene_localization();}') \
                .then(update_describe_output_tags, inputs=engine_class_display, outputs=describe_output_tags, queue=False, show_progress=False) \
                .then(inpaint_mode_change, inputs=[inpaint_mode, inpaint_engine_state, outpaint_selections, state_topbar], outputs=[inpaint_additional_prompt, outpaint_selections, example_inpaint_prompts, inpaint_disable_initial_latent, inpaint_engine, inpaint_strength, inpaint_respective_field], show_progress=False, queue=False) \
-               .then(check_camera_control_visibility, inputs=[scene_theme, state_topbar], outputs=[camera_control_accordion], queue=False, show_progress=False) \
+               .then(check_camera_control_visibility, inputs=[scene_theme, state_topbar], outputs=[camera_control_accordion, anglelight_control_accordion], queue=False, show_progress=False) \
                .then(inpaint_engine_state_change, inputs=[inpaint_engine_state, state_topbar] + enhance_inpaint_mode_ctrls, outputs=enhance_inpaint_engine_ctrls, queue=False, show_progress=False)  \
                .then(check_and_show_missing_models, inputs=[bar_buttons[i], state_topbar], outputs=[missing_model_modal, missing_model_list, missing_model_btn]) \
                .then(topbar.stop_comfyd_background, inputs=[comfyd_active_checkbox], queue=False)

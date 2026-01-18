@@ -380,7 +380,7 @@ def print_instructions():
     time.sleep(0.1)
     print(f"{Fore.GREEN}★{Style.RESET_ALL}打开默认浏览器设置，关闭GPU加速、或图形加速的选项。{Fore.GREEN}★{Style.RESET_ALL}大内存(64+)与固态硬盘存放模型有助于减少模型加载时间。{Fore.GREEN}★{Style.RESET_ALL}")
     time.sleep(0.1)
-    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：1005085136{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:26.01.17{Fore.GREEN}★{Style.RESET_ALL}")
+    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：1005085136{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:26.01.19{Fore.GREEN}★{Style.RESET_ALL}")
     print()
     time.sleep(0.1)
     
@@ -2319,8 +2319,8 @@ packages = {
     }, 
     "flux2-klein-9b-fp8": {
         "id": 36,
-        "name": "[36]Flux2-Klein-9B-FP8图像编辑",
-        "note": "Flux2-Klein-9B图像编辑,高效快速|显存需求：★★★ 速度：★★★",
+        "name": "[36]Flux2-Klein-9B-FP8图像编辑&多角度打光",
+        "note": "Flux2-Klein-9B图像编辑&多角度打光，高效快速|显存需求：★★★ 速度：★★★",
         "files": [
             ("diffusion_models/https://www.modelscope.cn/models/black-forest-labs/FLUX.2-klein-9b-fp8/resolve/master/flux-2-klein-9b-fp8.safetensors", 9433061528),
             ("text_encoders/https://www.modelscope.cn/models/Comfy-Org/flux2-klein-9B/resolve/master/split_files/text_encoders/qwen_3_8b_fp8mixed.safetensors", 8664848742),

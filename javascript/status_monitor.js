@@ -1570,6 +1570,7 @@
         // 检测并应用主题
         state.currentTheme = detectTheme();
         applyTheme();
+        const enableTransferStation = !isMobileDevice();
 
         // 注入样式
         document.head.appendChild(style);
@@ -1577,8 +1578,13 @@
         // 组装 DOM
         statusContainer.appendChild(statusIndicator);
         statusIndicator.appendChild(statusContent);
-        statusIndicator.appendChild(transferToggleBtn);
-        statusIndicator.appendChild(transferPanel);
+        if (enableTransferStation) {
+            statusIndicator.appendChild(transferToggleBtn);
+            statusIndicator.appendChild(transferPanel);
+        } else {
+            transferState.expanded = false;
+            statusIndicator.classList.remove('transfer-expanded');
+        }
         statusIndicator.classList.toggle('transfer-expanded', !!transferState.expanded);
         // 新增resize事件监听
         window.addEventListener('resize', () => {
@@ -1597,7 +1603,9 @@
             
             // 初始化拖拽功能
             initDragFeature();
-            initImageTransferStation();
+            if (enableTransferStation) {
+                initImageTransferStation();
+            }
         }
         // 启动检测
         setInterval(performHealthCheck, CHECK_INTERVAL);
