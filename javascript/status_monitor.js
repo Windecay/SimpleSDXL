@@ -68,6 +68,59 @@
     const onlineNodesBadge = document.createElement('div');
     onlineNodesBadge.className = 'online-nodes-badge';
 
+    const statusContent = document.createElement('div');
+    statusContent.className = 'status-content';
+
+    const transferToggleBtn = document.createElement('button');
+    transferToggleBtn.className = 'transfer-toggle';
+    transferToggleBtn.type = 'button';
+    transferToggleBtn.textContent = '图片中转站 ▾';
+
+    const transferPanel = document.createElement('div');
+    transferPanel.className = 'transfer-panel';
+
+    const transferPanelActions = document.createElement('div');
+    transferPanelActions.className = 'transfer-panel-actions';
+
+    const transferPasteBtn = document.createElement('button');
+    transferPasteBtn.className = 'transfer-panel-btn transfer-paste-btn';
+    transferPasteBtn.type = 'button';
+    transferPasteBtn.textContent = '粘贴';
+
+    const transferCopyBtn = document.createElement('button');
+    transferCopyBtn.className = 'transfer-panel-btn transfer-copy-btn';
+    transferCopyBtn.type = 'button';
+    transferCopyBtn.textContent = '复制';
+
+    const transferClearBtn = document.createElement('button');
+    transferClearBtn.className = 'transfer-panel-btn transfer-clear-btn';
+    transferClearBtn.type = 'button';
+    transferClearBtn.textContent = '清空';
+
+    const transferHint = document.createElement('div');
+    transferHint.className = 'transfer-hint';
+    transferHint.textContent = '拖放图片到这里';
+
+    const transferList = document.createElement('div');
+    transferList.className = 'transfer-list';
+
+    const transferState = {
+        items: [],
+        selectedId: null,
+        expanded: false,
+        nextId: 1,
+        hintOverride: null,
+        hintOverrideUntil: 0,
+        hintTimer: null,
+        pasteOverlayEl: null,
+        pasteBoxEl: null,
+        pasteCloseBtnEl: null,
+        pasteHandler: null,
+        keydownHandler: null,
+        directPasteInited: false,
+        directPasteHandler: null
+    };
+
     // ==================== 样式配置 ====================
     const style = document.createElement('style');
     style.textContent = `
@@ -75,7 +128,7 @@
             position: fixed;
             top: 8px;
             right: 3px;
-            z-index: 9999;
+            z-index: 2147483647;
             font-family: Arial, sans-serif;
             background: transparent; /* 设置背景为透明 */
             pointer-events: auto; /* 修改为auto以支持拖拽 */
@@ -97,6 +150,7 @@
             flex-direction: column;
             align-items: flex-end; /* 右对齐 */
             font-size: 12px;
+            position: relative;
 	    background: transparent; /* 设置背景为透明 */
             border: none;
             color: #333;
@@ -114,6 +168,7 @@
             flex-direction: column;
             align-items: flex-end; /* 右对齐 */
             font-size: 12px;
+            position: relative;
 	    background: transparent; /* 设置背景为透明 */
             border-color: #4a5568;
             color: #fff;
@@ -200,6 +255,276 @@
             background: #1a2a3a;
             color: aqua;
         }
+
+        .status-indicator .status-content {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .status-indicator .transfer-toggle {
+            margin-top: 6px;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            background: transparent;
+            color: inherit;
+            align-self: flex-end;
+            pointer-events: auto;
+        }
+
+        .status-indicator.light .transfer-toggle {
+            border-color: rgba(0, 0, 0, 0.12);
+            background: rgba(0, 0, 0, 0.04);
+        }
+
+        .status-indicator.dark .transfer-toggle {
+            border-color: rgba(255, 255, 255, 0.18);
+            background: rgba(81, 125, 255, 0.3);
+        }
+
+        .status-indicator .transfer-panel {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: calc(100% + 6px);
+            width: max(112px, 100%);
+            max-width: min(320px, calc(100vw - 16px));
+            max-height: calc(100vh - 16px);
+            border-radius: 8px;
+            overflow: hidden;
+            user-select: none;
+            pointer-events: auto;
+            box-sizing: border-box;
+            flex-direction: column;
+            cursor: default;
+        }
+
+        .status-indicator.transfer-expanded .transfer-panel {
+            display: flex;
+        }
+
+        .status-indicator.light .transfer-panel {
+            background: rgba(255, 255, 255, 0.995);
+            border: 1px solid rgba(0, 0, 0, 0.16);
+            color: #333;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+        }
+
+        .status-indicator.dark .transfer-panel {
+            background: rgba(12, 14, 18, 0.995);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            color: #fff;
+            box-shadow: 0 12px 34px rgba(0, 0, 0, 0.62);
+        }
+
+        @supports ((-webkit-backdrop-filter: blur(6px)) or (backdrop-filter: blur(6px))) {
+            .status-indicator.light .transfer-panel {
+                background: rgba(255, 255, 255, 0.92);
+                -webkit-backdrop-filter: blur(8px);
+                backdrop-filter: blur(8px);
+            }
+
+            .status-indicator.dark .transfer-panel {
+                background: rgba(12, 14, 18, 0.92);
+                -webkit-backdrop-filter: blur(8px);
+                backdrop-filter: blur(8px);
+            }
+        }
+
+        .status-indicator .transfer-panel-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 6px 8px;
+            justify-content: flex-start;
+            width: 100%;
+            box-sizing: border-box;
+            cursor: default;
+        }
+
+        .status-indicator .transfer-panel-btn {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            background: transparent;
+            color: inherit;
+        }
+
+        .status-indicator.light .transfer-panel-btn {
+            border-color: rgba(0, 0, 0, 0.12);
+        }
+
+        .status-indicator.dark .transfer-panel-btn {
+            border-color: rgba(255, 255, 255, 0.18);
+        }
+
+        .status-indicator .transfer-hint {
+            font-size: 11px;
+            opacity: 0.75;
+            padding: 0 8px 8px 8px;
+            text-align: center;
+            cursor: default;
+        }
+
+        .status-indicator .transfer-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            overflow: auto;
+            padding: 0 8px 8px 8px;
+            align-items: stretch;
+            flex: 1 1 auto;
+            min-height: 0;
+            cursor: default;
+        }
+
+        .status-indicator .transfer-item {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid transparent;
+            background: rgba(0,0,0,0.06);
+            cursor: pointer;
+        }
+
+        .status-indicator.dark .transfer-item {
+            background: rgba(255,255,255,0.06);
+        }
+
+        .status-indicator .transfer-item.selected {
+            border-color: rgba(76, 139, 245, 0.95);
+        }
+
+        .status-indicator .transfer-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+            user-drag: none;
+            -webkit-user-drag: none;
+        }
+
+        @supports not (aspect-ratio: 1 / 1) {
+            .status-indicator .transfer-item {
+                height: 0;
+                padding-bottom: 100%;
+            }
+
+            .status-indicator .transfer-item img {
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
+        }
+
+        .status-indicator .transfer-item .transfer-remove {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 18px;
+            height: 18px;
+            border-radius: 9px;
+            border: 1px solid rgba(255,255,255,0.25);
+            background: rgba(0,0,0,0.55);
+            color: #fff;
+            font-size: 12px;
+            line-height: 16px;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+
+        .status-indicator .transfer-item:hover .transfer-remove {
+            display: flex;
+        }
+
+        .status-indicator .transfer-panel.dragover {
+            outline: 2px dashed rgba(76, 139, 245, 0.9);
+            outline-offset: -2px;
+        }
+
+        .status-indicator .transfer-paste-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            box-sizing: border-box;
+            z-index: 2;
+        }
+
+        .status-indicator .transfer-paste-overlay.open {
+            display: flex;
+        }
+
+        .status-indicator .transfer-paste-box {
+            width: 100%;
+            border-radius: 10px;
+            padding: 10px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            outline: none;
+        }
+
+        .status-indicator.light .transfer-paste-box {
+            background: rgba(255, 255, 255, 0.96);
+            color: #333;
+            border: 1px solid rgba(0, 0, 0, 0.12);
+        }
+
+        .status-indicator.dark .transfer-paste-box {
+            background: rgba(20, 24, 28, 0.96);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+        }
+
+        .status-indicator .transfer-paste-box-title {
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-indicator .transfer-paste-box-subtitle {
+            font-size: 11px;
+            opacity: 0.8;
+            line-height: 1.3;
+        }
+
+        .status-indicator .transfer-paste-box-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 6px;
+        }
+
+        .status-indicator .transfer-paste-close {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            background: transparent;
+            color: inherit;
+        }
+
+        .status-indicator.light .transfer-paste-close {
+            border-color: rgba(0, 0, 0, 0.12);
+        }
+
+        .status-indicator.dark .transfer-paste-close {
+            border-color: rgba(255, 255, 255, 0.18);
+        }
     `;
 
     // ==================== 主题管理 ====================
@@ -247,11 +572,11 @@
     }
 
     function updateStatusUI(statusType, queueSize, ramUsed, ramTotal, vramUsed, vramTotal, onlineUsers, onlineDomainUsers, onlineNodes) {
-        statusIndicator.innerHTML = '';
+        statusContent.innerHTML = '';
         state.isReconnectVisible = (statusType === 'exception' || statusType === 'disconnected');
         
         if (state.hasAdminAPI) {
-            statusIndicator.appendChild(backToAdminBtn);
+            statusContent.appendChild(backToAdminBtn);
         }
 
         const statusMap = {
@@ -286,19 +611,19 @@
             }
         }
 	    
-        statusIndicator.appendChild(firstRow);
+        statusContent.appendChild(firstRow);
 
         // 添加附加信息
         if (statusType === 'connected' && !isMobileDevice()) {
 	    // 显示 VRAM 使用情况
             const vramPercent = ((vramUsed / vramTotal) * 100).toFixed(1);
             vramUsage.textContent = `显存: ${vramPercent}%`;
-            statusIndicator.appendChild(vramUsage);
+            statusContent.appendChild(vramUsage);
 
             // 显示 RAM 使用情况
             const ramPercent = ((ramUsed / ramTotal) * 100).toFixed(1);
             ramUsage.textContent = `内存: ${ramPercent}%`;
-            statusIndicator.appendChild(ramUsage);
+            statusContent.appendChild(ramUsage);
 
             // 显示在线用户数
             if (onlineDomainUsers===0) {
@@ -306,12 +631,12 @@
 	    } else {
 		onlineUsersBadge.textContent = `用户: ${onlineUsers}/${onlineDomainUsers}`;
 	    }
-            statusIndicator.appendChild(onlineUsersBadge);
+            statusContent.appendChild(onlineUsersBadge);
 
 	    // 显示在线节点数
 	    if (onlineNodes!=0) {
                 onlineNodesBadge.textContent = `节点: ${onlineNodes}`;
-                statusIndicator.appendChild(onlineNodesBadge);
+                statusContent.appendChild(onlineNodesBadge);
 	    }
         }
     }
@@ -381,6 +706,7 @@
         function startDrag(e) {
             // 只响应左键 (button === 0)
             if (e.button === 0) {
+                if (e.target && e.target.closest && (e.target.closest('.transfer-panel') || e.target.closest('.transfer-toggle') || e.target.closest('.transfer-item') || e.target.closest('button'))) return;
                 e.preventDefault();
                 state.isDragging = true;
                 
@@ -400,6 +726,7 @@
         function startPointerDrag(e) {
             // 只响应主指针（通常是左键或触控板点击）
             if (e.isPrimary && (e.pointerType === 'mouse' || e.pointerType === 'touch')) {
+                if (e.target && e.target.closest && (e.target.closest('.transfer-panel') || e.target.closest('.transfer-toggle') || e.target.closest('.transfer-item') || e.target.closest('button'))) return;
                 e.preventDefault();
                 state.isDragging = true;
                 
@@ -419,6 +746,7 @@
         
         function startTouchDrag(e) {
             if (e.touches && e.touches.length === 1) {
+                if (e.target && e.target.closest && (e.target.closest('.transfer-panel') || e.target.closest('.transfer-toggle') || e.target.closest('.transfer-item') || e.target.closest('button'))) return;
                 e.preventDefault();
                 state.isDragging = true;
                 
@@ -513,99 +841,664 @@
         statusContainer.style.right = 'auto'; // 取消右侧定位
         statusContainer.style.bottom = 'auto'; // 取消底部定位
     }
-    // ==================== 避让行为逻辑 ====================
-    function initAvoidanceBehavior() {
-        statusContainer.addEventListener('mouseenter', (e) => {
-            if (state.isDragging || state.isReconnectVisible) return;
-            // 新增初始位置强制下移逻辑
-            if (!state.initialPositionMoved) {
-                const rect = statusContainer.getBoundingClientRect();
-                // 检测是否为初始位置（top:18px, right:3px）
-                if (Math.abs(rect.top - 18) < 2 &&
-                    Math.abs(window.innerWidth - rect.right - 3) < 2) {
-                    const newY = rect.top + 100;
-                    const maxY = window.innerHeight - rect.height - 3; // 安全边距
-                    moveElement(rect.left + rect.width/2, Math.min(newY, maxY) + rect.height/2);
-                    state.initialPositionMoved = true;
-                    return;
-                }
-            }
-            const rect = statusContainer.getBoundingClientRect();
-            const mouseX = e.clientX;
-            const mouseY = e.clientY;
 
-            // 计算避让方向
-            const centerX = rect.left + rect.width / 2;
-            const centerY = rect.top + rect.height / 2;
-            const deltaX = mouseX - centerX;
-            const deltaY = mouseY - centerY;
+    function clamp(n, min, max) {
+        return Math.max(min, Math.min(max, n));
+    }
 
-            // 新增边界保护计算
-            const safeMargin = 3;
-            const elementWidth = rect.width;
-            const elementHeight = rect.height;
-            const maxX = window.innerWidth - elementWidth - safeMargin;
-            const maxY = window.innerHeight - elementHeight - safeMargin;
-
-            // 新增反向移动检测
-            const isStuckLeft = rect.left <= safeMargin + 30;
-            const isStuckRight = rect.left >= maxX - 30;
-            const isStuckTop = rect.top <= safeMargin + 30;
-            const isStuckBottom = rect.top >= maxY - 30;
-
-            // 动态调整避让方向
-            let moveX = Math.min(100, window.innerWidth * 0.2);
-            let moveY = Math.min(80, window.innerHeight * 0.15);
-
-            // 修改开始：处理同时触碰两个边界的情况
-            const isStuckHorizontal = isStuckLeft || isStuckRight;
-            const isStuckVertical = isStuckTop || isStuckBottom;
-
-            if (isStuckHorizontal && isStuckVertical) {
-                // 当同时触碰两个边界时，增加反向移动距离
-                moveX *= -1.0;
-                moveY *= -1.0;
-            } else if (isStuckHorizontal) {
-                moveX *= -1;
-                moveY *= 0.8;
-            } else if (isStuckVertical) {
-                moveY *= -1;
-                moveX *= 0.8;
-            }
-
-            // 修改位移计算逻辑
-            let remainingMoveX = moveX;
-            let remainingMoveY = moveY;
-
-            // 水平方向剩余距离分配
-            const actualMoveX = deltaX > 0 ?
-                Math.min(remainingMoveX, rect.left - safeMargin) :
-                Math.min(remainingMoveX, maxX - rect.left);
-            remainingMoveX -= actualMoveX;
-            remainingMoveY += remainingMoveX * 0.6; // 将剩余水平移动量的60%转为垂直移动
-
-            // 垂直方向剩余距离分配
-            const actualMoveY = deltaY > 0 ?
-                Math.min(remainingMoveY, rect.top - safeMargin) :
-                Math.min(remainingMoveY, maxY - rect.top);
-            remainingMoveY -= actualMoveY;
-            remainingMoveX += remainingMoveY * 0.6; // 将剩余垂直移动量的60%转为水平移动
-
-            // 应用最终位移
-            newX = deltaX > 0 ? 
-                rect.left - (actualMoveX + remainingMoveX) : 
-                rect.left + (actualMoveX + remainingMoveX);
-                
-            newY = deltaY > 0 ?
-                rect.top - (actualMoveY + remainingMoveY) :
-                rect.top + (actualMoveY + remainingMoveY);
-
-            moveElement(
-                newX + rect.width / 2,  // 模拟鼠标中点的 X 坐标
-                newY + rect.height / 2   // 模拟鼠标中点的 Y 坐标
-            );
+    function readFileAsDataUrl(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onerror = () => reject(new Error('read_failed'));
+            reader.onload = () => resolve(reader.result);
+            reader.readAsDataURL(file);
         });
     }
+
+    function fileFromBlob(blob, filename, fallbackType) {
+        const type = blob && blob.type ? blob.type : (fallbackType || 'image/png');
+        const ext = type === 'image/jpeg' ? 'jpg' : (String(type).split('/')[1] || 'png');
+        const name = filename || `transfer_${Date.now()}.${ext}`;
+        return new File([blob], name, { type });
+    }
+
+    async function urlToBlob(url) {
+        const res = await fetch(url, { mode: 'cors' });
+        return await res.blob();
+    }
+
+    async function createThumbnailBlobFromBlob(blob, maxSide) {
+        const target = typeof maxSide === 'number' ? maxSide : 160;
+        try {
+            const bitmap = await createImageBitmap(blob);
+            const w = bitmap.width || 1;
+            const h = bitmap.height || 1;
+            const scale = Math.min(1, target / Math.max(w, h));
+            const tw = Math.max(1, Math.round(w * scale));
+            const th = Math.max(1, Math.round(h * scale));
+            const canvas = document.createElement('canvas');
+            canvas.width = tw;
+            canvas.height = th;
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return null;
+            ctx.drawImage(bitmap, 0, 0, tw, th);
+            if (bitmap && bitmap.close) bitmap.close();
+            const thumb = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.86));
+            return thumb || null;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    async function convertBlobToPng(blob) {
+        try {
+            const bitmap = await createImageBitmap(blob);
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.max(1, bitmap.width || 1);
+            canvas.height = Math.max(1, bitmap.height || 1);
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return null;
+            ctx.drawImage(bitmap, 0, 0);
+            if (bitmap && bitmap.close) bitmap.close();
+            const out = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
+            return out || null;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    async function blobToDataUrl(blob) {
+        try {
+            return await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onerror = () => reject(new Error('read failed'));
+                reader.onload = () => resolve(String(reader.result || ''));
+                reader.readAsDataURL(blob);
+            });
+        } catch (e) {
+            return '';
+        }
+    }
+
+    function setTransferHintMessage(message, durationMs) {
+        const text = String(message || '').trim();
+        const ms = typeof durationMs === 'number' ? durationMs : 1600;
+        transferState.hintOverride = text || null;
+        transferState.hintOverrideUntil = text ? (Date.now() + Math.max(250, ms)) : 0;
+        if (transferState.hintTimer) {
+            clearTimeout(transferState.hintTimer);
+            transferState.hintTimer = null;
+        }
+        if (text) {
+            transferState.hintTimer = setTimeout(() => {
+                transferState.hintOverride = null;
+                transferState.hintOverrideUntil = 0;
+                transferState.hintTimer = null;
+                renderTransferGrid();
+            }, Math.max(250, ms));
+        }
+        renderTransferGrid();
+    }
+
+    function ensureTransferPasteOverlay() {
+        if (transferState.pasteOverlayEl && transferState.pasteBoxEl && transferState.pasteCloseBtnEl) return;
+
+        const overlay = document.createElement('div');
+        overlay.className = 'transfer-paste-overlay';
+
+        const box = document.createElement('div');
+        box.className = 'transfer-paste-box';
+        box.tabIndex = 0;
+
+        const title = document.createElement('div');
+        title.className = 'transfer-paste-box-title';
+        title.textContent = '粘贴图片';
+
+        const subtitle = document.createElement('div');
+        subtitle.className = 'transfer-paste-box-subtitle';
+        subtitle.textContent = '请按 Ctrl+V';
+
+        const actions = document.createElement('div');
+        actions.className = 'transfer-paste-box-actions';
+
+        const closeBtn = document.createElement('button');
+        closeBtn.type = 'button';
+        closeBtn.className = 'transfer-paste-close';
+        closeBtn.textContent = '关闭';
+
+        actions.appendChild(closeBtn);
+        box.appendChild(title);
+        box.appendChild(subtitle);
+        box.appendChild(actions);
+        overlay.appendChild(box);
+        transferPanel.appendChild(overlay);
+
+        transferState.pasteOverlayEl = overlay;
+        transferState.pasteBoxEl = box;
+        transferState.pasteCloseBtnEl = closeBtn;
+
+        closeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            closeTransferPasteOverlay();
+        });
+
+        overlay.addEventListener('mousedown', (e) => {
+            if (e.target === overlay) closeTransferPasteOverlay();
+        });
+    }
+
+    function closeTransferPasteOverlay() {
+        if (!transferState.pasteOverlayEl) return;
+        transferState.pasteOverlayEl.classList.remove('open');
+
+        if (transferState.pasteHandler) {
+            document.removeEventListener('paste', transferState.pasteHandler, true);
+            transferState.pasteHandler = null;
+        }
+        if (transferState.keydownHandler) {
+            document.removeEventListener('keydown', transferState.keydownHandler, true);
+            transferState.keydownHandler = null;
+        }
+    }
+
+    function openTransferPasteOverlay() {
+        ensureTransferPasteOverlay();
+        if (!transferState.pasteOverlayEl || !transferState.pasteBoxEl) return;
+        transferState.pasteOverlayEl.classList.add('open');
+        try { transferState.pasteBoxEl.focus(); } catch (e) {}
+
+        if (!transferState.pasteHandler) {
+            transferState.pasteHandler = async (evt) => {
+                try {
+                    const data = evt && evt.clipboardData ? evt.clipboardData : null;
+                    const items = data && data.items ? Array.from(data.items) : [];
+                    let added = 0;
+                    for (const it of items) {
+                        if (!it || !it.type || !String(it.type).startsWith('image/')) continue;
+                        const file = it.getAsFile();
+                        if (!file) continue;
+                        await addTransferFile(file);
+                        added++;
+                    }
+                    if (added > 0) {
+                        evt.preventDefault();
+                        evt.stopPropagation();
+                        if (evt.stopImmediatePropagation) evt.stopImmediatePropagation();
+                        setTransferHintMessage(`已粘贴 ${added} 张`);
+                        closeTransferPasteOverlay();
+                        return;
+                    }
+
+                    const text = data && typeof data.getData === 'function' ? String(data.getData('text/plain') || '') : '';
+                    if (text && text.trim()) {
+                        evt.preventDefault();
+                        evt.stopPropagation();
+                        if (evt.stopImmediatePropagation) evt.stopImmediatePropagation();
+                        await addTransferUrl(text);
+                        setTransferHintMessage('已粘贴');
+                        closeTransferPasteOverlay();
+                        return;
+                    }
+
+                    setTransferHintMessage('剪贴板无图片');
+                } catch (e) {
+                    console.error('Paste capture failed:', e);
+                    setTransferHintMessage('粘贴失败');
+                }
+            };
+            document.addEventListener('paste', transferState.pasteHandler, true);
+        }
+
+        if (!transferState.keydownHandler) {
+            transferState.keydownHandler = (evt) => {
+                if (evt && evt.key === 'Escape') closeTransferPasteOverlay();
+            };
+            document.addEventListener('keydown', transferState.keydownHandler, true);
+        }
+    }
+
+    function initTransferDirectPaste() {
+        if (transferState.directPasteInited) return;
+        transferState.directPasteInited = true;
+
+        transferState.directPasteHandler = async (evt) => {
+            try {
+                if (!transferState.expanded) return;
+                if (!evt || evt.defaultPrevented) return;
+                if (transferState.pasteOverlayEl && transferState.pasteOverlayEl.classList && transferState.pasteOverlayEl.classList.contains('open')) return;
+
+                const data = evt.clipboardData || null;
+                const items = data && data.items ? Array.from(data.items) : [];
+                let added = 0;
+
+                for (const it of items) {
+                    if (!it || !it.type || !String(it.type).startsWith('image/')) continue;
+                    const file = it.getAsFile();
+                    if (!file) continue;
+                    await addTransferFile(file);
+                    added++;
+                }
+
+                if (added > 0) {
+                    evt.preventDefault();
+                    evt.stopPropagation();
+                    if (evt.stopImmediatePropagation) evt.stopImmediatePropagation();
+                    setTransferHintMessage(`已粘贴 ${added} 张`);
+                    closeTransferPasteOverlay();
+                }
+            } catch (e) {
+                console.error('Direct paste failed:', e);
+            }
+        };
+
+        document.addEventListener('paste', transferState.directPasteHandler, true);
+    }
+
+    function renderTransferGrid() {
+        transferList.innerHTML = '';
+        const now = Date.now();
+        const overrideActive = !!(transferState.hintOverride && transferState.hintOverrideUntil && now < transferState.hintOverrideUntil);
+        if (overrideActive) {
+            transferHint.textContent = transferState.hintOverride;
+            transferHint.style.display = 'block';
+        } else {
+            transferHint.textContent = '拖放图片到这里';
+            transferHint.style.display = transferState.items.length ? 'none' : 'block';
+        }
+
+        for (const item of transferState.items) {
+            const wrap = document.createElement('div');
+            wrap.className = 'transfer-item' + (item.id === transferState.selectedId ? ' selected' : '');
+            wrap.draggable = true;
+            wrap.dataset.transferId = String(item.id);
+
+            const img = document.createElement('img');
+            img.src = item.previewUrl;
+            img.alt = 'image';
+
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'transfer-remove';
+            removeBtn.type = 'button';
+            removeBtn.textContent = '×';
+
+            removeBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                removeTransferItem(item.id);
+            });
+
+            wrap.addEventListener('click', () => {
+                transferState.selectedId = item.id;
+                renderTransferGrid();
+            });
+
+            wrap.addEventListener('dragstart', (e) => {
+                try {
+                    e.dataTransfer.effectAllowed = 'copy';
+                    e.dataTransfer.setData('application/x-simpleai-transfer-id', String(item.id));
+                    e.dataTransfer.setData('text/plain', 'image');
+                    try {
+                        if (e.dataTransfer.items && item.blob) {
+                            const file = fileFromBlob(item.blob, item.name, item.type);
+                            e.dataTransfer.items.add(file);
+                        }
+                    } catch (e2) {
+                    }
+                } catch (err) {
+                }
+            });
+
+            wrap.appendChild(img);
+            wrap.appendChild(removeBtn);
+            transferList.appendChild(wrap);
+        }
+    }
+
+    function removeTransferItem(id) {
+        for (const item of transferState.items) {
+            if (item.id === id) {
+                try {
+                    if (item.previewUrl) URL.revokeObjectURL(item.previewUrl);
+                } catch (e) {
+                }
+            }
+        }
+        transferState.items = transferState.items.filter(x => x.id !== id);
+        if (transferState.selectedId === id) {
+            transferState.selectedId = transferState.items.length ? transferState.items[0].id : null;
+        }
+        renderTransferGrid();
+    }
+
+    function clearTransferItems() {
+        for (const item of transferState.items) {
+            try {
+                if (item.previewUrl) URL.revokeObjectURL(item.previewUrl);
+            } catch (e) {
+            }
+        }
+        transferState.items = [];
+        transferState.selectedId = null;
+        renderTransferGrid();
+    }
+
+    async function addTransferBlob(blob, filename) {
+        if (!blob) return;
+        const type = blob.type || 'image/png';
+        if (!String(type).startsWith('image/')) return;
+        const thumbBlob = await createThumbnailBlobFromBlob(blob, 160);
+        const previewBlob = thumbBlob || blob;
+        const previewUrl = URL.createObjectURL(previewBlob);
+
+        transferState.items.unshift({
+            id: transferState.nextId++,
+            blob,
+            type,
+            name: filename || `image_${Date.now()}.png`,
+            previewUrl
+        });
+        if (!transferState.selectedId) transferState.selectedId = transferState.items[0].id;
+        renderTransferGrid();
+    }
+
+    async function addTransferFile(file) {
+        if (!file || !file.type || !file.type.startsWith('image/')) return;
+        await addTransferBlob(file, file.name);
+    }
+
+    async function addTransferDataUrl(dataUrl) {
+        if (!dataUrl || typeof dataUrl !== 'string') return;
+        if (!dataUrl.startsWith('data:image/')) return;
+        try {
+            const blob = await (await fetch(dataUrl)).blob();
+            await addTransferBlob(blob, `image_${Date.now()}.png`);
+        } catch (e) {
+        }
+    }
+
+    async function addTransferUrl(url) {
+        if (!url || typeof url !== 'string') return;
+        const normalized = url.trim();
+        if (!normalized) return;
+        try {
+            if (normalized.startsWith('data:image/')) {
+                await addTransferDataUrl(normalized);
+                return;
+            }
+            const blob = await urlToBlob(normalized);
+            await addTransferBlob(blob, `image_${Date.now()}.png`);
+        } catch (e) {
+        }
+    }
+
+    function setFileInputFromFile(fileInput, file) {
+        if (!fileInput || !file) return false;
+        try {
+            const dt = new DataTransfer();
+            dt.items.add(file);
+            fileInput.files = dt.files;
+            fileInput.dispatchEvent(new Event('change', { bubbles: true }));
+            fileInput.dispatchEvent(new Event('input', { bubbles: true }));
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    function findFileInputForDropEvent(evt) {
+        try {
+            const root = gradioApp && gradioApp();
+            if (!root) return null;
+            let el = evt && evt.target ? evt.target : null;
+            for (let i = 0; i < 10 && el; i++) {
+                if (el.querySelector) {
+                    const input = el.querySelector('input[type="file"]');
+                    if (input) return input;
+                }
+                el = el.parentElement;
+            }
+
+            const x = typeof evt.clientX === 'number' ? evt.clientX : null;
+            const y = typeof evt.clientY === 'number' ? evt.clientY : null;
+            if (x === null || y === null) return null;
+
+            const inputs = Array.from(root.querySelectorAll('input[type="file"]'));
+            if (!inputs.length) return null;
+
+            let best = null;
+            let bestDist = Infinity;
+            for (const input of inputs) {
+                const rect = input.getBoundingClientRect();
+                const cx = clamp(x, rect.left, rect.right);
+                const cy = clamp(y, rect.top, rect.bottom);
+                const dx = x - cx;
+                const dy = y - cy;
+                const dist = (dx * dx) + (dy * dy);
+                if (dist < bestDist) {
+                    bestDist = dist;
+                    best = input;
+                }
+            }
+            return best;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function copyTextToClipboardLegacy(text) {
+        try {
+            const value = String(text || '');
+            if (!value) return false;
+            const ta = document.createElement('textarea');
+            ta.value = value;
+            ta.setAttribute('readonly', '');
+            ta.style.position = 'fixed';
+            ta.style.left = '-9999px';
+            ta.style.top = '0';
+            document.body.appendChild(ta);
+            ta.focus();
+            ta.select();
+            const ok = document.execCommand && document.execCommand('copy');
+            document.body.removeChild(ta);
+            return !!ok;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    async function copySelectedToClipboard() {
+        const item = transferState.items.find(x => x.id === transferState.selectedId);
+        if (!item || !item.blob) {
+            setTransferHintMessage('未选择图片');
+            return;
+        }
+        try {
+            try { window.focus(); } catch (e0) {}
+            if (navigator.clipboard && navigator.clipboard.write && window.ClipboardItem) {
+                const sourceBlob = item.blob;
+                await navigator.clipboard.write([
+                    new ClipboardItem({
+                        'image/png': (async () => (await convertBlobToPng(sourceBlob)) || sourceBlob)()
+                    })
+                ]);
+                setTransferHintMessage('已复制');
+                return;
+            }
+
+            const dataUrl = await blobToDataUrl(item.blob);
+            if (copyTextToClipboardLegacy(dataUrl)) {
+                setTransferHintMessage('已复制为文本');
+                return;
+            }
+        } catch (e) {
+            console.error('Clipboard copy failed:', e);
+            try {
+                const dataUrl = await blobToDataUrl(item.blob);
+                if (copyTextToClipboardLegacy(dataUrl)) {
+                    setTransferHintMessage('已复制为文本');
+                    return;
+                }
+            } catch (e2) {
+            }
+            setTransferHintMessage(window.isSecureContext ? '复制失败' : '复制失败：建议用 https/localhost');
+        }
+    }
+
+    function initTransferDropZone() {
+        const prevent = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+        };
+
+        transferPanel.addEventListener('dragover', (e) => {
+            prevent(e);
+            transferPanel.classList.add('dragover');
+        });
+
+        transferPanel.addEventListener('dragleave', (e) => {
+            prevent(e);
+            transferPanel.classList.remove('dragover');
+        });
+
+        transferPanel.addEventListener('drop', async (e) => {
+            prevent(e);
+            transferPanel.classList.remove('dragover');
+
+            const files = (e.dataTransfer && e.dataTransfer.files) ? Array.from(e.dataTransfer.files) : [];
+            if (files.length) {
+                for (const f of files) {
+                    await addTransferFile(f);
+                }
+                return;
+            }
+
+            const uri = e.dataTransfer ? (e.dataTransfer.getData('text/uri-list') || '') : '';
+            const text = e.dataTransfer ? (e.dataTransfer.getData('text/plain') || '') : '';
+            const payload = (uri || text).trim();
+            if (payload) {
+                try {
+                    await addTransferUrl(payload);
+                } catch (err) {
+                }
+            }
+        });
+    }
+
+    function initTransferActions() {
+        transferToggleBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            transferState.expanded = !transferState.expanded;
+            statusIndicator.classList.toggle('transfer-expanded', transferState.expanded);
+            transferToggleBtn.textContent = transferState.expanded ? '图片中转站 ▴' : '图片中转站 ▾';
+            if (!transferState.expanded) closeTransferPasteOverlay();
+        });
+
+        transferClearBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            clearTransferItems();
+        });
+
+        transferPasteBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            try {
+                try { window.focus(); } catch (e0) {}
+                let added = 0;
+                let usedApi = false;
+
+                if (navigator.clipboard && navigator.clipboard.read) {
+                    usedApi = true;
+                    try {
+                        const items = await navigator.clipboard.read();
+                        for (const clipItem of items) {
+                            const type = (clipItem.types || []).find(t => String(t).startsWith('image/'));
+                            if (!type) continue;
+                            const blob = await clipItem.getType(type);
+                            const file = new File([blob], `clipboard_${Date.now()}.png`, { type });
+                            await addTransferFile(file);
+                            added++;
+                        }
+                    } catch (e1) {
+                    }
+                }
+                if (added > 0) {
+                    setTransferHintMessage(`已粘贴 ${added} 张`);
+                    return;
+                }
+
+                if (navigator.clipboard && navigator.clipboard.readText) {
+                    usedApi = true;
+                    const text = await navigator.clipboard.readText();
+                    if (text && text.trim()) {
+                        await addTransferUrl(text);
+                        setTransferHintMessage('已粘贴');
+                        return;
+                    }
+                }
+
+                if (usedApi) {
+                    setTransferHintMessage('剪贴板无图片');
+                    return;
+                }
+                openTransferPasteOverlay();
+            } catch (err) {
+                console.error('Clipboard paste failed:', err);
+                openTransferPasteOverlay();
+            }
+        });
+    }
+
+    function initTransferDropToGradio() {
+        document.addEventListener('dragover', (e) => {
+            try {
+                const types = e.dataTransfer && e.dataTransfer.types ? Array.from(e.dataTransfer.types) : [];
+                const hasPayload = types.includes('application/x-simpleai-transfer-id') || types.includes('application/x-simpleai-image-dataurl');
+                if (!hasPayload) return;
+                e.preventDefault();
+            } catch (err) {
+            }
+        }, true);
+
+        document.addEventListener('drop', (e) => {
+            try {
+                const input = findFileInputForDropEvent(e);
+                if (!input) return;
+                const transferId = e.dataTransfer ? (e.dataTransfer.getData('application/x-simpleai-transfer-id') || '') : '';
+                if (transferId) {
+                    const idNum = Number(transferId);
+                    const item = transferState.items.find(x => x.id === idNum);
+                    if (item && item.blob) {
+                        const file = fileFromBlob(item.blob, item.name, item.type);
+                        if (setFileInputFromFile(input, file)) {
+                            e.preventDefault();
+                            return;
+                        }
+                    }
+                }
+                const dataUrl = e.dataTransfer ? (e.dataTransfer.getData('application/x-simpleai-image-dataurl') || '') : '';
+                if (dataUrl && typeof setFileInputFromDataUrl === 'function') {
+                    if (setFileInputFromDataUrl(input, dataUrl, `transfer_${Date.now()}.png`)) {
+                        e.preventDefault();
+                        return;
+                    }
+                }
+            } catch (err) {
+            }
+        }, true);
+    }
+
+    function initImageTransferStation() {
+        transferPanelActions.appendChild(transferPasteBtn);
+        transferPanelActions.appendChild(transferClearBtn);
+        transferPanel.appendChild(transferPanelActions);
+        transferPanel.appendChild(transferHint);
+        transferPanel.appendChild(transferList);
+        initTransferActions();
+        initTransferDropZone();
+        initTransferDropToGradio();
+        initTransferDirectPaste();
+        renderTransferGrid();
+    }
+
     function checkAdminAPIAvailability() {
         state.hasAdminAPI = !!(window.pywebview && 
                              window.pywebview.api && 
@@ -624,6 +1517,10 @@
 
         // 组装 DOM
         statusContainer.appendChild(statusIndicator);
+        statusIndicator.appendChild(statusContent);
+        statusIndicator.appendChild(transferToggleBtn);
+        statusIndicator.appendChild(transferPanel);
+        statusIndicator.classList.toggle('transfer-expanded', !!transferState.expanded);
         // 新增resize事件监听
         window.addEventListener('resize', () => {
             // 复位到初始位置
@@ -636,15 +1533,16 @@
         // 集成到 Gradio
         const gradioContainer = gradioApp();
         if (gradioContainer) {
-            gradioContainer.appendChild(statusContainer);
+            const host = document.body || gradioContainer;
+            host.appendChild(statusContainer);
             
             // 初始化拖拽功能
             initDragFeature();
+            initImageTransferStation();
         }
         // 启动检测
         setInterval(performHealthCheck, CHECK_INTERVAL);
         performHealthCheck();
-        initAvoidanceBehavior();
     }
 
     // 启动监控
