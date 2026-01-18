@@ -1069,6 +1069,33 @@ export class CanvasInteractions {
         const files = Array.from(e.dataTransfer.files);
         const coords = this.getMouseCoordinates(e);
         log.info(`Dropped ${files.length} file(s) onto canvas at position (${coords.world.x}, ${coords.world.y})`);
+        const hasImageFile = files.some((f) => String(f?.type || '').startsWith('image/'));
+        if (!files.length || !hasImageFile) {
+            try {
+                const dt = e.dataTransfer;
+                const uriListRaw = String(dt.getData('text/uri-list') || '');
+                const uriListFirst = uriListRaw
+                    .split(/\r?\n/g)
+                    .map((s) => s.trim())
+                    .find((s) => s && !s.startsWith('#'));
+                const textRaw = String(dt.getData('text/plain') || '').trim();
+                const payload = String(uriListFirst || textRaw || '').trim();
+                if (payload) {
+                    const resp = await fetch(payload);
+                    const blob = await resp.blob();
+                    const type = String(blob?.type || 'image/png');
+                    if (type.startsWith('image/')) {
+                        const file = new File([blob], `dropped_${Date.now()}.png`, { type });
+                        await this.loadDroppedImageFile(file, coords.world);
+                        log.info("Successfully loaded dropped image from URL payload");
+                        return;
+                    }
+                }
+            }
+            catch (error) {
+                log.warn("Failed to load dropped URL payload:", error);
+            }
+        }
         for (const file of files) {
             if (file.type.startsWith('image/')) {
                 try {

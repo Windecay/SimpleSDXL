@@ -282,7 +282,7 @@
 
         .status-indicator.dark .transfer-toggle {
             border-color: rgba(255, 255, 255, 0.18);
-            background: rgba(81, 125, 255, 0.3);
+            background: rgba(81, 125, 255, 0.5);
         }
 
         .status-indicator .transfer-panel {
@@ -1136,7 +1136,19 @@
                 try {
                     e.dataTransfer.effectAllowed = 'copy';
                     e.dataTransfer.setData('application/x-simpleai-transfer-id', String(item.id));
-                    e.dataTransfer.setData('text/plain', 'image');
+                    try {
+                        if (item.blob && !item.dragUrl) {
+                            item.dragUrl = URL.createObjectURL(item.blob);
+                        }
+                        if (item.dragUrl) {
+                            e.dataTransfer.setData('text/uri-list', String(item.dragUrl));
+                            e.dataTransfer.setData('text/plain', String(item.dragUrl));
+                        } else {
+                            e.dataTransfer.setData('text/plain', 'image');
+                        }
+                    } catch (e3) {
+                        e.dataTransfer.setData('text/plain', 'image');
+                    }
                     try {
                         if (e.dataTransfer.items && item.blob) {
                             const file = fileFromBlob(item.blob, item.name, item.type);
@@ -1161,6 +1173,10 @@
                     if (item.previewUrl) URL.revokeObjectURL(item.previewUrl);
                 } catch (e) {
                 }
+                try {
+                    if (item.dragUrl) URL.revokeObjectURL(item.dragUrl);
+                } catch (e) {
+                }
             }
         }
         transferState.items = transferState.items.filter(x => x.id !== id);
@@ -1174,6 +1190,10 @@
         for (const item of transferState.items) {
             try {
                 if (item.previewUrl) URL.revokeObjectURL(item.previewUrl);
+            } catch (e) {
+            }
+            try {
+                if (item.dragUrl) URL.revokeObjectURL(item.dragUrl);
             } catch (e) {
             }
         }
@@ -1364,6 +1384,11 @@
             prevent(e);
             transferPanel.classList.remove('dragover');
 
+            const transferId = e.dataTransfer ? (e.dataTransfer.getData('application/x-simpleai-transfer-id') || '') : '';
+            if (transferId) {
+                return;
+            }
+
             const files = (e.dataTransfer && e.dataTransfer.files) ? Array.from(e.dataTransfer.files) : [];
             if (files.length) {
                 for (const f of files) {
@@ -1448,8 +1473,41 @@
     }
 
     function initTransferDropToGradio() {
+        const isLayerForgeDragTarget = (evt) => {
+            try {
+                const t = evt && evt.target ? evt.target : null;
+                const iframe = t && t.closest ? (t.tagName === 'IFRAME' ? t : t.closest('iframe')) : (t && t.tagName === 'IFRAME' ? t : null);
+                if (!iframe) return false;
+                const src = String(iframe.getAttribute('src') || iframe.src || '');
+                return /file=javascript\/layerforge\/app\.html/i.test(src) || /javascript\/layerforge\/app\.html/i.test(src);
+            } catch (e) {
+                return false;
+            }
+        };
+
+        const isLayerForgePoint = (evt) => {
+            try {
+                if (isLayerForgeDragTarget(evt)) return true;
+                const x = typeof evt?.clientX === 'number' ? evt.clientX : null;
+                const y = typeof evt?.clientY === 'number' ? evt.clientY : null;
+                if (x === null || y === null) return false;
+                const iframes = Array.from(document.querySelectorAll('iframe'));
+                for (const iframe of iframes) {
+                    const src = String(iframe.getAttribute('src') || iframe.src || '');
+                    const isLayerForge = /file=javascript\/layerforge\/app\.html/i.test(src) || /javascript\/layerforge\/app\.html/i.test(src);
+                    if (!isLayerForge) continue;
+                    const r = iframe.getBoundingClientRect();
+                    if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return true;
+                }
+                return false;
+            } catch (e) {
+                return false;
+            }
+        };
+
         document.addEventListener('dragover', (e) => {
             try {
+                if (isLayerForgePoint(e)) return;
                 const types = e.dataTransfer && e.dataTransfer.types ? Array.from(e.dataTransfer.types) : [];
                 const hasPayload = types.includes('application/x-simpleai-transfer-id') || types.includes('application/x-simpleai-image-dataurl');
                 if (!hasPayload) return;
@@ -1460,6 +1518,7 @@
 
         document.addEventListener('drop', (e) => {
             try {
+                if (isLayerForgePoint(e)) return;
                 const input = findFileInputForDropEvent(e);
                 if (!input) return;
                 const transferId = e.dataTransfer ? (e.dataTransfer.getData('application/x-simpleai-transfer-id') || '') : '';
