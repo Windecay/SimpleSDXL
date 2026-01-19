@@ -77,6 +77,32 @@ onUiLoaded(async() => {
         };
 
         let fullScreenMode = false;
+        let isPointerInside = false;
+
+        function isEditableElement(el) {
+            if (!el) return false;
+            if (el.isContentEditable) return true;
+            const nodeName = el.nodeName;
+            if (nodeName === "INPUT" || nodeName === "TEXTAREA" || nodeName === "SELECT") return true;
+            return !!el.closest?.('input, textarea, select, [contenteditable="true"], [contenteditable=""], [role="textbox"]');
+        }
+
+        function shouldHandleCanvasHotkeys(event) {
+            if (activeElement !== elemId) return false;
+
+            const focused = document.activeElement;
+            const isEditing = isEditableElement(event.target) || isEditableElement(focused);
+            if (isEditing && !isPointerInside) return false;
+
+            if (isEditing) {
+                if (!hotkeysConfig.canvas_blur_prompt) return false;
+                focused?.blur?.();
+            }
+
+            if (isPointerInside) return true;
+            if (focused && targetElement.contains(focused)) return true;
+            return false;
+        }
 
         // Create tooltip
         function createTooltip() {
@@ -473,12 +499,7 @@ onUiLoaded(async() => {
                 return;
             }
 
-            // before activating shortcut, ensure user is not actively typing in an input field
-            if (!hotkeysConfig.canvas_blur_prompt) {
-                if (event.target.nodeName === 'TEXTAREA' || event.target.nodeName === 'INPUT') {
-                    return;
-                }
-            }
+            if (!shouldHandleCanvasHotkeys(event)) return;
 
             const hotkeyActions = {
                 [hotkeysConfig.canvas_hotkey_reset]: resetZoom,
@@ -554,7 +575,7 @@ onUiLoaded(async() => {
         // Handle events only inside the targetElement
         let isKeyDownHandlerAttached = false;
 
-        function handleMouseMove() {
+        function attachKeyDownHandler() {
             if (!isKeyDownHandlerAttached) {
                 document.addEventListener("keydown", handleKeyDown);
                 isKeyDownHandlerAttached = true;
@@ -563,18 +584,37 @@ onUiLoaded(async() => {
             }
         }
 
-        function handleMouseLeave() {
+        function detachKeyDownHandler() {
             if (isKeyDownHandlerAttached) {
                 document.removeEventListener("keydown", handleKeyDown);
                 isKeyDownHandlerAttached = false;
-
-                activeElement = null;
             }
         }
 
-        // Add mouse event handlers
-        targetElement.addEventListener("mousemove", handleMouseMove);
+        function handleMouseEnter() {
+            isPointerInside = true;
+            activeElement = elemId;
+            attachKeyDownHandler();
+        }
+
+        function handleMouseLeave() {
+            isPointerInside = false;
+            if (activeElement === elemId) activeElement = null;
+            detachKeyDownHandler();
+        }
+
+        function handleDocumentMouseDown(e) {
+            if (!targetElement.contains(e.target)) {
+                isPointerInside = false;
+                if (activeElement === elemId) activeElement = null;
+                detachKeyDownHandler();
+            }
+        }
+
+        targetElement.addEventListener("mouseenter", handleMouseEnter);
         targetElement.addEventListener("mouseleave", handleMouseLeave);
+        targetElement.addEventListener("mousedown", handleMouseEnter);
+        document.addEventListener("mousedown", handleDocumentMouseDown, true);
 
         targetElement.addEventListener("wheel", e => {
             // change zoom level
@@ -598,12 +638,7 @@ onUiLoaded(async() => {
                 return;
             }
 
-            // before activating shortcut, ensure user is not actively typing in an input field
-            if (!hotkeysConfig.canvas_blur_prompt) {
-                if (e.target.nodeName === 'TEXTAREA' || e.target.nodeName === 'INPUT') {
-                    return;
-                }
-            }
+            if (!shouldHandleCanvasHotkeys(e)) return;
 
 
             if (e.code === hotkeysConfig.canvas_hotkey_move) {

@@ -34,7 +34,7 @@
                 "switch_option1": {
                     "Flux2-AngleLight-1024px": false
                 },
-                "additional_prompt_title_2": "视角参数",
+                "additional_prompt_title_2": "灯光参数",
                 "additional_prompt_2": {
                     "Flux2-AngleLight-1024px": "SCENE LOCK, FIXED VIEWPOINT, maintaining character consistency and pose. RELIGHTING ONLY: light source from the right, high-angle light source, bright colored light (#FFFFFF), cinematic relighting"
                 },
