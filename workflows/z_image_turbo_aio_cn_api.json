@@ -5588,7 +5588,7 @@
   },
   "833": {
     "inputs": {
-      "model_url": "https://www.modelscope.cn/models/PAI/Z-Image-Turbo-Fun-Controlnet-Union-2.1/resolve/master/Z-Image-Turbo-Fun-Controlnet-Union-2.1-8steps.safetensors",
+      "model_url": "https://www.modelscope.cn/models/PAI/Z-Image-Turbo-Fun-Controlnet-Union-2.1/resolve/master/Z-Image-Turbo-Fun-Controlnet-Union-2.1-lite-2601-8steps.safetensors",
       "model_folder": "model_patches",
       "run_download": true,
       "overwrite_existing": false
