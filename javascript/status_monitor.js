@@ -121,6 +121,218 @@
         directPasteHandler: null
     };
 
+    transferState.nextId = Math.floor(Date.now() * 1000 + Math.random() * 1000);
+
+    const transferSync = {
+        tabId: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        channel: null,
+        supported: false,
+        inited: false,
+        suppress: false
+    };
+
+    function postTransferSyncMessage(payload) {
+        if (!transferSync.supported || !transferSync.channel || transferSync.suppress) return;
+        try {
+            transferSync.channel.postMessage(Object.assign({ senderId: transferSync.tabId }, payload || {}));
+        } catch (e) {
+        }
+    }
+
+    async function createTransferPreviewUrl(blob) {
+        const thumbBlob = await createThumbnailBlobFromBlob(blob, 160);
+        const previewBlob = thumbBlob || blob;
+        return URL.createObjectURL(previewBlob);
+    }
+
+    async function applyRemoteTransferState(snapshot) {
+        if (!snapshot || typeof snapshot !== 'object') return;
+        const remoteItems = Array.isArray(snapshot.items) ? snapshot.items : [];
+        const remoteSelectedId = snapshot.selectedId ?? null;
+        const remoteExpanded = !!snapshot.expanded;
+
+        transferSync.suppress = true;
+        try {
+            const wasEmpty = !transferState.items.length;
+            if (wasEmpty) {
+                transferState.expanded = remoteExpanded;
+                statusIndicator.classList.toggle('transfer-expanded', transferState.expanded);
+                transferToggleBtn.textContent = transferState.expanded ? '图片中转站 ▴' : '图片中转站 ▾';
+            }
+
+            for (const remote of remoteItems) {
+                if (!remote || !remote.blob) continue;
+                const id = typeof remote.id === 'number' ? remote.id : Number(remote.id);
+                if (!Number.isFinite(id)) continue;
+                if (transferState.items.some(x => x.id === id)) continue;
+                const blob = remote.blob;
+                const type = remote.type || blob.type || 'image/png';
+                const name = remote.name || `image_${Date.now()}.png`;
+                const previewUrl = await createTransferPreviewUrl(blob);
+                transferState.items.unshift({ id, blob, type, name, previewUrl });
+                if (!transferState.selectedId) transferState.selectedId = id;
+                transferState.nextId = Math.max(transferState.nextId, id + 1);
+            }
+
+            if (wasEmpty && remoteSelectedId !== null) {
+                const id = typeof remoteSelectedId === 'number' ? remoteSelectedId : Number(remoteSelectedId);
+                if (Number.isFinite(id) && transferState.items.some(x => x.id === id)) {
+                    transferState.selectedId = id;
+                }
+            }
+            if (!transferState.selectedId && transferState.items.length) {
+                transferState.selectedId = transferState.items[0].id;
+            }
+            if (!transferState.items.length) transferState.selectedId = null;
+
+            renderTransferGrid();
+        } finally {
+            transferSync.suppress = false;
+        }
+    }
+
+    async function applyRemoteTransferAdd(remote) {
+        if (!remote || !remote.blob) return;
+        const id = typeof remote.id === 'number' ? remote.id : Number(remote.id);
+        if (!Number.isFinite(id)) return;
+        if (transferState.items.some(x => x.id === id)) return;
+
+        transferSync.suppress = true;
+        try {
+            const blob = remote.blob;
+            const type = remote.type || blob.type || 'image/png';
+            const name = remote.name || `image_${Date.now()}.png`;
+            const previewUrl = await createTransferPreviewUrl(blob);
+            transferState.items.unshift({ id, blob, type, name, previewUrl });
+            if (!transferState.selectedId) transferState.selectedId = id;
+            transferState.nextId = Math.max(transferState.nextId, id + 1);
+            renderTransferGrid();
+        } finally {
+            transferSync.suppress = false;
+        }
+    }
+
+    function applyRemoteTransferRemove(idRaw) {
+        const id = typeof idRaw === 'number' ? idRaw : Number(idRaw);
+        if (!Number.isFinite(id)) return;
+        if (!transferState.items.some(x => x.id === id)) return;
+
+        transferSync.suppress = true;
+        try {
+            removeTransferItem(id);
+        } finally {
+            transferSync.suppress = false;
+        }
+    }
+
+    function applyRemoteTransferClear() {
+        transferSync.suppress = true;
+        try {
+            clearTransferItems();
+        } finally {
+            transferSync.suppress = false;
+        }
+    }
+
+    function applyRemoteTransferSelect(idRaw) {
+        const id = typeof idRaw === 'number' ? idRaw : Number(idRaw);
+        if (!Number.isFinite(id)) return;
+        if (!transferState.items.some(x => x.id === id)) return;
+
+        transferSync.suppress = true;
+        try {
+            transferState.selectedId = id;
+            renderTransferGrid();
+        } finally {
+            transferSync.suppress = false;
+        }
+    }
+
+    function applyRemoteTransferExpanded(expandedRaw) {
+        const expanded = !!expandedRaw;
+        transferSync.suppress = true;
+        try {
+            transferState.expanded = expanded;
+            statusIndicator.classList.toggle('transfer-expanded', transferState.expanded);
+            transferToggleBtn.textContent = transferState.expanded ? '图片中转站 ▴' : '图片中转站 ▾';
+            if (!transferState.expanded) closeTransferPasteOverlay();
+        } finally {
+            transferSync.suppress = false;
+        }
+    }
+
+    function initTransferCrossTabSync() {
+        if (transferSync.inited) return;
+        transferSync.inited = true;
+
+        if (!('BroadcastChannel' in window)) return;
+        try {
+            transferSync.channel = new BroadcastChannel('simpleai-transfer-station-v1');
+            transferSync.supported = true;
+        } catch (e) {
+            transferSync.supported = false;
+            transferSync.channel = null;
+            return;
+        }
+
+        transferSync.channel.addEventListener('message', (evt) => {
+            const data = evt ? evt.data : null;
+            if (!data || typeof data !== 'object') return;
+            if (data.senderId && data.senderId === transferSync.tabId) return;
+
+            const kind = data.kind;
+            if (kind === 'transfer_state_request') {
+                const requestId = data.requestId;
+                if (!requestId) return;
+                postTransferSyncMessage({
+                    kind: 'transfer_state',
+                    requestId,
+                    snapshot: {
+                        items: transferState.items.filter(x => x && x.blob).map(x => ({ id: x.id, blob: x.blob, type: x.type, name: x.name })),
+                        selectedId: transferState.selectedId,
+                        expanded: transferState.expanded
+                    }
+                });
+                return;
+            }
+            if (kind === 'transfer_state') {
+                const snapshot = data.snapshot;
+                applyRemoteTransferState(snapshot);
+                return;
+            }
+            if (kind === 'transfer_add') {
+                applyRemoteTransferAdd(data.item);
+                return;
+            }
+            if (kind === 'transfer_remove') {
+                applyRemoteTransferRemove(data.id);
+                return;
+            }
+            if (kind === 'transfer_clear') {
+                applyRemoteTransferClear();
+                return;
+            }
+            if (kind === 'transfer_select') {
+                applyRemoteTransferSelect(data.id);
+                return;
+            }
+            if (kind === 'transfer_expand') {
+                applyRemoteTransferExpanded(data.expanded);
+                return;
+            }
+        });
+
+        const requestState = () => {
+            const requestId = `${transferSync.tabId}:${Date.now()}:${Math.random().toString(16).slice(2)}`;
+            postTransferSyncMessage({ kind: 'transfer_state_request', requestId });
+        };
+
+        requestState();
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') requestState();
+        });
+    }
+
     // ==================== 样式配置 ====================
     const style = document.createElement('style');
     style.textContent = `
@@ -1130,6 +1342,7 @@
             wrap.addEventListener('click', () => {
                 transferState.selectedId = item.id;
                 renderTransferGrid();
+                postTransferSyncMessage({ kind: 'transfer_select', id: item.id });
             });
 
             wrap.addEventListener('dragstart', (e) => {
@@ -1184,6 +1397,7 @@
             transferState.selectedId = transferState.items.length ? transferState.items[0].id : null;
         }
         renderTransferGrid();
+        postTransferSyncMessage({ kind: 'transfer_remove', id });
     }
 
     function clearTransferItems() {
@@ -1200,6 +1414,7 @@
         transferState.items = [];
         transferState.selectedId = null;
         renderTransferGrid();
+        postTransferSyncMessage({ kind: 'transfer_clear' });
     }
 
     async function addTransferBlob(blob, filename) {
@@ -1210,15 +1425,17 @@
         const previewBlob = thumbBlob || blob;
         const previewUrl = URL.createObjectURL(previewBlob);
 
-        transferState.items.unshift({
+        const item = {
             id: transferState.nextId++,
             blob,
             type,
             name: filename || `image_${Date.now()}.png`,
             previewUrl
-        });
+        };
+        transferState.items.unshift(item);
         if (!transferState.selectedId) transferState.selectedId = transferState.items[0].id;
         renderTransferGrid();
+        postTransferSyncMessage({ kind: 'transfer_add', item: { id: item.id, blob: item.blob, type: item.type, name: item.name } });
     }
 
     async function addTransferFile(file) {
@@ -1416,6 +1633,7 @@
             statusIndicator.classList.toggle('transfer-expanded', transferState.expanded);
             transferToggleBtn.textContent = transferState.expanded ? '图片中转站 ▴' : '图片中转站 ▾';
             if (!transferState.expanded) closeTransferPasteOverlay();
+            postTransferSyncMessage({ kind: 'transfer_expand', expanded: transferState.expanded });
         });
 
         transferClearBtn.addEventListener('click', (e) => {
@@ -1556,6 +1774,7 @@
         initTransferDropToGradio();
         initTransferDirectPaste();
         renderTransferGrid();
+        initTransferCrossTabSync();
     }
 
     function checkAdminAPIAvailability() {

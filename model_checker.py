@@ -652,7 +652,8 @@ def delete_partial_files():
     scan_categories = [
         'checkpoints', 'loras', 'controlnet', 'embeddings',
         'vae_approx', 'vae', 'upscale_models', 'inpaint', "ipadapter",
-        'clip', 'clip_vision', 'llms', 'LLM', 'unet', 'diffusers', 'model_patches'
+        'clip', 'clip_vision', 'llms', 'LLM', 'unet', 'diffusers', 'model_patches',
+        'text_encoders', 'audio_encoders', 'safety_checker', 'layer_model', 'pulid', 'insightface',
     ]
 
     scan_dirs = []
@@ -674,6 +675,7 @@ def delete_partial_files():
 
     for model_dir in scan_dirs:
         if not os.path.exists(model_dir):
+            print(f"{Fore.YELLOW}△跳过不存在目录: {model_dir}{Style.RESET_ALL}")
             continue
 
         print(f"{Fore.CYAN}△扫描目录: {model_dir}{Style.RESET_ALL}")
@@ -693,9 +695,10 @@ def delete_partial_files():
                     obsolete_files_found.append(file_path)
                     files_found = True
     if files_found:
-        print(f"{Fore.YELLOW}△以下未下载完或损坏的文件将被删除：{Style.RESET_ALL}")
-        for file_path in files_to_delete:
-            print(f"- {file_path}")
+        if files_to_delete:
+            print(f"{Fore.YELLOW}△以下未下载完或损坏的文件将被删除：{Style.RESET_ALL}")
+            for file_path in files_to_delete:
+                print(f"- {file_path}")
 
         obsolete_total = sum(os.path.getsize(f) for f in obsolete_files_found if os.path.exists(f))
 
@@ -2323,7 +2326,7 @@ packages = {
         "note": "Flux2-Klein-9B图像编辑&多角度打光，高效快速|显存需求：★★★ 速度：★★★",
         "files": [
             ("diffusion_models/https://www.modelscope.cn/models/black-forest-labs/FLUX.2-klein-9b-fp8/resolve/master/flux-2-klein-9b-fp8.safetensors", 9433061528),
-            ("text_encoders/https://www.modelscope.cn/models/Comfy-Org/flux2-klein-9B/resolve/master/split_files/text_encoders/qwen_3_8b_fp8mixed.safetensors", 8664848742),
+            ("text_encoders/https://www.modelscope.cn/models/silveroxides/FLUX.2-dev-fp8_scaled/resolve/master/qwen3_8b_abliterated_v2-fp8mixed.safetensors", 8191194604),
             ("vae/https://www.modelscope.cn/models/Comfy-Org/flux2-klein-4B/resolve/master/split_files/vae/flux2-vae.safetensors", 336211292),
             ("controlnet/hr16/DWPose-TorchScript-BatchSize5/https://www.modelscope.cn/models/svjack/DWPose-TorchScript-BatchSize5/resolve/master/dw-ll_ucoco_384_bs5.torchscript.pt", 135059124),
             ("controlnet/yzd-v/DWPose/https://www.modelscope.cn/models/zhangjin/DWPose/resolve/master/yolox_l.onnx", 216746733),
@@ -2455,7 +2458,8 @@ OBSOLETE_MODELS = [
     "Z-Image-Turbo-Fun-Controlnet-Union.safetensors",
     "Z-Image-Turbo-Fun-Controlnet-Union-2.0.safetensors",
     "Z-Image-Turbo-Fun-Controlnet-Union-2.1.safetensors",
-    "qwen-image-Q4_K_M.gguf"
+    "qwen-image-Q4_K_M.gguf",
+    "qwen_3_8b_fp8mixed.safetensors"
 ]
 
 MODELSCOPE_FILE_CACHE = {}

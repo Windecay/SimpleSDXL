@@ -41,7 +41,7 @@
   },
   "6": {
     "inputs": {
-      "clip_name": "qwen_3_8b_fp8mixed.safetensors",
+      "clip_name": "qwen3_8b_abliterated_v2-fp8mixed.safetensors",
       "type": "flux2",
       "device": "default"
     },
