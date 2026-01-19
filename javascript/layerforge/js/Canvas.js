@@ -471,6 +471,8 @@ export class Canvas {
         this.canvas.style.height = '100%';
         this.canvas.tabIndex = 0;
         this.canvas.style.outline = 'none';
+        this.canvas.style.touchAction = 'none';
+        this.canvas.style.userSelect = 'none';
     }
     getViewPixelSize() {
         const rect = (() => {

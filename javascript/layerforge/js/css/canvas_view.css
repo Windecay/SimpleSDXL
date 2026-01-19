@@ -667,3 +667,80 @@
     flex-grow: 1;
     position: relative;
 }
+
+.painter-button.mobile-only {
+    display: none;
+}
+
+@media (max-width: 900px) {
+    .painter-button.mobile-only {
+        display: flex;
+    }
+    .painter-controls {
+        padding: 6px;
+        gap: 6px;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+    .painter-controls::-webkit-scrollbar {
+        height: 0;
+    }
+    .painter-controls > * {
+        flex: 0 0 auto;
+    }
+    .painter-button-group,
+    .painter-clipboard-group {
+        flex-wrap: nowrap;
+    }
+    .painter-button {
+        min-width: 0;
+        padding: 6px 10px;
+        font-size: 11px;
+        margin: 1px;
+        white-space: nowrap;
+    }
+    .painter-button.icon-button {
+        width: 28px;
+        height: 28px;
+        min-width: 28px;
+        font-size: 15px;
+        line-height: 28px;
+    }
+    .painter-separator {
+        height: 18px;
+        margin: 0 4px;
+    }
+    .clipboard-switch {
+        width: 76px;
+        height: 28px;
+    }
+    .painter-slider-container {
+        min-width: 84px;
+        font-size: 11px;
+    }
+    .painter-slider-container input[type="range"] {
+        width: 72px;
+    }
+    .painterMainContainer.is-mobile .painterCanvasContainer {
+        left: 8px !important;
+        right: 8px !important;
+        bottom: 8px !important;
+    }
+    .painterMainContainer.is-mobile .painterLayersPanelContainer {
+        width: min(360px, 92vw) !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        transform: translateX(105%);
+        transition: transform 160ms ease-out;
+        z-index: 50;
+        background: #2f2f2f;
+        border-left: 1px solid #202020;
+        box-shadow: -8px 0 20px rgba(0, 0, 0, 0.45);
+    }
+    .painterMainContainer.is-mobile.layers-open .painterLayersPanelContainer {
+        transform: translateX(0);
+    }
+}

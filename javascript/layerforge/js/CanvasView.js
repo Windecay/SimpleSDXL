@@ -88,6 +88,16 @@ export async function createCanvasWidget(node, widget, app) {
                     textContent: "⛶",
                     title: "在编辑器中打开",
                 }),
+                $el("button.painter-button.icon-button.mobile-only", {
+                    id: `toggle-layers-btn-${node.id}`,
+                    textContent: "☰",
+                    title: "图层面板",
+                }),
+                $el("button.painter-button.icon-button", {
+                    id: `toggle-aspect-btn-${node.id}`,
+                    textContent: "⛓",
+                    title: "等比缩放",
+                }),
                 $el("button.painter-button.icon-button", {
                     textContent: "?",
                     onmouseenter: (e) => {
@@ -951,6 +961,46 @@ export async function createCanvasWidget(node, widget, app) {
     if (node.addDOMWidget) {
         node.addDOMWidget("mainContainer", "widget", mainContainer);
     }
+    const toggleLayersBtn = controlPanel.querySelector(`#toggle-layers-btn-${node.id}`);
+    if (toggleLayersBtn) {
+        toggleLayersBtn.addEventListener('click', () => {
+            mainContainer.classList.toggle('layers-open');
+        });
+    }
+    if (typeof canvas.keepAspectRatio !== 'boolean') {
+        canvas.keepAspectRatio = true;
+    }
+    const toggleAspectBtn = controlPanel.querySelector(`#toggle-aspect-btn-${node.id}`);
+    const syncAspectBtn = () => {
+        if (!toggleAspectBtn)
+            return;
+        toggleAspectBtn.classList.toggle('success', !!canvas.keepAspectRatio);
+        toggleAspectBtn.title = canvas.keepAspectRatio ? "等比缩放：开" : "等比缩放：关";
+        toggleAspectBtn.setAttribute('aria-label', toggleAspectBtn.title);
+    };
+    syncAspectBtn();
+    if (toggleAspectBtn) {
+        toggleAspectBtn.addEventListener('click', () => {
+            canvas.keepAspectRatio = !canvas.keepAspectRatio;
+            syncAspectBtn();
+        });
+    }
+    const mobileQuery = window.matchMedia?.('(max-width: 900px)');
+    const applyResponsiveClass = () => {
+        const isMobile = mobileQuery ? mobileQuery.matches : (window.innerWidth <= 900);
+        mainContainer.classList.toggle('is-mobile', !!isMobile);
+        if (!isMobile) {
+            mainContainer.classList.remove('layers-open');
+        }
+    };
+    applyResponsiveClass();
+    if (mobileQuery && typeof mobileQuery.addEventListener === 'function') {
+        mobileQuery.addEventListener('change', applyResponsiveClass);
+    }
+    else if (mobileQuery && typeof mobileQuery.addListener === 'function') {
+        mobileQuery.addListener(applyResponsiveClass);
+    }
+    window.addEventListener('resize', applyResponsiveClass, { passive: true });
     const openEditorBtn = controlPanel.querySelector(`#open-editor-btn-${node.id}`);
     let backdrop = null;
     let originalParent = null;

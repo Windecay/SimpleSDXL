@@ -20,6 +20,7 @@
             display: flex;
             flex-direction: column;
             height: 100vh;
+            height: 100dvh;
         }
         #editor-container {
             flex: 1;
@@ -33,6 +34,7 @@
             align-items: center;
             padding: 0 10px;
             border-bottom: 1px solid #3d3d3d;
+            gap: 6px;
         }
         .btn {
             background-color: #3d3d3d;
@@ -52,6 +54,64 @@
         .btn-primary:hover {
             background-color: #0098ff;
         }
+
+        #paint-color {
+            width: 44px;
+            height: 30px;
+            padding: 0;
+            border: 1px solid #555;
+            border-radius: 6px;
+            background: transparent;
+        }
+        #paint-color::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+        #paint-color::-webkit-color-swatch {
+            border: none;
+            border-radius: 6px;
+        }
+
+        #status-text {
+            white-space: nowrap;
+        }
+
+        @media (max-width: 700px) {
+            #toolbar {
+                height: 44px;
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                overflow-y: hidden;
+                -webkit-overflow-scrolling: touch;
+                padding: 6px 8px;
+                align-items: center;
+            }
+            #toolbar::-webkit-scrollbar {
+                height: 0;
+            }
+            #toolbar > * {
+                flex: 0 0 auto;
+            }
+            .btn {
+                padding: 7px 10px;
+                margin-right: 6px;
+                white-space: nowrap;
+            }
+            #paint-size {
+                width: 110px !important;
+                margin-right: 6px !important;
+            }
+            #status-text {
+                margin-left: auto;
+            }
+            #toolbar-spacer {
+                flex: 0 0 auto !important;
+                width: 0 !important;
+            }
+            #paint-color {
+                width: 44px;
+                height: 32px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -63,7 +123,7 @@
         <input id="paint-size" type="range" min="1" max="160" value="18" style="width:140px; margin-right:10px;">
         <button class="btn" id="paint-new-layer">新建层</button>
         <button class="btn" id="paint-clear-layer">清空层</button>
-        <span style="flex:1"></span>
+        <span id="toolbar-spacer" style="flex:1"></span>
         <span id="status-text" style="font-size: 12px; color: #aaa;">就绪</span>
     </div>
     <div id="editor-container"></div>
@@ -112,6 +172,11 @@
         let paintCtx = null;
         let isPainting = false;
         let lastPaintPt = null;
+        let paintActivePointerId = null;
+        let paintPointers = new Map();
+        let pinchLastDistance = null;
+        let pinchLastMid = null;
+        let previousCanvasPointerEvents = null;
 
         const prevOnError = window.onerror;
         window.onerror = (...args) => {
@@ -146,6 +211,8 @@
                 overlay.style.height = '100%';
                 overlay.style.pointerEvents = 'none';
                 overlay.style.zIndex = '9999';
+                overlay.style.touchAction = 'none';
+                overlay.style.userSelect = 'none';
                 const overlayHost = canvasInstance?.canvasContainer || canvasInstance?.canvas?.parentElement || editorContainer;
                 try {
                     const ps = window.getComputedStyle(overlayHost);
@@ -182,9 +249,28 @@
                     paintEnabled = !!enabled;
                     paintToggle.classList.toggle('btn-primary', paintEnabled);
                     overlay.style.pointerEvents = paintEnabled ? 'auto' : 'none';
+                    if (canvasInstance?.canvas) {
+                        const shouldLockCanvas = (navigator.maxTouchPoints > 0) || (window.matchMedia?.('(max-width: 900px)')?.matches ?? false);
+                        if (shouldLockCanvas) {
+                            if (paintEnabled) {
+                                if (previousCanvasPointerEvents === null) {
+                                    previousCanvasPointerEvents = canvasInstance.canvas.style.pointerEvents || '';
+                                }
+                                canvasInstance.canvas.style.pointerEvents = 'none';
+                            }
+                            else {
+                                canvasInstance.canvas.style.pointerEvents = previousCanvasPointerEvents ?? '';
+                                previousCanvasPointerEvents = null;
+                            }
+                        }
+                    }
                     if (!paintEnabled) {
                         isPainting = false;
                         lastPaintPt = null;
+                        paintActivePointerId = null;
+                        paintPointers.clear();
+                        pinchLastDistance = null;
+                        pinchLastMid = null;
                         clearOverlay();
                     }
                 };
@@ -298,9 +384,9 @@
                     const py = w.y - bounds.y;
                     const outW = Math.max(1, Math.round(bounds.width));
                     const outH = Math.max(1, Math.round(bounds.height));
-                    if (px < 0 || py < 0 || px > outW || py > outH)
-                        return null;
-                    return { x: px, y: py };
+                    const cx = Math.max(0, Math.min(outW, px));
+                    const cy = Math.max(0, Math.min(outH, py));
+                    return { x: cx, y: cy };
                 };
 
                 const drawOverlayStroke = (a, b) => {
@@ -347,32 +433,42 @@
                     overlayCtx.restore();
                 };
 
-                overlay.addEventListener('pointerdown', async (e) => {
-                    if (!paintEnabled)
-                        return;
-                    e.preventDefault();
-                    e.stopPropagation();
-                    updateOverlaySize();
-                    clearOverlay();
-                    await ensurePaintLayer();
-                    const p = getPaintPoint(e);
-                    if (!p || !paintCtx)
-                        return;
-                    isPainting = true;
-                    lastPaintPt = p;
-                    try {
-                        overlay.setPointerCapture(e.pointerId);
-                    } catch {
-                    }
-                });
+                const getCanvasViewPointFromClient = (clientX, clientY) => {
+                    const c = canvasInstance?.canvas;
+                    if (!c)
+                        return null;
+                    const rect = c.getBoundingClientRect();
+                    const vx = ((clientX - rect.left) * c.width) / rect.width;
+                    const vy = ((clientY - rect.top) * c.height) / rect.height;
+                    return { vx, vy, rect };
+                };
 
-                overlay.addEventListener('pointermove', (e) => {
-                    if (!paintEnabled || !isPainting || !paintCtx || !lastPaintPt)
+                const applyPinchZoomAndPan = (zoomFactor, midClientX, midClientY) => {
+                    if (!canvasInstance?.canvas || !canvasInstance?.viewport)
                         return;
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const p = getPaintPoint(e);
-                    if (!p)
+                    const view = getCanvasViewPointFromClient(midClientX, midClientY);
+                    if (!view)
+                        return;
+                    const anchorWorld = pinchLastMid ? getWorldFromClient(pinchLastMid.clientX, pinchLastMid.clientY) : null;
+                    if (!anchorWorld)
+                        return;
+                    const prevZoom = canvasInstance.viewport.zoom || 1;
+                    const nextZoom = Math.max(0.02, Math.min(20, prevZoom * zoomFactor));
+                    canvasInstance.viewport.zoom = nextZoom;
+                    canvasInstance.viewport.x = anchorWorld.x - (view.vx / nextZoom);
+                    canvasInstance.viewport.y = anchorWorld.y - (view.vy / nextZoom);
+                    try {
+                        if (typeof canvasInstance.onViewportChange === 'function') {
+                            canvasInstance.onViewportChange();
+                        }
+                    }
+                    catch {
+                    }
+                    canvasInstance.render();
+                };
+
+                const drawSegment = (fromPt, toPt) => {
+                    if (!paintCtx || !fromPt || !toPt)
                         return;
                     paintCtx.save();
                     paintCtx.globalAlpha = 1;
@@ -381,32 +477,124 @@
                     paintCtx.lineCap = 'round';
                     paintCtx.lineJoin = 'round';
                     paintCtx.beginPath();
-                    paintCtx.moveTo(lastPaintPt.x, lastPaintPt.y);
-                    paintCtx.lineTo(p.x, p.y);
+                    paintCtx.moveTo(fromPt.x, fromPt.y);
+                    paintCtx.lineTo(toPt.x, toPt.y);
                     paintCtx.stroke();
                     paintCtx.restore();
-                    drawOverlayStroke(lastPaintPt, p);
-                    lastPaintPt = p;
-                });
+                    drawOverlayStroke(fromPt, toPt);
+                };
 
-                const endPaint = async (e) => {
-                    if (!isPainting)
+                overlay.addEventListener('pointerdown', async (e) => {
+                    if (!paintEnabled)
                         return;
                     e.preventDefault();
                     e.stopPropagation();
-                    isPainting = false;
-                    lastPaintPt = null;
+                    updateOverlaySize();
+                    try {
+                        overlay.setPointerCapture(e.pointerId);
+                    }
+                    catch {
+                    }
+                    paintPointers.set(e.pointerId, { clientX: e.clientX, clientY: e.clientY });
+                    if (e.pointerType !== 'mouse' && paintPointers.size === 2) {
+                        if (isPainting && paintCtx && paintCanvas) {
+                            try {
+                                commitPaintLayer();
+                            }
+                            catch {
+                            }
+                        }
+                        isPainting = false;
+                        lastPaintPt = null;
+                        paintActivePointerId = null;
+                        clearOverlay();
+                        const pts = Array.from(paintPointers.values());
+                        const dx = pts[0].clientX - pts[1].clientX;
+                        const dy = pts[0].clientY - pts[1].clientY;
+                        pinchLastDistance = Math.hypot(dx, dy);
+                        pinchLastMid = {
+                            clientX: (pts[0].clientX + pts[1].clientX) / 2,
+                            clientY: (pts[0].clientY + pts[1].clientY) / 2
+                        };
+                        return;
+                    }
+                    pinchLastDistance = null;
+                    pinchLastMid = null;
                     clearOverlay();
+                    await ensurePaintLayer();
+                    const p = getPaintPoint(e);
+                    if (!p || !paintCtx)
+                        return;
+                    isPainting = true;
+                    paintActivePointerId = e.pointerId;
+                    lastPaintPt = p;
+                });
+
+                overlay.addEventListener('pointermove', (e) => {
+                    if (!paintEnabled)
+                        return;
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (paintPointers.has(e.pointerId)) {
+                        paintPointers.set(e.pointerId, { clientX: e.clientX, clientY: e.clientY });
+                    }
+                    if (e.pointerType !== 'mouse' && paintPointers.size === 2 && pinchLastDistance && pinchLastMid) {
+                        const pts = Array.from(paintPointers.values());
+                        const dx = pts[0].clientX - pts[1].clientX;
+                        const dy = pts[0].clientY - pts[1].clientY;
+                        const dist = Math.hypot(dx, dy);
+                        if (Number.isFinite(dist) && dist > 0) {
+                            const mid = {
+                                clientX: (pts[0].clientX + pts[1].clientX) / 2,
+                                clientY: (pts[0].clientY + pts[1].clientY) / 2
+                            };
+                            const factor = dist / pinchLastDistance;
+                            if (Number.isFinite(factor) && factor > 0) {
+                                applyPinchZoomAndPan(factor, mid.clientX, mid.clientY);
+                            }
+                            pinchLastDistance = dist;
+                            pinchLastMid = mid;
+                        }
+                        return;
+                    }
+                    if (!isPainting || !paintCtx || !lastPaintPt || paintActivePointerId !== e.pointerId)
+                        return;
+                    const events = typeof e.getCoalescedEvents === 'function' ? e.getCoalescedEvents() : [e];
+                    for (const ev of events) {
+                        const p = getPaintPoint(ev);
+                        if (!p)
+                            continue;
+                        drawSegment(lastPaintPt, p);
+                        lastPaintPt = p;
+                    }
+                }, { passive: false });
+
+                const endPaint = async (e) => {
+                    if (!paintEnabled)
+                        return;
+                    e.preventDefault();
+                    e.stopPropagation();
+                    paintPointers.delete(e.pointerId);
                     try {
                         overlay.releasePointerCapture(e.pointerId);
-                    } catch {
                     }
+                    catch {
+                    }
+                    if (paintPointers.size < 2) {
+                        pinchLastDistance = null;
+                        pinchLastMid = null;
+                    }
+                    if (!isPainting || paintActivePointerId !== e.pointerId)
+                        return;
+                    isPainting = false;
+                    lastPaintPt = null;
+                    paintActivePointerId = null;
+                    clearOverlay();
                     await commitPaintLayer();
                 };
 
-                overlay.addEventListener('pointerup', endPaint);
-                overlay.addEventListener('pointercancel', endPaint);
-                overlay.addEventListener('pointerleave', endPaint);
+                overlay.addEventListener('pointerup', endPaint, { passive: false });
+                overlay.addEventListener('pointercancel', endPaint, { passive: false });
 
                 let pendingOverlayResize = false;
                 const scheduleOverlayResize = () => {

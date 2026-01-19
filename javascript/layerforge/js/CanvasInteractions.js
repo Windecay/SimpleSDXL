@@ -9,6 +9,10 @@ export class CanvasInteractions {
         this.onMouseUp = (e) => this.handleMouseUp(e);
         this.onMouseEnter = (e) => { this.canvas.isMouseOver = true; this.handleMouseEnter(e); };
         this.onMouseLeave = (e) => { this.canvas.isMouseOver = false; this.handleMouseLeave(e); };
+        this.onPointerDown = (e) => this.handlePointerDown(e);
+        this.onPointerMove = (e) => this.handlePointerMove(e);
+        this.onPointerUp = (e) => this.handlePointerUp(e);
+        this.onPointerCancel = (e) => this.handlePointerCancel(e);
         this.onWheel = (e) => this.handleWheel(e);
         this.onKeyDown = (e) => this.handleKeyDown(e);
         this.onKeyUp = (e) => this.handleKeyUp(e);
@@ -44,6 +48,10 @@ export class CanvasInteractions {
             hoveringGrabIcon: false,
         };
         this.originalLayerPositions = new Map();
+        this.activePointerId = null;
+        this.touchPointers = new Map();
+        this.lastPinchDistance = null;
+        this.lastPinchMidpoint = null;
     }
     // Helper functions to eliminate code duplication
     getMouseCoordinates(e) {
@@ -98,6 +106,10 @@ export class CanvasInteractions {
         this.canvas.canvas.addEventListener('mousedown', this.onMouseDown);
         this.canvas.canvas.addEventListener('mousemove', this.onMouseMove);
         this.canvas.canvas.addEventListener('mouseup', this.onMouseUp);
+        this.canvas.canvas.addEventListener('pointerdown', this.onPointerDown, { passive: false });
+        this.canvas.canvas.addEventListener('pointermove', this.onPointerMove, { passive: false });
+        this.canvas.canvas.addEventListener('pointerup', this.onPointerUp, { passive: false });
+        this.canvas.canvas.addEventListener('pointercancel', this.onPointerCancel, { passive: false });
         this.canvas.canvas.addEventListener('wheel', this.onWheel, { passive: false });
         this.canvas.canvas.addEventListener('keydown', this.onKeyDown);
         this.canvas.canvas.addEventListener('keyup', this.onKeyUp);
@@ -116,6 +128,10 @@ export class CanvasInteractions {
         this.canvas.canvas.removeEventListener('mousedown', this.onMouseDown);
         this.canvas.canvas.removeEventListener('mousemove', this.onMouseMove);
         this.canvas.canvas.removeEventListener('mouseup', this.onMouseUp);
+        this.canvas.canvas.removeEventListener('pointerdown', this.onPointerDown);
+        this.canvas.canvas.removeEventListener('pointermove', this.onPointerMove);
+        this.canvas.canvas.removeEventListener('pointerup', this.onPointerUp);
+        this.canvas.canvas.removeEventListener('pointercancel', this.onPointerCancel);
         this.canvas.canvas.removeEventListener('wheel', this.onWheel);
         this.canvas.canvas.removeEventListener('keydown', this.onKeyDown);
         this.canvas.canvas.removeEventListener('keyup', this.onKeyUp);
@@ -128,6 +144,136 @@ export class CanvasInteractions {
         this.canvas.canvas.removeEventListener('dragleave', this.onDragLeave);
         this.canvas.canvas.removeEventListener('drop', this.onDrop);
         this.canvas.canvas.removeEventListener('contextmenu', this.onContextMenu);
+    }
+    getActivePinchPoints() {
+        if (this.touchPointers.size !== 2) {
+            return null;
+        }
+        const points = Array.from(this.touchPointers.values());
+        const a = points[0];
+        const b = points[1];
+        if (!a || !b) {
+            return null;
+        }
+        return { a, b };
+    }
+    startPinchGesture() {
+        const pts = this.getActivePinchPoints();
+        if (!pts) {
+            this.lastPinchDistance = null;
+            this.lastPinchMidpoint = null;
+            return;
+        }
+        const dx = pts.a.clientX - pts.b.clientX;
+        const dy = pts.a.clientY - pts.b.clientY;
+        const dist = Math.hypot(dx, dy);
+        if (!Number.isFinite(dist) || dist <= 0) {
+            return;
+        }
+        this.lastPinchDistance = dist;
+        this.lastPinchMidpoint = {
+            clientX: (pts.a.clientX + pts.b.clientX) / 2,
+            clientY: (pts.a.clientY + pts.b.clientY) / 2,
+        };
+        this.activePointerId = null;
+        this.resetInteractionState();
+    }
+    updatePinchGesture() {
+        const pts = this.getActivePinchPoints();
+        if (!pts || !this.lastPinchMidpoint || !Number.isFinite(this.lastPinchDistance)) {
+            return;
+        }
+        const dx = pts.a.clientX - pts.b.clientX;
+        const dy = pts.a.clientY - pts.b.clientY;
+        const dist = Math.hypot(dx, dy);
+        if (!Number.isFinite(dist) || dist <= 0) {
+            return;
+        }
+        const midpoint = {
+            clientX: (pts.a.clientX + pts.b.clientX) / 2,
+            clientY: (pts.a.clientY + pts.b.clientY) / 2,
+        };
+        const zoomFactor = dist / this.lastPinchDistance;
+        if (!Number.isFinite(zoomFactor) || zoomFactor <= 0) {
+            return;
+        }
+        const prevMidWorld = this.canvas.getMouseWorldCoordinates(this.lastPinchMidpoint);
+        this.performZoomOperation(prevMidWorld, zoomFactor);
+        const newMidWorld = this.canvas.getMouseWorldCoordinates(midpoint);
+        this.canvas.viewport.x += (prevMidWorld.x - newMidWorld.x);
+        this.canvas.viewport.y += (prevMidWorld.y - newMidWorld.y);
+        try {
+            this.canvas.onViewportChange?.();
+        }
+        catch {
+        }
+        this.canvas.render();
+        this.lastPinchDistance = dist;
+        this.lastPinchMidpoint = midpoint;
+    }
+    handlePointerDown(e) {
+        if (!e || e.pointerType === 'mouse') {
+            return;
+        }
+        this.touchPointers.set(e.pointerId, { clientX: e.clientX, clientY: e.clientY });
+        try {
+            this.canvas.canvas.setPointerCapture(e.pointerId);
+        }
+        catch {
+        }
+        if (this.touchPointers.size === 2) {
+            this.preventEventDefaults(e);
+            this.startPinchGesture();
+            return;
+        }
+        if (this.touchPointers.size > 1) {
+            this.preventEventDefaults(e);
+            return;
+        }
+        this.activePointerId = e.pointerId;
+        this.preventEventDefaults(e);
+        this.handleMouseDown(e);
+    }
+    handlePointerMove(e) {
+        if (!e || e.pointerType === 'mouse') {
+            return;
+        }
+        if (this.touchPointers.has(e.pointerId)) {
+            this.touchPointers.set(e.pointerId, { clientX: e.clientX, clientY: e.clientY });
+        }
+        if (this.touchPointers.size === 2) {
+            this.preventEventDefaults(e);
+            this.updatePinchGesture();
+            return;
+        }
+        if (this.activePointerId !== e.pointerId) {
+            return;
+        }
+        this.preventEventDefaults(e);
+        this.handleMouseMove(e);
+    }
+    handlePointerUp(e) {
+        if (!e || e.pointerType === 'mouse') {
+            return;
+        }
+        this.touchPointers.delete(e.pointerId);
+        if (this.activePointerId === e.pointerId) {
+            this.preventEventDefaults(e);
+            this.handleMouseUp(e);
+            this.activePointerId = null;
+        }
+        if (this.touchPointers.size < 2) {
+            this.lastPinchDistance = null;
+            this.lastPinchMidpoint = null;
+        }
+        try {
+            this.canvas.canvas.releasePointerCapture(e.pointerId);
+        }
+        catch {
+        }
+    }
+    handlePointerCancel(e) {
+        this.handlePointerUp(e);
     }
     /**
      * Sprawdza czy punkt znajduje się w obszarze któregokolwiek z zaznaczonych layerów
@@ -280,6 +426,13 @@ export class CanvasInteractions {
     handleMouseMove(e) {
         const coords = this.getMouseCoordinates(e);
         this.canvas.lastMousePosition = coords.world; // Zawsze aktualizuj ostatnią pozycję myszy
+        const mods = this.getModifierState(e);
+        const shouldKeepAspect = () => {
+            if (this.canvas.keepAspectRatio) {
+                return !mods.shift;
+            }
+            return mods.shift;
+        };
         // Sprawdź, czy rozpocząć przeciąganie
         if (this.interaction.mode === 'potential-drag') {
             const dx = coords.world.x - this.interaction.dragStart.x;
@@ -304,7 +457,7 @@ export class CanvasInteractions {
                 this.dragLayers(coords.world);
                 break;
             case 'resizing':
-                this.resizeLayerFromHandle(coords.world, e.shiftKey);
+                this.resizeLayerFromHandle(coords.world, shouldKeepAspect());
                 break;
             case 'rotating':
                 this.rotateLayerFromHandle(coords.world, e.shiftKey);
@@ -317,7 +470,7 @@ export class CanvasInteractions {
                 break;
             case 'transformingOutputArea':
                 if (this.interaction.outputAreaTransformHandle) {
-                    this.resizeOutputAreaFromHandle(coords.world, e.shiftKey);
+                    this.resizeOutputAreaFromHandle(coords.world, shouldKeepAspect());
                 }
                 else {
                     this.updateOutputAreaTransformCursor(coords.world);
