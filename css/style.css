@@ -112,6 +112,10 @@ div:has(> #positive_prompt) {
   width: 350px !important;
 }
 
+.model-dropdown{
+  position: relative !important;
+}
+
 .min_check {
   min-width: min(1px, 100%) !important;
 }
@@ -879,6 +883,7 @@ div.block.tagHelper.active {
   overflow-y: auto !important;   /* 启用垂直滚动条 */
   position: sticky;   /* 设为sticky */
   top: 0;             /* 设置sticky的顶部位置 */
+  z-index: 1;
   
   scrollbar-width: thin !important;      /* Firefox */
   -ms-overflow-style: -ms-autohiding-scrollbar !important;   /* IE 和 Edge */
@@ -893,6 +898,7 @@ div.block.tagHelper.active {
         overflow-x: hidden !important;
         position: sticky !important;
         top: 0;
+        z-index: 2;
         flex-direction: column !important;
         flex-wrap: nowrap !important;
     }
@@ -972,6 +978,7 @@ div.block.tagHelper.active {
   overflow-y: auto;   /* 启用垂直滚动条 */
   position: sticky;   /* 设为sticky */
   top: 0;             /* 设置sticky的顶部位置 */
+  z-index: 1;
 
   scrollbar-width: none;      /* Firefox */
   -ms-overflow-style: none;   /* IE 和 Edge */
