@@ -613,9 +613,11 @@ class Sam3VideoSegmentation(io.ComfyNode):
         if frame_index > B - 1:
             logger.info(f"Frame index {frame_index} is out of bounds, setting to last frame")
             frame_index = B - 1
-        if start_frame_index > B:
-            logger.info(f"Last Frame index {frame_index} is out of bounds, setting to last frame")
-            start_frame_index = B
+        if start_frame_index > B - 1:
+            logger.info(
+                f"Start frame index {start_frame_index} is out of bounds, setting to last frame"
+            )
+            start_frame_index = B - 1
 
         # Set video model config
         video_predictor.model.score_threshold_detection = score_threshold_detection
@@ -689,22 +691,35 @@ class Sam3VideoSegmentation(io.ComfyNode):
             bounding_boxes = None
             bounding_box_labels = None
             if bbox is not None:
-                bbox_coords, bbox_count = parse_bbox(bbox, video_frames.shape)
+                bbox_coords, bbox_count = parse_bbox(
+                    bbox, video_frames.shape, output_format="xywh"
+                )
                 if bbox_coords is not None:
+                    if len(bbox_coords) > 1:
+                        bbox_coords = bbox_coords[:1]
+                        bbox_count = 1
                     bounding_boxes = bbox_coords
                     bounding_box_labels = [1] * bbox_count
 
+            if (
+                (prompt is None or not str(prompt).strip())
+                and (points is None or len(points) == 0)
+                and (bounding_boxes is None or len(bounding_boxes) == 0)
+            ):
+                raise ValueError("At least one prompt (text, points, or boxes) must be provided for video segmentation")
+
             # Add Prompt
+            has_points = points is not None and len(points) > 0
             response = video_predictor.handle_request(
                 request=dict(
                     type="add_prompt",
                     session_id=session_id,
                     frame_index=frame_index,
-                    text=prompt if prompt else None,
-                    bounding_boxes=bounding_boxes,
-                    bounding_box_labels=bounding_box_labels,
-                    points=points,
-                    point_labels=point_labels,
+                    text=None if has_points else (prompt if prompt else None),
+                    bounding_boxes=None if has_points else bounding_boxes,
+                    bounding_box_labels=None if has_points else bounding_box_labels,
+                    points=points if has_points else None,
+                    point_labels=point_labels if has_points else None,
                     obj_id=object_id
                 )
             )

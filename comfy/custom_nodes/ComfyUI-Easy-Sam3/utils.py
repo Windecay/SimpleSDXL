@@ -396,24 +396,32 @@ def parse_points(points_str, image_shape=None):
         print(f"Error parsing points: {e}")
         return None, None, [str(e)]
 
-def parse_bbox(bbox, image_shape=None):
+def parse_bbox(bbox, image_shape=None, output_format="cxcywh"):
     """Parse bounding box from BBOX type (tuple/list/dict) and validate
-    
+
     Supports multiple formats:
     1. {"boxes": [[x, y, w, h], ...], "labels": [true/false, ...]} - Direct format with normalized coordinates
+       (assumed XYWH by default)
     2. KJNodes: [{'startX': x, 'startY': y, 'endX': x2, 'endY': y2}, ...]
     3. Tuple/list: (x1, y1, x2, y2) or (x, y, width, height)
     4. Dict: {'startX': x, 'startY': y, 'endX': x2, 'endY': y2}
-    
+
     Converts pixel coordinates to normalized coordinates (0-1 range) if image_shape is provided.
-    
+
+    Args:
+        output_format: "xyxy", "xywh", or "cxcywh"
+
     Returns:
-        tuple: (boxes_array, count) for all formats
+        tuple: (boxes_array, count)
     """
     if bbox is None:
         return None, 0
 
     try:
+        output_format = (output_format or "").lower()
+        if output_format not in {"xyxy", "xywh", "cxcywh"}:
+            raise ValueError(f"Unsupported output_format: {output_format}")
+
         # Check if it's a string that needs to be parsed as JSON
         if isinstance(bbox, str):
             bbox = json.loads(bbox)
@@ -423,7 +431,42 @@ def parse_bbox(bbox, image_shape=None):
             boxes = bbox["boxes"]
             if not boxes:
                 return None, 0
-            return boxes, len(boxes)
+            normalized_xywh = []
+            for i, box_xywh in enumerate(boxes):
+                if not hasattr(box_xywh, "__iter__") or isinstance(
+                    box_xywh, (str, bytes)
+                ):
+                    raise ValueError(
+                        f"boxes[{i}] must be an iterable of 4 numbers, got {type(box_xywh)}"
+                    )
+                box_list = list(box_xywh)
+                if len(box_list) != 4:
+                    raise ValueError(
+                        f"boxes[{i}] must have 4 values (x, y, w, h), got {len(box_list)}"
+                    )
+                x, y, w, h = [float(v) for v in box_list]
+
+                if image_shape is not None:
+                    img_h, img_w = image_shape[1], image_shape[2]
+                    if max(abs(x), abs(y), abs(w), abs(h)) > 1.0:
+                        x /= img_w
+                        y /= img_h
+                        w /= img_w
+                        h /= img_h
+
+                if w <= 0 or h <= 0:
+                    raise ValueError(f"Invalid bbox: w/h must be positive, got w={w}, h={h}")
+                if x < 0 or y < 0:
+                    raise ValueError(f"Invalid bbox: x/y must be non-negative, got x={x}, y={y}")
+
+                if output_format == "xywh":
+                    normalized_xywh.append([x, y, w, h])
+                elif output_format == "cxcywh":
+                    normalized_xywh.append([x + w / 2, y + h / 2, w, h])
+                else:
+                    normalized_xywh.append([x, y, x + w, y + h])
+
+            return normalized_xywh, len(normalized_xywh)
         
         all_coords = []
 
@@ -523,16 +566,24 @@ def parse_bbox(bbox, image_shape=None):
                 y1 = coords[1] / height
                 x2 = coords[2] / width
                 y2 = coords[3] / height
-                new_coords = [
-                    (x1 + x2) / 2,
-                    (y1 + y2) / 2,
-                    x2 - x1,
-                    y2 - y1
-                ]
-            
-                validated_coords.append(new_coords)
+
+                w = x2 - x1
+                h = y2 - y1
+                if output_format == "xyxy":
+                    validated_coords.append([x1, y1, x2, y2])
+                elif output_format == "xywh":
+                    validated_coords.append([x1, y1, w, h])
+                else:
+                    validated_coords.append([x1 + w / 2, y1 + h / 2, w, h])
             else:
-                validated_coords.append(coords)
+                w = coords[2] - coords[0]
+                h = coords[3] - coords[1]
+                if output_format == "xyxy":
+                    validated_coords.append(coords)
+                elif output_format == "xywh":
+                    validated_coords.append([coords[0], coords[1], w, h])
+                else:
+                    validated_coords.append([coords[0] + w / 2, coords[1] + h / 2, w, h])
 
         return validated_coords, len(validated_coords)
 
