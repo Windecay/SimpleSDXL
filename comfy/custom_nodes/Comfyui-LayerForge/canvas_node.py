@@ -961,6 +961,23 @@ async def check_matting_model(request):
                 target_dir = os.path.join(folder_paths.models_dir, "rembg")
             
             target_path = os.path.join(target_dir, "General.safetensors")
+
+        if target_path and os.path.exists(target_path):
+            log_info(f"BiRefNet model detected at {target_path}")
+            return web.json_response({
+                "available": True,
+                "reason": "ready",
+                "message": "Model is ready to use",
+                "model_path": target_path
+            })
+
+        log_info(f"BiRefNet model not found at {target_path}")
+        return web.json_response({
+            "available": False,
+            "reason": "not_downloaded",
+            "message": "The matting model needs to be downloaded. This will happen automatically when you first use the matting feature (requires internet connection).",
+            "model_path": target_path
+        })
             
     except Exception as e:
         log_error(f"Error checking matting model: {str(e)}")
@@ -991,7 +1008,20 @@ async def matting(request):
     _matting_lock = True
     try:
         log_info("Received matting request")
-        data = await request.json()
+        try:
+            data = await request.json()
+        except Exception as e:
+            log_error(f"Invalid JSON in matting request: {e}")
+            return web.json_response({
+                "error": "Invalid JSON",
+                "details": str(e)
+            }, status=400)
+
+        if not isinstance(data, dict) or "image" not in data:
+            return web.json_response({
+                "error": "Invalid Request",
+                "details": "Missing required field: image"
+            }, status=400)
 
         matting_instance = BiRefNetMatting()
 

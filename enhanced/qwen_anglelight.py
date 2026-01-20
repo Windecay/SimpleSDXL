@@ -236,6 +236,21 @@ VIEWER_HTML = r"""
             left: 50%;
             transform: translate(-50%, -50%);
         }
+
+        #author-credit {
+            position: absolute;
+            top: 70px;
+            right: 8px;
+            z-index: 50;
+            padding: 4px 8px;
+            border-radius: 6px;
+            border: 1px solid rgba(233, 61, 130, 0.3);
+            background: rgba(10, 10, 15, 0.75);
+            backdrop-filter: blur(4px);
+            font-size: 10px;
+            color: #888;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
@@ -249,6 +264,7 @@ VIEWER_HTML = r"""
                 <span id="color-hex-display">#FFFFFF</span>
             </div>
         </div>
+        <div id="author-credit">Powered by wallen0322</div>
         <div id="info-panel">
             <div class="param-item">
                 <div class="param-label">Azimuth</div>
