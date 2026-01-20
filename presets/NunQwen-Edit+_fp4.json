@@ -1,6 +1,6 @@
 { 
     "default_engine": {
-            "backend_engine": "Comfy",
+            "backend_engine": "Qwen",
             "disvisible": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
             "disinteractive": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
             "available_aspect_ratios_selection": "Flux",
@@ -9,7 +9,7 @@
                 "theme": ["双截棍Qwen-Editplus-1024px-4steps","双截棍Qwen-Editplus-1536px-4steps","双截棍Qwen-Editplus-2048px-4steps"],
                 "theme_title": "Qwen-Edit使用中文指令修改图片(画笔可生成[绿色方框区域]）",
                 "disvisible": ["scene_additional_prompt","scene_additional_prompt_2", "scene_video", "scene_audio",
-                    "scene_var_number2","scene_var_number3","scene_var_number4","scene_switch_option1","scene_switch_option2","scene_steps"],
+                    "scene_var_number2","scene_var_number3","scene_var_number4","scene_switch_option1","scene_switch_option2","scene_steps", "scene_refiner_model"],
                 "task_method": {
                     "双截棍Qwen-Editplus-1024px-4steps": "nun_fp4_qwen_editplus_cn",
                     "双截棍Qwen-Editplus-1536px-4steps": "nun_fp4_qwen_editplus_1536_cn",

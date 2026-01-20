@@ -228,11 +228,11 @@
   },
   "25": {
     "inputs": {
-      "unet_name": "Wan2.2-I2V-A14B-LowNoise-Q4_K_M.gguf"
+      "unet_name": "placeholder.gguf"
     },
     "class_type": "UnetLoaderGGUF",
     "_meta": {
-      "title": "base_model2"
+      "title": "base_model_gguf2"
     }
   },
   "26": {
@@ -240,7 +240,7 @@
       "sage_attention": "auto",
       "allow_compile": false,
       "model": [
-        "25",
+        "142",
         0
       ]
     },
@@ -264,11 +264,11 @@
   },
   "31": {
     "inputs": {
-      "unet_name": "Wan2.2-I2V-A14B-HighNoise-Q4_K_M.gguf"
+      "unet_name": "placeholder.gguf"
     },
     "class_type": "UnetLoaderGGUF",
     "_meta": {
-      "title": "base_model"
+      "title": "base_model_gguf"
     }
   },
   "32": {
@@ -276,7 +276,7 @@
       "sage_attention": "auto",
       "allow_compile": false,
       "model": [
-        "31",
+        "141",
         0
       ]
     },
@@ -1396,6 +1396,127 @@
     "class_type": "CFGNorm",
     "_meta": {
       "title": "CFGNorm"
+    }
+  },
+  "134": {
+    "inputs": {
+      "unet_name": "placeholder.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "base_model"
+    }
+  },
+  "135": {
+    "inputs": {
+      "unet_name": "placeholder.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "base_model2"
+    }
+  },
+  "136": {
+    "inputs": {
+      "value": 1
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "i2i_model_type2"
+    }
+  },
+  "137": {
+    "inputs": {
+      "comparison": "a == b",
+      "a": [
+        "136",
+        0
+      ],
+      "b": [
+        "138",
+        0
+      ]
+    },
+    "class_type": "easy compare",
+    "_meta": {
+      "title": "Compare"
+    }
+  },
+  "138": {
+    "inputs": {
+      "value": 1
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "Int"
+    }
+  },
+  "139": {
+    "inputs": {
+      "value": 1
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "i2i_model_type"
+    }
+  },
+  "140": {
+    "inputs": {
+      "comparison": "a == b",
+      "a": [
+        "139",
+        0
+      ],
+      "b": [
+        "138",
+        0
+      ]
+    },
+    "class_type": "easy compare",
+    "_meta": {
+      "title": "Compare"
+    }
+  },
+  "141": {
+    "inputs": {
+      "boolean": [
+        "140",
+        0
+      ],
+      "on_true": [
+        "134",
+        0
+      ],
+      "on_false": [
+        "31",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "142": {
+    "inputs": {
+      "boolean": [
+        "137",
+        0
+      ],
+      "on_true": [
+        "135",
+        0
+      ],
+      "on_false": [
+        "25",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
     }
   }
 }

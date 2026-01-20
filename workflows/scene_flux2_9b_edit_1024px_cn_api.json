@@ -161,7 +161,7 @@
       "lora_name": "placeholder.safetensors",
       "strength_model": 0,
       "model": [
-        "90",
+        "195",
         0
       ]
     },
@@ -1200,6 +1200,70 @@
     "class_type": "SetLatentNoiseMask",
     "_meta": {
       "title": "Set Latent Noise Mask"
+    }
+  },
+  "191": {
+    "inputs": {
+      "value": 1
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "i2i_model_type"
+    }
+  },
+  "192": {
+    "inputs": {
+      "value": 1
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "Int"
+    }
+  },
+  "193": {
+    "inputs": {
+      "comparison": "a == b",
+      "a": [
+        "191",
+        0
+      ],
+      "b": [
+        "192",
+        0
+      ]
+    },
+    "class_type": "easy compare",
+    "_meta": {
+      "title": "Compare"
+    }
+  },
+  "194": {
+    "inputs": {
+      "unet_name": "placeholder.gguf"
+    },
+    "class_type": "UnetLoaderGGUF",
+    "_meta": {
+      "title": "base_model_gguf"
+    }
+  },
+  "195": {
+    "inputs": {
+      "boolean": [
+        "193",
+        0
+      ],
+      "on_true": [
+        "90",
+        0
+      ],
+      "on_false": [
+        "194",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
     }
   }
 }

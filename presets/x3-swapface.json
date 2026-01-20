@@ -1,13 +1,13 @@
 { 
     "default_engine": {
-	"backend_engine": "Comfy",
+	"backend_engine": "Flux",
 	"disvisible": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
 	"disinteractive": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
 	"available_aspect_ratios_selection": "Flux",
 	"scene_frontend": {
 	    "version": "m1.1",
 	    "disvisible": ["scene_additional_prompt", "scene_additional_prompt_2", "scene_var_number", "scene_input_image2", "scene_use_lora", "scene_video", "scene_audio",
-                    "scene_var_number2","scene_var_number3","scene_var_number4","scene_switch_option1","scene_switch_option2","scene_steps"],
+                    "scene_var_number2","scene_var_number3","scene_var_number4","scene_switch_option1","scene_switch_option2","scene_steps", "scene_refiner_model"],
 	    "additional_prompt_title": "参考图检测目标",
 	    "additional_prompt": {
             "ACE++": "head, face",

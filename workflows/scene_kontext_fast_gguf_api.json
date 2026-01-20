@@ -665,13 +665,77 @@
       "lora_name": "flux1-turbo.safetensors",
       "strength_model": 1,
       "model": [
-        "29",
+        "62",
         0
       ]
     },
     "class_type": "LoraLoaderModelOnly",
     "_meta": {
       "title": "LoraLoaderModelOnly"
+    }
+  },
+  "58": {
+    "inputs": {
+      "value": 1
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "i2i_model_type"
+    }
+  },
+  "59": {
+    "inputs": {
+      "value": 1
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "Int"
+    }
+  },
+  "60": {
+    "inputs": {
+      "comparison": "a == b",
+      "a": [
+        "58",
+        0
+      ],
+      "b": [
+        "59",
+        0
+      ]
+    },
+    "class_type": "easy compare",
+    "_meta": {
+      "title": "Compare"
+    }
+  },
+  "61": {
+    "inputs": {
+      "unet_name": "placeholder.gguf"
+    },
+    "class_type": "UnetLoaderGGUF",
+    "_meta": {
+      "title": "base_model_gguf"
+    }
+  },
+  "62": {
+    "inputs": {
+      "boolean": [
+        "60",
+        0
+      ],
+      "on_true": [
+        "29",
+        0
+      ],
+      "on_false": [
+        "61",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
     }
   }
 }

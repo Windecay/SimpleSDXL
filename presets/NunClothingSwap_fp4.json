@@ -1,6 +1,6 @@
 { 
     "default_engine": {
-	"backend_engine": "Comfy",
+	"backend_engine": "Flux",
 	"disvisible": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
 	"disinteractive": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
 	"available_aspect_ratios_selection": "Flux",
@@ -9,7 +9,7 @@
 	    "theme": ["换装", "换装+","换装++","换装+++"],
         "theme_title":"换装[双截棍fp4适配50系显卡]，换装+[精修]，换装++[蒙版自动填充],换装+++[高像素原图]",
 	    "disvisible": ["scene_additional_prompt","scene_aspect_ratio","scene_var_number","scene_input_image2", "scene_use_lora", "scene_video", "scene_audio",
-        "scene_var_number2","scene_var_number3","scene_var_number4","scene_switch_option1","scene_switch_option2","scene_steps"],
+        "scene_var_number2","scene_var_number3","scene_var_number4","scene_switch_option1","scene_switch_option2","scene_steps", "scene_refiner_model"],
 	    "aspect_ratio" : ["9:16", "4:5", "4:3", "3:2", "16:9"],
 	    "aspect_ratio_select_mode": "auto_candidate",
             "additional_prompt_title_2": "参考图检测目标=[主体] / [输入自定目标] / [无（留空）]",

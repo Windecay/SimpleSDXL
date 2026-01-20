@@ -343,22 +343,26 @@ class LlamaCppVLM:
             user_content = []
             user_content.append({"type": "text", "text": prompt})
             
-            if isinstance(image, np.ndarray):
-                base64_image = image_to_base64(image)
-            elif isinstance(image, Image.Image):
-                if image.mode != 'RGB':
-                    image = image.convert('RGB')
-                buffered = io.BytesIO()
-                image.save(buffered, format="JPEG", quality=85)
-                base64_image = base64.b64encode(buffered.getvalue()).decode('utf-8')
-            else:
-                base64_image = None
-            
-            if base64_image:
-                user_content.append({
-                    "type": "image_url",
-                    "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}
-                })
+            images = image if isinstance(image, (list, tuple)) else [image]
+            for img in images:
+                if img is None:
+                    continue
+                if isinstance(img, np.ndarray):
+                    base64_image = image_to_base64(img)
+                elif isinstance(img, Image.Image):
+                    if img.mode != 'RGB':
+                        img = img.convert('RGB')
+                    buffered = io.BytesIO()
+                    img.save(buffered, format="JPEG", quality=85)
+                    base64_image = base64.b64encode(buffered.getvalue()).decode('utf-8')
+                else:
+                    base64_image = None
+
+                if base64_image:
+                    user_content.append({
+                        "type": "image_url",
+                        "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}
+                    })
             messages.append({"role": "user", "content": user_content})
         else:
             messages.append({"role": "user", "content": prompt})

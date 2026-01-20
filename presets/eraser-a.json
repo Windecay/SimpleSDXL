@@ -1,13 +1,13 @@
 {
   "default_engine": {
-      "backend_engine": "Comfy",
+      "backend_engine": "Flux",
       "disvisible": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
       "disinteractive": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
       "available_aspect_ratios_selection": "Flux",
       "scene_frontend": {
           "version": "V1.0",
           "disvisible": ["scene_aspect_ratio", "scene_additional_prompt", "scene_input_image1", "scene_var_number", "scene_use_lora", "scene_video", "scene_audio",
-        "scene_var_number2","scene_var_number3","scene_var_number4","scene_switch_option1","scene_switch_option2","scene_steps"],
+        "scene_var_number2","scene_var_number3","scene_var_number4","scene_switch_option1","scene_switch_option2","scene_steps", "scene_refiner_model"],
           "theme": ["橡皮擦"],
           "prompt": {
               "橡皮擦": "Remove the selected objects from the image,  {additional_prompt} "

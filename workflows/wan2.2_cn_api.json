@@ -244,7 +244,7 @@
   },
   "25": {
     "inputs": {
-      "unet_name": "Wan2.2_T2V_Low_Noise_14B_VACE-Q4_K_M.gguf"
+      "unet_name": "placeholder.gguf"
     },
     "class_type": "UnetLoaderGGUF",
     "_meta": {
@@ -280,7 +280,7 @@
   },
   "31": {
     "inputs": {
-      "unet_name": "Wan2.2_T2V_High_Noise_14B_VACE-Q4_K_M.gguf"
+      "unet_name": "placeholder.gguf"
     },
     "class_type": "UnetLoaderGGUF",
     "_meta": {
@@ -565,7 +565,7 @@
   "93": {
     "inputs": {
       "boolean": [
-        "97",
+        "106",
         0
       ],
       "on_true": [
@@ -608,7 +608,7 @@
     },
     "class_type": "easy int",
     "_meta": {
-      "title": "i2i_model_type"
+      "title": "i2i_model_type2"
     }
   },
   "96": {
@@ -709,6 +709,32 @@
     "class_type": "KSamplerAdvanced",
     "_meta": {
       "title": "KSampler (Advanced)"
+    }
+  },
+  "105": {
+    "inputs": {
+      "value": 1
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "i2i_model_type"
+    }
+  },
+  "106": {
+    "inputs": {
+      "comparison": "a == b",
+      "a": [
+        "105",
+        0
+      ],
+      "b": [
+        "96",
+        0
+      ]
+    },
+    "class_type": "easy compare",
+    "_meta": {
+      "title": "Compare"
     }
   }
 }

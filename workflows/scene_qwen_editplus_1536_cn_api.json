@@ -67,7 +67,7 @@
         1
       ],
       "model": [
-        "90",
+        "177",
         0
       ]
     },
@@ -1207,7 +1207,7 @@
       "lora_name": "Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors",
       "strength_model": 1,
       "model": [
-        "90",
+        "177",
         0
       ]
     },
@@ -1260,6 +1260,70 @@
     "class_type": "easy int",
     "_meta": {
       "title": "Int"
+    }
+  },
+  "173": {
+    "inputs": {
+      "value": 1
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "i2i_model_type"
+    }
+  },
+  "174": {
+    "inputs": {
+      "value": 1
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "Int"
+    }
+  },
+  "175": {
+    "inputs": {
+      "comparison": "a == b",
+      "a": [
+        "173",
+        0
+      ],
+      "b": [
+        "174",
+        0
+      ]
+    },
+    "class_type": "easy compare",
+    "_meta": {
+      "title": "Compare"
+    }
+  },
+  "176": {
+    "inputs": {
+      "unet_name": "placeholder.gguf"
+    },
+    "class_type": "UnetLoaderGGUF",
+    "_meta": {
+      "title": "base_model_gguf"
+    }
+  },
+  "177": {
+    "inputs": {
+      "boolean": [
+        "175",
+        0
+      ],
+      "on_true": [
+        "90",
+        0
+      ],
+      "on_false": [
+        "176",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
     }
   }
 }

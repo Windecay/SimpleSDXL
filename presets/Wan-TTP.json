@@ -9,7 +9,7 @@
                 "theme": ["Wan_TTP_Hires.Upscale"],
                 "theme_title": "使用SeedVR2+万相模型进行TTP分块放大",
                 "disvisible": ["scene_canvas_image", "scene_additional_prompt","scene_additional_prompt_2","scene_input_image2","scene_aspect_ratio", "scene_video", "scene_audio",
-                    "scene_var_number4","scene_steps"],
+                    "scene_var_number4","scene_steps", "scene_refiner_model"],
                 "task_method": {
                     "Wan_TTP_Hires.Upscale": "wan_ttp_cn"
                 },

@@ -494,7 +494,7 @@
       "sage_attention": "auto",
       "allow_compile": false,
       "model": [
-        "229",
+        "245",
         0
       ]
     },
@@ -733,7 +733,7 @@
     },
     "class_type": "UNETLoader",
     "_meta": {
-      "title": "Load Diffusion Model"
+      "title": "base_model"
     }
   },
   "231": {
@@ -898,6 +898,70 @@
     "class_type": "CLIPLoader_Any",
     "_meta": {
       "title": "Load CLIP (Any)"
+    }
+  },
+  "242": {
+    "inputs": {
+      "unet_name": "placeholder.gguf"
+    },
+    "class_type": "UnetLoaderGGUF",
+    "_meta": {
+      "title": "base_model_gguf"
+    }
+  },
+  "243": {
+    "inputs": {
+      "comparison": "a == b",
+      "a": [
+        "244",
+        0
+      ],
+      "b": [
+        "246",
+        0
+      ]
+    },
+    "class_type": "easy compare",
+    "_meta": {
+      "title": "Compare"
+    }
+  },
+  "244": {
+    "inputs": {
+      "value": 1
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "i2i_model_type"
+    }
+  },
+  "245": {
+    "inputs": {
+      "boolean": [
+        "243",
+        0
+      ],
+      "on_true": [
+        "229",
+        0
+      ],
+      "on_false": [
+        "242",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "246": {
+    "inputs": {
+      "value": 1
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "Int"
     }
   },
   "166:112": {

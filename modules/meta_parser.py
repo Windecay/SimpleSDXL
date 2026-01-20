@@ -106,6 +106,15 @@ def describe_prompt_for_scene(state, img, scene_theme, additional_prompt):
     describe_prompt=', '.join(describe_prompts)
     return describe_prompt, img_is_ok
 
+def extract_scene_image(value):
+    if value is None:
+        return None
+    if isinstance(value, dict):
+        return value.get('image', None)
+    if isinstance(value, Image.Image):
+        return np.array(value)
+    return value
+
 def switch_scene_theme_select(state):
     state["switch_scene_theme"] = True
 
@@ -121,14 +130,17 @@ def switch_scene_theme_ready_to_gen(state, image_number, canvas_image, input_ima
     video_visible = 'scene_video' not in visible
     audio_visible = 'scene_audio' not in visible
 
+    canvas_img = extract_scene_image(canvas_image)
+    input_img = extract_scene_image(input_image1)
+
     ready_to_gen = False
     if input_image_number == 1:
-        if canvas_visible and canvas_image is not None:
+        if canvas_visible and canvas_img is not None:
             ready_to_gen = True
-        elif input_image1_visible and input_image1 is not None:
+        elif input_image1_visible and input_img is not None:
             ready_to_gen = True
     elif input_image_number == 2:
-        if canvas_visible and canvas_image is not None :
+        if canvas_visible and canvas_img is not None :
             ready_to_gen = True
 
     if video_visible and video is not None:
@@ -137,19 +149,16 @@ def switch_scene_theme_ready_to_gen(state, image_number, canvas_image, input_ima
         ready_to_gen = True
 
     use_image = None
-    has_canvas_image = canvas_image is not None and isinstance(canvas_image, dict) and 'image' in canvas_image
-    has_input_image1 = input_image1 is not None and isinstance(input_image1, dict) and 'image' in input_image1
-
     if not canvas_visible:
-        if has_input_image1:
-            use_image = input_image1['image']
-        elif has_canvas_image:
-            use_image = canvas_image['image']
+        if input_img is not None:
+            use_image = input_img
+        elif canvas_img is not None:
+            use_image = canvas_img
     else:
-        if has_canvas_image:
-            use_image = canvas_image['image']
-        elif has_input_image1:
-            use_image = input_image1['image']
+        if canvas_img is not None:
+            use_image = canvas_img
+        elif input_img is not None:
+            use_image = input_img
 
     describe_prompt, img_is_ok = describe_prompt_for_scene(state, use_image, theme, f'{additional_prompt}{additional_prompt_2}') if ready_to_gen else ('', False)
     return describe_prompt if describe_prompt else gr.update(), gr.update(interactive=ready_to_gen and img_is_ok)
@@ -163,7 +172,9 @@ def switch_scene_theme(state, image_number, canvas_image, input_image1, addition
     input_image_number = 2 if 'scene_canvas_image' not in visible and 'scene_input_image1' not in visible else input_image_number
     refer_image_number = 2 if 'scene_input_image1' not in visible and 'scene_input_image2' not in visible else 1 if 'scene_input_image1' not in visible else 0
     switch_flag = state.get("switch_scene_theme", False)
-    ready_to_gen = True if switch_flag and ((input_image_number==1 and (('scene_canvas_image' not in visible and canvas_image is not None) or ('scene_input_image1' not in visible and input_image1 is not None))) or (input_image_number==2 and (('scene_canvas_image' not in visible and canvas_image is not None) and ('scene_input_image1' not in visible and input_image1 is not None)))) else False
+    canvas_img = extract_scene_image(canvas_image)
+    input_img = extract_scene_image(input_image1)
+    ready_to_gen = True if switch_flag and ((input_image_number==1 and (('scene_canvas_image' not in visible and canvas_img is not None) or ('scene_input_image1' not in visible and input_img is not None))) or (input_image_number==2 and (('scene_canvas_image' not in visible and canvas_img is not None) and ('scene_input_image1' not in visible and input_img is not None)))) else False
     #print(f'input_image_number={input_image_number}, ready_to_gen={ready_to_gen}, switch_flag={switch_flag}')
     ui_lines = 0
     ui_lines += 0 if 'scene_theme' in visible and 'scene_additional_prompt' in visible else 1.0
@@ -228,7 +239,7 @@ def switch_scene_theme(state, image_number, canvas_image, input_image1, addition
 
     aspect_ratios = modules.flags.get_value_by_scene_theme(state, theme, 'aspect_ratio', [])
     if ready_to_gen and switch_flag:
-        img = input_image1 if input_image_number==1 and 'scene_input_image1' not in visible else canvas_image['image']
+        img = input_img if input_image_number==1 and 'scene_input_image1' not in visible else canvas_img
         if img is not None:
             img = resize_image(img, max_side=1280, resize_mode=4)
         aspect_ratio_select_mode = state['scene_frontend'].get('aspect_ratio_select_mode', '')

@@ -119,10 +119,34 @@ def get_comfy_task(user_did, task_class, task_name, task_method, default_params,
 
     #print(f'task_class:{task_class}, task_name:{task_name}, task_method:{task_method}')
     total_steps = default_params.pop("display_steps", default_params['steps'])
+    if "scene_" in task_method or task_class in ("Qwen", "Wan", "Z-image"):
+        base_model = default_params.get("base_model")
+        if base_model and base_model != "auto":
+            is_safetensors_model = "safetensors" in base_model.lower()
+            default_params["i2i_model_type"] = 1 if is_safetensors_model else 2
+            if is_safetensors_model:
+                default_params.pop("base_model_gguf", None)
+            else:
+                default_params["base_model_gguf"] = base_model
+                default_params.pop("base_model", None)
+
+        refiner_model = default_params.get("base_model2")
+        if refiner_model and refiner_model != "auto" and refiner_model != "None":
+            is_refiner_safetensors_model = "safetensors" in refiner_model.lower()
+            default_params["i2i_model_type2"] = 1 if is_refiner_safetensors_model else 2
+            if is_refiner_safetensors_model:
+                default_params.pop("base_model_gguf2", None)
+            else:
+                default_params["base_model_gguf2"] = refiner_model
+                default_params.pop("base_model2", None)
     comfy_params = ComfyTaskParams(default_params, user_did)
     comfy_params.update_mapping_rule('base_model', 'NunchakuFluxDiTLoader:base_model:model_path')
     comfy_params.update_mapping_rule('sampler', 'GeneralInput:GeneralInput:sampler')
     comfy_params.update_mapping_rule('scheduler', 'GeneralInput:GeneralInput:scheduler')
+    if 'base_model_gguf' in default_params:
+        comfy_params.delete_params(['base_model'])
+    if 'base_model_gguf2' in default_params:
+        comfy_params.delete_params(['base_model2'])
     if task_class in ['Kolors', 'Flux', 'HyDiT', 'SD3x', 'Wan', 'Qwen','Z-image'] and task_name not in ['Kolors', 'Flux', 'HyDiT', 'SD3x', 'Wan', 'Qwen', 'Z-image']:
         task_name = task_class
     if task_name == 'default':
@@ -177,15 +201,13 @@ def get_comfy_task(user_did, task_class, task_name, task_method, default_params,
         return ComfyTask(task_method, comfy_params, steps=total_steps)
     
     elif task_name == 'Flux':
-        base_model = default_params['base_model']
-        clip_model = '' if 'clip_model' not in default_params else default_params['clip_model']
         if 'scene_' in task_method:
             return ComfyTask(task_method, comfy_params, input_images, total_steps)
+        base_model = default_params['base_model']
+        clip_model = '' if 'clip_model' not in default_params else default_params['clip_model']
 
         if '_aio' in task_method:
             check_download_flux_model(default_params["base_model"], default_params.get("clip_model", None))
-            if 'base_model_gguf' in default_params:
-                comfy_params.delete_params(['base_model'])
             if 'clip_model' not in default_params or default_params['clip_model'] == 'auto':
                 clip_model = 't5xxl_fp8_e4m3fn.safetensors'
                 comfy_params.update_params({"clip_model": clip_model})
@@ -243,20 +265,6 @@ def get_comfy_task(user_did, task_class, task_name, task_method, default_params,
             check_download_flux_model(base_model, clip_model if clip_model!='auto' else None)
         return ComfyTask(task_method, comfy_params, input_images, total_steps)
     elif task_name == 'SD15AIO' and '_aio' in task_method:
-        return ComfyTask(task_method, comfy_params, input_images, total_steps)
-    elif task_name == 'Qwen' and '_aio' in task_method:
-        if 'base_model_gguf' in default_params:
-            comfy_params.delete_params(['base_model'])
-        return ComfyTask(task_method, comfy_params, input_images, total_steps)
-    elif task_method == 'wan2.2_cn' or task_method == 'wan_aio_cn':
-        if 'base_model_gguf' in default_params:
-            comfy_params.delete_params(['base_model'])
-        if 'base_model_gguf2' in default_params:
-            comfy_params.delete_params(['base_model2'])
-        return ComfyTask(task_method, comfy_params, input_images, total_steps)
-    elif task_name == 'Z-image':
-        if 'base_model_gguf' in default_params:
-            comfy_params.delete_params(['base_model'])
         return ComfyTask(task_method, comfy_params, input_images, total_steps)
     else:  # SeamlessTiled
         #check_download_base_model(default_params["base_model"])

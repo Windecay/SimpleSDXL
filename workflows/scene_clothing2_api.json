@@ -1004,7 +1004,7 @@
       "sage_attention": "auto",
       "allow_compile": false,
       "model": [
-        "237",
+        "260",
         0
       ]
     },
@@ -1068,7 +1068,7 @@
         "253",
         12
       ],
-      "start_percent": 0.30,
+      "start_percent": 0.3,
       "end_percent": 0.8,
       "verbose": false,
       "model": [
@@ -1087,7 +1087,7 @@
         "253",
         12
       ],
-      "start_percent": 0.30,
+      "start_percent": 0.3,
       "end_percent": 0.8,
       "verbose": false,
       "model": [
@@ -1098,6 +1098,70 @@
     "class_type": "EasyCache",
     "_meta": {
       "title": "EasyCache"
+    }
+  },
+  "256": {
+    "inputs": {
+      "value": 1
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "i2i_model_type"
+    }
+  },
+  "257": {
+    "inputs": {
+      "value": 1
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "Int"
+    }
+  },
+  "258": {
+    "inputs": {
+      "comparison": "a == b",
+      "a": [
+        "256",
+        0
+      ],
+      "b": [
+        "257",
+        0
+      ]
+    },
+    "class_type": "easy compare",
+    "_meta": {
+      "title": "Compare"
+    }
+  },
+  "259": {
+    "inputs": {
+      "unet_name": "placeholder.gguf"
+    },
+    "class_type": "UnetLoaderGGUF",
+    "_meta": {
+      "title": "base_model_gguf"
+    }
+  },
+  "260": {
+    "inputs": {
+      "boolean": [
+        "258",
+        0
+      ],
+      "on_true": [
+        "237",
+        0
+      ],
+      "on_false": [
+        "259",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
     }
   }
 }

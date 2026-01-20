@@ -45,7 +45,7 @@
       "lora_name": "removal_timestep_alpha-2-1740.safetensors",
       "strength_model": 1,
       "model": [
-        "423",
+        "433",
         0
       ]
     },
@@ -594,6 +594,70 @@
     "class_type": "PathchSageAttentionKJ",
     "_meta": {
       "title": "Patch Sage Attention KJ"
+    }
+  },
+  "429": {
+    "inputs": {
+      "value": 1
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "i2i_model_type"
+    }
+  },
+  "430": {
+    "inputs": {
+      "value": 1
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "Int"
+    }
+  },
+  "431": {
+    "inputs": {
+      "comparison": "a == b",
+      "a": [
+        "429",
+        0
+      ],
+      "b": [
+        "430",
+        0
+      ]
+    },
+    "class_type": "easy compare",
+    "_meta": {
+      "title": "Compare"
+    }
+  },
+  "432": {
+    "inputs": {
+      "unet_name": "placeholder.gguf"
+    },
+    "class_type": "UnetLoaderGGUF",
+    "_meta": {
+      "title": "base_model_gguf"
+    }
+  },
+  "433": {
+    "inputs": {
+      "boolean": [
+        "431",
+        0
+      ],
+      "on_true": [
+        "423",
+        0
+      ],
+      "on_false": [
+        "432",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
     }
   }
 }

@@ -1775,11 +1775,13 @@ def worker():
                          async_task.params_backend['display_steps'] = async_task.steps * max(round(async_task.scene_var_number * 5 / 6), 1)
             if "_aio" in async_task.task_method:
                 input_images = comfypipeline.ComfyInputImage([])
-                if '.gguf' in async_task.base_model_name:
-                    async_task.params_backend['base_model_gguf'] = async_task.base_model_name
-                else:
+                is_safetensors_model = 'safetensors' in (async_task.base_model_name or '').lower()
+                if is_safetensors_model:
+                    async_task.params_backend.pop('base_model_gguf', None)
                     if async_task.task_class in ('Flux', 'Qwen'):
                         async_task.params_backend['base_model_dtype'] = 'default'
+                else:
+                    async_task.params_backend['base_model_gguf'] = async_task.base_model_name
                 if async_task.enhance_checkbox:
                     if async_task.enhance_input_image is not None:
                         input_images.set_image(f'enhance_input_image', async_task.enhance_input_image)
@@ -1926,10 +1928,11 @@ def worker():
                     if inpaint_engine_model_index in flags.inpaint_engine_model_names:
                         async_task.base_model_name = flags.inpaint_engine_model_names[inpaint_engine_model_index]
                         if async_task.task_class in ('Flux', 'Qwen'):
-                            if 'gguf' in async_task.base_model_name:
-                                async_task.params_backend['base_model_gguf'] = async_task.base_model_name
-                            else:
+                            is_safetensors_model = 'safetensors' in (async_task.base_model_name or '').lower()
+                            if is_safetensors_model:
                                 async_task.params_backend.pop('base_model_gguf', None)
+                            else:
+                                async_task.params_backend['base_model_gguf'] = async_task.base_model_name
                     if async_task.invert_mask_checkbox:
                         async_task.params_backend['i2i_inpaint_is_invert_mask'] = True
                     if 'cn' in goals:
@@ -1940,8 +1943,30 @@ def worker():
                         async_task.params_backend['i2i_inpaint_fn'] = 1  # out
                     else:
                         async_task.params_backend['i2i_inpaint_fn'] = 2 # detail, object, general
-                if async_task.task_class in ('Flux', 'Qwen', 'Wan', 'Z-image'):
-                    async_task.params_backend['i2i_model_type'] = 2 if 'gguf' in async_task.base_model_name else 1
+                if async_task.task_class in ('Flux', 'Qwen', 'Wan', 'Z-image', 'Comfy'):
+                    is_safetensors_model = 'safetensors' in (async_task.base_model_name or '').lower()
+                    async_task.params_backend['i2i_model_type'] = 1 if is_safetensors_model else 2
+                    if is_safetensors_model:
+                        async_task.params_backend['base_model'] = async_task.base_model_name
+                        async_task.params_backend.pop('base_model_gguf', None)
+                    else:
+                        async_task.params_backend.pop('base_model', None)
+                        async_task.params_backend['base_model_gguf'] = async_task.base_model_name
+
+                    refiner_model_name = async_task.params_backend.get('base_model2')
+                    if refiner_model_name and refiner_model_name != 'None':
+                        is_refiner_safetensors_model = 'safetensors' in (refiner_model_name or '').lower()
+                        async_task.params_backend['i2i_model_type2'] = 1 if is_refiner_safetensors_model else 2
+                        if is_refiner_safetensors_model:
+                            async_task.params_backend['base_model2'] = refiner_model_name
+                            async_task.params_backend.pop('base_model_gguf2', None)
+                        else:
+                            async_task.params_backend.pop('base_model2', None)
+                            async_task.params_backend['base_model_gguf2'] = refiner_model_name
+                    else:
+                        async_task.params_backend.pop('base_model2', None)
+                        async_task.params_backend.pop('base_model_gguf2', None)
+                        async_task.params_backend.pop('i2i_model_type2', None)
                 if async_task.task_class == 'Comfy':
                     if 'i2i_uov_tiled_steps' not in async_task.params_backend and async_task.task_method == "sd15_aio":
                         async_task.params_backend['display_steps'] = int((30 if async_task.steps==-1 else async_task.steps) * 1.6)
@@ -1949,25 +1974,6 @@ def worker():
                         async_task.params_backend['display_steps'] = async_task.steps
                 elif async_task.task_class in ['Kolors', 'Wan', 'Qwen', 'Z-image']:
                     async_task.params_backend['display_steps'] = async_task.steps # + 1
-            if async_task.task_method == 'wan2.2_cn' or async_task.task_method == 'wan_aio_cn':
-                if 'gguf' in async_task.base_model_name:
-                    async_task.params_backend['i2i_model_type'] = 2
-                    async_task.params_backend['base_model_gguf'] = async_task.base_model_name
-                else:
-                    async_task.params_backend['i2i_model_type'] = 1
-                    async_task.params_backend['base_model'] = async_task.base_model_name
-
-                refiner_model_name = async_task.params_backend.get('base_model2')
-                if refiner_model_name and refiner_model_name != 'None':
-                    if 'gguf' in refiner_model_name:
-                        async_task.params_backend['i2i_model_type2'] = 2
-                        async_task.params_backend['base_model_gguf2'] = refiner_model_name
-                    else:
-                        async_task.params_backend['i2i_model_type2'] = 1
-                        async_task.params_backend['base_model2'] = refiner_model_name
-                else:
-                    async_task.params_backend.pop('base_model2', None)
-                    async_task.params_backend.pop('base_model_gguf2', None)
             if 'display_steps' not in async_task.params_backend:
                 async_task.params_backend['display_steps'] = 30 if async_task.steps==-1 else async_task.steps
             if async_task.enhance_checkbox:

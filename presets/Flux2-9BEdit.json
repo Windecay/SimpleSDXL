@@ -1,6 +1,6 @@
 { 
     "default_engine": {
-            "backend_engine": "Comfy",
+            "backend_engine": "Flux",
             "disvisible": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
             "disinteractive": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
             "available_aspect_ratios_selection": "Flux",
@@ -9,7 +9,7 @@
                 "theme": ["Flux2_9B_edit_1024px"],
                 "theme_title": "Flux2-9B指令修图[蒙版可选]",
                 "disvisible": ["scene_additional_prompt","scene_additional_prompt_2", "scene_video", "scene_audio",
-                "scene_var_number","scene_var_number2","scene_var_number3"],
+                "scene_var_number","scene_var_number2","scene_var_number3", "scene_refiner_model"],
                 "task_method": {
                     "Flux2_9B_edit_1024px": "flux2_9b_edit_1024px_cn"
                 },

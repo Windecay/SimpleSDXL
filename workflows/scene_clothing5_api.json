@@ -194,7 +194,7 @@
     },
     "class_type": "UnetLoaderGGUF",
     "_meta": {
-      "title": "base_model"
+      "title": "base_model_gguf"
     }
   },
   "110": {
@@ -1052,7 +1052,7 @@
     "inputs": {
       "sage_attention": "auto",
       "model": [
-        "92",
+        "252",
         0
       ]
     },
@@ -1108,6 +1108,71 @@
     "class_type": "SeedInput",
     "_meta": {
       "title": "SeedInput"
+    }
+  },
+  "248": {
+    "inputs": {
+      "unet_name": "placeholder.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "base_model"
+    }
+  },
+  "249": {
+    "inputs": {
+      "value": 1
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "i2i_model_type"
+    }
+  },
+  "250": {
+    "inputs": {
+      "value": 1
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "Int"
+    }
+  },
+  "251": {
+    "inputs": {
+      "comparison": "a == b",
+      "a": [
+        "249",
+        0
+      ],
+      "b": [
+        "250",
+        0
+      ]
+    },
+    "class_type": "easy compare",
+    "_meta": {
+      "title": "Compare"
+    }
+  },
+  "252": {
+    "inputs": {
+      "boolean": [
+        "251",
+        0
+      ],
+      "on_true": [
+        "248",
+        0
+      ],
+      "on_false": [
+        "92",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
     }
   }
 }

@@ -323,7 +323,7 @@
         0
       ],
       "model": [
-        "29",
+        "72",
         0
       ]
     },
@@ -545,6 +545,70 @@
     "class_type": "SimpleModelDownloader",
     "_meta": {
       "title": "Simple Model Downloader"
+    }
+  },
+  "68": {
+    "inputs": {
+      "value": 1
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "i2i_model_type"
+    }
+  },
+  "69": {
+    "inputs": {
+      "value": 1
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "Int"
+    }
+  },
+  "70": {
+    "inputs": {
+      "comparison": "a == b",
+      "a": [
+        "68",
+        0
+      ],
+      "b": [
+        "69",
+        0
+      ]
+    },
+    "class_type": "easy compare",
+    "_meta": {
+      "title": "Compare"
+    }
+  },
+  "71": {
+    "inputs": {
+      "unet_name": "placeholder.gguf"
+    },
+    "class_type": "UnetLoaderGGUF",
+    "_meta": {
+      "title": "base_model_gguf"
+    }
+  },
+  "72": {
+    "inputs": {
+      "boolean": [
+        "70",
+        0
+      ],
+      "on_true": [
+        "29",
+        0
+      ],
+      "on_false": [
+        "71",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
     }
   }
 }

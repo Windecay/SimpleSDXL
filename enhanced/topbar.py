@@ -484,10 +484,15 @@ def wait_for_minicpm_completion(check_interval=0.5):
     except Exception as e:
         logger.error(f"MiniCPM Error: {str(e)}")
         return True
-def avoid_empty_prompt_for_scene(prompt, state, img, scene_theme, additional_prompt, additional_prompt_2):
+def avoid_empty_prompt_for_scene(prompt, state, canvas_image, input_image1, scene_theme, additional_prompt, additional_prompt_2):
     describe_prompt = None
     if not prompt and 'scene_frontend' in state:
-        describe_prompt, img_is_ok = describe_prompt_for_scene(state, img, scene_theme, f'{additional_prompt}{additional_prompt_2}')
+        visible = state["scene_frontend"].get('disvisible', [])
+        canvas_visible = 'scene_canvas_image' not in visible
+        canvas_img = meta_parser.extract_scene_image(canvas_image) if canvas_visible else None
+        input_img = meta_parser.extract_scene_image(input_image1)
+        use_img = canvas_img if canvas_img is not None else input_img
+        describe_prompt, img_is_ok = describe_prompt_for_scene(state, use_img, scene_theme, f'{additional_prompt}{additional_prompt_2}')
     return gr.update() if describe_prompt is None else describe_prompt
 
 

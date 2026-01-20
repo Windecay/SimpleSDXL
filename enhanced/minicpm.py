@@ -221,6 +221,8 @@ class MiniCPM:
         logger.debug("Starting VLM local inference...")
         try:
             if ads.get_admin_default('p2p_active_checkbox') and ads.get_admin_default('p2p_remote_process').lower()=='out':
+                if isinstance(image, (list, tuple)):
+                    image = next((img for img in image if img is not None), None)
                 if isinstance(image, np.ndarray):
                     image = p2p_task.ndarray_to_webp_bytes(image)
                 args = (image, prompt, max_tokens, temperature, top_p, top_k, repetition_penalty, seed)
@@ -331,7 +333,7 @@ class MiniCPM:
             return os.path.exists(model_dir)
         return shared.modelsinfo.exists_model(catalog="llms", model_path=MiniCPM.model_file)
 
-    def extended_prompt(self, input_text, prompt, input_image, state, translation_methods='Third APIs'):
+    def extended_prompt(self, input_text, prompt, input_images, state, translation_methods='Third APIs'):
         if 'scene_frontend' in state:
             scenes = state['scene_frontend']
             theme = state['scene_theme']
@@ -339,7 +341,12 @@ class MiniCPM:
             if prompt_prompt:
                 if MiniCPM.get_enable():
                     logger.debug(f"Using {'LlamaCpp' if MiniCPM.is_llamacpp else 'MiniCPM'} for scene extended prompt")
-                    return self.interrogate(input_image, prompt=f'{prompt_prompt}{input_text}')
+                    if isinstance(input_images, (list, tuple)):
+                        images = [img for img in input_images if img is not None]
+                        use_images = images if MiniCPM.is_llamacpp else (images[0] if images else None)
+                    else:
+                        use_images = input_images
+                    return self.interrogate(use_images, prompt=f'{prompt_prompt}{input_text}')
                 else:
                     return input_text
         else:
