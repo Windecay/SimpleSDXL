@@ -2860,14 +2860,18 @@ with shared.gradio_root:
                 refiner_model_value = "None"
 
             parsed_loras = []
+            use_loras = False
             for i in range(min(4, len(lora_ctrl_values) // 3)):
                 enabled = lora_ctrl_values[i * 3]
                 filename = lora_ctrl_values[i * 3 + 1]
                 weight = lora_ctrl_values[i * 3 + 2]
+                enabled = bool(enabled)
                 if not isinstance(filename, str) or filename not in lora_choices:
                     filename = "None"
                 if not isinstance(weight, (int, float)):
                     weight = 1.0
+                if enabled and filename != "None":
+                    use_loras = True
                 parsed_loras.append((filename, weight))
             while len(parsed_loras) < 4:
                 parsed_loras.append(("None", 1.0))
@@ -2875,8 +2879,8 @@ with shared.gradio_root:
             return [
                 gr.update(choices=base_choices, value=base_model_value, visible=base_visible),
                 gr.update(choices=refiner_choices, value=refiner_model_value, visible=refiner_visible),
-                gr.update(value=False),
-                gr.update(visible=False),
+                gr.update(value=use_loras),
+                gr.update(visible=use_loras),
                 gr.update(choices=lora_choices, value=parsed_loras[0][0]),
                 gr.update(value=parsed_loras[0][1]),
                 gr.update(choices=lora_choices, value=parsed_loras[1][0]),

@@ -14,10 +14,10 @@
                     "QwenEdit+A2R": "qwenedit_a2r_cn"
                 },
                 "prompt": {
-                    "QwenEdit+A2R": "change the picture 1 to realistic photograph taken by a professional digital camera,asian,"
+                    "QwenEdit+A2R": "change the picture 1 to realistic photograph, taken by a professional digital camera, keep character's feature unchange,"
                 },
                 "agent_prompt": {
-                    "QwenEdit+A2R": "你是一个高精度的视觉分析专家。请将此动漫图像视为现实瞬间进行客观描述，以摄影师视角捕捉物理细节。\n\n对描述结果要求明暗度保持一致，注意服饰内衣内裤细节,注意瞳孔颜色，注意发型细节，是否遮住眼睛，淡妆，不要描述腮红或者脸红，肤色保持一致，发型保持一致，注意表情细节，表情保持一致。\n\n⚠️ 强制防复读准则（最高优先级）：\n\n禁止负向描述： 严禁描述图像中“不存在”或“缺失”的特征（禁止使用“无xx”、“没有xx”、“未见xx”等句式进行废话排比）。\n\n逻辑断路： 严禁对同一物理属性进行重复描述；严禁使用“相得益彰”、“相互呼应”、“呈现出”等万能填充词。\n\n确定性原则： 所有描述必须是已观测到的物理事实。一旦完成该部位特征描述，必须立即切换到下一项，严禁回溯。\n\n核心描述准则：\n\n瞳色与神态： 必须识别并描述瞳孔的精确颜色（如：琥珀色、湛蓝色）及其虹膜纹理、瞳孔缩放及眼部高亮。\n\n即时行为： 描述动作的“瞬间感”、身体重心、以及肢体与环境的物理接触（如：按压、支撑的力感）。\n\n发型细节： 描述发型种类、长度分布，以及发质的物理表现（如：发丝细密、缎面光泽、发梢凌乱感、受力产生的飘动方向）。\n\n身体与生理细节（逻辑触发）： 必须写出人物年龄的详细区间(区间在2以内)！仅当画面确实包含人体裸露或成人内容时，必须对每一个可见的身体部位进行地毯式描写。详述皮肤质感（毛孔、细微汗珠、褶皱、毛发）、体液湿润度。以医学严谨度描述生殖器官外形及受压/拉伸感。若无此类内容，则重点转向皮肤质感、肌肉线条与骨骼轮廓。\n\n服装材质： 描述款式、面料的真实触感（如：粗糙呢绒、顺滑丝绸）、光泽度及受力产生的物理褶皱。\n\n场景、物件与光影： 必须地毯式扫描背景中的具体物件。识别物件的材质（如：拉丝金属、风化木材、通透玻璃）、几何形状、磨损程度及其在空间中的绝对位置。\n\n执行： 严禁列举“不存在”的属性。\n\n请结合用户提供的TAG（如果有），按以下格式输出（中文自然语言）：\n\n{用户输入的提示词}\n【人物神态与瞳色】： (描述微表情、神态、以及精确的瞳孔颜色与虹膜细节) 【即时行为】： (描述具体的动作状态、肢体受力与动态感) 【发型细节】： (描述发型的结构、发丝的质感、光泽度以及空间流动感) 【身体特征】： (必须描述精确的年龄与体型！若有人体裸露或成人内容，在此详细描述可见部位的物理特征；若无，则描述皮肤与体态细节) 【服装材质】： (描述款式、面料的真实触感、光泽度及物理褶皱) 【场景物件与光影】： (详述背景中的具体物品、材质属性、空间位置、光源方向及阴影对物体轮廓的勾勒)"
+                    "QwenEdit+A2R": "描述这张图片角色的关键细节，对描述结果要求明暗度保持一致，描述服饰内衣内裤细节, 描述角色瞳孔颜色、发型细节、是否遮住眼睛，淡妆，不要有任何腮红或者脸红的描述，注意描述表情细节，角色的面部朝向，视线方向。按此格式输出：’change the picture 1 to realistic photograph, taken by a professional digital camera, keep character's feature unchange,: 这张图片图片描述。'"
                 },
                 "scene_steps": {
                     "QwenEdit+A2R": 20
@@ -35,7 +35,7 @@
                 "var_number4_min": 0,
                 "var_number4_max": 1.0,
                 "var_number4": {
-                    "QwenEdit+A2R": 0.35
+                    "QwenEdit+A2R": 0.0
                 },
                 "aspect_ratio" : [ "1024|1:1", "756|9:16", "832|2:3", "1216|4:3", "1248|3:2", "1344|16:9"]
             }
@@ -50,8 +50,8 @@
             1.0
         ],
         [
-            "None",
-            1.0
+            "qe2511_consis_alpha_patched.safetensors",
+            0.25
         ],
         [
             "None",
@@ -85,6 +85,7 @@
         "diffusion_models,qwen_image_edit_2511_fp8mixed.safetensors,20533762817,0,https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/diffusion_models/qwen_image_edit_2511_fp8mixed.safetensors",
         "loras,Qwen-Image-Edit-2511-Lightning-4steps-V1.0-bf16.safetensors,849608296,0,https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/loras/Qwen-Image-Edit-2511-Lightning-4steps-V1.0-bf16.safetensors",
         "loras,anything2real_2601_A_final.safetensors,609646608,0,https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/loras/anything2real_2601_A_final.safetensors",
+        "loras,qe2511_consis_alpha_patched.safetensors,613578928,0,https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/loras/qe2511_consis_alpha_patched.safetensors",
         "clip,qwen_2.5_vl_7b_fp8_scaled.safetensors,9384670680,0,",
         "vae,qwen_image_vae.safetensors,253806246,0,",
         "vae,Wan2.1_VAE_upscale2x_imageonly_real_v1.safetensors,507684560,0,https://www.modelscope.cn/models/spacepxl/Wan2.1-VAE-upscale2x/resolve/master/Wan2.1_VAE_upscale2x_imageonly_real_v1.safetensors",
