@@ -158,6 +158,7 @@
                 transferState.expanded = remoteExpanded;
                 statusIndicator.classList.toggle('transfer-expanded', transferState.expanded);
                 transferToggleBtn.textContent = transferState.expanded ? '图片中转站 ▴' : '图片中转站 ▾';
+                if (transferState.expanded) requestAnimationFrame(updateTransferPanelLayout);
             }
 
             for (const remote of remoteItems) {
@@ -256,6 +257,7 @@
             statusIndicator.classList.toggle('transfer-expanded', transferState.expanded);
             transferToggleBtn.textContent = transferState.expanded ? '图片中转站 ▴' : '图片中转站 ▾';
             if (!transferState.expanded) closeTransferPasteOverlay();
+            requestAnimationFrame(updateTransferPanelLayout);
         } finally {
             transferSync.suppress = false;
         }
@@ -593,6 +595,12 @@
             flex: 1 1 auto;
             min-height: 0;
             cursor: default;
+        }
+
+        .status-indicator .transfer-panel.two-col .transfer-list {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            align-items: stretch;
         }
 
         .status-indicator .transfer-item {
@@ -1005,6 +1013,7 @@
                 // 移除临时事件监听器
                 document.removeEventListener('mousemove', doDrag);
                 document.removeEventListener('mouseup', stopDrag);
+                if (transferState && transferState.expanded) requestAnimationFrame(updateTransferPanelLayout);
             }
         }
         
@@ -1017,6 +1026,7 @@
                 document.removeEventListener('pointermove', doPointerDrag);
                 document.removeEventListener('pointerup', stopPointerDrag);
                 document.removeEventListener('pointercancel', stopPointerDrag);
+                if (transferState && transferState.expanded) requestAnimationFrame(updateTransferPanelLayout);
             }
         }
         
@@ -1029,6 +1039,7 @@
                 document.removeEventListener('touchmove', doTouchDrag);
                 document.removeEventListener('touchend', stopTouchDrag);
                 document.removeEventListener('touchcancel', stopTouchDrag);
+                if (transferState && transferState.expanded) requestAnimationFrame(updateTransferPanelLayout);
             }
         }
     }
@@ -1317,6 +1328,8 @@
             transferHint.textContent = '拖放图片到这里';
             transferHint.style.display = transferState.items.length ? 'none' : 'block';
         }
+
+        transferPanel.classList.toggle('two-col', transferState.items.length > 12);
 
         for (const item of transferState.items) {
             const wrap = document.createElement('div');
@@ -1626,6 +1639,35 @@
         });
     }
 
+    function updateTransferPanelLayout() {
+        try {
+            if (!transferPanel || !statusIndicator) return;
+            if (!transferState.expanded) {
+                transferPanel.style.maxHeight = '';
+                transferPanel.style.top = 'calc(100% + 6px)';
+                transferPanel.style.bottom = '';
+                return;
+            }
+
+            const statusRect = statusIndicator.getBoundingClientRect();
+            const margin = 8;
+            const downAvail = window.innerHeight - (statusRect.bottom + 6) - margin;
+            const upAvail = (statusRect.top - 6) - margin;
+            const openUp = downAvail < 220 && upAvail > downAvail;
+
+            if (openUp) {
+                transferPanel.style.top = 'auto';
+                transferPanel.style.bottom = 'calc(100% + 6px)';
+                transferPanel.style.maxHeight = `${Math.max(140, Math.floor(upAvail))}px`;
+            } else {
+                transferPanel.style.bottom = 'auto';
+                transferPanel.style.top = 'calc(100% + 6px)';
+                transferPanel.style.maxHeight = `${Math.max(140, Math.floor(downAvail))}px`;
+            }
+        } catch (e) {
+        }
+    }
+
     function initTransferActions() {
         transferToggleBtn.addEventListener('click', (e) => {
             e.preventDefault();
@@ -1633,6 +1675,7 @@
             statusIndicator.classList.toggle('transfer-expanded', transferState.expanded);
             transferToggleBtn.textContent = transferState.expanded ? '图片中转站 ▴' : '图片中转站 ▾';
             if (!transferState.expanded) closeTransferPasteOverlay();
+            requestAnimationFrame(updateTransferPanelLayout);
             postTransferSyncMessage({ kind: 'transfer_expand', expanded: transferState.expanded });
         });
 
@@ -1813,6 +1856,7 @@
             statusContainer.style.right = '3px';
             statusContainer.style.bottom = 'auto';
             state.initialPositionMoved = false; // 重置位置标记
+            if (transferState && transferState.expanded) requestAnimationFrame(updateTransferPanelLayout);
         });
         // 集成到 Gradio
         const gradioContainer = gradioApp();
