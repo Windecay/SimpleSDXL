@@ -87,6 +87,7 @@
         "loras,anything2real_2601_A_final.safetensors,609646608,0,https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/loras/anything2real_2601_A_final.safetensors",
         "clip,qwen_2.5_vl_7b_fp8_scaled.safetensors,9384670680,0,",
         "vae,qwen_image_vae.safetensors,253806246,0,",
+        "vae,Wan2.1_VAE_upscale2x_imageonly_real_v1.safetensors,507684560,0,https://www.modelscope.cn/models/spacepxl/Wan2.1-VAE-upscale2x/resolve/master/Wan2.1_VAE_upscale2x_imageonly_real_v1.safetensors",
         "diffusion_models,z_image_turbo_bf16.safetensors,12309866400,0,https://modelscope.cn/models/VerStella/z_image_turbo_comfyui/resolve/master/split_files/diffusion_models/z_image_turbo_bf16.safetensors",
         "text_encoders,qwen_3_4b.safetensors,8044982048,0,https://modelscope.cn/models/VerStella/z_image_turbo_comfyui/resolve/master/split_files/text_encoders/qwen_3_4b.safetensors",
         "vae,ae.safetensors,335304388,0,"
