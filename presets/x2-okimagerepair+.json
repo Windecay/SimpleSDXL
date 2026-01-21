@@ -6,9 +6,9 @@
             "available_aspect_ratios_selection": "Flux",
             "scene_frontend": {
                 "version": "m1.1",
-                "theme_title": "一键修复-Flux2-9B[蒙版无效]",
+                "theme_title": "一键修复-Flux2-9B",
                 "theme": ["Flux2_9B_1024px_修复","Flux2_9B_1024px_修复并上色"],
-                "disvisible": ["scene_additional_prompt","scene_additional_prompt_2", "scene_video", "scene_audio","scene_input_image1","scene_input_image2","scene_aspect_ratio",
+                "disvisible": ["scene_additional_prompt","scene_additional_prompt_2", "scene_video", "scene_audio","scene_canvas_image","scene_input_image2","scene_aspect_ratio",
                 "scene_var_number","scene_var_number2","scene_var_number3","scene_refiner_model",
 		"scene_switch_option1","scene_switch_option2"
 		],
@@ -28,12 +28,12 @@
                 "image_preprocessor_method": {
                     "Flux2_9B_1024px_修复": [["-normalization"]]    
                 },
-                "var_number4_title": "图像还原与变化，值越小越还原，越大越遵循指令，变化越大",
+                "var_number4_title": "值越小越还原，越大越遵循指令，变化越大，默认0.8",
                 "var_number4_min": 0,
                 "var_number4_max": 3.0,
                 "var_number4": {
-                    "Flux2_9B_1024px_修复": 0.3,
-                    "Flux2_9B_1024px_修复并上色": 0.2
+                    "Flux2_9B_1024px_修复": 0.75,
+                    "Flux2_9B_1024px_修复并上色": 0.45
                 },
                 "switch_option1_title": "开关选项1",
                 "switch_option1": {

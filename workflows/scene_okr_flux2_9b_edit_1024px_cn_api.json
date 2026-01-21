@@ -1,23 +1,13 @@
 {
-  "9": {
-    "inputs": {
-      "filename_prefix": "Flux2-Klein-Edit",
-      "images": [
-        "75:65",
-        0
-      ]
-    },
-    "class_type": "SaveImage",
-    "_meta": {
-      "title": "Save Image"
-    }
-  },
   "77": {
     "inputs": {
       "magnitude": 0.85,
       "contrast": 0,
       "normalize_strength": 0,
-      "edit_text_weight": 0.8,
+      "edit_text_weight": [
+        "86",
+        0
+      ],
       "active_end_override": 0,
       "low_vram": false,
       "device": "auto",
@@ -225,6 +215,15 @@
       "title": "Model Patch Torch Settings"
     }
   },
+  "110": {
+    "inputs": {
+      "image": "welcome.png"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "i2i_ip_image1"
+    }
+  },
   "75:61": {
     "inputs": {
       "sampler_name": "euler"
@@ -266,21 +265,6 @@
       "title": "RandomNoise"
     }
   },
-  "75:80": {
-    "inputs": {
-      "upscale_method": "nearest-exact",
-      "megapixels": 1,
-      "resolution_steps": 1,
-      "image": [
-        "82",
-        0
-      ]
-    },
-    "class_type": "ImageScaleToTotalPixels",
-    "_meta": {
-      "title": "ImageScaleToTotalPixels"
-    }
-  },
   "75:74": {
     "inputs": {
       "text": [
@@ -295,6 +279,33 @@
     "class_type": "CLIPTextEncode",
     "_meta": {
       "title": "CLIP Text Encode (Positive Prompt)"
+    }
+  },
+  "75:80": {
+    "inputs": {
+      "upscale_method": "nearest-exact",
+      "megapixels": 1,
+      "resolution_steps": 1,
+      "image": [
+        "110",
+        0
+      ]
+    },
+    "class_type": "ImageScaleToTotalPixels",
+    "_meta": {
+      "title": "ImageScaleToTotalPixels"
+    }
+  },
+  "75:82": {
+    "inputs": {
+      "conditioning": [
+        "75:74",
+        0
+      ]
+    },
+    "class_type": "ConditioningZeroOut",
+    "_meta": {
+      "title": "ConditioningZeroOut"
     }
   },
   "75:81": {
@@ -323,18 +334,6 @@
     "class_type": "VAEEncode",
     "_meta": {
       "title": "VAE Encode"
-    }
-  },
-  "75:82": {
-    "inputs": {
-      "conditioning": [
-        "75:74",
-        0
-      ]
-    },
-    "class_type": "ConditioningZeroOut",
-    "_meta": {
-      "title": "ConditioningZeroOut"
     }
   },
   "75:66": {
@@ -374,10 +373,10 @@
       "title": "Flux2Scheduler"
     }
   },
-  "75:79:77": {
+  "75:79:76": {
     "inputs": {
       "conditioning": [
-        "75:74",
+        "75:82",
         0
       ],
       "latent": [
@@ -390,10 +389,10 @@
       "title": "ReferenceLatent"
     }
   },
-  "75:79:76": {
+  "75:79:77": {
     "inputs": {
       "conditioning": [
-        "75:82",
+        "75:74",
         0
       ],
       "latent": [
