@@ -7,11 +7,14 @@ import queue
 import platform
 import hashlib
 import csv
+import io
+from contextlib import redirect_stdout
 from tqdm import tqdm
 from colorama import init, Fore, Style
 import threading
 import atexit
 import json
+import argparse
 from collections import defaultdict
 from multiprocessing import current_process
 DEFAULT_DOWNLOAD_PREFIX = "https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/"
@@ -161,7 +164,7 @@ def load_model_paths():
         }
 
     except Exception as e:
-        print(f"{Fore.YELLOW}△配置文件加载失败: {e}，使用默认路径{Style.RESET_ALL}")
+        print(f"{Fore.YELLOW}△配置文件加载失败: {e}，使用默认路径{Style.RESET_ALL}", file=sys.stderr)
         # 设置默认的simplemodels_root
         simplemodels_root = os.path.normpath(os.path.join(root_dir, "SimpleModels"))
         path_mapping = {
@@ -223,13 +226,15 @@ def load_model_paths():
 def cleanup():
     if os.path.exists("downloadlist.txt"):
         os.remove("downloadlist.txt")
-        print("已删除 'downloadlist.txt' 文件。")
+        print("已删除 'downloadlist.txt' 文件。", file=sys.stderr)
     if os.path.exists("缺失模型下载链接.txt"):
         os.remove("缺失模型下载链接.txt")
-        print("已删除 '缺失模型下载链接.txt' 文件。")
+        print("已删除 '缺失模型下载链接.txt' 文件。", file=sys.stderr)
 atexit.register(cleanup)
 
 init(autoreset=True, strip=False, convert=False)
+
+LAUNCHER_MODE = os.getenv("SIMPLEAI_LAUNCHER", "0") == "1"
 
 class DownloadStatus:
     def __init__(self, filename, total_size):
@@ -740,6 +745,193 @@ def validate_files(packages):
                 f2.write(f"{link}\n")
         print(f"{Fore.YELLOW}>>>问题文件的文件下载链接已保存到 '缺失模型下载链接.txt'。<<<<<<<<<<<<<<<<<<<<<{Style.RESET_ALL}")
 
+def get_package_status(packages, package_ids=None):
+    path_mapping = load_model_paths()
+    filtered_packages = filter_packages_by_gpu_arch(packages)
+    if package_ids is not None:
+        id_set = set(package_ids)
+        filtered_packages = {
+            k: v for k, v in filtered_packages.items()
+            if v.get("id") in id_set
+        }
+    root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+    result = []
+    for package_key, package_info in filtered_packages.items():
+        package_name = package_info.get("name")
+        package_note = package_info.get("note", "")
+        files_and_sizes = package_info.get("files", [])
+        parsed_entries = list(iter_package_file_entries(files_and_sizes))
+        total_size = sum(e["size"] for e in parsed_entries)
+        non_missing_size = 0
+        file_statuses = []
+        for entry in parsed_entries:
+            expected_path = entry["expected_path"]
+            expected_size = entry["size"]
+            path_parts = expected_path.split('/')
+            path_type = path_parts[0] if len(path_parts) > 0 else ''
+            sub_path = '/'.join(path_parts[1:]) if len(path_parts) > 1 else ''
+            search_dirs = sorted(
+                path_mapping.get(path_type, []),
+                key=lambda x: (
+                    0 if "SimpleModels" in x else
+                    1 if any(part == "models" for part in x.split(os.sep)) else
+                    2,
+                    x
+                )
+            )
+            if not search_dirs:
+                simplemodels_default = os.path.join(root, "SimpleModels")
+                search_dirs = [os.path.join(simplemodels_default, path_type)]
+            found = False
+            actual_dir = None
+            for base_dir in search_dirs:
+                full_path = os.path.join(base_dir, sub_path) if sub_path else os.path.join(base_dir, os.path.basename(expected_path))
+                if os.path.exists(full_path):
+                    actual_dir = os.path.dirname(full_path)
+                    found = True
+                    break
+            status_name = "missing"
+            actual_path = None
+            actual_size = None
+            if found and actual_dir:
+                try:
+                    directory_listing = os.listdir(actual_dir)
+                except Exception:
+                    status_name = "missing"
+                else:
+                    expected_filename = os.path.basename(expected_path)
+                    actual_filename = next((f for f in directory_listing if f.lower() == expected_filename.lower()), None)
+                    if actual_filename is None:
+                        status_name = "missing"
+                    elif actual_filename != expected_filename:
+                        status_name = "case_mismatch"
+                        actual_path = os.path.join(actual_dir, actual_filename)
+                        try:
+                            actual_size = os.path.getsize(actual_path)
+                        except Exception:
+                            actual_size = None
+                    else:
+                        actual_path = os.path.join(actual_dir, actual_filename)
+                        try:
+                            actual_size = os.path.getsize(actual_path)
+                        except Exception:
+                            actual_size = None
+                        if actual_size is not None and actual_size != expected_size:
+                            status_name = "size_mismatch"
+                        else:
+                            status_name = "ok"
+                            non_missing_size += expected_size
+            file_statuses.append(
+                {
+                    "path_type": entry.get("path_type"),
+                    "relative_path": entry.get("relative_path"),
+                    "expected_path": expected_path,
+                    "size": expected_size,
+                    "status": status_name,
+                    "actual_path": actual_path,
+                    "actual_size": actual_size,
+                }
+            )
+        completeness = 0.0
+        if total_size > 0:
+            completeness = (non_missing_size / total_size) * 100
+        result.append(
+            {
+                "key": package_key,
+                "id": package_info.get("id"),
+                "name": package_name,
+                "note": package_note,
+                "info_links": get_package_info_links(package_info),
+                "total_size": total_size,
+                "present_size": non_missing_size,
+                "completeness": completeness,
+                "files": file_statuses,
+            }
+        )
+    return result
+
+
+def _build_entry_index(packages):
+    entry_index = {}
+    for pkg in packages.values():
+        for entry in iter_package_file_entries(pkg.get("files", [])):
+            expected_path = entry.get("expected_path")
+            if expected_path:
+                entry_index[expected_path] = entry
+    return entry_index
+
+
+def _write_and_start_download(entries):
+    unique = {}
+    for url, size in entries:
+        if not url:
+            continue
+        if url not in unique or size < unique[url]:
+            unique[url] = size
+    if not unique:
+        print("没有缺失文件需要下载！")
+        return
+    with open("downloadlist.txt", "w", encoding="utf-8") as f:
+        for url, size in sorted(unique.items(), key=lambda x: x[1]):
+            f.write(f"{url},{size}\n")
+    print(f"{Fore.YELLOW}>>>下载列表已生成，开始下载（关闭窗口可中断）。<<<{Style.RESET_ALL}")
+    auto_download_missing_files_with_retry(max_threads=5)
+
+
+def download_missing_for_packages(package_ids):
+    status_list = get_package_status(packages, package_ids)
+    entry_index = _build_entry_index(packages)
+    download_entries = []
+    for pkg_status in status_list:
+        for file_info in pkg_status.get("files", []):
+            status_name = file_info.get("status")
+            if status_name in ("ok", None):
+                continue
+            expected_path = file_info.get("expected_path")
+            entry = entry_index.get(expected_path)
+            if not entry:
+                continue
+            url = select_download_url(entry)
+            size = entry.get("size", 0) or 0
+            download_entries.append((url, size))
+    _write_and_start_download(download_entries)
+
+
+def download_files_by_expected_paths(expected_paths):
+    cleaned = []
+    for p in expected_paths:
+        p = str(p).strip().strip(";")
+        if p and p not in cleaned:
+            cleaned.append(p)
+    if not cleaned:
+        print(f"{Fore.RED}△未指定要下载的文件{Style.RESET_ALL}")
+        return
+    entry_index = _build_entry_index(packages)
+    status_list = get_package_status(packages, None)
+    status_by_expected = {}
+    for pkg_status in status_list:
+        for file_info in pkg_status.get("files", []):
+            expected_path = file_info.get("expected_path")
+            if expected_path:
+                status_by_expected[expected_path] = file_info.get("status")
+    download_entries = []
+    for expected_path in cleaned:
+        entry = entry_index.get(expected_path)
+        if not entry:
+            print(f"{Fore.RED}△无法识别文件: {expected_path}{Style.RESET_ALL}")
+            continue
+        status_name = status_by_expected.get(expected_path)
+        if status_name == "ok":
+            print(f"{Fore.GREEN}√文件已存在: {expected_path}{Style.RESET_ALL}")
+            continue
+        url = select_download_url(entry)
+        size = entry.get("size", 0) or 0
+        if not url:
+            print(f"{Fore.RED}△没有可用下载链接: {expected_path}{Style.RESET_ALL}")
+            continue
+        download_entries.append((url, size))
+    _write_and_start_download(download_entries)
+
 def delete_partial_files():
     global OBSOLETE_MODELS
     try:
@@ -915,7 +1107,7 @@ def delete_log_files():
         print(">>>未找到需要删除的日志文件<<<")
         print()
 
-def download_file_with_resume(link, file_path, position, result_queue, max_retries=5, lock=None):
+def download_file_with_resume(link, file_path, position, result_queue, max_retries=5, lock=None, expected_path=None, expected_total_size=None):
     partial_file_path = file_path + ".partial"
     retries = 0
     while retries < max_retries:
@@ -931,25 +1123,36 @@ def download_file_with_resume(link, file_path, position, result_queue, max_retri
             response = requests.get(link, stream=True, headers=headers, timeout=(30, 60))
 
             mode = 'ab'
+            total_size = int(expected_total_size) if expected_total_size else 0
             if response.status_code == 200:
                 resume_size = 0
                 mode = 'wb'
-                total_size = int(response.headers.get('content-length', 0))
+                header_size = int(response.headers.get('content-length', 0) or 0)
+                if header_size > 0:
+                    total_size = header_size
             elif response.status_code == 206:
-                # 服务器支持断点续传
                 content_range = response.headers.get('content-range', '')
                 match = re.search(r'/(\d+)$', content_range)
                 if match:
                     total_size = int(match.group(1))
                 else:
-                    total_size = int(response.headers.get('content-length', 0)) + resume_size
+                    header_size = int(response.headers.get('content-length', 0) or 0)
+                    if header_size > 0:
+                        total_size = header_size + resume_size
             else:
-
-                total_size = int(response.headers.get('content-length', 0)) + resume_size
+                header_size = int(response.headers.get('content-length', 0) or 0)
+                if header_size > 0:
+                    total_size = header_size + resume_size
 
             block_size = 8192
+            current_size = resume_size
+            last_report_size = resume_size
+            last_report_time = time.time()
 
             os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+            start_time = time.time()
+            last_update_time = start_time
 
             with open(partial_file_path, mode) as file, tqdm(
                     desc=os.path.basename(file_path),
@@ -959,20 +1162,35 @@ def download_file_with_resume(link, file_path, position, result_queue, max_retri
                     position=position,
                     initial=resume_size,
                     dynamic_ncols=True,
-                    leave=False,  # 任务完成后清除进度条，避免视觉残留
+                    leave=False,
                     file=sys.stdout,
                     miniters=1,
-                    mininterval=0.1,  # 增加更新间隔，减少性能影响
-                    disable=False
+                    mininterval=0.1,
+                    disable=LAUNCHER_MODE
             ) as progress_bar:
-                start_time = time.time()
-                last_update_time = start_time
-
                 for data in response.iter_content(block_size):
+                    chunk_len = len(data)
+                    if not chunk_len:
+                        continue
                     file.write(data)
-                    progress_bar.update(len(data))
+                    progress_bar.update(chunk_len)
+                    current_size += chunk_len
 
-                    # 添加超时检测：如果超过60秒没有数据，认为连接已断
+                    if expected_path and total_size > 0:
+                        now = time.time()
+                        size_delta = current_size - last_report_size
+                        need_report = False
+                        if current_size >= total_size:
+                            need_report = True
+                        elif size_delta >= max(total_size * 0.01, 1024 * 1024):
+                            need_report = True
+                        elif now - last_report_time >= 0.5:
+                            need_report = True
+                        if need_report and LAUNCHER_MODE:
+                            print(f"__SIMPLEAI_PROGRESS__ {expected_path} {current_size} {total_size}", flush=True)
+                            last_report_size = current_size
+                            last_report_time = now
+
                     current_time = time.time()
                     if current_time - last_update_time > 60:
                         raise requests.exceptions.Timeout("下载超时，超过60秒没有数据")
@@ -1074,7 +1292,11 @@ def trigger_manual_download():
 
         print(f"{Fore.CYAN}△开始下载: {file_name}{Style.RESET_ALL}")
         result_queue = queue.Queue()
-        download_file_with_resume(link, save_path, 0, result_queue)
+        expected_path = None
+        if link in url_index:
+            path_type, rel_path = url_index[link]
+            expected_path = f"{path_type}/{rel_path}"
+        download_file_with_resume(link, save_path, 0, result_queue, expected_path=expected_path)
 
 def auto_download_missing_files_with_retry(max_threads=5):
     if not os.path.exists("downloadlist.txt"):
@@ -1173,7 +1395,11 @@ def auto_download_missing_files_with_retry(max_threads=5):
                 file_sub_dir = os.path.dirname(rel_path_local)
                 save_dir = os.path.join(target_base_dir, file_sub_dir)
                 file_path = os.path.join(save_dir, file_name)
-                download_file_with_resume(link, file_path, position, result_queue, 5, lock)
+                expected_path = None
+                if link in url_index:
+                    path_type, rel_path = url_index[link]
+                    expected_path = f"{path_type}/{rel_path}"
+                download_file_with_resume(link, file_path, position, result_queue, 5, lock, expected_path=expected_path)
 
                 # 下载完成（无论成功失败），归还 Slot
                 position_slots.put(position)
@@ -1205,8 +1431,10 @@ def auto_download_missing_files_with_retry(max_threads=5):
     if fail_count == 0 and success_count > 0:
         if os.path.exists("downloadlist.txt"):
             os.remove("downloadlist.txt")
-            print("√下载完成，执行重新检测")
-            validate_files(packages)
+            print("√下载完成")
+            if not LAUNCHER_MODE:
+                print("√下载完成，执行重新检测")
+                validate_files(packages)
     else:
         print(f"△有{fail_count}个文件下载失败，请检查网络连接或手动下载文件。")
 
@@ -1265,46 +1493,46 @@ def delete_package(package_name, packages):
     package = packages[package_name]
     print(f"\n{Fore.CYAN}△ 开始处理模型包：{package['name']}{Style.RESET_ALL}")
 
-    file_refs = defaultdict(list)
+    file_refs = defaultdict(set)
     for pkg_name, pkg_info in packages.items():
         for entry in iter_package_file_entries(pkg_info.get("files", [])):
             file_type = entry["path_type"]
             rel_path = entry["relative_path"].replace("/", os.sep)
-            candidate_paths = []
+            candidate_paths = set()
             for base_dir in path_mapping.get(file_type, []):
-                candidate_paths.append(os.path.join(base_dir, rel_path))
-            candidate_paths.append(os.path.join(simplemodels_root, file_type, rel_path))
+                candidate_paths.add(os.path.join(base_dir, rel_path))
+            candidate_paths.add(os.path.join(simplemodels_root, file_type, rel_path))
             for full_path in candidate_paths:
                 if os.path.exists(full_path):
-                    file_refs[full_path].append(pkg_name)
+                    file_refs[full_path].add(pkg_name)
 
-    delete_candidates = []
-    shared_files = []
+    delete_candidates: set[str] = set()
+    shared_files: set[str] = set()
 
     for entry in iter_package_file_entries(package.get("files", [])):
         file_type = entry["path_type"]
         rel_path = entry["relative_path"].replace("/", os.sep)
-        candidate_paths = []
+        candidate_paths = set()
         for base_dir in path_mapping.get(file_type, []):
-            candidate_paths.append(os.path.join(base_dir, rel_path))
-        candidate_paths.append(os.path.join(simplemodels_root, file_type, rel_path))
+            candidate_paths.add(os.path.join(base_dir, rel_path))
+        candidate_paths.add(os.path.join(simplemodels_root, file_type, rel_path))
         for full_path in candidate_paths:
             if not os.path.exists(full_path):
                 continue
-            if len(file_refs[full_path]) == 1 and file_refs[full_path][0] == package_name:
-                delete_candidates.append(full_path)
+            if len(file_refs[full_path]) == 1 and package_name in file_refs[full_path]:
+                delete_candidates.add(full_path)
             else:
-                shared_files.append(full_path)
+                shared_files.add(full_path)
 
     if shared_files:
         print(f"\n{Fore.YELLOW}△ 以下文件被其他模型包共享：{Style.RESET_ALL}")
-        for path in shared_files:
+        for path in sorted(shared_files):
             print(f"  {path}")
 
     if delete_candidates:
         print(f"\n{Fore.YELLOW}△ 以下孤立文件将被删除：{Style.RESET_ALL}")
         total_size = 0
-        for path in delete_candidates:
+        for path in sorted(delete_candidates):
             try:
                 size = os.path.getsize(path)
                 print(f"  {path} ({size/1024/1024:.1f}MB)")
@@ -1318,7 +1546,7 @@ def delete_package(package_name, packages):
         confirm = input()
         if confirm.lower() == 'y':
             success = 0
-            for path in delete_candidates:
+            for path in sorted(delete_candidates):
                 try:
                     os.remove(path)
                     print(f"{Fore.GREEN}✓ 已删除: {path}{Style.RESET_ALL}")
@@ -1327,7 +1555,8 @@ def delete_package(package_name, packages):
                     print(f"{Fore.RED}× 删除失败: {path} ({str(e)}){Style.RESET_ALL}")
 
             print(f"\n{Fore.GREEN}✓ 模型包{package['name']}孤立文件已清除{Style.RESET_ALL}")
-            validate_files(packages)
+            if not LAUNCHER_MODE:
+                validate_files(packages)
         else:
             print(f"{Fore.BLUE}× 操作已取消{Style.RESET_ALL}")
     else:
@@ -1349,23 +1578,23 @@ def delete_package_force(package_name, packages):
     print(f"\n{Fore.RED}!!! 正在执行强制删除操作 !!!{Style.RESET_ALL}")
     print(f"{Fore.CYAN}△ 开始处理模型包：{package['name']}{Style.RESET_ALL}")
 
-    delete_candidates = []
+    delete_candidates: set[str] = set()
 
     for entry in iter_package_file_entries(package.get("files", [])):
         file_type = entry["path_type"]
         rel_path = entry["relative_path"].replace("/", os.sep)
-        candidate_paths = []
+        candidate_paths = set()
         for base_dir in path_mapping.get(file_type, []):
-            candidate_paths.append(os.path.join(base_dir, rel_path))
-        candidate_paths.append(os.path.join(simplemodels_root, file_type, rel_path))
+            candidate_paths.add(os.path.join(base_dir, rel_path))
+        candidate_paths.add(os.path.join(simplemodels_root, file_type, rel_path))
         for full_path in candidate_paths:
             if os.path.exists(full_path):
-                delete_candidates.append(full_path)
+                delete_candidates.add(full_path)
 
     if delete_candidates:
         print(f"\n{Fore.RED}△ 以下文件将被【强制删除】（不检查其他模型包依赖）：{Style.RESET_ALL}")
         total_size = 0
-        for path in delete_candidates:
+        for path in sorted(delete_candidates):
             try:
                 size = os.path.getsize(path)
                 print(f"  {path} ({size/1024/1024:.1f}MB)")
@@ -1379,7 +1608,7 @@ def delete_package_force(package_name, packages):
         confirm = input().lower()
         if confirm == 'force':
             success = 0
-            for path in delete_candidates:
+            for path in sorted(delete_candidates):
                 try:
                     os.remove(path)
                     print(f"{Fore.GREEN}✓ 已删除: {path}{Style.RESET_ALL}")
@@ -1388,7 +1617,8 @@ def delete_package_force(package_name, packages):
                     print(f"{Fore.RED}× 删除失败: {path} ({str(e)}){Style.RESET_ALL}")
 
             print(f"\n{Fore.GREEN}✓ 模型包{package['name']}文件已强制清除{Style.RESET_ALL}")
-            validate_files(packages)
+            if not LAUNCHER_MODE:
+                validate_files(packages)
         else:
             print(f"{Fore.BLUE}× 操作已取消{Style.RESET_ALL}")
     else:
@@ -1405,7 +1635,7 @@ def get_gpu_arch_str():
         else:
             return "cpu"
     except Exception as e:
-        print(f"获取GPU架构失败: {e}")
+        print(f"获取GPU架构失败: {e}", file=sys.stderr)
         return "cpu"
 
 def filter_packages_by_gpu_arch(packages):
@@ -2462,6 +2692,178 @@ def verify_package_strict(package_id, packages):
 
     print(f"\n{Fore.CYAN}校验完成。{Style.RESET_ALL}")
 
+def run_cli_command(argv):
+    parser = argparse.ArgumentParser(prog="model_checker", add_help=True)
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument("--list-packages", action="store_true")
+    group.add_argument("--validate", action="store_true")
+    group.add_argument("--download-packages", type=str)
+    group.add_argument("--download-files", type=str)
+    group.add_argument("--verify-sha", type=str)
+    group.add_argument("--delete-packages", type=str)
+    group.add_argument("--force-delete-packages", type=str)
+    group.add_argument("--download-previews", action="store_true")
+    group.add_argument("--package-status", nargs="?", const="ALL")
+    group.add_argument("--cleanup-cache", action="store_true")
+    args = parser.parse_args(argv)
+
+    if args.list_packages:
+        filtered_packages = filter_packages_by_gpu_arch(packages)
+        output = []
+        for pkg_key, pkg_info in filtered_packages.items():
+            pkg_entry = {
+                "key": pkg_key,
+                "id": pkg_info.get("id"),
+                "name": pkg_info.get("name"),
+                "note": pkg_info.get("note", ""),
+                "info_links": get_package_info_links(pkg_info),
+                "files": list(iter_package_file_entries(pkg_info.get("files", []))),
+            }
+            output.append(pkg_entry)
+        print(json.dumps(output, ensure_ascii=False, indent=2))
+        return
+
+    if args.validate:
+        validate_files(packages)
+        return
+
+    if args.download_previews:
+        trigger_manual_download()
+        return
+
+    if args.cleanup_cache:
+        delete_partial_files()
+        delete_specific_image_files()
+        delete_log_files()
+        return
+
+    if getattr(args, "package_status", None) is not None:
+        spec = args.package_status
+        package_ids = None
+        if spec and spec.upper() != "ALL":
+            normalized_input = spec.replace('，', ',')
+            ids = []
+            for pkg_id_str in normalized_input.split(','):
+                pkg_id_str = pkg_id_str.strip()
+                if not pkg_id_str:
+                    continue
+                if pkg_id_str.isdigit():
+                    ids.append(int(pkg_id_str))
+                else:
+                    print(f"{Fore.RED}△输入格式错误：'{pkg_id_str}' 不是有效的模型包编号{Style.RESET_ALL}")
+            package_ids = ids
+        status = get_package_status(packages, package_ids)
+        print(json.dumps(status, ensure_ascii=False, indent=2))
+        return
+
+    if args.verify_sha:
+        input_content = args.verify_sha.strip()
+        normalized_input = input_content.replace('，', ',')
+        if ',' in normalized_input:
+            pkg_ids = normalized_input.split(',')
+            valid_ids = []
+            for pid in pkg_ids:
+                pid = pid.strip()
+                if pid.isdigit():
+                    valid_ids.append(int(pid))
+                elif pid:
+                    print(f"{Fore.RED}△无效的模型包编号：{pid}{Style.RESET_ALL}")
+            for pid in valid_ids:
+                verify_package_strict(pid, packages)
+        elif input_content.isdigit():
+            verify_package_strict(int(input_content), packages)
+        else:
+            print(f"{Fore.RED}△输入格式错误，请输入类似 1 或 1,3,5 来校验对应模型包。{Style.RESET_ALL}")
+        return
+
+    if args.download_files:
+        spec = args.download_files.strip()
+        if not spec:
+            print(f"{Fore.RED}△未指定要下载的文件{Style.RESET_ALL}")
+            return
+        expected_paths = [p for p in (part.strip() for part in spec.split(";")) if p]
+        download_files_by_expected_paths(expected_paths)
+        return
+
+    if args.download_packages:
+        spec = args.download_packages.strip()
+        if spec.lower() == "all":
+            print("※启动自动下载模块,支持断点续传，关闭窗口可中断。")
+            download_missing_for_packages(None)
+            return
+
+        normalized_input = spec.replace('，', ',')
+        package_ids = normalized_input.split(',')
+        valid_input = True
+        selected_ids = []
+
+        for pkg_id_str in package_ids:
+            pkg_id_str = pkg_id_str.strip()
+            if not pkg_id_str.isdigit():
+                print(f"{Fore.RED}△输入格式错误：'{pkg_id_str}' 不是有效的模型包编号{Style.RESET_ALL}")
+                valid_input = False
+                break
+
+            package_id = int(pkg_id_str)
+            exists = any(pkg_info.get("id") == package_id for pkg_info in packages.values())
+            if not exists:
+                print(f"{Fore.RED}△模型包编号{package_id} 无效，请输入正确的模型包ID。{Style.RESET_ALL}")
+                valid_input = False
+                break
+            selected_ids.append(package_id)
+
+        if valid_input and selected_ids:
+            print(f"{Fore.GREEN}√已选择 {len(selected_ids)} 个模型包，正在生成合并的下载列表...{Style.RESET_ALL}")
+            download_missing_for_packages(selected_ids)
+        return
+
+    if args.delete_packages:
+        package_spec = args.delete_packages.strip()
+        normalized_input = package_spec.replace('，', ',')
+        package_ids = normalized_input.split(',')
+        for pkg_id_str in package_ids:
+            pkg_id_str = pkg_id_str.strip()
+            if not pkg_id_str.isdigit():
+                print(f"{Fore.RED}△输入格式错误，请输入类似 1 或 1,3,5 来删除对应模型包。{Style.RESET_ALL}")
+                continue
+            package_id = int(pkg_id_str)
+            selected_package = None
+            selected_pkg_name = None
+            for pkg_name, pkg_info in packages.items():
+                if pkg_info["id"] == package_id:
+                    selected_package = pkg_info
+                    selected_pkg_name = pkg_name
+                    break
+            if selected_package:
+                print(f"{Fore.YELLOW}△即将删除模型包：[{selected_package['name']}]{Style.RESET_ALL}")
+                delete_package(selected_pkg_name, packages)
+            else:
+                print(f"{Fore.RED}△无效的模型包编号！{Style.RESET_ALL}")
+        return
+
+    if args.force_delete_packages:
+        package_spec = args.force_delete_packages.strip()
+        normalized_input = package_spec.replace('，', ',')
+        package_ids = normalized_input.split(',')
+        for pkg_id_str in package_ids:
+            pkg_id_str = pkg_id_str.strip()
+            if not pkg_id_str.isdigit():
+                print(f"{Fore.RED}△输入格式错误，请输入类似 1 或 1,3,5 来强制删除对应模型包。{Style.RESET_ALL}")
+                continue
+            package_id = int(pkg_id_str)
+            selected_package = None
+            selected_pkg_name = None
+            for pkg_name, pkg_info in packages.items():
+                if pkg_info["id"] == package_id:
+                    selected_package = pkg_info
+                    selected_pkg_name = pkg_name
+                    break
+            if selected_package:
+                delete_package_force(selected_pkg_name, packages)
+            else:
+                print(f"{Fore.RED}△无效的模型包编号！{Style.RESET_ALL}")
+        return
+
 def main():
     print()
     print_colored("★★★★★★★★★★★★★★★★★★欢迎使用SimpleAI模型检测器★★★★★★★★★★★★★★★★★★", Fore.CYAN)
@@ -2482,161 +2884,162 @@ def main():
     print_colored("★★★★★★★★★★★★★★★★★★检测已结束执行自动下载模块★★★★★★★★★★★★★★★★★★", Fore.CYAN)
 
 if __name__ == "__main__":
-    main()
-    print()
-    while True:
-        print(f">>>输入【{Fore.YELLOW}ALL{Style.RESET_ALL}】 【{Fore.YELLOW}回车{Style.RESET_ALL}】----------------启动全部文件下载<<<     备注：支持断点续传，顺序从小文件开始。")
-        print(f">>>输入【{Fore.YELLOW}模型包编号{Style.RESET_ALL}】 【{Fore.YELLOW}回车{Style.RESET_ALL}】----------启动预置包补全<<<     备注：可输入多个编号，例如1,5,7")
-        print(f">>>数字【{Fore.YELLOW}0{Style.RESET_ALL}】 【{Fore.YELLOW}回车{Style.RESET_ALL}】-清理日志/下载/图片缓存与坏文件<<<     备注：△谨慎执行。慎防误删私有模型")
-        print(f">>>输入【{Fore.YELLOW}DEL{Style.RESET_ALL}】【{Fore.YELLOW}模型包编号{Style.RESET_ALL}】----------删除已有模型包文件<<<     备注：△谨慎执行。自动避开关联文件")
-        print(f">>>输入【{Fore.YELLOW}*DEL{Style.RESET_ALL}】【{Fore.YELLOW}模型包编号{Style.RESET_ALL}】-------强制删除模型包文件<<<     备注：△谨慎执行。不检查关联性直接删除")
-        print(f">>>输入【{Fore.YELLOW}R{Style.RESET_ALL}】 【{Fore.YELLOW}回车{Style.RESET_ALL}】-----------------------重新检测<<<     备注：再玩一遍，玩不腻")
-        print(f">>>输入【{Fore.YELLOW}S{Style.RESET_ALL}】 【{Fore.YELLOW}回车{Style.RESET_ALL}】-----------------下载模型预览图<<<     备注：只下载checkpoints和lora预览图")
-        print(f">>>输入【{Fore.YELLOW}SHA{Style.RESET_ALL}】【{Fore.YELLOW}模型包编号{Style.RESET_ALL}】-------------校验模型包SHA256<<<     备注：严格校验,支持多个编号")
-        print(f">>>输入【{Fore.YELLOW}H{Style.RESET_ALL}】 【{Fore.YELLOW}回车{Style.RESET_ALL}】--------切换下载源到Huggingface<<<     备注：当前使用源：{current_source}")
-        print(f">>>输入【{Fore.YELLOW}M{Style.RESET_ALL}】 【{Fore.YELLOW}回车{Style.RESET_ALL}】--------切换下载源到ModelScope<<<<     备注：当前使用源：{current_source}")
-        print("请选择操作(不需要括号):", flush=True)  # 启动器场景：保留换行符以便立即显示
-        user_input = input()
+    if len(sys.argv) > 1:
+        run_cli_command(sys.argv[1:])
+    else:
+        main()
+        print()
+        while True:
+            print(f">>>输入【{Fore.YELLOW}ALL{Style.RESET_ALL}】 【{Fore.YELLOW}回车{Style.RESET_ALL}】----------------启动全部文件下载<<<     备注：支持断点续传，顺序从小文件开始。")
+            print(f">>>输入【{Fore.YELLOW}模型包编号{Style.RESET_ALL}】 【{Fore.YELLOW}回车{Style.RESET_ALL}】----------启动预置包补全<<<     备注：可输入多个编号，例如1,5,7")
+            print(f">>>数字【{Fore.YELLOW}0{Style.RESET_ALL}】 【{Fore.YELLOW}回车{Style.RESET_ALL}】-清理日志/下载/图片缓存与坏文件<<<     备注：△谨慎执行。慎防误删私有模型")
+            print(f">>>输入【{Fore.YELLOW}DEL{Style.RESET_ALL}】【{Fore.YELLOW}模型包编号{Style.RESET_ALL}】----------删除已有模型包文件<<<     备注：△谨慎执行。自动避开关联文件")
+            print(f">>>输入【{Fore.YELLOW}*DEL{Style.RESET_ALL}】【{Fore.YELLOW}模型包编号{Style.RESET_ALL}】-------强制删除模型包文件<<<     备注：△谨慎执行。不检查关联性直接删除")
+            print(f">>>输入【{Fore.YELLOW}R{Style.RESET_ALL}】 【{Fore.YELLOW}回车{Style.RESET_ALL}】-----------------------重新检测<<<     备注：再玩一遍，玩不腻")
+            print(f">>>输入【{Fore.YELLOW}S{Style.RESET_ALL}】 【{Fore.YELLOW}回车{Style.RESET_ALL}】-----------------下载模型预览图<<<     备注：只下载checkpoints和lora预览图")
+            print(f">>>输入【{Fore.YELLOW}SHA{Style.RESET_ALL}】【{Fore.YELLOW}模型包编号{Style.RESET_ALL}】-------------校验模型包SHA256<<<     备注：严格校验,支持多个编号")
+            print(f">>>输入【{Fore.YELLOW}H{Style.RESET_ALL}】 【{Fore.YELLOW}回车{Style.RESET_ALL}】--------切换下载源到Huggingface<<<     备注：当前使用源：{current_source}")
+            print(f">>>输入【{Fore.YELLOW}M{Style.RESET_ALL}】 【{Fore.YELLOW}回车{Style.RESET_ALL}】--------切换下载源到ModelScope<<<<     备注：当前使用源：{current_source}")
+            print("请选择操作(不需要括号):", flush=True)
+            user_input = input()
 
-        stripped_input = user_input.strip()
+            stripped_input = user_input.strip()
 
-        if stripped_input.lower() == "all":
-            print("※启动自动下载模块,支持断点续传，关闭窗口可中断。")
-            auto_download_missing_files_with_retry(max_threads=5)
-        elif stripped_input.lower().startswith("sha"):
-            input_content = stripped_input[3:].strip()
-            # 支持逗号分隔的多个ID，如 "1,3,5" 或 "1，3，5"
-            normalized_input = input_content.replace('，', ',')
-            if ',' in normalized_input:
-                pkg_ids = normalized_input.split(',')
-                valid_ids = []
-                for pid in pkg_ids:
-                    pid = pid.strip()
-                    if pid.isdigit():
-                        valid_ids.append(int(pid))
-                    elif pid: # 忽略空字符串
-                         print(f"{Fore.RED}△无效的模型包编号：{pid}{Style.RESET_ALL}")
+            if stripped_input.lower() == "all":
+                print("※启动自动下载模块,支持断点续传，关闭窗口可中断。")
+                auto_download_missing_files_with_retry(max_threads=5)
+            elif stripped_input.lower().startswith("sha"):
+                input_content = stripped_input[3:].strip()
+                normalized_input = input_content.replace('，', ',')
+                if ',' in normalized_input:
+                    pkg_ids = normalized_input.split(',')
+                    valid_ids = []
+                    for pid in pkg_ids:
+                        pid = pid.strip()
+                        if pid.isdigit():
+                            valid_ids.append(int(pid))
+                        elif pid:
+                            print(f"{Fore.RED}△无效的模型包编号：{pid}{Style.RESET_ALL}")
+                    for pid in valid_ids:
+                        verify_package_strict(pid, packages)
+                elif input_content.isdigit():
+                    verify_package_strict(int(input_content), packages)
+                else:
+                    print(f"{Fore.RED}△输入格式错误，请输入类似 sha 1 或 sha 1,3,5 来校验对应模型包。{Style.RESET_ALL}")
+            elif ',' in stripped_input or '，' in stripped_input:
+                selected_packages = {}
+                normalized_input = stripped_input.replace('，', ',')
+                package_ids = normalized_input.split(',')
+                valid_input = True
 
-                for pid in valid_ids:
-                    verify_package_strict(pid, packages)
-            elif input_content.isdigit():
-                verify_package_strict(int(input_content), packages)
-            else:
-                 print(f"{Fore.RED}△输入格式错误，请输入类似 sha 1 或 sha 1,3,5 来校验对应模型包。{Style.RESET_ALL}")
-        elif ',' in stripped_input or '，' in stripped_input:
-            selected_packages = {}
-            normalized_input = stripped_input.replace('，', ',')
-            package_ids = normalized_input.split(',')
-            valid_input = True
-
-            for pkg_id_str in package_ids:
-                pkg_id_str = pkg_id_str.strip()
-                if not pkg_id_str.isdigit():
-                    print(f"{Fore.RED}△输入格式错误：'{pkg_id_str}' 不是有效的模型包编号{Style.RESET_ALL}")
-                    valid_input = False
-                    break
-
-                package_id = int(pkg_id_str)
-                found = False
-
-                for package_name, package_info in packages.items():
-                    if package_info["id"] == package_id:
-                        selected_packages[package_name] = package_info
-                        found = True
+                for pkg_id_str in package_ids:
+                    pkg_id_str = pkg_id_str.strip()
+                    if not pkg_id_str.isdigit():
+                        print(f"{Fore.RED}△输入格式错误：'{pkg_id_str}' 不是有效的模型包编号{Style.RESET_ALL}")
+                        valid_input = False
                         break
 
-                if not found:
+                    package_id = int(pkg_id_str)
+                    found = False
+
+                    for package_name, package_info in packages.items():
+                        if package_info["id"] == package_id:
+                            selected_packages[package_name] = package_info
+                            found = True
+                            break
+
+                    if not found:
+                        print(f"{Fore.RED}△模型包编号{package_id} 无效，请输入正确的模型包ID。{Style.RESET_ALL}")
+                        valid_input = False
+                        break
+
+                if valid_input and selected_packages:
+                    print(f"{Fore.GREEN}√已选择 {len(selected_packages)} 个模型包，正在生成合并的下载列表...{Style.RESET_ALL}")
+                    get_download_links_for_package(selected_packages, "downloadlist.txt")
+                    auto_download_missing_files_with_retry(max_threads=5)
+            elif stripped_input.isdigit():
+                package_id = int(stripped_input)
+                selected_package = None
+                for package_name, package_info in packages.items():
+                    if package_info["id"] == package_id:
+                        selected_package = package_info
+                        break
+
+                if selected_package:
+                    get_download_links_for_package({package_name: selected_package}, "downloadlist.txt")
+                    auto_download_missing_files_with_retry(max_threads=5)
+                elif package_id == 0:
+                    delete_partial_files()
+                    delete_specific_image_files()
+                    delete_log_files()
+                else:
                     print(f"{Fore.RED}△模型包编号{package_id} 无效，请输入正确的模型包ID。{Style.RESET_ALL}")
-                    valid_input = False
-                    break
+            elif stripped_input.lower().startswith("*del"):
+                try:
+                    path_mapping = load_model_paths()
+                    package_id_str = stripped_input[4:].strip()
 
-            if valid_input and selected_packages:
-                print(f"{Fore.GREEN}√已选择 {len(selected_packages)} 个模型包，正在生成合并的下载列表...{Style.RESET_ALL}")
-                get_download_links_for_package(selected_packages, "downloadlist.txt")
-                auto_download_missing_files_with_retry(max_threads=5)
-        elif stripped_input.isdigit():
-            package_id = int(stripped_input)
-            selected_package = None
-            for package_name, package_info in packages.items():
-                if package_info["id"] == package_id:
-                    selected_package = package_info
-                    break
+                    if not package_id_str.isdigit():
+                        print(f"{Fore.RED}△输入格式错误，请输入类似 *del1 来强制删除对应模型包。{Style.RESET_ALL}")
+                    else:
+                        package_id = int(package_id_str)
+                        selected_package = None
+                        selected_pkg_name = None
 
-            if selected_package:
-                get_download_links_for_package({package_name: selected_package}, "downloadlist.txt")
-                auto_download_missing_files_with_retry(max_threads=5)
-            elif package_id == 0:
-                delete_partial_files()
-                delete_specific_image_files()
-                delete_log_files()
+                        for pkg_name, pkg_info in packages.items():
+                            if pkg_info["id"] == package_id:
+                                selected_package = pkg_info
+                                selected_pkg_name = pkg_name
+                                break
+
+                        if selected_package:
+                            delete_package_force(selected_pkg_name, packages)
+                        else:
+                            print(f"{Fore.RED}△无效的模型包编号！{Style.RESET_ALL}")
+                except Exception as e:
+                    print(f"{Fore.RED}△强制删除过程中发生错误：{str(e)}{Style.RESET_ALL}")
+            elif stripped_input.lower().startswith("del"):
+                try:
+                    path_mapping = load_model_paths()
+                    package_id_str = stripped_input[3:].strip()
+
+                    if not package_id_str.isdigit():
+                        print(f"{Fore.RED}△输入格式错误，请输入类似 del1 来删除对应模型包。{Style.RESET_ALL}")
+                    else:
+                        package_id = int(package_id_str)
+                        selected_package = None
+
+                        for pkg_name, pkg_info in packages.items():
+                            if pkg_info["id"] == package_id:
+                                selected_package = pkg_info
+                                break
+
+                        if selected_package:
+                            print(f"{Fore.YELLOW}△即将删除模型包：[{selected_package['name']}]{Style.RESET_ALL}")
+                            delete_package(pkg_name, packages)
+                        else:
+                            print(f"{Fore.RED}△无效的模型包编号！{Style.RESET_ALL}")
+                except Exception as e:
+                    print(f"{Fore.RED}△删除过程中发生错误：{str(e)}{Style.RESET_ALL}")
+            elif stripped_input.lower() == "r":
+                print("重新检测文件...")
+                validate_files(packages)
+            elif stripped_input.lower() == "s":
+                print("下载预览图...")
+                trigger_manual_download()
+            elif stripped_input.lower() == "h":
+                CURRENT_DOWNLOAD_SOURCE = "huggingface"
+                CURRENT_DOWNLOAD_PREFIX = HF_DOWNLOAD_PREFIX
+                current_source = "HuggingFace拥抱脸国外源"
+                validate_files(packages)
+                print(f"{Fore.GREEN}√下载源已切换到Huggingface：{CURRENT_DOWNLOAD_PREFIX}{Style.RESET_ALL}")
+                print(f"{Fore.YELLOW}※提示：此切换只在本次运行有效，重启程序后将恢复默认设置。{Style.RESET_ALL}")
+            elif stripped_input.lower() == "m":
+                CURRENT_DOWNLOAD_SOURCE = "modelscope"
+                CURRENT_DOWNLOAD_PREFIX = DEFAULT_DOWNLOAD_PREFIX
+                current_source = "ModelScope魔搭国内源"
+                validate_files(packages)
+                print(f"{Fore.GREEN}√下载源已切换到ModelScope：{CURRENT_DOWNLOAD_PREFIX}{Style.RESET_ALL}")
+                print(f"{Fore.YELLOW}※提示：此切换只在本次运行有效，重启程序后将恢复默认设置。{Style.RESET_ALL}")
             else:
-                print(f"{Fore.RED}△模型包编号{package_id} 无效，请输入正确的模型包ID。{Style.RESET_ALL}")
-        elif stripped_input.lower().startswith("*del"):
-            try:
-                path_mapping = load_model_paths()
-                package_id_str = stripped_input[4:].strip()
-
-                if not package_id_str.isdigit():
-                    print(f"{Fore.RED}△输入格式错误，请输入类似 *del1 来强制删除对应模型包。{Style.RESET_ALL}")
-                else:
-                    package_id = int(package_id_str)
-                    selected_package = None
-                    selected_pkg_name = None
-
-                    for pkg_name, pkg_info in packages.items():
-                        if pkg_info["id"] == package_id:
-                            selected_package = pkg_info
-                            selected_pkg_name = pkg_name
-                            break
-
-                    if selected_package:
-                        delete_package_force(selected_pkg_name, packages)
-                    else:
-                        print(f"{Fore.RED}△无效的模型包编号！{Style.RESET_ALL}")
-            except Exception as e:
-                print(f"{Fore.RED}△强制删除过程中发生错误：{str(e)}{Style.RESET_ALL}")
-        elif stripped_input.lower().startswith("del"):
-            try:
-                path_mapping = load_model_paths()
-                package_id_str = stripped_input[3:].strip()
-
-                if not package_id_str.isdigit():
-                    print(f"{Fore.RED}△输入格式错误，请输入类似 del1 来删除对应模型包。{Style.RESET_ALL}")
-                else:
-                    package_id = int(package_id_str)
-                    selected_package = None
-
-                    for pkg_name, pkg_info in packages.items():
-                        if pkg_info["id"] == package_id:
-                            selected_package = pkg_info
-                            break
-
-                    if selected_package:
-                        print(f"{Fore.YELLOW}△即将删除模型包：[{selected_package['name']}]{Style.RESET_ALL}")
-                        delete_package(pkg_name, packages)
-                    else:
-                        print(f"{Fore.RED}△无效的模型包编号！{Style.RESET_ALL}")
-            except Exception as e:
-                print(f"{Fore.RED}△删除过程中发生错误：{str(e)}{Style.RESET_ALL}")
-        elif stripped_input.lower() == "r":
-            print("重新检测文件...")
-            validate_files(packages)
-        elif stripped_input.lower() == "s":
-            print("下载预览图...")
-            trigger_manual_download()
-        elif stripped_input.lower() == "h":
-            CURRENT_DOWNLOAD_SOURCE = "huggingface"
-            CURRENT_DOWNLOAD_PREFIX = HF_DOWNLOAD_PREFIX
-            current_source = "HuggingFace拥抱脸国外源"
-            validate_files(packages)
-            print(f"{Fore.GREEN}√下载源已切换到Huggingface：{CURRENT_DOWNLOAD_PREFIX}{Style.RESET_ALL}")
-            print(f"{Fore.YELLOW}※提示：此切换只在本次运行有效，重启程序后将恢复默认设置。{Style.RESET_ALL}")
-        elif stripped_input.lower() == "m":
-            CURRENT_DOWNLOAD_SOURCE = "modelscope"
-            CURRENT_DOWNLOAD_PREFIX = DEFAULT_DOWNLOAD_PREFIX
-            current_source = "ModelScope魔搭国内源"
-            validate_files(packages)
-            print(f"{Fore.GREEN}√下载源已切换到ModelScope：{CURRENT_DOWNLOAD_PREFIX}{Style.RESET_ALL}")
-            print(f"{Fore.YELLOW}※提示：此切换只在本次运行有效，重启程序后将恢复默认设置。{Style.RESET_ALL}")
-        else:
-            print(f"{Fore.RED}△无效的输入，请输入回车或有效的模型包编号（不需要括号）。{Style.RESET_ALL}")
+                print(f"{Fore.RED}△无效的输入，请输入回车或有效的模型包编号（不需要括号）。{Style.RESET_ALL}")
