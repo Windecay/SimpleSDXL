@@ -13,7 +13,7 @@
       "device": "auto",
       "debug": false,
       "conditioning": [
-        "75:79:77",
+        "144",
         0
       ]
     },
@@ -101,7 +101,7 @@
   },
   "91": {
     "inputs": {
-      "seed": 571169218714477
+      "seed": 738963914018240
     },
     "class_type": "SeedInput",
     "_meta": {
@@ -217,7 +217,7 @@
   },
   "110": {
     "inputs": {
-      "image": "合照1.webp"
+      "image": "481ef3f7822883b3888746266719e868.jpg"
     },
     "class_type": "LoadImage",
     "_meta": {
@@ -250,7 +250,7 @@
   },
   "124": {
     "inputs": {
-      "value": 0
+      "value": 1
     },
     "class_type": "easy int",
     "_meta": {
@@ -383,7 +383,7 @@
   },
   "138": {
     "inputs": {
-      "text": "移除模糊和裂缝和噪点和灰尘和划痕，白平衡校正，色彩分级，保持源文件质量，修正曝光与色彩配置文件，现代专业级商业棚拍摄影照片"
+      "text": "移除模糊和裂缝和噪点和灰尘和划痕，白平衡校正，色彩分级，保持源文件质量，修正曝光与色彩配置文件，现代专业级商业棚拍摄影照片，"
     },
     "class_type": "ttN text",
     "_meta": {
@@ -410,6 +410,54 @@
     "class_type": "ttN text",
     "_meta": {
       "title": "text"
+    }
+  },
+  "142": {
+    "inputs": {
+      "conditioning": [
+        "75:79:77",
+        0
+      ],
+      "latent": [
+        "75:79:78",
+        0
+      ]
+    },
+    "class_type": "ReferenceLatent",
+    "_meta": {
+      "title": "ReferenceLatent"
+    }
+  },
+  "143": {
+    "inputs": {
+      "conditioning": [
+        "142",
+        0
+      ],
+      "latent": [
+        "75:79:78",
+        0
+      ]
+    },
+    "class_type": "ReferenceLatent",
+    "_meta": {
+      "title": "ReferenceLatent"
+    }
+  },
+  "144": {
+    "inputs": {
+      "conditioning": [
+        "143",
+        0
+      ],
+      "latent": [
+        "75:79:78",
+        0
+      ]
+    },
+    "class_type": "ReferenceLatent",
+    "_meta": {
+      "title": "ReferenceLatent"
     }
   },
   "75:61": {
@@ -439,17 +487,6 @@
     "class_type": "CLIPLoader",
     "_meta": {
       "title": "Load CLIP"
-    }
-  },
-  "75:80": {
-    "inputs": {
-      "upscale_method": "lanczos",
-      "megapixels": 1,
-      "resolution_steps": 1
-    },
-    "class_type": "ImageScaleToTotalPixels",
-    "_meta": {
-      "title": "ImageScaleToTotalPixels"
     }
   },
   "75:73": {
