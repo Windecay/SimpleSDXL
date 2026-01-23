@@ -340,12 +340,17 @@ def find_simplemodels_dir(start_path):
 
 def find_users_dir(start_path):
     current_dir = start_path
+    candidate = None
     while current_dir != os.path.dirname(current_dir):
         users_path = os.path.join(current_dir, "users")
         if os.path.isdir(users_path):
-            return users_path
+            config_path = os.path.join(users_path, "config.txt")
+            if os.path.isfile(config_path):
+                return users_path
+            if candidate is None:
+                candidate = users_path
         current_dir = os.path.dirname(current_dir)
-    return None
+    return candidate
 
 def normalize_path(path):
     path_mapping = load_model_paths()
@@ -945,19 +950,12 @@ def delete_partial_files():
         'vae_approx', 'vae', 'upscale_models', 'inpaint', "ipadapter",
         'clip', 'clip_vision', 'llms', 'LLM', 'unet', 'diffusers', 'model_patches',
         'text_encoders', 'audio_encoders', 'safety_checker', 'layer_model', 'pulid', 'insightface',
+        'prompt_expansion', 'fooocus_expansion',
     ]
 
     scan_dirs = []
     for category in scan_categories:
         scan_dirs.extend(path_mapping.get(category, []))
-
-    default_dir = os.path.normpath(os.path.join(
-        os.path.dirname(__file__), 
-        "..", 
-        "SimpleModels"
-    ))
-    if default_dir not in scan_dirs:
-        scan_dirs.append(default_dir)
 
     total_size = 0
     files_found = False
@@ -997,7 +995,7 @@ def delete_partial_files():
             print(f"\n{Fore.YELLOW}△以下废弃模型文件将被删除：{Style.RESET_ALL}")
             for file in obsolete_files_found:
                 print(f"  {file}")
-        all_files_to_delete = files_to_delete + obsolete_files_found  # 新增合并逻辑
+        all_files_to_delete = files_to_delete + obsolete_files_found
 
         print(f"{Fore.CYAN}△可清理的磁盘空间: {(total_size + obsolete_total) / (1024 * 1024):.2f} MB{Style.RESET_ALL}")
         print(f"{Fore.GREEN}△是否确认删除这些文件？(y/n): {Style.RESET_ALL}", flush=True)
@@ -1017,12 +1015,64 @@ def delete_partial_files():
     else:
         print(">>>未找到需要删除的临时/损坏文件<<<")
 
+
+def _find_obsolete_model_files():
+    path_mapping = load_model_paths()
+
+    scan_categories = [
+        'checkpoints', 'loras', 'controlnet', 'embeddings',
+        'vae_approx', 'vae', 'upscale_models', 'inpaint', "ipadapter",
+        'clip', 'clip_vision', 'llms', 'LLM', 'unet', 'diffusers', 'model_patches',
+        'text_encoders', 'audio_encoders', 'safety_checker', 'layer_model', 'pulid', 'insightface',
+        'prompt_expansion', 'fooocus_expansion',
+    ]
+
+    scan_dirs = []
+    for category in scan_categories:
+        scan_dirs.extend(path_mapping.get(category, []))
+
+    found = []
+    for model_dir in scan_dirs:
+        if not os.path.exists(model_dir):
+            continue
+        for root, _, files in os.walk(model_dir):
+            for file in files:
+                if file in OBSOLETE_MODELS:
+                    found.append(os.path.join(root, file))
+    return found
+
+
+def _print_obsolete_models_report():
+    try:
+        obsolete_files = _find_obsolete_model_files()
+    except Exception:
+        return
+
+    if not obsolete_files:
+        return
+
+    total_size = 0
+    for file_path in obsolete_files:
+        try:
+            total_size += os.path.getsize(file_path)
+        except Exception:
+            pass
+
+    print(f"\n{Fore.YELLOW}△发现以下可删除的废弃模型：{Style.RESET_ALL}")
+    for file_path in obsolete_files:
+        print(f"  {file_path}")
+    print(f"{Fore.CYAN}※这些模型已被新版替代，可节省空间: {total_size/1024/1024/1024:.2f}GB{Style.RESET_ALL}")
+
 def delete_specific_image_files():
     """
     从相对路径查找并删除所有 .png、.webp 和 .jpg/jpeg 文件，排除 welcome.png。
     """
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    users_dir = find_users_dir(script_dir)
+    users_dir = os.path.join(root_dir, "users")
+    if not os.path.isdir(users_dir):
+        users_dir = find_users_dir(os.path.dirname(os.path.abspath(__file__)))
+    if not users_dir:
+        print(f"{Fore.RED}△未找到 users 目录{Style.RESET_ALL}")
+        return
     target_dir = os.path.join(users_dir, "guest_user", "comfyd_inputs")
     if not os.path.exists(target_dir):
         print(f"{Fore.RED}△未找到指定目录: {target_dir}{Style.RESET_ALL}")
@@ -1065,28 +1115,42 @@ def delete_log_files():
     """
     删除与脚本所在位置一致的 logs 目录下的所有 .logs 文件
     """
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    logs_dir = os.path.join(script_dir, "logs")
+    script_logs_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "logs")
+    root_logs_dir = os.path.join(root_dir, "logs")
 
-    if not os.path.exists(logs_dir):
-        print(f"{Fore.RED}△未找到指定日志目录: {logs_dir}{Style.RESET_ALL}")
+    candidates = []
+    if os.path.isdir(root_logs_dir):
+        candidates.append(root_logs_dir)
+    if os.path.isdir(script_logs_dir) and os.path.normcase(script_logs_dir) != os.path.normcase(root_logs_dir):
+        candidates.append(script_logs_dir)
+
+    if not candidates:
+        print(f"{Fore.RED}△未找到指定日志目录: {root_logs_dir}{Style.RESET_ALL}")
         return
 
-    print(f"{Fore.CYAN}△正在清理目录 '{logs_dir}' 中的日志文件...{Style.RESET_ALL}")
+    print(f"{Fore.CYAN}△正在清理日志文件...{Style.RESET_ALL}")
 
     total_size = 0
-    files_found = False
     files_to_delete = []
+    seen = set()
 
-    for root, _, files in os.walk(logs_dir):
-        for file in files:
-            if file.endswith(".log"):
-                files_found = True
-                file_path = os.path.join(root, file)
-                files_to_delete.append(file_path)
-                total_size += os.path.getsize(file_path)
+    for logs_dir in candidates:
+        try:
+            for root, _, files in os.walk(logs_dir):
+                for file in files:
+                    if not file.endswith(".log"):
+                        continue
+                    file_path = os.path.join(root, file)
+                    key = os.path.normcase(os.path.normpath(file_path))
+                    if key in seen:
+                        continue
+                    seen.add(key)
+                    files_to_delete.append(file_path)
+                    total_size += os.path.getsize(file_path)
+        except Exception:
+            continue
 
-    if files_found:
+    if files_to_delete:
         print(f"{Fore.YELLOW}△以下日志文件将被删除：{Style.RESET_ALL}")
         for file_path in files_to_delete:
             print(f"- {file_path}")
@@ -2186,12 +2250,14 @@ packages = {'base_package': {'id': 1,
                       'info_links': ['https://www.modelscope.cn/models/Qwen/Qwen-Image-2512'],
                       'preset_sample': []},
  'qwen_image_edit_plus_package': {'id': 26,
-                                  'name': '[26]QwenEdit+2511图像编辑预置包+自由视角',
-                                  'note': 'Qwen_Image_Edit+2511指令编辑图像|显存需求：★★★★★ 速度:★☆',
+                                  'name': '[26]QwenEdit+2511图像编辑预置包',
+                                  'note': 'Qwen_Image_Edit+2511指令编辑图像&自由视角&A2R动漫转真人|显存需求：★★★★★ 速度:★☆',
                                   'files': ['diffusion_models,qwen_image_edit_2511_fp8mixed.safetensors,20533762817,0,https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/diffusion_models/qwen_image_edit_2511_fp8mixed.safetensors,https://huggingface.co/Comfy-Org/Qwen-Image-Edit_ComfyUI/resolve/main/split_files/diffusion_models/qwen_image_edit_2511_fp8mixed.safetensors',
                                             'loras,Qwen-Image-Edit-2511-Lightning-4steps-V1.0-bf16.safetensors,849608296,0,https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/loras/Qwen-Image-Edit-2511-Lightning-4steps-V1.0-bf16.safetensors,https://huggingface.co/lightx2v/Qwen-Image-Edit-2511-Lightning/resolve/main/Qwen-Image-Edit-2511-Lightning-4steps-V1.0-bf16.safetensors',
                                             'loras,Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors,849608296,0,https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/loras/Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors,https://huggingface.co/lightx2v/Qwen-Image-Edit-2511-Lightning/resolve/main/Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors',
                                             'loras,qwen-image-edit-2511-multiple-angles-lora.safetensors,295140688,0,https://www.modelscope.cn/models/fal/Qwen-Image-Edit-2511-Multiple-Angles-LoRA/resolve/master/qwen-image-edit-2511-multiple-angles-lora.safetensors,https://huggingface.co/fal/Qwen-Image-Edit-2511-Multiple-Angles-LoRA/resolve/main/qwen-image-edit-2511-multiple-angles-lora.safetensors',
+                                            'loras,anything2real_2601_A_final_patched.safetensors,613580128,0,https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/loras/anything2real_2601_A_final_patched.safetensors,https://huggingface.co/lrzjason/Anything2Real_2601/resolve/main/anything2real_2601_A_final_patched.safetensors',
+                                            'loras,qe2511_consis_alpha_patched.safetensors,613578928,0,https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/loras/qe2511_consis_alpha_patched.safetensors,https://huggingface.co/lrzjason/QwenEdit_Consistance_Edit/resolve/main/qe2511_consis_alpha_patched.safetensors',
                                             'clip,qwen_2.5_vl_7b_fp8_scaled.safetensors,9384670680,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/clip/qwen_2.5_vl_7b_fp8_scaled.safetensors,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/clip/qwen_2.5_vl_7b_fp8_scaled.safetensors',
                                             'vae,qwen_image_vae.safetensors,253806246,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/vae/qwen_image_vae.safetensors,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/vae/qwen_image_vae.safetensors',
                                             'controlnet,hr16/DWPose-TorchScript-BatchSize5/dw-ll_ucoco_384_bs5.torchscript.pt,135059124,0,https://www.modelscope.cn/models/svjack/DWPose-TorchScript-BatchSize5/resolve/master/dw-ll_ucoco_384_bs5.torchscript.pt,https://huggingface.co/hr16/DWPose-TorchScript-BatchSize5/resolve/main/dw-ll_ucoco_384_bs5.torchscript.pt',
@@ -2443,7 +2509,8 @@ OBSOLETE_MODELS = [
     "Z-Image-Turbo-Fun-Controlnet-Union-2.1.safetensors",
     "Z-Image-Turbo-Fun-Controlnet-Union-2.1-8steps.safetensors",
     "qwen-image-Q4_K_M.gguf",
-    "qwen_3_8b_fp8mixed.safetensors"
+    "qwen_3_8b_fp8mixed.safetensors",
+    "anything2real_2601_A_final.safetensors"
 ]
 
 MODELSCOPE_FILE_CACHE = {}
@@ -2512,85 +2579,6 @@ def calculate_sha256(file_path):
     except Exception as e:
         return f"Error: {e}"
 
-def _build_csv_file_entry(path_type, relative_path, size, sha256, modelscope_url, hf_url):
-    sha256_field = sha256 if sha256 else "0"
-    ms_field = modelscope_url if modelscope_url else ""
-    hf_field = hf_url if hf_url else ""
-    return f"{path_type},{relative_path},{int(size)},{sha256_field},{ms_field},{hf_field}"
-
-def _convert_file_entry_to_csv_string(file_entry):
-    if isinstance(file_entry, str):
-        fields = next(csv.reader([file_entry], skipinitialspace=True))
-        if len(fields) >= 5:
-            path_type = fields[0].strip()
-            relative_path = fields[1].strip().lstrip('/').rstrip('/')
-            size = int(fields[2].strip())
-            sha256 = fields[3].strip() if len(fields) >= 4 else ""
-            if sha256 in ("", "0", "none", "null", "None"):
-                sha256 = None
-            modelscope_url = fields[4].strip() if len(fields) >= 5 else ""
-            hf_url = fields[5].strip() if len(fields) >= 6 else ""
-            expected_path = f"{path_type}/{relative_path}".strip('/')
-
-            if not modelscope_url:
-                modelscope_url = f"{DEFAULT_DOWNLOAD_PREFIX}SimpleModels/{expected_path}" if DEFAULT_DOWNLOAD_PREFIX else ""
-
-            if not hf_url:
-                if modelscope_url and DEFAULT_DOWNLOAD_PREFIX and modelscope_url.startswith(DEFAULT_DOWNLOAD_PREFIX):
-                    hf_url = f"{HF_DOWNLOAD_PREFIX}{modelscope_url[len(DEFAULT_DOWNLOAD_PREFIX):]}" if HF_DOWNLOAD_PREFIX else ""
-                elif HF_DOWNLOAD_PREFIX:
-                    hf_url = f"{HF_DOWNLOAD_PREFIX}SimpleModels/{expected_path}"
-
-            return _build_csv_file_entry(path_type, relative_path, size, sha256, modelscope_url, hf_url)
-
-        raise ValueError(f"invalid file entry: {file_entry!r}")
-
-    if isinstance(file_entry, tuple) and len(file_entry) >= 2:
-        raw_path = file_entry[0]
-        size = int(file_entry[1])
-        local_part, url = split_path_and_url(raw_path)
-
-        if url:
-            local_part = local_part.strip('/')
-            parts = local_part.split('/') if local_part else []
-            path_type = parts[0] if parts else "default"
-            rel_dir = '/'.join(parts[1:]).strip('/')
-            file_name = os.path.basename(url)
-            relative_path = f"{rel_dir}/{file_name}".strip('/') if rel_dir else file_name
-            modelscope_url = url
-        else:
-            local_part = str(raw_path).strip('/')
-            parts = local_part.split('/') if local_part else []
-            path_type = parts[0] if parts else "default"
-            relative_path = '/'.join(parts[1:]).strip('/')
-            if not relative_path:
-                relative_path = os.path.basename(local_part)
-            modelscope_url = ""
-
-        expected_path = f"{path_type}/{relative_path}".strip('/')
-        if not modelscope_url:
-            modelscope_url = f"{DEFAULT_DOWNLOAD_PREFIX}SimpleModels/{expected_path}" if DEFAULT_DOWNLOAD_PREFIX else ""
-
-        hf_url = ""
-        if modelscope_url and DEFAULT_DOWNLOAD_PREFIX and modelscope_url.startswith(DEFAULT_DOWNLOAD_PREFIX):
-            hf_url = f"{HF_DOWNLOAD_PREFIX}{modelscope_url[len(DEFAULT_DOWNLOAD_PREFIX):]}" if HF_DOWNLOAD_PREFIX else ""
-        elif HF_DOWNLOAD_PREFIX:
-            hf_url = f"{HF_DOWNLOAD_PREFIX}SimpleModels/{expected_path}"
-
-        return _build_csv_file_entry(path_type, relative_path, size, None, modelscope_url, hf_url)
-
-    raise ValueError(f"unsupported file entry type: {type(file_entry)}")
-
-def convert_packages_files_to_csv_strings(packages):
-    for pkg in packages.values():
-        files = pkg.get("files", [])
-        new_files = []
-        for file_entry in files:
-            new_files.append(_convert_file_entry_to_csv_string(file_entry))
-        pkg["files"] = new_files
-    return packages
-
-packages = convert_packages_files_to_csv_strings(packages)
 
 def verify_package_strict(package_id, packages):
     """严格校验包内文件的SHA256"""
@@ -2753,6 +2741,7 @@ def run_cli_command(argv):
                     print(f"{Fore.RED}△输入格式错误：'{pkg_id_str}' 不是有效的模型包编号{Style.RESET_ALL}")
             package_ids = ids
         status = get_package_status(packages, package_ids)
+        _print_obsolete_models_report()
         print(json.dumps(status, ensure_ascii=False, indent=2))
         return
 

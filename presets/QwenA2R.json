@@ -51,7 +51,7 @@
     "default_refiner_switch": 0.5,
     "default_loras": [
         [
-            "anything2real_2601_A_final.safetensors",
+            "anything2real_2601_A_final_patched.safetensors",
             1.0
         ],
         [
@@ -89,7 +89,7 @@
     "model_list": [
         "diffusion_models,qwen_image_edit_2511_fp8mixed.safetensors,20533762817,0,https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/diffusion_models/qwen_image_edit_2511_fp8mixed.safetensors",
         "loras,Qwen-Image-Edit-2511-Lightning-4steps-V1.0-bf16.safetensors,849608296,0,https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/loras/Qwen-Image-Edit-2511-Lightning-4steps-V1.0-bf16.safetensors",
-        "loras,anything2real_2601_A_final.safetensors,609646608,0,https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/loras/anything2real_2601_A_final.safetensors",
+        "loras,anything2real_2601_A_final_patched.safetensors,613580128,0,https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/loras/anything2real_2601_A_final_patched.safetensors",
         "loras,qe2511_consis_alpha_patched.safetensors,613578928,0,https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/loras/qe2511_consis_alpha_patched.safetensors",
         "clip,qwen_2.5_vl_7b_fp8_scaled.safetensors,9384670680,0,",
         "vae,qwen_image_vae.safetensors,253806246,0,",

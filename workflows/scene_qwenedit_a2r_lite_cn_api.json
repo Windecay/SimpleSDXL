@@ -303,7 +303,7 @@
   },
   "410": {
     "inputs": {
-      "lora_name": "anything2real_2601_A_final.safetensors",
+      "lora_name": "anything2real_2601_A_final_patched.safetensors",
       "strength_model": 1,
       "model": [
         "359",
