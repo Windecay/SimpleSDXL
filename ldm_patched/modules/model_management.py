@@ -132,10 +132,116 @@ def get_total_memory(dev=None, torch_total_too=False):
     else:
         return mem_total
 
-def get_vram_info_by_nvml_for_nvidia():
+def _get_nvml_handle_for_device(dev=None):
+    from pynvml import (
+        nvmlDeviceGetCount,
+        nvmlDeviceGetHandleByIndex,
+        nvmlDeviceGetHandleByPciBusId,
+        nvmlDeviceGetHandleByUUID,
+        nvmlDeviceGetPciInfo,
+        nvmlDeviceGetUUID,
+        NVMLError,
+    )
+    if dev is None:
+        dev = get_torch_device()
+    dev_index = getattr(dev, "index", None)
+    if dev_index is None:
+        dev_index = torch.cuda.current_device()
+    props = None
+    try:
+        props = torch.cuda.get_device_properties(dev_index)
+    except Exception:
+        props = None
+    cuda_uuid = getattr(props, "uuid", None) if props is not None else None
+    cuda_uuid_str = None
+    if cuda_uuid is not None:
+        try:
+            cuda_uuid_str = str(cuda_uuid)
+        except Exception:
+            cuda_uuid_str = None
+        if cuda_uuid_str and not cuda_uuid_str.startswith("GPU-"):
+            hex_value = getattr(cuda_uuid, "hex", None)
+            if hex_value:
+                if len(hex_value) == 32:
+                    cuda_uuid_str = f"GPU-{hex_value[0:8]}-{hex_value[8:12]}-{hex_value[12:16]}-{hex_value[16:20]}-{hex_value[20:32]}"
+                else:
+                    cuda_uuid_str = f"GPU-{hex_value}"
+            elif len(cuda_uuid_str) == 32:
+                cuda_uuid_str = f"GPU-{cuda_uuid_str[0:8]}-{cuda_uuid_str[8:12]}-{cuda_uuid_str[12:16]}-{cuda_uuid_str[16:20]}-{cuda_uuid_str[20:32]}"
+            elif len(cuda_uuid_str) == 36 and "-" in cuda_uuid_str:
+                cuda_uuid_str = f"GPU-{cuda_uuid_str}"
+    pci_bus_id = getattr(props, "pci_bus_id", None) if props is not None else None
+    visible_devices = os.environ.get("CUDA_VISIBLE_DEVICES")
+    if cuda_uuid_str:
+        try:
+            return nvmlDeviceGetHandleByUUID(cuda_uuid_str)
+        except NVMLError:
+            pass
+    if isinstance(pci_bus_id, str) and pci_bus_id:
+        try:
+            return nvmlDeviceGetHandleByPciBusId(pci_bus_id)
+        except NVMLError:
+            pass
+    if cuda_uuid_str or pci_bus_id is not None:
+        try:
+            device_count = nvmlDeviceGetCount()
+        except NVMLError:
+            device_count = 0
+        if device_count > 0:
+            normalized_cuda_uuid = cuda_uuid_str
+            if normalized_cuda_uuid:
+                normalized_cuda_uuid = normalized_cuda_uuid.lower().replace("gpu-", "").replace("-", "")
+            for idx in range(device_count):
+                try:
+                    handle = nvmlDeviceGetHandleByIndex(idx)
+                except NVMLError:
+                    continue
+                if normalized_cuda_uuid:
+                    try:
+                        nvml_uuid = nvmlDeviceGetUUID(handle)
+                        if nvml_uuid:
+                            normalized_nvml_uuid = nvml_uuid.lower().replace("gpu-", "").replace("-", "")
+                            if normalized_nvml_uuid == normalized_cuda_uuid:
+                                return handle
+                    except NVMLError:
+                        pass
+                if pci_bus_id is not None:
+                    try:
+                        pci_info = nvmlDeviceGetPciInfo(handle)
+                        bus_id = getattr(pci_info, "busId", None)
+                    except NVMLError:
+                        bus_id = None
+                    if bus_id:
+                        if isinstance(pci_bus_id, str):
+                            if bus_id.lower() == pci_bus_id.lower():
+                                return handle
+                        else:
+                            try:
+                                bus_hex = bus_id.split(":")[1]
+                                bus_int = int(bus_hex, 16)
+                            except Exception:
+                                bus_int = None
+                            if bus_int is not None and bus_int == pci_bus_id:
+                                return handle
+    if visible_devices:
+        visible_list = [x.strip() for x in visible_devices.split(",") if x.strip() != ""]
+        if dev_index < len(visible_list):
+            token = visible_list[dev_index]
+            if token.isdigit():
+                try:
+                    return nvmlDeviceGetHandleByIndex(int(token))
+                except NVMLError:
+                    pass
+            if token.startswith("GPU-") or token.startswith("MIG-"):
+                try:
+                    return nvmlDeviceGetHandleByUUID(token)
+                except NVMLError:
+                    pass
+    return nvmlDeviceGetHandleByIndex(dev_index)
+
+def get_vram_info_by_nvml_for_nvidia(dev=None):
     from pynvml import (
         nvmlInit,
-        nvmlDeviceGetHandleByIndex,
         nvmlDeviceGetMemoryInfo,
         nvmlDeviceGetComputeRunningProcesses,
         nvmlShutdown,
@@ -147,11 +253,9 @@ def get_vram_info_by_nvml_for_nvidia():
         if not nvml_initialized:
             nvmlInit()
             nvml_initialized = True
-        if torch.cuda.is_available():
-            current_device_index = torch.cuda.current_device()
-        else:
+        if not torch.cuda.is_available():
             raise RuntimeError("The current system has not detected any available GPU devices.")
-        handle = nvmlDeviceGetHandleByIndex(current_device_index)
+        handle = _get_nvml_handle_for_device(dev)
         memory_info = nvmlDeviceGetMemoryInfo(handle)
         processes = nvmlDeviceGetComputeRunningProcesses(handle)
         pid_used_vram = None
@@ -170,7 +274,10 @@ def get_vram_info_by_nvml_for_nvidia():
 def print_vram_info_by_nvml(pos=None):
     position = f'({pos})' if pos else ''
     if is_nvidia():
-        memory_info, pid_used_vram = get_vram_info_by_nvml_for_nvidia()
+        memory_info, pid_used_vram = get_vram_info_by_nvml_for_nvidia(get_torch_device())
+        if memory_info is None:
+            logger.debug(f"GPU memory{position}: nvml_unavailable")
+            return
         if pid_used_vram:
             pid_used = f'{pid_used_vram/1024/1024/1024:.3f}GB'
         else:
@@ -760,7 +867,9 @@ def get_free_memory(dev=None, torch_free_too=False):
             mem_free_cuda, _ = torch.cuda.mem_get_info(dev)
             mem_free_torch = mem_reserved - mem_active
             if is_nvidia():
-                mem_free_total = get_free_memory_by_nvml_for_nvidia()
+                mem_free_total = get_free_memory_by_nvml_for_nvidia(dev)
+                if mem_free_total is None:
+                    mem_free_total = mem_free_cuda + mem_free_torch
             else:
                 mem_free_total = mem_free_cuda + mem_free_torch
             #print(f'Fooocus VRAM mem_free_total:{mem_free_total}, old:{mem_free_cuda + mem_free_torch}')
@@ -917,20 +1026,24 @@ def print_memory_info(pos=None):
         reserved = f'{torch.cuda.memory_reserved()/1024/1024/1024:.3f}GB'
         free_cuda = f'{free_cuda/1024/1024/1024:.3f}GB'
         cuda_total = f'{cuda_total/1024/1024/1024:.3f}GB'
-        memory_info, pid_used_vram = get_vram_info_by_nvml_for_nvidia()
-        if pid_used_vram:
-            pid_used = f'{pid_used_vram/1024/1024/1024:.3f}GB'
-        else:
-            pid_used = '-unknown-'
-        used = f'{memory_info.used/1024/1024/1024:.3f}GB'
-        pid_and_all_used = f'pid_used={pid_used}, used={used}, '
+        memory_info, pid_used_vram = get_vram_info_by_nvml_for_nvidia(get_torch_device())
+        pid_and_all_used = ""
+        if memory_info is not None:
+            if pid_used_vram:
+                pid_used = f'{pid_used_vram/1024/1024/1024:.3f}GB'
+            else:
+                pid_used = '-unknown-'
+            used = f'{memory_info.used/1024/1024/1024:.3f}GB'
+            pid_and_all_used = f'pid_used={pid_used}, used={used}, '
 
         logger.info(f'GPU memory{position}: {pid_and_all_used if pid_and_all_used else ""}max_reserved={max_reserved}, max_allocated={max_allocated}, reserved={reserved}, free={free_cuda}, free_torch={free_torch}, free_total={free_total}, gpu_total={gpu_total}, torch_total={torch_total}')
         torch.cuda.reset_peak_memory_stats()
 
 
-def get_free_memory_by_nvml_for_nvidia():
-    memory_info, pid_used_vram = get_vram_info_by_nvml_for_nvidia()
+def get_free_memory_by_nvml_for_nvidia(dev=None):
+    memory_info, pid_used_vram = get_vram_info_by_nvml_for_nvidia(dev)
+    if memory_info is None:
+        return None
     return memory_info.free
 
 last_time_get_vram_ram = 0.0
@@ -941,8 +1054,8 @@ def get_vram_ram_used():
     current_time = time.time()
     if current_time-last_time_get_vram_ram>1.0:
         if is_nvidia():
-            vram_memory_info, pid_used_vram = get_vram_info_by_nvml_for_nvidia()
-            vram_used = vram_memory_info.used
+            vram_memory_info, pid_used_vram = get_vram_info_by_nvml_for_nvidia(get_torch_device())
+            vram_used = vram_memory_info.used if vram_memory_info is not None else 0
         else:
             vram_used = 0
         ram_memory_info = psutil.virtual_memory()

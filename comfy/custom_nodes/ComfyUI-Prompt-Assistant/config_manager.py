@@ -357,6 +357,9 @@ class ConfigManager:
         """加载CSV标签文件，返回嵌套字典结构"""
         csv_path = os.path.join(self.tags_dir, filename)
         if not os.path.exists(csv_path):
+            if filename == "default.csv":
+                if self.save_tags_csv(filename, {}):
+                    return {}
             self._log(f"CSV文件不存在: {filename}")
             return {}
         
