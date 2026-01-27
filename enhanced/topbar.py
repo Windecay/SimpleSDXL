@@ -597,6 +597,11 @@ def process_before_generation(state_params, seed_random, image_seed, backend_par
     superprompter.remove_superprompt()
     remove_tokenizer()
     minicpm.free_model()
+    try:
+        import extras.wd14tagger
+        extras.wd14tagger.free_model()
+    except Exception:
+        pass
 
     # stop_button, skip_button, generate_button, gallery, state_is_generating, index_radio, image_toolbox, prompt_info_box
     results = [gr.update(visible=True, interactive=False), gr.update(visible=True, interactive=False), gr.update(visible=False, interactive=False), [], True, gr.update(visible=False, open=False), gr.update(visible=False), gr.update(visible=False)]

@@ -8,26 +8,93 @@ class Attn2Replace:
     def __init__(self, callback=None, **kwargs):
         self.callback = [callback]
         self.kwargs = [kwargs]
+        self.multigpu_kwargs = {}
+        self._dynamic_attr_keys = set()
+        self._refresh_attrs()
+
+    def get_multigpu_kwargs(self, device):
+        return self.multigpu_kwargs.get(device, self.kwargs)
 
     def add(self, callback, **kwargs):
         self.callback.append(callback)
         self.kwargs.append(kwargs)
+        self._refresh_attrs()
 
-        for key, value in kwargs.items():
+    def remove_by_cleanup_id(self, cleanup_id):
+        if cleanup_id is None:
+            return
+        for i in range(len(self.kwargs) - 1, -1, -1):
+            if self.kwargs[i].get("_ipa_cleanup_id") == cleanup_id:
+                self.kwargs.pop(i)
+                self.callback.pop(i)
+        self.multigpu_kwargs.clear()
+        self._refresh_attrs()
+
+    def _refresh_attrs(self):
+        for key in self._dynamic_attr_keys:
+            if hasattr(self, key):
+                delattr(self, key)
+        self._dynamic_attr_keys.clear()
+
+        if not self.kwargs:
+            return
+        last = self.kwargs[-1]
+        if not isinstance(last, dict):
+            return
+
+        for key, value in last.items():
+            if hasattr(Attn2Replace, key):
+                continue
             setattr(self, key, value)
+            self._dynamic_attr_keys.add(key)
 
     def __call__(self, q, k, v, extra_options):
         dtype = q.dtype
         out = optimized_attention(q, k, v, extra_options["n_heads"])
         sigma = extra_options["sigmas"].detach().cpu()[0].item() if 'sigmas' in extra_options else 999999999.9
 
+        device_kwargs = self.get_multigpu_kwargs(q.device)
+
         for i, callback in enumerate(self.callback):
             if sigma <= self.kwargs[i]["sigma_start"] and sigma >= self.kwargs[i]["sigma_end"]:
-                out = out + callback(out, q, k, v, extra_options, **self.kwargs[i])
+                out = out + callback(out, q, k, v, extra_options, **device_kwargs[i])
 
         return out.to(dtype=dtype)
+    
+    def to(self, device, *args, **kwargs):
+        if not isinstance(device, torch.device):
+            return self
+        if len(self.kwargs) == 0:
+            return self
+        # if casted versions already taken care of, do nothing
+        if device in self.multigpu_kwargs:
+            return self
+        # ignore casts to CPU, as IPAdapter currently always sticks to load device(s)
+        if device == "cpu" or device == torch.device("cpu"):
+            return self
+        # for now, assume cond must be present
+        if self.kwargs[0].get("cond") is None:
+            return self
+        if self.kwargs[0]["cond"].device == device:
+            return self
+        
+        new_kwargs = []
+        for kwargs_dict in self.kwargs:
+            new_kwargs.append(kwargs_dict.copy())
+        
+        for kwargs_dict in new_kwargs:
+            for key, value in kwargs_dict.items():
+                if key == "ipadapter":
+                    value.create_multigpu_clone(device)
+                elif type(kwargs_dict[key]) == torch.Tensor:
+                    kwargs_dict[key] = value.to(device)
+
+        self.multigpu_kwargs[device] = new_kwargs
+        return self
 
 def ipadapter_attention(out, q, k, v, extra_options, module_key='', ipadapter=None, weight=1.0, cond=None, cond_alt=None, uncond=None, weight_type="linear", mask=None, sigma_start=0.0, sigma_end=1.0, unfold_batch=False, embeds_scaling='V only', **kwargs):
+    ipadapter = ipadapter.get_multigpu_clone(q.device)
+    
     dtype = q.dtype
     cond_or_uncond = extra_options["cond_or_uncond"]
     block_type = extra_options["block"][0]
