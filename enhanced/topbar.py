@@ -1043,7 +1043,7 @@ def update_after_identity_sub(state):
     results += [gr.update(value=update_comfyd_url(user_did))]
     results += update_topbar_js_params(state)
     ip_list = modules.flags.ip_list if state["engine"] in ['Fooocus', 'Flux', 'Kolors', 'Comfy', 'Wan', 'Qwen', 'Z-image']  else modules.flags.ip_list[:-1]
-    ip_list = (ip_list[1:3] + ip_list[-1:]) if state["engine"] in ['Wan', 'Qwen', 'Z-image'] else ip_list
+    ip_list = (ip_list[1:3] + ip_list[-1:]) if state["engine"] in ['Wan', 'Qwen', 'Z-image'] or state["task_method"] == 'flux2_aio_cn' else ip_list
     ip_list = (ip_list[:3] + ip_list[-1:]) if state["engine"]=='Comfy' and state["task_method"] == 'il_v_pre_aio' else ip_list
     default_controlnet_image_count = config.default_controlnet_image_count if state["engine"]=='Fooocus' else 4
     for image_count in range(default_controlnet_image_count):

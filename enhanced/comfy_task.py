@@ -207,10 +207,10 @@ def get_comfy_task(user_did, task_class, task_name, task_method, default_params,
         clip_model = '' if 'clip_model' not in default_params else default_params['clip_model']
 
         if '_aio' in task_method:
-            check_download_flux_model(default_params["base_model"], default_params.get("clip_model", None))
-            if 'clip_model' not in default_params or default_params['clip_model'] == 'auto':
-                clip_model = 't5xxl_fp8_e4m3fn.safetensors'
-                comfy_params.update_params({"clip_model": clip_model})
+            # check_download_flux_model(default_params["base_model"], default_params.get("clip_model", None))
+            # if 'clip_model' not in default_params or default_params['clip_model'] == 'auto':
+            #     clip_model = 't5xxl_fp8_e4m3fn.safetensors'
+            #     comfy_params.update_params({"clip_model": clip_model})
             return ComfyTask(task_method, comfy_params, input_images, total_steps)
         else:
             if base_model == 'auto':
@@ -262,7 +262,7 @@ def get_comfy_task(user_did, task_class, task_name, task_method, default_params,
                     if 'lora_1' in default_params:
                         task_method = 'flux_base2_gguf'
                     comfy_params.delete_params(['base_model_dtype'])
-            check_download_flux_model(base_model, clip_model if clip_model!='auto' else None)
+            # check_download_flux_model(base_model, clip_model if clip_model!='auto' else None)
         return ComfyTask(task_method, comfy_params, input_images, total_steps)
     elif task_name == 'SD15AIO' and '_aio' in task_method:
         return ComfyTask(task_method, comfy_params, input_images, total_steps)
@@ -330,72 +330,72 @@ def check_download_base_model(base_model):
         )
     return
 
-def check_download_flux_model(base_model, clip_model=None):
-    if not modelsinfo.exists_model(catalog="checkpoints", model_path=base_model):
-        if 'nf4' in base_model:
-            if 'schnell' in base_model:
-                load_file_from_url(
-                    url=f'https://huggingface.co/silveroxides/flux1-nf4-weights/resolve/main/{base_model}',
-                    model_dir=config.paths_checkpoints[0],
-                    file_name=base_model
-                )
-            else:
-                load_file_from_url(
-                    url=f'https://huggingface.co/lllyasviel/flux1-dev-bnb-nf4/resolve/main/{base_model}',
-                    model_dir=config.paths_checkpoints[0],
-                    file_name=base_model
-                )
-        elif 'fp8' in base_model:
-            if 'schnell' in base_model:
-                load_file_from_url(
-                    url=f'https://huggingface.co/Comfy-Org/flux1-schnell/resolve/main/{base_model}',
-                    model_dir=config.paths_checkpoints[0],
-                    file_name=base_model
-                )
-            else:
-                load_file_from_url(
-                    url=f'https://huggingface.co/Comfy-Org/flux1-dev/resolve/main/{base_model}',
-                    model_dir=config.paths_checkpoints[0],
-                    file_name=base_model
-                )
-        elif 'hyp8' in base_model:
-            if '_K' in base_model:
-                load_file_from_url(
-                    url=f'https://huggingface.co/mhnakif/flux-hyp8-gguf-k/tree/main/{base_model}',
-                    model_dir=config.paths_checkpoints[0],
-                    file_name=base_model
-                )
-            else:
-                load_file_from_url(
-                    url=f'https://huggingface.co/mhnakif/flux-hyp8/tree/main/{base_model}',
-                    model_dir=config.paths_checkpoints[0],
-                    file_name=base_model
-                )
-        else:
-            load_file_from_url(
-                url=f'https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/checkpoints/{base_model}',
-                model_dir=config.paths_checkpoints[0],
-                file_name=base_model
-            )
-    if clip_model:
-        if not modelsinfo.exists_model(catalog="clip", model_path=clip_model):
-            load_file_from_url(
-                url=f'https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/{clip_model}',
-                model_dir=config.paths_clip[0],
-                file_name=f'{clip_model}'
-            )
-        if not modelsinfo.exists_model(catalog="clip", model_path='clip_l.safetensors'):
-            load_file_from_url(
-                url=f'https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/clip_l.safetensors',
-                model_dir=config.paths_clip[0],
-                file_name=f'clip_l.safetensors'
-            )
-        if not modelsinfo.exists_model(catalog="vae", model_path='ae.safetensors'):
-            load_file_from_url(
-                url='https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/vae/ae.safetensors',
-                model_dir=config.paths_vae[0],
-                file_name='ae.safetensors'
-            )
+# def check_download_flux_model(base_model, clip_model=None):
+#     if not modelsinfo.exists_model(catalog="checkpoints", model_path=base_model):
+#         if 'nf4' in base_model:
+#             if 'schnell' in base_model:
+#                 load_file_from_url(
+#                     url=f'https://huggingface.co/silveroxides/flux1-nf4-weights/resolve/main/{base_model}',
+#                     model_dir=config.paths_checkpoints[0],
+#                     file_name=base_model
+#                 )
+#             else:
+#                 load_file_from_url(
+#                     url=f'https://huggingface.co/lllyasviel/flux1-dev-bnb-nf4/resolve/main/{base_model}',
+#                     model_dir=config.paths_checkpoints[0],
+#                     file_name=base_model
+#                 )
+#         elif 'fp8' in base_model:
+#             if 'schnell' in base_model:
+#                 load_file_from_url(
+#                     url=f'https://huggingface.co/Comfy-Org/flux1-schnell/resolve/main/{base_model}',
+#                     model_dir=config.paths_checkpoints[0],
+#                     file_name=base_model
+#                 )
+#             else:
+#                 load_file_from_url(
+#                     url=f'https://huggingface.co/Comfy-Org/flux1-dev/resolve/main/{base_model}',
+#                     model_dir=config.paths_checkpoints[0],
+#                     file_name=base_model
+#                 )
+#         elif 'hyp8' in base_model:
+#             if '_K' in base_model:
+#                 load_file_from_url(
+#                     url=f'https://huggingface.co/mhnakif/flux-hyp8-gguf-k/tree/main/{base_model}',
+#                     model_dir=config.paths_checkpoints[0],
+#                     file_name=base_model
+#                 )
+#             else:
+#                 load_file_from_url(
+#                     url=f'https://huggingface.co/mhnakif/flux-hyp8/tree/main/{base_model}',
+#                     model_dir=config.paths_checkpoints[0],
+#                     file_name=base_model
+#                 )
+#         else:
+#             load_file_from_url(
+#                 url=f'https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/checkpoints/{base_model}',
+#                 model_dir=config.paths_checkpoints[0],
+#                 file_name=base_model
+#             )
+#     if clip_model:
+#         if not modelsinfo.exists_model(catalog="clip", model_path=clip_model):
+#             load_file_from_url(
+#                 url=f'https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/{clip_model}',
+#                 model_dir=config.paths_clip[0],
+#                 file_name=f'{clip_model}'
+#             )
+#         if not modelsinfo.exists_model(catalog="clip", model_path='clip_l.safetensors'):
+#             load_file_from_url(
+#                 url=f'https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/clip_l.safetensors',
+#                 model_dir=config.paths_clip[0],
+#                 file_name=f'clip_l.safetensors'
+#             )
+#         if not modelsinfo.exists_model(catalog="vae", model_path='ae.safetensors'):
+#             load_file_from_url(
+#                 url='https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/vae/ae.safetensors',
+#                 model_dir=config.paths_vae[0],
+#                 file_name='ae.safetensors'
+#             )
 
 
 
