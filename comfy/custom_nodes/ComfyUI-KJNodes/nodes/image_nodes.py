@@ -3,7 +3,6 @@ import time
 import torch
 import torch.nn.functional as F
 import torchvision.transforms as T
-import io
 import base64
 import random
 import math
@@ -23,11 +22,14 @@ from PIL import ImageGrab, ImageDraw, ImageFont, Image, ImageOps
 
 from nodes import MAX_RESOLUTION, SaveImage
 from comfy_extras.nodes_mask import composite
-import node_helpers
 from comfy.cli_args import args
 from comfy.utils import ProgressBar, common_upscale
-import folder_paths
 from comfy import model_management
+import node_helpers
+import folder_paths
+
+from ..utility.utility import string_to_color
+
 try:
     from server import PromptServer
 except:
@@ -703,32 +705,47 @@ Note that this changes the input image's height!
 Fonts are loaded from this folder:  
 ComfyUI/custom_nodes/ComfyUI-KJNodes/fonts
 """
-        
+
     def addlabel(self, image, text_x, text_y, text, height, font_size, font_color, label_color, font, direction, caption=""):
         batch_size = image.shape[0]
         width = image.shape[2]
-        
+
         font_path = os.path.join(script_directory, "fonts", "TTNorms-Black.otf") if font == "TTNorms-Black.otf" else folder_paths.get_full_path("kjnodes_fonts", font)
-        
+
+        # Parse colors using helper function
+        font_color_rgb = string_to_color(font_color)
+        label_color_rgb = string_to_color(label_color)
+
+        # Convert to tuples for PIL
+        font_color_tuple = tuple(font_color_rgb[:3])  # RGB only
+        label_color_tuple = tuple(label_color_rgb[:3])  # RGB only
+
         def process_image(input_image, caption_text):
             font = ImageFont.truetype(font_path, font_size)
-            words = caption_text.split()
             lines = []
-            current_line = []
-            current_line_width = 0
-
-            for word in words:
-                word_width = font.getbbox(word)[2]
-                if current_line_width + word_width <= width - 2 * text_x:
-                    current_line.append(word)
-                    current_line_width += word_width + font.getbbox(" ")[2]  # Add space width
-                else:
+            for text_line in caption_text.split('\n'):
+                if text_line.strip() == "":
+                    # Preserve empty lines for multiple newlines
+                    lines.append("")
+                    continue
+                words = text_line.split()
+                current_line = []
+                for word in words:
+                    if current_line:
+                        test_line = " ".join(current_line + [word])
+                    else:
+                        test_line = word
+                    try:
+                        test_line_width = font.getbbox(test_line)[2]
+                    except Exception:
+                        test_line_width = font.getsize(test_line)[0]
+                    if test_line_width <= width - 2 * text_x:
+                        current_line.append(word)
+                    else:
+                        lines.append(" ".join(current_line))
+                        current_line = [word]
+                if current_line:
                     lines.append(" ".join(current_line))
-                    current_line = [word]
-                    current_line_width = word_width
-
-            if current_line:
-                lines.append(" ".join(current_line))
 
             if direction == 'overlay':
                 pil_image = Image.fromarray((input_image.cpu().numpy() * 255).astype(np.uint8))
@@ -737,26 +754,26 @@ ComfyUI/custom_nodes/ComfyUI-KJNodes/fonts
                     # Adjust the image height automatically
                     margin = 8
                     required_height = (text_y + len(lines) * font_size) + margin # Calculate required height
-                    pil_image = Image.new("RGB", (width, required_height), label_color)
+                    pil_image = Image.new("RGB", (width, required_height), label_color_tuple)
                 else:
                     # Initialize with a minimal height
-                    label_image = Image.new("RGB", (width, height), label_color)
+                    label_image = Image.new("RGB", (width, height), label_color_tuple)
                     pil_image = label_image
 
             draw = ImageDraw.Draw(pil_image)
-            
+
 
             y_offset = text_y
             for line in lines:
                 try:
-                    draw.text((text_x, y_offset), line, font=font, fill=font_color, features=['-liga'])
+                    draw.text((text_x, y_offset), line, font=font, fill=font_color_tuple, features=['-liga'])
                 except:
-                    draw.text((text_x, y_offset), line, font=font, fill=font_color)
+                    draw.text((text_x, y_offset), line, font=font, fill=font_color_tuple)
                 y_offset += font_size
 
             processed_image = torch.from_numpy(np.array(pil_image).astype(np.float32) / 255.0).unsqueeze(0)
             return processed_image
-        
+
         if caption == "":
             processed_images = [process_image(img, text) for img in image]
         else:
@@ -874,31 +891,37 @@ with repeats 2 becomes batch of 10 images: 0, 0, 1, 1, 2, 2, 3, 3, 4, 4
 
         print("mask shape", mask.shape)
         return (repeated_images, mask)
-    
+
 class ImageUpscaleWithModelBatched:
     @classmethod
     def INPUT_TYPES(s):
         return {"required": { "upscale_model": ("UPSCALE_MODEL",),
                               "images": ("IMAGE",),
                               "per_batch": ("INT", {"default": 16, "min": 1, "max": 4096, "step": 1}),
-                              }}
+                              },
+                "optional": {
+                    "downscale_ratio": ("FLOAT", {"default": 1.0, "min": 0.01, "max": 1.0, "step": 0.01}),
+                    "downscale_method": (["nearest-exact", "bilinear", "area", "bicubic", "lanczos"], {"default": "lanczos"}),
+                    "precision": (["float32", "float16", "bfloat16"], {"default": "float32"}),
+                }}
     RETURN_TYPES = ("IMAGE",)
     FUNCTION = "upscale"
     CATEGORY = "KJNodes/image"
     DESCRIPTION = """
 Same as ComfyUI native model upscaling node,  
 but allows setting sub-batches for reduced VRAM usage.
+Optionally downscale the result with a ratio.
 """
-    def upscale(self, upscale_model, images, per_batch):
-        
+    def upscale(self, upscale_model, images, per_batch, downscale_ratio=1.0, downscale_method="lanczos", precision="float32"):
+        dtype = torch.float16 if precision == "float16" else torch.bfloat16 if precision == "bfloat16" else torch.float32
         device = model_management.get_torch_device()
-        upscale_model.to(device)
-        in_img = images.movedim(-1,-3)
-        
+        upscale_model.to(device, dtype=dtype)
+        in_img = images.movedim(-1,-3).to(dtype)
+
         steps = in_img.shape[0]
         pbar = ProgressBar(steps)
         t = []
-        
+
         for start_idx in range(0, in_img.shape[0], per_batch):
             sub_images = upscale_model(in_img[start_idx:start_idx+per_batch].to(device))
             t.append(sub_images.cpu())
@@ -907,8 +930,18 @@ but allows setting sub-batches for reduced VRAM usage.
             # Update the progress bar by the number of images processed in this batch
             pbar.update(batch_count)
         upscale_model.cpu()
-        
-        t = torch.cat(t, dim=0).permute(0, 2, 3, 1).cpu()
+
+        t = torch.cat(t, dim=0).permute(0, 2, 3, 1).cpu().float()
+
+        # Apply downscaling if ratio is less than 1.0
+        if downscale_ratio < 1.0:
+            original_height = t.shape[1]
+            original_width = t.shape[2]
+            new_height = int(original_height * downscale_ratio)
+            new_width = int(original_width * downscale_ratio)
+            t = t.movedim(-1, 1)
+            t = common_upscale(t, new_width, new_height, downscale_method, "disabled")
+            t = t.movedim(1, -1)
 
         return (t,)
 
@@ -1241,7 +1274,7 @@ class ImagePrepForICLora:
                 padded_mask[:, :, :new_width] = 0
 
         return (padded_image, padded_mask)
-        
+
 
 class ImageAndMaskPreview(SaveImage):
     def __init__(self):
@@ -1255,12 +1288,12 @@ class ImageAndMaskPreview(SaveImage):
         return {
             "required": {
                 "mask_opacity": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 1.0, "step": 0.01}),
-                "mask_color": ("STRING", {"default": "255, 255, 255"}),
+                "mask_color": ("STRING", {"default": "255, 255, 255", "tooltip": "RGB (255,255,255) or RGBA (255,255,255,128) or Hex (#RRGGBB / #RRGGBBAA)"}),
                 "pass_through": ("BOOLEAN", {"default": False}),
              },
             "optional": {
                 "image": ("IMAGE",),
-                "mask": ("MASK",),                
+                "mask": ("MASK",),
             },
             "hidden": {"prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO"},
         }
@@ -1274,7 +1307,7 @@ composites the mask on top of the image.
 with pass_through on the preview is disabled and the  
 composite is returned from the composite slot instead,  
 this allows for the preview to be passed for video combine  
-nodes for example.
+nodes for example. Supports RGBA for mask_color to adjust transparency per color.  
 """
 
     def execute(self, mask_opacity, mask_color, pass_through, filename_prefix="ComfyUI", image=None, mask=None, prompt=None, extra_pnginfo=None):
@@ -1286,19 +1319,21 @@ nodes for example.
             mask_adjusted = mask * mask_opacity
             mask_image = mask.reshape((-1, 1, mask.shape[-2], mask.shape[-1])).movedim(1, -1).expand(-1, -1, -1, 3).clone()
 
-            if ',' in mask_color:
-                color_list = np.clip([int(channel) for channel in mask_color.split(',')], 0, 255) # RGB format
-            else:
-                mask_color = mask_color.lstrip('#')
-                color_list = [int(mask_color[i:i+2], 16) for i in (0, 2, 4)] # Hex format
+            # Use helper function to parse color string
+            color_list = string_to_color(mask_color)
+
+            # Apply RGB channels
             mask_image[:, :, :, 0] = color_list[0] / 255 # Red channel
             mask_image[:, :, :, 1] = color_list[1] / 255 # Green channel
             mask_image[:, :, :, 2] = color_list[2] / 255 # Blue channel
 
+            if len(color_list) == 4: # Apply Alpha channel if present
+                alpha_factor = color_list[3] / 255.0
+                mask_adjusted = mask_adjusted * alpha_factor
+
             destination, source = node_helpers.image_alpha_fix(image, mask_image)
             destination = destination.clone().movedim(-1, 1)
             preview = composite(destination, source.movedim(-1, 1), 0, 0, mask_adjusted, 1, True).movedim(1, -1)
-
         if pass_through:
             return (preview, )
         return(self.save_images(preview, filename_prefix, prompt, extra_pnginfo))
@@ -1787,9 +1822,9 @@ Returns a range of images from a batch.
             chosen_masks = masks[start_index:end_index]
 
         return (chosen_images, chosen_masks,)
-    
+
 class ImageBatchExtendWithOverlap:
-    
+
     RETURN_TYPES = ("IMAGE", "IMAGE", "IMAGE", )
     RETURN_NAMES = ("source_images", "start_images", "extended_images")
     OUTPUT_TOOLTIPS = (
@@ -1812,13 +1847,13 @@ Then on another copy of the node provide the newly generated frames and choose h
                 "source_images": ("IMAGE", {"tooltip": "The source images to extend"}),
                 "overlap": ("INT", {"default": 13,"min": 1, "max": 4096, "step": 1, "tooltip": "Number of overlapping frames between source and new images"}),
                 "overlap_side": (["source", "new_images"], {"default": "source", "tooltip": "Which side to overlap on"}),
-                "overlap_mode": (["cut", "linear_blend", "ease_in_out"], {"default": "linear_blend", "tooltip": "Method to use for overlapping frames"}),
+                "overlap_mode": (["cut", "linear_blend", "ease_in_out", "filmic_crossfade", "perceptual_crossfade"], {"default": "linear_blend", "tooltip": "Method to use for overlapping frames"}),
         },
         "optional": {
             "new_images": ("IMAGE", {"tooltip": "The new images to extend with"}),
         }
-    } 
-    
+    }
+
     def imagesfrombatch(self, source_images, overlap, overlap_side, overlap_mode, new_images=None):
         if overlap >= len(source_images):
             return source_images, source_images, source_images
@@ -1837,28 +1872,54 @@ Then on another copy of the node provide the newly generated frames and choose h
             suffix = new_images[overlap:]
 
             if overlap_mode == "linear_blend":
-                blended_images = [
-                    crossfade(blend_src[i], blend_dst[i], (i + 1) / (overlap + 1))
-                    for i in range(overlap)
-                ]
-                blended_images = torch.stack(blended_images, dim=0)
+                # Vectorized version - process all frames at once
+                alpha = torch.linspace(0, 1, overlap + 2, device=blend_src.device, dtype=blend_src.dtype)[1:-1]
+                alpha = alpha.view(-1, 1, 1, 1)  # Shape: [overlap, 1, 1, 1]
+                blended_images = (1 - alpha) * blend_src + alpha * blend_dst
                 extended_images = torch.cat((prefix, blended_images, suffix), dim=0)
+
+            elif overlap_mode == "filmic_crossfade":
+                gamma = 2.2
+                alpha = torch.linspace(0, 1, overlap + 2, device=blend_src.device, dtype=blend_src.dtype)[1:-1]
+                alpha = alpha.view(-1, 1, 1, 1)
+                linear_src = torch.pow(blend_src, gamma)
+                linear_dst = torch.pow(blend_dst, gamma)
+                blended = (1 - alpha) * linear_src + alpha * linear_dst
+                blended_images = torch.pow(blended, 1.0 / gamma)
+                extended_images = torch.cat((prefix, blended_images, suffix), dim=0)
+
+            elif overlap_mode == "perceptual_crossfade":
+                import kornia
+                alpha = torch.linspace(0, 1, overlap + 2, device=blend_src.device, dtype=blend_src.dtype)[1:-1]
+
+                src_nchw = blend_src.movedim(-1, 1)
+                dst_nchw = blend_dst.movedim(-1, 1)
+                lab_src = kornia.color.rgb_to_lab(src_nchw)
+                lab_dst = kornia.color.rgb_to_lab(dst_nchw)
+
+                # Blend in LAB space
+                alpha = alpha.view(-1, 1, 1, 1)  # [N,1,1,1] for broadcasting
+                blended_lab = (1 - alpha) * lab_src + alpha * lab_dst
+
+                # Convert back to RGB and reshape
+                blended_rgb = kornia.color.lab_to_rgb(blended_lab)
+                blended_images = blended_rgb.movedim(1, -1)  # [N,C,H,W] -> [N,H,W,C]
+                extended_images = torch.cat((prefix, blended_images, suffix), dim=0)
+
             elif overlap_mode == "ease_in_out":
-                blended_images = []
-                for i in range(overlap):
-                    t = (i + 1) / (overlap + 1)
-                    eased_t = ease_in_out(t)
-                    blended_image = crossfade(blend_src[i], blend_dst[i], eased_t)
-                    blended_images.append(blended_image)
-                blended_images = torch.stack(blended_images, dim=0)
+                # Vectorized ease_in_out
+                t = torch.linspace(0, 1, overlap + 2, device=blend_src.device, dtype=blend_src.dtype)[1:-1]
+                eased_t = 3 * t * t - 2 * t * t * t  # ease_in_out formula
+                eased_t = eased_t.view(-1, 1, 1, 1)
+                blended_images = (1 - eased_t) * blend_src + eased_t * blend_dst
                 extended_images = torch.cat((prefix, blended_images, suffix), dim=0)
-              
+
             elif overlap_mode == "cut":
                 extended_images = torch.cat((prefix, suffix), dim=0)
                 if overlap_side == "new_images":
-                   extended_images = torch.cat((source_images, new_images[overlap:]), dim=0)
+                    extended_images = torch.cat((source_images, new_images[overlap:]), dim=0)
                 elif overlap_side == "source":
-                   extended_images = torch.cat((source_images[:-overlap], new_images), dim=0)
+                    extended_images = torch.cat((source_images[:-overlap], new_images), dim=0)
         else:
             extended_images = torch.zeros((1, 64, 64, 3), device="cpu")
 
@@ -2597,7 +2658,7 @@ highest dimension.
             device = torch.device("cpu")
 
         pillarbox_blur = keep_proportion == "pillarbox_blur"
-        
+
         # Initialize padding variables
         pad_left = pad_right = pad_top = pad_bottom = 0
 
@@ -2607,7 +2668,7 @@ highest dimension.
                 aspect_ratio = W / H
                 new_height = int(math.sqrt(total_pixels / aspect_ratio))
                 new_width = int(math.sqrt(total_pixels * aspect_ratio))
-                
+
             # If one of the dimensions is zero, calculate it to maintain the aspect ratio
             elif width == 0 and height == 0:
                 new_width = W
@@ -2831,30 +2892,26 @@ class LoadAndResizeImage:
     FUNCTION = "load_image"
 
     def load_image(self, image, resize, width, height, repeat, keep_proportion, divisible_by, mask_channel, background_color):
-        from PIL import ImageColor, Image, ImageOps, ImageSequence
+        from PIL import Image, ImageOps, ImageSequence
         import numpy as np
         import torch
         image_path = folder_paths.get_annotated_filepath(image)
-        
+
         import node_helpers
         img = node_helpers.pillow(Image.open, image_path)
+        img = ImageOps.exif_transpose(img)
 
-        # Process the background_color
+        # Process the background_color using the helper function
         if background_color:
-            try:
-                # Try to parse as RGB tuple
-                bg_color_rgba = tuple(int(x.strip()) for x in background_color.split(','))
-            except ValueError:
-                # If parsing fails, it might be a hex color or named color
-                if background_color.startswith('#') or background_color.lower() in ImageColor.colormap:
-                    bg_color_rgba = ImageColor.getrgb(background_color)
-                else:
-                    raise ValueError(f"Invalid background color: {background_color}")
-
-            bg_color_rgba += (255,)  # Add alpha channel
+            color_list = string_to_color(background_color)
+            # Ensure we have RGBA (add alpha if only RGB)
+            if len(color_list) == 3:
+                bg_color_rgba = tuple(color_list) + (255,)
+            else:
+                bg_color_rgba = tuple(color_list)
         else:
             bg_color_rgba = None  # No background color specified
-        
+
         output_images = []
         output_masks = []
         w, h = None, None
@@ -3643,7 +3700,7 @@ class ImageCropByMaskBatch:
                     "height": ("INT", {"default": 512, "min": 0, "max": MAX_RESOLUTION, "step": 8, }),
                     "padding": ("INT", {"default": 0, "min": 0, "max": 4096, "step": 1, }),
                     "preserve_size": ("BOOLEAN", {"default": False}),
-                    "bg_color": ("STRING", {"default": "0, 0, 0", "tooltip": "Color as RGB values in range 0-255, separated by commas."}),
+                    "bg_color": ("STRING", {"default": "0, 0, 0", "tooltip": "Color as RGB values in range 0-255 or 0.0-1.0, or color name or hex code"}),
                   }
                 }
     
@@ -3663,7 +3720,9 @@ class ImageCropByMaskBatch:
         output_images = []
         output_masks = []
 
-        bg_color = [int(x.strip())/255.0 for x in bg_color.split(",")]
+        # Parse background color using helper function
+        color_list = string_to_color(bg_color)
+        bg_color = [x / 255.0 for x in color_list]
         
         # For each mask
         for i in range(mask_count):
@@ -3746,7 +3805,7 @@ class ImagePadKJ:
                     "bottom": ("INT", {"default": 0, "min": 0, "max": MAX_RESOLUTION, "step": 1, }),
                     "extra_padding": ("INT", {"default": 0, "min": 0, "max": MAX_RESOLUTION, "step": 1, }),
                     "pad_mode": (["edge", "edge_pixel", "color", "pillarbox_blur"],),
-                    "color": ("STRING", {"default": "0, 0, 0", "tooltip": "Color as RGB values in range 0-255, separated by commas."}),
+                    "color": ("STRING", {"default": "0, 0, 0", "tooltip": "Color as RGB values in range 0-255 or 0.0-1.0, or color name or hex code"}),
                   },
                 "optional": {
                     "mask": ("MASK", ),
@@ -3769,8 +3828,9 @@ class ImagePadKJ:
             if HM != H or WM != W:
                 mask = F.interpolate(mask.unsqueeze(1), size=(H, W), mode='nearest-exact').squeeze(1)
 
-        # Parse background color
-        bg_color = [int(x.strip())/255.0 for x in color.split(",")]
+        # Parse background color using helper function
+        color_list = string_to_color(color)
+        bg_color = [x / 255.0 for x in color_list]
         if len(bg_color) == 1:
             bg_color = bg_color * 3  # Grayscale to RGB
         bg_color = torch.tensor(bg_color, dtype=image.dtype, device=image.device)

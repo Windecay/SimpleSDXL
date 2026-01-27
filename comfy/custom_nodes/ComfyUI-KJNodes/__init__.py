@@ -7,6 +7,8 @@ from .nodes.intrinsic_lora_nodes import *
 from .nodes.mask_nodes import *
 from .nodes.model_optimization_nodes import *
 from .nodes.lora_nodes import *
+
+
 NODE_CONFIG = {
     #constants
     "BOOLConstant": {"class": BOOLConstant, "name": "BOOL Constant"},
@@ -21,6 +23,7 @@ NODE_CONFIG = {
     "ConditioningSetMaskAndCombine4": {"class": ConditioningSetMaskAndCombine4, "name": "ConditioningSetMaskAndCombine4"},
     "ConditioningSetMaskAndCombine5": {"class": ConditioningSetMaskAndCombine5, "name": "ConditioningSetMaskAndCombine5"},
     "CondPassThrough": {"class": CondPassThrough},
+    "WanImageToVideoSVIPro": {"class": WanImageToVideoSVIPro, "name": "Wan Image To Video SVIPro"},
     #masking
     "DrawMaskOnImage": {"class": DrawMaskOnImage, "name": "Draw Mask On Image"},
     "DownloadAndLoadCLIPSeg": {"class": DownloadAndLoadCLIPSeg, "name": "(Down)load CLIPSeg"},
@@ -141,6 +144,7 @@ NODE_CONFIG = {
     "StyleModelApplyAdvanced": {"class": StyleModelApplyAdvanced, "name": "Style Model Apply Advanced"},
     "DiffusionModelSelector": {"class": DiffusionModelSelector, "name": "Diffusion Model Selector"},
     "LazySwitchKJ": {"class": LazySwitchKJ, "name": "Lazy Switch KJ"},
+    "VisualizeSigmasKJ": {"class": VisualizeSigmasKJ, "name": "Visualize Sigmas KJ"},
     #audioscheduler stuff
     "NormalizedAmplitudeToMask": {"class": NormalizedAmplitudeToMask},
     "NormalizedAmplitudeToFloatList": {"class": NormalizedAmplitudeToFloatList},
@@ -180,19 +184,13 @@ NODE_CONFIG = {
     "FluxBlockLoraSelect": {"class": FluxBlockLoraSelect, "name": "Flux Block Lora Select"},
     "HunyuanVideoBlockLoraSelect": {"class": HunyuanVideoBlockLoraSelect, "name": "Hunyuan Video Block Lora Select"},
     "Wan21BlockLoraSelect": {"class": Wan21BlockLoraSelect, "name": "Wan21 Block Lora Select"},
+    "LTX2BlockLoraSelect": {"class": LTX2BlockLoraSelect, "name": "LTX2 Block Lora Select"},
     "CustomControlNetWeightsFluxFromList": {"class": CustomControlNetWeightsFluxFromList, "name": "Custom ControlNet Weights Flux From List"},
     "CheckpointLoaderKJ": {"class": CheckpointLoaderKJ, "name": "CheckpointLoaderKJ"},
     "DiffusionModelLoaderKJ": {"class": DiffusionModelLoaderKJ, "name": "Diffusion Model Loader KJ"},
-    "TorchCompileModelFluxAdvanced": {"class": TorchCompileModelFluxAdvanced, "name": "TorchCompileModelFluxAdvanced"},
     "TorchCompileModelFluxAdvancedV2": {"class": TorchCompileModelFluxAdvancedV2, "name": "TorchCompileModelFluxAdvancedV2"},
-    "TorchCompileModelHyVideo": {"class": TorchCompileModelHyVideo, "name": "TorchCompileModelHyVideo"},
     "TorchCompileVAE": {"class": TorchCompileVAE, "name": "TorchCompileVAE"},
     "TorchCompileControlNet": {"class": TorchCompileControlNet, "name": "TorchCompileControlNet"},
-    "PatchModelPatcherOrder": {"class": PatchModelPatcherOrder, "name": "Patch Model Patcher Order"},
-    "TorchCompileLTXModel": {"class": TorchCompileLTXModel, "name": "TorchCompileLTXModel"},
-    "TorchCompileCosmosModel": {"class": TorchCompileCosmosModel, "name": "TorchCompileCosmosModel"},
-    "TorchCompileModelQwenImage": {"class": TorchCompileModelQwenImage, "name": "TorchCompileModelQwenImage"},
-    "TorchCompileModelWanVideo": {"class": TorchCompileModelWanVideo, "name": "TorchCompileModelWanVideo"},
     "TorchCompileModelWanVideoV2": {"class": TorchCompileModelWanVideoV2, "name": "TorchCompileModelWanVideoV2"},
     "PathchSageAttentionKJ": {"class": PathchSageAttentionKJ, "name": "Patch Sage Attention KJ"},
     "LeapfusionHunyuanI2VPatcher": {"class": LeapfusionHunyuanI2V, "name": "Leapfusion Hunyuan I2V Patcher"},
@@ -216,6 +214,10 @@ NODE_CONFIG = {
     "StartRecordCUDAMemoryHistory": {"class": StartRecordCUDAMemoryHistory, "name": "Start Recording CUDAMemory History"},
     "EndRecordCUDAMemoryHistory": {"class": EndRecordCUDAMemoryHistory, "name": "End Recording CUDAMemory History"},
     "VisualizeCUDAMemoryHistory": {"class": VisualizeCUDAMemoryHistory, "name": "Visualize CUDAMemory History"},
+    "PreviewLatentNoiseMask": {"class": PreviewLatentNoiseMask, "name": "Preview Latent Noise Mask"},
+    "ModelMemoryUseReportPatch": {"class": ModelMemoryUseReportPatch, "name": "Model Memory Use Report Patch"},
+    "ModelMemoryUsageFactorOverride": {"class": ModelMemoryUsageFactorOverride, "name": "Model Memory Usage Factor Override"},
+    "WanChunkFeedForward": {"class": WanChunkFeedForward, "name": "Wan ChunkFeedForward"},
 
     #instance diffusion
     "CreateInstanceDiffusionTracking": {"class": CreateInstanceDiffusionTracking},
@@ -229,7 +231,36 @@ NODE_CONFIG = {
     #tracks
     "GetTrackRange": {"class": GetTrackRange, "name": "Get Track Range"},
     "AddNoiseToTrackPath": {"class": AddNoiseToTrackPath, "name": "Add Noise To Track"},
+
+    # deprecated
+    "PatchModelPatcherOrder": {"class": PatchModelPatcherOrder, "name": "Patch Model Patcher Order"},
+    "TorchCompileModelFluxAdvanced": {"class": DeprecatedCompileNodeKJ, "name": "TorchCompileModelFluxAdvanced"},
+    "TorchCompileLTXModel": {"class": DeprecatedCompileNodeKJ, "name": "TorchCompileLTXModel"},
+    "TorchCompileCosmosModel": {"class": DeprecatedCompileNodeKJ, "name": "TorchCompileCosmosModel"},
+    "TorchCompileModelHyVideo": {"class": DeprecatedCompileNodeKJ, "name": "TorchCompileModelHyVideo"},
+    "TorchCompileModelQwenImage": {"class": DeprecatedCompileNodeKJ, "name": "TorchCompileModelQwenImage"},
+    "TorchCompileModelWanVideo": {"class": DeprecatedCompileNodeKJ, "name": "TorchCompileModelWanVideo"},
 }
+
+#ltxv
+try:
+    from .nodes.ltxv_nodes import *
+    NODE_CONFIG.update({
+    "LTXVEnhanceAVideoKJ": {"class": LTXVEnhanceAVideoKJ, "name": "LTXV Enhance A Video KJ"},
+    "LTXVAddGuideMulti": {"class": LTXVAddGuideMulti, "name": "LTXV Add Guide Multi"},
+    "LTXVAddGuidesFromBatch": {"class": LTXVAddGuidesFromBatch, "name": "LTXV Add Guides From Batch"},
+    "LTXVAudioVideoMask": {"class": LTXVAudioVideoMask, "name": "LTXV Audio Video Mask"},
+    "LTX2_NAG": {"class": LTX2_NAG, "name": "LTX2 NAG"},
+    "LTXVChunkFeedForward": {"class": LTXVChunkFeedForward, "name": "LTXV Chunk Feed Forward"},
+    "LTX2SamplingPreviewOverride": {"class": LTX2SamplingPreviewOverride, "name": "LTX2 Sampling Preview Override"},
+    "LTX2AudioLatentNormalizingSampling": {"class": LTX2AudioLatentNormalizingSampling, "name": "LTX2 Audio Latent Normalizing Sampling"},
+    "LTXVImgToVideoInplaceKJ": {"class": LTXVImgToVideoInplaceKJ, "name": "LTXV Img To Video Inplace KJ"},
+    "LTX2AttentionTunerPatch": {"class": LTX2AttentionTunerPatch, "name": "LTX2 Attention Tuner Patch"},
+    "LTX2MemoryEfficientSageAttentionPatch": {"class": LTX2MemoryEfficientSageAttentionPatch, "name": "LTX2 Memory Efficient Sage Attention Patch"},
+    "LTX2LoraLoaderAdvanced": {"class": LTX2LoraLoaderAdvanced, "name": "LTX2 Lora Loader Advanced"},
+    })
+except Exception as e:
+    logging.warning(f"KJNodes: LTXV nodes could not be imported. LTXV nodes will be unavailable. Error: {e}")
 
 def generate_node_mappings(node_config):
     node_class_mappings = {}

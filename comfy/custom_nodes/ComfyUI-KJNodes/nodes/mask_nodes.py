@@ -231,40 +231,34 @@ creates animation between them.
             image = Image.new("RGB", (width, height), "black")
             draw = ImageDraw.Draw(image)
             font = ImageFont.truetype(font_path, font_size)
-            
-            # Split the text into words
-            words = text.split()
-            
-            # Initialize variables for line creation
+
+            # Split the text into lines and wrap words to fit width
+            text_lines = text.split('\n')
             lines = []
-            current_line = []
-            current_line_width = 0
-            try: #new pillow  
-                # Iterate through words to create lines
+            for text_line in text_lines:
+                if text_line.strip() == "":
+                    # Preserve empty lines for multiple newlines
+                    lines.append("")
+                    continue
+                words = text_line.split()
+                current_line = []
                 for word in words:
-                    word_width = font.getbbox(word)[2]
-                    if current_line_width + word_width <= width - 2 * text_x:
+                    if current_line:
+                        test_line = " ".join(current_line + [word])
+                    else:
+                        test_line = word
+                    try:
+                        test_line_width = font.getbbox(test_line)[2]
+                    except Exception:
+                        test_line_width = font.getsize(test_line)[0]
+                    if test_line_width <= width - 2 * text_x:
                         current_line.append(word)
-                        current_line_width += word_width + font.getbbox(" ")[2] # Add space width
                     else:
                         lines.append(" ".join(current_line))
                         current_line = [word]
-                        current_line_width = word_width
-            except: #old pillow             
-                for word in words:
-                    word_width = font.getsize(word)[0]
-                    if current_line_width + word_width <= width - 2 * text_x:
-                        current_line.append(word)
-                        current_line_width += word_width + font.getsize(" ")[0] # Add space width
-                    else:
-                        lines.append(" ".join(current_line))
-                        current_line = [word]
-                        current_line_width = word_width
-            
-            # Add the last line if it's not empty
-            if current_line:
-                lines.append(" ".join(current_line))
-            
+                if current_line:
+                    lines.append(" ".join(current_line))
+
             # Draw each line of text separately
             y_offset = text_y
             for line in lines:
@@ -277,17 +271,17 @@ creates animation between them.
                 except:
                     draw.text((text_x, y_offset), line, font=font, fill=font_color)
                 y_offset += text_height # Move to the next line
-            
+
             if start_rotation != end_rotation:
                 image = image.rotate(rotation, center=(text_center_x, text_center_y))
                 rotation += rotation_increment
-            
+
             image = np.array(image).astype(np.float32) / 255.0
             image = torch.from_numpy(image)[None,]
             mask = image[:, :, :, 0] 
             masks.append(mask)
             out.append(image)
-            
+
         if invert:
             return (1.0 - torch.cat(out, dim=0), 1.0 - torch.cat(masks, dim=0),)
         return (torch.cat(out, dim=0),torch.cat(masks, dim=0),)
@@ -1525,18 +1519,18 @@ class DrawMaskOnImage:
         return {"required": {
                     "image": ("IMAGE", ),
                     "mask": ("MASK", ),
-                    "color": ("STRING", {"default": "0, 0, 0", "tooltip": "Color as RGB values in range 0-255 or 0.0-1.0, separated by commas."}),
+                    "color": ("STRING", {"default": "0, 0, 0", "tooltip": "Color as RGB/RGBA values in range 0-255 or 0.0-1.0, separated by commas. Ex: 255, 0, 0, 128"}),
                   },
                   "optional": {
                     "device": (["cpu", "gpu"], {"default": "cpu", "tooltip": "Device to use for processing"}),
                 }
         }
-    
+
     RETURN_TYPES = ("IMAGE", )
     RETURN_NAMES = ("images",)
     FUNCTION = "apply"
     CATEGORY = "KJNodes/masking"
-    DESCRIPTION = "Applies the provided masks to the input images."
+    DESCRIPTION = "Applies the provided masks to the input images with Alpha Blending support."
 
     def apply(self, image, mask, color, device="cpu"):
         B, H, W, C = image.shape
@@ -1546,43 +1540,70 @@ class DrawMaskOnImage:
 
         in_masks = mask.clone().to(processing_device)
         in_images = image.clone().to(processing_device)
-        
+
+        # Resize mask if dimensions don't match
         if HM != H or WM != W:
             in_masks = F.interpolate(mask.unsqueeze(1), size=(H, W), mode='nearest-exact').squeeze(1)
+        # Handle batch size mismatch
         if B > BM:
             in_masks = in_masks.repeat((B + BM - 1) // BM, 1, 1)[:B]
         elif BM > B:
             in_masks = in_masks[:B]
-        
-        output_images = []
-        
-        # Parse background color - detect if values are integers or floats
-        bg_values = []
-        for x in color.split(","):
-            val_str = x.strip()
-            if '.' in val_str:
-                bg_values.append(float(val_str))
-            else:
-                bg_values.append(int(val_str) / 255.0)
 
-        background_color = torch.tensor(bg_values, dtype=torch.float32, device=in_images.device)
+        output_images = []
+
+        # Parse Color String (Handle RGB, RGBA, and Hex formats)
+        color = color.strip()
+        color_values = []
+
+        if color.startswith('#'):
+            # Handle hex format (#RGB, #RGBA, #RRGGBB, #RRGGBBAA)
+            hex_color = color.lstrip('#')
+            if len(hex_color) == 3:  # #RGB
+                color_values = [int(c*2, 16) / 255.0 for c in hex_color]
+            elif len(hex_color) == 4:  # #RGBA
+                color_values = [int(c*2, 16) / 255.0 for c in hex_color]
+            elif len(hex_color) == 6:  # #RRGGBB
+                color_values = [int(hex_color[i:i+2], 16) / 255.0 for i in (0, 2, 4)]
+            elif len(hex_color) == 8:  # #RRGGBBAA
+                color_values = [int(hex_color[i:i+2], 16) / 255.0 for i in (0, 2, 4, 6)]
+            else:
+                raise ValueError(f"Invalid hex color format: {color}")
+        else:
+            # Handle comma-separated RGB/RGBA format
+            for x in color.split(","):
+                val = float(x.strip())
+                color_values.append(val / 255.0 if val > 1.0 else val)
+
+        rgb = color_values[:3]
+        alpha_val = color_values[3] if len(color_values) == 4 else 1.0
+
+        fill_color = torch.tensor(rgb, dtype=torch.float32, device=processing_device)
 
         for i in tqdm(range(B), desc="DrawMaskOnImage batch"):
-            curr_mask = in_masks[i]
+            curr_mask = in_masks[i] # [H, W]
             img_idx = min(i, B - 1)
-            curr_image = in_images[img_idx]
-            mask_expanded = curr_mask.unsqueeze(-1).expand(-1, -1, 3)
-            masked_image = curr_image * (1 - mask_expanded) + background_color * (mask_expanded)
+            curr_image = in_images[img_idx] # [H, W, C]
+
+            blend_factor = curr_mask.unsqueeze(-1) * alpha_val
+            img_channels = curr_image.shape[-1]
+
+            if img_channels == 4:
+                img_rgb = curr_image[..., :3]
+                img_a = curr_image[..., 3:]
+                out_rgb = img_rgb * (1 - blend_factor) + fill_color * blend_factor
+                out_a = torch.maximum(img_a, blend_factor)
+                masked_image = torch.cat((out_rgb, out_a), dim=-1)
+            else:
+                masked_image = curr_image * (1 - blend_factor) + fill_color * blend_factor
             output_images.append(masked_image)
-        
-        # If no masks were processed, return empty tensor
+
         if not output_images:
-            return (torch.zeros((0, H, W, 3), dtype=image.dtype),)
+            return (torch.zeros((0, H, W, C), dtype=image.dtype),)
 
-        out_rgb = torch.stack(output_images, dim=0).cpu()
-        
-        return (out_rgb, )
+        out_tensor = torch.stack(output_images, dim=0).cpu()
 
+        return (out_tensor, )
 
 class BlockifyMask:
     @classmethod

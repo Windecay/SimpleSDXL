@@ -50,7 +50,7 @@
   "31": {
     "inputs": {
       "text": [
-        "338",
+        "340",
         0
       ],
       "clip": [
@@ -66,7 +66,7 @@
   "33": {
     "inputs": {
       "guidance": [
-        "338",
+        "340",
         4
       ],
       "conditioning": [
@@ -112,7 +112,7 @@
     "inputs": {
       "strength": 1,
       "model": [
-        "342",
+        "344",
         0
       ]
     },
@@ -224,19 +224,6 @@
     "class_type": "ReduxAdvanced",
     "_meta": {
       "title": "ReduxAdvanced"
-    }
-  },
-  "123": {
-    "inputs": {
-      "steps_total": 30,
-      "refiner_step": 24,
-      "cfg": 8,
-      "sampler_name": "euler",
-      "scheduler": "simple"
-    },
-    "class_type": "KSampler Config (rgthree)",
-    "_meta": {
-      "title": "i2i_KSampler"
     }
   },
   "124": {
@@ -646,7 +633,7 @@
         0
       ],
       "on_true": [
-        "337",
+        "339",
         3
       ],
       "on_false": [
@@ -813,7 +800,7 @@
   "238": {
     "inputs": {
       "seed": [
-        "339",
+        "341",
         0
       ],
       "steps": [
@@ -821,14 +808,8 @@
         0
       ],
       "cfg": 1,
-      "sampler_name": [
-        "338",
-        7
-      ],
-      "scheduler": [
-        "338",
-        8
-      ],
+      "sampler_name": "euler",
+      "scheduler": "simple",
       "denoise": 0.15,
       "model": [
         "252",
@@ -872,7 +853,7 @@
     "inputs": {
       "value": "a*0.8",
       "a": [
-        "338",
+        "340",
         5
       ]
     },
@@ -885,7 +866,7 @@
     "inputs": {
       "value": "a*0.2",
       "a": [
-        "338",
+        "340",
         5
       ]
     },
@@ -981,7 +962,7 @@
     "inputs": {
       "strength": 1,
       "model": [
-        "340",
+        "342",
         0
       ]
     },
@@ -1158,7 +1139,7 @@
       "lora_name": "comfyui_subject_lora16.safetensors",
       "strength_model": 0,
       "model": [
-        "336",
+        "337",
         0
       ]
     },
@@ -1171,7 +1152,7 @@
     "inputs": {
       "add_noise": "enable",
       "noise_seed": [
-        "339",
+        "341",
         0
       ],
       "steps": [
@@ -1180,11 +1161,11 @@
       ],
       "cfg": 1,
       "sampler_name": [
-        "338",
+        "340",
         7
       ],
       "scheduler": [
-        "338",
+        "340",
         8
       ],
       "start_at_step": 0,
@@ -1216,7 +1197,7 @@
     "inputs": {
       "add_noise": "enable",
       "noise_seed": [
-        "339",
+        "341",
         0
       ],
       "steps": [
@@ -1225,11 +1206,11 @@
       ],
       "cfg": 1,
       "sampler_name": [
-        "338",
+        "340",
         7
       ],
       "scheduler": [
-        "338",
+        "340",
         8
       ],
       "start_at_step": 12,
@@ -1261,7 +1242,7 @@
     "inputs": {
       "strength": 1,
       "model": [
-        "341",
+        "343",
         0
       ]
     },
@@ -1284,12 +1265,12 @@
       "title": "Patch Sage Attention KJ"
     }
   },
-  "336": {
+  "337": {
     "inputs": {
       "sage_attention": "auto",
       "allow_compile": false,
       "model": [
-        "343",
+        "349",
         0
       ]
     },
@@ -1298,7 +1279,7 @@
       "title": "Patch Sage Attention KJ"
     }
   },
-  "337": {
+  "339": {
     "inputs": {
       "crop_size_mult": 1,
       "bbox_smooth_alpha": 0.5,
@@ -1316,7 +1297,7 @@
       "title": "Batch Crop From Mask Advanced"
     }
   },
-  "338": {
+  "340": {
     "inputs": {
       "prompt": "",
       "negative_prompt": "",
@@ -1338,7 +1319,7 @@
       "title": "GeneralInput"
     }
   },
-  "339": {
+  "341": {
     "inputs": {
       "seed": 0
     },
@@ -1347,10 +1328,10 @@
       "title": "SeedInput"
     }
   },
-  "340": {
+  "342": {
     "inputs": {
       "reuse_threshold": [
-        "338",
+        "340",
         12
       ],
       "start_percent": 0.3,
@@ -1366,17 +1347,17 @@
       "title": "EasyCache"
     }
   },
-  "341": {
+  "343": {
     "inputs": {
       "reuse_threshold": [
-        "338",
+        "340",
         12
       ],
       "start_percent": 0.3,
       "end_percent": 0.8,
       "verbose": false,
       "model": [
-        "336",
+        "337",
         0
       ]
     },
@@ -1385,10 +1366,10 @@
       "title": "EasyCache"
     }
   },
-  "342": {
+  "344": {
     "inputs": {
       "reuse_threshold": [
-        "338",
+        "340",
         12
       ],
       "start_percent": 0.3,
@@ -1404,32 +1385,6 @@
       "title": "EasyCache"
     }
   },
-  "343": {
-    "inputs": {
-      "boolean": false,
-      "on_true": [
-        "237",
-        0
-      ],
-      "on_false": [
-        "346",
-        0
-      ]
-    },
-    "class_type": "easy ifElse",
-    "_meta": {
-      "title": "If else"
-    }
-  },
-  "344": {
-    "inputs": {
-      "value": 1
-    },
-    "class_type": "easy int",
-    "_meta": {
-      "title": "Int"
-    }
-  },
   "345": {
     "inputs": {
       "value": 1
@@ -1441,11 +1396,57 @@
   },
   "346": {
     "inputs": {
+      "value": 1
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "Int"
+    }
+  },
+  "347": {
+    "inputs": {
+      "comparison": "a == b",
+      "a": [
+        "345",
+        0
+      ],
+      "b": [
+        "346",
+        0
+      ]
+    },
+    "class_type": "easy compare",
+    "_meta": {
+      "title": "Compare"
+    }
+  },
+  "348": {
+    "inputs": {
       "unet_name": "placeholder.gguf"
     },
     "class_type": "UnetLoaderGGUF",
     "_meta": {
       "title": "base_model_gguf"
+    }
+  },
+  "349": {
+    "inputs": {
+      "boolean": [
+        "347",
+        0
+      ],
+      "on_true": [
+        "237",
+        0
+      ],
+      "on_false": [
+        "348",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
     }
   }
 }

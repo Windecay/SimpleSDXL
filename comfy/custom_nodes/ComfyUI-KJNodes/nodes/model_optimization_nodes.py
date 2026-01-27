@@ -62,12 +62,11 @@ def get_sage_func(sage_attention, allow_compile=False):
             return sageattn_qk_int8_pv_fp8_cuda(q, k, v, is_causal=is_causal, attn_mask=attn_mask, pv_accum_dtype="fp32+fp16", tensor_layout=tensor_layout)
     elif "sageattn3" in sage_attention:
         from sageattn3 import sageattn3_blackwell
-        if sage_attention == "sageattn3_per_block_mean":
-            def sage_func(q, k, v, is_causal=False, attn_mask=None, **kwargs):
-                return sageattn3_blackwell(q.transpose(1, 2), k.transpose(1, 2), v.transpose(1, 2), is_causal=is_causal, attn_mask=attn_mask, per_block_mean=True).transpose(1, 2)
-        else:
-            def sage_func(q, k, v, is_causal=False, attn_mask=None, **kwargs):
-                return sageattn3_blackwell(q.transpose(1, 2), k.transpose(1, 2), v.transpose(1, 2), is_causal=is_causal, attn_mask=attn_mask, per_block_mean=False).transpose(1, 2)
+        def sage_func(q, k, v, is_causal=False, attn_mask=None, tensor_layout="NHD", **kwargs):
+            q, k, v = [x.transpose(1, 2) if tensor_layout == "NHD" else x for x in (q, k, v)]
+            out = sageattn3_blackwell(q, k, v, is_causal=is_causal, attn_mask=attn_mask, per_block_mean=(sage_attention == "sageattn3_per_block_mean"))
+            return out.transpose(1, 2) if tensor_layout == "NHD" else out
+
     if not allow_compile:
         sage_func = torch.compiler.disable()(sage_func)
 
@@ -302,7 +301,7 @@ class DiffusionModelLoaderKJ():
 
         unet_path = folder_paths.get_full_path_or_raise("diffusion_models", model_name)
 
-        sd = comfy.utils.load_torch_file(unet_path)
+        sd, metadata = comfy.utils.load_torch_file(unet_path, return_metadata=True)
         if extra_state_dict is not None:
             # If the model is a checkpoint, strip additional non-diffusion model entries before adding extra state dict
             from comfy import model_detection
@@ -316,7 +315,7 @@ class DiffusionModelLoaderKJ():
             sd.update(extra_sd)
             del extra_sd
 
-        model = comfy.sd.load_diffusion_model_state_dict(sd, model_options=model_options)
+        model = comfy.sd.load_diffusion_model_state_dict(sd, model_options=model_options, metadata=metadata)
         if dtype := DTYPE_MAP.get(compute_dtype):
             model.set_model_compute_dtype(dtype)
             model.force_cast_weights = False
@@ -359,7 +358,7 @@ class ModelPatchTorchSettings:
         def patch_disable_fp16_accum(model):
             logging.info("Patching torch settings: torch.backends.cuda.matmul.allow_fp16_accumulation = False")
             torch.backends.cuda.matmul.allow_fp16_accumulation = False
-        
+
         if enable_fp16_accumulation:
             if hasattr(torch.backends.cuda.matmul, "allow_fp16_accumulation"):
                 model_clone.add_callback(CallbacksMP.ON_PRE_RUN, patch_enable_fp16_accum)
@@ -371,88 +370,9 @@ class ModelPatchTorchSettings:
                 model_clone.add_callback(CallbacksMP.ON_PRE_RUN, patch_disable_fp16_accum)
             else:
                 raise RuntimeError("Failed to set fp16 accumulation, this requires pytorch 2.7.1 or higher")
-                
+
         return (model_clone,)
-    
-def patched_patch_model(self, device_to=None, lowvram_model_memory=0, load_weights=True, force_patch_weights=False):
-    with self.use_ejected():
 
-        device_to = mm.get_torch_device()
-
-        full_load_override = getattr(self.model, "full_load_override", "auto")
-        if full_load_override in ["enabled", "disabled"]:
-            full_load = full_load_override == "enabled"
-        else:
-            full_load = lowvram_model_memory == 0
-
-        self.load(device_to, lowvram_model_memory=lowvram_model_memory, force_patch_weights=force_patch_weights, full_load=full_load)
-
-        for k in self.object_patches:
-            old = comfy.utils.set_attr(self.model, k, self.object_patches[k])
-            if k not in self.object_patches_backup:
-                self.object_patches_backup[k] = old
-       
-    self.inject_model()
-    return self.model
-
-def patched_load_lora_for_models(model, clip, lora, strength_model, strength_clip):
-
-    patch_keys = list(model.object_patches_backup.keys())
-    for k in patch_keys:
-        #print("backing up object patch: ", k)
-        comfy.utils.set_attr(model.model, k, model.object_patches_backup[k])
-
-    key_map = {}
-    if model is not None:
-        key_map = comfy.lora.model_lora_keys_unet(model.model, key_map)
-    if clip is not None:
-        key_map = comfy.lora.model_lora_keys_clip(clip.cond_stage_model, key_map)
-
-    lora = comfy.lora_convert.convert_lora(lora)
-    loaded = comfy.lora.load_lora(lora, key_map)
-    #print(temp_object_patches_backup)
-   
-    if model is not None:
-        new_modelpatcher = model.clone()
-        k = new_modelpatcher.add_patches(loaded, strength_model)
-    else:
-        k = ()
-        new_modelpatcher = None
-
-    if clip is not None:
-        new_clip = clip.clone()
-        k1 = new_clip.add_patches(loaded, strength_clip)
-    else:
-        k1 = ()
-        new_clip = None
-    k = set(k)
-    k1 = set(k1)
-    for x in loaded:
-        if (x not in k) and (x not in k1):
-            logging.warning("NOT LOADED {}".format(x))
-
-    if patch_keys:
-        if hasattr(model.model, "compile_settings"):
-            compile_settings = getattr(model.model, "compile_settings")
-            logging.info("compile_settings: ", compile_settings)
-            for k in patch_keys:
-                if "diffusion_model." in k:
-                    # Remove the prefix to get the attribute path
-                    key = k.replace('diffusion_model.', '')
-                    attributes = key.split('.')
-                    # Start with the diffusion_model object
-                    block = model.get_model_object("diffusion_model")
-                    # Navigate through the attributes to get to the block
-                    for attr in attributes:
-                        if attr.isdigit():
-                            block = block[int(attr)]
-                        else:
-                            block = getattr(block, attr)
-                    # Compile the block
-                    compiled_block = torch.compile(block, mode=compile_settings["mode"], dynamic=compile_settings["dynamic"], fullgraph=compile_settings["fullgraph"], backend=compile_settings["backend"])
-                    # Add the compiled block back as an object patch
-                    model.add_object_patch(k, compiled_block)
-    return (new_modelpatcher, new_clip)
 
 class PatchModelPatcherOrder:
     @classmethod
@@ -465,94 +385,12 @@ class PatchModelPatcherOrder:
     RETURN_TYPES = ("MODEL",)
     FUNCTION = "patch"
     CATEGORY = "KJNodes/experimental"
-    DESCRIPTION = "NO LONGER NECESSARY, keeping node for backwards compatibility. Use the v2 compile nodes to use LoRA with torch.compile."
+    DESCRIPTION = "NO LONGER NECESSARY OR FUNCTIONAL, keeping node for backwards compatibility. Use the TorchCompileModelAdvanced to use LoRA with torch.compile."
     DEPRECATED = True
 
     def patch(self, model, patch_order, full_load):
-        comfy.model_patcher.ModelPatcher.temp_object_patches_backup = {}
-        setattr(model.model, "full_load_override", full_load)
-        if patch_order == "weight_patch_first":
-            comfy.model_patcher.ModelPatcher.patch_model = patched_patch_model
-            comfy.sd.load_lora_for_models = patched_load_lora_for_models
-        else:
-            comfy.model_patcher.ModelPatcher.patch_model = _original_functions.get("original_patch_model")
-            comfy.sd.load_lora_for_models = _original_functions.get("original_load_lora_for_models")
-        
         return model,
 
-class TorchCompileModelFluxAdvanced:
-    def __init__(self):
-        self._compiled = False
-
-    @classmethod
-    def INPUT_TYPES(s):
-        return {"required": { 
-                    "model": ("MODEL",),
-                    "backend": (["inductor", "cudagraphs"],),
-                    "fullgraph": ("BOOLEAN", {"default": False, "tooltip": "Enable full graph mode"}),
-                    "mode": (["default", "max-autotune", "max-autotune-no-cudagraphs", "reduce-overhead"], {"default": "default"}),
-                    "double_blocks": ("STRING", {"default": "0-18", "multiline": True}),
-                    "single_blocks": ("STRING", {"default": "0-37", "multiline": True}),
-                    "dynamic": ("BOOLEAN", {"default": False, "tooltip": "Enable dynamic mode"}),
-                },
-                "optional": {
-                    "dynamo_cache_size_limit": ("INT", {"default": 64, "min": 0, "max": 1024, "step": 1, "tooltip": "torch._dynamo.config.cache_size_limit"}),
-                }
-                }
-    RETURN_TYPES = ("MODEL",)
-    FUNCTION = "patch"
-
-    CATEGORY = "KJNodes/torchcompile"
-    EXPERIMENTAL = True
-    DEPRECATED = True
-
-    def parse_blocks(self, blocks_str):
-        blocks = []
-        for part in blocks_str.split(','):
-            part = part.strip()
-            if '-' in part:
-                start, end = map(int, part.split('-'))
-                blocks.extend(range(start, end + 1))
-            else:
-                blocks.append(int(part))
-        return blocks
-
-    def patch(self, model, backend, mode, fullgraph, single_blocks, double_blocks, dynamic, dynamo_cache_size_limit):
-        single_block_list = self.parse_blocks(single_blocks)
-        double_block_list = self.parse_blocks(double_blocks)
-        m = model.clone()
-        diffusion_model = m.get_model_object("diffusion_model")
-        torch._dynamo.config.cache_size_limit = dynamo_cache_size_limit
-        
-        if not self._compiled:
-            try:
-                for i, block in enumerate(diffusion_model.double_blocks):
-                    if i in double_block_list:
-                        #print("Compiling double_block", i)
-                        m.add_object_patch(f"diffusion_model.double_blocks.{i}", torch.compile(block, mode=mode, dynamic=dynamic, fullgraph=fullgraph, backend=backend))
-                for i, block in enumerate(diffusion_model.single_blocks):
-                    if i in single_block_list:
-                        #print("Compiling single block", i)
-                        m.add_object_patch(f"diffusion_model.single_blocks.{i}", torch.compile(block, mode=mode, dynamic=dynamic, fullgraph=fullgraph, backend=backend))
-                self._compiled = True
-                compile_settings = {
-                    "backend": backend,
-                    "mode": mode,
-                    "fullgraph": fullgraph,
-                    "dynamic": dynamic,
-                }
-                setattr(m.model, "compile_settings", compile_settings)
-            except:
-                raise RuntimeError("Failed to compile model")
-        
-        return (m, )
-        # rest of the layers that are not patched
-        # diffusion_model.final_layer = torch.compile(diffusion_model.final_layer, mode=mode, fullgraph=fullgraph, backend=backend)
-        # diffusion_model.guidance_in = torch.compile(diffusion_model.guidance_in, mode=mode, fullgraph=fullgraph, backend=backend)
-        # diffusion_model.img_in = torch.compile(diffusion_model.img_in, mode=mode, fullgraph=fullgraph, backend=backend)
-        # diffusion_model.time_in = torch.compile(diffusion_model.time_in, mode=mode, fullgraph=fullgraph, backend=backend)
-        # diffusion_model.txt_in = torch.compile(diffusion_model.txt_in, mode=mode, fullgraph=fullgraph, backend=backend)
-        # diffusion_model.vector_in = torch.compile(diffusion_model.vector_in, mode=mode, fullgraph=fullgraph, backend=backend)
 
 class TorchCompileModelFluxAdvancedV2:
     def __init__(self):
@@ -579,6 +417,8 @@ class TorchCompileModelFluxAdvancedV2:
 
     CATEGORY = "KJNodes/torchcompile"
     EXPERIMENTAL = True
+    DEPRECATED = True
+    DESCRIPTION = "Deprecated, use TorchCompileModelAdvanced instead."
 
     def patch(self, model, backend, mode, fullgraph, single_blocks, double_blocks, dynamic, dynamo_cache_size_limit=64, force_parameter_static_shapes=True):
         from comfy_api.torch_helpers import set_torch_compile_wrapper
@@ -588,7 +428,7 @@ class TorchCompileModelFluxAdvancedV2:
         torch._dynamo.config.force_parameter_static_shapes = force_parameter_static_shapes
 
         compile_key_list = []
-        
+
         try:
             if double_blocks:
                 for i, block in enumerate(diffusion_model.double_blocks):
@@ -601,130 +441,10 @@ class TorchCompileModelFluxAdvancedV2:
             set_torch_compile_wrapper(model=m, keys=compile_key_list, backend=backend, mode=mode, dynamic=dynamic, fullgraph=fullgraph)           
         except:
             raise RuntimeError("Failed to compile model")
-        
+
         return (m, )
-        # rest of the layers that are not patched
-        # diffusion_model.final_layer = torch.compile(diffusion_model.final_layer, mode=mode, fullgraph=fullgraph, backend=backend)
-        # diffusion_model.guidance_in = torch.compile(diffusion_model.guidance_in, mode=mode, fullgraph=fullgraph, backend=backend)
-        # diffusion_model.img_in = torch.compile(diffusion_model.img_in, mode=mode, fullgraph=fullgraph, backend=backend)
-        # diffusion_model.time_in = torch.compile(diffusion_model.time_in, mode=mode, fullgraph=fullgraph, backend=backend)
-        # diffusion_model.txt_in = torch.compile(diffusion_model.txt_in, mode=mode, fullgraph=fullgraph, backend=backend)
-        # diffusion_model.vector_in = torch.compile(diffusion_model.vector_in, mode=mode, fullgraph=fullgraph, backend=backend)
 
-    
-class TorchCompileModelHyVideo:
-    def __init__(self):
-        self._compiled = False
 
-    @classmethod
-    def INPUT_TYPES(s):
-        return {
-            "required": {
-                "model": ("MODEL",),
-                "backend": (["inductor","cudagraphs"], {"default": "inductor"}),
-                "fullgraph": ("BOOLEAN", {"default": False, "tooltip": "Enable full graph mode"}),
-                "mode": (["default", "max-autotune", "max-autotune-no-cudagraphs", "reduce-overhead"], {"default": "default"}),
-                "dynamic": ("BOOLEAN", {"default": False, "tooltip": "Enable dynamic mode"}),
-                "dynamo_cache_size_limit": ("INT", {"default": 64, "min": 0, "max": 1024, "step": 1, "tooltip": "torch._dynamo.config.cache_size_limit"}),
-                "compile_single_blocks": ("BOOLEAN", {"default": True, "tooltip": "Compile single blocks"}),
-                "compile_double_blocks": ("BOOLEAN", {"default": True, "tooltip": "Compile double blocks"}),
-                "compile_txt_in": ("BOOLEAN", {"default": False, "tooltip": "Compile txt_in layers"}),
-                "compile_vector_in": ("BOOLEAN", {"default": False, "tooltip": "Compile vector_in layers"}),
-                "compile_final_layer": ("BOOLEAN", {"default": False, "tooltip": "Compile final layer"}),
-
-            },
-        }
-    RETURN_TYPES = ("MODEL",)
-    FUNCTION = "patch"
-    DEPRECATED = True
-    CATEGORY = "KJNodes/torchcompile"
-    EXPERIMENTAL = True
-
-    def patch(self, model, backend, fullgraph, mode, dynamic, dynamo_cache_size_limit, compile_single_blocks, compile_double_blocks, compile_txt_in, compile_vector_in, compile_final_layer):
-        m = model.clone()
-        diffusion_model = m.get_model_object("diffusion_model")
-        torch._dynamo.config.cache_size_limit = dynamo_cache_size_limit
-        if not self._compiled:
-            try:
-                if compile_single_blocks:
-                    for i, block in enumerate(diffusion_model.single_blocks):
-                        compiled_block = torch.compile(block, fullgraph=fullgraph, dynamic=dynamic, backend=backend, mode=mode)
-                        m.add_object_patch(f"diffusion_model.single_blocks.{i}", compiled_block)
-                if compile_double_blocks:
-                    for i, block in enumerate(diffusion_model.double_blocks):
-                        compiled_block = torch.compile(block, fullgraph=fullgraph, dynamic=dynamic, backend=backend, mode=mode)
-                        m.add_object_patch(f"diffusion_model.double_blocks.{i}", compiled_block)
-                if compile_txt_in:
-                    compiled_block = torch.compile(diffusion_model.txt_in, fullgraph=fullgraph, dynamic=dynamic, backend=backend, mode=mode)
-                    m.add_object_patch("diffusion_model.txt_in", compiled_block)
-                if compile_vector_in:
-                    compiled_block = torch.compile(diffusion_model.vector_in, fullgraph=fullgraph, dynamic=dynamic, backend=backend, mode=mode)
-                    m.add_object_patch("diffusion_model.vector_in", compiled_block)
-                if compile_final_layer:
-                    compiled_block = torch.compile(diffusion_model.final_layer, fullgraph=fullgraph, dynamic=dynamic, backend=backend, mode=mode)
-                    m.add_object_patch("diffusion_model.final_layer", compiled_block)
-                self._compiled = True
-                compile_settings = {
-                    "backend": backend,
-                    "mode": mode,
-                    "fullgraph": fullgraph,
-                    "dynamic": dynamic,
-                }
-                setattr(m.model, "compile_settings", compile_settings)
-            except:
-                raise RuntimeError("Failed to compile model")
-        return (m, )
-    
-class TorchCompileModelWanVideo:
-    def __init__(self):
-        self._compiled = False
-
-    @classmethod
-    def INPUT_TYPES(s):
-        return {
-            "required": {
-                "model": ("MODEL",),
-                "backend": (["inductor","cudagraphs"], {"default": "inductor"}),
-                "fullgraph": ("BOOLEAN", {"default": False, "tooltip": "Enable full graph mode"}),
-                "mode": (["default", "max-autotune", "max-autotune-no-cudagraphs", "reduce-overhead"], {"default": "default"}),
-                "dynamic": ("BOOLEAN", {"default": False, "tooltip": "Enable dynamic mode"}),
-                "dynamo_cache_size_limit": ("INT", {"default": 64, "min": 0, "max": 1024, "step": 1, "tooltip": "torch._dynamo.config.cache_size_limit"}),
-                "compile_transformer_blocks_only": ("BOOLEAN", {"default": False, "tooltip": "Compile only transformer blocks"}),
-            },
-        }
-    RETURN_TYPES = ("MODEL",)
-    FUNCTION = "patch"
-
-    CATEGORY = "KJNodes/torchcompile"
-    EXPERIMENTAL = True
-    DEPRECATED = True
-
-    def patch(self, model, backend, fullgraph, mode, dynamic, dynamo_cache_size_limit, compile_transformer_blocks_only):
-        m = model.clone()
-        diffusion_model = m.get_model_object("diffusion_model")
-        torch._dynamo.config.cache_size_limit = dynamo_cache_size_limit            
-        try:
-            if compile_transformer_blocks_only:
-                for i, block in enumerate(diffusion_model.blocks):
-                    if hasattr(block, "_orig_mod"):
-                        block = block._orig_mod
-                    compiled_block = torch.compile(block, fullgraph=fullgraph, dynamic=dynamic, backend=backend, mode=mode)
-                    m.add_object_patch(f"diffusion_model.blocks.{i}", compiled_block)
-            else:
-                compiled_model = torch.compile(diffusion_model, fullgraph=fullgraph, dynamic=dynamic, backend=backend, mode=mode)
-                m.add_object_patch("diffusion_model", compiled_model)
-
-            compile_settings = {
-                "backend": backend,
-                "mode": mode,
-                "fullgraph": fullgraph,
-                "dynamic": dynamic,
-            }
-            setattr(m.model, "compile_settings", compile_settings)
-        except:
-            raise RuntimeError("Failed to compile model")
-        return (m, )
-    
 class TorchCompileModelWanVideoV2:
     @classmethod
     def INPUT_TYPES(s):
@@ -737,7 +457,7 @@ class TorchCompileModelWanVideoV2:
                 "dynamic": ("BOOLEAN", {"default": False, "tooltip": "Enable dynamic mode"}),
                 "compile_transformer_blocks_only": ("BOOLEAN", {"default": True, "tooltip": "Compile only transformer blocks, faster compile and less error prone"}),
                 "dynamo_cache_size_limit": ("INT", {"default": 64, "min": 0, "max": 1024, "step": 1, "tooltip": "torch._dynamo.config.cache_size_limit"}),
-                
+
             },
             "optional": {
                 "force_parameter_static_shapes": ("BOOLEAN", {"default": True, "tooltip": "torch._dynamo.config.force_parameter_static_shapes"}),
@@ -748,6 +468,8 @@ class TorchCompileModelWanVideoV2:
 
     CATEGORY = "KJNodes/torchcompile"
     EXPERIMENTAL = True
+    DEPRECATED = True
+    DESCRIPTION = "Deprecated, use TorchCompileModelAdvanced instead."
 
     def patch(self, model, backend, fullgraph, mode, dynamic, dynamo_cache_size_limit, compile_transformer_blocks_only, force_parameter_static_shapes=True):
         from comfy_api.torch_helpers import set_torch_compile_wrapper
@@ -817,7 +539,7 @@ class TorchCompileModelAdvanced:
                         logging.info(f" - {key}")
             if not compile_key_list:
                 compile_key_list =["diffusion_model"]
-            
+
             dynamic_kv = {"true": True, "false": False, "auto": None}
             try:
                 dynamic = dynamic_kv[dynamic]
@@ -850,12 +572,14 @@ class TorchCompileModelQwenImage:
 
     CATEGORY = "KJNodes/torchcompile"
     EXPERIMENTAL = True
+    DEPRECATED = True
+    DESCRIPTION = "Deprecated, use TorchCompileModelAdvanced instead."
 
     def patch(self, model, backend, fullgraph, mode, dynamic, dynamo_cache_size_limit, compile_transformer_blocks_only):
         from comfy_api.torch_helpers import set_torch_compile_wrapper
         m = model.clone()
         diffusion_model = m.get_model_object("diffusion_model")
-        torch._dynamo.config.cache_size_limit = dynamo_cache_size_limit            
+        torch._dynamo.config.cache_size_limit = dynamo_cache_size_limit
         try:
             if compile_transformer_blocks_only:
                 compile_key_list = []
@@ -864,7 +588,7 @@ class TorchCompileModelQwenImage:
             else:
                 compile_key_list =["diffusion_model"]
 
-            set_torch_compile_wrapper(model=m, keys=compile_key_list, backend=backend, mode=mode, dynamic=dynamic, fullgraph=fullgraph)           
+            set_torch_compile_wrapper(model=m, keys=compile_key_list, backend=backend, mode=mode, dynamic=dynamic, fullgraph=fullgraph)
         except:
             raise RuntimeError("Failed to compile model")
 
@@ -963,98 +687,8 @@ class TorchCompileControlNet:
             except:
                 self._compiled = False
                 raise RuntimeError("Failed to compile model")
-       
+
         return (controlnet, )
-
-class TorchCompileLTXModel:
-    def __init__(self):
-        self._compiled = False
-
-    @classmethod
-    def INPUT_TYPES(s):
-        return {"required": { 
-                    "model": ("MODEL",),
-                    "backend": (["inductor", "cudagraphs"],),
-                    "fullgraph": ("BOOLEAN", {"default": False, "tooltip": "Enable full graph mode"}),
-                    "mode": (["default", "max-autotune", "max-autotune-no-cudagraphs", "reduce-overhead"], {"default": "default"}),
-                    "dynamic": ("BOOLEAN", {"default": False, "tooltip": "Enable dynamic mode"}),
-                }}
-    RETURN_TYPES = ("MODEL",)
-    FUNCTION = "patch"
-
-    CATEGORY = "KJNodes/torchcompile"
-    EXPERIMENTAL = True
-
-    def patch(self, model, backend, mode, fullgraph, dynamic):
-        m = model.clone()
-        diffusion_model = m.get_model_object("diffusion_model")
-        
-        if not self._compiled:
-            try:
-                for i, block in enumerate(diffusion_model.transformer_blocks):
-                        compiled_block = torch.compile(block, mode=mode, dynamic=dynamic, fullgraph=fullgraph, backend=backend)
-                        m.add_object_patch(f"diffusion_model.transformer_blocks.{i}", compiled_block)
-                self._compiled = True
-                compile_settings = {
-                    "backend": backend,
-                    "mode": mode,
-                    "fullgraph": fullgraph,
-                    "dynamic": dynamic,
-                }
-                setattr(m.model, "compile_settings", compile_settings)
-               
-            except:
-                raise RuntimeError("Failed to compile model")           
-        
-        return (m, )
-      
-class TorchCompileCosmosModel:
-    def __init__(self):
-        self._compiled = False
-
-    @classmethod
-    def INPUT_TYPES(s):
-        return {"required": { 
-                    "model": ("MODEL",),
-                    "backend": (["inductor", "cudagraphs"],),
-                    "fullgraph": ("BOOLEAN", {"default": False, "tooltip": "Enable full graph mode"}),
-                    "mode": (["default", "max-autotune", "max-autotune-no-cudagraphs", "reduce-overhead"], {"default": "default"}),
-                    "dynamic": ("BOOLEAN", {"default": False, "tooltip": "Enable dynamic mode"}),
-                    "dynamo_cache_size_limit": ("INT", {"default": 64, "tooltip": "Set the dynamo cache size limit"}),
-                }}
-    RETURN_TYPES = ("MODEL",)
-    FUNCTION = "patch"
-
-    CATEGORY = "KJNodes/torchcompile"
-    EXPERIMENTAL = True
-
-    def patch(self, model, backend, mode, fullgraph, dynamic, dynamo_cache_size_limit):
-        
-        m = model.clone()
-        diffusion_model = m.get_model_object("diffusion_model")
-        torch._dynamo.config.cache_size_limit = dynamo_cache_size_limit
-        
-        if not self._compiled:
-            try:
-                for name, block in diffusion_model.blocks.items():
-                    #print(f"Compiling block {name}")
-                    compiled_block = torch.compile(block, mode=mode, dynamic=dynamic, fullgraph=fullgraph, backend=backend)
-                    m.add_object_patch(f"diffusion_model.blocks.{name}", compiled_block)
-                    #diffusion_model.blocks[name] = compiled_block
-
-                self._compiled = True
-                compile_settings = {
-                    "backend": backend,
-                    "mode": mode,
-                    "fullgraph": fullgraph,
-                    "dynamic": dynamic,
-                }
-                setattr(m.model, "compile_settings", compile_settings)
-               
-            except:
-                raise RuntimeError("Failed to compile model")           
-        
-        return (m, )
 
 
 #teacache
@@ -1407,7 +1041,7 @@ def modified_wan_self_attention_forward(self, x, freqs, transformer_options={}):
     q, k = apply_rope(q, k, freqs)
 
     feta_scores = get_feta_scores(q, k, self.num_frames, self.enhance_weight)
-    
+
     try:
         x = comfy.ldm.modules.attention.optimized_attention(
             q.view(b, s, n * d),
@@ -1430,14 +1064,22 @@ def modified_wan_self_attention_forward(self, x, freqs, transformer_options={}):
     x *= feta_scores
 
     return x
-    
+
 from einops import rearrange
-def get_feta_scores(query, key, num_frames, enhance_weight):
+def get_feta_scores(query, key, num_frames, enhance_weight, num_heads=12):
     img_q, img_k = query, key #torch.Size([2, 9216, 12, 128])
-    
-    _, ST, num_heads, head_dim = img_q.shape
-    spatial_dim = ST / num_frames
-    spatial_dim = int(spatial_dim)
+
+    if img_q.ndim == 4:
+        B, ST, num_heads, head_dim = img_q.shape
+    elif img_q.ndim == 3:
+        B, ST, hidden_dim = img_q.shape
+        head_dim = hidden_dim // num_heads
+
+        # Reshape from [B, ST, hidden_dim] to [B, ST, num_heads, head_dim]
+        img_q = img_q.view(B, ST, num_heads, head_dim)
+        img_k = img_k.view(B, ST, num_heads, head_dim)
+
+    spatial_dim = ST // num_frames
 
     query_image = rearrange(
         img_q, "B (T S) N C -> (B S) N T C", T=num_frames, S=spatial_dim, N=num_heads, C=head_dim
@@ -1479,7 +1121,7 @@ class WanAttentionPatch:
     def __init__(self, num_frames, weight):
         self.num_frames = num_frames
         self.enhance_weight = weight
-        
+
     def __get__(self, obj, objtype=None):
         # Create bound method with stored parameters
         def wrapped_attention(self_module, *args, **kwargs):
@@ -1498,7 +1140,7 @@ class WanVideoEnhanceAVideoKJ:
                 "weight": ("FLOAT", {"default": 2.0, "min": 0.0, "max": 10.0, "step": 0.001, "tooltip": "Strength of the enhance effect"}),
            }
         }
-    
+
     RETURN_TYPES = ("MODEL",)
     RETURN_NAMES = ("model",)
     FUNCTION = "enhance"
@@ -1509,7 +1151,7 @@ class WanVideoEnhanceAVideoKJ:
     def enhance(self, model, weight, latent):
         if weight == 0:
             return (model,)
-        
+
         num_frames = latent["samples"].shape[2]
 
         model_clone = model.clone()
@@ -1523,11 +1165,87 @@ class WanVideoEnhanceAVideoKJ:
             patched_attn = WanAttentionPatch(num_frames, weight).__get__(block.self_attn, block.__class__)
             if compile_settings is not None:
                 patched_attn = torch.compile(patched_attn, mode=compile_settings["mode"], dynamic=compile_settings["dynamic"], fullgraph=compile_settings["fullgraph"], backend=compile_settings["backend"])
-            
+
             model_clone.add_object_patch(f"diffusion_model.blocks.{idx}.self_attn.forward", patched_attn)
-            
+
         return (model_clone,)
-    
+
+try:
+    from comfy.ldm.lightricks.model import apply_rotary_emb
+except:
+    apply_rotary_emb = None
+
+
+def ltxv_feta_forward(self, x, context=None, mask=None, pe=None, k_pe=None, transformer_options={}):
+    q = self.to_q(x)
+    context = x if context is None else context
+    k = self.to_k(context)
+    v = self.to_v(context)
+
+    q = self.q_norm(q)
+    k = self.k_norm(k)
+
+    if pe is not None:
+        q = apply_rotary_emb(q, pe)
+        k = apply_rotary_emb(k, pe if k_pe is None else k_pe)
+
+    feta_scores = get_feta_scores(q, k, self.num_frames, self.enhance_weight, self.heads)
+
+    if mask is None:
+        out = comfy.ldm.modules.attention.optimized_attention(q, k, v, self.heads, attn_precision=self.attn_precision, transformer_options=transformer_options)
+    else:
+        out = comfy.ldm.modules.attention.optimized_attention_masked(q, k, v, self.heads, mask, attn_precision=self.attn_precision, transformer_options=transformer_options)
+    return self.to_out(out * feta_scores)
+
+
+class LTXCrossAttentionPatch:
+    def __init__(self, num_frames, weight):
+        self.num_frames = num_frames
+        self.enhance_weight = weight
+
+    def __get__(self, obj, objtype=None):
+        # Create bound method with stored parameters
+        def wrapped_attention(self_module, *args, **kwargs):
+            self_module.num_frames = self.num_frames
+            self_module.enhance_weight = self.enhance_weight
+            return ltxv_feta_forward(self_module, *args, **kwargs)
+        return types.MethodType(wrapped_attention, obj)
+
+class LTXVEnhanceAVideoKJ:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "model": ("MODEL",),
+                "latent": ("LATENT", {"tooltip": "Only used to get the latent count"}),
+                "weight": ("FLOAT", {"default": 2.0, "min": 0.0, "max": 10.0, "step": 0.001, "tooltip": "Strength of the enhance effect"}),
+           }
+        }
+
+    RETURN_TYPES = ("MODEL",)
+    RETURN_NAMES = ("model",)
+    FUNCTION = "enhance"
+    CATEGORY = "KJNodes/experimental"
+    DESCRIPTION = "https://github.com/NUS-HPC-AI-Lab/Enhance-A-Video"
+    EXPERIMENTAL = True
+
+    def enhance(self, model, weight, latent):
+        if weight == 0:
+            return (model,)
+
+        num_frames = latent["samples"].shape[2]
+
+        model_clone = model.clone()
+        if 'transformer_options' not in model_clone.model_options:
+            model_clone.model_options['transformer_options'] = {}
+        model_clone.model_options["transformer_options"]["enhance_weight"] = weight
+        diffusion_model = model_clone.get_model_object("diffusion_model")
+
+        for idx, block in enumerate(diffusion_model.transformer_blocks):
+            patched_attn1 = LTXCrossAttentionPatch(num_frames, weight).__get__(block.attn1, block.__class__)
+            model_clone.add_object_patch(f"diffusion_model.transformer_blocks.{idx}.attn1.forward", patched_attn1)
+        return (model_clone,)
+
 def normalized_attention_guidance(self, query, context_positive, context_negative, transformer_options={}):
     k_positive = self.norm_k(self.k(context_positive))
     v_positive = self.v(context_positive)
@@ -1847,133 +1565,125 @@ class CFGZeroStarAndInit:
         m = model.clone()
         m.set_model_sampler_cfg_function(cfg_zerostar)
         return (m, )
-    
-if v3_available:
 
-    class GGUFLoaderKJ(io.ComfyNode):
-        @classmethod
-        def define_schema(cls):
-            # Get GGUF models safely, fallback to empty list if unet_gguf folder doesn't exist
+class GGUFLoaderKJ(io.ComfyNode):
+    @classmethod
+    def define_schema(cls):
+        # Get GGUF models safely, fallback to empty list if unet_gguf folder doesn't exist
+        try:
+            gguf_models = folder_paths.get_filename_list("unet_gguf")
+        except KeyError:
+            gguf_models = []
+
+        return io.Schema(
+            node_id="GGUFLoaderKJ",
+            category="KJNodes/experimental",
+            description="Loads a GGUF model with advanced options, requires [ComfyUI-GGUF](https://github.com/city96/ComfyUI-GGUF) to be installed.",
+            is_experimental=True,
+            inputs=[
+                io.Combo.Input("model_name", options=gguf_models),
+                io.Combo.Input("extra_model_name", options=gguf_models + ["none"], default="none", tooltip="An extra gguf model to load and merge into the main model, for example VACE module"),
+                io.Combo.Input("dequant_dtype", options=["default", "target", "float32", "float16", "bfloat16"], default="default"),
+                io.Combo.Input("patch_dtype", options=["default", "target", "float32", "float16", "bfloat16"], default="default"),
+                io.Boolean.Input("patch_on_device", default=False),
+                io.Boolean.Input("enable_fp16_accumulation", default=False, tooltip="Enable torch.backends.cuda.matmul.allow_fp16_accumulation, required minimum pytorch version 2.7.1"),
+                io.Combo.Input("attention_override", options=["none", "sdpa", "sageattn", "xformers", "flashattn"], default="none", tooltip="Overrides the used attention implementation, requires the respective library to be installed"),
+
+            ],
+            outputs=[io.Model.Output(),],
+        )
+
+    def attention_override_pytorch(func, *args, **kwargs):
+        new_attention = comfy.ldm.modules.attention.attention_pytorch
+        return new_attention.__wrapped__(*args, **kwargs)
+    def attention_override_sage(func, *args, **kwargs):
+        new_attention = comfy.ldm.modules.attention.attention_sage
+        return new_attention.__wrapped__(*args, **kwargs)
+    def attention_override_xformers(func, *args, **kwargs):
+        new_attention = comfy.ldm.modules.attention.attention_xformers
+        return new_attention.__wrapped__(*args, **kwargs)
+    def attention_override_flash(func, *args, **kwargs):
+        new_attention = comfy.ldm.modules.attention.attention_flash
+        return new_attention.__wrapped__(*args, **kwargs)
+
+    ATTENTION_OVERRIDES = {
+        "sdpa": attention_override_pytorch,
+        "sageattn": attention_override_sage,
+        "xformers": attention_override_xformers,
+        "flashattn": attention_override_flash,
+    }
+
+
+    @classmethod
+    def _get_gguf_module(cls):
+        gguf_path = os.path.join(folder_paths.folder_names_and_paths["custom_nodes"][0][0], "ComfyUI-GGUF")
+        """Import GGUF module with version validation"""
+        for module_name in ["ComfyUI-GGUF", "custom_nodes.ComfyUI-GGUF", "comfyui-gguf", "custom_nodes.comfyui-gguf", gguf_path, gguf_path.lower()]:
             try:
-                gguf_models = folder_paths.get_filename_list("unet_gguf")
-            except KeyError:
-                gguf_models = []
-            
-            return io.Schema(
-                node_id="GGUFLoaderKJ",
-                category="KJNodes/experimental",
-                description="Loads a GGUF model with advanced options, requires [ComfyUI-GGUF](https://github.com/city96/ComfyUI-GGUF) to be installed.",
-                is_experimental=True,
-                inputs=[
-                    io.Combo.Input("model_name", options=gguf_models),
-                    io.Combo.Input("extra_model_name", options=gguf_models + ["none"], default="none", tooltip="An extra gguf model to load and merge into the main model, for example VACE module"),
-                    io.Combo.Input("dequant_dtype", options=["default", "target", "float32", "float16", "bfloat16"], default="default"),
-                    io.Combo.Input("patch_dtype", options=["default", "target", "float32", "float16", "bfloat16"], default="default"),
-                    io.Boolean.Input("patch_on_device", default=False),
-                    io.Boolean.Input("enable_fp16_accumulation", default=False, tooltip="Enable torch.backends.cuda.matmul.allow_fp16_accumulation, required minimum pytorch version 2.7.1"),
-                    io.Combo.Input("attention_override", options=["none", "sdpa", "sageattn", "xformers", "flashattn"], default="none", tooltip="Overrides the used attention implementation, requires the respective library to be installed"),
+                module = importlib.import_module(module_name)
+                return module
+            except ImportError:
+                continue
 
-                ],
-                outputs=[io.Model.Output(),],
-            )
-        
-        def attention_override_pytorch(func, *args, **kwargs):
-            new_attention = comfy.ldm.modules.attention.attention_pytorch
-            return new_attention.__wrapped__(*args, **kwargs)
-        def attention_override_sage(func, *args, **kwargs):
-            new_attention = comfy.ldm.modules.attention.attention_sage
-            return new_attention.__wrapped__(*args, **kwargs)
-        def attention_override_xformers(func, *args, **kwargs):
-            new_attention = comfy.ldm.modules.attention.attention_xformers
-            return new_attention.__wrapped__(*args, **kwargs)
-        def attention_override_flash(func, *args, **kwargs):
-            new_attention = comfy.ldm.modules.attention.attention_flash
-            return new_attention.__wrapped__(*args, **kwargs)
-        
-        ATTENTION_OVERRIDES = {
-            "sdpa": attention_override_pytorch,
-            "sageattn": attention_override_sage,
-            "xformers": attention_override_xformers,
-            "flashattn": attention_override_flash,
-        }
+        raise ImportError(
+            "Compatible ComfyUI-GGUF not found. "
+            "Please install/update from: https://github.com/city96/ComfyUI-GGUF"
+        )
 
-        @classmethod
-        def _get_gguf_module(cls):
-            gguf_path = os.path.join(folder_paths.folder_names_and_paths["custom_nodes"][0][0], "ComfyUI-GGUF")
-            """Import GGUF module with version validation"""
-            for module_name in ["ComfyUI-GGUF", "custom_nodes.ComfyUI-GGUF", "comfyui-gguf", "custom_nodes.comfyui-gguf", gguf_path, gguf_path.lower()]:
-                try:
-                    module = importlib.import_module(module_name)
-                    return module
-                except ImportError:
-                    continue
+    @classmethod
+    def execute(cls, model_name, extra_model_name, dequant_dtype, patch_dtype, patch_on_device, attention_override, enable_fp16_accumulation):
+        gguf_nodes = cls._get_gguf_module()
+        ops = gguf_nodes.ops.GGMLOps()
 
-            raise ImportError(
-                "Compatible ComfyUI-GGUF not found. "
-                "Please install/update from: https://github.com/city96/ComfyUI-GGUF"
-            )
+        def set_linear_dtype(attr, value):
+            if value == "default":
+                setattr(ops.Linear, attr, None)
+            elif value == "target":
+                setattr(ops.Linear, attr, value)
+            else:
+                setattr(ops.Linear, attr, getattr(torch, value))
 
-        
-        @classmethod
-        def execute(cls, model_name, extra_model_name, dequant_dtype, patch_dtype, patch_on_device, attention_override, enable_fp16_accumulation):
-            gguf_nodes = cls._get_gguf_module()
-            ops = gguf_nodes.ops.GGMLOps()
+        set_linear_dtype("dequant_dtype", dequant_dtype)
+        set_linear_dtype("patch_dtype", patch_dtype)
 
-            def set_linear_dtype(attr, value):
-                if value == "default":
-                    setattr(ops.Linear, attr, None)
-                elif value == "target":
-                    setattr(ops.Linear, attr, value)
-                else:
-                    setattr(ops.Linear, attr, getattr(torch, value))
-
-            set_linear_dtype("dequant_dtype", dequant_dtype)
-            set_linear_dtype("patch_dtype", patch_dtype)
-
-            # init model
-            model_path = folder_paths.get_full_path("unet", model_name)
+        # init model
+        extra = {}
+        model_path = folder_paths.get_full_path("unet", model_name)
+        try:
+            sd, extra = gguf_nodes.loader.gguf_sd_loader(model_path)
+        except:
             sd = gguf_nodes.loader.gguf_sd_loader(model_path)
 
-            if extra_model_name is not None and extra_model_name != "none":
-                if not extra_model_name.endswith(".gguf"):
-                    raise ValueError("Extra model must also be a .gguf file")
-                extra_model_full_path = folder_paths.get_full_path("unet", extra_model_name)
-                extra_model = gguf_nodes.loader.gguf_sd_loader(extra_model_full_path)
-                sd.update(extra_model)
+        if extra_model_name is not None and extra_model_name != "none":
+            if not extra_model_name.endswith(".gguf"):
+                raise ValueError("Extra model must also be a .gguf file")
+            extra_model_full_path = folder_paths.get_full_path("unet", extra_model_name)
+            extra_model = gguf_nodes.loader.gguf_sd_loader(extra_model_full_path)
+            sd.update(extra_model)
 
-            model = comfy.sd.load_diffusion_model_state_dict(
-                sd, model_options={"custom_operations": ops}
-            )
-            if model is None:
-                raise RuntimeError(f"ERROR: Could not detect model type of: {model_path}")
-            
-            model = gguf_nodes.nodes.GGUFModelPatcher.clone(model)
-            model.patch_on_device = patch_on_device
+        model = comfy.sd.load_diffusion_model_state_dict(
+            sd, model_options={"custom_operations": ops}, metadata=extra.get("metadata", {})
+        )
+        if model is None:
+            raise RuntimeError(f"ERROR: Could not detect model type of: {model_path}")
 
-            # attention override
-            if attention_override in cls.ATTENTION_OVERRIDES:
-                model.model_options["transformer_options"]["optimized_attention_override"] = cls.ATTENTION_OVERRIDES[attention_override]
-            
-            if enable_fp16_accumulation:
-                if hasattr(torch.backends.cuda.matmul, "allow_fp16_accumulation"):
-                    torch.backends.cuda.matmul.allow_fp16_accumulation = True
-                else:
-                    raise RuntimeError("Failed to set fp16 accumulation, requires pytorch version 2.7.1 or higher")
+        model = gguf_nodes.nodes.GGUFModelPatcher.clone(model)
+        model.patch_on_device = patch_on_device
+
+        # attention override
+        if attention_override in cls.ATTENTION_OVERRIDES:
+            model.model_options["transformer_options"]["optimized_attention_override"] = cls.ATTENTION_OVERRIDES[attention_override]
+
+        if enable_fp16_accumulation:
+            if hasattr(torch.backends.cuda.matmul, "allow_fp16_accumulation"):
+                torch.backends.cuda.matmul.allow_fp16_accumulation = True
             else:
-                if hasattr(torch.backends.cuda.matmul, "allow_fp16_accumulation"):
-                    torch.backends.cuda.matmul.allow_fp16_accumulation = False
+                raise RuntimeError("Failed to set fp16 accumulation, requires pytorch version 2.7.1 or higher")
+        else:
+            if hasattr(torch.backends.cuda.matmul, "allow_fp16_accumulation"):
+                torch.backends.cuda.matmul.allow_fp16_accumulation = False
 
-            return io.NodeOutput(model,)
-else:
-    class GGUFLoaderKJ:
-        @classmethod
-        def INPUT_TYPES(s):
-            return {}
-        RETURN_TYPES = ()
-        FUNCTION = ""
-        CATEGORY = ""
-        DESCRIPTION = "This node requires newer ComfyUI"
-
+        return io.NodeOutput(model,)
 
 try:
     from torch.nn.attention.flex_attention import flex_attention, BlockMask
@@ -2211,3 +1921,135 @@ class VisualizeCUDAMemoryHistory():
                 pass
 
         return api_url,
+
+
+class ModelMemoryUseReportPatch:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": {
+            "model": ("MODEL",),
+        }}
+
+    RETURN_TYPES = ("MODEL",)
+    FUNCTION = "patch"
+    DESCRIPTION = "Adds callbacks to model to report memory usage during after sampling"
+    EXPERIMENTAL = True
+    CATEGORY = "KJNodes/experimental"
+
+    def patch(self, model):
+        model_clone = model.clone()
+        device = mm.get_torch_device()
+
+        def reset_mem_usage(model):
+            torch.cuda.reset_peak_memory_stats(device)
+        def report_mem_usage(model):
+            max_memory = torch.cuda.max_memory_allocated(device) / 1024**3
+            max_reserved = torch.cuda.max_memory_reserved(device) / 1024**3
+            logging.info(f"Sampling max allocated memory: {max_memory=:.3f} GB")
+            logging.info(f"Sampling max reserved memory: {max_reserved=:.3f} GB")
+
+        model_clone.add_callback(CallbacksMP.ON_PRE_RUN, reset_mem_usage)
+        model_clone.add_callback(CallbacksMP.ON_CLEANUP, report_mem_usage)
+
+        return (model_clone,)
+
+
+class MemoryUsageFactorAdjustWrapper:
+    def __init__(self, memory_usage_factor, original_factor):
+        self.memory_usage_factor = memory_usage_factor
+        self.original_factor = original_factor
+
+    def __call__(self, executor, model, noise_shape: torch.Tensor, *args, **kwargs):
+        m = model.clone()
+        m.model.memory_usage_factor = self.memory_usage_factor
+        logging.info(f"Temporarily set memory usage factor to {self.memory_usage_factor}")
+        try:
+            result = executor(m, noise_shape, *args, **kwargs)
+        finally:
+            logging.info(f"Model memory usage calculated, restoring original memory usage factor: {self.original_factor}")
+            m.model.memory_usage_factor = self.original_factor
+        return result
+
+class ModelMemoryUsageFactorOverride:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": {
+            "model": ("MODEL",),
+            "memory_usage_factor": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 100.0, "step": 0.001}),
+        }}
+
+    RETURN_TYPES = ("MODEL",)
+    FUNCTION = "patch"
+    DESCRIPTION = "Overrides the memory usage factor of the model during sampling."
+    EXPERIMENTAL = True
+    CATEGORY = "KJNodes/experimental"
+
+    def patch(self, model, memory_usage_factor):
+        model_clone = model.clone()
+        original_memory_usage_factor = model_clone.model.memory_usage_factor
+        logging.info(f"Original memory usage factor: {original_memory_usage_factor}")
+
+        wrapper = MemoryUsageFactorAdjustWrapper(memory_usage_factor, original_memory_usage_factor)
+        model_clone.add_wrapper_with_key(
+            comfy.patcher_extension.WrappersMP.PREPARE_SAMPLING,
+            "memory_usage_factor_adjust_prepare_sampling",
+            wrapper
+        )
+        return (model_clone,)
+
+def wan_ffn_chunked_forward(self, x):
+    if x.shape[1] > self.dim_threshold:
+        chunks = torch.chunk(x, self.num_chunks, dim=1)
+        output_chunks = []
+        for chunk in chunks:
+            output_chunks.append(torch.nn.Sequential.forward(self, chunk))
+        chunked = torch.cat(output_chunks, dim=1)
+        return chunked
+    else:
+        return torch.nn.Sequential.forward(self, x)
+
+class WanffnChunkPatch:
+    def __init__(self, num_chunks, dim_threshold=4096):
+        self.num_chunks = num_chunks
+        self.dim_threshold = dim_threshold
+
+    def __get__(self, obj, objtype=None):
+        def wrapped_forward(self_module, *args, **kwargs):
+            self_module.num_chunks = self.num_chunks
+            self_module.dim_threshold = self.dim_threshold
+            return wan_ffn_chunked_forward(self_module, *args, **kwargs)
+        return types.MethodType(wrapped_forward, obj)
+
+class WanChunkFeedForward(io.ComfyNode):
+
+    @classmethod
+    def define_schema(cls):
+        return io.Schema(
+            node_id="WanChunkFeedForward",
+            display_name="Wan Chunk FeedForward",
+            category="KJNodes/wan",
+            description="EXPERIMENTAL AND MAY CHANGE THE MODEL OUTPUT!! Chunks feedforward activations to reduce peak VRAM usage.",
+            is_experimental=True,
+            inputs=[
+                io.Model.Input("model"),
+                io.Int.Input("chunks", default=2, min=1, max=100, step=1, tooltip="Number of chunks to split the feedforward activations into to reduce peak VRAM usage."),
+                io.Int.Input("dim_threshold", default=4096, min=1024, max=16384, step=256, tooltip="Dimension threshold above which to apply chunking."),
+            ],
+            outputs=[
+                io.Model.Output(display_name="model"),
+            ],
+        )
+
+    @classmethod
+    def execute(cls, model, chunks, dim_threshold) -> io.NodeOutput:
+        if chunks == 1:
+            return io.NodeOutput(model)
+
+        model_clone = model.clone()
+        diffusion_model = model_clone.get_model_object("diffusion_model")
+
+        for idx, block in enumerate(diffusion_model.blocks):
+            patched_ffn = WanffnChunkPatch(chunks, dim_threshold).__get__(block.ffn, block.__class__)
+            model_clone.add_object_patch(f"diffusion_model.blocks.{idx}.ffn.forward", patched_ffn)
+
+        return io.NodeOutput(model_clone)

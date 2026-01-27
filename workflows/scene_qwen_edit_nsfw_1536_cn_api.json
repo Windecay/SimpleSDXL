@@ -284,7 +284,7 @@
       ],
       "denoise": 1,
       "model": [
-        "168",
+        "174",
         0
       ],
       "positive": [
@@ -1149,6 +1149,18 @@
     "class_type": "CheckpointLoaderSimple",
     "_meta": {
       "title": "base_model"
+    }
+  },
+  "174": {
+    "inputs": {
+      "anything": [
+        "168",
+        0
+      ]
+    },
+    "class_type": "easy cleanGpuUsed",
+    "_meta": {
+      "title": "Clean VRAM Used"
     }
   }
 }
