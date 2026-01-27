@@ -2104,7 +2104,8 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "CheckpointLoader": "Load Checkpoint With Config (DEPRECATED)",
     "CheckpointLoaderSimple": "Load Checkpoint",
     "VAELoader": "Load VAE",
-    "LoraLoader": "Load LoRA",
+    "LoraLoader": "Load LoRA (Model and CLIP)",
+    "LoraLoaderModelOnly": "Load LoRA",
     "CLIPLoader": "Load CLIP",
     "ControlNetLoader": "Load ControlNet Model",
     "DiffControlNetLoader": "Load ControlNet Model (diff)",
@@ -2430,6 +2431,7 @@ async def init_builtin_extra_nodes():
         "nodes_wanmove.py",
         "nodes_image_compare.py",
         "nodes_zimage.py",
+        "nodes_lora_debug.py"
     ]
 
     import_failed = []
