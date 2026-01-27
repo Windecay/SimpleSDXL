@@ -3357,7 +3357,7 @@
         }
       },
       "widgets_values": [
-        "anything2real_2601_A_final.safetensors",
+        "anything2real_2601_A_final_patched.safetensors",
         1,
         "None",
         1,
@@ -3412,7 +3412,7 @@
         }
       },
       "widgets_values": [
-        "anything2real_2601_A_final.safetensors",
+        "anything2real_2601_A_final_patched.safetensors",
         1,
         "None",
         0,
@@ -7213,7 +7213,7 @@
       },
       "widgets_values": [
         "https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/loras/Qwen-Image-Edit-2511-Lightning-4steps-V1.0-bf16.safetensors",
-        "https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/loras/anything2real_2601_A_final.safetensors",
+        "https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/loras/anything2real_2601_A_final_patched.safetensors",
         "",
         "",
         "",
@@ -7980,7 +7980,7 @@
         }
       },
       "widgets_values": [
-        "{\"entries\":[{\"id\":\"lora1\",\"item_type\":\"lora\",\"display_name\":\"\",\"custom_text\":\"\",\"lora_name\":\"anything2real_2601_A_final.safetensors\",\"weight\":1,\"enabled\":true,\"parent_id\":null,\"clip_weight\":0.85},{\"id\":\"lora1761940351590\",\"item_type\":\"lora\",\"display_name\":\"\",\"custom_text\":\"\",\"lora_name\":\"None\",\"weight\":0.75,\"enabled\":true,\"parent_id\":null,\"clip_weight\":0.75},{\"id\":\"lora1761940382454\",\"item_type\":\"lora\",\"display_name\":\"\",\"custom_text\":\"\",\"lora_name\":\"None\",\"weight\":1,\"enabled\":true,\"parent_id\":null,\"clip_weight\":1},{\"id\":\"lora1761940383208\",\"item_type\":\"lora\",\"display_name\":\"\",\"custom_text\":\"\",\"lora_name\":\"None\",\"weight\":1,\"enabled\":true,\"parent_id\":null,\"clip_weight\":1},{\"id\":\"lora1761940385286\",\"item_type\":\"lora\",\"display_name\":\"\",\"custom_text\":\"\",\"lora_name\":\"None\",\"weight\":1,\"enabled\":true,\"parent_id\":null,\"clip_weight\":1}]}",
+        "{\"entries\":[{\"id\":\"lora1\",\"item_type\":\"lora\",\"display_name\":\"\",\"custom_text\":\"\",\"lora_name\":\"anything2real_2601_A_final_patched.safetensors\",\"weight\":1,\"enabled\":true,\"parent_id\":null,\"clip_weight\":0.85},{\"id\":\"lora1761940351590\",\"item_type\":\"lora\",\"display_name\":\"\",\"custom_text\":\"\",\"lora_name\":\"None\",\"weight\":0.75,\"enabled\":true,\"parent_id\":null,\"clip_weight\":0.75},{\"id\":\"lora1761940382454\",\"item_type\":\"lora\",\"display_name\":\"\",\"custom_text\":\"\",\"lora_name\":\"None\",\"weight\":1,\"enabled\":true,\"parent_id\":null,\"clip_weight\":1},{\"id\":\"lora1761940383208\",\"item_type\":\"lora\",\"display_name\":\"\",\"custom_text\":\"\",\"lora_name\":\"None\",\"weight\":1,\"enabled\":true,\"parent_id\":null,\"clip_weight\":1},{\"id\":\"lora1761940385286\",\"item_type\":\"lora\",\"display_name\":\"\",\"custom_text\":\"\",\"lora_name\":\"None\",\"weight\":1,\"enabled\":true,\"parent_id\":null,\"clip_weight\":1}]}",
         ""
       ],
       "color": "#223",
@@ -7992,7 +7992,7 @@
             "item_type": "lora",
             "display_name": "",
             "custom_text": "",
-            "lora_name": "anything2real_2601_A_final.safetensors",
+            "lora_name": "anything2real_2601_A_final_patched.safetensors",
             "weight": 1,
             "enabled": true,
             "parent_id": null,

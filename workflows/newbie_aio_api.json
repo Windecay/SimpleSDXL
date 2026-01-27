@@ -32,15 +32,15 @@
       ],
       "denoise": 1,
       "model": [
-        "31",
+        "60",
         0
       ],
       "positive": [
-        "5",
+        "58",
         0
       ],
       "negative": [
-        "6",
+        "59",
         0
       ],
       "latent_image": [
@@ -51,42 +51,6 @@
     "class_type": "KSampler",
     "_meta": {
       "title": "KSampler"
-    }
-  },
-  "5": {
-    "inputs": {
-      "user_prompt": [
-        "27",
-        0
-      ],
-      "system_prompt": "You are an assistant designed to generate high-quality anime images with the highest degree of image-text alignment based on xml format textual prompts. <Prompt Start>",
-      "use_chat_template": false,
-      "clip": [
-        "22",
-        0
-      ]
-    },
-    "class_type": "NewBieCLIPTextEncode",
-    "_meta": {
-      "title": "NewBie CLIP Text Encode"
-    }
-  },
-  "6": {
-    "inputs": {
-      "user_prompt": [
-        "27",
-        1
-      ],
-      "system_prompt": "You are an assistant designed to generate high-quality anime images with the highest degree of image-text alignment based on textual prompts. <Prompt Start> ",
-      "use_chat_template": false,
-      "clip": [
-        "22",
-        0
-      ]
-    },
-    "class_type": "NewBieCLIPTextEncode",
-    "_meta": {
-      "title": "NewBie CLIP Text Encode"
     }
   },
   "7": {
@@ -122,39 +86,9 @@
       "title": "VAE Decode"
     }
   },
-  "10": {
-    "inputs": {
-      "multiplier": 0.7,
-      "model": [
-        "23",
-        0
-      ]
-    },
-    "class_type": "RescaleCFG",
-    "_meta": {
-      "title": "RescaleCFG"
-    }
-  },
-  "22": {
-    "inputs": {
-      "gemma_model_path": "..\\..\\SimpleModels\\gemma3",
-      "jina_clip_path": "..\\..\\SimpleModels\\jina_clip",
-      "device": "cuda",
-      "dtype": "bf16",
-      "cpu_offload": true,
-      "enable_jina_weights": true,
-      "weight_baseline_mode": "mean",
-      "weight_strength": 1,
-      "mask_normalization": true
-    },
-    "class_type": "NewBieCLIPLoader",
-    "_meta": {
-      "title": "NewBie CLIP Loader"
-    }
-  },
   "23": {
     "inputs": {
-      "unet_name": "newbieImage_exp01Base.safetensors",
+      "unet_name": "placeholder.safetensors",
       "weight_dtype": "default"
     },
     "class_type": "UNETLoader",
@@ -193,23 +127,10 @@
       "title": "SeedInput"
     }
   },
-  "31": {
-    "inputs": {
-      "enable_fp16_accumulation": true,
-      "model": [
-        "10",
-        0
-      ]
-    },
-    "class_type": "ModelPatchTorchSettings",
-    "_meta": {
-      "title": "Model Patch Torch Settings"
-    }
-  },
   "33": {
     "inputs": {
       "uov_method": "disabled",
-      "uov_denoise": 0.5000000000000001,
+      "uov_denoise": 0.5,
       "uov_processing_order": "Before First Enhancement",
       "uov_prompt_type": "Original Prompts",
       "uov_multiple": 1.5,
@@ -394,15 +315,15 @@
         0
       ],
       "model": [
-        "31",
+        "60",
         0
       ],
       "positive": [
-        "5",
+        "58",
         0
       ],
       "negative": [
-        "6",
+        "59",
         0
       ],
       "vae": [
@@ -442,6 +363,189 @@
     "class_type": "PreviewImage",
     "_meta": {
       "title": "Preview Image"
+    }
+  },
+  "56": {
+    "inputs": {
+      "shift": 6,
+      "model": [
+        "68",
+        0
+      ]
+    },
+    "class_type": "ModelSamplingAuraFlow",
+    "_meta": {
+      "title": "ModelSamplingAuraFlow"
+    }
+  },
+  "57": {
+    "inputs": {
+      "clip_name1": "gemma_3_4b_it_bf16.safetensors",
+      "clip_name2": "jina_clip_v2_bf16.safetensors",
+      "type": "newbie",
+      "device": "default"
+    },
+    "class_type": "DualCLIPLoader",
+    "_meta": {
+      "title": "DualCLIPLoader"
+    }
+  },
+  "58": {
+    "inputs": {
+      "text": [
+        "27",
+        0
+      ],
+      "clip": [
+        "57",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Prompt)"
+    }
+  },
+  "59": {
+    "inputs": {
+      "text": [
+        "27",
+        1
+      ],
+      "clip": [
+        "57",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Prompt)"
+    }
+  },
+  "60": {
+    "inputs": {
+      "sage_attention": "auto",
+      "allow_compile": false,
+      "model": [
+        "56",
+        0
+      ]
+    },
+    "class_type": "PathchSageAttentionKJ",
+    "_meta": {
+      "title": "Patch Sage Attention KJ"
+    }
+  },
+  "61": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "23",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_1"
+    }
+  },
+  "62": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "61",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_2"
+    }
+  },
+  "63": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "62",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_3"
+    }
+  },
+  "64": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "63",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_4"
+    }
+  },
+  "65": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "64",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_5"
+    }
+  },
+  "66": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "65",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_6"
+    }
+  },
+  "67": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "66",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_7"
+    }
+  },
+  "68": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "67",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_8"
     }
   }
 }

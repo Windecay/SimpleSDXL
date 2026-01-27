@@ -407,6 +407,43 @@ def get_unique_filename(file_path, extension=".corrupted"):
         counter += 1
     return base
 
+def _normalize_relpath_for_match(path):
+    return str(path).replace("\\", "/").lstrip("/").lower()
+
+def _split_obsolete_specs(obsolete_models):
+    basenames = set()
+    relpaths = set()
+    for spec in obsolete_models:
+        s = _normalize_relpath_for_match(spec).strip()
+        if not s:
+            continue
+        if "/" in s:
+            relpaths.add(s)
+        else:
+            basenames.add(s)
+    return basenames, relpaths
+
+def _is_under_dir(path, parent_dir):
+    try:
+        parent = os.path.normcase(os.path.normpath(parent_dir))
+        p = os.path.normcase(os.path.normpath(path))
+        return os.path.commonpath([parent, p]) == parent
+    except Exception:
+        return False
+
+def _matches_obsolete(full_path, filename, obsolete_basenames, obsolete_relpaths, simplemodels_root):
+    if filename.lower() in obsolete_basenames:
+        return True
+    if not obsolete_relpaths or not simplemodels_root:
+        return False
+    if not _is_under_dir(full_path, simplemodels_root):
+        return False
+    try:
+        rel = os.path.relpath(full_path, simplemodels_root)
+    except Exception:
+        return False
+    return _normalize_relpath_for_match(rel) in obsolete_relpaths
+
 HF_URL_OVERRIDES = {}
 
 def split_path_and_url(path_with_url):
@@ -625,6 +662,7 @@ def validate_files(packages):
                 else:
                     non_missing_size += expected_size
         obsolete_files = []
+        obsolete_basenames, obsolete_relpaths = _split_obsolete_specs(OBSOLETE_MODELS)
         MODEL_PATHS_TO_SCAN = [
         os.path.join(simplemodels_root, "checkpoints"),
         os.path.join(simplemodels_root, "loras"),
@@ -658,8 +696,8 @@ def validate_files(packages):
                 continue
             for scan_root, _, files in os.walk(model_root):
                 for file in files:
-                    if file.lower() in [x.lower() for x in OBSOLETE_MODELS]:
-                        full_path = os.path.join(scan_root, file)
+                    full_path = os.path.join(scan_root, file)
+                    if _matches_obsolete(full_path, file, obsolete_basenames, obsolete_relpaths, simplemodels_root):
                         obsolete_files.append(full_path)
 
 
@@ -950,7 +988,7 @@ def delete_partial_files():
         'vae_approx', 'vae', 'upscale_models', 'inpaint', "ipadapter",
         'clip', 'clip_vision', 'llms', 'LLM', 'unet', 'diffusers', 'model_patches',
         'text_encoders', 'audio_encoders', 'safety_checker', 'layer_model', 'pulid', 'insightface',
-        'prompt_expansion', 'fooocus_expansion',
+        'prompt_expansion', 'fooocus_expansion', 'gemma3', 'jina_clip',
     ]
 
     scan_dirs = []
@@ -961,6 +999,7 @@ def delete_partial_files():
     files_found = False
     files_to_delete = []
     obsolete_files_found = []  # 新增废弃文件存储
+    obsolete_basenames, obsolete_relpaths = _split_obsolete_specs(OBSOLETE_MODELS)
 
     for model_dir in scan_dirs:
         if not os.path.exists(model_dir):
@@ -979,8 +1018,8 @@ def delete_partial_files():
                         total_size += os.path.getsize(file_path)
                     except:
                         pass
-                if file in OBSOLETE_MODELS:  # 精确文件名匹配
-                    file_path = os.path.join(root, file)
+                file_path = os.path.join(root, file)
+                if _matches_obsolete(file_path, file, obsolete_basenames, obsolete_relpaths, simplemodels_root):
                     obsolete_files_found.append(file_path)
                     files_found = True
     if files_found:
@@ -1024,7 +1063,7 @@ def _find_obsolete_model_files():
         'vae_approx', 'vae', 'upscale_models', 'inpaint', "ipadapter",
         'clip', 'clip_vision', 'llms', 'LLM', 'unet', 'diffusers', 'model_patches',
         'text_encoders', 'audio_encoders', 'safety_checker', 'layer_model', 'pulid', 'insightface',
-        'prompt_expansion', 'fooocus_expansion',
+        'prompt_expansion', 'fooocus_expansion', 'gemma3', 'jina_clip',
     ]
 
     scan_dirs = []
@@ -1032,13 +1071,15 @@ def _find_obsolete_model_files():
         scan_dirs.extend(path_mapping.get(category, []))
 
     found = []
+    obsolete_basenames, obsolete_relpaths = _split_obsolete_specs(OBSOLETE_MODELS)
     for model_dir in scan_dirs:
         if not os.path.exists(model_dir):
             continue
         for root, _, files in os.walk(model_dir):
             for file in files:
-                if file in OBSOLETE_MODELS:
-                    found.append(os.path.join(root, file))
+                file_path = os.path.join(root, file)
+                if _matches_obsolete(file_path, file, obsolete_basenames, obsolete_relpaths, simplemodels_root):
+                    found.append(file_path)
     return found
 
 
@@ -2325,27 +2366,8 @@ packages = {'base_package': {'id': 1,
                           'name': '[31]NewbieImage扩展包',
                           'note': 'NewbieImage二次元大模型|显存需求：★★★ 速度：★★',
                           'files': ['unet,newbieImage_exp01Base.safetensors,6973329400,0,https://www.modelscope.cn/models/windecay/Models/resolve/master/newbieImage_exp01Base.safetensors,https://huggingface.co/windecay/SimpleSDXL2/resolve/main/SimpleModels/unet/newbieImage_exp01Base.safetensors',
-                                    'jina_clip,config.json,2152,0,https://www.modelscope.cn/models/jinaai/jina-clip-v2/resolve/master/config.json,https://huggingface.co/jinaai/jina-clip-v2/resolve/main/config.json',
-                                    'jina_clip,config_sentence_transformers.json,281,0,https://www.modelscope.cn/models/jinaai/jina-clip-v2/resolve/master/config_sentence_transformers.json,https://huggingface.co/jinaai/jina-clip-v2/resolve/main/config_sentence_transformers.json',
-                                    'jina_clip,custom_st.py,11988,0,https://www.modelscope.cn/models/jinaai/jina-clip-v2/resolve/master/custom_st.py,https://huggingface.co/jinaai/jina-clip-v2/resolve/main/custom_st.py',
-                                    'jina_clip,model.safetensors,1730688642,0,https://www.modelscope.cn/models/jinaai/jina-clip-v2/resolve/master/model.safetensors,https://huggingface.co/jinaai/jina-clip-v2/resolve/main/model.safetensors',
-                                    'jina_clip,modules.json,273,0,https://www.modelscope.cn/models/jinaai/jina-clip-v2/resolve/master/modules.json,https://huggingface.co/jinaai/jina-clip-v2/resolve/main/modules.json',
-                                    'jina_clip,preprocessor_config.json,584,0,https://www.modelscope.cn/models/jinaai/jina-clip-v2/resolve/master/preprocessor_config.json,https://huggingface.co/jinaai/jina-clip-v2/resolve/main/preprocessor_config.json',
-                                    'jina_clip,special_tokens_map.json,964,0,https://www.modelscope.cn/models/jinaai/jina-clip-v2/resolve/master/special_tokens_map.json,https://huggingface.co/jinaai/jina-clip-v2/resolve/main/special_tokens_map.json',
-                                    'jina_clip,tokenizer.json,17082997,0,https://www.modelscope.cn/models/jinaai/jina-clip-v2/resolve/master/tokenizer.json,https://huggingface.co/jinaai/jina-clip-v2/resolve/main/tokenizer.json',
-                                    'jina_clip,tokenizer_config.json,1148,0,https://www.modelscope.cn/models/jinaai/jina-clip-v2/resolve/master/tokenizer_config.json,https://huggingface.co/jinaai/jina-clip-v2/resolve/main/tokenizer_config.json',
-                                    'gemma3,added_tokens.json,35,0,https://www.modelscope.cn/models/google/gemma-3-4b-it/resolve/master/added_tokens.json,https://huggingface.co/tbmod/gemma-3-4b-it/resolve/main/added_tokens.json',
-                                    'gemma3,chat_template.json,1615,0,https://www.modelscope.cn/models/google/gemma-3-4b-it/resolve/master/chat_template.json,https://huggingface.co/tbmod/gemma-3-4b-it/resolve/main/chat_template.json',
-                                    'gemma3,config.json,855,0,https://www.modelscope.cn/models/google/gemma-3-4b-it/resolve/master/config.json,https://huggingface.co/tbmod/gemma-3-4b-it/resolve/main/config.json',
-                                    'gemma3,generation_config.json,215,0,https://www.modelscope.cn/models/google/gemma-3-4b-it/resolve/master/generation_config.json,https://huggingface.co/tbmod/gemma-3-4b-it/resolve/main/generation_config.json',
-                                    'gemma3,model-00001-of-00002.safetensors,4961251752,0,https://www.modelscope.cn/models/google/gemma-3-4b-it/resolve/master/model-00001-of-00002.safetensors,https://huggingface.co/tbmod/gemma-3-4b-it/resolve/main/model-00001-of-00002.safetensors',
-                                    'gemma3,model-00002-of-00002.safetensors,3639026128,0,https://www.modelscope.cn/models/google/gemma-3-4b-it/resolve/master/model-00002-of-00002.safetensors,https://huggingface.co/tbmod/gemma-3-4b-it/resolve/main/model-00002-of-00002.safetensors',
-                                    'gemma3,model.safetensors.index.json,90558,0,https://www.modelscope.cn/models/google/gemma-3-4b-it/resolve/master/model.safetensors.index.json,https://huggingface.co/tbmod/gemma-3-4b-it/resolve/main/model.safetensors.index.json',
-                                    'gemma3,preprocessor_config.json,570,0,https://www.modelscope.cn/models/google/gemma-3-4b-it/resolve/master/preprocessor_config.json,https://huggingface.co/tbmod/gemma-3-4b-it/resolve/main/preprocessor_config.json',
-                                    'gemma3,special_tokens_map.json,662,0,https://www.modelscope.cn/models/google/gemma-3-4b-it/resolve/master/special_tokens_map.json,https://huggingface.co/tbmod/gemma-3-4b-it/resolve/main/special_tokens_map.json',
-                                    'gemma3,tokenizer.json,33384568,0,https://www.modelscope.cn/models/google/gemma-3-4b-it/resolve/master/tokenizer.json,https://huggingface.co/tbmod/gemma-3-4b-it/resolve/main/tokenizer.json',
-                                    'gemma3,tokenizer.model,4689074,0,https://www.modelscope.cn/models/google/gemma-3-4b-it/resolve/master/tokenizer.model,https://huggingface.co/tbmod/gemma-3-4b-it/resolve/main/tokenizer.model',
-                                    'gemma3,tokenizer_config.json,1156999,0,https://www.modelscope.cn/models/google/gemma-3-4b-it/resolve/master/tokenizer_config.json,https://huggingface.co/tbmod/gemma-3-4b-it/resolve/main/tokenizer_config.json',
+                                    'text_encoders,gemma_3_4b_it_bf16.safetensors,7765267250,0,https://www.modelscope.cn/models/Comfy-Org/NewBie-image-Exp0.1_repackaged/resolve/master/split_files/text_encoders/gemma_3_4b_it_bf16.safetensors,https://huggingface.co/Comfy-Org/NewBie-image-Exp0.1_repackaged/resolve/main/split_files/text_encoders/gemma_3_4b_it_bf16.safetensors',
+                                    'text_encoders,jina_clip_v2_bf16.safetensors,1121730691,0,https://www.modelscope.cn/models/Comfy-Org/NewBie-image-Exp0.1_repackaged/resolve/master/split_files/text_encoders/jina_clip_v2_bf16.safetensors,https://huggingface.co/Comfy-Org/NewBie-image-Exp0.1_repackaged/resolve/main/split_files/text_encoders/jina_clip_v2_bf16.safetensors',
                                     'vae,ae.safetensors,335304388,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/vae/ae.safetensors,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/vae/ae.safetensors',
                                     'upscale_models,4x-AnimeSharp.pth,67010245,0,https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/upscale_models/4x-AnimeSharp.pth,https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/upscale_models/4x-AnimeSharp.pth'],
                           'info_links': ['https://modelscope.cn/models/NewBieAi-lab/NewBie-image-Exp0.1'],
@@ -2510,7 +2532,10 @@ OBSOLETE_MODELS = [
     "Z-Image-Turbo-Fun-Controlnet-Union-2.1-8steps.safetensors",
     "qwen-image-Q4_K_M.gguf",
     "qwen_3_8b_fp8mixed.safetensors",
-    "anything2real_2601_A_final.safetensors"
+    "anything2real_2601_A_final.safetensors",
+    'jina_clip/model.safetensors',
+    'gemma3/model-00001-of-00002.safetensors',
+    'gemma3/model-00002-of-00002.safetensors',
 ]
 
 MODELSCOPE_FILE_CACHE = {}

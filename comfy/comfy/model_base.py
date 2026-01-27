@@ -309,12 +309,10 @@ class BaseModel(torch.nn.Module):
         to_load = self.model_config.process_unet_state_dict(to_load)
         m, u = self.diffusion_model.load_state_dict(to_load, strict=False)
         if len(m) > 0:
-            logging.debug("unet missing: {}".format(m))
+            logging.warning("unet missing: {}".format(m))
 
         if len(u) > 0:
-            u = [k for k in u if not k.startswith(('audio_embeddings_connector', 'video_embeddings_connector'))]
-            if len(u) > 0:
-                logging.debug("unet unexpected: {}".format(u))
+            logging.warning("unet unexpected: {}".format(u))
         del to_load
         return self
 
@@ -1223,32 +1221,6 @@ class Lumina2(BaseModel):
         ref_latents = kwargs.get("reference_latents", None)
         if ref_latents is not None:
             out['ref_latents'] = list([1, 16, sum(map(lambda a: math.prod(a.size()[2:]), ref_latents))])
-        return out
-
-class NewbieCLIP(BaseModel):
-    def __init__(self, model_config, model_type=ModelType.FLOW, device=None):
-        super().__init__(model_config, model_type, device=device, unet_model=comfy.ldm.lumina.model.Newbie)
-
-    def extra_conds(self, **kwargs):
-        out = super().extra_conds(**kwargs)
-        attention_mask = kwargs.get("attention_mask", None)
-        if attention_mask is not None:
-            if torch.numel(attention_mask) != attention_mask.sum():
-                out['attention_mask'] = comfy.conds.CONDRegular(attention_mask)
-            out['num_tokens'] = comfy.conds.CONDConstant(max(1, torch.sum(attention_mask).item()))
-        cross_attn = kwargs.get("cross_attn", None)
-        if cross_attn is not None:
-            out['c_crossattn'] = comfy.conds.CONDRegular(cross_attn)
-        
-        # Add CLIP-specific conditioning
-        clip_text_pooled = kwargs.get("clip_text_pooled", None)
-        if clip_text_pooled is not None:
-            out['clip_text_pooled'] = comfy.conds.CONDRegular(clip_text_pooled)
-        
-        clip_img_pooled = kwargs.get("clip_img_pooled", None)
-        if clip_img_pooled is not None:
-            out['clip_img_pooled'] = comfy.conds.CONDRegular(clip_img_pooled)
-            
         return out
 
 class WAN21(BaseModel):

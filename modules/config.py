@@ -290,7 +290,7 @@ model_cata_map = {
     'audio_encoders': paths_audio_encoders,
     'model_patches': paths_model_patches,
     'detection': paths_detection,
-    'diffusion_models': paths_diffusion_models,
+    'diffusion_models': paths_unet + paths_diffusion_models,
     'text_encoders': paths_text_encoders,
     }
 
@@ -1069,7 +1069,7 @@ config_comfy_text = config_comfy_formatted_text.format(
         model_patches=paths2str(paths_model_patches, 'model_patches'),
         detection=paths2str(paths_detection, 'detection'),
         text_encoders=paths2str(paths_text_encoders + paths_clip, 'text_encoders'),
-        diffusion_models=paths2str(paths_diffusion_models + paths_checkpoints, 'diffusion_models')
+        diffusion_models=paths2str(paths_unet + paths_diffusion_models + paths_checkpoints, 'diffusion_models')
         )
 
 with open(config_comfy_path, "w", encoding="utf-8") as comfy_file:

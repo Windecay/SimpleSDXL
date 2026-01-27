@@ -1,8 +1,8 @@
 {
   "id": "57343ce5-d749-4924-b5c5-3b4d3a7484d3",
   "revision": 0,
-  "last_node_id": 44,
-  "last_link_id": 35,
+  "last_node_id": 53,
+  "last_link_id": 50,
   "nodes": [
     {
       "id": 7,
@@ -61,7 +61,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 26,
+      "order": 23,
       "mode": 0,
       "inputs": [
         {
@@ -99,7 +99,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 23,
+      "order": 22,
       "mode": 0,
       "inputs": [
         {
@@ -151,26 +151,26 @@
       "flags": {
         "pinned": true
       },
-      "order": 20,
+      "order": 21,
       "mode": 0,
       "inputs": [
         {
           "label": "模型",
           "name": "model",
           "type": "MODEL",
-          "link": 14
+          "link": 50
         },
         {
           "label": "正面条件",
           "name": "positive",
           "type": "CONDITIONING",
-          "link": 4
+          "link": 45
         },
         {
           "label": "负面条件",
           "name": "negative",
           "type": "CONDITIONING",
-          "link": 5
+          "link": 46
         },
         {
           "label": "Latent",
@@ -200,791 +200,13 @@
         }
       },
       "widgets_values": [
-        66772479067847,
+        0,
         "randomize",
-        30,
-        5,
+        20,
+        5.5,
         "res_multistep",
-        "linear_quadratic",
+        "simple",
         1
-      ]
-    },
-    {
-      "id": 27,
-      "type": "SimpleModelDownloader",
-      "pos": [
-        -530,
-        -160
-      ],
-      "size": [
-        210,
-        150
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 1,
-      "mode": 4,
-      "inputs": [
-        {
-          "name": "anything",
-          "shape": 7,
-          "type": "*",
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "name": "model_name",
-          "type": "*",
-          "links": [
-            21
-          ]
-        },
-        {
-          "name": "download_message",
-          "type": "STRING",
-          "links": [
-            27
-          ]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "SimpleModelDownloader",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.3"
-        }
-      },
-      "widgets_values": [
-        "https://www.modelscope.cn/models/windecay/Models/resolve/master/newbieImage_exp01Base.safetensors",
-        "unet",
-        true,
-        false
-      ]
-    },
-    {
-      "id": 35,
-      "type": "ShowText|pysssss",
-      "pos": [
-        -310,
-        30
-      ],
-      "size": [
-        140,
-        250
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 16,
-      "mode": 4,
-      "inputs": [
-        {
-          "name": "text",
-          "type": "STRING",
-          "link": 28
-        }
-      ],
-      "outputs": [
-        {
-          "name": "STRING",
-          "shape": 6,
-          "type": "STRING",
-          "links": null
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "ShowText|pysssss",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.3"
-        }
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 28,
-      "type": "SimpleBatchDownloader",
-      "pos": [
-        -530,
-        30
-      ],
-      "size": [
-        210,
-        250
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 10,
-      "mode": 4,
-      "inputs": [
-        {
-          "name": "anything",
-          "shape": 7,
-          "type": "*",
-          "link": 21
-        }
-      ],
-      "outputs": [
-        {
-          "name": "output",
-          "type": "*",
-          "links": [
-            22
-          ]
-        },
-        {
-          "name": "system_message",
-          "type": "STRING",
-          "links": [
-            28
-          ]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "SimpleBatchDownloader",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.3"
-        }
-      },
-      "widgets_values": [
-        "https://www.modelscope.cn/models/jinaai/jina-clip-v2/resolve/master/config.json",
-        "https://www.modelscope.cn/models/jinaai/jina-clip-v2/resolve/master/config_sentence_transformers.json",
-        "https://www.modelscope.cn/models/jinaai/jina-clip-v2/resolve/master/configuration.json",
-        "https://www.modelscope.cn/models/jinaai/jina-clip-v2/resolve/master/custom_st.py",
-        "https://www.modelscope.cn/models/jinaai/jina-clip-v2/resolve/master/model.safetensors",
-        "jina_clip",
-        true,
-        false
-      ]
-    },
-    {
-      "id": 33,
-      "type": "SimpleModelDownloader",
-      "pos": [
-        -530,
-        610
-      ],
-      "size": [
-        210,
-        150
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 18,
-      "mode": 4,
-      "inputs": [
-        {
-          "name": "anything",
-          "shape": 7,
-          "type": "*",
-          "link": 34
-        }
-      ],
-      "outputs": [
-        {
-          "name": "model_name",
-          "type": "*",
-          "links": [
-            35
-          ]
-        },
-        {
-          "name": "download_message",
-          "type": "STRING",
-          "links": [
-            33
-          ]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "SimpleModelDownloader",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.3"
-        }
-      },
-      "widgets_values": [
-        "https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/vae/ae.safetensors",
-        "vae",
-        true,
-        false
-      ]
-    },
-    {
-      "id": 29,
-      "type": "SimpleBatchDownloader",
-      "pos": [
-        -530,
-        320
-      ],
-      "size": [
-        210,
-        250
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 15,
-      "mode": 4,
-      "inputs": [
-        {
-          "name": "anything",
-          "shape": 7,
-          "type": "*",
-          "link": 22
-        }
-      ],
-      "outputs": [
-        {
-          "name": "output",
-          "type": "*",
-          "links": [
-            34
-          ]
-        },
-        {
-          "name": "system_message",
-          "type": "STRING",
-          "links": [
-            29
-          ]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "SimpleBatchDownloader",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.3"
-        }
-      },
-      "widgets_values": [
-        "https://www.modelscope.cn/models/jinaai/jina-clip-v2/resolve/master/modules.json",
-        "https://www.modelscope.cn/models/jinaai/jina-clip-v2/resolve/master/preprocessor_config.json",
-        "https://www.modelscope.cn/models/jinaai/jina-clip-v2/resolve/master/special_tokens_map.json",
-        "https://www.modelscope.cn/models/jinaai/jina-clip-v2/resolve/master/tokenizer.json",
-        "https://www.modelscope.cn/models/jinaai/jina-clip-v2/resolve/master/tokenizer_config.json",
-        "jina_clip",
-        true,
-        false
-      ]
-    },
-    {
-      "id": 40,
-      "type": "ShowText|pysssss",
-      "pos": [
-        -310,
-        610
-      ],
-      "size": [
-        140,
-        150
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 22,
-      "mode": 4,
-      "inputs": [
-        {
-          "name": "text",
-          "type": "STRING",
-          "link": 33
-        }
-      ],
-      "outputs": [
-        {
-          "name": "STRING",
-          "shape": 6,
-          "type": "STRING",
-          "links": null
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "ShowText|pysssss",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.3"
-        }
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 36,
-      "type": "ShowText|pysssss",
-      "pos": [
-        -310,
-        320
-      ],
-      "size": [
-        140,
-        250
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 19,
-      "mode": 4,
-      "inputs": [
-        {
-          "name": "text",
-          "type": "STRING",
-          "link": 29
-        }
-      ],
-      "outputs": [
-        {
-          "name": "STRING",
-          "shape": 6,
-          "type": "STRING",
-          "links": null
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "ShowText|pysssss",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.3"
-        }
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 38,
-      "type": "ShowText|pysssss",
-      "pos": [
-        70,
-        150
-      ],
-      "size": [
-        140,
-        250
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 28,
-      "mode": 4,
-      "inputs": [
-        {
-          "name": "text",
-          "type": "STRING",
-          "link": 31
-        }
-      ],
-      "outputs": [
-        {
-          "name": "STRING",
-          "shape": 6,
-          "type": "STRING",
-          "links": null
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "ShowText|pysssss",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.3"
-        }
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 32,
-      "type": "SimpleBatchDownloader",
-      "pos": [
-        -150,
-        440
-      ],
-      "size": [
-        210,
-        246
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 27,
-      "mode": 4,
-      "inputs": [
-        {
-          "name": "anything",
-          "shape": 7,
-          "type": "*",
-          "link": 25
-        }
-      ],
-      "outputs": [
-        {
-          "name": "output",
-          "type": "*",
-          "links": []
-        },
-        {
-          "name": "system_message",
-          "type": "STRING",
-          "links": [
-            32
-          ]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "SimpleBatchDownloader",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.3"
-        }
-      },
-      "widgets_values": [
-        "https://www.modelscope.cn/models/google/gemma-3-4b-it/resolve/master/tokenizer.json",
-        "https://www.modelscope.cn/models/google/gemma-3-4b-it/resolve/master/tokenizer.model",
-        "https://www.modelscope.cn/models/google/gemma-3-4b-it/resolve/master/tokenizer_config.json",
-        "",
-        "",
-        "gemma3",
-        true,
-        false
-      ]
-    },
-    {
-      "id": 39,
-      "type": "ShowText|pysssss",
-      "pos": [
-        70,
-        440
-      ],
-      "size": [
-        140,
-        250
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 29,
-      "mode": 4,
-      "inputs": [
-        {
-          "name": "text",
-          "type": "STRING",
-          "link": 32
-        }
-      ],
-      "outputs": [
-        {
-          "name": "STRING",
-          "shape": 6,
-          "type": "STRING",
-          "links": null
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "ShowText|pysssss",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.3"
-        }
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 31,
-      "type": "SimpleBatchDownloader",
-      "pos": [
-        -150,
-        150
-      ],
-      "size": [
-        210,
-        250
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 24,
-      "mode": 4,
-      "inputs": [
-        {
-          "name": "anything",
-          "shape": 7,
-          "type": "*",
-          "link": 24
-        }
-      ],
-      "outputs": [
-        {
-          "name": "output",
-          "type": "*",
-          "links": [
-            25
-          ]
-        },
-        {
-          "name": "system_message",
-          "type": "STRING",
-          "links": [
-            31
-          ]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "SimpleBatchDownloader",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.3"
-        }
-      },
-      "widgets_values": [
-        "https://www.modelscope.cn/models/google/gemma-3-4b-it/resolve/master/model-00001-of-00002.safetensors",
-        "https://www.modelscope.cn/models/google/gemma-3-4b-it/resolve/master/model-00002-of-00002.safetensors",
-        "https://www.modelscope.cn/models/google/gemma-3-4b-it/resolve/master/model.safetensors.index.json",
-        "https://www.modelscope.cn/models/google/gemma-3-4b-it/resolve/master/preprocessor_config.json",
-        "https://www.modelscope.cn/models/google/gemma-3-4b-it/resolve/master/special_tokens_map.json",
-        "gemma3",
-        true,
-        false
-      ]
-    },
-    {
-      "id": 30,
-      "type": "SimpleBatchDownloader",
-      "pos": [
-        -160,
-        -160
-      ],
-      "size": [
-        210,
-        250
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 21,
-      "mode": 4,
-      "inputs": [
-        {
-          "name": "anything",
-          "shape": 7,
-          "type": "*",
-          "link": 35
-        }
-      ],
-      "outputs": [
-        {
-          "name": "output",
-          "type": "*",
-          "links": [
-            24
-          ]
-        },
-        {
-          "name": "system_message",
-          "type": "STRING",
-          "links": [
-            30
-          ]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "SimpleBatchDownloader",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.3"
-        }
-      },
-      "widgets_values": [
-        "https://www.modelscope.cn/models/google/gemma-3-4b-it/resolve/master/added_tokens.json",
-        "https://www.modelscope.cn/models/google/gemma-3-4b-it/resolve/master/chat_template.json",
-        "https://www.modelscope.cn/models/google/gemma-3-4b-it/resolve/master/config.json",
-        "https://www.modelscope.cn/models/google/gemma-3-4b-it/resolve/master/configuration.json",
-        "https://www.modelscope.cn/models/google/gemma-3-4b-it/resolve/master/generation_config.json",
-        "gemma3",
-        true,
-        false
-      ]
-    },
-    {
-      "id": 34,
-      "type": "ShowText|pysssss",
-      "pos": [
-        -310,
-        -160
-      ],
-      "size": [
-        140,
-        150
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 11,
-      "mode": 4,
-      "inputs": [
-        {
-          "name": "text",
-          "type": "STRING",
-          "link": 27
-        }
-      ],
-      "outputs": [
-        {
-          "name": "STRING",
-          "shape": 6,
-          "type": "STRING",
-          "links": null
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "ShowText|pysssss",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.3"
-        }
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 37,
-      "type": "ShowText|pysssss",
-      "pos": [
-        60,
-        -160
-      ],
-      "size": [
-        140,
-        250
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 25,
-      "mode": 4,
-      "inputs": [
-        {
-          "name": "text",
-          "type": "STRING",
-          "link": 30
-        }
-      ],
-      "outputs": [
-        {
-          "name": "STRING",
-          "shape": 6,
-          "type": "STRING",
-          "links": null
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "ShowText|pysssss",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.3"
-        }
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 25,
-      "type": "MarkdownNote",
-      "pos": [
-        260,
-        -480
-      ],
-      "size": [
-        370,
-        410
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 2,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [],
-      "properties": {
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "version": "7.3",
-          "input_ue_unconnectable": {}
-        }
-      },
-      "widgets_values": [
-        "\n# [官方介绍链接](https://ai.feishu.cn/wiki/P3sgwUUjWih8ZWkpr0WcwXSMnTb)\n\n### NewBie-image基于高质量的动漫数据集训练，使用了自然语言+TAG的标注方式，截止开源时，完成了10轮的完整训练，并且没有进行任何的蒸馏以及后期美学微调。NewBie-image的主要使用场景为动漫二次元图像生成。即使不使用lora，它也能出色的完成绝大部分图像生成任务。\n### 由于使用了自然语言标注，在生成图像时，NewBie-image能理解相当复杂的提示词且保持构图完整，同时TAG属性也得到了保留，即使只使用 danbooruTAG，模型也能给予正确的结果。\n### 模型支持长达8000token的输入，在大量提示词输入的情况下仍然能保持注意力。\n### 值得一提的是，模型处于一个非常早期的版本，由于练度不够和资金不足的问题，模型仍然有大量的概念没有拟合，等待后续计划来修复。"
-      ],
-      "color": "#432",
-      "bgcolor": "#653"
-    },
-    {
-      "id": 6,
-      "type": "NewBieCLIPTextEncode",
-      "pos": [
-        920,
-        580
-      ],
-      "size": [
-        400,
-        200
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 14,
-      "mode": 0,
-      "inputs": [
-        {
-          "label": "clip",
-          "name": "clip",
-          "type": "CLIP",
-          "link": 20
-        },
-        {
-          "label": "image",
-          "name": "image",
-          "shape": 7,
-          "type": "IMAGE",
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "label": "CONDITIONING",
-          "name": "CONDITIONING",
-          "type": "CONDITIONING",
-          "links": [
-            5
-          ]
-        }
-      ],
-      "properties": {
-        "aux_id": "NewBieAI-Lab/ComfyUI-Newbie-Nodes",
-        "Node name for S&R": "NewBieCLIPTextEncode",
-        "ver": "96c1d2c926e6191faaa33d97ac1fb5ed4d9bd61c",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "version": "7.3",
-          "input_ue_unconnectable": {}
-        }
-      },
-      "widgets_values": [
-        "<danbooru_tags>low_score_rate, worst quality, low quality, bad quality, lowres, low res, pixelated, blurry, blurred, compression artifacts, jpeg artifacts, bad anatomy, worst hands, deformed hands, deformed fingers, deformed feet, deformed toes, extra limbs, extra arms, extra legs, extra fingers, extra digits, extra digit, fused fingers, missing limbs, missing arms, missing fingers, missing toes, wrong hands, ugly hands, ugly fingers, twisted hands, flexible deformity, conjoined, disembodied, text, watermark, signature, logo, ugly, worst, very displeasing, displeasing, error, doesnotexist, unfinished, poorly drawn face, poorly drawn hands, poorly drawn feet, artistic error, bad proportions, bad perspective, out of frame, ai-generated, ai-assisted, stable diffusion, overly saturated, overly vivid, cross-eye, expressionless, scan, sketch, monochrome, simple background, abstract, sequence, lineup, 2koma, 4koma, microsoft paint \\(medium\\), artifacts, adversarial noise, has bad revision, resized, image sample,low_aesthetic</danbooru_tags>",
-        "You are an assistant designed to generate high-quality anime images with the highest degree of image-text alignment based on textual prompts. <Prompt Start> ",
-        false
       ]
     },
     {
@@ -1001,7 +223,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 3,
+      "order": 1,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -1031,58 +253,6 @@
       "bgcolor": "#335"
     },
     {
-      "id": 23,
-      "type": "NewBieCLIPLoader",
-      "pos": [
-        270,
-        100
-      ],
-      "size": [
-        260,
-        260
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 4,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "label": "CLIP",
-          "name": "CLIP",
-          "type": "CLIP",
-          "links": [
-            19,
-            20
-          ]
-        }
-      ],
-      "properties": {
-        "aux_id": "NewBieAI-Lab/ComfyUI-Newbie-Nodes",
-        "Node name for S&R": "NewBieCLIPLoader",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "version": "7.3",
-          "input_ue_unconnectable": {}
-        },
-        "ver": "96c1d2c926e6191faaa33d97ac1fb5ed4d9bd61c"
-      },
-      "widgets_values": [
-        "..\\..\\SimpleModels\\gemma3",
-        "..\\..\\SimpleModels\\jina_clip",
-        "cuda",
-        "bf16",
-        true,
-        true,
-        "mean",
-        1,
-        true
-      ],
-      "color": "#432",
-      "bgcolor": "#653"
-    },
-    {
       "id": 3,
       "type": "VAELoader",
       "pos": [
@@ -1096,7 +266,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 5,
+      "order": 2,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -1138,7 +308,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 6,
+      "order": 3,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -1181,7 +351,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 7,
+      "order": 4,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -1214,7 +384,7 @@
         "pinned": true,
         "allow_interaction": false
       },
-      "order": 8,
+      "order": 5,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -1267,7 +437,7 @@
           "name": "MODEL",
           "type": "MODEL",
           "links": [
-            16
+            49
           ]
         }
       ],
@@ -1288,111 +458,6 @@
       ]
     },
     {
-      "id": 10,
-      "type": "RescaleCFG",
-      "pos": [
-        580,
-        210
-      ],
-      "size": [
-        290,
-        70
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 17,
-      "mode": 0,
-      "inputs": [
-        {
-          "label": "模型",
-          "name": "model",
-          "type": "MODEL",
-          "link": 16
-        }
-      ],
-      "outputs": [
-        {
-          "label": "模型",
-          "name": "MODEL",
-          "type": "MODEL",
-          "links": [
-            14
-          ]
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.3.59",
-        "Node name for S&R": "RescaleCFG",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "version": "7.3",
-          "input_ue_unconnectable": {}
-        }
-      },
-      "widgets_values": [
-        0.7
-      ]
-    },
-    {
-      "id": 5,
-      "type": "NewBieCLIPTextEncode",
-      "pos": [
-        920,
-        -350
-      ],
-      "size": [
-        483.1979675292969,
-        884.6595458984375
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 13,
-      "mode": 0,
-      "inputs": [
-        {
-          "label": "clip",
-          "name": "clip",
-          "type": "CLIP",
-          "link": 19
-        },
-        {
-          "label": "image",
-          "name": "image",
-          "shape": 7,
-          "type": "IMAGE",
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "label": "CONDITIONING",
-          "name": "CONDITIONING",
-          "type": "CONDITIONING",
-          "links": [
-            4
-          ]
-        }
-      ],
-      "properties": {
-        "aux_id": "NewBieAI-Lab/ComfyUI-Newbie-Nodes",
-        "Node name for S&R": "NewBieCLIPTextEncode",
-        "ver": "96c1d2c926e6191faaa33d97ac1fb5ed4d9bd61c",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "version": "7.3",
-          "input_ue_unconnectable": {}
-        }
-      },
-      "widgets_values": [
-        "1girl,solo,ibuki_(blue_archive),blue_archive,yellow_hair,yello_eyes,halo",
-        "You are an assistant designed to generate high-quality anime images with the highest degree of image-text alignment based on xml format textual prompts. <Prompt Start>",
-        false
-      ]
-    },
-    {
       "id": 44,
       "type": "Label (rgthree)",
       "pos": [
@@ -1407,13 +472,631 @@
         "pinned": true,
         "allow_interaction": false
       },
-      "order": 9,
+      "order": 6,
       "mode": 0,
       "inputs": [],
       "outputs": [],
       "title": "NewBie示例流",
       "properties": {
         "fontSize": 65,
+        "fontFamily": "Arial",
+        "fontColor": "#ffffff",
+        "textAlign": "left",
+        "backgroundColor": "transparent",
+        "padding": 0,
+        "borderRadius": 0,
+        "angle": 0,
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "color": "#fff0",
+      "bgcolor": "#fff0"
+    },
+    {
+      "id": 27,
+      "type": "SimpleModelDownloader",
+      "pos": [
+        -260,
+        -150
+      ],
+      "size": [
+        213.464453125,
+        150
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 7,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "anything",
+          "shape": 7,
+          "type": "*",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "model_name",
+          "type": "*",
+          "links": [
+            37
+          ]
+        },
+        {
+          "name": "download_message",
+          "type": "STRING",
+          "links": [
+            27
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SimpleModelDownloader",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        "https://www.modelscope.cn/models/windecay/Models/resolve/master/newbieImage_exp01Base.safetensors",
+        "unet",
+        true,
+        false
+      ]
+    },
+    {
+      "id": 34,
+      "type": "ShowText|pysssss",
+      "pos": [
+        -40,
+        -150
+      ],
+      "size": [
+        230,
+        150
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 14,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 27
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "shape": 6,
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ShowText|pysssss",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 35,
+      "type": "ShowText|pysssss",
+      "pos": [
+        -40,
+        40
+      ],
+      "size": [
+        230,
+        250
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 15,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 40
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "shape": 6,
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ShowText|pysssss",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 47,
+      "type": "SimpleBatchDownloader",
+      "pos": [
+        -260,
+        40
+      ],
+      "size": [
+        210.0396484375,
+        246
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 8,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "anything",
+          "shape": 7,
+          "type": "*",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "*",
+          "links": null
+        },
+        {
+          "name": "system_message",
+          "type": "STRING",
+          "links": [
+            40
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SimpleBatchDownloader",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        "https://www.modelscope.cn/models/Comfy-Org/NewBie-image-Exp0.1_repackaged/resolve/master/split_files/text_encoders/gemma_3_4b_it_bf16.safetensors",
+        "https://www.modelscope.cn/models/Comfy-Org/NewBie-image-Exp0.1_repackaged/resolve/master/split_files/text_encoders/jina_clip_v2_bf16.safetensors",
+        "",
+        "",
+        "",
+        "text_encoders",
+        true,
+        false
+      ]
+    },
+    {
+      "id": 40,
+      "type": "ShowText|pysssss",
+      "pos": [
+        -40,
+        340
+      ],
+      "size": [
+        230,
+        150
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 19,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 33
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "shape": 6,
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ShowText|pysssss",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 33,
+      "type": "SimpleModelDownloader",
+      "pos": [
+        -260,
+        340
+      ],
+      "size": [
+        213.464453125,
+        150
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 13,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "anything",
+          "shape": 7,
+          "type": "*",
+          "link": 37
+        }
+      ],
+      "outputs": [
+        {
+          "name": "model_name",
+          "type": "*",
+          "links": []
+        },
+        {
+          "name": "download_message",
+          "type": "STRING",
+          "links": [
+            33
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SimpleModelDownloader",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        "https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/vae/ae.safetensors",
+        "vae",
+        true,
+        false
+      ]
+    },
+    {
+      "id": 48,
+      "type": "DualCLIPLoader",
+      "pos": [
+        270,
+        100
+      ],
+      "size": [
+        260,
+        270
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 9,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            41,
+            42
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.5.1",
+        "Node name for S&R": "DualCLIPLoader",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.3",
+          "input_ue_unconnectable": {}
+        },
+        "enableTabs": false,
+        "tabWidth": 65,
+        "tabXOffset": 10,
+        "hasSecondTab": false,
+        "secondTabText": "Send Back",
+        "secondTabOffset": 80,
+        "secondTabWidth": 65,
+        "models": [
+          {
+            "name": "gemma_3_4b_it_bf16.safetensors",
+            "url": "https://huggingface.co/Comfy-Org/NewBie-image-Exp0.1_repackaged/resolve/main/split_files/text_encoders/gemma_3_4b_it_bf16.safetensors",
+            "directory": "text_encoders"
+          },
+          {
+            "name": "jina_clip_v2_bf16.safetensors",
+            "url": "https://huggingface.co/Comfy-Org/NewBie-image-Exp0.1_repackaged/resolve/main/split_files/text_encoders/jina_clip_v2_bf16.safetensors",
+            "directory": "text_encoders"
+          }
+        ]
+      },
+      "widgets_values": [
+        "gemma_3_4b_it_bf16.safetensors",
+        "jina_clip_v2_bf16.safetensors",
+        "newbie",
+        "default"
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
+      "id": 25,
+      "type": "MarkdownNote",
+      "pos": [
+        260,
+        -480
+      ],
+      "size": [
+        370,
+        410
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 10,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.3",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "\n# [官方介绍链接](https://ai.feishu.cn/wiki/P3sgwUUjWih8ZWkpr0WcwXSMnTb)\n\n### NewBie-image基于高质量的动漫数据集训练，使用了自然语言+TAG的标注方式，截止开源时，完成了10轮的完整训练，并且没有进行任何的蒸馏以及后期美学微调。NewBie-image的主要使用场景为动漫二次元图像生成。即使不使用lora，它也能出色的完成绝大部分图像生成任务。\n### 由于使用了自然语言标注，在生成图像时，NewBie-image能理解相当复杂的提示词且保持构图完整，同时TAG属性也得到了保留，即使只使用 danbooruTAG，模型也能给予正确的结果。\n### 模型支持长达8000token的输入，在大量提示词输入的情况下仍然能保持注意力。\n### 值得一提的是，模型处于一个非常早期的版本，由于练度不够和资金不足的问题，模型仍然有大量的概念没有拟合，等待后续计划来修复。"
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
+      "id": 49,
+      "type": "CLIPTextEncode",
+      "pos": [
+        920,
+        -340
+      ],
+      "size": [
+        390,
+        390
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 16,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 41
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            45
+          ]
+        }
+      ],
+      "title": "正向提示词",
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.10.0",
+        "Node name for S&R": "CLIPTextEncode",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        "1girl,solo,ibuki_(blue_archive),blue_archive,yellow_hair,yello_eyes,halo"
+      ],
+      "color": "#232",
+      "bgcolor": "#353"
+    },
+    {
+      "id": 50,
+      "type": "CLIPTextEncode",
+      "pos": [
+        920,
+        160
+      ],
+      "size": [
+        400,
+        200
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 17,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 42
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            46
+          ]
+        }
+      ],
+      "title": "负向提示词",
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.10.0",
+        "Node name for S&R": "CLIPTextEncode",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        "<danbooru_tags>low_score_rate, worst quality, low quality, bad quality, lowres, low res, pixelated, blurry, blurred, compression artifacts, jpeg artifacts, bad anatomy, worst hands, deformed hands, deformed fingers, deformed feet, deformed toes, extra limbs, extra arms, extra legs, extra fingers, extra digits, extra digit, fused fingers, missing limbs, missing arms, missing fingers, missing toes, wrong hands, ugly hands, ugly fingers, twisted hands, flexible deformity, conjoined, disembodied, text, watermark, signature, logo, ugly, worst, very displeasing, displeasing, error, doesnotexist, unfinished, poorly drawn face, poorly drawn hands, poorly drawn feet, artistic error, bad proportions, bad perspective, out of frame, ai-generated, ai-assisted, stable diffusion, overly saturated, overly vivid, cross-eye, expressionless, scan, sketch, monochrome, simple background, abstract, sequence, lineup, 2koma, 4koma, microsoft paint \\(medium\\), artifacts, adversarial noise, has bad revision, resized, image sample,low_aesthetic</danbooru_tags>"
+      ],
+      "color": "#322",
+      "bgcolor": "#533"
+    },
+    {
+      "id": 52,
+      "type": "PathchSageAttentionKJ",
+      "pos": [
+        580,
+        330
+      ],
+      "size": [
+        290,
+        82
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 20,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 48
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            50
+          ]
+        }
+      ],
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        },
+        "Node name for S&R": "PathchSageAttentionKJ"
+      },
+      "widgets_values": [
+        "auto",
+        false
+      ]
+    },
+    {
+      "id": 51,
+      "type": "ModelSamplingAuraFlow",
+      "pos": [
+        580,
+        220
+      ],
+      "size": [
+        290,
+        60
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 18,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 49
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            48
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.5.1",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.3",
+          "input_ue_unconnectable": {}
+        },
+        "Node name for S&R": "ModelSamplingAuraFlow",
+        "enableTabs": false,
+        "tabWidth": 65,
+        "tabXOffset": 10,
+        "hasSecondTab": false,
+        "secondTabText": "Send Back",
+        "secondTabOffset": 80,
+        "secondTabWidth": 65
+      },
+      "widgets_values": [
+        6
+      ]
+    },
+    {
+      "id": 53,
+      "type": "Label (rgthree)",
+      "pos": [
+        950,
+        -550
+      ],
+      "size": [
+        33.3515625,
+        12
+      ],
+      "flags": {
+        "pinned": true,
+        "allow_interaction": false
+      },
+      "order": 11,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "ver1.1",
+      "properties": {
+        "fontSize": 12,
         "fontFamily": "Arial",
         "fontColor": "#ffffff",
         "textAlign": "left",
@@ -1440,22 +1123,6 @@
       "LATENT"
     ],
     [
-      4,
-      5,
-      0,
-      4,
-      1,
-      "CONDITIONING"
-    ],
-    [
-      5,
-      6,
-      0,
-      4,
-      2,
-      "CONDITIONING"
-    ],
-    [
       7,
       4,
       0,
@@ -1470,22 +1137,6 @@
       8,
       1,
       "VAE"
-    ],
-    [
-      14,
-      10,
-      0,
-      4,
-      0,
-      "MODEL"
-    ],
-    [
-      16,
-      15,
-      0,
-      10,
-      0,
-      "MODEL"
     ],
     [
       17,
@@ -1504,98 +1155,10 @@
       "MODEL"
     ],
     [
-      19,
-      23,
-      0,
-      5,
-      0,
-      "CLIP"
-    ],
-    [
-      20,
-      23,
-      0,
-      6,
-      0,
-      "CLIP"
-    ],
-    [
-      21,
-      27,
-      0,
-      28,
-      0,
-      "*"
-    ],
-    [
-      22,
-      28,
-      0,
-      29,
-      0,
-      "*"
-    ],
-    [
-      24,
-      30,
-      0,
-      31,
-      0,
-      "*"
-    ],
-    [
-      25,
-      31,
-      0,
-      32,
-      0,
-      "*"
-    ],
-    [
       27,
       27,
       1,
       34,
-      0,
-      "STRING"
-    ],
-    [
-      28,
-      28,
-      1,
-      35,
-      0,
-      "STRING"
-    ],
-    [
-      29,
-      29,
-      1,
-      36,
-      0,
-      "STRING"
-    ],
-    [
-      30,
-      30,
-      1,
-      37,
-      0,
-      "STRING"
-    ],
-    [
-      31,
-      31,
-      1,
-      38,
-      0,
-      "STRING"
-    ],
-    [
-      32,
-      32,
-      1,
-      39,
       0,
       "STRING"
     ],
@@ -1608,20 +1171,76 @@
       "STRING"
     ],
     [
-      34,
-      29,
+      37,
+      27,
       0,
       33,
       0,
       "*"
     ],
     [
+      40,
+      47,
+      1,
       35,
-      33,
       0,
-      30,
+      "STRING"
+    ],
+    [
+      41,
+      48,
       0,
-      "*"
+      49,
+      0,
+      "CLIP"
+    ],
+    [
+      42,
+      48,
+      0,
+      50,
+      0,
+      "CLIP"
+    ],
+    [
+      45,
+      49,
+      0,
+      4,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      46,
+      50,
+      0,
+      4,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      48,
+      51,
+      0,
+      52,
+      0,
+      "MODEL"
+    ],
+    [
+      49,
+      15,
+      0,
+      51,
+      0,
+      "MODEL"
+    ],
+    [
+      50,
+      52,
+      0,
+      4,
+      0,
+      "MODEL"
     ]
   ],
   "groups": [
@@ -1629,10 +1248,10 @@
       "id": 1,
       "title": "模型下载区",
       "bounding": [
-        -540,
+        -280,
         -230,
-        760,
-        1000
+        480,
+        730
       ],
       "color": "#88A",
       "font_size": 24,
@@ -1644,13 +1263,13 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.4500000000000099,
+      "scale": 0.6588450000000172,
       "offset": [
-        247.3126487958865,
-        815.5714162530974
+        1456.9604390669153,
+        1101.6552609284254
       ]
     },
-    "frontendVersion": "1.33.10",
+    "frontendVersion": "1.37.11",
     "ue_links": [],
     "qgn_navigation_groups": [],
     "qgn_locked": false,
