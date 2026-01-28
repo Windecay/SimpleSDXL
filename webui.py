@@ -696,7 +696,7 @@ with shared.gradio_root:
                                 )
                             with gr.Row():
                                 scene_use_lora = gr.Checkbox(label='Use LoRAs', value=True, visible=True)
-                            lora_group = gr.Group(visible=False)
+                            lora_group = gr.Group(visible=True)
                             with lora_group:
                                 from modules.lora_trigger_manager import get_lora_trigger_word, update_trigger_word, save_trigger_word, send_trigger_to_prompt
 

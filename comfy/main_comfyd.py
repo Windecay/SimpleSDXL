@@ -8,6 +8,106 @@ os.chdir(target_dir)
 import warnings
 warnings.filterwarnings("ignore", category=FutureWarning)
 
+def install_requirements_sequential():
+    requirements_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "requirements.txt")
+    if not os.path.isfile(requirements_path):
+        return None
+
+    import subprocess
+    import importlib.metadata
+
+    try:
+        import packaging.requirements
+        import packaging.version
+    except Exception as e:
+        print(f"[Comfyd] requirements check skipped (packaging missing): {e}")
+        return None
+
+    python_exe = sys.executable
+    timeout_seconds = int(os.environ.get("COMFY_REQUIREMENTS_INSTALL_TIMEOUT", "300"))
+    index_url = os.environ.get("INDEX_URL", "https://mirrors.aliyun.com/pypi/simple")
+    extra_index_url = os.environ.get("EXTRA_INDEX_URL", "https://pypi.tuna.tsinghua.edu.cn/simple")
+
+    force_reinstall_names = set()
+    try:
+        check_cmd = [python_exe]
+        if sys.flags.no_user_site or ("python_embeded" in python_exe) or ("python_embedded" in python_exe):
+            check_cmd.append("-s")
+        check_cmd += ["-c", "from aiohttp import web; import sys; sys.exit(0)"]
+        res = subprocess.run(check_cmd, check=False, timeout=10)
+        if res.returncode != 0:
+            force_reinstall_names.add("aiohttp")
+    except Exception:
+        force_reinstall_names.add("aiohttp")
+
+    def is_requirement_satisfied(req_line: str) -> bool:
+        try:
+            req = packaging.requirements.Requirement(req_line)
+            if req.name in force_reinstall_names:
+                return False
+            installed_version = importlib.metadata.version(req.name)
+            if not req.specifier:
+                return True
+            return req.specifier.contains(packaging.version.parse(installed_version), prereleases=True)
+        except importlib.metadata.PackageNotFoundError:
+            return False
+        except Exception:
+            return False
+
+    requirements_to_install = []
+    with open(requirements_path, "r", encoding="utf8") as f:
+        for raw_line in f:
+            line = raw_line.strip()
+            if not line:
+                continue
+            if line.startswith("#"):
+                continue
+            if line.startswith(("--", "-r ")):
+                continue
+            if "#" in line:
+                line = line.split("#", 1)[0].strip()
+                if not line:
+                    continue
+            if not is_requirement_satisfied(line):
+                try:
+                    req = packaging.requirements.Requirement(line)
+                    requirements_to_install.append((line, req.name in force_reinstall_names))
+                except Exception:
+                    requirements_to_install.append((line, False))
+
+    if not requirements_to_install:
+        return None
+
+    for req_line, force_reinstall in requirements_to_install:
+        try:
+            print(f"[Comfyd] Installing requirement: {req_line}")
+            cmd = [python_exe]
+            if sys.flags.no_user_site or ("python_embeded" in python_exe) or ("python_embedded" in python_exe):
+                cmd.append("-s")
+            cmd += ["-m", "pip", "install", "-U", "--upgrade-strategy", "only-if-needed"]
+            if force_reinstall:
+                cmd.append("--force-reinstall")
+            cmd += [req_line, "--prefer-binary"]
+
+            if index_url:
+                cmd += ["--index-url", index_url]
+            if extra_index_url:
+                cmd += ["--extra-index-url", extra_index_url]
+
+            subprocess.run(cmd, check=False, timeout=timeout_seconds)
+        except subprocess.TimeoutExpired:
+            print(f"[Comfyd] Requirement install timed out: {req_line}")
+        except Exception as e:
+            print(f"[Comfyd] Requirement install failed: {req_line} / {e}")
+
+    return None
+
+if __name__ == "__main__":
+    try:
+        install_requirements_sequential()
+    except Exception as e:
+        print(f"[Comfyd] Requirements install step failed: {e}")
+
 import comfy.options
 comfy.options.enable_args_parsing()
 
