@@ -72,9 +72,10 @@ def get_viewer_html(
         payload_attr = html_lib.escape(payload_json, quote=True)
         title = html_lib.escape(payload.get("name", ""), quote=True)
         desc = html_lib.escape(payload.get("description", ""), quote=True)
+        hover_title = desc or title
         cards_html.append(
             f"""
-            <div class="tsg-card" data-style="{payload_attr}" title="{title}">
+            <div class="tsg-card" data-style="{payload_attr}" title="{hover_title}">
                 <div class="tsg-thumb">
                     <img src="{img_url}" loading="lazy" />
                 </div>

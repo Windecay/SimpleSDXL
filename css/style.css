@@ -534,10 +534,11 @@ iframe::-webkit-scrollbar {
 }
 
 .bar_button {
-    width: 50px !important;
+    width: 100px !important;
+    min-width: 80px !important;
     padding: 0px;
     white-space: nowrap;
-    overflow: hidden;
+    overflow: visible;
     border-radius: 5px 5px 0 0 !important;
 }
 #presetPreviewOverlay {

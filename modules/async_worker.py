@@ -478,35 +478,48 @@ def worker():
                         task.backend_ready_detected = True
                         return
 
+                    start_time = time.monotonic()
+                    timeout_seconds = 10
+
                     log_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'comfy', 'user')
-                    if not os.path.exists(log_dir):
-                        logger.info(f"[SimpAI-async_worker] Log directory not found: {log_dir}")
-                        return
+                    while not getattr(task, 'backend_ready_detected', False) and not getattr(task, 'process_flow_finished', False):
+                        if time.monotonic() - start_time >= timeout_seconds:
+                            task.yields.append(['status', 'backend_ready'])
+                            task.backend_ready_detected = True
+                            return
 
-                    log_files = glob.glob(os.path.join(log_dir, "*.log"))
-                    if not log_files:
-                        logger.info(f"[SimpAI-async_worker] No log files found in: {log_dir}")
-                        return
+                        if not os.path.exists(log_dir):
+                            time.sleep(0.1)
+                            continue
 
-                    latest_log = max(log_files, key=os.path.getmtime)
-                    logger.info(f"[SimpAI-async_worker] Monitoring latest log file: {latest_log}")
-                        
-                    try:
-                        with open(latest_log, 'r', encoding='utf-8', errors='ignore') as f:
-                            f.seek(0, 2) # Go to end
-                            while not getattr(task, 'backend_ready_detected', False) and not getattr(task, 'process_flow_finished', False):
-                                line = f.readline()
-                                if not line:
-                                    time.sleep(0.1)
-                                    continue
+                        log_files = glob.glob(os.path.join(log_dir, "*.log"))
+                        if not log_files:
+                            time.sleep(0.1)
+                            continue
 
-                                if "Requested to load" in line or "Creating new runner" in line:
-                                    task.yields.append(['status', 'backend_ready'])
-                                    task.backend_ready_detected = True
-                                    # logger.info(f"[SimpAI-async_worker] Backend ready detected via log: {line.strip()}")
-                                    break
-                    except Exception as e:
-                        logger.info(f"[SimpAI-async_worker] Monitor thread error: {e}")
+                        latest_log = max(log_files, key=os.path.getmtime)
+                        logger.info(f"[SimpAI-async_worker] Monitoring latest log file: {latest_log}")
+                        try:
+                            with open(latest_log, 'r', encoding='utf-8', errors='ignore') as f:
+                                f.seek(0, 2)
+                                while not getattr(task, 'backend_ready_detected', False) and not getattr(task, 'process_flow_finished', False):
+                                    if time.monotonic() - start_time >= timeout_seconds:
+                                        task.yields.append(['status', 'backend_ready'])
+                                        task.backend_ready_detected = True
+                                        return
+
+                                    line = f.readline()
+                                    if not line:
+                                        time.sleep(0.1)
+                                        continue
+
+                                    if "Requested to load" in line or "Creating new runner" in line:
+                                        task.yields.append(['status', 'backend_ready'])
+                                        task.backend_ready_detected = True
+                                        return
+                        except Exception as e:
+                            logger.info(f"[SimpAI-async_worker] Monitor thread error: {e}")
+                            time.sleep(0.1)
                 
                 async_task.backend_ready_detected = False
                 async_task.process_flow_finished = False

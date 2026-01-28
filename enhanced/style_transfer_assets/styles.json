@@ -761,5 +761,12 @@
     "prompt": "Transform into an artistic X-Ray photography style. Render the subject as a ghostly, semi-transparent negative image. Denser parts of the subject (like bones or mechanical frames) should appear bright white/blue, while softer parts fade into the dark background. Reveal the internal structure or skeleton overlap. The aesthetic is ethereal, scientific, and monochromatic blue/white.",
     "negative": "",
     "preview": "X-Ray Art.jpg"
+  },
+  {
+    "name": "Dune Sandstorm",
+    "description": "沙丘流沙特效",
+    "prompt": "Transform the main subject into a cinematic entity composed entirely of swirling sand grains and golden dust particles, inspired by the 'Dune' movie aesthetic. Crucially, eliminate all original biological textures (skin, hair, eyes) and clothing fabrics. The subject's form must be defined solely by the density of the sandstorm and flowing granular textures. Add dynamic effects like crumbling edges, wind-blown dust trails, and volumetric heat haze. Lighting should be dramatic, warm, and desert-like (Arrakis aesthetic), enhancing the gritty, particulate detail. The subject appears to be a living sand sculpture forming from the desert wind.",
+    "negative": "",
+    "preview": "Dune Sandstorm.jpg"
   }
 ]
