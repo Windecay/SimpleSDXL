@@ -1,0 +1,765 @@
+[
+  {
+    "name": "Ancient Weathered Stone",
+    "description": "古老石雕",
+    "prompt": "Transform the main subject into an ancient, weathered stone statue discovered in ruins. The material should look like eroded sandstone or granite with rough textures, cracks, and subtle moss details. Crucially, preserve the main silhouette and pose, but merge the subject's features with the rock texture. Eliminate all fleshy softness and modern clothing fabrics, turning them into rigid, carved stone. Lighting should be dramatic, mimicking sunlight hitting an archaeological site. Background should be blurred ancient ruins or a dark museum setting.",
+    "negative": "",
+    "preview": "Ancient Weathered Stone.jpg"
+  },
+  {
+    "name": "Andy Warhol",
+    "description": "沃霍尔 · 波普艺术",
+    "prompt": "Transform into Andy Warhol pop art style with bold flat colors, high-contrast silkscreen effect. Focus strictly on the single subject, set against a solid, vibrant flat color background. Emphasize thick graphic outlines, neon palette, and commercial iconography. Mimic 1960s pop culture aesthetic with visual punch, clean composition, no background clutter.",
+    "negative": "",
+    "preview": "Andy Warhol.jpg"
+  },
+  {
+    "name": "Art Deco painting",
+    "description": "装饰派艺术",
+    "prompt": "Transform into Art Deco painting style with stylized geometric shapes, elegant linear contours, and simplified decorative forms. Emphasize bold symmetry, metallic hues, and sleek shading. Use flat color fields with gold, black, and ivory tones, mimicking 1920s poster aesthetics and fashionable elegance in vintage illustration. Apply graphic composition with minimal depth and ornamental flair.",
+    "negative": "",
+    "preview": "Art Deco painting.jpg"
+  },
+  {
+    "name": "Art Nouveau",
+    "description": "新艺术运动",
+    "prompt": "Transform into Art Nouveau illustration style (Alphonse Mucha aesthetic). Crucially, enclose the main subject in an intricate, organic frame featuring flowing curves, vines, and flowers. Use 'whiplash' lines to define contours. The color palette should be soft and muted (pale gold, olive green, peach, and faded violet). The subject's hair (if applicable) should be stylized into flowing, rhythmic strands. Flat coloring with heavy outlines, reminiscent of vintage French posters.",
+    "negative": "",
+    "preview": "Art Nouveau.jpg"
+  },
+  {
+    "name": "Ballpoint Pen Art",
+    "description": "圆珠笔手绘",
+    "prompt": "Transform into a realistic Ballpoint Pen sketch style. The entire image should be rendered using only blue bic-pen ink. Use aggressive cross-hatching and scribbling techniques to create shading and density. Emphasize the texture of the paper (notebook paper). The lines should vary in pressure, showing the characteristic ink blotches of a ballpoint pen. High contrast between the deep blue ink and white paper.",
+    "negative": "",
+    "preview": "Ballpoint Pen Art.jpg"
+  },
+  {
+    "name": "Banksy Stencil",
+    "description": "街头模板涂鸦",
+    "prompt": "Transform into a Street Art Stencil style (Banksy aesthetic). Render the main subject as a high-contrast, flat black spray-paint stencil applied onto a rough, cracked concrete wall. Allow for paint drips and overspray textures. Use a strict black-and-white palette for the subject, optionally adding a single distinct splash of bright red (e.g., a balloon or heart). The aesthetic should be urban, gritty, and rebellious.",
+    "negative": "",
+    "preview": "Banksy Stencil.jpg"
+  },
+  {
+    "name": "Baroque Oil",
+    "description": "巴洛克油画",
+    "prompt": "Transform into a dramatic Baroque oil painting style (Rembrandt/Caravaggio aesthetic). Emphasize 'Chiaroscuro' lighting: a pitch-black background with a single, strong light source illuminating the subject's face and key features. Use rich, dark earth tones (umber, sienna, deep gold). The brushwork should be refined but visible. The mood should be solemn, emotional, and museum-quality.",
+    "negative": "",
+    "preview": "Baroque Oil.jpg"
+  },
+  {
+    "name": "Batik Wax-Resist",
+    "description": "蜡染防染",
+    "prompt": "Transform into batik wax-resist illustration style with bold hand-drawn outlines, flat symbolic motifs, and wax-preserved white patterns. Emphasize floral and geometric designs with natural crackle effects, indigo dye tones, and layered resist structure. Use textured fabric simulation, visible wax flow marks, and traditional folk composition. Mimic East Asian and Southeast Asian batik aesthetics with cultural symbolism and handcrafted charm.",
+    "negative": "",
+    "preview": "Batik Wax-Resist.jpg"
+  },
+  {
+    "name": "Bauhaus art",
+    "description": "包豪斯艺术",
+    "prompt": "Convert to Bauhaus art style with bold geometric shapes, primary color palette (red, blue, yellow), clean lines, minimal shading, flat layout, and modernist design principles inspired by Bauhaus movement aesthetics",
+    "negative": "",
+    "preview": "Bauhaus art.jpg"
+  },
+  {
+    "name": "Biomechanical",
+    "description": "生物机械",
+    "prompt": "Transform into a Biomechanical art style (H.R. Giger aesthetic). Merge the subject with organic machinery, fusing ribbed pipes, vertebrae-like cables, and smooth metallic skin. The texture should look like a mix of bone, metal, and slime. Use a monochromatic palette of dark greys, blacks, and cold blues. The atmosphere is eerie, surreal, and intricate.",
+    "negative": "",
+    "preview": "Biomechanical.jpg"
+  },
+  {
+    "name": "Blue and White Porcelain",
+    "description": "青花瓷",
+    "prompt": "Transform the main subject into a glossy Blue and White Porcelain figurine (Chinoiserie style). The material must look like high-quality, glazed ceramic with bright specular highlights. Crucially, map traditional intricate blue floral or dragon patterns onto the white surface of the subject, following its curvature. The subject itself should be smooth, hard, and reflective. Background should be a museum display or a simple dark cloth to enhance the sheen of the china.",
+    "negative": "",
+    "preview": "Blue and White Porcelain.jpg"
+  },
+  {
+    "name": "Blueprint",
+    "description": "工程蓝图",
+    "prompt": "Transform into an architectural blueprint style (Cyanotype aesthetic). Render the main subject as a precise technical white line drawing against a classic cyan-blue grid background. Include construction lines, measurements, and faint layout grids to enhance the engineering vibe. Eliminate all fill colors and shading; rely solely on line weight and white wireframe contours to define the form. The look should be clean, industrial, and monochromatic blue.",
+    "negative": "",
+    "preview": "Blueprint.jpg"
+  },
+  {
+    "name": "Bronze Sculpture",
+    "description": "青铜雕塑",
+    "prompt": "Transform the entire main subject into a fully unified bronze sculpture with no traces of original colors or textures. Render using solid cast contours, engraved ornamental details, and consistent oxidized patina across the entire figure. Emphasize brushed metal surface, ancient relief patterns, and deep brown-green metallic palette. Apply realistic lighting to enhance tactile volume and ensure seamless material coverage. Mimic archaic bronze statue aesthetics with solemn depth and complete material fidelity.",
+    "negative": "",
+    "preview": "Bronze Sculpture.jpg"
+  },
+  {
+    "name": "Byzantine Mosaic",
+    "description": "拜占庭马赛克",
+    "prompt": "Transform into a classical Byzantine mosaic art style. The image must be composed entirely of small, irregular tesserae (tiles) made of colored glass, stone, and gold leaf. Emphasize the visible grout lines separating each tile. Use a rich, regal palette with gold backgrounds and deep reds/blues. The subject should look rigid and monumental, mimicking the wall art of ancient basilicas.",
+    "negative": "",
+    "preview": "Byzantine Mosaic.jpg"
+  },
+  {
+    "name": "Cardboard cutout illustration",
+    "description": "纸板剪纸插画",
+    "prompt": "Transform into cardboard cutout illustration style with textured brown surfaces, folded edges, and layered silhouette design. Emphasize flat dimensionality, punched shapes, and recycled material aesthetics. Mimic DIY craft visual language with warm organic tones.",
+    "negative": "",
+    "preview": "Cardboard cutout illustration.jpg"
+  },
+  {
+    "name": "Celtic Knot",
+    "description": "凯尔特结插画",
+    "prompt": "Transform into Celtic knot illustration style with interwoven geometric loops, continuous braided patterns, and symmetrical linework. Emphasize circular or triangular knot motifs, stylized borders, and ornamental framing. Use monochrome or limited earthy palette with flat vector texture and clean background. Mimic medieval manuscript aesthetics with symbolic abstraction and rhythmic visual flow.",
+    "negative": "",
+    "preview": "Celtic Knot.jpg"
+  },
+  {
+    "name": "Chalkboard Art",
+    "description": "黑板粉笔画",
+    "prompt": "Transform into a hand-drawn Chalkboard Art style. The background must be a dark, dusty slate texture with eraser smudges. Render the main subject using rough, powdery white and pastel colored chalk strokes. Emphasize the variation in line pressure and the graininess of the chalk. The aesthetic should be casual, cafe-style, and textured.",
+    "negative": "",
+    "preview": "Chalkboard Art.jpg"
+  },
+  {
+    "name": "Charcoal Drawing",
+    "description": "炭笔素描",
+    "prompt": "Transform into charcoal sketch style with rough textured strokes, deep black tones, and expressive shading. Emphasize strong contrast between light and shadow, visible grainy lines, and smudged tonal transitions. Use simplified anatomy, sculptural contours, and raw emotional intensity. Mimic traditional charcoal drawing aesthetics with hand-drawn energy and paper surface friction.",
+    "negative": "",
+    "preview": "Charcoal Drawing.jpg"
+  },
+  {
+    "name": "Chinese Gongbi painting",
+    "description": "中国工笔画",
+    "prompt": "Transform into Chinese Gongbi painting style with meticulous brushwork, crisp contour lines, and refined ink coloring. Emphasize delicate anatomy, realistic proportions, and ornate detail rendering. Use a restrained color palette with subtle gradients, floral motifs, and symbolic elements like birds, butterflies, and bamboo. Mimic traditional silk painting aesthetics with smooth texture and classical composition on parchment background.",
+    "negative": "",
+    "preview": "Chinese Gongbi painting.jpg"
+  },
+  {
+    "name": "Chinese Xieyi ink painting",
+    "description": "中国写意水墨画",
+    "prompt": "Transform into Chinese Xieyi ink painting style with expressive brush strokes, bold ink washes, and spontaneous composition. Emphasize abstract shapes, poetic atmosphere, and symbolic minimalism. Use monochrome or limited warm palette with large blank spaces and dynamic texture contrasts. Mimic traditional rice paper aesthetics with flowing lines, rhythmic balance, and intuitive artistic energy.",
+    "negative": "",
+    "preview": "Chinese Xieyi ink painting.jpg"
+  },
+  {
+    "name": "Circuit Board",
+    "description": "电路板艺术",
+    "prompt": "Transform into a Circuit Board art style (PCB). Render the subject as if it were manufactured from a green fiberglass printed circuit board. Features should be defined by intricate gold traces, silver solder points, capacitors, and microchips. The aesthetic is geometric and high-tech. Use the classic dark green and gold color scheme of computer hardware.",
+    "negative": "",
+    "preview": "Circuit Board.jpg"
+  },
+  {
+    "name": "Claude Monet",
+    "description": "莫奈 · 印象派",
+    "prompt": "Transform into Monet painting style with soft atmospheric brushwork, diffused lighting, and pastel color palette. Emphasize natural scenery, water reflections, and fleeting light effects. Mimic impressionist technique with loose strokes and emotional serenity.",
+    "negative": "",
+    "preview": "Claude Monet.jpg"
+  },
+  {
+    "name": "Clay art",
+    "description": "粘土艺术",
+    "prompt": "Transform into clay art style with hand-molded textures, soft rounded forms, and sculpted surface details. Emphasize tactile realism, pastel color palette, and subtle shadowing to simulate clay figures photographed under studio lighting. Mimic stop-motion animation aesthetics with visible fingerprints, matte finish, and charming imperfections.",
+    "negative": "",
+    "preview": "Clay art.jpg"
+  },
+  {
+    "name": "Collage Illustration",
+    "description": "拼贴插画",
+    "prompt": "Transform into collage illustration style with layered textures, cutout photos, hand-drawn fragments, and torn paper edges. Emphasize eclectic composition, overlapping elements, and vintage aesthetic. Mimic analog collage with mismatched patterns, stamped graphics, and surreal juxtapositions.",
+    "negative": "",
+    "preview": "Collage Illustration.jpg"
+  },
+  {
+    "name": "Colored Pencil Illustration",
+    "description": "彩色铅笔插画",
+    "prompt": "Transform into colored pencil illustration style with soft textured strokes, visible pigment granularity, and natural layering effects. Emphasize hand-drawn imperfections, light sketchy outlines, and subtle color transitions. Use traditional drawing aesthetics on textured paper to evoke warmth, charm, and nostalgic handmade quality.",
+    "negative": "",
+    "preview": "Colored Pencil Illustration.jpg"
+  },
+  {
+    "name": "Coloring book illustration",
+    "description": "涂色本线稿",
+    "prompt": "Transform into coloring book illustration style with clean black outlines, simple shapes, and high contrast. Emphasize line clarity, large fill areas, and playful composition suitable for coloring interaction. Avoid shading and maintain neutral white background.",
+    "negative": "",
+    "preview": "Coloring book illustration.jpg"
+  },
+  {
+    "name": "Constructivist Poster",
+    "description": "构成主义宣传海报",
+    "prompt": "Transform into Constructivist propaganda poster style with bold geometric layout, diagonal composition, and limited red-black color palette. Emphasize stylized human figures, clenched fists, industrial motifs, and dynamic typography. Use photomontage elements, abstract shapes, and high-contrast visual hierarchy. Mimic Soviet-era revolutionary aesthetics with symbolic messaging, angular silhouettes, and monumental energy.",
+    "negative": "",
+    "preview": "Constructivist Poster.jpg"
+  },
+  {
+    "name": "Corporate Tech Vector",
+    "description": "科技矢量插画",
+    "prompt": "Transform into a modern corporate vector illustration style (often used in tech infographics). Crucially, preserve the main subject's silhouette and action, but simplify them into clean, flat vector shapes with minimal shading. Use a limited, harmonious color palette (e.g., deep blue, white, and vibrant accent colors). The background should be abstract and geometric, featuring subtle graph lines, floating nodes, or connected dots to suggest 'connectivity' and 'data' without generating any readable text or complex charts. Aesthetic should be professional, flat, and clean.",
+    "negative": "",
+    "preview": "Corporate Tech Vector.jpg"
+  },
+  {
+    "name": "Crayon illustration",
+    "description": "蜡笔插画",
+    "prompt": "Transform into crayon illustration style with thick textured strokes, vibrant uneven coloring, and visible wax grain. Emphasize handmade charm, playful color layering, and imperfect contour lines. Simulate child-like drawing energy on rough paper surface with spontaneous crayon smudge and warm nostalgic tone.",
+    "negative": "",
+    "preview": "Crayon illustration.jpg"
+  },
+  {
+    "name": "Cross-Stitch",
+    "description": "十字绣",
+    "prompt": "Transform into traditional European cross-stitch style. Map the visual information of the source image onto a strict grid of X-shaped stitches. Crucially, simplify the subject into pixel-like stitch blocks while maintaining its recognizable form and colors. The background must be a visible Aida cloth (canvas) with a clear weave texture. Limit the color palette to standard embroidery thread colors. Eliminate smooth curves; force all details to follow the square grid logic of cross-stitching.",
+    "negative": "",
+    "preview": "Cross-Stitch.jpg"
+  },
+  {
+    "name": "Cyberpunk illustration",
+    "description": "赛博朋克插画",
+    "prompt": "Transform into cyberpunk illustration style with neon lighting. Crucially, preserve the identity, pose, and silhouette of the main subject from the input image. Reinterpret the subject's appearance with subtle cybernetic accents, metallic fabric textures, and glowing neon trim, without obscuring facial features. Background should be a blurred, dark atmospheric cityscape with neon bokeh effects (cyan and magenta), ensuring the subject remains the clear focus. Cinematic lighting, high contrast, synthwave aesthetic.",
+    "negative": "",
+    "preview": "Cyberpunk illustration.jpg"
+  },
+  {
+    "name": "Depth Map",
+    "description": "深度图",
+    "prompt": "Transform into a technical Z-depth map visualization. Encoded in grayscale where brightness indicates proximity: pure white for the closest foreground elements, fading to smooth grey, and solid black for the furthest background. Crucially, remove all surface textures, patterns, colors, and lighting shadows. Render only the volumetric geometry of the subject. The output should look like a smooth 3D scan or height map, preserving the exact silhouette and form of the original subject, isolated against a black void.",
+    "negative": "",
+    "preview": "Depth Map.jpg"
+  },
+  {
+    "name": "Doodle Art",
+    "description": "密铺涂鸦",
+    "prompt": "Transform into a dense Doodle Art style (Zentangle aesthetic). The entire image must be filled with tightly packed, black ink doodles (little monsters, eyes, squiggles, and geometric patterns) on a white background. The main subject should be defined solely by the density and direction of these doodle lines, creating a camouflage effect. No empty spaces ('Horror Vacui'). Playful, chaotic, and monochromatic.",
+    "negative": "",
+    "preview": "Doodle Art.jpg"
+  },
+  {
+    "name": "Double Exposure",
+    "description": "双重曝光",
+    "prompt": "Transform into a Double Exposure photography style. Crucially, combine the silhouette of the main subject with a nature landscape (e.g., misty forest, mountains, or nebula). The subject's outline acts as a container for the landscape image. The areas outside the silhouette should be pure white or very light grey. The landscape should blend seamlessly into the darker areas of the subject. Ethereal, dreamy, and high-contrast.",
+    "negative": "",
+    "preview": "Double Exposure.jpg"
+  },
+  {
+    "name": "Edible Candy Art",
+    "description": "糖果翻糖艺术",
+    "prompt": "Transform the main subject into an Edible Candy Art style. Reinterpret the materials as glossy hard candy, translucent gummy jelly, or sculpted fondant icing. Use a sugary, vibrant color palette. Add surface details like sugar crystals or sprinkles. The lighting should emphasize the translucency (subsurface scattering) and stickiness of the sweets. Delicious and toy-like.",
+    "negative": "",
+    "preview": "Edible Candy Art.jpg"
+  },
+  {
+    "name": "Elemental Fire",
+    "description": "火焰元素",
+    "prompt": "Transform the main subject into a mystical elemental entity composed entirely of swirling flames, magma, and glowing embers. Crucially, remove all solid physical matter (skin, clothes, metal). The subject's form should be defined solely by the density and brightness of the fire. Use a palette of intense oranges, reds, and blinding yellows against a pitch-black background. Add effects like rising smoke, sparks, and heat distortion. Maintain the recognizable silhouette of the original subject but render it as pure energy.",
+    "negative": "",
+    "preview": "Elemental Fire.jpg"
+  },
+  {
+    "name": "Etching",
+    "description": "蚀刻版画",
+    "prompt": "Transform into a 19th-century copperplate Etching style. The subject should be rendered with incredibly fine, scratchy black lines on off-white paper. Use cross-hatching and 'plate tone' (subtle ink smudging) to create soft shading. The aesthetic should resemble an illustration from an old encyclopedia or scientific textbook. Detailed, precise, and antique.",
+    "negative": "",
+    "preview": "Etching.jpg"
+  },
+  {
+    "name": "Film Noir",
+    "description": "黑色电影",
+    "prompt": "Transform into a classic Film Noir photography style. Convert the image to dramatic black and white. Use 'Venetian blind' lighting shadows or stark streetlamp lighting to create mystery. Emphasize high contrast, deep shadows, and silhouettes. Add subtle film grain and perhaps a layer of cigarette smoke or rain. The mood should be suspenseful, cinematic, and vintage 1940s.",
+    "negative": "",
+    "preview": "Film Noir.jpg"
+  },
+  {
+    "name": "Flat kids-friendly illustration",
+    "description": "儿童扁平插画",
+    "prompt": "Transform into a flat, vector-style illustration for children. Crucially, preserve the identity, pose, and action of the main subject, but simplify them into cute, round shapes with soft edges. Use a bright, cheerful palette with solid pastel or primary colors. Eliminate complex textures, realistic shading, and noise. Outline the subject with clean, thick lines (optional: colored outlines). The background should be simple, clean, and uncluttered, using solid colors or minimal abstract blobs. Aesthetic like a high-quality modern storybook.",
+    "negative": "",
+    "preview": "Flat kids-friendly illustration.jpg"
+  },
+  {
+    "name": "Fridge Magnet",
+    "description": "冰箱贴",
+    "prompt": "Transform into a 3D soft PVC (rubber) fridge magnet style. The subject should be rendered as a high-quality die-cut souvenir magnet with raised relief details (2.5D effect). Simplify textures into bold, clean color blocks separated by thick mold lines. Crucially, preserve the silhouette and key features of the main subject, but stylize them with a smooth, matte rubbery finish or glossy plastic texture. Add a subtle drop shadow to emphasize physical thickness. Isolate the object against a plain solid color background.",
+    "negative": "",
+    "preview": "Fridge Magnet.jpg"
+  },
+  {
+    "name": "Ghost Effect",
+    "description": "鬼魂特效",
+    "prompt": "Transform the main subject into an ethereal, spectral apparition. Crucially, preserve the recognizable silhouette and key features (such as facial structure) of the original subject, but render them as if formed by swirling mist, smoke, and soft light. Replace solid matter and skin texture with translucent, glowing vapor. Use a monochromatic color palette of pale cyan, cold white, and spectral blue. The edges of the subject should dissipate into haze (dissolving effect). Create an eerie, supernatural atmosphere with inner luminosity, avoiding solid outlines.",
+    "negative": "",
+    "preview": "Ghost Effect.jpg"
+  },
+  {
+    "name": "Glitch Art",
+    "description": "故障艺术",
+    "prompt": "Transform into a digital Glitch Art style (Datamoshing). Apply visual artifacts such as RGB color shifting (chromatic aberration), pixel sorting, horizontal scanlines, and image tearing. The subject should remain recognizable but appear digitally corrupted or 'hacked'. Use high-contrast neon colors against a dark, noisy background. Mimic the aesthetic of broken video signals and VHS static.",
+    "negative": "",
+    "preview": "Glitch Art.jpg"
+  },
+  {
+    "name": "Hologram",
+    "description": "全息投影",
+    "prompt": "Transform into a sci-fi 3D Hologram projection. The subject should appear as a translucent light construct made of glowing blue horizontal scanlines and flickering particles. Eliminate all solid textures and skin tones. Add subtle signal interference (glitch lines) and a 'fresnel' glow around the edges. The background should be a dark tech void. The look is ethereal, digital, and futuristic (Star Wars/Iron Man interface style).",
+    "negative": "",
+    "preview": "Hologram.jpg"
+  },
+  {
+    "name": "Ice Sculpture",
+    "description": "冰雕",
+    "prompt": "Transform the main subject into a masterpiece ice sculpture carved from a single block of pristine, clear ice. Crucially, preserve the volumetric form and key structural features (such as facial geometry) of the original subject, but translate them into smooth, translucent faceted surfaces with sharp chiseled edges. Eliminate organic textures (skin, fur, fabric) and replace them with a refractive, glassy ice texture. Lighting is critical: use strong cold backlighting to create subsurface scattering, caustic reflections, and glowing edges. The background should be dark and blurred to maximize the contrast and transparency of the ice.",
+    "negative": "",
+    "preview": "Ice Sculpture.jpg"
+  },
+  {
+    "name": "Infographic Illustration",
+    "description": "信息图插画",
+    "prompt": "Transform into infographic illustration style with clear layout, structured data visuals, and graphic storytelling elements. Emphasize clean typography, icon-based imagery, vector shapes, and labeled diagrams. Use flat design aesthetics, bold color zones, and educational tone to convey information effectively. Mimic modern infographic layouts with visual hierarchy and modular composition on light background.",
+    "negative": "",
+    "preview": "Infographic Illustration.jpg"
+  },
+  {
+    "name": "Inuit Printmaking",
+    "description": "因纽特人版画",
+    "prompt": "Transform into Inuit printmaking style with flat symbolic composition, bold hand-drawn outlines, and limited earthy color palette. Use stonecut or stencil-like texture with visible carving marks and paper grain. Mimic Kinngait Cooperative aesthetics with cultural storytelling, spiritual abstraction, and northern folk charm.",
+    "negative": "",
+    "preview": "Inuit Printmaking.jpg"
+  },
+  {
+    "name": "Irasutoya illustration",
+    "description": "插图屋",
+    "prompt": "Transform into the iconic Irasutoya illustration style (by Takashi Mifune). Crucially, preserve the pose, action, and key identifying features (hair, glasses, clothing) of the original subject, but adapt them into the soft, rounded Irasutoya character aesthetic. Use the signature irregular hand-drawn outlines (soft dark brown or charcoal, not sharp black). Apply a warm, pastel-leaning palette with flat coloring and subtle watercolor-like texture. Eyes should be simple dots or ovals. Background must be plain white or transparent. Creates a friendly, soft, and polite atmosphere.",
+    "negative": "",
+    "preview": "Irasutoya illustration.jpg"
+  },
+  {
+    "name": "Isometric flat illustration",
+    "description": "等轴测矢量插画",
+    "prompt": "Transform into a clean isometric vector illustration style. Render the main subject as a stylized 3D isometric asset (orthographic projection aesthetic). Crucially, preserve the identity and silhouette of the subject, but reinterpret organic curves into simplified geometric volumes with sharp, crisp edges. Use a soft pastel color palette with flat, uniform lighting and minimal shading. Eliminate gradients and realistic textures. The result should look like a high-quality icon or game element isolated on a plain background.",
+    "negative": "",
+    "preview": "Isometric flat illustration.jpg"
+  },
+  {
+    "name": "Japanese Ukiyo-e",
+    "description": "日本浮世绘",
+    "prompt": "Transform into Japanese Ukiyo-e style illustration with bold woodblock outlines, flat color zones, and traditional wash tones. Mimic Edo-period woodblock aesthetics with aged paper texture, muted palette, and cultural refinement.",
+    "negative": "",
+    "preview": "Japanese Ukiyo-e.jpg"
+  },
+  {
+    "name": "Japanese-style flat illustration",
+    "description": "日式手账风插画",
+    "prompt": "Transform into Japanese-style flat illustration with cute minimal forms, pastel color palette, soft linework, and gentle white space. Emphasize friendly icons, cozy themes, and balanced layouts. Simulate hand-drawn sticker aesthetic often found in Japanese journals, with clean vector-like shapes and charming visual rhythm.",
+    "negative": "",
+    "preview": "Japanese-style flat illustration.jpg"
+  },
+  {
+    "name": "Japanese-style watercolor illustration",
+    "description": "日式水彩插画",
+    "prompt": "Transform into Japanese-style watercolor illustration with airy brushwork, soft pastel hues, and delicate gradients. Emphasize light tones, clear white space, and transparent washes. Use subtle outlines, paper texture, and serene composition to evoke a fresh, minimalist aesthetic reminiscent of Japanese stationery or picture book art.",
+    "negative": "",
+    "preview": "Japanese-style watercolor illustration.jpg"
+  },
+  {
+    "name": "Kintsugi",
+    "description": "金缮风格",
+    "prompt": "Transform the main subject into a Kintsugi ceramic art style. The subject should appear as a broken and repaired porcelain object. Crucially, emphasize the cracks running across the form, which must be filled with bright, glowing liquid gold lacquer. The surface material should be matte ceramic (black or white) to contrast with the gold seams. The aesthetic is about celebrating imperfections ('Wabi-sabi').",
+    "negative": "",
+    "preview": "Kintsugi.jpg"
+  },
+  {
+    "name": "Korean Minhwa Painting",
+    "description": "韩国民画",
+    "prompt": "Transform into Korean Minhwa painting style with flat symbolic composition, bold outlines, and vibrant folk color palette. Emphasize traditional motifs such as tigers, magpies, peonies, cranes, and lotus flowers. Use simplified anatomy, expressive poses, and decorative background elements like clouds, rocks, and pine trees. Mimic Joseon-era folk aesthetics with hand-drawn charm, cultural symbolism, and emotional warmth on textured paper.",
+    "negative": "",
+    "preview": "Korean Minhwa Painting.jpg"
+  },
+  {
+    "name": "LEGO illustration",
+    "description": "乐高主题",
+    "prompt": "Transform into LEGO illustration style with brick-built structure, modular block components, and glossy plastic texture. Emphasize iconic LEGO proportions, simplified facial features, and vivid solid colors. Use precise interlocking geometry, realistic stud patterns, and toy-like articulation. Mimic official LEGO minifigure design with uniform scale, clean contours, and light studio background.",
+    "negative": "",
+    "preview": "LEGO illustration.jpg"
+  },
+  {
+    "name": "Lichtenstein",
+    "description": "美式波普漫画",
+    "prompt": "Transform into a vintage American Pop Art comic style (Roy Lichtenstein aesthetic). Crucially, use visible Ben-Day dots for shading and skin tones. Outline the subject with thick, crisp black ink lines. Use a limited primary color palette (Cyan, Magenta, Yellow, Black). The image should look like a macro shot of an old comic book printed on cheap newsprint, with slight halftone patterns.",
+    "negative": "",
+    "preview": "Lichtenstein.jpg"
+  },
+  {
+    "name": "Linocut Print",
+    "description": "亚麻油毡版画",
+    "prompt": "Transform into a Linocut printmaking style. Crucially, define the subject using fluid, curved carved lines (white) against a solid ink background (black or dark blue). Unlike woodcut, the lines should feel smooth and gouged, not sharp or jagged. Emphasize the 'noise' of the printing process—small specks of ink where the material wasn't fully carved away. High contrast, bold graphic composition.",
+    "negative": "",
+    "preview": "Linocut Print.jpg"
+  },
+  {
+    "name": "Liquid Cartoon",
+    "description": "液体卡通",
+    "prompt": "Transform into liquid cartoon style with soft melting outlines, stretchy proportions, and flowy motion shapes. Emphasize surreal deformation, glossy surfaces, and dreamy pastel colors. Mimic animated fluid characters in whimsical dream-like visuals.",
+    "negative": "",
+    "preview": "Liquid Cartoon.jpg"
+  },
+  {
+    "name": "Liquid Chrome",
+    "description": "液体金属",
+    "prompt": "Transform the main subject into a Liquid Chrome material (Molten Metal). The subject should look like it is made of flowing, highly reflective mercury or polished silver. Distort reflections on the surface to show the fluidity. Eliminate all original textures; replace them with a perfect mirror finish. The lighting should be studio-quality to create sharp specular highlights and dark contrasts.",
+    "negative": "",
+    "preview": "Liquid Chrome.jpg"
+  },
+  {
+    "name": "Low poly",
+    "description": "低多边形",
+    "prompt": "transform to low poly style, simplified the details, and the entire scene and the main body are composed of large triangles.",
+    "negative": "",
+    "preview": "Low poly.jpg"
+  },
+  {
+    "name": "Madhubani Folk Art",
+    "description": "印度马杜巴尼绘画",
+    "prompt": "Transform into Madhubani painting style with flat symbolic composition, bold hand-drawn outlines, and vibrant folk color palette. Emphasize geometric patterns, mythological figures, and nature motifs like birds, flowers, and celestial elements. Use naturalistic textures, decorative borders, and densely filled backgrounds with no empty space. Mimic Mithila folk aesthetics with ritual storytelling, cultural symbolism, and traditional brushwork on handmade paper.",
+    "negative": "",
+    "preview": "Madhubani Folk Art.jpg"
+  },
+  {
+    "name": "Memphis Design",
+    "description": "孟菲斯设计",
+    "prompt": "Transform into a Memphis Design illustration style (80s Postmodernism). Deconstruct the subject and background into geometric shapes: squiggles, zig-zags, triangles, and confetti patterns. Use a chaotic but balanced layout with high-contrast patterns (black and white stripes/dots) against bright pastel and neon colors (teal, pink, yellow). The look should be playful, flat, and intentionally kitschy.",
+    "negative": "",
+    "preview": "Memphis Design.jpg"
+  },
+  {
+    "name": "Mesopotamian Bas-Relief",
+    "description": "美索不达米亚浮雕",
+    "prompt": "Transform into Mesopotamian bas-relief style with linear carved silhouettes, symbolic composition, and ancient stone texture. Use shallow depth carving, repetitive pattern borders, and cuneiform inscriptions. Mimic Assyrian palace relief aesthetics with narrative storytelling and monumental symmetry.",
+    "negative": "",
+    "preview": "Mesopotamian Bas-Relief.jpg"
+  },
+  {
+    "name": "Needle Felting",
+    "description": "羊毛毡",
+    "prompt": "Transform into a cute Needle Felting art style. The subject should appear to be crafted from matted, fuzzy wool fibers. Emphasize the soft, fuzzy surface texture where stray fibers stick out (frizz). Eliminate sharp edges and hard surfaces; everything should look soft and poked. Use warm, natural colors. The lighting should be soft and macro-scale to reveal the wool texture.",
+    "negative": "",
+    "preview": "Needle Felting.jpg"
+  },
+  {
+    "name": "Neon Signage",
+    "description": "霓虹灯管",
+    "prompt": "Transform the main subject into a realistic neon sign installation. The subject's outlines and key features must be converted into bent glowing glass tubes filled with gas (neon/argon). Use a dark, brick wall or night background to maximize the contrast of the emitted light. Apply bloom effects and wall reflections. The colors should be electric and saturated (hot pink, cyan, electric blue). Crucially, the subject is made of 'light tubes', not solid matter.",
+    "negative": "",
+    "preview": "Neon Signage.jpg"
+  },
+  {
+    "name": "Old School Tattoo",
+    "description": "美式传统纹身",
+    "prompt": "Transform into a Traditional American Tattoo style (Old School/Sailor Jerry). Use bold, uniform black outlines to define the subject. Shade with heavy 'whip-shading' (stippled black gradients) and use a limited palette of solid Red, Yellow, Green, and Black. Eliminate fine details and realistic textures. The design should look like a flash sheet sticker with a vintage ink aesthetic.",
+    "negative": "",
+    "preview": "Old School Tattoo.jpg"
+  },
+  {
+    "name": "Op Art",
+    "description": "欧普艺术",
+    "prompt": "Transform into an Op Art (Optical Art) style illustration. Render the subject solely using warped, rhythmic black and white lines (or checkerboards). The lines should bend and distort around the form of the subject to create a strong illusion of 3D volume and movement on a 2D plane. No shading or colors—just the manipulation of line density and curvature to define shape. Hypnotic and geometric.",
+    "negative": "",
+    "preview": "Op Art.jpg"
+  },
+  {
+    "name": "Origami Art",
+    "description": "折纸艺术",
+    "prompt": "Transform the main subject into a 3D origami paper art style. The subject should appear to be folded from a single sheet of textured paper, defined by sharp geometric creases and angular planes. Eliminate curved surfaces and fine details; replace them with faceted paper triangles. Use soft studio lighting to reveal the paper grain and the depth of the folds. The aesthetic should be clean, minimalist, and physically plausible as a folded paper object.",
+    "negative": "",
+    "preview": "Origami Art.jpg"
+  },
+  {
+    "name": "Pablo Picasso",
+    "description": "毕加索 · 立体主义",
+    "prompt": "Transform into an Analytic Cubist painting style (reminiscent of early Picasso or Braque). Crucially, preserve the general silhouette and recognizable identity of the main subject, but deconstruct their volume into interlocking geometric planes and sharp, angular facets. Replace smooth gradients with hard-edged, overlapping shards of color. Use a restricted, muted palette of ochres, greys, browns, and slate blue. The subject should appear as if viewed through a shattered prism, merging slightly with the background geometric patterns.",
+    "negative": "",
+    "preview": "Pablo Picasso.jpg"
+  },
+  {
+    "name": "Palette Knife Impasto",
+    "description": "刮刀厚涂油画",
+    "prompt": "Transform into a heavy Impasto oil painting style created with a palette knife. The image should be composed of thick, chunky slabs of oil paint with visible relief and texture. Avoid smooth blending; use bold, expressive strokes to sculpt the form. The colors should be vibrant and slightly mixed on the canvas. The look is abstract realism with a focus on the physical materiality of the paint.",
+    "negative": "",
+    "preview": "Palette Knife Impasto.jpg"
+  },
+  {
+    "name": "Paper Quilling",
+    "description": "卷纸艺术",
+    "prompt": "Transform into a detailed Paper Quilling art style. The subject should be formed by arranging colorful, thin strips of paper on edge. Emphasize the intricate coiled spirals, loops, and S-curves filling the shapes. Use soft, directional lighting to cast subtle shadows from the paper strips, revealing their physical depth. The palette should be vibrant and multi-colored, set against a clean cardstock background.",
+    "negative": "",
+    "preview": "Paper Quilling.jpg"
+  },
+  {
+    "name": "Peanuts Comic",
+    "description": "花生漫画",
+    "prompt": "Transform into Peanuts comic strip style with clean black outlines, flat pastel coloring, and minimal shading. Emphasize simplified anatomy, round facial features, and gentle cartoon expression. Use white or light background, clear composition, and emotional charm inspired by Charles M. Schulz’s hand-drawn storytelling. Mimic vintage newspaper aesthetic with childlike simplicity and warm nostalgic tone.",
+    "negative": "",
+    "preview": "Peanuts Comic.jpg"
+  },
+  {
+    "name": "Pen Sketch Illustration",
+    "description": "钢笔素描",
+    "prompt": "Transform into pen sketch illustration style with crisp black ink lines, dense cross-hatching, and hand-drawn contour emphasis. Remove all color and shading, focusing on linear texture and structural accuracy. Mimic fine-tip pen drawing on white paper with artistic imperfection and mechanical precision.",
+    "negative": "",
+    "preview": "Pen Sketch Illustration.jpg"
+  },
+  {
+    "name": "Pencil sketch",
+    "description": "铅笔素描",
+    "prompt": "Convert to pencil sketch with natural graphite lines, cross-hatching, and visible paper texture",
+    "negative": "",
+    "preview": "Pencil sketch.jpg"
+  },
+  {
+    "name": "Photo - Cool Mist Morning",
+    "description": "摄影-冷雾晨光",
+    "prompt": "Transform the photo into cool mist morning style with diffused blue tones, light fog layers, and tranquil natural lighting. Emphasize peaceful atmosphere, subdued shadows, and forest freshness under early light.",
+    "negative": "",
+    "preview": "Photo - Cool Mist Morning.jpg"
+  },
+  {
+    "name": "Photo - Creamy Soft Tone",
+    "description": "摄影-奶油柔光",
+    "prompt": "Transform the photo into creamy soft tone style with warm beige highlights, muted pastel palette, and intimate lighting. Emphasize gentle touch, domestic coziness, and emotional warmth.",
+    "negative": "",
+    "preview": "Photo - Creamy Soft Tone.jpg"
+  },
+  {
+    "name": "Photo - Dreamy Floral Aesthetic",
+    "description": "摄影-梦境花卉",
+    "prompt": "Transform the photo into a dreamy composition with soft pink color overlay, subtle glow effects, and delicate flowers gently surrounding the subject. Use pastel tones, hazy atmosphere, and romantic lighting. Emphasize floral framing, surreal ambiance, and emotional warmth on a pure background.",
+    "negative": "",
+    "preview": "Photo - Dreamy Floral Aesthetic.jpg"
+  },
+  {
+    "name": "Photo - Golden Hour Glow",
+    "description": "摄影-金色时光",
+    "prompt": "Transform the photo into a golden hour glow style with warm amber lighting, soft highlights, and gentle shadows. Emphasize nostalgic atmosphere, low sun angle, and romantic color palette for cozy sunset ambiance.",
+    "negative": "",
+    "preview": "Photo - Golden Hour Glow.jpg"
+  },
+  {
+    "name": "Pictogram Illustration",
+    "description": "象形图插画",
+    "prompt": "Transform into pictogram illustration style with flat monochrome shapes, simplified iconography, and grid-based composition. Emphasize graphic clarity, universal readability, and semantic minimalism.",
+    "negative": "",
+    "preview": "Pictogram Illustration.jpg"
+  },
+  {
+    "name": "Pixel Art",
+    "description": "像素艺术",
+    "prompt": "Transform into pixel art illustration with grid-based layout, limited color palette, and visible square pixels. Emphasize low-resolution charm, chiptune aesthetics, and retro 8-bit or 16-bit visuals. Mimic classic game sprites and minimal shading in nostalgic format.",
+    "negative": "",
+    "preview": "Pixel Art.jpg"
+  },
+  {
+    "name": "Plaster Cast",
+    "description": "石膏像",
+    "prompt": "Transform the main subject into a classical plaster cast sculpture (gypsum bust style). Crucially, remove all skin texture, color, and organic details, replacing them with a smooth, matte white surface. Preserve the exact volumetric form and facial structure of the original, but render them as a static, solid object. Use soft, directional studio lighting to emphasize the form through gentle shadows. The object should look like it is placed in an art studio. Background should be a neutral, dark grey or solid color to contrast with the white plaster.",
+    "negative": "",
+    "preview": "Plaster Cast.jpg"
+  },
+  {
+    "name": "Pointillism",
+    "description": "点彩派",
+    "prompt": "Transform into a Pointillism painting style (Georges Seurat aesthetic). The image must be composed entirely of distinct, small dots of pure color. Eliminate all solid lines and brushstrokes. Rely on optical mixing to create forms and shading. The texture should look granular and vibrant. Colors should be bright and broken up into their component hues (e.g., green grass made of blue and yellow dots).",
+    "negative": "",
+    "preview": "Pointillism.jpg"
+  },
+  {
+    "name": "Psychedelic Poster",
+    "description": "迷幻摇滚海报",
+    "prompt": "Transform into a 1960s Psychedelic Rock Poster style. Distort the subject and background with swirling, liquid-like patterns. Use an intense, vibrating color palette of neon magenta, lime green, and electric blue (complementary contrast). Integrate Art Nouveau-inspired wavy text or motifs that blend into the image. The look should be hallucinogenic, trippy, and flowy.",
+    "negative": "",
+    "preview": "Psychedelic Poster.jpg"
+  },
+  {
+    "name": "Rhinestone Mosaic",
+    "description": "水钻镶嵌艺术",
+    "prompt": "Transform into a luxurious Rhinestone Mosaic art style (Diamond Painting). The entire image is formed by thousands of tiny, glittering gemstones or crystals arranged in a grid. Emphasize the sparkle, glimmer, and physical relief of each stone. The colors should be vibrant and metallic. The visual effect resembles a high-end fashion accessory or jewelry piece.",
+    "negative": "",
+    "preview": "Rhinestone Mosaic.jpg"
+  },
+  {
+    "name": "Risograph Print",
+    "description": "孔版印刷",
+    "prompt": "Transform into a trendy Risograph print style. Use a grainy, stippled texture (halftone dots) to simulate the mesh screen printing process. Limit the palette to specific Riso ink colors (e.g., Fluorescent Pink, Blue, and Yellow). Introduce slight 'misregistration' (offset layers) where colors overlap to create a lo-fi, handcrafted vintage vibe. The composition should be graphic and bold, with a distinct paper grain texture in the background.",
+    "negative": "",
+    "preview": "Risograph Print.jpg"
+  },
+  {
+    "name": "Sand Painting",
+    "description": "沙画",
+    "prompt": "Transform the main subject into a tactile sand painting. The entire form must be composed solely of natural, monochromatic sand grains (varying tones of beige, sepia, and warm earth). Crucially, preserve the exact silhouette, pose, and volumetric form of the original subject, but replace all fine details (eyes, hair strands, clothing patterns) with coarse granular textures and raked sand patterns. Edges should be a mix of soft brushed gradients and distinctly poured lines. Lighting must be strong side-lighting (raking light) to emphasize the physical depth and gritty texture of the sand heaps. The background should be a textured sand surface.",
+    "negative": "",
+    "preview": "Sand Painting.jpg"
+  },
+  {
+    "name": "Satin Embroidery",
+    "description": "精细刺绣",
+    "prompt": "Transform into realistic hand embroidery style with rich tactile depth. Crucially, preserve the silhouette and internal details of the main subject, rendering them entirely in dense satin stitches and layered threadwork. Use directional stitching to mimic the flow of the original forms. The background should be a high-quality textured fabric (linen or felt) with realistic weave patterns. Emphasize the 3D relief of the threads, soft shadows, and the sheen of the floss. No arbitrary floral patterns or borders unless present in the original image.",
+    "negative": "",
+    "preview": "Satin Embroidery.jpg"
+  },
+  {
+    "name": "Scratchboard",
+    "description": "刮画艺术",
+    "prompt": "Transform into a Scratchboard art style (Scraperboard). The background is solid black. The subject is revealed by scratching away the black surface to show white lines underneath. Use thousands of fine, sharp white strokes to create texture and lighting. The aesthetic is negative-drawing, high contrast, and detailed engraving.",
+    "negative": "",
+    "preview": "Scratchboard.jpg"
+  },
+  {
+    "name": "Seal-Imprint Baiwen",
+    "description": "印章-阴刻",
+    "prompt": "Transform into a traditional Chinese \"Baiwen\" seal imprint (Negative Space Carving). The image should look like a solid block of Cinnabar red ink paste stamped on paper. The main subject and the outer border are carved out, appearing as rough white lines and shapes against the solid red background. Crucially, maintain a heavy, solid red rectangular field. The subject acts as the \"negative space\". Add noise and texture to the red ink block to simulate uneven stamping pressure and dry ink paste. No text, purely graphical.",
+    "negative": "",
+    "preview": "Seal-Imprint Baiwen.jpg"
+  },
+  {
+    "name": "Seal-Imprint",
+    "description": "印章-阳刻",
+    "prompt": "Transform into a traditional Chinese stone seal imprint (Zhuwen style). Crucially, enclose the entire main subject within a thick, rough, rectangular border (outer rim) made of Cinnabar red ink. The subject and this border must appear as a single carved unit stamped on fibrous Xuan paper. The subject inside the frame should be stylized into a high-contrast red silhouette with weathered edges. Mimic the texture of imperfect ink paste, where the red border may have breaks or worn spots (broken rim effect). Eliminate all colors except Cinnabar red and paper white.",
+    "negative": "",
+    "preview": "Seal-Imprint.jpg"
+  },
+  {
+    "name": "Shadow Puppetry",
+    "description": "剪影皮影戏",
+    "prompt": "Transform into a traditional Shadow Puppetry style (Wayang Kulit or Chinese Shadow Play). Render the subject as an articulated, flat cutout puppet with intricate openwork carving details. The puppet should be backlit against a illuminated cloth screen, creating a sharp silhouette with glowing internal colors (translucent colored leather). Visible control rods attached to the hands/limbs add authenticity.",
+    "negative": "",
+    "preview": "Shadow Puppetry.jpg"
+  },
+  {
+    "name": "Smoke Effect",
+    "description": "烟雾特效",
+    "prompt": "Transform the image into a cinematic dynamic scene featuring expressive motion, vivid color palette, dramatic lighting, and high-impact composition. Overlay swirling smoke effects around the subject to enhance atmosphere and directional energy. Emphasize visual tension, colorful motion trails, and contrasting shadows across the frame. Apply sharp detail rendering, soft haze diffusion, and ambient depth to reinforce storytelling. Use bold perspective and dynamic framing to evoke movement, immersion, and stylistic presence.",
+    "negative": "",
+    "preview": "Smoke Effect.jpg"
+  },
+  {
+    "name": "Solarpunk",
+    "description": "太阳朋克",
+    "prompt": "Transform into a Solarpunk illustration style. Reinterpret the subject in a utopian future setting that blends high-tech with nature. Use Art Nouveau-inspired curves, stained glass motifs, and lush greenery intertwined with the subject. The lighting should be bright, warm sunlight. Palette: vibrant greens, gold, cyan, and white. The aesthetic is optimistic, sustainable, and organic.",
+    "negative": "",
+    "preview": "Solarpunk.jpg"
+  },
+  {
+    "name": "Stained Glass",
+    "description": "彩绘玻璃",
+    "prompt": "Transform into a Gothic stained glass window style. Crucially, segment the main subject into vibrant shards of translucent colored glass held together by thick, black lead cames (lines). Apply a strong backlight effect to make the glass panels glow with saturation. Simplify internal details into geometric or curved glass pieces. The aesthetic should be illuminated, ornamental, and highly structured, mimicking the craftsmanship of cathedral windows.",
+    "negative": "",
+    "preview": "Stained Glass.jpg"
+  },
+  {
+    "name": "Steampunk",
+    "description": "蒸汽朋克",
+    "prompt": "Transform into a Steampunk concept art style. Crucially, reinterpret the subject's materials as polished brass, oxidized copper, dark leather, and wood. Integrate mechanical details like gears, clockwork, pipes, and glass goggles into the subject's design without altering their silhouette too much. Lighting should be cinematic and warm (tungsten/gaslamp vibe) with steam effects. The background should look like a Victorian industrial workshop.",
+    "negative": "",
+    "preview": "Steampunk.jpg"
+  },
+  {
+    "name": "Studio Ghibli",
+    "description": "吉卜力 · 动画插画",
+    "prompt": "Transform into a Studio Ghibli animated movie still style. Crucially, preserve the exact silhouette, pose, and identity of the main subject from the input image, rendering them with clean animation cel-shading and soft watercolor textures. The background must be converted into a detailed, hand-painted watercolor and gouache landscape, featuring iconic fluffy \"Ghibli clouds\" and lush, painterly details. Apply warm, nostalgic, golden-hour lighting across the entire scene. Use a gentle, natural pastel color palette inspired by Hayao Miyazaki films.",
+    "negative": "",
+    "preview": "Studio Ghibli.jpg"
+  },
+  {
+    "name": "Stuffed Toy",
+    "description": "毛绒玩具",
+    "prompt": "Transform into stuffed toy style illustration with plush textures, rounded soft anatomy, and simplified cartoon features. Emphasize fabric stitching lines, button eyes, and gentle pastel color palette. Use fuzzy material simulation with thread seams, fiber details, and cozy lighting. Mimic handcrafted toy aesthetic with friendly proportions, tactile warmth, and clean neutral background.",
+    "negative": "",
+    "preview": "Stuffed Toy.jpg"
+  },
+  {
+    "name": "Tarot Card",
+    "description": "塔罗牌",
+    "prompt": "Transform into a mystical Tarot Card illustration style. Crucially, place the main subject within a decorative, symbolic border frame containing astrological or alchemical symbols. The art style should mimic ink and watercolor with gold leaf accents. Add symbolic elements like stars, moons, cups, or swords around the subject to enhance the 'Major Arcana' vibe. Use a rich, antique color palette with a parchment texture background. Label the bottom with a roman numeral.",
+    "negative": "",
+    "preview": "Tarot Card.jpg"
+  },
+  {
+    "name": "Thermal Camera",
+    "description": "热成像",
+    "prompt": "Transform into a Thermal Camera imaging style (Infrared). Map the subject's brightness to a heatmap color gradient: glowing white/yellow for the hottest areas (highlights), transitioning to red, purple, and cold blue for the background. Eliminate all texture details and surface patterns; focus solely on the temperature/light intensity gradients. The result should look like a scientific predator vision or night vision display.",
+    "negative": "",
+    "preview": "Thermal Camera.jpg"
+  },
+  {
+    "name": "Trash Polka",
+    "description": "垃圾波尔卡纹身",
+    "prompt": "Transform into a Trash Polka tattoo art style. Use a strict color palette of only Black, White, and Glossy Red. Combine realistic portrait elements with chaotic abstract brushstrokes, ink splatters, halftone dots, and geometric shapes/text fragments. The composition should feel dynamic, edgy, and collage-like. High contrast is essential. The background should be clean skin tone or paper white.",
+    "negative": "",
+    "preview": "Trash Polka.jpg"
+  },
+  {
+    "name": "U.S. dollar illustration",
+    "description": "纸币印刷",
+    "prompt": "Transform into a classic U.S. banknote engraving style (Intaglio printing). Crucially, render the main subject using intricate fine-line cross-hatching and stippling techniques, similar to a presidential portrait on currency. Replace all realistic textures (skin, fur, cloth) with structured engraved lines. The background should be filled with complex Guilloche geometric patterns (security patterns). Use a strict monochromatic palette of Dollar Green or Slate Grey. High contrast, precise linework, and no text or numbers.",
+    "negative": "",
+    "preview": "U.S. dollar illustration.jpg"
+  },
+  {
+    "name": "Vincent van Gogh",
+    "description": "梵高 · 后印象派",
+    "prompt": "Transform into Van Gogh painting style with swirling brushstrokes, thick impasto texture, and vibrant complementary colors. Emphasize emotional movement, expressive skies, and bold contour outlines. Mimic post-impressionist aesthetics with visible paint layering and dynamic composition.",
+    "negative": "",
+    "preview": "Vincent van Gogh.jpg"
+  },
+  {
+    "name": "Vintage Botanical",
+    "description": "复古植物图鉴",
+    "prompt": "Transform into a 19th-century Vintage Botanical Illustration style. Render the subject with delicate watercolor washes and fine ink outlines on aged, yellowing parchment paper. If the subject is not a plant, reimagine it as a biological specimen with naturalistic textures. Colors should be faded and earthy (sage green, dried rose, brown). Add handwritten Latin scientific labels nearby. The mood is academic and nostalgic.",
+    "negative": "",
+    "preview": "Vintage Botanical.jpg"
+  },
+  {
+    "name": "Voxel Art",
+    "description": "体素艺术",
+    "prompt": "Transform into a Voxel Art style (3D Pixels). The entire subject and scene must be constructed from tiny, solid cubic blocks (voxels), like a high-resolution Minecraft build. Lighting should be soft and global, casting shadows from the blocks. The aesthetic is orthographic, digital, and toy-like. Maintain the subject's form but 'blockify' the details.",
+    "negative": "",
+    "preview": "Voxel Art.jpg"
+  },
+  {
+    "name": "watercolor painting",
+    "description": "水彩画",
+    "prompt": "Transform into watercolor painting style with translucent washes, soft brushstrokes, and fluid color blending. Emphasize natural pigment flow, gentle gradients, and subtle paper texture. Use desaturated tones, visible water edges, and uneven saturation to mimic hand-painted watercolor aesthetics on cold-press paper. Maintain light, airy composition with impressionistic mood.",
+    "negative": "",
+    "preview": "watercolor painting.jpg"
+  },
+  {
+    "name": "Window Paper-Cut",
+    "description": "窗花剪纸",
+    "prompt": "Transform into a traditional Chinese paper-cut art style (Jianzhi). Crucially, preserve the silhouette and main features of the subject, but render it as a flat, continuous design cut from a single sheet of bright Vermilion Red paper. Replace internal details (shading, texture) with intricate traditional cut-out patterns (such as sawtooth lines and crescent moon shapes). Ensure all parts of the design are visually connected (no floating islands). The background should be a textured, backlit rice paper or parchment to contrast with the solid red cutout.",
+    "negative": "",
+    "preview": "Window Paper-Cut.jpg"
+  },
+  {
+    "name": "Wood Panel Carving",
+    "description": "木板雕刻",
+    "prompt": "Transform the main subject into a carved wood panel sculpture with deep relief contours, chiseled textures, and natural grain patterns. Use warm timber tones, symmetrical composition, and ornamental motifs to evoke traditional craftsmanship. Apply consistent wood material across the entire figure, eliminating original colors and surface details. Mimic hand-carved aesthetics with tactile depth, cultural symbolism, and aged wooden charm.",
+    "negative": "",
+    "preview": "Wood Panel Carving.jpg"
+  },
+  {
+    "name": "Woodcut print",
+    "description": "木刻版画",
+    "prompt": "Transform into a 16th-century Renaissance woodcut print style (reminiscent of Albrecht Dürer). Crucially, preserve the subject's volumetric form and key features, but render them entirely using bold black contour lines and intricate cross-hatching shading. Replace all smooth gradients with varying densities of ink lines. The image should look like a relief print pressed onto aged, textured parchment paper. High contrast, no gray tones—strictly black ink and paper color.",
+    "negative": "",
+    "preview": "Woodcut print.jpg"
+  },
+  {
+    "name": "Word cloud illustration",
+    "description": "词云插画",
+    "prompt": "Transform into a modern vector word cloud illustration style. The main subject is centrally located and rendered as clean, flat vector art. The entire surrounding background is densely packed with a typographic tapestry of stylized word-shapes, letters, and text elements of drastically varying sizes and orientations (horizontal, vertical, diagonal). Crucially, these elements should simulate the visual density and texture of a word cloud without necessarily being legible or coherent English words (abstract typography texture). Use a clean, limited infographic color palette with flat shading. The layout should feel tightly structured yet dynamic.",
+    "negative": "",
+    "preview": "Word cloud illustration.jpg"
+  },
+  {
+    "name": "X-Ray Art",
+    "description": "X光透视",
+    "prompt": "Transform into an artistic X-Ray photography style. Render the subject as a ghostly, semi-transparent negative image. Denser parts of the subject (like bones or mechanical frames) should appear bright white/blue, while softer parts fade into the dark background. Reveal the internal structure or skeleton overlap. The aesthetic is ethereal, scientific, and monochromatic blue/white.",
+    "negative": "",
+    "preview": "X-Ray Art.jpg"
+  }
+]

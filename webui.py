@@ -45,6 +45,7 @@ from enhanced.inference_artist import get_artist_tags_string
 import modules.model_loader as model_loader
 import enhanced.qwen_multiangle as qwen_multiangle
 import enhanced.qwen_anglelight as qwen_anglelight
+import enhanced.transfer_style_gallery as transfer_style_gallery
 import logging
 logger = logging.getLogger(__name__)
 
@@ -612,13 +613,18 @@ with shared.gradio_root:
                                 outputs=None
                             )
 
+                        with gr.Accordion("Style Selector", open=False, visible=False) as style_transfer_accordion:
+                            gr.HTML(value=transfer_style_gallery.get_viewer_html(), elem_id="transfer_style_gallery_container_scene")
+
                         def check_camera_control_visibility(theme, state):
                             theme_l = theme.lower() if theme else ''
                             show_camera = bool(theme_l and 'multiangle' in theme_l)
                             show_light = bool(theme_l and ('anglelight' in theme_l or 'lightning' in theme_l))
+                            show_style_transfer = bool(theme_l and 'flux2_styletransfer' in theme_l)
                             return (
                                 gr.update(visible=show_camera, open=show_camera),
                                 gr.update(visible=show_light, open=show_light),
+                                gr.update(visible=show_style_transfer, open=False),
                             )
 
                         scene_canvas_image = grh.Image(label='Upload and canvas(1)', show_label=True, source='upload', type='numpy', tool='sketch', height=250, brush_color="#70FF81", mask_color=True, image_mode='RGBA', elem_id='scene_canvas')
@@ -2924,7 +2930,7 @@ with shared.gradio_root:
         scene_theme.change(switch_scene_theme, inputs=[state_topbar, image_number, scene_canvas_image, scene_input_image1, scene_additional_prompt, scene_additional_prompt_2, scene_var_number, scene_var_number2, scene_var_number3, scene_var_number4, scene_steps, scene_switch_option1, scene_switch_option2, scene_theme], outputs=scene_params[1:], queue=False, show_progress=False) \
                    .then(update_scene_model_dropdown_visibility, inputs=[state_topbar], outputs=[scene_base_model, scene_refiner_model], queue=False, show_progress=False) \
                    .then(switch_scene_theme_ready_to_gen, inputs=[state_topbar, image_number, scene_canvas_image, scene_input_image1, scene_additional_prompt, scene_additional_prompt_2, scene_theme, scene_video, scene_audio], outputs=[prompt, generate_button], queue=False, show_progress=True) \
-                   .then(check_camera_control_visibility, inputs=[scene_theme, state_topbar], outputs=[camera_control_accordion, anglelight_control_accordion], queue=False, show_progress=False)
+                   .then(check_camera_control_visibility, inputs=[scene_theme, state_topbar], outputs=[camera_control_accordion, anglelight_control_accordion, style_transfer_accordion], queue=False, show_progress=False)
 
         scene_video.upload(switch_scene_theme_ready_to_gen, inputs=[state_topbar, image_number, scene_canvas_image, scene_input_image1, scene_additional_prompt, scene_additional_prompt_2, scene_theme, scene_video, scene_audio], outputs=[prompt, generate_button], queue=False, show_progress=False)
         scene_video.clear(switch_scene_theme_ready_to_gen, inputs=[state_topbar, image_number, scene_canvas_image, scene_input_image1, scene_additional_prompt, scene_additional_prompt_2, scene_theme, scene_video, scene_audio], outputs=[prompt, generate_button], queue=False, show_progress=False)
@@ -3021,7 +3027,7 @@ with shared.gradio_root:
                .then(fn=lambda x: None, inputs=system_params, _js='(x)=>{refresh_topbar_status_js(x); refresh_style_localization(); refresh_scene_localization();}') \
                .then(update_describe_output_tags, inputs=engine_class_display, outputs=describe_output_tags, queue=False, show_progress=False) \
                .then(inpaint_mode_change, inputs=[inpaint_mode, inpaint_engine_state, outpaint_selections, state_topbar], outputs=[inpaint_additional_prompt, outpaint_selections, example_inpaint_prompts, inpaint_disable_initial_latent, inpaint_engine, inpaint_strength, inpaint_respective_field], show_progress=False, queue=False) \
-               .then(check_camera_control_visibility, inputs=[scene_theme, state_topbar], outputs=[camera_control_accordion, anglelight_control_accordion], queue=False, show_progress=False) \
+               .then(check_camera_control_visibility, inputs=[scene_theme, state_topbar], outputs=[camera_control_accordion, anglelight_control_accordion, style_transfer_accordion], queue=False, show_progress=False) \
                .then(inpaint_engine_state_change, inputs=[inpaint_engine_state, state_topbar] + enhance_inpaint_mode_ctrls, outputs=enhance_inpaint_engine_ctrls, queue=False, show_progress=False)  \
                .then(check_and_show_missing_models, inputs=[bar_buttons[i], state_topbar], outputs=[missing_model_modal, missing_model_list, missing_model_btn]) \
                .then(topbar.stop_comfyd_background, inputs=[comfyd_active_checkbox], queue=False)
