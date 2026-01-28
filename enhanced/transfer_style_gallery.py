@@ -253,7 +253,7 @@ def get_viewer_html(
 
     <div id="transfer_style_gallery_root">
         <div class="tsg-toolbar">
-            <div class="tsg-titlebar">转绘风格（点击图片覆盖 Prompt）</div>
+            <div class="tsg-titlebar">转绘风格（点击图片）</div>
             <input class="tsg-search" type="text" placeholder="搜索风格..." />
         </div>
         <div class="tsg-grid">
