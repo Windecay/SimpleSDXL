@@ -223,13 +223,12 @@ def get_preset_samples(user_did=None):
     path_preset = os.path.abspath(f'./presets/')
     presets = [p[:-5] for p in util.get_files_from_folder(path_preset, ['.json'], None) 
               if not p.startswith('.') and 'deprecated' not in p]
-    if user_did and not shared.token.is_guest(user_did):
-        user_path_preset = get_path_in_user_dir('presets', user_did)
-        if os.path.exists(user_path_preset):
-            presets2 = [p for p in util.get_files_from_folder(user_path_preset, ['.json'], None) 
-                       if not p.startswith('.') and 'deprecated' not in p]
-            presets2 = [f'{p[:-5]}.' for p in presets2]
-            presets = presets + presets2
+    user_path_preset = get_path_in_user_dir('presets', user_did) if user_did else get_path_in_user_dir('presets')
+    if user_path_preset and os.path.exists(user_path_preset):
+        presets2 = [p for p in util.get_files_from_folder(user_path_preset, ['.json'], None)
+                   if not p.startswith('.') and 'deprecated' not in p]
+        presets2 = [f'{p[:-5]}.' for p in presets2]
+        presets = presets + presets2
     presets = sorted(presets)
     refresh_model_list(presets, user_did)
     # presets.remove(config.preset)
@@ -965,30 +964,66 @@ def update_history_link(user_did, local_access):
     log_link = '' if args_manager.args.disable_image_log else f'<a href="file={get_current_html_path(None, user_did)}" target="_blank">\U0001F4DA History Log</a>'
     return gr.update(value=log_link) 
 
-def update_comfyd_url(user_did):
-    entry_point = '' if comfyd.get_entry_point_id() is None else shared.token.get_entry_point(user_did, comfyd.get_entry_point_id())
-    entry_url = None if entry_point == '' else f'http://{args_manager.args.listen}:{shared.sysinfo["loopback_port"]}{args_manager.args.webroot}/'
-    entry_point_url = '' if entry_url is None else f'<a href="{entry_url}?p={entry_point}" target="_blank">{entry_url}</a><div>Click and Entry embedded ComfyUI from here.</div>'
-    return entry_point_url
+def update_comfyd_url(state):
+    entry_url = f'http://{args_manager.args.listen}:{shared.sysinfo["loopback_port"]}{args_manager.args.webroot}/'
+    user_did = state["user"].get_did() if "user" in state and state["user"] else None
+
+    entry_point = ""
+    entry_point_id = comfyd.get_entry_point_id()
+    if entry_point_id is not None and user_did:
+        try:
+            entry_point = shared.token.get_entry_point(user_did, entry_point_id) or ""
+            if not entry_point and hasattr(shared.token, "get_admin_did"):
+                admin_did = shared.token.get_admin_did()
+                if admin_did:
+                    entry_point = shared.token.get_entry_point(admin_did, entry_point_id) or ""
+            if not entry_point:
+                sys_did = state.get("sys_did") if isinstance(state, dict) else None
+                if sys_did and sys_did != user_did:
+                    entry_point = shared.token.get_entry_point(sys_did, entry_point_id) or ""
+        except Exception:
+            entry_point = ""
+
+    if not entry_point:
+        hour_key = datetime.now().strftime("%Y%m%d%H")
+        suffix = state.get("__session") or state.get("ua_hash") or (user_did or "guest")
+        entry_point = f"{hour_key}_{suffix}"
+
+    return f'<a href="{entry_url}?p={entry_point}" target="_blank">{entry_url}</a><div>Click and Entry embedded ComfyUI from here.</div>'
    
 identity_introduce = '''
-当前为游客，点击"身份管理"绑定身份，解锁更多功能：<br>
-1，解锁“我的预置”功能，支持个性化的预置导航。<br>
-2，独立的出图存储空间和日志历史页，保障隐私安全。<br>
-3，可将当前环境参数保存为个人定制的预置包。<br>
-4，解锁更多的功能配置管理和个性化服务。<br>
-<br>
-系统指定首个绑定身份者为管理员，赋予超级管理权限: <br>
-1，可管理和进入内嵌的Comfyd工作流引擎。<br>
-2，可管理游客的预置导航及下载预置包所需模型。<br>
-3，解锁MiniCPM多模态模型，可对话的反推/扩写服务。<br>
-更多管理需求可以入QQ群:1005085136 进行交流。<br>
-<br>
-系统遵循分布式身份管理机制，即: <br>
-1，用户掌控身份私钥，授权本地部署的节点使用身份。<br>
-2，本地部署的AI节点管理多用户相互隔离的数字空间。<br>
-3，上游社区节点保存加密身份副本用于追溯和自证。<br>
-在多方协作下共同保障隐私安全、身份可信及跨节点互认。以此构建"和而不同"的开源社区生态。详细说明>> <br>
+<div style="line-height:1.55">
+  <div style="font-weight:600;margin-bottom:6px;">当前为游客</div>
+  <div style="margin-bottom:10px;">点击“身份管理”绑定身份，可解锁更多功能。</div>
+  <details style="margin:6px 0;">
+    <summary style="cursor:pointer;">绑定身份后能做什么</summary>
+    <div style="margin-top:6px;">
+      1，为本机启用多用户模式，“预置包”变更为“我的预置”，私有化排列<br>
+      2，独立的出图存储空间和日志历史页，保障隐私安全。<br>
+      3，可将当前环境参数保存为个人定制的预置包。<br>
+      4，解锁更多的功能配置管理和个性化服务。<br>
+    </div>
+  </details>
+  <details style="margin:6px 0;">
+    <summary style="cursor:pointer;">管理员与协助</summary>
+    <div style="margin-top:6px;">
+      系统指定首个绑定身份者为管理员，赋予超级管理权限：<br>
+      1，可管理游客的预置导航及下载预置包所需模型。<br>
+      2，管理高级系统设置，最高权限分配系统资源。<br>
+      更多管理需求可以入QQ群:1005085136 进行交流。<br>
+    </div>
+  </details>
+  <details style="margin:6px 0;">
+    <summary style="cursor:pointer;">身份机制说明</summary>
+    <div style="margin-top:6px;">
+      系统遵循分布式身份管理机制，即：<br>
+      1，用户掌控身份私钥，授权本地部署的节点使用身份。<br>
+      2，本地部署的AI节点管理多用户相互隔离的数字空间。<br>
+      3，上游社区节点保存加密身份副本用于追溯和自证。<br>
+      在多方协作下共同保障隐私安全、身份可信及跨节点互认。以此构建“和而不同”的开源社区生态。<br>
+    </div>
+  </details>
+</div>
 '''
 
 def update_after_identity_all(state):
@@ -1015,19 +1050,22 @@ def update_after_identity_sub(state):
     state.update({"__output_list": output_list})
     state.update({"__finished_nums_pages": f'{finished_nums},{finished_pages}'})
 
-    if shared.token.is_admin(user_did):
-        admin_outputs = os.path.abspath(os.path.join(shared.token.get_path_in_user_dir(user_did, "outputs"), 'ComfyUI'))
-        if not os.path.exists(admin_outputs):
-            os.makedirs(admin_outputs)
-        print(f"Admin user detected. Setting ComfyUI outputs to: {admin_outputs}")
-        comfyd.modify_variable({"outputs": admin_outputs})
-        
-        # Update comfyd startup args so restarts use the correct path
+    is_guest = shared.token.is_guest(user_did)
+    is_admin = shared.token.is_admin(user_did)
+    has_admin = check_admin_exists()
+    is_privileged_guest = is_guest and (not has_admin)
+
+    if is_admin or is_privileged_guest:
+        comfyui_outputs = os.path.abspath(os.path.join(shared.token.get_path_in_user_dir(user_did, "outputs"), 'ComfyUI'))
+        if not os.path.exists(comfyui_outputs):
+            os.makedirs(comfyui_outputs)
+        print(f"Setting ComfyUI outputs to: {comfyui_outputs}")
+        comfyd.modify_variable({"outputs": comfyui_outputs})
         try:
             for arg in comfyd.comfyd_args:
                 if len(arg) >= 2 and arg[0] == "--output-directory":
-                    arg[1] = admin_outputs
-                    print(f"Updated Comfyd startup args output directory to: {admin_outputs}")
+                    arg[1] = comfyui_outputs
+                    print(f"Updated Comfyd startup args output directory to: {comfyui_outputs}")
                     break
         except Exception as e:
             print(f"Error updating comfyd startup args: {e}")
@@ -1038,12 +1076,14 @@ def update_after_identity_sub(state):
     results += [gr.update(visible=False if 'preset_store' not in state else state['preset_store'])]
     results += [gr.Dataset.update(samples=get_preset_samples(user_did))]
     results += [update_history_link(user_did, state["local_access"])]
-    results += [gr.update(visible=shared.token.is_guest(user_did))]
-    results += [gr.update(visible=not shared.token.is_guest(user_did))]
-    results += [gr.update(visible=shared.token.is_admin(user_did))]
-    results += [gr.update(visible=shared.token.is_admin(user_did))]
-    results += [gr.update(value=update_comfyd_url(user_did))]
+    results += [gr.update(visible=is_guest)]
+    results += [gr.update(visible=True)]
+    results += [gr.update(visible=is_admin or is_privileged_guest)]
+    results += [gr.update(visible=is_admin or is_privileged_guest)]
+    results += [gr.update(visible=is_admin or is_privileged_guest)]
+    results += [gr.update(visible=is_admin or is_privileged_guest, value=update_comfyd_url(state))]
     results += update_topbar_js_params(state)
+    ip_list = modules.flags.ip_list if state["engine"] in ['Fooocus', 'Flux', 'Kolors', 'Comfy', 'Wan', 'Qwen', 'Z-image']  else modules.flags.ip_list[:-1]
     ip_list = modules.flags.ip_list if state["engine"] in ['Fooocus', 'Flux', 'Kolors', 'Comfy', 'Wan', 'Qwen', 'Z-image']  else modules.flags.ip_list[:-1]
     ip_list = (ip_list[1:3] + ip_list[-1:]) if state["engine"] in ['Wan', 'Qwen', 'Z-image'] or state["task_method"] == 'flux2_aio_cn' else ip_list
     ip_list = (ip_list[:3] + ip_list[-1:]) if state["engine"]=='Comfy' and state["task_method"] == 'il_v_pre_aio' else ip_list

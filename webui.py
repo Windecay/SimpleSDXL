@@ -2074,7 +2074,7 @@ with shared.gradio_root:
                         queue=False
                     )
 
-                    with gr.Tab(label='Local System'):
+                    with gr.Tab(label='Local System') as local_system_tab:
                         with gr.Column() as admin_panel:
                             with gr.Group():
                                 with gr.Row(visible=True if not args_manager.args.disable_backend else False):
@@ -2988,7 +2988,7 @@ with shared.gradio_root:
         .then(fn=lambda x: None, inputs=system_params, _js='(x)=>{refresh_topbar_status_js(x);}')
 
     
-    after_identity = [gallery_index, index_radio, gallery_index_stat, layer_method, layer_input_image, preset_store, preset_store_list, history_link, identity_introduce, configure_panel, admin_panel, p2p_panel, admin_link, system_params] + ip_types
+    after_identity = [gallery_index, index_radio, gallery_index_stat, layer_method, layer_input_image, preset_store, preset_store_list, history_link, identity_introduce, configure_panel, local_system_tab, admin_panel, p2p_panel, admin_link, system_params] + ip_types
     identity_phrases_confirm_button.click(lambda a, b, c: simpleai.set_phrases(a,b,c,'confirm'), inputs=identity_input_info + [identity_phrase_input], outputs=identity_ctrls + [current_id_info, current_upstream_status, identity_export_btn], show_progress=False) \
         .then(topbar.update_after_identity_all, inputs=state_topbar, outputs=nav_bars + after_identity + user_app_ctrls, show_progress=False) \
         .then(fn=lambda x: None, inputs=system_params, _js='(x)=>{refresh_topbar_status_js(x);}')

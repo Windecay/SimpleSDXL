@@ -135,12 +135,9 @@ def reset_simpleai_args():
     args_comfyd = comfyd.args_mapping(sys.argv) + [["--listen"], ["--port", f'{shared.sysinfo["loopback_port"]}']] + smart_memory + windows_standalone + reserve_vram + fast_mode + cache_ram
     args_comfyd += [["--cuda-malloc"]] if not shared.args.disable_async_cuda_allocation and not shared.args.async_cuda_allocation else []
     comfyd_images_path = os.path.join(shared.path_userhome, 'guest_user')
-    comfyd_output = os.path.join(comfyd_images_path, 'comfyd_outputs')
     comfyd_intput = os.path.join(comfyd_images_path, 'comfyd_inputs')
-
-    admin_did = shared.token.get_admin_did()
-    if admin_did:
-        comfyd_output = os.path.abspath(os.path.join(shared.token.get_path_in_user_dir(admin_did, "outputs"), 'ComfyUI'))
+    target_did = shared.token.get_guest_did()
+    comfyd_output = os.path.abspath(os.path.join(shared.token.get_path_in_user_dir(target_did, "outputs"), 'ComfyUI'))
 
     if not os.path.exists(comfyd_output):
         os.makedirs(comfyd_output)
@@ -334,7 +331,7 @@ theme_color = {
 
 id_info_css = lambda x: f'style="color: {theme_color[x]};"'
 #lambda x: f'style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: inline-block; max-width: 150px; color: {theme_color[x]};"'
-guest_inc = "身份为游客" if shared.token.get_node_mode()=='online' else "为孤岛节点游客"
+guest_inc = "身份为游客(本机已有管理员)" if shared.token.get_node_mode()=='online' else "为孤岛节点游客"
 user_inc = "绑定身份为" if shared.token.get_node_mode()=='online' else "为孤岛节点管理员"
 current_id_info = lambda x,y,z,t: f'<b>当前{guest_inc if shared.token.is_guest(y) else user_inc}</b><br>身份昵称: <span {id_info_css(t)}>' + f'{x}' + f'</span><br>身份标识: <span {id_info_css(t)}>{y}</span><br>节点标识: <span {id_info_css(t)}>{z}</span>'
 
