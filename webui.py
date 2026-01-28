@@ -461,6 +461,9 @@ with shared.gradio_root:
                 def check_and_show_missing_models(button_value, state_params):
                     """检查模型是否缺失并显示提示窗口"""
 
+                    if ads.get_user_default("no_model_modal_checkbox", state_params, False):
+                        return [gr.update(visible=False), gr.update(value=[]), gr.update(visible=False)]
+
                     preset_name = button_value.replace('⬇', '').strip()
                     if not preset_name:
                         return [gr.update(visible=False), gr.update(value=[]), gr.update(visible=False)]
@@ -2012,6 +2015,7 @@ with shared.gradio_root:
                             read_wildcards_in_order = gr.Checkbox(label="Read wildcards in order", value=False, visible=False)
                             no_welcome_checkbox = gr.Checkbox(label="Hide welcome picture", value=False)
                             missing_model_filter_checkbox = gr.Checkbox(label="Missing model filter", value=False, info="Filtering presets with missing models")
+                            no_model_modal_checkbox = gr.Checkbox(label="Disable model download notification", value=False)
 
                         with gr.Group():
                             image_tools_checkbox = gr.Checkbox(label='Enable ParamsTools', value=True, info='Management of published image sets, located in the middle toolbox on the right side of the image set.')
@@ -2060,6 +2064,12 @@ with shared.gradio_root:
                     missing_model_filter_checkbox.change(
                         lambda x,y: ads.set_admin_default_value("missing_model_filter_checkbox", x, y),
                         inputs=[missing_model_filter_checkbox, state_topbar],
+                        outputs=None,
+                        queue=False
+                    )
+                    no_model_modal_checkbox.change(
+                        lambda x, y: ads.set_user_default_value("no_model_modal_checkbox", x, y),
+                        inputs=[no_model_modal_checkbox, state_topbar],
                         outputs=None,
                         queue=False
                     )
@@ -2180,7 +2190,7 @@ with shared.gradio_root:
                 admin_sync_button.click(topbar.admin_sync_to_guest, inputs=[state_topbar], outputs=admin_sync_button, queue=False, show_progress=False)
 
                 admin_ctrls = [comfyd_active_checkbox, fast_comfyd_checkbox, reserved_vram, cache_ram, minicpm_checkbox, minicpm_version, advanced_logs, wavespeed_strength, translation_methods, p2p_active_checkbox, p2p_remote_process, p2p_in_did_list, p2p_out_did_list, no_welcome_checkbox, missing_model_filter_checkbox]
-                user_app_ctrls = [backfill_prompt, image_tools_checkbox, disable_preview, disable_intermediate_results, disable_seed_increment, save_final_enhanced_image_only, style_preview_checkbox, generate_image_grid, black_out_nsfw, save_metadata_to_images, metadata_scheme]
+                user_app_ctrls = [backfill_prompt, image_tools_checkbox, disable_preview, disable_intermediate_results, disable_seed_increment, save_final_enhanced_image_only, style_preview_checkbox, generate_image_grid, black_out_nsfw, save_metadata_to_images, metadata_scheme, no_model_modal_checkbox]
 
 
             iclight_enable.change(lambda x: [gr.update(interactive=x, value='' if not x else comfy_task.iclight_source_names[0]), gr.update(value=flags.add_ratio('1024*1024') if not x else modules.config.default_aspect_ratio)], inputs=iclight_enable, outputs=[iclight_source_radio, aspect_ratios_selections[0]], queue=False, show_progress=False)

@@ -589,7 +589,8 @@ def process_before_generation(state_params, seed_random, image_seed, backend_par
             ))
     state_params["absent_model"] = False
     if not args_manager.args.disable_backend and is_models_file_absent(state_params["__preset"], state_params["user"].get_did()):
-        gr.Info(preset_absent_model_note_info)
+        if not ads.get_user_default("no_model_modal_checkbox", state_params, False):
+            gr.Info(preset_absent_model_note_info)
         state_params["absent_model"] = True
         # if shared.token.is_admin(state_params["user"].get_did()):
         #     download_model_files(state_params["__preset"], state_params["user"].get_did(), True)
@@ -700,7 +701,8 @@ def reset_layout_ui(prompt, negative_prompt, state_params, is_generating, inpain
     preset = state_params["bar_button"] if '\u2B07' not in state_params["bar_button"] else state_params["bar_button"].replace('\u2B07', '')
     logger.info(f'Reset_context: preset={state_params["__preset"]}-->{preset}, theme={state_params["__theme"]}, lang={state_params["__lang"]}')
     if not args_manager.args.disable_backend and '\u2B07' in state_params["bar_button"]:
-        gr.Info(preset_down_note_info)
+        if not ads.get_user_default("no_model_modal_checkbox", state_params, False):
+            gr.Info(preset_down_note_info)
 
     state_params.update({"__preset": preset})
 
@@ -1101,6 +1103,7 @@ def get_all_user_default(state):
     results += [ads.get_user_default("black_out_nsfw", state, config.default_black_out_nsfw)]
     results += [ads.get_user_default("save_metadata_to_images", state, config.default_save_metadata_to_images)]
     results += [ads.get_user_default("metadata_scheme", state, config.default_metadata_scheme)]
+    results += [ads.get_user_default("no_model_modal_checkbox", state, False)]
     return results
 
 def get_all_admin_default(currunt_value):

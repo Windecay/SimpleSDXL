@@ -387,6 +387,7 @@
   "Save only final enhanced image": "增强修图只留结果图片",
   "Hide welcome picture":"隐藏欢迎图片轮播",
   "Missing model filter": "不显示缺失模型预置包",
+  "Disable model download notification": "不弹出模型下载提示",
   "Filtering presets with missing models": "勾选后不显示缺失模型的预置包，无法从界面内下载补全",
   "Layer_iclight": "融图打光",
   "Layer case": "场景选择",
