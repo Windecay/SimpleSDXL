@@ -1,12 +1,15 @@
 import functools
 import math
+import os
 from typing import Tuple
 
 import gradio as gr
 import numpy as np
 from PIL import Image
 
+import modules.config as config
 import modules.gradio_hijack as grh
+import modules.util as util
 
 
 @functools.lru_cache(maxsize=16)
@@ -180,11 +183,14 @@ def add_image_encrypt_tab(
     state_topbar,
     state_is_generating,
     image_toolbox,
+    gallery_index,
+    output_format,
 ):
     with gr.Tab(label="Image Encrypt", id="image_encrypt_tab", visible=True):
         with gr.Column():
             input_image = grh.Image(label="Input Image", source="upload", type="pil")
             password = gr.Textbox(label="Password", value="", placeholder="0100")
+            save_decrypted = gr.Checkbox(label="Save decrypted image", value=True, container=False)
             with gr.Row():
                 encrypt_btn = gr.Button(value="Encrypt")
                 decrypt_btn = gr.Button(value="Decrypt")
@@ -194,6 +200,7 @@ def add_image_encrypt_tab(
             if is_generating:
                 return (
                     current_comparison_state,
+                    gr.update(),
                     gr.update(),
                     gr.update(),
                     gr.update(),
@@ -216,13 +223,24 @@ def add_image_encrypt_tab(
                 gr.update(visible=False),
                 gr.update(visible=False, size="sm"),
                 gr.update(visible=False),
+                gr.update(),
                 state_params,
             )
 
-        def _decrypt_to_progress(image: Image.Image, pw: str, state_params: dict, is_generating: bool, current_comparison_state: bool):
+        def _decrypt_to_progress(
+            image: Image.Image,
+            pw: str,
+            should_save: bool,
+            output_format: str,
+            state_params: dict,
+            is_generating: bool,
+            current_comparison_state: bool,
+            current_gallery_choice: str | None,
+        ):
             if is_generating:
                 return (
                     current_comparison_state,
+                    gr.update(),
                     gr.update(),
                     gr.update(),
                     gr.update(),
@@ -235,6 +253,55 @@ def add_image_encrypt_tab(
 
             result = _obfuscate_pil(image, pw, decrypt=True)
             state_params = dict(state_params or {})
+            gallery_index_update = gr.update()
+            if should_save and result is not None:
+                try:
+                    import modules.flags as flags
+
+                    user = state_params.get("user")
+                    user_did = user.get_did() if user is not None else None
+                    output_root = config.get_user_path_outputs(user_did)
+
+                    target_format = str(output_format or "").strip().lower()
+                    if target_format not in flags.OutputFormat.list():
+                        target_format = config.default_output_format
+
+                    _, abs_path, _ = util.generate_temp_filename(folder=output_root, extension=target_format)
+                    os.makedirs(os.path.dirname(abs_path), exist_ok=True)
+                    if target_format == flags.OutputFormat.PNG.value:
+                        result.save(abs_path, format="PNG")
+                    elif target_format == flags.OutputFormat.JPEG.value:
+                        if result.mode == "RGBA":
+                            background = Image.new("RGB", result.size, (255, 255, 255))
+                            background.paste(result, mask=result.getchannel("A"))
+                            background.save(abs_path, format="JPEG", quality=95, optimize=True, progressive=True)
+                        else:
+                            result.convert("RGB").save(abs_path, format="JPEG", quality=95, optimize=True, progressive=True)
+                    elif target_format == flags.OutputFormat.WEBP.value:
+                        result.save(abs_path, format="WEBP", quality=95, lossless=False)
+                    else:
+                        result.save(abs_path, format=target_format)
+
+                    try:
+                        import enhanced.gallery as gallery_util
+
+                        max_per_page = state_params.get("__max_per_page", 18)
+                        max_catalog = state_params.get("__max_catalog", config.default_image_catalog_max_number)
+                        engine_type = state_params.get("engine_type", "image")
+
+                        saved_dirname = os.path.basename(os.path.dirname(abs_path))
+                        if len(saved_dirname) >= 2 and saved_dirname[:2] == "20":
+                            output_choice = saved_dirname[2:]
+                            gallery_util.refresh_images_catalog(output_choice, True, user_did=user_did)
+
+                        output_list, finished_nums, finished_pages = gallery_util.refresh_output_list(max_per_page, max_catalog, user_did, engine_type)
+                        state_params.update({"__output_list": output_list})
+                        state_params.update({"__finished_nums_pages": f"{finished_nums},{finished_pages}"})
+                        gallery_index_update = gr.update(choices=output_list)
+                    except Exception:
+                        pass
+                except Exception:
+                    pass
             state_params["gallery_state"] = "preview"
             return (
                 False,
@@ -245,20 +312,21 @@ def add_image_encrypt_tab(
                 gr.update(visible=False),
                 gr.update(visible=False, size="sm"),
                 gr.update(visible=False),
+                gallery_index_update,
                 state_params,
             )
 
         encrypt_btn.click(
             _encrypt_to_progress,
             inputs=[input_image, password, state_topbar, state_is_generating, comparison_state],
-            outputs=[comparison_state, comparison_box, progress_window, progress_gallery, progress_video, gallery, compare_btn, image_toolbox, state_topbar],
+            outputs=[comparison_state, comparison_box, progress_window, progress_gallery, progress_video, gallery, compare_btn, image_toolbox, gallery_index, state_topbar],
             show_progress=True,
             queue=False,
         )
         decrypt_btn.click(
             _decrypt_to_progress,
-            inputs=[input_image, password, state_topbar, state_is_generating, comparison_state],
-            outputs=[comparison_state, comparison_box, progress_window, progress_gallery, progress_video, gallery, compare_btn, image_toolbox, state_topbar],
+            inputs=[input_image, password, save_decrypted, output_format, state_topbar, state_is_generating, comparison_state, gallery_index],
+            outputs=[comparison_state, comparison_box, progress_window, progress_gallery, progress_video, gallery, compare_btn, image_toolbox, gallery_index, state_topbar],
             show_progress=True,
             queue=False,
         )
