@@ -5901,10 +5901,7 @@
   },
   "788": {
     "inputs": {
-      "text": [
-        "789",
-        0
-      ],
+      "text": "修复模糊图像，使其高清化",
       "clip": [
         "779",
         0
@@ -5913,20 +5910,6 @@
     "class_type": "CLIPTextEncode",
     "_meta": {
       "title": "CLIP Text Encode (Prompt)"
-    }
-  },
-  "789": {
-    "inputs": {
-      "string_a": "修复模糊图像，使其高清化",
-      "string_b": [
-        "728",
-        0
-      ],
-      "delimiter": ""
-    },
-    "class_type": "StringConcatenate",
-    "_meta": {
-      "title": "Concatenate"
     }
   },
   "792": {
@@ -5952,7 +5935,7 @@
         0
       ],
       "mask": [
-        "124",
+        "800",
         0
       ]
     },
@@ -6006,6 +5989,20 @@
     "class_type": "ReferenceLatent",
     "_meta": {
       "title": "ReferenceLatent"
+    }
+  },
+  "800": {
+    "inputs": {
+      "expand": 25,
+      "tapered_corners": true,
+      "mask": [
+        "124",
+        0
+      ]
+    },
+    "class_type": "GrowMask",
+    "_meta": {
+      "title": "Grow Mask"
     }
   },
   "801": {
