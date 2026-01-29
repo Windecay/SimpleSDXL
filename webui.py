@@ -583,11 +583,11 @@ with shared.gradio_root:
                             scene_theme = gr.Radio(choices=modules.flags.scene_themes, label="Themes", value=modules.flags.scene_themes[0])
                         
                         # Qwen Multiangle Camera Control
-                        with gr.Accordion("3D Camera Control", open=False, visible=False) as camera_control_accordion:
+                        with gr.Accordion("📸 3D Camera Control", open=False, visible=False) as camera_control_accordion:
                             gr.HTML(value=qwen_multiangle.get_viewer_html(), elem_id="qwen_viewer_container")
                         
                         # Qwen Anglelight Lighting Control
-                        with gr.Accordion("3D Lighting Control", open=False, visible=False) as anglelight_control_accordion:
+                        with gr.Accordion("💡 3D Lighting Control", open=False, visible=False) as anglelight_control_accordion:
                             gr.HTML(value=qwen_anglelight.get_viewer_html(), elem_id="qwen_anglelight_viewer_container")
 
                             qwen_image_data = gr.Textbox(visible=False, elem_id="qwen_image_data")
@@ -613,7 +613,7 @@ with shared.gradio_root:
                                 outputs=None
                             )
 
-                        with gr.Accordion("Style Selector", open=False, visible=False) as style_transfer_accordion:
+                        with gr.Accordion("🎨 Style Selector", open=False, visible=False) as style_transfer_accordion:
                             gr.HTML(value=transfer_style_gallery.get_viewer_html(), elem_id="transfer_style_gallery_container_scene")
 
                         def check_camera_control_visibility(theme, state):
