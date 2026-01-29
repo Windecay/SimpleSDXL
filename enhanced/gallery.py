@@ -295,7 +295,8 @@ def get_images_prompt(choice, selected, max_per_page, display_index=False, user_
             selected = (page-1)*max_per_page + selected
         else:
             selected = nums-max_per_page + selected
-    images_prompt_keys[user_did].remove(choice)
+    if choice in images_prompt_keys[user_did]:
+        images_prompt_keys[user_did].remove(choice)
     images_prompt_keys[user_did].append(choice)
     filename = ''
     if user_did in images_list:
@@ -310,10 +311,11 @@ def get_images_prompt(choice, selected, max_per_page, display_index=False, user_
         logger.info(f"UserID:{user_did} not found in images_list")
 
     if filename:
-        metainfo = {"Filename": filename} if filename not in images_prompt[user_did][choice].keys() else images_prompt[user_did][choice][filename]
+        prompt_dict = images_prompt[user_did].get(choice, {})
+        metainfo = {"Filename": filename} if filename not in prompt_dict else prompt_dict[filename]
         if display_index:
             logger.info(f'The image selected: catalog={choice}, page={page_choice}, in_page={page_index}, in_catalog={selected}, filename={filename}')
-        if choice in images_ads[user_did].keys() and filename in images_ads[user_did][choice].keys():
+        if choice in images_ads[user_did].keys() and metainfo['Filename'] in images_ads[user_did][choice].keys():
             metainfo.update({"Advanced_parameters": images_ads[user_did][choice][metainfo['Filename']]})
     else:
         metainfo = {}
@@ -333,7 +335,7 @@ def parse_html_log(choice: str, passthrough = False, user_did=None):
         images_ads[user_did]={}
 
     choice = choice.split('/')[0]
-    if not passthrough and choice in images_prompt_keys[user_did] and images_prompt[user_did][choice]:
+    if not passthrough and choice in images_prompt_keys[user_did] and images_prompt[user_did].get(choice):
         images_prompt_keys[user_did].remove(choice)
         images_prompt_keys[user_did].append(choice)
         return
