@@ -32,6 +32,7 @@ OBSOLETE_CUSTOM_NODE_FOLDERS = (
     "ComfyUI-MultiGPU",
     "ComfyUI-SAM3",
     "ComfyUI-Newbie-Nodes",
+    "x-flux-comfyui",
 )
 
 def cleanup_obsolete_custom_nodes():
