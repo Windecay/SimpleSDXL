@@ -2540,6 +2540,27 @@ with shared.gradio_root:
             html = f"""
             <div id="{unique_id}" class="comparison-wrapper"
                 onclick="
+                    var isEntering = !this.classList.contains('fullscreen-mode');
+                    if (isEntering) {{
+                        try {{
+                            this.__lf_comp_parent = this.parentNode;
+                            this.__lf_comp_placeholder = document.createElement('span');
+                            this.__lf_comp_placeholder.style.display = 'none';
+                            this.__lf_comp_parent.insertBefore(this.__lf_comp_placeholder, this.nextSibling);
+                            document.body.appendChild(this);
+                            document.body.style.overflow = 'hidden';
+                        }} catch (e) {{}}
+                    }} else {{
+                        try {{
+                            document.body.style.overflow = '';
+                            if (this.__lf_comp_parent && this.__lf_comp_placeholder) {{
+                                this.__lf_comp_parent.insertBefore(this, this.__lf_comp_placeholder);
+                                this.__lf_comp_placeholder.remove();
+                            }}
+                        }} catch (e) {{}}
+                        this.__lf_comp_parent = null;
+                        this.__lf_comp_placeholder = null;
+                    }}
                     this.classList.toggle('fullscreen-mode');
                     var outer = this.querySelector('.outer-img');
                     var inner = this.querySelector('.inner-img');
@@ -2549,19 +2570,23 @@ with shared.gradio_root:
                     }}
                 "
                 onmousemove="
-                    var rect = this.querySelector('.comparison-content').getBoundingClientRect();
+                    var outer = this.querySelector('.outer-img');
+                    var overlay = this.querySelector('.overlay');
+                    if(!outer || !overlay) return;
+                    var rect = outer.getBoundingClientRect();
                     var x = event.clientX - rect.left;
-                    var per = (x / rect.width) * 100;
-                    per = Math.max(0, Math.min(100, per));
-                    this.querySelector('.overlay').style.width = per + '%';
+                    x = Math.max(0, Math.min(rect.width, x));
+                    overlay.style.width = x + 'px';
                 ">
                 <div class="comparison-content">
                     <img class="comp-img outer-img" src="{output_img_url}" draggable="false" 
                         onload="
                             var wrapper = this.closest('.comparison-wrapper');
                             var inner = wrapper.querySelector('.inner-img');
-                            inner.style.width = this.width + 'px';
-                            inner.style.height = this.height + 'px';
+                            if(inner) {{
+                                inner.style.width = this.offsetWidth + 'px';
+                                inner.style.height = this.offsetHeight + 'px';
+                            }}
                         "
                     />
                     <div class="overlay">

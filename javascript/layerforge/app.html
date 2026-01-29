@@ -194,6 +194,42 @@
             try {
                 const result = await createCanvasWidget(mockNode, mockWidget, app);
                 canvasInstance = result.canvas;
+                const syncPaintLayerReference = (resetPaintBitmap = true) => {
+                    if (!canvasInstance || !paintLayer)
+                        return;
+                    const current = Array.isArray(canvasInstance.layers)
+                        ? canvasInstance.layers.find((l) => l && l.id === paintLayer.id)
+                        : null;
+                    if (!current) {
+                        paintLayer = null;
+                        if (resetPaintBitmap) {
+                            paintCanvas = null;
+                            paintCtx = null;
+                        }
+                        return;
+                    }
+                    if (current !== paintLayer) {
+                        paintLayer = current;
+                        if (resetPaintBitmap) {
+                            paintCanvas = null;
+                            paintCtx = null;
+                        }
+                    }
+                };
+                for (const methodName of ['undo', 'redo']) {
+                    const original = canvasInstance?.[methodName];
+                    if (typeof original !== 'function')
+                        continue;
+                    canvasInstance[methodName] = (...args) => {
+                        const result = original.apply(canvasInstance, args);
+                        try {
+                            syncPaintLayerReference();
+                        }
+                        catch {
+                        }
+                        return result;
+                    };
+                }
 
                 const toolbar = document.getElementById('toolbar');
                 const paintToggle = document.getElementById('paint-toggle');
@@ -249,6 +285,13 @@
                     paintEnabled = !!enabled;
                     paintToggle.classList.toggle('btn-primary', paintEnabled);
                     overlay.style.pointerEvents = paintEnabled ? 'auto' : 'none';
+                    if (paintEnabled) {
+                        try {
+                            canvasInstance?.canvas?.focus?.({ preventScroll: true });
+                        }
+                        catch {
+                        }
+                    }
                     if (canvasInstance?.canvas) {
                         const shouldLockCanvas = (navigator.maxTouchPoints > 0) || (window.matchMedia?.('(max-width: 900px)')?.matches ?? false);
                         if (shouldLockCanvas) {
@@ -291,6 +334,7 @@
                 const ensurePaintLayer = async () => {
                     if (!canvasInstance)
                         return null;
+                    syncPaintLayerReference();
                     const bounds = canvasInstance.outputAreaBounds;
                     const w = Math.max(1, Math.round(bounds.width));
                     const h = Math.max(1, Math.round(bounds.height));
@@ -323,6 +367,13 @@
                 const commitPaintLayer = async () => {
                     if (!canvasInstance || !paintLayer || !paintCanvas)
                         return;
+                    const layerRef = paintLayer;
+                    syncPaintLayerReference(false);
+                    if (!paintLayer || paintLayer !== layerRef) {
+                        paintCanvas = null;
+                        paintCtx = null;
+                        return;
+                    }
                     const dataUrl = paintCanvas.toDataURL('image/png');
                     const img = new Image();
                     img.crossOrigin = 'anonymous';
@@ -340,6 +391,10 @@
                     paintLayer.originalHeight = img.height;
                     canvasInstance.render();
                     canvasInstance.saveState();
+                    if (canvasInstance.canvasLayersPanel) {
+                        canvasInstance.canvasLayersPanel.onLayersChanged();
+                        canvasInstance.canvasLayersPanel.onSelectionChanged();
+                    }
                 };
 
                 paintNewLayerBtn.addEventListener('click', async () => {
@@ -489,6 +544,11 @@
                         return;
                     e.preventDefault();
                     e.stopPropagation();
+                    try {
+                        canvasInstance?.canvas?.focus?.({ preventScroll: true });
+                    }
+                    catch {
+                    }
                     updateOverlaySize();
                     try {
                         overlay.setPointerCapture(e.pointerId);
