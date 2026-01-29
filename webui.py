@@ -1642,6 +1642,8 @@ with shared.gradio_root:
 
                         metadata_input_image.upload(trigger_metadata_preview, inputs=metadata_input_image,
                                                 outputs=[metadata_json, metadata_import_button], queue=False, show_progress=True)
+                    import enhanced.image_encrypt_tab as image_encrypt_tab
+                    image_encrypt_tab.add_image_encrypt_tab(progress_window)
                     # custom plugin "OneButtonPrompt"
                     with gr.Tab(label="OneButtonPrompt"):
                         import custom.OneButtonPrompt.ui_onebutton as ui_onebutton
