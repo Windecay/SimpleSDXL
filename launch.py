@@ -12,6 +12,7 @@ import comfy.comfy_version as comfy_version
 import enhanced.version as version
 import socket
 import logging
+import shutil
 
 from pathlib import Path
 from build_launcher import build_launcher, ready_checker, is_win32_standalone_build, python_embeded_path, download_if_updated
@@ -26,6 +27,27 @@ logger.debug('[System ARGV] ' + str(sys.argv))
 root = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(root)
 os.chdir(root)
+
+OBSOLETE_CUSTOM_NODE_FOLDERS = (
+    "ComfyUI-MultiGPU",
+    "ComfyUI-SAM3",
+)
+
+def cleanup_obsolete_custom_nodes():
+    custom_nodes_root = os.path.join(root, "comfy", "custom_nodes")
+    if not os.path.isdir(custom_nodes_root):
+        return
+    for folder_name in OBSOLETE_CUSTOM_NODE_FOLDERS:
+        target_path = os.path.join(custom_nodes_root, folder_name)
+        if not os.path.isdir(target_path):
+            continue
+        try:
+            shutil.rmtree(target_path)
+            logger.info(f"[Cleanup] Removed obsolete custom node folder: {target_path}")
+        except Exception as e:
+            logger.warning(f"[Cleanup] Failed to remove obsolete custom node folder: {target_path} ({e})")
+
+cleanup_obsolete_custom_nodes()
 
 os.environ["SIMPAI_LOG_FILE"] = get_log_file()
 os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "1"
