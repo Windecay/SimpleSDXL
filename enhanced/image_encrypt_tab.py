@@ -169,7 +169,18 @@ def _obfuscate_pil(image: Image.Image | None, password: str | None, decrypt: boo
     return Image.fromarray(out_arr, mode="RGBA")
 
 
-def add_image_encrypt_tab(progress_window):
+def add_image_encrypt_tab(
+    progress_window,
+    progress_gallery,
+    gallery,
+    progress_video,
+    comparison_box,
+    compare_btn,
+    comparison_state,
+    state_topbar,
+    state_is_generating,
+    image_toolbox,
+):
     with gr.Tab(label="Image Encrypt", id="image_encrypt_tab", visible=True):
         with gr.Column():
             input_image = grh.Image(label="Input Image", source="upload", type="pil")
@@ -179,23 +190,75 @@ def add_image_encrypt_tab(progress_window):
                 decrypt_btn = gr.Button(value="Decrypt")
             gr.HTML('<div style="font-size: 12px; opacity: 0.75;">Source: https://dfqtphx.netlify.app/</div>')
 
-        def _encrypt_to_progress(image: Image.Image, pw: str):
-            result = _obfuscate_pil(image, pw, decrypt=False)
-            return gr.update(value=result, visible=True)
+        def _encrypt_to_progress(image: Image.Image, pw: str, state_params: dict, is_generating: bool, current_comparison_state: bool):
+            if is_generating:
+                return (
+                    current_comparison_state,
+                    gr.update(),
+                    gr.update(),
+                    gr.update(),
+                    gr.update(),
+                    gr.update(),
+                    gr.update(),
+                    gr.update(),
+                    state_params,
+                )
 
-        def _decrypt_to_progress(image: Image.Image, pw: str):
+            result = _obfuscate_pil(image, pw, decrypt=False)
+            state_params = dict(state_params or {})
+            state_params["gallery_state"] = "preview"
+            return (
+                False,
+                gr.update(visible=False),
+                gr.update(value=None, visible=False),
+                gr.update(value=([result] if result is not None else []), visible=True),
+                gr.update(value=None, visible=False),
+                gr.update(visible=False),
+                gr.update(visible=False, size="sm"),
+                gr.update(visible=False),
+                state_params,
+            )
+
+        def _decrypt_to_progress(image: Image.Image, pw: str, state_params: dict, is_generating: bool, current_comparison_state: bool):
+            if is_generating:
+                return (
+                    current_comparison_state,
+                    gr.update(),
+                    gr.update(),
+                    gr.update(),
+                    gr.update(),
+                    gr.update(),
+                    gr.update(),
+                    gr.update(),
+                    state_params,
+                )
+
             result = _obfuscate_pil(image, pw, decrypt=True)
-            return gr.update(value=result, visible=True)
+            state_params = dict(state_params or {})
+            state_params["gallery_state"] = "preview"
+            return (
+                False,
+                gr.update(visible=False),
+                gr.update(value=None, visible=False),
+                gr.update(value=([result] if result is not None else []), visible=True),
+                gr.update(value=None, visible=False),
+                gr.update(visible=False),
+                gr.update(visible=False, size="sm"),
+                gr.update(visible=False),
+                state_params,
+            )
 
         encrypt_btn.click(
             _encrypt_to_progress,
-            inputs=[input_image, password],
-            outputs=progress_window,
+            inputs=[input_image, password, state_topbar, state_is_generating, comparison_state],
+            outputs=[comparison_state, comparison_box, progress_window, progress_gallery, progress_video, gallery, compare_btn, image_toolbox, state_topbar],
             show_progress=True,
+            queue=False,
         )
         decrypt_btn.click(
             _decrypt_to_progress,
-            inputs=[input_image, password],
-            outputs=progress_window,
+            inputs=[input_image, password, state_topbar, state_is_generating, comparison_state],
+            outputs=[comparison_state, comparison_box, progress_window, progress_gallery, progress_video, gallery, compare_btn, image_toolbox, state_topbar],
             show_progress=True,
+            queue=False,
         )
