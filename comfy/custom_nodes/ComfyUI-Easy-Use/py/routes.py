@@ -12,6 +12,27 @@ from .libs.utils import getMetadata, cleanGPUUsedForce, get_local_filepath
 from .libs.cache import remove_cache
 from .libs.translate import has_chinese, zh_to_en
 
+def _resolve_restart_script_path() -> str:
+    argv0 = sys.argv[0] if sys.argv else ""
+    if argv0:
+        p = os.path.expandvars(os.path.expanduser(argv0))
+        if os.path.isabs(p) and os.path.exists(p):
+            return p
+
+        cwd = os.getcwd()
+        if os.path.exists(os.path.join(cwd, p)):
+            return os.path.join(cwd, p)
+
+        parts = p.replace("/", os.sep).split(os.sep)
+        if parts and parts[0].lower() == os.path.basename(cwd).lower():
+            candidate = os.path.join(cwd, *parts[1:])
+            if os.path.exists(candidate):
+                return candidate
+
+        return p
+
+    return argv0
+
 @PromptServer.instance.routes.get('/easyuse/version')
 def get_version(request):
     try:
@@ -58,7 +79,8 @@ def reboot(request):
     except Exception as e:
         pass
 
-    return os.execv(sys.executable, [sys.executable] + sys.argv)
+    script_path = _resolve_restart_script_path()
+    return os.execv(sys.executable, [sys.executable, script_path] + (sys.argv[1:] if len(sys.argv) > 1 else []))
 
 # parse csv
 @PromptServer.instance.routes.post("/easyuse/upload/csv")
