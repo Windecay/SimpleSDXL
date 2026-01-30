@@ -28,6 +28,14 @@ models:
     filename: "hand_drawn_game.safetensors"
     sub_folder: "loras"
     new_filename: null
+  - repo_id: "bunnycore/Z-Art-2.1"
+    filename: "Z-Image-Art2.1.safetensors"
+    sub_folder: "loras"
+    new_filename: null
+  - repo_id: "ostris/z_image_turbo_childrens_drawings"
+    filename: "z_image_turbo_childrens_drawings.safetensors"
+    sub_folder: "loras"
+    new_filename: null
   # nunchaku text encoders
   - repo_id: "nunchaku-tech/nunchaku-t5"
     filename: "awq-int4-flux.1-t5xxl.safetensors"
@@ -88,6 +96,10 @@ models:
     new_filename: null
   - repo_id: "nunchaku-tech/nunchaku-qwen-image"
     filename: "svdq-{precision}_r128-qwen-image-lightningv1.1-8steps.safetensors"
+    sub_folder: "diffusion_models"
+    new_filename: null
+  - repo_id: "nunchaku-tech/nunchaku-z-image-turbo"
+    filename: "svdq-{precision}_r128-z-image-turbo.safetensors"
     sub_folder: "diffusion_models"
     new_filename: null
   # pulid related

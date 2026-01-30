@@ -3,7 +3,7 @@ comfyui-workflow-templates==0.8.24
 comfyui-embedded-docs==0.4.0
 transformers==4.56.2 #4.42.4 #
 huggingface_hub==0.35.1
-diffusers>=0.35.1 #0.29.0
+diffusers>=0.36.0 #0.29.0
 torchsde==0.2.6 #
 
 accelerate==1.10.1 #0.32.1
@@ -117,8 +117,8 @@ mmcv @ https://archive1.piwheels.org/simple/mmcv/mmcv-2.1.0-py2.py3-none-any.whl
 mmcv==2.1.0 ; platform_system == "Linux"
 llama_cpp_python @ https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/llama/llama_cpp_python-0.3.16-cp310-cp310-win_amd64.whl ; python_version == "3.10" and platform_system == "Windows"
 llama_cpp_python @ https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/llama/llama_cpp_python-0.3.16-cp310-cp310-linux_x86_64.whl ; python_version == "3.10" and platform_system == "Linux"
-nunchaku @ https://www.modelscope.cn/models/nunchaku-tech/nunchaku/resolve/master/nunchaku-1.0.2%2Btorch2.9-cp310-cp310-win_amd64.whl ; python_version == "3.10" and platform_system == "Windows"
-nunchaku @ https://www.modelscope.cn/models/nunchaku-tech/nunchaku/resolve/master/nunchaku-1.0.2%2Btorch2.9-cp310-cp310-linux_x86_64.whl ; python_version == "3.10" and platform_system == "Linux"
+nunchaku @ https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/nunchaku/nunchaku-1.2.1%2Bcu12.8torch2.9-cp310-cp310-win_amd64.whl ; python_version == "3.10" and platform_system == "Windows"
+nunchaku @ https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/nunchaku/nunchaku-1.2.1%2Bcu12.8torch2.9-cp310-cp310-linux_x86_64.whl ; python_version == "3.10" and platform_system == "Linux"
 # 如果你的运行环境是 torch 2.7，请注释掉上面 torch2.9 的两行，并启用下面两行
 # nunchaku @ https://www.modelscope.cn/models/nunchaku-tech/nunchaku/resolve/master/nunchaku-1.0.2%2Btorch2.7-cp310-cp310-win_amd64.whl ; python_version == "3.10" and platform_system == "Windows"
 # nunchaku @ https://www.modelscope.cn/models/nunchaku-tech/nunchaku/resolve/master/nunchaku-1.0.2%2Btorch2.7-cp310-cp310-linux_x86_64.whl ; python_version == "3.10" and platform_system == "Linux"

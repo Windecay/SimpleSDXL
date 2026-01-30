@@ -7,14 +7,13 @@ import logging
 import os
 
 import comfy.utils
-import folder_paths
 import torch
 from comfy import model_detection, model_management
 
 from nunchaku.utils import check_hardware_compatibility, get_gpu_memory, get_precision_from_quantization_config
 
 from ...model_configs.qwenimage import NunchakuQwenImage
-from ...model_patcher import NunchakuModelPatcher
+from ...model_patcher.common import NunchakuModelPatcher
 from ..utils import get_filename_list, get_full_path_or_raise
 
 # Get log level from environment variable (default to INFO)
@@ -78,8 +77,8 @@ def load_diffusion_model_state_dict(
     new_sd = sd
 
     unet_weight_dtype = list(model_config.supported_inference_dtypes)
-    if getattr(model_config, 'scaled_fp8', None) is not None:
-        weight_dtype = None
+    # if model_config.scaled_fp8 is not None:
+    #     weight_dtype = None
 
     if dtype is None:
         unet_dtype = model_management.unet_dtype(
@@ -200,8 +199,6 @@ class NunchakuQwenImageDiTLoader:
             The number of transformer blocks to keep on GPU when CPU offload is enabled.
         use_pin_memory : str
             Whether to use pinned memory for the transformer blocks when CPU offload is enabled.
-        vram_margin_gb : float
-            VRAM safety margin for dynamic LoRA offloading.
 
         Returns
         -------
@@ -209,19 +206,7 @@ class NunchakuQwenImageDiTLoader:
             A tuple containing the loaded and patched model.
         """
         model_path = get_full_path_or_raise("diffusion_models", model_name)
-
-        # In-process cache to avoid repeated disk I/O when toggling options
-        if not hasattr(self, "_sd_cache"):
-            self._sd_cache = {}
-
-        cache_key = model_path
-        cached = self._sd_cache.get(cache_key)
-        if cached is not None:
-            sd, metadata = cached
-            logger.debug(f"Using cached state_dict for {model_path}")
-        else:
-            sd, metadata = comfy.utils.load_torch_file(model_path, return_metadata=True)
-            self._sd_cache[cache_key] = (sd, metadata)
+        sd, metadata = comfy.utils.load_torch_file(model_path, return_metadata=True)
 
         if cpu_offload == "auto":
             if get_gpu_memory() < 15:  # 15GB threshold
@@ -238,19 +223,20 @@ class NunchakuQwenImageDiTLoader:
             cpu_offload_enabled = False
             logger.info("Disabling CPU offload")
 
-        model = load_diffusion_model_state_dict(sd, metadata=metadata, model_options={"cpu_offload_enabled": cpu_offload_enabled})
+        model = load_diffusion_model_state_dict(
+            sd, metadata=metadata, model_options={"cpu_offload_enabled": cpu_offload_enabled}
+        )
+
         if cpu_offload_enabled:
             assert use_pin_memory in ["enable", "disable"], "Invalid use_pin_memory option"
             model.model.diffusion_model.set_offload(
                 cpu_offload_enabled, num_blocks_on_gpu=num_blocks_on_gpu, use_pin_memory=use_pin_memory == "enable"
             )
 
-        # Wrap transformer in ComfyQwenImageWrapper for LoRA support (Flux-style)
         from ...models.qwenimage import NunchakuQwenImageTransformer2DModel
         from ...wrappers.qwenimage import ComfyQwenImageWrapper
 
         if isinstance(model.model.diffusion_model, NunchakuQwenImageTransformer2DModel):
-            # Only wrap if not already wrapped
             if not isinstance(model.model.diffusion_model, ComfyQwenImageWrapper):
                 wrapper = ComfyQwenImageWrapper(
                     model=model.model.diffusion_model,

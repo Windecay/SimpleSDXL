@@ -1,23 +1,9 @@
 from __future__ import annotations
 import torch
-
-
 import os
 import sys
-import json
-import hashlib
-import inspect
-import traceback
-import math
-import time
-import random
-import logging
-
-from PIL import Image, ImageOps, ImageSequence
-from PIL.PngImagePlugin import PngInfo
-
-import numpy as np
-import safetensors.torch
+import importlib
+import importlib.util
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), "comfy"))
 
@@ -438,9 +424,129 @@ class GLIGENLoader_Any:
         gligen_path = folder_paths.get_full_path_or_raise("gligen", gligen_name)
         gligen = comfy.sd.load_gligen(gligen_path)
         return (gligen,)
-    
-    
-    
+
+_gguf_nodes = None
+
+def get_gguf_nodes():
+    global _gguf_nodes
+    if _gguf_nodes is not None:
+        return _gguf_nodes
+    custom_nodes_dir = os.path.dirname(os.path.realpath(__file__))
+    gguf_dir = os.path.realpath(os.path.join(custom_nodes_dir, "..", "ComfyUI-GGUF"))
+    init_path = os.path.join(gguf_dir, "__init__.py")
+    if not os.path.exists(init_path):
+        raise RuntimeError(f"ComfyUI-GGUF not found: {gguf_dir}")
+    spec = importlib.util.spec_from_file_location(
+        "comfyui_gguf",
+        init_path,
+        submodule_search_locations=[gguf_dir],
+    )
+    module = importlib.util.module_from_spec(spec)
+    sys.modules["comfyui_gguf"] = module
+    spec.loader.exec_module(module)
+    _gguf_nodes = importlib.import_module("comfyui_gguf.nodes")
+    return _gguf_nodes
+
+def add_any_input(inputs):
+    required = dict(inputs.get("required", {}))
+    optional = dict(inputs.get("optional", {}))
+    optional["any"] = (IO.ANY, {})
+    result = {"required": required, "optional": optional}
+    hidden = inputs.get("hidden", None)
+    if hidden is not None:
+        result["hidden"] = dict(hidden)
+    return result
+
+class UnetLoaderGGUF_Any:
+    @classmethod
+    def INPUT_TYPES(s):
+        gguf_nodes = get_gguf_nodes()
+        return add_any_input(gguf_nodes.UnetLoaderGGUF.INPUT_TYPES())
+
+    RETURN_TYPES = ("MODEL",)
+    FUNCTION = "load_unet"
+    CATEGORY = "bootleg"
+
+    def load_unet(self, unet_name, any=None):
+        gguf_nodes = get_gguf_nodes()
+        return gguf_nodes.UnetLoaderGGUF().load_unet(unet_name)
+
+class UnetLoaderGGUFAdvanced_Any:
+    @classmethod
+    def INPUT_TYPES(s):
+        gguf_nodes = get_gguf_nodes()
+        return add_any_input(gguf_nodes.UnetLoaderGGUFAdvanced.INPUT_TYPES())
+
+    RETURN_TYPES = ("MODEL",)
+    FUNCTION = "load_unet"
+    CATEGORY = "bootleg"
+
+    def load_unet(self, unet_name, dequant_dtype, patch_dtype, patch_on_device, any=None):
+        gguf_nodes = get_gguf_nodes()
+        return gguf_nodes.UnetLoaderGGUFAdvanced().load_unet(
+            unet_name, dequant_dtype, patch_dtype, patch_on_device
+        )
+
+class CLIPLoaderGGUF_Any:
+    @classmethod
+    def INPUT_TYPES(s):
+        gguf_nodes = get_gguf_nodes()
+        return add_any_input(gguf_nodes.CLIPLoaderGGUF.INPUT_TYPES())
+
+    RETURN_TYPES = ("CLIP",)
+    FUNCTION = "load_clip"
+    CATEGORY = "bootleg"
+
+    def load_clip(self, clip_name, type="stable_diffusion", any=None):
+        gguf_nodes = get_gguf_nodes()
+        return gguf_nodes.CLIPLoaderGGUF().load_clip(clip_name, type)
+
+class DualCLIPLoaderGGUF_Any:
+    @classmethod
+    def INPUT_TYPES(s):
+        gguf_nodes = get_gguf_nodes()
+        return add_any_input(gguf_nodes.DualCLIPLoaderGGUF.INPUT_TYPES())
+
+    RETURN_TYPES = ("CLIP",)
+    FUNCTION = "load_clip"
+    CATEGORY = "bootleg"
+
+    def load_clip(self, clip_name1, clip_name2, type, any=None):
+        gguf_nodes = get_gguf_nodes()
+        return gguf_nodes.DualCLIPLoaderGGUF().load_clip(clip_name1, clip_name2, type)
+
+class TripleCLIPLoaderGGUF_Any:
+    @classmethod
+    def INPUT_TYPES(s):
+        gguf_nodes = get_gguf_nodes()
+        return add_any_input(gguf_nodes.TripleCLIPLoaderGGUF.INPUT_TYPES())
+
+    RETURN_TYPES = ("CLIP",)
+    FUNCTION = "load_clip"
+    CATEGORY = "bootleg"
+
+    def load_clip(self, clip_name1, clip_name2, clip_name3, any=None):
+        gguf_nodes = get_gguf_nodes()
+        return gguf_nodes.TripleCLIPLoaderGGUF().load_clip(
+            clip_name1, clip_name2, clip_name3
+        )
+
+class QuadrupleCLIPLoaderGGUF_Any:
+    @classmethod
+    def INPUT_TYPES(s):
+        gguf_nodes = get_gguf_nodes()
+        return add_any_input(gguf_nodes.QuadrupleCLIPLoaderGGUF.INPUT_TYPES())
+
+    RETURN_TYPES = ("CLIP",)
+    FUNCTION = "load_clip"
+    CATEGORY = "bootleg"
+
+    def load_clip(self, clip_name1, clip_name2, clip_name3, clip_name4, any=None):
+        gguf_nodes = get_gguf_nodes()
+        return gguf_nodes.QuadrupleCLIPLoaderGGUF().load_clip(
+            clip_name1, clip_name2, clip_name3, clip_name4
+        )
+
 NODE_CLASS_MAPPINGS = {
     "CheckpointLoader_Any": CheckpointLoader_Any,
     "CheckpointLoaderSimple_Any": CheckpointLoaderSimple_Any,
@@ -456,6 +562,12 @@ NODE_CLASS_MAPPINGS = {
     "CLIPVisionLoader_Any": CLIPVisionLoader_Any,
     "StyleModelLoader_Any": StyleModelLoader_Any,
     "GLIGENLoader_Any": GLIGENLoader_Any,
+    "UnetLoaderGGUF_Any": UnetLoaderGGUF_Any,
+    "UnetLoaderGGUFAdvanced_Any": UnetLoaderGGUFAdvanced_Any,
+    "CLIPLoaderGGUF_Any": CLIPLoaderGGUF_Any,
+    "DualCLIPLoaderGGUF_Any": DualCLIPLoaderGGUF_Any,
+    "TripleCLIPLoaderGGUF_Any": TripleCLIPLoaderGGUF_Any,
+    "QuadrupleCLIPLoaderGGUF_Any": QuadrupleCLIPLoaderGGUF_Any,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -473,4 +585,10 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "CLIPVisionLoader_Any": "Load CLIP Vision (Any)",
     "StyleModelLoader_Any": "Load Style Model (Any)",
     "GLIGENLoader_Any": "Load GLIGEN (Any)",
+    "UnetLoaderGGUF_Any": "Unet Loader (GGUF) (Any)",
+    "UnetLoaderGGUFAdvanced_Any": "Unet Loader (GGUF/Advanced) (Any)",
+    "CLIPLoaderGGUF_Any": "CLIPLoader (GGUF) (Any)",
+    "DualCLIPLoaderGGUF_Any": "DualCLIPLoader (GGUF) (Any)",
+    "TripleCLIPLoaderGGUF_Any": "TripleCLIPLoader (GGUF) (Any)",
+    "QuadrupleCLIPLoaderGGUF_Any": "QuadrupleCLIPLoader (GGUF) (Any)",
 }

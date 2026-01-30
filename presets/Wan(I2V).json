@@ -44,7 +44,7 @@
                 "var_number4_min": 1.0,
                 "var_number4_max": 1.3,
                 "var_number4": {
-                    "基础": 1.1
+                    "基础": 1.0
                 },
                 "switch_option1_title": "使用分块VAE解码",
                 "switch_option1": {

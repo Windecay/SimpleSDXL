@@ -32,6 +32,8 @@ from nunchaku.models.utils import CPUOffloadManager
 from nunchaku.ops.fused import fused_gelu_mlp
 
 from ..mixins.model import NunchakuModelMixin
+
+
 class NunchakuGELU(GELU):
     """
     GELU activation with a quantized linear projection.
@@ -399,7 +401,9 @@ class NunchakuQwenImageTransformerBlock(nn.Module):
             **kwargs,
         )
 
-    def _modulate(self, x: torch.Tensor, mod_params: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+    def _modulate(
+        self, x: torch.Tensor, mod_params: torch.Tensor, timestep_zero_index=None
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Apply modulation to input tensor.
 
@@ -409,15 +413,35 @@ class NunchakuQwenImageTransformerBlock(nn.Module):
             Input tensor of shape (batch, seq_len, dim).
         mod_params : torch.Tensor
             Modulation parameters of shape (batch, 3*dim).
+        timestep_zero_index : int, optional
+            The sequence index used to split the input tensor for dual-timestep modulation
+            (e.g., normal vs. zero timestep). If provided, different modulation parameters
+            are applied to the segments before and after this index.
 
         Returns
         -------
         modulated_x : torch.Tensor
             Modulated tensor.
-        gate : torch.Tensor
-            Gate tensor for residual connection.
+        gate : torch.Tensor or tuple of torch.Tensor
+            Gate tensor for residual connection. Returns a tuple of gates if
+            timestep_zero_index is provided.
         """
         shift, scale, gate = mod_params.chunk(3, dim=-1)
+
+        if timestep_zero_index is not None:
+            # Handle index_timestep_zero logic
+            actual_batch = shift.size(0) // 2
+            # Split into normal part and t=0 part
+            shift, shift_0 = shift[:actual_batch], shift[actual_batch:]
+            scale, scale_0 = scale[:actual_batch], scale[actual_batch:]
+            gate, gate_0 = gate[:actual_batch], gate[actual_batch:]
+
+            # Apply separately to different parts of the sequence
+            reg = x[:, :timestep_zero_index] * (1 + scale.unsqueeze(1)) + shift.unsqueeze(1)
+            zero = x[:, timestep_zero_index:] * (1 + scale_0.unsqueeze(1)) + shift_0.unsqueeze(1)
+
+            return torch.cat((reg, zero), dim=1), (gate.unsqueeze(1), gate_0.unsqueeze(1))
+
         if self.scale_shift != 0:
             scale.add_(self.scale_shift)
         return x * scale.unsqueeze(1) + shift.unsqueeze(1), gate.unsqueeze(1)
@@ -429,6 +453,7 @@ class NunchakuQwenImageTransformerBlock(nn.Module):
         encoder_hidden_states_mask: torch.Tensor,
         temb: torch.Tensor,
         image_rotary_emb: Optional[Tuple[torch.Tensor, torch.Tensor]] = None,
+        timestep_zero_index=None,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Forward pass for the transformer block.
@@ -445,6 +470,10 @@ class NunchakuQwenImageTransformerBlock(nn.Module):
             Timestep or conditioning embedding.
         image_rotary_emb : tuple of torch.Tensor, optional
             Rotary positional embeddings.
+        timestep_zero_index : int, optional
+            The sequence index used to split the image stream for dual-timestep modulation.
+            If provided, handles the special logic where a portion of the sequence
+            (e.g., reference latents) is conditioned with a zero timestep.
 
         Returns
         -------
@@ -455,7 +484,12 @@ class NunchakuQwenImageTransformerBlock(nn.Module):
         """
         # Get modulation parameters for both streams
         img_mod_params = self.img_mod(temb)  # [B, 6*dim]
-        txt_mod_params = self.txt_mod(temb)  # [B, 6*dim]
+
+        # Process temb for the text side (text does not require zero index splitting)
+        txt_temb = temb
+        if timestep_zero_index is not None:
+            txt_temb = temb.chunk(2, dim=0)[0]
+        txt_mod_params = self.txt_mod(txt_temb)  # [B, 6*dim]
 
         # Nunchaku's mod_params is [B, 6*dim] instead of [B, dim*6]
         img_mod_params = (
@@ -470,7 +504,7 @@ class NunchakuQwenImageTransformerBlock(nn.Module):
 
         # Process image stream - norm1 + modulation
         img_normed = self.img_norm1(hidden_states)
-        img_modulated, img_gate1 = self._modulate(img_normed, img_mod1)
+        img_modulated, img_gate1 = self._modulate(img_normed, img_mod1, timestep_zero_index)
 
         # Process text stream - norm1 + modulation
         txt_normed = self.txt_norm1(encoder_hidden_states)
@@ -487,15 +521,37 @@ class NunchakuQwenImageTransformerBlock(nn.Module):
         # QwenAttnProcessor2_0 returns (img_output, txt_output) when encoder_hidden_states is provided
         img_attn_output, txt_attn_output = attn_output
 
-        # Apply attention gates and add residual (like in Megatron)
-        hidden_states = hidden_states + img_gate1 * img_attn_output
+        # Residual connection and gate processing
+        if timestep_zero_index is not None:
+            # Handle concatenation for split gates
+            hidden_states = hidden_states + torch.cat(
+                [
+                    img_attn_output[:, :timestep_zero_index] * img_gate1[0],
+                    img_attn_output[:, timestep_zero_index:] * img_gate1[1],
+                ],
+                dim=1,
+            )
+        else:
+            # Apply attention gates and add residual (like in Megatron)
+            hidden_states = hidden_states + img_gate1 * img_attn_output
+
         encoder_hidden_states = encoder_hidden_states + txt_gate1 * txt_attn_output
 
         # Process image stream - norm2 + MLP
         img_normed2 = self.img_norm2(hidden_states)
-        img_modulated2, img_gate2 = self._modulate(img_normed2, img_mod2)
+        img_modulated2, img_gate2 = self._modulate(img_normed2, img_mod2, timestep_zero_index)
         img_mlp_output = self.img_mlp(img_modulated2)
-        hidden_states = hidden_states + img_gate2 * img_mlp_output
+
+        if timestep_zero_index is not None:
+            hidden_states = hidden_states + torch.cat(
+                [
+                    img_mlp_output[:, :timestep_zero_index] * img_gate2[0],
+                    img_mlp_output[:, timestep_zero_index:] * img_gate2[1],
+                ],
+                dim=1,
+            )
+        else:
+            hidden_states = hidden_states + img_gate2 * img_mlp_output
 
         # Process text stream - norm2 + MLP
         txt_normed2 = self.txt_norm2(encoder_hidden_states)
@@ -558,9 +614,11 @@ class NunchakuQwenImageTransformer2DModel(NunchakuModelMixin, QwenImageTransform
         num_attention_heads: int = 24,
         joint_attention_dim: int = 3584,
         pooled_projection_dim: int = 768,
-        guidance_embeds: bool = False,
         axes_dims_rope: Tuple[int, int, int] = (16, 56, 56),
+        default_ref_method="index",
         image_model=None,
+        final_layer=True,
+        use_additional_t_cond=False,
         dtype=None,
         device=None,
         operations=None,
@@ -569,30 +627,18 @@ class NunchakuQwenImageTransformer2DModel(NunchakuModelMixin, QwenImageTransform
         **kwargs,
     ):
         super(QwenImageTransformer2DModel, self).__init__()
-
-        # LoRA support attributes (similar to nunchaku library implementation)
-        self._unquantized_part_sd: dict[str, torch.Tensor] = {}
-        self._unquantized_part_loras: dict[str, torch.Tensor] = {}
-        self._quantized_part_sd: dict[str, torch.Tensor] = {}
-        self._quantized_part_vectors: dict[str, torch.Tensor] = {}
-
-        # ComfyUI LoRA related attributes
-        # Note: comfy_lora_meta_list and comfy_lora_sd_list are now initialized dynamically in _forward
-        # to support Flux-style caching. _lora_config_list is set by LoRA Loader nodes.
-
-        # VAE scale factor for img_shapes calculation (same as diffusers pipeline)
-        self.vae_scale_factor = 8  # Default for Qwen Image
-
         self.dtype = dtype
         self.patch_size = patch_size
         self.out_channels = out_channels or in_channels
         self.inner_dim = num_attention_heads * attention_head_dim
+        self.default_ref_method = default_ref_method
 
         self.pe_embedder = EmbedND(dim=attention_head_dim, theta=10000, axes_dim=list(axes_dims_rope))
 
         self.time_text_embed = QwenTimestepProjEmbeddings(
             embedding_dim=self.inner_dim,
             pooled_projection_dim=pooled_projection_dim,
+            use_additional_t_cond=use_additional_t_cond,
             dtype=dtype,
             device=device,
             operations=operations,
@@ -618,139 +664,22 @@ class NunchakuQwenImageTransformer2DModel(NunchakuModelMixin, QwenImageTransform
             ]
         )
 
-        self.norm_out = LastLayer(
-            self.inner_dim,
-            self.inner_dim,
-            dtype=dtype,
-            device=device,
-            operations=operations,
-        )
-        self.proj_out = operations.Linear(
-            self.inner_dim,
-            patch_size * patch_size * self.out_channels,
-            bias=True,
-            dtype=dtype,
-            device=device,
-        )
+        if final_layer:
+            self.norm_out = LastLayer(
+                self.inner_dim,
+                self.inner_dim,
+                dtype=dtype,
+                device=device,
+                operations=operations,
+            )
+            self.proj_out = operations.Linear(
+                self.inner_dim,
+                patch_size * patch_size * self.out_channels,
+                bias=True,
+                dtype=dtype,
+                device=device,
+            )
         self.gradient_checkpointing = False
-
-    def process_img(self, x, index=0, h_offset=0, w_offset=0):
-        """
-        Preprocess an input image tensor for the model.
-
-        Overrides the base class method to handle 4D tensors (batch, channels, height, width)
-        instead of 5D tensors required by ComfyUI's base implementation.
-
-        Supports both Qwen Image (T2I) and Qwen Image Edit (I2I) models.
-
-        Parameters
-        ----------
-        x : torch.Tensor
-            Input image tensor of shape (batch, channels, height, width) or
-            (batch, channels, 1, height, width) for Image Edit models.
-        index : int, optional
-            Index for image ID encoding.
-        h_offset : int, optional
-            Height offset for patch IDs.
-        w_offset : int, optional
-            Width offset for patch IDs.
-
-        Returns
-        -------
-        img : torch.Tensor
-            Rearranged image tensor of shape (batch, num_patches, patch_dim).
-        img_ids : torch.Tensor
-            Image ID tensor of shape (batch, num_patches, 3).
-        orig_shape : tuple
-            Original shape (batch, channels, height, width) for unpatchify.
-        """
-        from comfy.ldm.common_dit import pad_to_patch_size
-        from einops import rearrange, repeat
-
-        # Handle 5D input for Image Edit models (batch, channels, 1, height, width)
-        # This happens when processing ref_latents in Qwen Image Edit
-        if x.ndim == 5:
-            x = x.squeeze(2)  # Remove middle dimension -> (batch, channels, height, width)
-
-        bs, c, h_orig, w_orig = x.shape
-        x = pad_to_patch_size(x, (self.patch_size, self.patch_size))
-
-        # CRITICAL: The key insight is that rearrange() creates patches for the ENTIRE padded tensor
-        # So img_ids must match the actual patch grid created by rearrange()
-        _, _, h_padded, w_padded = x.shape
-        img = rearrange(x, "b c (h ph) (w pw) -> b (h w) (c ph pw)", ph=self.patch_size, pw=self.patch_size)
-
-        # img.shape[1] is the actual number of patches created by rearrange()
-        actual_patches = img.shape[1]
-
-        # Calculate patch grid dimensions using original dimensions (consistent with diffusers)
-        # This matches the original QwenImageTransformer2DModel implementation
-        h_len = (h_orig + (self.patch_size // 2)) // self.patch_size
-        w_len = (w_orig + (self.patch_size // 2)) // self.patch_size
-
-        # Verify that our calculation matches the actual patches
-        assert (
-            h_len * w_len == actual_patches
-        ), f"Patch count mismatch: calculated={h_len * w_len}, actual={actual_patches}"
-
-        h_offset = (h_offset + (self.patch_size // 2)) // self.patch_size
-        w_offset = (w_offset + (self.patch_size // 2)) // self.patch_size
-
-        img_ids = torch.zeros((h_len, w_len, 3), device=x.device, dtype=x.dtype)
-        img_ids[:, :, 0] = img_ids[:, :, 1] + index
-
-        # EXPERIMENTAL: Center-aligned position IDs (like Diffusers pipeline)
-        # Instead of 0 to h_len-1, use -(h_len//2) to +(h_len//2)
-        # This should make objects appear centered in non-square aspect ratios
-        h_center = h_len // 2
-        w_center = w_len // 2
-        img_ids[:, :, 1] = img_ids[:, :, 1] + torch.linspace(
-            -h_center + h_offset, h_len - 1 - h_center + h_offset, steps=h_len, device=x.device, dtype=x.dtype
-        ).unsqueeze(1)
-        img_ids[:, :, 2] = img_ids[:, :, 2] + torch.linspace(
-            -w_center + w_offset, w_len - 1 - w_center + w_offset, steps=w_len, device=x.device, dtype=x.dtype
-        ).unsqueeze(0)
-
-        # Return orig_shape as tuple: (bs, c, h_padded, w_padded, h_orig, w_orig)
-        # h_padded/w_padded for unpatchify reshape, h_orig/w_orig for final cropping
-        return img, repeat(img_ids, "h w c -> b (h w) c", b=bs), (bs, c, h_padded, w_padded, h_orig, w_orig)
-
-    def forward(
-        self,
-        hidden_states=None,
-        encoder_hidden_states=None,
-        encoder_hidden_states_mask=None,
-        timestep=None,
-        x=None,
-        context=None,
-        attention_mask=None,
-        **kwargs,
-    ):
-        """
-        Forward pass adapter for ComfyUI compatibility.
-
-        This method handles parameter name conversion between ComfyUI's convention
-        (hidden_states, encoder_hidden_states) and the internal implementation
-        (x, context).
-
-        Parameters can be provided in either naming convention:
-        - ComfyUI style: hidden_states, encoder_hidden_states, encoder_hidden_states_mask, timestep
-        - Internal style: x, context, attention_mask, timesteps
-
-        This method delegates to _forward() with the correct parameter names.
-        """
-        # Convert parameter names from ComfyUI to internal format
-        if x is None and hidden_states is not None:
-            x = hidden_states
-        if context is None and encoder_hidden_states is not None:
-            context = encoder_hidden_states
-        if attention_mask is None and encoder_hidden_states_mask is not None:
-            attention_mask = encoder_hidden_states_mask
-        if "timesteps" not in kwargs and timestep is not None:
-            kwargs["timesteps"] = timestep
-
-        # Call internal _forward with correct parameter names
-        return self._forward(x=x, context=context, attention_mask=attention_mask, **kwargs)
 
     def _forward(
         self,
@@ -758,11 +687,10 @@ class NunchakuQwenImageTransformer2DModel(NunchakuModelMixin, QwenImageTransform
         timesteps,
         context,
         attention_mask=None,
-        guidance: torch.Tensor = None,
         ref_latents=None,
+        additional_t_cond=None,
         transformer_options={},
         control=None,
-        controlnet_block_samples=None,
         **kwargs,
     ):
         """
@@ -797,19 +725,29 @@ class NunchakuQwenImageTransformer2DModel(NunchakuModelMixin, QwenImageTransform
         if self.offload:
             self.offload_manager.set_device(device)
 
+        timestep = timesteps
+        encoder_hidden_states = context
+        encoder_hidden_states_mask = attention_mask
+
         hidden_states, img_ids, orig_shape = self.process_img(x)
-        self.last_orig_shape = orig_shape  # Set for later use in unpatchify
         num_embeds = hidden_states.shape[1]
 
+        timestep_zero_index = None
         if ref_latents is not None:
-            # Handle reference latents (for Kontext, etc.) - use original method
             h = 0
             w = 0
             index = 0
-            index_ref_method = kwargs.get("ref_latents_method", "index") == "index"
+            ref_method = kwargs.get("ref_latents_method", self.default_ref_method)
+            index_ref_method = (ref_method == "index") or (ref_method == "index_timestep_zero")
+            negative_ref_method = ref_method == "negative_index"
+            timestep_zero = ref_method == "index_timestep_zero"
             for ref in ref_latents:
                 if index_ref_method:
                     index += 1
+                    h_offset = 0
+                    w_offset = 0
+                elif negative_ref_method:
+                    index -= 1
                     h_offset = 0
                     w_offset = 0
                 else:
@@ -826,102 +764,78 @@ class NunchakuQwenImageTransformer2DModel(NunchakuModelMixin, QwenImageTransform
                 kontext, kontext_ids, _ = self.process_img(ref, index=index, h_offset=h_offset, w_offset=w_offset)
                 hidden_states = torch.cat([hidden_states, kontext], dim=1)
                 img_ids = torch.cat([img_ids, kontext_ids], dim=1)
+            if timestep_zero:
+                if index > 0:
+                    timestep = torch.cat([timestep, timestep * 0], dim=0)
+                    timestep_zero_index = num_embeds
 
-        # Extract dimensions from orig_shape for unpatchify
-        # orig_shape = (bs, c, h_padded, w_padded, h_orig, w_orig)
-        bs, c, h_padded, w_padded, h_orig, w_orig = self.last_orig_shape
-
-        # Prepare ControlNet parameters
-        if control is not None and controlnet_block_samples is not None:
-            # Merge control dict with controlnet_block_samples list
-            if isinstance(control, dict):
-                # Convert list format to dict format for internal processing
-                control_dict = {}
-                for i, block_sample in enumerate(controlnet_block_samples):
-                    control_dict[f"block_{i}"] = block_sample
-                control.update(control_dict)
-            controlnet_block_samples = control
-        elif control is not None:
-            controlnet_block_samples = control
-        elif controlnet_block_samples is not None:
-            pass  # Use as-is
-        else:
-            controlnet_block_samples = None
-
-        # Implement the official Nunchaku forward logic directly
-        # This matches the nunchaku/nunchaku/models/transformers/transformer_qwenimage.py implementation
-        device = hidden_states.device
-        if self.offload:
-            self.offload_manager.set_device(device)
-
-        hidden_states = self.img_in(hidden_states)
-
-        timesteps = timesteps.to(hidden_states.dtype)
-        encoder_hidden_states = self.txt_norm(context)
-        encoder_hidden_states = self.txt_in(encoder_hidden_states)
-
-        if guidance is not None:
-            guidance = guidance.to(hidden_states.dtype) * 1000
-
-        temb = (
-            self.time_text_embed(timesteps, hidden_states)
-            if guidance is None
-            else self.time_text_embed(timesteps, guidance, hidden_states)
-        )
-
-        # Calculate txt_start using the original ComfyUI method
         txt_start = round(
             max(
                 ((x.shape[-1] + (self.patch_size // 2)) // self.patch_size) // 2,
                 ((x.shape[-2] + (self.patch_size // 2)) // self.patch_size) // 2,
             )
         )
-
-        # Generate txt_ids exactly like original ComfyUI
         txt_ids = (
             torch.arange(txt_start, txt_start + context.shape[1], device=x.device)
             .reshape(1, -1, 1)
             .repeat(x.shape[0], 1, 3)
         )
-
-        # Combine txt_ids and img_ids exactly like original ComfyUI
         ids = torch.cat((txt_ids, img_ids), dim=1)
         image_rotary_emb = self.pe_embedder(ids).squeeze(1).unsqueeze(2).to(x.dtype)
         del ids, txt_ids, img_ids
 
+        hidden_states = self.img_in(hidden_states)
+        encoder_hidden_states = self.txt_norm(encoder_hidden_states)
+        encoder_hidden_states = self.txt_in(encoder_hidden_states)
+
+        temb = self.time_text_embed(timestep, hidden_states, additional_t_cond)
+
+        patches_replace = transformer_options.get("patches_replace", {})
+        blocks_replace = patches_replace.get("dit", {})
+
+        # Setup compute stream for offloading
         compute_stream = torch.cuda.current_stream()
         if self.offload:
             self.offload_manager.initialize(compute_stream)
-        for block_idx, block in enumerate(self.transformer_blocks):
+
+        for i, block in enumerate(self.transformer_blocks):
             with torch.cuda.stream(compute_stream):
                 if self.offload:
-                    block = self.offload_manager.get_block(block_idx)
+                    block = self.offload_manager.get_block(i)
+                if ("double_block", i) in blocks_replace:
 
-                if torch.is_grad_enabled() and self.gradient_checkpointing:
-                    encoder_hidden_states, hidden_states = self._gradient_checkpointing_func(
-                        block,
-                        hidden_states,
-                        encoder_hidden_states,
-                        attention_mask,
-                        temb,
-                        image_rotary_emb,
+                    def block_wrap(args):
+                        out = {}
+                        out["txt"], out["img"] = block(
+                            hidden_states=args["img"],
+                            encoder_hidden_states=args["txt"],
+                            encoder_hidden_states_mask=encoder_hidden_states_mask,
+                            temb=args["vec"],
+                            image_rotary_emb=args["pe"],
+                        )
+                        return out
+
+                    out = blocks_replace[("double_block", i)](
+                        {"img": hidden_states, "txt": encoder_hidden_states, "vec": temb, "pe": image_rotary_emb},
+                        {"original_block": block_wrap},
                     )
+                    hidden_states = out["img"]
+                    encoder_hidden_states = out["txt"]
                 else:
                     encoder_hidden_states, hidden_states = block(
                         hidden_states=hidden_states,
                         encoder_hidden_states=encoder_hidden_states,
-                        encoder_hidden_states_mask=attention_mask,
+                        encoder_hidden_states_mask=encoder_hidden_states_mask,
                         temb=temb,
                         image_rotary_emb=image_rotary_emb,
+                        timestep_zero_index=timestep_zero_index,
                     )
-
-                # ControlNet helpers (device/dtype-safe residual adds)
+                # ControlNet helpers(device/dtype-safe residual adds)
                 _control = (
                     control
                     if control is not None
                     else (transformer_options.get("control", None) if isinstance(transformer_options, dict) else None)
                 )
-
                 if isinstance(_control, dict):
                     control_i = _control.get("input")
                     try:
@@ -931,48 +845,33 @@ class NunchakuQwenImageTransformer2DModel(NunchakuModelMixin, QwenImageTransform
                 else:
                     control_i = None
                     _scale = 1.0
-
-                if control_i is not None and block_idx < len(control_i):
-                    add = control_i[block_idx]
+                if control_i is not None and i < len(control_i):
+                    add = control_i[i]
                     if add is not None:
                         if (
                             getattr(add, "device", None) != hidden_states.device
                             or getattr(add, "dtype", None) != hidden_states.dtype
                         ):
                             add = add.to(device=hidden_states.device, dtype=hidden_states.dtype, non_blocking=True)
-                        # Check if shapes match exactly (following official nunchaku implementation)
-                        if hidden_states.shape == add.shape:
-                            # Shapes match - simple addition (like official implementation)
-                            hidden_states = hidden_states + add * _scale
-                        else:
-                            # Shapes don't match - use safe slicing
-                            t = min(hidden_states.shape[1], add.shape[1])
-                            if t > 0:
-                                hidden_states[:, :t] = hidden_states[:, :t] + add[:, :t] * _scale
+                        t = min(hidden_states.shape[1], add.shape[1])
+                        if t > 0:
+                            hidden_states[:, :t].add_(add[:, :t], alpha=_scale)
 
             if self.offload:
                 self.offload_manager.step(compute_stream)
 
+        # Process final normalization
+        if timestep_zero_index is not None:
+            temb = temb.chunk(2, dim=0)[0]
+
         hidden_states = self.norm_out(hidden_states, temb)
         hidden_states = self.proj_out(hidden_states)
 
-        # Unpatchify: convert from (batch, num_patches, patch_dim) to (batch, channels, height, width)
-        bs, c, h_padded, w_padded, h_orig, w_orig = self.last_orig_shape
-        h_len = (h_orig + (self.patch_size // 2)) // self.patch_size
-        w_len = (w_orig + (self.patch_size // 2)) // self.patch_size
-        num_embeds = h_len * w_len
-
-        # Reshape to image: (batch, num_patches, patch_dim) -> (batch, channels, height, width)
         hidden_states = hidden_states[:, :num_embeds].view(
-            bs, h_len, w_len, self.out_channels, self.patch_size, self.patch_size
+            orig_shape[0], orig_shape[-2] // 2, orig_shape[-1] // 2, orig_shape[1], 2, 2
         )
         hidden_states = hidden_states.permute(0, 3, 1, 4, 2, 5)
-        # Use padded dimensions for reshape, then crop to original
-        output = hidden_states.reshape(bs, self.out_channels, h_padded, w_padded)[:, :, :h_orig, :w_orig]
-
-        torch.cuda.empty_cache()
-
-        return (output,)
+        return hidden_states.reshape(orig_shape)[:, :, :, : x.shape[-2], : x.shape[-1]]
 
     def set_offload(self, offload: bool, **kwargs):
         """

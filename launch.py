@@ -145,7 +145,7 @@ def check_base_environment():
                 run(f'"{python}" -m {pkg_command}', f'Installing {extra_pkg_name}', f"Couldn't install {extra_pkg_name}", live=True)
 
         update_pkgs = [('comfyui_frontend_package', '1.37.11'), ('comfyui_workflow_templates', '0.8.24'), ('comfyui-embedded-docs', '0.4.0'), ('transformers', '4.56.2'), ('bitsandbytes', '0.45.5'), ('accelerate', '1.10.1'), ('av', '14.2.0'), ('yarl', '1.18.0'), ('gguf', '0.14.0'),
-                       ('sentencepiece', '0.2.0'), ('diffusers', '0.35.1'), ('huggingface_hub', '0.35.1'), ('peft', '0.17.1'), ('tokenizers', '0.22.1'), ('tiktoken', '0.11.0'), ('librosa', '0.11.0'), ('moviepy', '2.2.1'), ('piexif', '1.1.3'), ('deepdiff', '8.6.0'), ('pydantic', '2.12.2'),
+                       ('sentencepiece', '0.2.0'), ('diffusers', '0.36.0'), ('huggingface_hub', '0.35.1'), ('peft', '0.17.1'), ('tokenizers', '0.22.1'), ('tiktoken', '0.11.0'), ('librosa', '0.11.0'), ('moviepy', '2.2.1'), ('piexif', '1.1.3'), ('deepdiff', '8.6.0'), ('pydantic', '2.12.2'),
                        ('GitPython', '3.1.45'), ('PyGithub', '2.8.1'), ('matrix-nio', '0.24.0'), ('toml', '0.10.2'), ('uv', '0.9.3'), ('clip-interrogator', '0.6.0'), ('simpleeval', '1.0.3'), ('compel', '2.3.0'), ('rotary-embedding-torch', '0.8.9'), ('hydra-core', '1.3.2'), ('uuid7', '0.1.0'), ('aiosqlite', '0.21.0'), ('configs','3.0.3'),
                        ('mmdet', '3.3.0'), ('mmengine', '0.10.7'), ('munkres', '1.1.4'), ('terminaltables', '3.1.10'), ('color-matcher', '0.6.0'), ('natsort', '8.4.0'), ('olefile', '0.47'), ('taichi', '1.7.4'), ('torchdiffeq', '0.2.5'), ('lark', '1.3.1'), ('comfy-kitchen', '0.2.7')]
         for (update_pkg_name, update_pkg_version) in update_pkgs:
@@ -157,8 +157,8 @@ def check_base_environment():
             logger.info("Installing facenet-pytorch==2.6.0 with --no-deps")
             run_pip(f"install -U facenet-pytorch==2.6.0 --no-deps", "facenet-pytorch==2.6.0")
         try:
-            is_torch29_nunchaku = is_installed_version('nunchaku', '1.0.2+torch2.9')
-            is_torch27_nunchaku = is_installed_version('nunchaku', '1.0.2+torch2.7')
+            is_torch29_nunchaku = is_installed_version('nunchaku', '1.2.1+torch2.9')
+            is_torch27_nunchaku = is_installed_version('nunchaku', '1.2.1+torch2.7')
 
             need_nunchaku_install = not is_torch29_nunchaku and not is_torch27_nunchaku
 
@@ -177,15 +177,15 @@ def check_base_environment():
                 pkg_url = None
                 if platform.system() == 'Windows':
                     if '2.9' in torch_version:
-                        pkg_url = 'https://www.modelscope.cn/models/nunchaku-tech/nunchaku/resolve/master/nunchaku-1.0.2%2Btorch2.9-cp310-cp310-win_amd64.whl'
-                        pkg_name = 'nunchaku-1.0.2+torch2.9-cp310-cp310-win_amd64.whl'
+                        pkg_url = 'https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/nunchaku/nunchaku-1.2.1%2Bcu12.8torch2.9-cp310-cp310-win_amd64.whl'
+                        pkg_name = 'nunchaku-1.2.1+cu12.8torch2.9-cp310-cp310-win_amd64.whl'
                     else:
                         pkg_url = 'https://www.modelscope.cn/models/nunchaku-tech/nunchaku/resolve/master/nunchaku-1.0.2%2Btorch2.7-cp310-cp310-win_amd64.whl'
                         pkg_name = 'nunchaku-1.0.2+torch2.7-cp310-cp310-win_amd64.whl'
                 elif platform.system() == 'Linux' and sys.version_info.major == 3 and sys.version_info.minor == 10:
                     if '2.9' in torch_version:
-                        pkg_url = 'https://www.modelscope.cn/models/nunchaku-tech/nunchaku/resolve/master/nunchaku-1.0.2%2Btorch2.9-cp310-cp310-linux_x86_64.whl'
-                        pkg_name = 'nunchaku-1.0.2+torch2.9-cp310-cp310-linux_x86_64.whl'
+                        pkg_url = 'https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/nunchaku/nunchaku-1.2.1%2Bcu12.8torch2.9-cp310-cp310-linux_x86_64.whl'
+                        pkg_name = 'nunchaku-1.2.1+cu12.8torch2.9-cp310-cp310-linux_x86_64.whl'
                     elif '2.7' in torch_version:
                         pkg_url = 'https://www.modelscope.cn/models/nunchaku-tech/nunchaku/resolve/master/nunchaku-1.0.2%2Btorch2.7-cp310-cp310-linux_x86_64.whl'
                         pkg_name = 'nunchaku-1.0.2+torch2.7-cp310-cp310-linux_x86_64.whl'
@@ -195,7 +195,7 @@ def check_base_environment():
                     print(f'Preparing to install nunchaku, URL: {pkg_url}')
                     has_update_whl = download_if_updated(pkg_url, pkg_path)
                     # 再次检查是否已安装对应版本，防止重复安装
-                    target_ver = '1.0.2+torch2.9' if '2.9' in torch_version else '1.0.2+torch2.7'
+                    target_ver = '1.2.1+torch2.9' if '2.9' in torch_version else '1.2.1+torch2.7'
                     if has_update_whl or not is_installed_version('nunchaku', target_ver) or (platform.system() == 'Linux' and need_nunchaku_install):
                         run(f'"{python}" -m pip install -U {pkg_path}', f'Install {pkg_path}', live=True)
         except Exception as e:

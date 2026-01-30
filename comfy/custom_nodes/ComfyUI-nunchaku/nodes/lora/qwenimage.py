@@ -22,8 +22,8 @@ class NunchakuQwenImageLoraLoader:
     Node for loading and applying a LoRA to a Nunchaku Qwen Image model.
     """
     @classmethod
-    def IS_CHANGED(s, *args, **kwargs):
-        return float("NaN")
+    def IS_CHANGED(s, model, lora_name, lora_strength, *args, **kwargs):
+        return f"{lora_name}_{lora_strength}"
 
     @classmethod
     def INPUT_TYPES(s):
@@ -73,12 +73,28 @@ class NunchakuQwenImageLoraLoader:
 
         transformer = model_wrapper.model
 
-        # Flux-style deepcopy
+        saved_config = None
+        if hasattr(model.model, 'model_config'):
+            saved_config = model.model.model_config
+            model.model.model_config = None
+        
         model_wrapper.model = None
-        ret_model = copy.deepcopy(model)
+        
+        try:
+            ret_model = copy.deepcopy(model)
+        finally:
+            if saved_config is not None:
+                model.model.model_config = saved_config
+            model_wrapper.model = transformer
+        
         ret_model_wrapper = ret_model.model.diffusion_model
-        model_wrapper.model = transformer
+        
+        if saved_config is not None:
+            ret_model.model.model_config = saved_config
         ret_model_wrapper.model = transformer
+
+        if hasattr(model_wrapper, "loras"):
+             ret_model_wrapper.loras = list(model_wrapper.loras)
 
         lora_path = folder_paths.get_full_path_or_raise("loras", lora_name)
         ret_model_wrapper.loras.append((lora_path, lora_strength))
@@ -94,8 +110,13 @@ class NunchakuQwenImageLoraStack:
     Node for loading and applying multiple LoRAs to a Nunchaku Qwen Image model.
     """
     @classmethod
-    def IS_CHANGED(s, *args, **kwargs):
-        return float("NaN")
+    def IS_CHANGED(s, model, **kwargs):
+        fingerprint = ""
+        for i in range(1, 6):
+            lora_name = kwargs.get(f"lora_name_{i}", "None")
+            lora_strength = kwargs.get(f"lora_strength_{i}", 0.0)
+            fingerprint += f"{lora_name}:{lora_strength}|"
+        return fingerprint
 
     @classmethod
     def INPUT_TYPES(s):
@@ -137,14 +158,25 @@ class NunchakuQwenImageLoraStack:
         if not isinstance(model_wrapper, ComfyQwenImageWrapper):
             logger.error("❌ Model type mismatch! Please use 'Nunchaku Qwen Image DiT Loader'.")
             raise TypeError(f"This LoRA loader only works with Nunchaku Qwen Image models, but got {type(model_wrapper).__name__}.")
-
+        
         transformer = model_wrapper.model
 
-        # Flux-style deepcopy
+        saved_config = None
+        if hasattr(model.model, 'model_config'):
+            saved_config = model.model.model_config
+            model.model.model_config = None
+        
         model_wrapper.model = None
-        ret_model = copy.deepcopy(model)
+        try:
+            ret_model = copy.deepcopy(model)
+        finally:
+            if saved_config is not None:
+                model.model.model_config = saved_config
+            model_wrapper.model = transformer
+        
         ret_model_wrapper = ret_model.model.diffusion_model
-        model_wrapper.model = transformer
+        if saved_config is not None:
+            ret_model.model.model_config = saved_config
         ret_model_wrapper.model = transformer
 
         ret_model_wrapper.loras = model_wrapper.loras.copy()

@@ -158,7 +158,7 @@
       "lora_name": "placeholder.safetensors",
       "strength_model": 0,
       "model": [
-        "135",
+        "139",
         0
       ]
     },
@@ -855,7 +855,7 @@
       ],
       "vl_resize_indexs": "1,2,3",
       "main_image_index": 1,
-      "target_size": 1536,
+      "target_size": 1024,
       "target_vl_size": 384,
       "upscale_method": "lanczos",
       "crop_method": "pad",
@@ -886,7 +886,7 @@
       ],
       "vl_resize_indexs": "1,2,3",
       "main_image_index": 1,
-      "target_size": 1536,
+      "target_size": 1024,
       "target_vl_size": 384,
       "upscale_method": "lanczos",
       "crop_method": "pad",
@@ -921,7 +921,7 @@
       ],
       "vl_resize_indexs": "1,2,3",
       "main_image_index": 1,
-      "target_size": 1536,
+      "target_size": 1024,
       "target_vl_size": 384,
       "upscale_method": "lanczos",
       "crop_method": "pad",
@@ -993,37 +993,99 @@
   },
   "134": {
     "inputs": {
-      "model_name": "svdq-int4_r128-qwen-image-edit-2509-lightningv2.0-4steps.safetensors",
+      "model_name": "placeholder.safetensors",
       "cpu_offload": "enable",
       "vram_margin_gb": 4,
-      "num_blocks_on_gpu": 10,
+      "num_blocks_on_gpu": [
+        "143",
+        1
+      ],
       "use_pin_memory": "disable"
     },
     "class_type": "NunchakuQwenImageDiTLoader",
     "_meta": {
-      "title": "Nunchaku Qwen-Image DiT Loader"
+      "title": "base_model"
     }
   },
-  "135": {
+  "136": {
     "inputs": {
-      "lora_name_1": "None",
-      "lora_strength_1": 1,
-      "lora_name_2": "None",
-      "lora_strength_2": 1,
-      "lora_name_3": "None",
-      "lora_strength_3": 1,
-      "lora_name_4": "None",
-      "lora_strength_4": 1,
-      "lora_name_5": "None",
-      "lora_strength_5": 1,
+      "lora_name": "placeholder.safetensors",
+      "lora_strength": 0,
       "model": [
         "134",
         0
       ]
     },
-    "class_type": "NunchakuQwenImageLoraStack",
+    "class_type": "NunchakuQwenImageLoraLoader",
     "_meta": {
-      "title": "Nunchaku Qwen Image LoRA Stack"
+      "title": "Nunchaku Qwen Image LoRA Loader1"
+    }
+  },
+  "137": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "lora_strength": 0,
+      "model": [
+        "136",
+        0
+      ]
+    },
+    "class_type": "NunchakuQwenImageLoraLoader",
+    "_meta": {
+      "title": "Nunchaku Qwen Image LoRA Loader2"
+    }
+  },
+  "138": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "lora_strength": 0,
+      "model": [
+        "137",
+        0
+      ]
+    },
+    "class_type": "NunchakuQwenImageLoraLoader",
+    "_meta": {
+      "title": "Nunchaku Qwen Image LoRA Loader3"
+    }
+  },
+  "139": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "lora_strength": 0,
+      "model": [
+        "138",
+        0
+      ]
+    },
+    "class_type": "NunchakuQwenImageLoraLoader",
+    "_meta": {
+      "title": "Nunchaku Qwen Image LoRA Loader4"
+    }
+  },
+  "142": {
+    "inputs": {
+      "value": 10
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "Int"
+    }
+  },
+  "143": {
+    "inputs": {
+      "signal": [
+        "1",
+        0
+      ],
+      "value": [
+        "142",
+        0
+      ]
+    },
+    "class_type": "ImpactExecutionOrderController",
+    "_meta": {
+      "title": "Execution Order Controller"
     }
   }
 }
