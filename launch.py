@@ -157,8 +157,8 @@ def check_base_environment():
             logger.info("Installing facenet-pytorch==2.6.0 with --no-deps")
             run_pip(f"install -U facenet-pytorch==2.6.0 --no-deps", "facenet-pytorch==2.6.0")
         try:
-            is_torch29_nunchaku = is_installed_version('nunchaku', '1.2.1+torch2.9')
-            is_torch27_nunchaku = is_installed_version('nunchaku', '1.2.1+torch2.7')
+            is_torch29_nunchaku = is_installed_version('nunchaku', '1.2.1+cu12.8torch2.9')
+            is_torch27_nunchaku = is_installed_version('nunchaku', '1.0.2+torch2.7')
 
             need_nunchaku_install = not is_torch29_nunchaku and not is_torch27_nunchaku
 
@@ -195,7 +195,7 @@ def check_base_environment():
                     print(f'Preparing to install nunchaku, URL: {pkg_url}')
                     has_update_whl = download_if_updated(pkg_url, pkg_path)
                     # 再次检查是否已安装对应版本，防止重复安装
-                    target_ver = '1.2.1+torch2.9' if '2.9' in torch_version else '1.2.1+torch2.7'
+                    target_ver = '1.2.1+cu12.8torch2.9' if '2.9' in torch_version else '1.0.2+torch2.7'
                     if has_update_whl or not is_installed_version('nunchaku', target_ver) or (platform.system() == 'Linux' and need_nunchaku_install):
                         run(f'"{python}" -m pip install -U {pkg_path}', f'Install {pkg_path}', live=True)
         except Exception as e:
