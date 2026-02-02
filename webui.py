@@ -87,12 +87,20 @@ def get_task(*args):
     return worker.AsyncTask(args=args)
 
 def generate_clicked(task: worker.AsyncTask, state):
+    user_did = None
+    try:
+        if isinstance(state, dict) and "user" in state and state["user"] is not None:
+            user_did = state["user"].get_did()
+    except Exception:
+        user_did = None
+
     with model_management.interrupt_processing_mutex:
         model_management.interrupt_processing = False
     if len(task.args) == 0:
         return
     is_mobile = state["__is_mobile"]
     is_fooocus = state["engine"] == 'Fooocus'
+    task_meta = f"task_id={getattr(task, 'task_id', None)}, user_did={user_did}, task_class={getattr(task, 'task_class', None)}, task_name={getattr(task, 'task_name', None)}, task_method={getattr(task, 'task_method', None)}"
 
     # outputs=[progress_html, progress_window, progress_gallery, progress_video, gallery]
     # if "absent_model" in state and state["absent_model"]:
@@ -112,30 +120,48 @@ def generate_clicked(task: worker.AsyncTask, state):
     last_update_time = time.time()
     loop_num = 0
     ready_flag = False
-    while qsize>0:
-        current_time = time.time()
-        if (current_time - MAX_WAIT_TIME*loop_num - last_update_time) < MAX_WAIT_TIME:
-            yield gr.update(visible=True, value=modules.html.make_progress_html(1, f'生图任务已入队列({qsize})，请等待...')), \
-                gr.update(visible=True, value=get_welcome_image(is_mobile=is_mobile, is_change=True)), \
-                gr.update(visible=False, value=None), \
-                gr.update(visible=False), \
-                gr.update(visible=False), \
-                False, \
-                gr.update(visible=False), \
-                gr.update(visible=False, size='sm'), \
-                gr.update(interactive=False), \
-                gr.update(interactive=False)
-            if qsize<=1 or worker.get_processing_id() == task.task_id:
+    queue_start_time = time.time()
+    logged_queue_wait = False
+    logger.info(f"[Generate] enqueue: qsize={qsize}, {task_meta}")
+    try:
+        while qsize > 0:
+            current_time = time.time()
+            if len(task.yields) > 0 or len(task.results) > 0 or task.processing:
                 ready_flag = True
+                logger.info(f"[Generate] queue_exit(activity): waited={current_time - queue_start_time:.2f}s, qsize={qsize}, {task_meta}")
                 break
-        else:
-            loop_num += 1
-            if loop_num > MAX_LOOP_NUM:
-                logger.info(f'ready to restart worker thread...')
-                worker.restart(task)
-                break
-        time.sleep(POLL_INTERVAL)
-        qsize = worker.get_task_size()
+            if (current_time - MAX_WAIT_TIME*loop_num - last_update_time) < MAX_WAIT_TIME:
+                if (not logged_queue_wait) and (current_time - queue_start_time) >= 5.0:
+                    logged_queue_wait = True
+                    logger.warning(f"[Generate] queue_wait: waited={current_time - queue_start_time:.2f}s, qsize={qsize}, processing_id={worker.get_processing_id()}, {task_meta}")
+                yield gr.update(visible=True, value=modules.html.make_progress_html(1, f'生图任务已入队列({qsize})，请等待...')), \
+                    gr.update(visible=True, value=get_welcome_image(is_mobile=is_mobile, is_change=True)), \
+                    gr.update(visible=False, value=None), \
+                    gr.update(visible=False), \
+                    gr.update(visible=False), \
+                    False, \
+                    gr.update(visible=False), \
+                    gr.update(visible=False, size='sm'), \
+                    gr.update(interactive=False), \
+                    gr.update(interactive=False)
+                if qsize<=1 or worker.get_processing_id() == task.task_id:
+                    ready_flag = True
+                    logger.info(f"[Generate] queue_exit(turn): waited={current_time - queue_start_time:.2f}s, qsize={qsize}, processing_id={worker.get_processing_id()}, {task_meta}")
+                    break
+            else:
+                loop_num += 1
+                if loop_num > MAX_LOOP_NUM:
+                    logger.info(f"[Generate] queue_restart_worker: loop_num={loop_num}, max_loop={MAX_LOOP_NUM}, {task_meta}")
+                    worker.restart(task)
+                    break
+            time.sleep(POLL_INTERVAL)
+            qsize = worker.get_task_size()
+    except GeneratorExit:
+        logger.warning(f"[Generate] client_disconnected(queue): waited={time.time() - queue_start_time:.2f}s, qsize={qsize}, {task_meta}")
+        raise
+    except BaseException:
+        logger.exception(f"[Generate] error(queue): waited={time.time() - queue_start_time:.2f}s, qsize={qsize}, {task_meta}")
+        raise
     
     execution_start_time = time.perf_counter()
     finished = False
@@ -143,8 +169,16 @@ def generate_clicked(task: worker.AsyncTask, state):
     MAX_WAIT_TIME = 1800 if task.content_type == 'image' else 7200
     POLL_INTERVAL = 0.08
     in_progress = False
+    local_start_time = time.time()
+    last_heartbeat_time = local_start_time
+    HEARTBEAT_INTERVAL = 1.0
+    UNLOCK_CONTROLS_AFTER = 12.0
+    logged_controls_unlock = False
+    logged_backend_ready_wait = False
+    logged_first_yield = False
+    yields_processed = 0
+    logger.info(f"[Generate] start: qsize={qsize}, ready_flag={ready_flag}, {task_meta}")
 
-    logger.info(f"Start generating..., qsize={qsize}")
     last_update_time = time.time()
 
     preview_cache = []
@@ -154,49 +188,107 @@ def generate_clicked(task: worker.AsyncTask, state):
     waiting_for_new_step_frame = False
     backend_ready = False
 
-    while not finished:
-        current_time = time.time()
-        if (current_time - last_update_time > MAX_WAIT_TIME) or not ready_flag:
-            yield gr.update(visible=True, value=modules.html.make_progress_html(0, '生图任务已超时!')), \
-                gr.update(visible=True), \
-                gr.update(visible=False), \
-                gr.update(visible=False), \
-                gr.update(visible=False), \
-                False, \
-                gr.update(visible=False), \
-                gr.update(visible=False, size='sm'), \
-                gr.update(interactive=True), \
-                gr.update(interactive=True)
-            logger.error(f"Task timeout after {MAX_WAIT_TIME} seconds, ready_flag={ready_flag}, last_update_time={last_update_time}")
-            task.last_stop = 'stop'
-            worker.worker.stop_processing(task, 0, 'timeout')
-            if (task.processing):
-                logger.error("Send interrupt flag to process and comfyd")
-                worker.worker.interrupt_processing()
-            yield gr.update(visible=False), \
-                gr.update(visible=True), \
-                gr.update(visible=False), \
-                gr.update(visible=False), \
-                gr.update(visible=False), \
-                False, \
-                gr.update(visible=False), \
-                gr.update(visible=False, size='sm'), \
-                gr.update(interactive=True), \
-                gr.update(interactive=True)
-            break
+    try:
+        while not finished:
+            current_time = time.time()
+            if (current_time - last_update_time > MAX_WAIT_TIME) or not ready_flag:
+                yield gr.update(visible=True, value=modules.html.make_progress_html(0, '生图任务已超时!')), \
+                    gr.update(visible=True), \
+                    gr.update(visible=False), \
+                    gr.update(visible=False), \
+                    gr.update(visible=False), \
+                    False, \
+                    gr.update(visible=False), \
+                    gr.update(visible=False, size='sm'), \
+                    gr.update(interactive=True), \
+                    gr.update(interactive=True)
+                logger.error(f"[Generate] timeout: max_wait={MAX_WAIT_TIME}, ready_flag={ready_flag}, last_update_time={last_update_time}, {task_meta}")
+                task.last_stop = 'stop'
+                worker.worker.stop_processing(task, 0, 'timeout')
+                if (task.processing):
+                    logger.error(f"[Generate] timeout_interrupt: {task_meta}")
+                    worker.worker.interrupt_processing()
+                yield gr.update(visible=False), \
+                    gr.update(visible=True), \
+                    gr.update(visible=False), \
+                    gr.update(visible=False), \
+                    gr.update(visible=False), \
+                    False, \
+                    gr.update(visible=False), \
+                    gr.update(visible=False, size='sm'), \
+                    gr.update(interactive=True), \
+                    gr.update(interactive=True)
+                break
 
-        time.sleep(POLL_INTERVAL)
+            time.sleep(POLL_INTERVAL)
 
-        if len(task.yields) > 0:
-            flag, product = task.yields.pop(0)
-            in_progress = True
+            controls_unlocked = backend_ready or ((current_time - local_start_time) >= UNLOCK_CONTROLS_AFTER)
+            if controls_unlocked and (not backend_ready) and (not logged_controls_unlock):
+                logged_controls_unlock = True
+                logger.warning(f"[Generate] controls_unlocked_by_timeout: unlock_after={UNLOCK_CONTROLS_AFTER}s, {task_meta}")
 
-            if flag == 'status':
-                if product == 'backend_ready':
-                    backend_ready = True
-                    yield gr.update(visible=True, value=modules.html.make_progress_html(1, '任务准备开始，加载模型...')), \
+            if (not backend_ready) and (not logged_backend_ready_wait) and ((current_time - local_start_time) >= 15.0):
+                logged_backend_ready_wait = True
+                logger.warning(f"[Generate] backend_ready_delayed: waited={current_time - local_start_time:.2f}s, yields_len={len(task.yields)}, processing={getattr(task, 'processing', None)}, {task_meta}")
+
+            if len(task.yields) > 0:
+                flag, product = task.yields.pop(0)
+                yields_processed += 1
+                in_progress = True
+                if not logged_first_yield:
+                    logged_first_yield = True
+                    logger.info(f"[Generate] first_yield: delay={current_time - local_start_time:.2f}s, flag={flag}, {task_meta}")
+
+                if flag == 'status':
+                    if product == 'backend_ready':
+                        backend_ready = True
+                        logger.info(f"[Generate] backend_ready: delay={current_time - local_start_time:.2f}s, {task_meta}")
+                        yield gr.update(visible=True, value=modules.html.make_progress_html(1, '任务准备开始，加载模型...')), \
+                            gr.update(), \
+                            gr.update(), \
+                            gr.update(visible=False), \
+                            gr.update(visible=False), \
+                            False, \
+                            gr.update(visible=False), \
+                            gr.update(visible=False, size='sm'), \
+                            gr.update(interactive=True), \
+                            gr.update(interactive=True)
+
+                if flag == 'preview':
+                    last_update_time = current_time
+                    percentage, title, image = product
+
+                    if title != last_preview_title:
+                        last_preview_title = title
+                        waiting_for_new_step_frame = True
+
+                    if image is not None:
+                        if waiting_for_new_step_frame:
+                            preview_cache = []
+                            preview_cache_index = 0
+                            waiting_for_new_step_frame = False
+
+                        preview_cache.append(image)
+
+                    last_preview_percentage = percentage
+
+                    yield gr.update(visible=True, value=modules.html.make_progress_html(percentage, title)), \
+                        gr.update(visible=True, value=image) if image is not None else gr.update(), \
                         gr.update(), \
-                        gr.update(), \
+                        gr.update(visible=False), \
+                        gr.update(visible=False), \
+                        False, \
+                        gr.update(visible=False), \
+                        gr.update(visible=False, size='sm'), \
+                        gr.update(interactive=controls_unlocked), \
+                        gr.update(interactive=controls_unlocked)
+                if flag == 'results':
+                    preview_cache = []
+                    last_update_time = current_time
+
+                    yield gr.update(visible=True), \
+                        gr.update(visible=True), \
+                        gr.update(visible=True, value=product), \
                         gr.update(visible=False), \
                         gr.update(visible=False), \
                         False, \
@@ -204,97 +296,76 @@ def generate_clicked(task: worker.AsyncTask, state):
                         gr.update(visible=False, size='sm'), \
                         gr.update(interactive=True), \
                         gr.update(interactive=True)
+                if flag == 'finish':
+                    preview_cache = []
+                    if not args_manager.args.disable_enhance_output_sorting and is_fooocus:
+                        product = sort_enhance_images(product, task)
 
-            if flag == 'preview':
-                last_update_time = current_time
-                percentage, title, image = product
+                    has_video = False
+                    video_path = None
+                    for path in product:
+                        if isinstance(path, str) and path.lower().endswith(('.mp4', '.webm')):
+                            has_video = True
+                            video_path = path
+                            break
 
-                if title != last_preview_title:
-                    last_preview_title = title
-                    waiting_for_new_step_frame = True
+                    yield gr.update(visible=False), \
+                        gr.update(visible=False, value=get_welcome_image(is_mobile=is_mobile)), \
+                        gr.update(visible=False if has_video else True, value=product), \
+                        gr.update(visible=True if has_video else False, value=video_path), \
+                        gr.update(visible=False), \
+                        False, \
+                        gr.update(visible=False), \
+                        gr.update(visible=False, size='sm'), \
+                        gr.update(interactive=True), \
+                        gr.update(interactive=True)
+                    finished = True
 
-                if image is not None:
-                    if waiting_for_new_step_frame:
-                        preview_cache = []
-                        preview_cache_index = 0
-                        waiting_for_new_step_frame = False
+                    # delete Fooocus temp images, only keep gradio temp images
+                    if args_manager.args.disable_image_log:
+                        for filepath in product:
+                            if isinstance(filepath, str) and os.path.exists(filepath):
+                                os.remove(filepath)
 
-                    preview_cache.append(image)
+            elif len(preview_cache) > 1:
+                preview_cache_index = (preview_cache_index + 1) % len(preview_cache)
+                cached_image = preview_cache[preview_cache_index]
 
-                last_preview_percentage = percentage
-
-                yield gr.update(visible=True, value=modules.html.make_progress_html(percentage, title)), \
-                    gr.update(visible=True, value=image) if image is not None else gr.update(), \
+                yield gr.update(visible=True, value=modules.html.make_progress_html(last_preview_percentage, last_preview_title)), \
+                    gr.update(visible=True, value=cached_image), \
                     gr.update(), \
                     gr.update(visible=False), \
                     gr.update(visible=False), \
                     False, \
                     gr.update(visible=False), \
                     gr.update(visible=False, size='sm'), \
-                    gr.update(interactive=backend_ready), \
-                    gr.update(interactive=backend_ready)
-            if flag == 'results':
-                preview_cache = []
-                last_update_time = current_time
-
-                yield gr.update(visible=True), \
-                    gr.update(visible=True), \
-                    gr.update(visible=True, value=product), \
+                    gr.update(interactive=True), \
+                    gr.update(interactive=True)
+            elif (current_time - last_heartbeat_time) >= HEARTBEAT_INTERVAL:
+                last_heartbeat_time = current_time
+                if in_progress:
+                    continue
+                title = '任务准备中，加载模型...' if not backend_ready else '任务进行中...'
+                yield gr.update(visible=True, value=modules.html.make_progress_html(max(last_preview_percentage, 1), title)), \
+                    gr.update(), \
+                    gr.update(), \
                     gr.update(visible=False), \
                     gr.update(visible=False), \
                     False, \
                     gr.update(visible=False), \
                     gr.update(visible=False, size='sm'), \
-                    gr.update(interactive=True), \
-                    gr.update(interactive=True)
-            if flag == 'finish':
-                preview_cache = []
-                if not args_manager.args.disable_enhance_output_sorting and is_fooocus:
-                    product = sort_enhance_images(product, task)
+                    gr.update(interactive=controls_unlocked), \
+                    gr.update(interactive=controls_unlocked)
+    except GeneratorExit:
+        logger.warning(f"[Generate] client_disconnected(running): backend_ready={backend_ready}, in_progress={in_progress}, yields_processed={yields_processed}, {task_meta}")
+        raise
+    except BaseException:
+        logger.exception(f"[Generate] error(running): backend_ready={backend_ready}, in_progress={in_progress}, yields_processed={yields_processed}, {task_meta}")
+        raise
+    finally:
+        execution_time = time.perf_counter() - execution_start_time
+        logger.info(f"[Generate] end: finished={finished}, backend_ready={backend_ready}, in_progress={in_progress}, yields_processed={yields_processed}, exec_s={execution_time:.2f}, {task_meta}")
 
-                has_video = False
-                video_path = None
-                for path in product:
-                    if isinstance(path, str) and path.lower().endswith(('.mp4', '.webm')):
-                        has_video = True
-                        video_path = path
-                        break
-
-                yield gr.update(visible=False), \
-                    gr.update(visible=False, value=get_welcome_image(is_mobile=is_mobile)), \
-                    gr.update(visible=False if has_video else True, value=product), \
-                    gr.update(visible=True if has_video else False, value=video_path), \
-                    gr.update(visible=False), \
-                    False, \
-                    gr.update(visible=False), \
-                    gr.update(visible=False, size='sm'), \
-                    gr.update(interactive=True), \
-                    gr.update(interactive=True)
-                finished = True
-
-                # delete Fooocus temp images, only keep gradio temp images
-                if args_manager.args.disable_image_log:
-                    for filepath in product:
-                        if isinstance(filepath, str) and os.path.exists(filepath):
-                            os.remove(filepath)
-
-        elif len(preview_cache) > 1:
-            preview_cache_index = (preview_cache_index + 1) % len(preview_cache)
-            cached_image = preview_cache[preview_cache_index]
-
-            yield gr.update(visible=True, value=modules.html.make_progress_html(last_preview_percentage, last_preview_title)), \
-                gr.update(visible=True, value=cached_image), \
-                gr.update(), \
-                gr.update(visible=False), \
-                gr.update(visible=False), \
-                False, \
-                gr.update(visible=False), \
-                gr.update(visible=False, size='sm'), \
-                gr.update(interactive=True), \
-                gr.update(interactive=True)
-
-    execution_time = time.perf_counter() - execution_start_time
-    logger.info(f'Total time: {execution_time:.2f} seconds')
     return
 
 

@@ -10,9 +10,6 @@
                 "theme": ["SCAIL"],
                 "theme_title": "Wan-SCAIL动作迁移",
                 "disvisible": ["scene_canvas_image", "scene_additional_prompt","scene_additional_prompt_2","scene_input_image2", "scene_audio", "scene_refiner_model"],
-                "prompt": {
-                    "SCAIL": "角色赤手空拳"
-                },
                 "task_method": {
                     "SCAIL": "wan_scail_cn"
                 },
@@ -93,7 +90,7 @@
     "default_aspect_ratio": "1024*1024",
     "default_image_number": 1,
     "default_overwrite_step":30,
-    "default_prompt": "角色赤手空拳",
+    "default_prompt": "",
     "default_prompt_negative": "",
     "checkpoint_downloads": {},
     "embeddings_downloads": {},

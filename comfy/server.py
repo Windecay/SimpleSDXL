@@ -935,11 +935,11 @@ class PromptServer():
 
                 if "client_id" in json_data:
                     extra_data["client_id"] = json_data["client_id"]
-                    pattern_hex = r'^[0-9a-fA-F]{32}$'
-                    pattern_uuid = r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
-                    if not re.fullmatch(pattern_hex, json_data["client_id"]) and not re.fullmatch(pattern_uuid, json_data["client_id"]):
-                        if not validity_did(json_data["client_id"]) or not is_registered_did(json_data["client_id"]):
-                            return web.json_response({"error": f'invalid client_id:{json_data["client_id"]}', "node_errors": []}, status=400)
+                    # pattern_hex = r'^[0-9a-fA-F]{32}$'
+                    # pattern_uuid = r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+                    # if not re.fullmatch(pattern_hex, json_data["client_id"]) and not re.fullmatch(pattern_uuid, json_data["client_id"]):
+                    #     if not validity_did(json_data["client_id"]) or not is_registered_did(json_data["client_id"]):
+                    #         return web.json_response({"error": f'invalid client_id:{json_data["client_id"]}', "node_errors": []}, status=400)
 
                 if valid[0]:
                     outputs_to_execute = valid[2]

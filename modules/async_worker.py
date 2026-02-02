@@ -480,6 +480,7 @@ def worker():
 
                     start_time = time.monotonic()
                     timeout_seconds = 10
+                    last_logged_log = None
 
                     log_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'comfy', 'user')
                     while not getattr(task, 'backend_ready_detected', False) and not getattr(task, 'process_flow_finished', False):
@@ -498,7 +499,9 @@ def worker():
                             continue
 
                         latest_log = max(log_files, key=os.path.getmtime)
-                        logger.info(f"[SimpAI-async_worker] Monitoring latest log file: {latest_log}")
+                        if latest_log != last_logged_log:
+                            last_logged_log = latest_log
+                            logger.info(f"Monitoring latest log file: {latest_log}")
                         try:
                             with open(latest_log, 'r', encoding='utf-8', errors='ignore') as f:
                                 f.seek(0, 2)
@@ -518,7 +521,7 @@ def worker():
                                         task.backend_ready_detected = True
                                         return
                         except Exception as e:
-                            logger.info(f"[SimpAI-async_worker] Monitor thread error: {e}")
+                            logger.info(f"Monitor thread error: {e}")
                             time.sleep(0.1)
                 
                 async_task.backend_ready_detected = False
