@@ -42,10 +42,9 @@ from app.custom_node_manager import CustomNodeManager
 from app.subgraph_manager import SubgraphManager
 from typing import Optional, Union
 from api_server.routes.internal.internal_routes import InternalRoutes
-from simpleai_base.simpleai_base import check_entry_point, cert_verify_by_did, validity_did, is_registered_did
+from simpleai_base.simpleai_base import check_entry_point
 from simpleai_base.params_mapper import ComfyTaskParams
 from datetime import datetime
-import re
 
 from protocol import BinaryEventTypes
 
@@ -216,6 +215,7 @@ class PromptServer():
         self.messages = asyncio.Queue()
         self.client_session:Optional[aiohttp.ClientSession] = None
         self.number = 0
+        self._last_ws_rekey_ts = 0.0
 
         middlewares = [cache_control, deprecation_warning]
         if args.enable_compress_response_body:
@@ -257,7 +257,10 @@ class PromptServer():
             sid = request.rel_url.query.get('clientId', '')
             if sid:
                 # Reusing existing session, remove old
-                self.sockets.pop(sid, None)
+                old_ws = self.sockets.pop(sid, None)
+                self.sockets_metadata.pop(sid, None)
+                if old_ws is not None:
+                    asyncio.create_task(old_ws.close())
             else:
                 sid = uuid.uuid4().hex
 
@@ -331,12 +334,12 @@ class PromptServer():
                 if key_point:
                     loop = asyncio.get_running_loop()
                     is_valid_entry = await loop.run_in_executor(None, check_entry_point, key_point)
-            except Exception as e:
-                 traceback.print_exc()
+            except Exception:
+                traceback.print_exc()
 
             if not key_point or (not is_valid_entry and datetime.now().strftime("%Y%m%d%H") not in key_point):
                 return web.Response(status=403, text="Invalid identity key / 没有有效的身份标识 !")
-            
+
             response = web.FileResponse(os.path.join(self.web_root, "index.html"))
             response.set_cookie("sstoken", key_point, max_age=3600*24*30*6, httponly=True, secure=True)
             response.headers['Cache-Control'] = 'no-cache'
@@ -934,7 +937,22 @@ class PromptServer():
                     extra_data = json_data["extra_data"]
 
                 if "client_id" in json_data:
-                    extra_data["client_id"] = json_data["client_id"]
+                    client_id = json_data["client_id"]
+                    if client_id not in self.sockets and len(self.sockets) == 1:
+                        old_sid = next(iter(self.sockets.keys()))
+                        ws = self.sockets.pop(old_sid, None)
+                        meta = self.sockets_metadata.pop(old_sid, {"feature_flags": {}})
+                        if ws is not None:
+                            self.sockets[client_id] = ws
+                            self.sockets_metadata[client_id] = meta
+                            now = time.monotonic()
+                            if now - self._last_ws_rekey_ts >= 10.0:
+                                self._last_ws_rekey_ts = now
+                                logging.warning(
+                                    f"[Prompt Server] rekey ws sid {old_sid} -> {client_id} for prompt routing"
+                                )
+
+                    extra_data["client_id"] = client_id
                     # pattern_hex = r'^[0-9a-fA-F]{32}$'
                     # pattern_uuid = r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
                     # if not re.fullmatch(pattern_hex, json_data["client_id"]) and not re.fullmatch(pattern_uuid, json_data["client_id"]):
