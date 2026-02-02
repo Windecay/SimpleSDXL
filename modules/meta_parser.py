@@ -161,7 +161,7 @@ def switch_scene_theme_ready_to_gen(state, image_number, canvas_image, input_ima
             use_image = input_img
 
     describe_prompt, img_is_ok = describe_prompt_for_scene(state, use_image, theme, f'{additional_prompt}{additional_prompt_2}') if ready_to_gen else ('', False)
-    return describe_prompt if describe_prompt else gr.update(), gr.update(interactive=ready_to_gen and img_is_ok)
+    return describe_prompt if describe_prompt else gr.update(), gr.update(interactive=True if not ready_to_gen else img_is_ok)
 
 
 def switch_scene_theme(state, image_number, canvas_image, input_image1, additional_prompt, additional_prompt_2, var_number, var_number2, var_number3, var_number4, scene_steps, switch_option1, switch_option2, theme=None):
@@ -433,7 +433,7 @@ def switch_layout_template(presetdata: dict | str, state_params, preset_url=''):
         results.append(get_layout_visible('scene_video', visible))
         results.append(get_layout_visible('scene_audio', visible))
 
-        results.append(gr.update(visible=True, interactive=False)) #generate_button
+        results.append(gr.update(visible=True, interactive=True)) #generate_button
         results.append(gr.update(visible=False))                   #load_parameter_button
     else:
         results.append(gr.update(visible=True))    #prompt_internal_panel
