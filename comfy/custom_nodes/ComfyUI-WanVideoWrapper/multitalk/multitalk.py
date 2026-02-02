@@ -42,41 +42,43 @@ def rotate_half(x):
     x = torch.stack((-x2, x1), dim=-1)
     return rearrange(x, "... d r -> ... (d r)")
 
-def calculate_x_ref_attn_map(visual_q, ref_k, ref_target_masks, mode='mean', attn_bias=None):
-    
-    ref_k = ref_k.to(visual_q.dtype).to(visual_q.device)
+def calculate_x_ref_attn_map(visual_q, ref_k, ref_target_masks, split_num=4):
     scale = 1.0 / visual_q.shape[-1] ** 0.5
-    visual_q = visual_q * scale
-    visual_q = visual_q.transpose(1, 2)
-    ref_k = ref_k.transpose(1, 2)
-    attn = visual_q @ ref_k.transpose(-2, -1)
+    visual_q = visual_q.transpose(1, 2) * scale
 
-    if attn_bias is not None:
-        attn = attn + attn_bias
-
-    x_ref_attn_map_source = attn.softmax(-1) # B, H, x_seqlens, ref_seqlens
-
+    B, H, x_seqlens, K = visual_q.shape
 
     x_ref_attn_maps = []
-    ref_target_masks = ref_target_masks.to(visual_q.dtype)
-    x_ref_attn_map_source = x_ref_attn_map_source.to(visual_q.dtype)
-
     for class_idx, ref_target_mask in enumerate(ref_target_masks):
-        ref_target_mask = ref_target_mask[None, None, None, ...]
-        x_ref_attnmap = x_ref_attn_map_source * ref_target_mask
-        x_ref_attnmap = x_ref_attnmap.sum(-1) / ref_target_mask.sum() # B, H, x_seqlens, ref_seqlens --> B, H, x_seqlens
-        x_ref_attnmap = x_ref_attnmap.permute(0, 2, 1) # B, x_seqlens, H
-       
-        if mode == 'mean':
-            x_ref_attnmap = x_ref_attnmap.mean(-1) # B, x_seqlens
-        elif mode == 'max':
-            x_ref_attnmap = x_ref_attnmap.max(-1) # B, x_seqlens
-        
-        x_ref_attn_maps.append(x_ref_attnmap)
-    
-    del attn, x_ref_attn_map_source
+        ref_target_mask = ref_target_mask.view(1, 1, 1, -1)
 
-    return torch.concat(x_ref_attn_maps, dim=0)
+        x_ref_attnmap = torch.zeros(B, H, x_seqlens, device=visual_q.device, dtype=visual_q.dtype)
+        chunk_size = min(max(x_seqlens // split_num, 1), x_seqlens)
+
+        for i in range(0, x_seqlens, chunk_size):
+            end_i = min(i + chunk_size, x_seqlens)
+
+            attn_chunk = visual_q[:, :, i:end_i] @ ref_k.permute(0, 2, 3, 1)  # B, H, chunk, ref_seqlens
+
+            # Apply softmax
+            attn_max = attn_chunk.max(dim=-1, keepdim=True).values
+            attn_chunk = (attn_chunk - attn_max).exp()
+            attn_sum = attn_chunk.sum(dim=-1, keepdim=True)
+            attn_chunk = attn_chunk / (attn_sum + 1e-8)
+
+            # Apply mask and sum
+            masked_attn = attn_chunk * ref_target_mask
+            x_ref_attnmap[:, :, i:end_i] = masked_attn.sum(-1) / (ref_target_mask.sum() + 1e-8)
+
+            del attn_chunk, masked_attn
+
+        # Average across heads
+        x_ref_attnmap = x_ref_attnmap.mean(dim=1)  # B, x_seqlens
+        x_ref_attn_maps.append(x_ref_attnmap)
+
+    del visual_q, ref_k
+
+    return torch.cat(x_ref_attn_maps, dim=0)
 
 def get_attn_map_with_target(visual_q, ref_k, shape, ref_target_masks=None, split_num=2):
     """Args:
@@ -129,27 +131,30 @@ class RotaryPositionalEmbedding1D(nn.Module):
             query with the same shape as input.
         """
         freqs_cis = self.precompute_freqs_cis_1d(pos_indices)
-
-        x_ = x.float()
+        in_dtype = x.dtype
+        x = x.float()
 
         freqs_cis = freqs_cis.float().to(x.device)
-        cos, sin = freqs_cis.cos(), freqs_cis.sin()
-        cos, sin = rearrange(cos, 'n d -> 1 1 n d'), rearrange(sin, 'n d -> 1 1 n d')
-        x_ = (x_ * cos) + (rotate_half(x_) * sin)
+        cos = rearrange(freqs_cis.cos(), 'n d -> 1 1 n d')
+        sin = rearrange(freqs_cis.sin(), 'n d -> 1 1 n d')
 
-        return x_.type_as(x)
+        # In-place rotation to save memory
+        x_rotated = rotate_half(x)
+        x.mul_(cos).add_(x_rotated * sin)
+
+        return x.to(in_dtype)
 
 class AudioProjModel(nn.Module):
     def __init__(
         self,
         seq_len=5,
-        seq_len_vf=12,
-        blocks=12,  
-        channels=768, 
+        seq_len_vf=8,
+        blocks=12,
+        channels=768,
         intermediate_dim=512,
         output_dim=768,
         context_tokens=32,
-        norm_output_audio=False,
+        norm_output_audio=True,
     ):
         super().__init__()
 
@@ -273,9 +278,9 @@ class SingleStreamMultiAttention(SingleStreamAttention):
     def __init__(
         self,
         dim: int,
-        encoder_hidden_states_dim: int,
         num_heads: int,
-        qkv_bias: bool,
+        qkv_bias: bool = True,
+        encoder_hidden_states_dim: int = 768,
         class_range: int = 24,
         class_interval: int = 4,
         attention_mode: str = 'sdpa',

@@ -6,7 +6,7 @@ import numpy as np
 from ..latent_preview import prepare_callback
 from ..wanvideo.schedulers import get_scheduler
 from .multitalk import timestep_transform, add_noise
-from ..utils import log, print_memory, temporal_score_rescaling, offload_transformer, init_blockswap
+from ..utils import log, print_memory, temporal_score_rescaling, offload_transformer, init_blockswap, match_and_blend_colors
 from comfy.utils import load_torch_file
 from ..nodes_model_loading import load_weights
 from ..HuMo.nodes import get_audio_emb_window
@@ -48,7 +48,13 @@ def multitalk_loop(self, **kwargs):
     mode = image_embeds.get("multitalk_mode", "multitalk")
     if mode == "auto":
         mode = transformer.multitalk_model_type.lower()
+    elif mode == "skyreelsv3":
+        num_pseudo_frames = 5
+        pseudo_frames = reference_keyframes = None
+        keyframe_index = 0
+        reference_video = image_embeds.get("reference_video", None)
     log.info(f"Multitalk mode: {mode}")
+    drop_frames = image_embeds.get("drop_frames", 0)
     cond_frame = None
     offload = image_embeds.get("force_offload", False)
     offloaded = False
@@ -62,7 +68,9 @@ def multitalk_loop(self, **kwargs):
     motion_frame = image_embeds.get("motion_frame", 25)
     target_w = image_embeds.get("target_w", None)
     target_h = image_embeds.get("target_h", None)
-    original_images = cond_image = image_embeds.get("multitalk_start_image", None)
+    original_images = image_embeds.get("multitalk_start_image", None)
+    cond_image = original_images.clone() if original_images is not None else None
+    original_color_reference = cond_image.clone() if cond_image is not None else None
     if original_images is None:
         original_images = torch.zeros([noise.shape[0], 1, target_h, target_w], device=device)
 
@@ -94,7 +102,6 @@ def multitalk_loop(self, **kwargs):
     audio_embedding = multitalk_audio_embeds
     human_num = len(audio_embedding)
     audio_embs = None
-    cond_frame = None
 
     uni3c_data = None
     if uni3c_embeds is not None:
@@ -110,8 +117,55 @@ def multitalk_loop(self, **kwargs):
             log.warning("No encoded silence file found, padding with end of audio embedding instead.")
 
     total_frames = len(audio_embedding[0])
-    estimated_iterations = total_frames // (frame_num - motion_frame) + 1
+    estimated_iterations = total_frames // (frame_num - motion_frame - drop_frames) + 1
     callback = prepare_callback(patcher, estimated_iterations)
+
+    # If reference_video is provided, extract keyframes from it
+    if mode == "skyreelsv3" and reference_video is not None:
+        ref_video_length = reference_video.shape[1]  # (C, T, H, W)
+        if colormatch == "reinhard_torch":
+            reference_video = match_and_blend_colors(reference_video, original_color_reference, 1.0)
+
+        if ref_video_length >= total_frames:
+            # Reference is long enough - extract keyframes at the expected positions
+            segment_interval = frame_num - motion_frame - drop_frames
+            generate_idx = []
+            current_idx = frame_num - 1
+            while current_idx < total_frames:
+                generate_idx.append(min(current_idx, ref_video_length - 1))
+                current_idx += segment_interval
+        else:
+            # Calculate target indices then map to reference video
+            audio_length = total_frames
+            generate_idx_target = [0]
+            segment_interval = frame_num - motion_frame - drop_frames
+            current_idx = frame_num - 1
+            while current_idx < audio_length - 1:
+                generate_idx_target.append(current_idx)
+                current_idx += segment_interval
+            if generate_idx_target[-1] != audio_length - 1:
+                generate_idx_target.append(audio_length - 1)
+
+            # Map target indices to reference video
+            generate_idx_target = np.array(generate_idx_target, dtype=np.int16)
+            original_max = generate_idx_target[-1]
+            original_min = generate_idx_target[0]
+            if original_max > original_min:
+                generate_idx_float = (generate_idx_target.astype(np.float64) - original_min) * (ref_video_length - 1) / (original_max - original_min)
+                generate_idx = np.clip(np.round(generate_idx_float), 0, ref_video_length - 1).astype(np.int32).tolist()
+            else:
+                generate_idx = [0]
+
+            generate_idx = generate_idx[1:]
+            log.info(f"Reference video ({ref_video_length} frames) mapped to target ({total_frames} frames). Keyframe indices: {generate_idx}")
+
+        # Extract keyframes from reference video
+        # reference_video shape: (C, T, H, W) from nodes.py processing
+        # Select keyframes and add batch dimension: (C, num_keyframes, H, W) -> (1, C, num_keyframes, H, W)
+        selected_keyframes = reference_video[:, generate_idx]  # (C, num_keyframes, H, W)
+        reference_keyframes = selected_keyframes.unsqueeze(0).cpu()  # (1, C, num_keyframes, H, W)
+        log.info(f"Extracted {len(generate_idx)} keyframes from provided reference video at indices {generate_idx}, shape: {reference_keyframes.shape}")
+        log.info(f"Reference video total frames: {reference_video.shape[1]}, will generate {total_frames} total frames with {estimated_iterations} windows")
 
     if frame_num >= total_frames:
         arrive_last_frame = True
@@ -121,6 +175,14 @@ def multitalk_loop(self, **kwargs):
 
     while True: # start video generation iteratively
         self.cache_state = [None, None]
+
+        if mode == "skyreelsv3" and reference_keyframes is not None:
+            clamped_index = min(keyframe_index, reference_keyframes.shape[2] - 1) # Clamp keyframe_index to reuse last keyframe if we run out
+            pseudo_frames = reference_keyframes[:, :, clamped_index:clamped_index+1].repeat(1, 1, num_pseudo_frames, 1, 1) # Use one keyframe and repeat it 5 times
+            log.info(f"Window {iteration_count}: using keyframe {clamped_index}/{reference_keyframes.shape[2]-1} for pseudo frames.")
+            keyframe_index += 1
+        else:
+            pseudo_frames = None
 
         cur_motion_frames_latent_num = int(1 + (cur_motion_frames_num-1) // 4)
         if mode == "infinitetalk":
@@ -133,15 +195,13 @@ def multitalk_loop(self, **kwargs):
                 center_indices = torch.clamp(center_indices, min=0, max=audio_embedding[human_idx].shape[0]-1)
                 audio_emb = audio_embedding[human_idx][center_indices].unsqueeze(0).to(device)
                 audio_embs.append(audio_emb)
-            audio_embs = torch.concat(audio_embs, dim=0).to(dtype)
+            audio_embs = torch.cat(audio_embs, dim=0).to(dtype)
 
         h, w = (cond_image.shape[-2], cond_image.shape[-1]) if cond_image is not None else (target_h, target_w)
         lat_h, lat_w = h // VAE_STRIDE[1], w // VAE_STRIDE[2]
         latent_frame_num = (frame_num - 1) // 4 + 1
 
-        noise = torch.randn(
-            16, latent_frame_num,
-            lat_h, lat_w, dtype=torch.float32, device=torch.device("cpu"), generator=seed_g).to(device)
+        noise = torch.randn(16, latent_frame_num, lat_h, lat_w, dtype=torch.float32, device=torch.device("cpu"), generator=seed_g).to(device)
 
         # Calculate the correct latent slice based on current iteration
         if is_first_clip:
@@ -198,24 +258,41 @@ def multitalk_loop(self, **kwargs):
         if cond_image is not None or cond_frame is not None:
             cond_ = cond_image if (is_first_clip or humo_image_cond is None) else cond_frame
             cond_frame_num = cond_.shape[2]
-            video_frames = torch.zeros(1, 3, frame_num-cond_frame_num, target_h, target_w, device=device, dtype=vae.dtype)
-            padding_frames_pixels_values = torch.concat([cond_.to(device, vae.dtype), video_frames], dim=2)
+
+            # Prepare pseudo frames if enabled and available from reference_video
+            if mode == "skyreelsv3" and pseudo_frames is not None:
+                video_frames = torch.zeros(1, 3, frame_num-cond_frame_num-num_pseudo_frames, target_h, target_w, device=device, dtype=vae.dtype)
+                padding_frames_pixels_values = torch.cat([cond_.to(device, vae.dtype), video_frames, pseudo_frames.to(device, vae.dtype)], dim=2)
+            else:
+                video_frames = torch.zeros(1, 3, frame_num-cond_frame_num, target_h, target_w, device=device, dtype=vae.dtype)
+                padding_frames_pixels_values = torch.cat([cond_.to(device, vae.dtype), video_frames], dim=2)
 
             # encode
             vae.to(device)
             y = vae.encode(padding_frames_pixels_values, device=device, tiled=tiled_vae, pbar=False).to(dtype)[0]
 
-            if mode == "multitalk":
-                latent_motion_frames = y[:, :cur_motion_frames_latent_num] # C T H W
-            else:
+            if mode == "infinitetalk":
                 cond_ = cond_image if is_first_clip else cond_frame
                 latent_motion_frames = vae.encode(cond_.to(device, vae.dtype), device=device, tiled=tiled_vae, pbar=False).to(dtype)[0]
+            else:
+                latent_motion_frames = y[:, :cur_motion_frames_latent_num] # C T H W
 
             vae.to(offload_device)
 
             #motion_frame_index = cur_motion_frames_latent_num if mode == "infinitetalk" else 1
-            msk = torch.zeros(4, latent_frame_num, lat_h, lat_w, device=device, dtype=dtype)
-            msk[:, :1] = 1
+            if mode == "skyreelsv3" and pseudo_frames is not None:
+                # create mask in pixel space, then transform
+                msk_pixel = torch.ones(1, frame_num, lat_h, lat_w, device=device)
+                msk_pixel[:, cur_motion_frames_num : -num_pseudo_frames] = 0
+                msk_pixel = torch.cat([
+                    torch.repeat_interleave(msk_pixel[:, 0:1], repeats=4, dim=1),
+                    msk_pixel[:, 1:],
+                ], dim=1)
+                msk_pixel = msk_pixel.view(1, msk_pixel.shape[1] // 4, 4, lat_h, lat_w)
+                msk = msk_pixel.transpose(1, 2).squeeze(0).to(dtype)  # 4 T H W
+            else:
+                msk = torch.zeros(4, latent_frame_num, lat_h, lat_w, device=device, dtype=dtype)
+                msk[:, :1] = 1
             y = torch.cat([msk, y]) # 4+C T H W
             mm.soft_empty_cache()
         else:
@@ -258,11 +335,12 @@ def multitalk_loop(self, **kwargs):
         latent = noise
 
         # injecting motion frames
-        if not is_first_clip and mode == "multitalk":
+        if not is_first_clip and mode != "infinitetalk":
             latent_motion_frames = latent_motion_frames.to(latent.dtype).to(device)
             motion_add_noise = torch.randn(latent_motion_frames.shape, device=torch.device("cpu"), generator=seed_g).to(device).contiguous()
             add_latent = add_noise(latent_motion_frames, motion_add_noise, timesteps[0])
             latent[:, :add_latent.shape[1]] = add_latent
+            del motion_add_noise, add_latent
 
         if offloaded:
             # Load weights
@@ -370,12 +448,13 @@ def multitalk_loop(self, **kwargs):
                     latent = image_latent * mask + latent * (1-mask)
 
             # injecting motion frames
-            if not is_first_clip and mode == "multitalk":
+            if not is_first_clip and mode != "infinitetalk":
                 latent_motion_frames = latent_motion_frames.to(latent.dtype).to(device)
                 motion_add_noise = torch.randn(latent_motion_frames.shape, device=torch.device("cpu"), generator=seed_g).to(device).contiguous()
                 add_latent = add_noise(latent_motion_frames, motion_add_noise, timesteps[i+1])
                 latent[:, :add_latent.shape[1]] = add_latent
-            else:
+                del motion_add_noise, add_latent
+            elif mode == "infinitetalk":
                 if humo_image_cond is None or not is_first_clip:
                     latent[:, :cur_motion_frames_latent_num] = latent_motion_frames
 
@@ -385,27 +464,34 @@ def multitalk_loop(self, **kwargs):
             offloaded = True
         if humo_image_cond is not None and humo_reference_count > 0:
             latent = latent[:,:-humo_reference_count]
+
         vae.to(device)
         videos = vae.decode(latent.unsqueeze(0).to(device, vae.dtype), device=device, tiled=tiled_vae, pbar=False)[0].cpu()
-
         vae.to(offload_device)
 
         sampling_pbar.close()
 
+        # crop drop_frames from end if enabled
+        if mode == "skyreelsv3" and drop_frames > 0 and not arrive_last_frame:
+            videos = videos[:, :-drop_frames]
+
         # optional color correction (less relevant for InfiniteTalk)
         if colormatch != "disabled":
-            videos = videos.permute(1, 2, 3, 0).float().numpy()
-            from color_matcher import ColorMatcher
-            cm = ColorMatcher()
-            cm_result_list = []
-            for img in videos:
-                if mode == "multitalk":
-                    cm_result = cm.transfer(src=img, ref=original_images[0].permute(1, 2, 3, 0).squeeze(0).cpu().float().numpy(), method=colormatch)
-                else:
-                    cm_result = cm.transfer(src=img, ref=cond_image[0].permute(1, 2, 3, 0).squeeze(0).cpu().float().numpy(), method=colormatch)
-                cm_result_list.append(torch.from_numpy(cm_result).to(vae.dtype))
+            if colormatch == "reinhard_torch":
+                videos = match_and_blend_colors(videos, original_color_reference, 1.0)
+            else:
+                videos = videos.permute(1, 2, 3, 0).float().numpy()
+                from color_matcher import ColorMatcher
+                cm = ColorMatcher()
+                cm_result_list = []
+                for img in videos:
+                    if mode == "infinitetalk":
+                        cm_result = cm.transfer(src=img, ref=cond_image[0].permute(1, 2, 3, 0).squeeze(0).cpu().float().numpy(), method=colormatch)
+                    else:
+                        cm_result = cm.transfer(src=img, ref=original_images[0].permute(1, 2, 3, 0).squeeze(0).cpu().float().numpy(), method=colormatch)
+                    cm_result_list.append(torch.from_numpy(cm_result).to(vae.dtype))
 
-            videos = torch.stack(cm_result_list, dim=0).permute(3, 0, 1, 2)
+                videos = torch.stack(cm_result_list, dim=0).permute(3, 0, 1, 2)
 
         # optionally save generated samples to disk
         if output_path:
@@ -441,7 +527,7 @@ def multitalk_loop(self, **kwargs):
 
         # Repeat audio emb
         if multitalk_embeds is not None:
-            audio_start_idx += (frame_num - cur_motion_frames_num - humo_reference_count)
+            audio_start_idx += (frame_num - cur_motion_frames_num - humo_reference_count - drop_frames)
             audio_end_idx = audio_start_idx + clip_length
             if audio_end_idx >= len(audio_embedding[0]):
                 arrive_last_frame = True

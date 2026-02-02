@@ -52,17 +52,6 @@ def update_folder_names_and_paths(key, targets=[]):
         log.warning(f"Unknown file list already present on key {key}: {base}")
 update_folder_names_and_paths("unet_gguf", ["diffusion_models", "unet"])
 
-class WanVideoModel(comfy.model_base.BaseModel):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.pipeline = {}
-
-    def __getitem__(self, k):
-        return self.pipeline[k]
-
-    def __setitem__(self, k, v):
-        self.pipeline[k] = v
-
 try:
     from comfy.latent_formats import Wan21, Wan22
     latent_format = Wan21
@@ -71,16 +60,27 @@ except: #for backwards compatibility
     from comfy.latent_formats import HunyuanVideo
     latent_format = HunyuanVideo
 
+class WanVideoModel(torch.nn.Module):
+    def __init__(self, model_config, transformer, device=None):
+        super().__init__()
+        self.latent_format = model_config.latent_format
+        self.model_config = model_config
+        self.device = device
+        self.current_patcher = None
+        self.diffusion_model = transformer
+        self.pipeline = {}
+
+    def __getitem__(self, k):
+        return self.pipeline[k]
+
+    def __setitem__(self, k, v):
+        self.pipeline[k] = v
+
 class WanVideoModelConfig:
-    def __init__(self, dtype, latent_format=latent_format):
+    def __init__(self, latent_format=latent_format):
         self.unet_config = {}
         self.unet_extra_config = {}
         self.latent_format = latent_format
-        #self.latent_format.latent_channels = 16
-        self.manual_cast_dtype = dtype
-        self.sampling_settings = {"multiplier": 1.0}
-        self.memory_usage_factor = 2.0
-        self.unet_config["disable_unet_model_creation"] = True
 
 def filter_state_dict_by_blocks(state_dict, blocks_mapping, layer_filter=[]):
     filtered_dict = {}
@@ -810,7 +810,6 @@ def load_weights(transformer, sd=None, weight_dtype=None, base_dtype=None,
                       "adapter", "add", "ref_conv", "casual_audio_encoder", "cond_encoder", "frame_packer", "audio_proj_glob", "face_encoder", "fuser_block"}
     param_count = sum(1 for _ in transformer.named_parameters())
     pbar = ProgressBar(param_count)
-    cnt = 0
     block_idx = vace_block_idx = None
 
     if gguf:
@@ -920,9 +919,7 @@ def load_weights(transformer, sd=None, weight_dtype=None, base_dtype=None,
                     load_device = offload_device
         # Set tensor to device
         set_module_tensor_to_device(transformer, name, device=load_device, dtype=dtype_to_use, value=value)
-        cnt += 1
-        if cnt % 100 == 0:
-            pbar.update(100)
+        pbar.update(1)
 
     #[print(name, param.device, param.dtype) for name, param in transformer.named_parameters()]
     memory_on_device = get_module_memory_mb_per_device(transformer)
@@ -931,6 +928,8 @@ def load_weights(transformer, sd=None, weight_dtype=None, base_dtype=None,
     for dev, mem_mb in memory_on_device.items():
         log.info(f"Device: {dev:8s} | Memory: {mem_mb:,.2f} MB")
 
+    if hasattr(pbar, "_last_sent_value"):
+        pbar._last_sent_value = -1
     pbar.update_absolute(0)
 
 def patch_control_lora(transformer, device):
@@ -1512,7 +1511,45 @@ class WanVideoModelLoader:
                     block.cross_attn.ip_adapter_single_stream_k_proj = nn.Linear(context_dim, dim, bias=False)
                     block.cross_attn.ip_adapter_single_stream_v_proj = nn.Linear(context_dim, dim, bias=False)
 
-        if multitalk_model is not None:
+        # LongCat Avatar
+        if "multitalk_audio_proj.proj1.weight" in sd and "blocks.0.audio_cross_attn.q_norm.weight" in sd:
+            log.info("MultiTalk/InfiniteTalk model detected, patching model...")
+            from .multitalk.multitalk import AudioProjModel
+            from .wanvideo.modules.model import WanLayerNorm
+            from .LongCat.layers import SingleStreamAttention
+
+
+            for block in transformer.blocks:
+                with init_empty_weights():
+                    if "blocks.0.audio_modulation.1.weight" in sd:
+                        block.audio_modulation = nn.Sequential(nn.SiLU(), nn.Linear(512, 3 * dim, bias=True))
+                    block.norm_x = WanLayerNorm(dim, transformer.eps, elementwise_affine=True)
+                    block.audio_cross_attn = SingleStreamAttention(
+                            dim=dim,
+                            encoder_hidden_states_dim=768,
+                            num_heads=num_heads,
+                        qkv_bias=True,
+                        qk_norm=True,
+                        class_range=24,
+                        class_interval=4,
+                        attention_mode=attention_mode,
+                    )
+                    multitalk_proj_model = AudioProjModel()
+            transformer.multitalk_audio_proj = multitalk_proj_model
+        # SkyreelsV3
+        elif "blocks.1.audio_cross_attn.kv_linear.weight" in sd and "audio_proj.proj1.weight" in sd:
+            sd = {k.replace("audio_proj", "multitalk_audio_proj"): v for k, v in sd.items()}
+            # init audio module
+            from .multitalk.multitalk import SingleStreamMultiAttention, AudioProjModel
+            from .wanvideo.modules.model import WanLayerNorm
+
+            for block in transformer.blocks:
+                with init_empty_weights():
+                    block.norm_x = WanLayerNorm(dim, transformer.eps, elementwise_affine=True)
+                    block.audio_cross_attn = SingleStreamMultiAttention(dim=dim, num_heads=num_heads, attention_mode=attention_mode)
+
+            transformer.multitalk_audio_proj = AudioProjModel()
+        elif multitalk_model is not None:
             multitalk_model_type = multitalk_model.get("model_type", "MultiTalk")
             log.info(f"{multitalk_model_type} detected, patching model...")
 
@@ -1529,15 +1566,7 @@ class WanVideoModelLoader:
             for block in transformer.blocks:
                 with init_empty_weights():
                     block.norm_x = WanLayerNorm(dim, transformer.eps, elementwise_affine=True)
-                    block.audio_cross_attn = SingleStreamMultiAttention(
-                            dim=dim,
-                            encoder_hidden_states_dim=768,
-                            num_heads=num_heads,
-                        qkv_bias=True,
-                        class_range=24,
-                        class_interval=4,
-                        attention_mode=attention_mode,
-                    )
+                    block.audio_cross_attn = SingleStreamMultiAttention(dim=dim, num_heads=num_heads, attention_mode=attention_mode)
             transformer.multitalk_audio_proj = multitalk_model["proj_model"]
             transformer.multitalk_model_type = multitalk_model_type
 
@@ -1555,39 +1584,6 @@ class WanVideoModelLoader:
 
             sd.update(extra_sd)
             del extra_sd
-        elif "multitalk_audio_proj.proj1.weight" in sd:
-            log.info("MultiTalk/InfiniteTalk model detected, patching model...")
-            from .multitalk.multitalk import AudioProjModel
-            from .wanvideo.modules.model import WanLayerNorm
-            from .LongCat.layers import SingleStreamAttention
-
-            audio_window = 5
-            vae_scale = 4
-
-            for block in transformer.blocks:
-                with init_empty_weights():
-                    if "blocks.0.audio_modulation.1.weight" in sd:
-                        block.audio_modulation = nn.Sequential(nn.SiLU(), nn.Linear(512, 3 * dim, bias=True))
-                    block.norm_x = WanLayerNorm(dim, transformer.eps, elementwise_affine=True)
-                    block.audio_cross_attn = SingleStreamAttention(
-                            dim=dim,
-                            encoder_hidden_states_dim=768,
-                            num_heads=num_heads,
-                        qkv_bias=True,
-                        qk_norm=True,
-                        class_range=24,
-                        class_interval=4,
-                        attention_mode=attention_mode,
-                    )
-                    multitalk_proj_model = AudioProjModel(
-                            seq_len=audio_window,
-                            seq_len_vf=audio_window+vae_scale-1,
-                            intermediate_dim=512,
-                            output_dim=768,
-                            context_tokens=32,
-                            norm_output_audio=True,
-                    )
-            transformer.multitalk_audio_proj = multitalk_proj_model
 
         sd = {k.replace(".weight_scale", ".scale_weight"): v for k, v in sd.items()}
 
@@ -1613,11 +1609,7 @@ class WanVideoModelLoader:
             transformer.text_projection = nn.Sequential(nn.Linear(sd["text_projection.0.weight"].shape[1], text_dim), nn.GELU(approximate='tanh'), nn.Linear(text_dim, text_dim))
 
         latent_format=Wan22 if dim == 3072 else Wan21
-        comfy_model = WanVideoModel(
-            WanVideoModelConfig(base_dtype, latent_format=latent_format),
-            model_type=comfy.model_base.ModelType.FLOW,
-            device=device,
-        )
+        comfy_model = WanVideoModel(WanVideoModelConfig(latent_format=latent_format), device=device, transformer=transformer)
 
         # SteadyDancer
         if "condition_embedding_align.cross_attn.in_proj_bias" in sd:

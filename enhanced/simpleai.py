@@ -136,7 +136,11 @@ def reset_simpleai_args():
     args_comfyd += [["--cuda-malloc"]] if not shared.args.disable_async_cuda_allocation and not shared.args.async_cuda_allocation else []
     comfyd_images_path = os.path.join(shared.path_userhome, 'guest_user')
     comfyd_intput = os.path.join(comfyd_images_path, 'comfyd_inputs')
-    target_did = shared.token.get_guest_did()
+    admin_did = shared.token.get_admin_did()
+    if admin_did:
+        target_did = admin_did
+    else:
+        target_did = shared.token.get_guest_did()
     comfyd_output = os.path.abspath(os.path.join(shared.token.get_path_in_user_dir(target_did, "outputs"), 'ComfyUI'))
 
     if not os.path.exists(comfyd_output):

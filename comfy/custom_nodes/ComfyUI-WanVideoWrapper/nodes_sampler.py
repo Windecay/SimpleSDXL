@@ -185,11 +185,12 @@ class WanVideoSampler:
 
         is_pusa = "pusa" in sample_scheduler.__class__.__name__.lower()
 
-        scheduler_step_args = {"generator": seed_g}
-        step_sig = inspect.signature(sample_scheduler.step)
-        for arg in list(scheduler_step_args.keys()):
-            if arg not in step_sig.parameters:
-                scheduler_step_args.pop(arg)
+        if scheduler != "multitalk":
+            scheduler_step_args = {"generator": seed_g}
+            step_sig = inspect.signature(sample_scheduler.step)
+            for arg in list(scheduler_step_args.keys()):
+                if arg not in step_sig.parameters:
+                    scheduler_step_args.pop(arg)
 
         # Ovi
         if transformer.audio_model is not None: # temporary workaround (...nothing more permanent)
@@ -225,6 +226,7 @@ class WanVideoSampler:
         #I2V
         story_mem_latents = image_embeds.get("story_mem_latents", None)
         image_cond = image_embeds.get("image_embeds", None)
+        image_cond_mask = None
         if image_cond is not None:
             if transformer.in_dim == 16:
                 raise ValueError("T2V (text to video) model detected, encoded images only work with I2V (Image to video) models")
@@ -1488,7 +1490,9 @@ class WanVideoSampler:
                     "one_to_all_controlnet_strength": one_to_all_data["controlnet_strength"] if one_to_all_data is not None else 0.0,
                     "scail_input": scail_data_in, # SCAIL input
                     "dual_control_input": dual_control_in, # LongVie2 dual control input
-                    "transformer_options": transformer_options
+                    "transformer_options": transformer_options,
+                    "rope_negative_offset": image_embeds.get("rope_negative_offset_frames", 0), # StoryMem rope negative offset
+                    "num_memory_frames": story_mem_latents.shape[1] if story_mem_latents is not None else 0, # StoryMem memory frames
                 }
 
                 batch_size = 1

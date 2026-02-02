@@ -2,6 +2,7 @@ import os, gc, math
 import torch
 import torch.nn.functional as F
 import hashlib
+from tqdm import tqdm
 
 from .utils import(log, clip_encode_image_tiled, add_noise_to_reference_video, set_module_tensor_to_device)
 from .taehv import TAEHV
@@ -366,10 +367,18 @@ class WanVideoTextEncode:
             cast_dtype = encoder.dtype
 
         params_to_keep = {'norm', 'pos_embedding', 'token_embedding'}
-        for name, param in encoder.model.named_parameters():
+        if hasattr(encoder, 'state_dict'):
+            model_state_dict = encoder.state_dict
+        else:
+            model_state_dict = encoder.model.state_dict()
+
+        params_list = list(encoder.model.named_parameters())
+        pbar = tqdm(params_list, desc="Loading T5 parameters", leave=True)
+        for name, param in pbar:
             dtype_to_use = dtype if any(keyword in name for keyword in params_to_keep) else cast_dtype
-            value = encoder.state_dict[name] if hasattr(encoder, 'state_dict') else encoder.model.state_dict()[name]
+            value = model_state_dict[name]
             set_module_tensor_to_device(encoder.model, name, device=device_to, dtype=dtype_to_use, value=value)
+        del model_state_dict
         if hasattr(encoder, 'state_dict'):
             del encoder.state_dict
             mm.soft_empty_cache()
@@ -550,6 +559,9 @@ class WanVideoApplyNAG:
             "nag_tau": ("FLOAT", {"default": 2.5, "min": 0.0, "max": 10.0, "step": 0.1}),
             "nag_alpha": ("FLOAT", {"default": 0.25, "min": 0.0, "max": 1.0, "step": 0.01}),
             },
+            "optional": {
+                "inplace": ("BOOLEAN", {"default": True, "tooltip": "If true, modifies tensors in place to save memory. Leads to different numerical results which may change the output slightly."}),
+            }
         }
 
     RETURN_TYPES = ("WANVIDEOTEXTEMBEDS", )
@@ -558,7 +570,7 @@ class WanVideoApplyNAG:
     CATEGORY = "WanVideoWrapper"
     DESCRIPTION = "Adds NAG prompt embeds to original prompt embeds: 'https://github.com/ChenDarYen/Normalized-Attention-Guidance'"
 
-    def process(self, original_text_embeds, nag_text_embeds, nag_scale, nag_tau, nag_alpha):
+    def process(self, original_text_embeds, nag_text_embeds, nag_scale, nag_tau, nag_alpha, inplace=True):
         prompt_embeds_dict_copy = original_text_embeds.copy()
         prompt_embeds_dict_copy.update({
                 "nag_prompt_embeds": nag_text_embeds["prompt_embeds"],
@@ -566,6 +578,7 @@ class WanVideoApplyNAG:
                     "nag_scale": nag_scale,
                     "nag_tau": nag_tau,
                     "nag_alpha": nag_alpha,
+                    "inplace": inplace,
                 }
             })
         return (prompt_embeds_dict_copy,)
@@ -895,6 +908,8 @@ class WanVideoAddStoryMemLatents:
                     "vae": ("WANVAE",),
                     "embeds": ("WANVIDIMAGE_EMBEDS",),
                     "memory_images": ("IMAGE",),
+                    "rope_negative_offset": ("BOOLEAN", {"default": False, "tooltip": "Use positive RoPE frequency offset for the memory latents"}),
+                    "rope_negative_offset_frames": ("INT", {"default": 5, "min": 0, "max": 100, "step": 1, "tooltip": "RoPE frequency offset for the memory latents"}),
                 }
         }
 
@@ -903,10 +918,11 @@ class WanVideoAddStoryMemLatents:
     FUNCTION = "add"
     CATEGORY = "WanVideoWrapper"
 
-    def add(self, vae, embeds, memory_images):
+    def add(self, vae, embeds, memory_images, rope_negative_offset, rope_negative_offset_frames):
         updated = dict(embeds)
         story_mem_latents, = WanVideoEncodeLatentBatch().encode(vae, memory_images)
         updated["story_mem_latents"] = story_mem_latents["samples"].squeeze(2).permute(1, 0, 2, 3)  # [C, T, H, W]
+        updated["rope_negative_offset_frames"] = rope_negative_offset_frames if rope_negative_offset else 0
         return (updated,)
 
 

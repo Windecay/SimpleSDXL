@@ -558,39 +558,53 @@ class WanSelfAttention(nn.Module):
         # output
         return self.o(x.flatten(2))
 
-    def normalized_attention_guidance(self, b, n, d, q, context, nag_context=None, nag_params={}):
+    def nag_attention(self, b, n, d, q, context, nag_context=None):
+        k_positive = self.norm_k(self.k(context).to(self.norm_k.weight.dtype)).view(b, -1, n, d).to(q.dtype)
+        v_positive = self.v(context).view(b, -1, n, d)
+        x_positive = attention(q, k_positive, v_positive, attention_mode=self.attention_mode, heads=self.num_heads)
+        del k_positive, v_positive
+
+        k_negative = self.norm_k(self.k(nag_context).to(self.norm_k.weight.dtype)).view(b, -1, n, d).to(q.dtype)
+        v_negative = self.v(nag_context).view(b, -1, n, d)
+        x_negative = attention(q, k_negative, v_negative, attention_mode=self.attention_mode, heads=self.num_heads)
+        del k_negative, v_negative
+
+        return x_positive.flatten(2), x_negative.flatten(2)
+
+    def normalized_attention_guidance(self, x_positive, x_negative,nag_params={}):
         # NAG text attention
-        context_positive = context
-        context_negative = nag_context
         nag_scale = nag_params['nag_scale']
         nag_alpha = nag_params['nag_alpha']
         nag_tau = nag_params['nag_tau']
+        inplace = nag_params.get('inplace', True)
 
-        k_positive = self.norm_k(self.k(context_positive).to(self.norm_k.weight.dtype)).view(b, -1, n, d).to(q.dtype)
-        v_positive = self.v(context_positive).view(b, -1, n, d)
-        k_negative = self.norm_k(self.k(context_negative).to(self.norm_k.weight.dtype)).view(b, -1, n, d).to(q.dtype)
-        v_negative = self.v(context_negative).view(b, -1, n, d)
+        if inplace:
+            nag_guidance = x_negative.mul_(nag_scale - 1).neg_().add_(x_positive, alpha=nag_scale)
+        else:
+            nag_guidance = x_positive * nag_scale - x_negative * (nag_scale - 1)
+        del x_negative
 
-        x_positive = attention(q, k_positive, v_positive, attention_mode=self.attention_mode, heads=self.num_heads)
-        x_positive = x_positive.flatten(2)
-
-        x_negative = attention(q, k_negative, v_negative, attention_mode=self.attention_mode, heads=self.num_heads)
-        x_negative = x_negative.flatten(2)
-
-        nag_guidance = x_positive * nag_scale - x_negative * (nag_scale - 1)
-        
         norm_positive = torch.norm(x_positive, p=1, dim=-1, keepdim=True)
         norm_guidance = torch.norm(nag_guidance, p=1, dim=-1, keepdim=True)
-        
+
         scale = norm_guidance / norm_positive
-        scale = torch.nan_to_num(scale, nan=10.0)
-        
+        torch.nan_to_num_(scale, nan=10.0)
         mask = scale > nag_tau
+        del scale
+
         adjustment = (norm_positive * nag_tau) / (norm_guidance + 1e-7)
-        nag_guidance = torch.where(mask, nag_guidance * adjustment, nag_guidance)
+        del norm_positive, norm_guidance
+
+        nag_guidance.mul_(torch.where(mask, adjustment, 1.0))
         del mask, adjustment
-        
-        return nag_guidance * nag_alpha + x_positive * (1 - nag_alpha)
+
+        if inplace:
+            nag_guidance.sub_(x_positive).mul_(nag_alpha).add_(x_positive)
+        else:
+            nag_guidance = nag_guidance * nag_alpha + x_positive * (1 - nag_alpha)
+        del x_positive
+
+        return nag_guidance
 
 class LoRALinearLayer(nn.Module):
     def __init__(
@@ -648,7 +662,10 @@ class WanT2VCrossAttention(WanSelfAttention):
             q = self.norm_q(self.q(x).to(self.norm_q.weight.dtype),num_chunks=2 if rope_func == "comfy_chunked" else 1).to(x.dtype).view(b, -1, n, d)
 
         if nag_context is not None:
-            x = self.normalized_attention_guidance(b, n, d, q, context, nag_context, nag_params)
+            x_positive, x_negative = self.nag_attention(b, n, d, q, context, nag_context)
+            del q
+            x = self.normalized_attention_guidance(x_positive, x_negative, nag_params)
+            del x_positive, x_negative
         else:
             if is_longcat:
                 k = self.norm_k(self.k(context).to(self.norm_k.weight.dtype).view(b, -1, n, d)).to(x.dtype)
@@ -752,7 +769,8 @@ class WanI2VCrossAttention(WanSelfAttention):
             k_img = self.norm_k_img(self.k_img(clip_embed).to(self.norm_k_img.weight.dtype)).view(b, -1, n, d).to(x.dtype)
             v_img = self.v_img(clip_embed).view(b, -1, n, d)
             img_x = attention(q, k_img, v_img, attention_mode=self.attention_mode, heads=self.num_heads).flatten(2)
-            x = x_text + img_x
+            x_text.add_(img_x)
+            x = x_text
         else:
             x = x_text
 
@@ -1280,7 +1298,7 @@ class WanAttentionBlock(nn.Module):
                     y[:, tr_end:] * gate_msa
                 ], dim=1).to(input_dtype)
             else:
-                x = x.addcmul(y, gate_msa)
+                x.addcmul_(y, gate_msa)
         del y, gate_msa
 
         # cross-attention & ffn function
@@ -1310,11 +1328,10 @@ class WanAttentionBlock(nn.Module):
                 x = self.split_cross_attn_ffn(x, context, shift_mlp, scale_mlp, gate_mlp, clip_embed, grid_sizes)
                 return x, x_ip, lynx_ref_feature, x_ovi
             else:
-                x = x + self.cross_attn(self.norm3(x.to(self.norm3.weight.dtype)).to(input_dtype), context, grid_sizes, clip_embed=clip_embed, audio_proj=audio_proj, audio_scale=audio_scale,
+                x += self.cross_attn(self.norm3(x.to(self.norm3.weight.dtype)).to(input_dtype), context, grid_sizes, clip_embed=clip_embed, audio_proj=audio_proj, audio_scale=audio_scale,
                                     num_latent_frames=num_latent_frames, nag_params=nag_params, nag_context=nag_context,
                                     rope_func=self.rope_func, inner_t=inner_t, inner_c=inner_c, cross_freqs=cross_freqs,
-                                    adapter_proj=adapter_proj, ip_scale=ip_scale, orig_seq_len=original_seq_len, lynx_x_ip=lynx_x_ip, lynx_ip_scale=lynx_ip_scale, longcat_num_cond_latents=longcat_num_cond_latents)
-                x = x.to(input_dtype)
+                                    adapter_proj=adapter_proj, ip_scale=ip_scale, orig_seq_len=original_seq_len, lynx_x_ip=lynx_x_ip, lynx_ip_scale=lynx_ip_scale, longcat_num_cond_latents=longcat_num_cond_latents).to(input_dtype)
                 # MultiTalk
                 if multitalk_audio_embedding is not None and not isinstance(self, VaceWanAttentionBlock):
 
@@ -1328,7 +1345,8 @@ class WanAttentionBlock(nn.Module):
                     else:
                         x_audio = self.audio_cross_attn(self.norm_x(x.to(self.norm_x.weight.dtype)).to(input_dtype), encoder_hidden_states=multitalk_audio_embedding,
                                                     shape=grid_sizes[0], x_ref_attn_map=x_ref_attn_map, human_num=human_num)
-                    x = x.add(x_audio, alpha=audio_scale)
+                    x.add_(x_audio, alpha=audio_scale)
+                    del x_audio
 
                 # MTV-Crafter Motion Attention
                 if self.use_motion_attn and mtv_motion_tokens is not None and mtv_motion_rotary_emb is not None:
@@ -2188,7 +2206,7 @@ class WanModel(torch.nn.Module):
 
     def rope_encode_comfy(self, t, h, w, freq_offset=0, t_start=0, ref_frame_shape=None, pose_frame_shape=None,
                           steps_t=None, steps_h=None, steps_w=None, ntk_alphas=[1,1,1], device=None, dtype=None,
-                          ref_frame_index=10, longcat_num_ref_latents=0):
+                          ref_frame_index=10, longcat_num_ref_latents=0, num_memory_frames=3, rope_negative_offset=5):
 
         patch_size = self.patch_size
         t_len = ((t + (patch_size[0] // 2)) // patch_size[0])
@@ -2211,6 +2229,15 @@ class WanModel(torch.nn.Module):
                 torch.tensor([ref_frame_index], dtype=dtype, device=device),
                 torch.arange(0, steps_t - longcat_num_ref_latents, dtype=dtype, device=device)
             ], dim=0)
+            img_ids[:, :, :, 0] = img_ids[:, :, :, 0] + grid_t.reshape(-1, 1, 1)
+        elif num_memory_frames > 0 and rope_negative_offset > 0:
+            # Negative RoPE shift for memory frames
+            # Memory frames get negative indices: {-f_m*S, -(f_m-1)*S, ..., -S}
+            # Current video frames start from 0: {0, 1, ..., f-1}
+            memory_indices = torch.arange(-num_memory_frames * rope_negative_offset, 0, rope_negative_offset, dtype=dtype, device=device)
+            current_indices = torch.arange(0, steps_t - num_memory_frames, dtype=dtype, device=device)
+            grid_t = torch.cat([memory_indices, current_indices], dim=0)
+            log.info(f"{num_memory_frames} memory frames, temporal rope positions: {grid_t}")
             img_ids[:, :, :, 0] = img_ids[:, :, :, 0] + grid_t.reshape(-1, 1, 1)
         else:
             # Standard temporal encoding
@@ -2321,6 +2348,8 @@ class WanModel(torch.nn.Module):
         scail_input=None,  # SCAIL pose
         dual_control_input=None,  # LongVie2 dual controlnet
         transformer_options={},
+        rope_negative_offset=0,
+        num_memory_frames=0,
     ):
         r"""
         Forward pass through the diffusion model
@@ -2565,6 +2594,7 @@ class WanModel(torch.nn.Module):
                 scail_x = [u.flatten(2).transpose(1, 2) * scail_input.get("pose_strength", 1) for u in scail_x]
                 x = [torch.cat([u, v], dim=1) for u, v in zip(x, scail_x)]
                 seq_len += scail_x[0].shape[1]
+                del scail_x
                 pose_frame_shape = scail_pose_latents.shape
 
         seq_lens = torch.tensor([u.size(1) for u in x], dtype=torch.int32)
@@ -2643,6 +2673,8 @@ class WanModel(torch.nn.Module):
                 self.rope_embedder.k,
                 tuple(ntk_alphas),
                 longcat_num_ref_latents,
+                rope_negative_offset,
+                num_memory_frames,
             )
 
             # Check cache using key comparison
@@ -2658,6 +2690,8 @@ class WanModel(torch.nn.Module):
                     ref_frame_shape=ref_frame_shape,
                     pose_frame_shape=pose_frame_shape,
                     longcat_num_ref_latents=longcat_num_ref_latents,
+                    rope_negative_offset=rope_negative_offset,
+                    num_memory_frames=num_memory_frames,
                     device=x.device,
                     dtype=x.dtype
                 )
