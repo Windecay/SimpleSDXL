@@ -690,6 +690,7 @@ def validate_files(packages):
         os.path.join(simplemodels_root, "nlf"),
         os.path.join(simplemodels_root, "SEEDVR2"),
         os.path.join(simplemodels_root, "LLM", "Qwen3-VL-4B-Instruct-abliterated"),
+        os.path.join(simplemodels_root, "rembg"),
         ]
         for model_root in MODEL_PATHS_TO_SCAN:
             if not os.path.exists(model_root):
@@ -988,7 +989,7 @@ def delete_partial_files():
         'vae_approx', 'vae', 'upscale_models', 'inpaint', "ipadapter",
         'clip', 'clip_vision', 'llms', 'LLM', 'unet', 'diffusers', 'model_patches',
         'text_encoders', 'audio_encoders', 'safety_checker', 'layer_model', 'pulid', 'insightface',
-        'prompt_expansion', 'fooocus_expansion', 'gemma3', 'jina_clip',
+        'prompt_expansion', 'fooocus_expansion', 'gemma3', 'jina_clip', 'rembg',
     ]
 
     scan_dirs = []
@@ -2509,7 +2510,7 @@ OBSOLETE_MODELS = [
     "Qwen_Image_Edit-Q4_K_M.gguf",
     "Qwen-Image-Edit-Lightning-8steps-V1.0-bf16.safetensors",
     "Qwen-Image-Edit-Lightning-4steps-V1.0-bf16.safetensors",
-    "FramePackI2V_HY_fp8_e4m3fn.safetensors"
+    "FramePackI2V_HY_fp8_e4m3fn.safetensors",
     "llava_llama3_fp8_scaled.safetensors",
     "hunyuan_video_vae_bf16.safetensors",
     "kolors_unet_fp16.safetensors",
