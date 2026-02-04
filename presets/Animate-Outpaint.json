@@ -131,6 +131,7 @@
         "clip,umt5-xxl-encoder-Q8_0.gguf,6043068256,0,",
         "vae,Wan2_1_VAE_bf16.safetensors,253806278,0,",
         "loras,lightx2v_I2V_14B_480p_cfg_step_distill_rank64_bf16.safetensors,738005744,0,",
+        "loras,WanAnimate_relight_lora_fp16.safetensors,1436655192,0,https://modelscope.cn/models/Kijai/WanVideo_comfy/resolve/master/LoRAs/Wan22_relight/WanAnimate_relight_lora_fp16.safetensors",
         "controlnet,rife/flownet.pkl,24636301,0,https://www.modelscope.cn/models/windecay/rife/resolve/master/flownet.pkl",
         "diffusion_models,flux-2-klein-9b-fp8.safetensors,9433061528,0,https://www.modelscope.cn/models/black-forest-labs/FLUX.2-klein-9b-fp8/resolve/master/flux-2-klein-9b-fp8.safetensors",
         "text_encoders,qwen3_8b_abliterated_v2-fp8mixed.safetensors,8191194604,0,https://www.modelscope.cn/models/silveroxides/FLUX.2-dev-fp8_scaled/resolve/master/qwen3_8b_abliterated_v2-fp8mixed.safetensors",
