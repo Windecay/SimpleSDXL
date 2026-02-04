@@ -9,16 +9,17 @@
                 "theme": ["QwenEdit+A2R", "QwenEdit+A2R_lite"],
                 "theme_title": "QwenEdit+A2R动漫转真人",
                 "disvisible": ["scene_additional_prompt", "scene_video", "scene_audio","scene_canvas_image","scene_input_image2",
-                "scene_var_number","scene_var_number2", "scene_switch_option1", "scene_switch_option2", "scene_additional_prompt_2", "scene_aspect_ratio", "scene_steps"],
+                "scene_var_number","scene_var_number2", "scene_switch_option1", "scene_switch_option2", "scene_additional_prompt_2", "scene_aspect_ratio", "scene_steps", "scene_var_number5", "scene_var_number6", "scene_var_number7", "scene_var_number8", "scene_var_number9", "scene_var_number10"
+                ,"scene_switch_option3","scene_switch_option4"],
                 "task_method": {
                     "QwenEdit+A2R": "qwenedit_a2r_cn",
                     "QwenEdit+A2R_lite": "qwenedit_a2r_lite_cn"
                 },
                 "prompt": {
-                    "QwenEdit+A2R": "change the picture 1 to realistic photograph, taken by a professional digital camera, keep character's feature unchange,"
+                    "QwenEdit+A2R": "change the picture 1 to realistic photograph,"
                 },
                 "agent_prompt": {
-                    "QwenEdit+A2R": "描述这张图片角色的关键细节，对描述结果要求明暗度保持一致，描述服饰内衣内裤细节, 描述角色瞳孔颜色、发型细节、是否遮住眼睛，淡妆，不要有任何腮红或者脸红的描述，注意描述表情细节，角色的面部朝向，视线方向。按此格式输出：’change the picture 1 to realistic photograph, taken by a professional digital camera, keep character's feature unchange,: 这张图片图片描述。'"
+                    "QwenEdit+A2R": "描述这张图片角色的关键细节，对描述结果要求明暗度保持一致，描述服饰内衣内裤细节, 描述角色瞳孔颜色、发型细节、是否遮住眼睛，淡妆，不要有任何腮红或者脸红的描述，注意描述表情细节，角色的面部朝向，视线方向。按此格式输出：’change the picture 1 to realistic photograph, : 这张图片图片描述。'"
                 },
                 "scene_steps": {
                     "QwenEdit+A2R": 20,
@@ -56,7 +57,7 @@
         ],
         [
             "qe2511_consis_alpha_patched.safetensors",
-            0.20
+            0.1
         ],
         [
             "None",

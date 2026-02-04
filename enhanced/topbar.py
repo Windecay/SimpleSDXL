@@ -495,7 +495,7 @@ def avoid_empty_prompt_for_scene(prompt, state, canvas_image, input_image1, scen
     return gr.update() if describe_prompt is None else describe_prompt
 
 
-def process_before_generation(state_params, seed_random, image_seed, backend_params, scene_theme, scene_canvas_image, scene_input_image1, scene_input_image2, scene_additional_prompt, scene_additional_prompt_2, scene_var_number, scene_var_number2, scene_var_number3, scene_var_number4, scene_steps, scene_switch_option1, scene_switch_option2, scene_aspect_ratio, scene_image_number, scene_video, scene_audio):
+def process_before_generation(state_params, seed_random, image_seed, backend_params, scene_theme, scene_canvas_image, scene_input_image1, scene_input_image2, scene_additional_prompt, scene_additional_prompt_2, scene_var_number, scene_var_number2, scene_var_number3, scene_var_number4, scene_var_number5, scene_var_number6, scene_var_number7, scene_var_number8, scene_var_number9, scene_var_number10, scene_steps, scene_switch_option1, scene_switch_option2, scene_switch_option3, scene_switch_option4, scene_aspect_ratio, scene_image_number, scene_video, scene_audio):
     backend_params.update(dict(
         nickname=state_params["user"].get_nickname(),
         user_did=state_params["user"].get_did(),
@@ -578,8 +578,16 @@ def process_before_generation(state_params, seed_random, image_seed, backend_par
             scene_var_number2=scene_var_number2,
             scene_var_number3=scene_var_number3,
             scene_var_number4=scene_var_number4,
+            scene_var_number5=scene_var_number5,
+            scene_var_number6=scene_var_number6,
+            scene_var_number7=scene_var_number7,
+            scene_var_number8=scene_var_number8,
+            scene_var_number9=scene_var_number9,
+            scene_var_number10=scene_var_number10,
             scene_switch_option1=scene_switch_option1,
             scene_switch_option2=scene_switch_option2,
+            scene_switch_option3=scene_switch_option3,
+            scene_switch_option4=scene_switch_option4,
             scene_aspect_ratio=scene_aspect_ratio.split('|')[0] if '×' in scene_aspect_ratio else modules.flags.scene_aspect_ratios_size[scene_aspect_ratio],
             scene_image_number=scene_image_number,
             video=scene_video,
@@ -684,9 +692,10 @@ def down_absent_model(state_params):
     return gr.update(visible=False), state_params
 
 reset_layout_num = 0
+reset_layout_ui_outputs_len = 0
 
 def reset_layout_ui(prompt, negative_prompt, state_params, is_generating, inpaint_mode, comfyd_active_checkbox, bar_button = None):
-    global system_message, preset_down_note_info, reset_layout_num
+    global system_message, preset_down_note_info, reset_layout_num, reset_layout_ui_outputs_len
 
     if bar_button is not None:
         state_params.update({"bar_button": bar_button})
@@ -696,7 +705,11 @@ def reset_layout_ui(prompt, negative_prompt, state_params, is_generating, inpain
     if '__preset' not in state_params.keys() or 'bar_button' not in state_params.keys() or state_params["__preset"]==state_params['bar_button']:
         # Default reset for comparison UI when not switching
         comparison_default = [gr.update(), gr.update(), gr.update(), gr.update(), gr.update()]
-        return refresh_nav_bars(state_params) + [gr.update()] * reset_layout_num + [state_params] + comparison_default
+        nav_updates = refresh_nav_bars(state_params)
+        fill_count = reset_layout_ui_outputs_len - len(nav_updates)
+        if fill_count < 0:
+            fill_count = 0
+        return nav_updates + [gr.update()] * fill_count + [state_params] + comparison_default
     preset = state_params["bar_button"] if '\u2B07' not in state_params["bar_button"] else state_params["bar_button"].replace('\u2B07', '')
     logger.info(f'Reset_context: preset={state_params["__preset"]}-->{preset}, theme={state_params["__theme"]}, lang={state_params["__lang"]}')
     if not args_manager.args.disable_backend and '\u2B07' in state_params["bar_button"]:
@@ -740,6 +753,11 @@ def reset_layout_ui(prompt, negative_prompt, state_params, is_generating, inpain
 
     results = refresh_nav_bars(state_params)
     results += meta_parser.switch_layout_template(preset_prepared, state_params, preset_url)
+    fill_count = reset_layout_ui_outputs_len - len(results)
+    if fill_count > 0:
+        results += [gr.update()] * fill_count
+    elif fill_count < 0:
+        results = results[:reset_layout_ui_outputs_len]
 
     # comparison_state, comparison_box, progress_gallery, compare_btn, progress_window
     comparison_outputs = [False, gr.update(visible=False), gr.update(visible=False), gr.update(visible=False), gr.update(visible=True, value=get_welcome_image(preset, state_params["__is_mobile"], no_welcome=ads.get_admin_default("no_welcome_checkbox")))]

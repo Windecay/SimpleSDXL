@@ -96,7 +96,7 @@ def check_base_environment():
     print(f'{now_string()} ✦ | 兴趣使然的版本 | ✦ by冰華 ✦')
 
     base_pkg = "simpleai_base"
-    ver_required = "0.3.33"
+    ver_required = "0.3.34"
     REINSTALL_BASE = False #if '_dev' not in version.get_branch() else True
     base_branch = "dev"
     # if '--dev' in (sys.argv):

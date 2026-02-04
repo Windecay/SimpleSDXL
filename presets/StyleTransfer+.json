@@ -9,7 +9,8 @@
                 "theme": ["Flux2_StyleTransfer"],
                 "theme_title": "Flux2风格转绘",
                 "disvisible": ["scene_additional_prompt", "scene_additional_prompt_2", "scene_video", "scene_audio","scene_canvas_image","scene_input_image2",
-                "scene_var_number","scene_var_number2","scene_var_number3","scene_switch_option2", "scene_refiner_model"],
+                "scene_var_number","scene_var_number2","scene_var_number3","scene_switch_option2", "scene_refiner_model", "scene_var_number5", "scene_var_number6", "scene_var_number7", "scene_var_number8", "scene_var_number9", "scene_var_number10"
+                ,"scene_switch_option3","scene_switch_option4"],
                 "task_method": {
                     "Flux2_StyleTransfer": "flux2_styletransfer_cn"
                 },

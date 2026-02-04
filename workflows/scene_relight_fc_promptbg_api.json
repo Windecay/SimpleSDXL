@@ -291,11 +291,11 @@
         0
       ],
       "frame_width": [
-        "182",
+        "265",
         0
       ],
       "frame_height": [
-        "182",
+        "265",
         1
       ],
       "shape_width": [
@@ -347,23 +347,11 @@
       "title": "Convert Mask to Image"
     }
   },
-  "66": {
-    "inputs": {
-      "images": [
-        "50",
-        0
-      ]
-    },
-    "class_type": "PreviewImage",
-    "_meta": {
-      "title": "Preview Image"
-    }
-  },
   "76": {
     "inputs": {
       "value": "a/2+b",
       "a": [
-        "182",
+        "265",
         0
       ],
       "b": [
@@ -380,7 +368,7 @@
     "inputs": {
       "value": "a/2+b",
       "a": [
-        "182",
+        "265",
         1
       ],
       "b": [
@@ -419,70 +407,6 @@
       "title": "🔧 Simple Math"
     }
   },
-  "84": {
-    "inputs": {
-      "images": [
-        "64",
-        0
-      ]
-    },
-    "class_type": "PreviewImage",
-    "_meta": {
-      "title": "Preview Image"
-    }
-  },
-  "86": {
-    "inputs": {
-      "pixels": [
-        "39",
-        0
-      ],
-      "vae": [
-        "2",
-        2
-      ]
-    },
-    "class_type": "VAEEncode",
-    "_meta": {
-      "title": "VAE Encode"
-    }
-  },
-  "88": {
-    "inputs": {
-      "mask": [
-        "62",
-        0
-      ]
-    },
-    "class_type": "MaskPreview",
-    "_meta": {
-      "title": "MaskPreview"
-    }
-  },
-  "89": {
-    "inputs": {
-      "mask": [
-        "63",
-        0
-      ]
-    },
-    "class_type": "MaskPreview",
-    "_meta": {
-      "title": "MaskPreview"
-    }
-  },
-  "90": {
-    "inputs": {
-      "mask": [
-        "63",
-        1
-      ]
-    },
-    "class_type": "MaskPreview",
-    "_meta": {
-      "title": "MaskPreview"
-    }
-  },
   "91": {
     "inputs": {
       "prompt": "",
@@ -493,7 +417,24 @@
       "inpaint_mask": "welcome.png",
       "width": 1024,
       "height": 1024,
-      "var_number": 11
+      "cfg": 8,
+      "steps": 20,
+      "var_number": 11,
+      "var_number2": 0,
+      "var_number3": 0,
+      "var_number4": 0,
+      "var_number5": 0,
+      "var_number6": 0,
+      "var_number7": 0,
+      "var_number8": 0,
+      "var_number9": 0,
+      "var_number10": 0,
+      "switch_option1": false,
+      "switch_option2": false,
+      "switch_option3": false,
+      "switch_option4": false,
+      "model_type": 1,
+      "model_type2": 1
     },
     "class_type": "SceneInput",
     "_meta": {
@@ -587,23 +528,11 @@
   },
   "102": {
     "inputs": {
-      "value": 5
+      "value": 0
     },
     "class_type": "PrimitiveInt",
     "_meta": {
       "title": "Int"
-    }
-  },
-  "103": {
-    "inputs": {
-      "images": [
-        "100",
-        0
-      ]
-    },
-    "class_type": "PreviewImage",
-    "_meta": {
-      "title": "Preview Image"
     }
   },
   "130": {
@@ -618,7 +547,7 @@
       ],
       "on_false": [
         "91",
-        8
+        10
       ]
     },
     "class_type": "easy ifElse",
@@ -631,7 +560,7 @@
       "comparison": "a <= b",
       "a": [
         "91",
-        8
+        10
       ],
       "b": [
         "132",
@@ -698,19 +627,6 @@
       "title": "If else"
     }
   },
-  "136": {
-    "inputs": {
-      "preview": "",
-      "source": [
-        "135",
-        0
-      ]
-    },
-    "class_type": "PreviewAny",
-    "_meta": {
-      "title": "Preview Any"
-    }
-  },
   "144": {
     "inputs": {
       "boolean": [
@@ -729,117 +645,6 @@
     "class_type": "easy ifElse",
     "_meta": {
       "title": "If else"
-    }
-  },
-  "145": {
-    "inputs": {
-      "images": [
-        "144",
-        0
-      ]
-    },
-    "class_type": "PreviewImage",
-    "_meta": {
-      "title": "Preview Image"
-    }
-  },
-  "147": {
-    "inputs": {
-      "images": [
-        "92",
-        0
-      ]
-    },
-    "class_type": "PreviewImage",
-    "_meta": {
-      "title": "Preview Image"
-    }
-  },
-  "148": {
-    "inputs": {
-      "preview": "",
-      "source": [
-        "91",
-        8
-      ]
-    },
-    "class_type": "PreviewAny",
-    "_meta": {
-      "title": "Preview Any"
-    }
-  },
-  "149": {
-    "inputs": {
-      "preview": "",
-      "source": [
-        "131",
-        0
-      ]
-    },
-    "class_type": "PreviewAny",
-    "_meta": {
-      "title": "Preview Any"
-    }
-  },
-  "151": {
-    "inputs": {
-      "preview": "",
-      "source": [
-        "130",
-        0
-      ]
-    },
-    "class_type": "PreviewAny",
-    "_meta": {
-      "title": "Preview Any"
-    }
-  },
-  "177": {
-    "inputs": {
-      "mask": [
-        "54",
-        1
-      ]
-    },
-    "class_type": "MaskPreview",
-    "_meta": {
-      "title": "MaskPreview"
-    }
-  },
-  "178": {
-    "inputs": {
-      "mask": [
-        "186",
-        0
-      ]
-    },
-    "class_type": "MaskPreview",
-    "_meta": {
-      "title": "MaskPreview"
-    }
-  },
-  "179": {
-    "inputs": {
-      "images": [
-        "39",
-        0
-      ]
-    },
-    "class_type": "PreviewImage",
-    "_meta": {
-      "title": "Preview Image"
-    }
-  },
-  "182": {
-    "inputs": {
-      "image": [
-        "39",
-        0
-      ]
-    },
-    "class_type": "easy imageSize",
-    "_meta": {
-      "title": "ImageSize"
     }
   },
   "185": {
@@ -917,44 +722,6 @@
       "title": "🔧 Simple Math"
     }
   },
-  "193": {
-    "inputs": {
-      "preview": "",
-      "source": [
-        "191",
-        0
-      ]
-    },
-    "class_type": "PreviewAny",
-    "_meta": {
-      "title": "Preview Any"
-    }
-  },
-  "194": {
-    "inputs": {
-      "preview": "",
-      "source": [
-        "192",
-        1
-      ]
-    },
-    "class_type": "PreviewAny",
-    "_meta": {
-      "title": "Preview Any"
-    }
-  },
-  "220": {
-    "inputs": {
-      "anything": [
-        "221",
-        0
-      ]
-    },
-    "class_type": "easy showAnything",
-    "_meta": {
-      "title": "Show Any"
-    }
-  },
   "221": {
     "inputs": {
       "min_value": 1,
@@ -979,7 +746,7 @@
         0
       ],
       "max_rows": 1,
-      "remove_empty_lines": true
+      "remove_empty_lines": false
     },
     "class_type": "easy promptLine",
     "_meta": {
@@ -1233,6 +1000,18 @@
     "class_type": "SimpleMath+",
     "_meta": {
       "title": "🔧 Simple Math"
+    }
+  },
+  "265": {
+    "inputs": {
+      "image": [
+        "39",
+        0
+      ]
+    },
+    "class_type": "easy imageSize",
+    "_meta": {
+      "title": "ImageSize"
     }
   }
 }

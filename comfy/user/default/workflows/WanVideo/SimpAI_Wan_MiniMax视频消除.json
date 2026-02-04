@@ -2854,10 +2854,10 @@
         }
       ],
       "properties": {
+        "aux_id": "yolain/ComfyUI-Easy-Sam3",
+        "Node name for S&R": "easy sam3VideoSegmentation",
         "cnr_id": "comfyui-easy-sam3",
         "ver": "851a5be3c01d6fbd3ef45dbb55092916cfc466af",
-        "Node name for S&R": "easy sam3VideoSegmentation",
-        "aux_id": "yolain/ComfyUI-Easy-Sam3",
         "ue_properties": {
           "widget_ue_connectable": {},
           "input_ue_unconnectable": {},
@@ -2974,10 +2974,10 @@
         }
       ],
       "properties": {
+        "aux_id": "yolain/ComfyUI-Easy-Sam3",
+        "Node name for S&R": "easy sam3VideoSegmentation",
         "cnr_id": "comfyui-easy-sam3",
         "ver": "851a5be3c01d6fbd3ef45dbb55092916cfc466af",
-        "Node name for S&R": "easy sam3VideoSegmentation",
-        "aux_id": "yolain/ComfyUI-Easy-Sam3",
         "ue_properties": {
           "widget_ue_connectable": {},
           "input_ue_unconnectable": {},
@@ -3799,7 +3799,7 @@
       ],
       "size": [
         250,
-        110
+        130
       ],
       "flags": {
         "pinned": true
@@ -3836,6 +3836,7 @@
       "widgets_values": [
         "Wan2_1_VAE_bf16.safetensors",
         "bf16",
+        false,
         false
       ],
       "color": "#322",
@@ -3868,10 +3869,10 @@
         }
       ],
       "properties": {
+        "aux_id": "yolain/ComfyUI-Easy-Sam3",
+        "Node name for S&R": "easy sam3ModelLoader",
         "cnr_id": "comfyui-easy-sam3",
         "ver": "851a5be3c01d6fbd3ef45dbb55092916cfc466af",
-        "Node name for S&R": "easy sam3ModelLoader",
-        "aux_id": "yolain/ComfyUI-Easy-Sam3",
         "ue_properties": {
           "widget_ue_connectable": {},
           "input_ue_unconnectable": {},
@@ -4790,11 +4791,12 @@
           "links": null
         }
       ],
+      "title": "如要开启画板，前往参数设置打开开关",
       "properties": {
+        "aux_id": "yolain/ComfyUI-Easy-Sam3",
+        "Node name for S&R": "easy framesEditor",
         "cnr_id": "comfyui-easy-sam3",
         "ver": "851a5be3c01d6fbd3ef45dbb55092916cfc466af",
-        "Node name for S&R": "easy framesEditor",
-        "aux_id": "yolain/ComfyUI-Easy-Sam3",
         "ue_properties": {
           "widget_ue_connectable": {},
           "input_ue_unconnectable": {},
@@ -6318,10 +6320,10 @@
       }
     ],
     "ds": {
-      "scale": 1.1789738455000132,
+      "scale": 0.8857805000000099,
       "offset": [
-        -4278.651187473649,
-        656.5749230553946
+        -3942.693529115232,
+        688.8410061794583
       ]
     },
     "links_added_by_ue": [
@@ -6336,7 +6338,7 @@
     ],
     "qgn_navigation_groups": [],
     "qgn_locked": false,
-    "frontendVersion": "1.34.9",
+    "frontendVersion": "1.37.11",
     "VHS_latentpreview": true,
     "VHS_latentpreviewrate": 8,
     "VHS_MetadataImage": true,

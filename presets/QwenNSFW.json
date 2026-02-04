@@ -9,7 +9,8 @@
                 "theme": ["AIO-NSFW-2511-1024px","AIO-NSFW-2511-1536px","AIO-NSFW-2511-2048px"],
                 "theme_title": "Qwen-AIO-NSFW-2511指令修图[蒙版可选]",
                 "disvisible": ["scene_additional_prompt","scene_additional_prompt_2", "scene_video", "scene_audio",
-                "scene_var_number","scene_var_number2", "scene_refiner_model"],
+                "scene_var_number","scene_var_number2", "scene_refiner_model", "scene_var_number5", "scene_var_number6", "scene_var_number7", "scene_var_number8", "scene_var_number9", "scene_var_number10"
+                ,"scene_switch_option3","scene_switch_option4"],
                 "task_method": {
                     "AIO-NSFW-2511-1024px": "qwen_edit_nsfw_cn",
                     "AIO-NSFW-2511-1536px": "qwen_edit_nsfw_1536_cn",

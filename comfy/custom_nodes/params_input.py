@@ -54,18 +54,35 @@ class SceneInput:
                     "inpaint_mask": ("STRING", {"default": "None", "multiline": False}),
                     "width": ("INT", {"default": 512, "min": 64, "max": MAX_RESOLUTION, "step": 8}),
                     "height": ("INT", {"default": 512, "min": 64, "max": MAX_RESOLUTION, "step": 8}),
+                    "cfg": ("FLOAT", {"default": 8.0, "min": 0.0, "max": 100.0}),
+                    "steps": ("INT", {"default": 20, "min": 1, "max": 10000}),
                     "var_number": ("INT", {"default": 0, "min": 0, "max": 10000, "step": 1}),
+                    "var_number2": ("INT", {"default": 0, "min": 0, "max": 10000, "step": 1}),
+                    "var_number3": ("FLOAT", {"default": 0.0, "min": -10000.0, "max": 10000.0, "step": 0.01}),
+                    "var_number4": ("FLOAT", {"default": 0.0, "min": -10000.0, "max": 10000.0, "step": 0.01}),
+                    "var_number5": ("FLOAT", {"default": 0.0, "min": -10000.0, "max": 10000.0, "step": 0.01}),
+                    "var_number6": ("FLOAT", {"default": 0.0, "min": -10000.0, "max": 10000.0, "step": 0.01}),
+                    "var_number7": ("INT", {"default": 0, "min": 0, "max": 10000, "step": 1}),
+                    "var_number8": ("INT", {"default": 0, "min": 0, "max": 10000, "step": 1}),
+                    "var_number9": ("INT", {"default": 0, "min": 0, "max": 10000, "step": 1}),
+                    "var_number10": ("INT", {"default": 0, "min": 0, "max": 10000, "step": 1}),
+                    "switch_option1": ("BOOLEAN", {"default": False}),
+                    "switch_option2": ("BOOLEAN", {"default": False}),
+                    "switch_option3": ("BOOLEAN", {"default": False}),
+                    "switch_option4": ("BOOLEAN", {"default": False}),
+                    "model_type": ("INT", {"default": 1, "min": 1, "max": 3, "step": 1}),
+                    "model_type2": ("INT", {"default": 1, "min": 1, "max": 3, "step": 1}),
                 }}
-    RETURN_TYPES = ("STRING", "STRING", "STRING", "STRING", "STRING", "STRING", "INT", "INT", "INT", )
-    RETURN_NAMES = ("prompt", "additional_prompt", "ip_image", "ip_image1", "inpaint_image", "inpaint_mask", "width", "height", "var_number", )
+    RETURN_TYPES = ("STRING", "STRING", "STRING", "STRING", "STRING", "STRING", "INT", "INT", "FLOAT", "INT", "INT", "INT", "FLOAT", "FLOAT", "FLOAT", "FLOAT", "INT", "INT", "INT", "INT", "BOOLEAN", "BOOLEAN", "BOOLEAN", "BOOLEAN", "INT", "INT", )
+    RETURN_NAMES = ("prompt", "additional_prompt", "ip_image", "ip_image1", "inpaint_image", "inpaint_mask", "width", "height", "cfg", "steps", "var_number", "var_number2", "var_number3", "var_number4", "var_number5", "var_number6", "var_number7", "var_number8", "var_number9", "var_number10", "switch_option1", "switch_option2", "switch_option3", "switch_option4", "model_type", "model_type2", )
 
     FUNCTION = "scene_input"
 
     CATEGORY = "api/input"
 
-    def scene_input(self, prompt, additional_prompt, ip_image, ip_image1, inpaint_image, inpaint_mask, width, height, var_number):
+    def scene_input(self, prompt, additional_prompt, ip_image, ip_image1, inpaint_image, inpaint_mask, width, height, cfg, steps, var_number, var_number2, var_number3, var_number4, var_number5, var_number6, var_number7, var_number8, var_number9, var_number10, switch_option1, switch_option2, switch_option3, switch_option4, model_type, model_type2):
 
-        return (prompt, additional_prompt, ip_image, ip_image1, inpaint_image, inpaint_mask, width, height, var_number)
+        return (prompt, additional_prompt, ip_image, ip_image1, inpaint_image, inpaint_mask, width, height, cfg, steps, var_number, var_number2, var_number3, var_number4, var_number5, var_number6, var_number7, var_number8, var_number9, var_number10, switch_option1, switch_option2, switch_option3, switch_option4, model_type, model_type2)
 
 class SeedInput:
     @classmethod

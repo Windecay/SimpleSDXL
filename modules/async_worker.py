@@ -204,8 +204,16 @@ class AsyncTask:
             self.scene_var_number2 = self.params_backend.pop('scene_var_number2', None)
             self.scene_var_number3 = self.params_backend.pop('scene_var_number3', None)
             self.scene_var_number4 = self.params_backend.pop('scene_var_number4', None)
+            self.scene_var_number5 = self.params_backend.pop('scene_var_number5', None)
+            self.scene_var_number6 = self.params_backend.pop('scene_var_number6', None)
+            self.scene_var_number7 = self.params_backend.pop('scene_var_number7', None)
+            self.scene_var_number8 = self.params_backend.pop('scene_var_number8', None)
+            self.scene_var_number9 = self.params_backend.pop('scene_var_number9', None)
+            self.scene_var_number10 = self.params_backend.pop('scene_var_number10', None)
             self.scene_switch_option1 = self.params_backend.pop('scene_switch_option1', None)
             self.scene_switch_option2 = self.params_backend.pop('scene_switch_option2', None)
+            self.scene_switch_option3 = self.params_backend.pop('scene_switch_option3', None)
+            self.scene_switch_option4 = self.params_backend.pop('scene_switch_option4', None)
             self.scene_steps = self.params_backend.pop('scene_steps', None)
             self.scene_frontend = self.params_backend.pop('scene_frontend')
             if self.scene_frontend.startswith('v'):
@@ -1781,10 +1789,26 @@ def worker():
                     async_task.params_backend['var_number3'] = async_task.scene_var_number3
                 if async_task.scene_var_number4 is not None:
                     async_task.params_backend['var_number4'] = async_task.scene_var_number4
+                if async_task.scene_var_number5 is not None:
+                    async_task.params_backend['var_number5'] = float(async_task.scene_var_number5)
+                if async_task.scene_var_number6 is not None:
+                    async_task.params_backend['var_number6'] = float(async_task.scene_var_number6)
+                if async_task.scene_var_number7 is not None:
+                    async_task.params_backend['var_number7'] = int(async_task.scene_var_number7)
+                if async_task.scene_var_number8 is not None:
+                    async_task.params_backend['var_number8'] = int(async_task.scene_var_number8)
+                if async_task.scene_var_number9 is not None:
+                    async_task.params_backend['var_number9'] = int(async_task.scene_var_number9)
+                if async_task.scene_var_number10 is not None:
+                    async_task.params_backend['var_number10'] = int(async_task.scene_var_number10)
                 if async_task.scene_switch_option1 is not None:
                     async_task.params_backend['switch_option1'] = async_task.scene_switch_option1
                 if async_task.scene_switch_option2 is not None:
                     async_task.params_backend['switch_option2'] = async_task.scene_switch_option2
+                if async_task.scene_switch_option3 is not None:
+                    async_task.params_backend['switch_option3'] = async_task.scene_switch_option3
+                if async_task.scene_switch_option4 is not None:
+                    async_task.params_backend['switch_option4'] = async_task.scene_switch_option4
 
                 if async_task.content_type == 'video' and 'framepack' in async_task.task_method:
                      if async_task.scene_var_number is not None:

@@ -7,51 +7,73 @@
             "available_aspect_ratios_selection": "Flux",
             "scene_frontend": {
                 "version": "v1.1",
-                "theme": ["SCAIL"],
-                "theme_title": "Wan-SCAIL动作迁移",
-                "disvisible": ["scene_canvas_image", "scene_additional_prompt","scene_additional_prompt_2","scene_input_image2", "scene_audio", "scene_refiner_model",
-                "scene_var_number5", "scene_var_number6", "scene_var_number8", "scene_var_number9", "scene_var_number10"
-                ,"scene_switch_option3","scene_switch_option4"],
+                "theme": ["Animate Outpaint"],
+                "theme_title": "Wan-Animate-视频外扩",
+                "disvisible": ["scene_canvas_image", "scene_additional_prompt", "scene_additional_prompt_2", "scene_input_image1", "scene_input_image2", "scene_audio", "scene_refiner_model", "scene_var_number6", "scene_switch_option3","scene_switch_option4"],
                 "task_method": {
-                    "SCAIL": "wan_scail_cn"
+                    "Animate Outpaint": "wan_animate_outpaint_cn"
                 },
                 "multimodal_prompt": {
-                    "SCAIL": ""
+                    "Animate Outpaint": ""
                 },
-                "scene_steps_min": 4,
-                "scene_steps_max": 6,
+                "scene_steps_min": 8,
+                "scene_steps_max": 12,
                 "scene_steps": {
-                    "SCAIL": 4
+                    "Animate Outpaint": 8
                 },
                 "var_number_min": 0,
                 "var_number_max": 60,
                 "var_number_title": "限制时长(秒)[0为不限制]",
                 "var_number": {
-                    "SCAIL": 0
+                    "Animate Outpaint": 0
                 },
                 "var_number2_title": "补帧到帧数[低于覆盖帧率不补帧]",
                 "var_number2_min": 16,
                 "var_number2_max": 60,
                 "var_number2": {
-                    "SCAIL": 60
+                    "Animate Outpaint": 30
                 },
                 "var_number3_title": "参考视频覆盖帧率",
                 "var_number3_min": 16.0,
                 "var_number3_max": 30.0,
                 "var_number3": {
-                    "SCAIL": 24.0
+                    "Animate Outpaint": 16.0
                 },
                 "var_number4_title": "跳过参考视频的前N秒",
                 "var_number4_min": 0.0,
                 "var_number4_max": 60,
                 "var_number4": {
-                    "SCAIL": 0.0
+                    "Animate Outpaint": 0.0
+                },
+                "var_number5_min": 0,
+                "var_number5_max": 40.0,
+                "var_number5_title": "显存块交换[越小使用越多显存]",
+                "var_number5": {
+                    "Animate Outpaint": 35.0
                 },
                 "var_number7_min": 0,
-                "var_number7_max": 40,
-                "var_number7_title": "显存块交换[越小使用越多显存]",
+                "var_number7_max": 50,
+                "var_number7_title": "上扩百分比",
                 "var_number7": {
-                    "SCAIL": 35
+                    "Animate Outpaint": 20
+                },
+                "var_number8_title": "下扩百分比",
+                "var_number8_min": 0,
+                "var_number8_max": 50,
+                "var_number8": {
+                    "Animate Outpaint": 20
+                },
+                "var_number9_title": "左扩百分比",
+                "var_number9_min": 0,
+                "var_number9_max": 50,
+                "var_number9": {
+                    "Animate Outpaint": 20
+                },
+                "var_number10_title": "右扩百分比",
+                "var_number10_min": 0,
+                "var_number10_max": 50,
+                "var_number10": {
+                    "Animate Outpaint": 20
                 },
                 "switch_option1_title": "使用分块VAE解码",
                 "switch_option1": {
@@ -59,12 +81,12 @@
                 },
                 "switch_option2_title": "SageAttention加速",
                 "switch_option2": {
-                    "SCAIL": true
+                    "Animate Outpaint": true
                 },
                 "aspect_ratio" : ["640|1:1","720|1:1","832|1:1","960|1:1","1024|1:1","1280|1:1"]
             }
     },
-    "default_model": "Wan21-14B-SCAIL-preview_fp8_e4m3fn_scaled_KJ.safetensors",
+    "default_model": "Wan2_2-Animate-14B_fp8_scaled_e4m3fn_KJ_v2.safetensors",
     "default_refiner": "None",
     "default_refiner_switch": 0.5,
     "default_loras": [
@@ -105,14 +127,13 @@
     "lora_downloads": {},
     "vae_downloads": {},
     "model_list": [
-        "diffusion_models,Wan21-14B-SCAIL-preview_fp8_e4m3fn_scaled_KJ.safetensors,16401525232,0,https://www.modelscope.cn/models/Kijai/WanVideo_comfy_fp8_scaled/resolve/master/SCAIL/Wan21-14B-SCAIL-preview_fp8_e4m3fn_scaled_KJ.safetensors",
+        "diffusion_models,Wan2_2-Animate-14B_fp8_scaled_e4m3fn_KJ_v2.safetensors,17317143060,0,https://www.modelscope.cn/models/Kijai/WanVideo_comfy_fp8_scaled/resolve/master/Wan22Animate/Wan2_2-Animate-14B_fp8_scaled_e4m3fn_KJ_v2.safetensors",
         "clip,umt5-xxl-encoder-Q8_0.gguf,6043068256,0,",
         "vae,Wan2_1_VAE_bf16.safetensors,253806278,0,",
         "loras,lightx2v_I2V_14B_480p_cfg_step_distill_rank64_bf16.safetensors,738005744,0,",
         "controlnet,rife/flownet.pkl,24636301,0,https://www.modelscope.cn/models/windecay/rife/resolve/master/flownet.pkl",
-        "detection,vitpose_h_wholebody_data.bin,2548958740,0,https://modelscope.cn/models/Kijai/vitpose_comfy/resolve/master/onnx/vitpose_h_wholebody_data.bin",
-        "detection,vitpose_h_wholebody_model.onnx,420252,0,https://modelscope.cn/models/Kijai/vitpose_comfy/resolve/master/onnx/vitpose_h_wholebody_model.onnx",
-        "detection,yolov10m.onnx,61659339,0,https://modelscope.cn/models/Wan-AI/Wan2.2-Animate-14B/resolve/master/process_checkpoint/det/yolov10m.onnx",
-        "nlf,nlf_l_multi_0.3.2.torchscript,493117974,0,https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/nlf/nlf_l_multi_0.3.2.torchscript"
+        "diffusion_models,flux-2-klein-9b-fp8.safetensors,9433061528,0,https://www.modelscope.cn/models/black-forest-labs/FLUX.2-klein-9b-fp8/resolve/master/flux-2-klein-9b-fp8.safetensors",
+        "text_encoders,qwen3_8b_abliterated_v2-fp8mixed.safetensors,8191194604,0,https://www.modelscope.cn/models/silveroxides/FLUX.2-dev-fp8_scaled/resolve/master/qwen3_8b_abliterated_v2-fp8mixed.safetensors",
+        "vae,flux2-vae.safetensors,336211292,0,https://www.modelscope.cn/models/Comfy-Org/flux2-klein-4B/resolve/master/split_files/vae/flux2-vae.safetensors"
     ]
 }

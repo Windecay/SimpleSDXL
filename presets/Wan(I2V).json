@@ -9,7 +9,9 @@
                 "version": "v1.1",
                 "theme": ["基础"],
                 "theme_title": "Wan2.2图生视频 [左边上传首帧，右边尾帧可选]",
-                "disvisible": ["scene_canvas_image", "scene_additional_prompt","scene_additional_prompt_2", "scene_video", "scene_audio"],
+                "disvisible": ["scene_canvas_image", "scene_additional_prompt","scene_additional_prompt_2", "scene_video", "scene_audio",
+                "scene_var_number5", "scene_var_number6", "scene_var_number7", "scene_var_number8", "scene_var_number9", "scene_var_number10"
+                ,"scene_switch_option3","scene_switch_option4"],
                 "prompt": {
                     "基础": ""
                 },

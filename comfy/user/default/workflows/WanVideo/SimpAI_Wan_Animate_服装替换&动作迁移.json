@@ -3012,7 +3012,7 @@
           "links": []
         }
       ],
-      "title": "野生的衣服选择画板",
+      "title": "目标选择画板-要开启请关闭动作迁移模式和自动遮罩模式，并右键运行旁边的节点",
       "properties": {
         "Node name for S&R": "PointsEditor",
         "cnr_id": "comfyui-kjnodes",
@@ -3990,7 +3990,7 @@
       "widgets_values": [
         null,
         null,
-        false
+        null
       ],
       "color": "#2a363b",
       "bgcolor": "#3f5159"
@@ -8678,7 +8678,6 @@
           "link": null
         },
         {
-          "dir": 3,
           "name": "any_05",
           "type": "WANVIDEOTEXTEMBEDS",
           "link": null
@@ -9735,47 +9734,6 @@
       }
     },
     {
-      "id": 628,
-      "type": "easy showAnything",
-      "pos": [
-        -4000,
-        -4050
-      ],
-      "size": [
-        140,
-        26
-      ],
-      "flags": {
-        "collapsed": true
-      },
-      "order": 159,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "anything",
-          "shape": 7,
-          "type": "*",
-          "link": 1149
-        }
-      ],
-      "outputs": [
-        {
-          "name": "output",
-          "type": "*",
-          "links": null
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "easy showAnything",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.3"
-        }
-      },
-      "widgets_values": []
-    },
-    {
       "id": 629,
       "type": "ShowText|pysssss",
       "pos": [
@@ -9807,13 +9765,14 @@
         }
       ],
       "properties": {
+        "Node name for S&R": "ShowText|pysssss",
         "ue_properties": {
           "widget_ue_connectable": {},
           "input_ue_unconnectable": {},
           "version": "7.3"
-        },
-        "Node name for S&R": "ShowText|pysssss"
-      }
+        }
+      },
+      "widgets_values": []
     },
     {
       "id": 630,
@@ -9856,12 +9815,12 @@
         }
       ],
       "properties": {
+        "Node name for S&R": "SimpleModelDownloader",
         "ue_properties": {
           "widget_ue_connectable": {},
           "input_ue_unconnectable": {},
           "version": "7.3"
-        },
-        "Node name for S&R": "SimpleModelDownloader"
+        }
       },
       "widgets_values": [
         "https://www.modelscope.cn/models/shiertier/ComfyUI-clip_vision/resolve/master/clip_vision_vit_h.safetensors",
@@ -9869,6 +9828,49 @@
         true,
         false
       ]
+    },
+    {
+      "id": 628,
+      "type": "easy showAnything",
+      "pos": [
+        -3970,
+        -4180
+      ],
+      "size": [
+        350,
+        30
+      ],
+      "flags": {
+        "collapsed": false,
+        "pinned": true
+      },
+      "order": 159,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "anything",
+          "shape": 7,
+          "type": "*",
+          "link": 1149
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "*",
+          "links": null
+        }
+      ],
+      "title": "右键这里--仅运行此节点",
+      "properties": {
+        "Node name for S&R": "easy showAnything",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": []
     }
   ],
   "links": [
@@ -11469,13 +11471,13 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.765986733911302,
+      "scale": 1.3569922243146408,
       "offset": [
-        6269.674002882847,
-        3882.874699796949
+        5095.1486243936815,
+        4616.925105563328
       ]
     },
-    "frontendVersion": "1.36.14",
+    "frontendVersion": "1.37.11",
     "node_versions": {
       "ComfyUI-WanVideoWrapper": "5a2383621a05825d0d0437781afcb8552d9590fd",
       "ComfyUI-KJNodes": "a5bd3c86c8ed6b83c55c2d0e7a59515b15a0137f",

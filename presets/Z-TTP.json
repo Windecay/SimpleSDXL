@@ -9,7 +9,8 @@
                 "theme": ["Z-Image_TTP_Hires.Upscale"],
                 "theme_title": "使用SeedVR2+Z-image模型进行TTP分块放大",
                 "disvisible": ["scene_canvas_image", "scene_additional_prompt","scene_additional_prompt_2","scene_input_image2","scene_aspect_ratio", "scene_video", "scene_audio",
-                    "scene_var_number4","scene_steps", "scene_refiner_model"],
+                    "scene_var_number4","scene_steps", "scene_refiner_model", "scene_var_number5", "scene_var_number6", "scene_var_number7", "scene_var_number8", "scene_var_number9", "scene_var_number10"
+                    ,"scene_switch_option3","scene_switch_option4"],
                 "task_method": {
                     "Z-Image_TTP_Hires.Upscale": "zit_ttp_cn"
                 },

@@ -9,9 +9,8 @@
                 "theme_title": "一键修复-Flux2-Klein-9B-Edit",
                 "theme": ["修复","修复并上色","慢速高还原4重参考修复"],
                 "disvisible": ["scene_additional_prompt","scene_additional_prompt_2","scene_video", "scene_audio","scene_canvas_image","scene_input_image2",
-                "scene_var_number","scene_var_number3","scene_refiner_model",
-		"scene_switch_option1","scene_switch_option2"
-		],
+                "scene_var_number","scene_var_number3","scene_refiner_model","scene_switch_option1","scene_switch_option2", "scene_var_number5", "scene_var_number6", "scene_var_number7", "scene_var_number8", "scene_var_number9", "scene_var_number10"
+                ,"scene_switch_option3","scene_switch_option4"],
                 "task_method": {
                     "修复": "okr_Flux2_9B_edit_1024px_cn",
                     "修复并上色": "okr_Flux2_9B_edit_1024px_cn",
