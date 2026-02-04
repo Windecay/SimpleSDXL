@@ -2416,7 +2416,23 @@ packages = {'base_package': {'id': 1,
                                    'controlnet,hr16/DWPose-TorchScript-BatchSize5/dw-ll_ucoco_384_bs5.torchscript.pt,135059124,0,https://www.modelscope.cn/models/svjack/DWPose-TorchScript-BatchSize5/resolve/master/dw-ll_ucoco_384_bs5.torchscript.pt,https://huggingface.co/hr16/DWPose-TorchScript-BatchSize5/resolve/main/dw-ll_ucoco_384_bs5.torchscript.pt',
                                    'controlnet,yzd-v/DWPose/yolox_l.onnx,216746733,0,https://www.modelscope.cn/models/zhangjin/DWPose/resolve/master/yolox_l.onnx,https://huggingface.co/yzd-v/DWPose/blob/main/yolox_l.onnx'],
                          'info_links': ['https://modelscope.cn/models/Phr00t/Qwen-Rapid-AIO'],
-                         'preset_sample': []}}
+                         'preset_sample': []},
+ "wan-animate-outpaint": {"id": 36,
+                         "name": "[36]Animate-Outpaint",
+                         "note": "Flux2+Wan-Animate视频外扩,无缝扩展画面边缘|显存需求：★★★ 速度：★★★",
+                         "files": ['diffusion_models,Wan2_2-Animate-14B_fp8_scaled_e4m3fn_KJ_v2.safetensors,17317143060,0,https://www.modelscope.cn/models/Kijai/WanVideo_comfy_fp8_scaled/resolve/master/Wan22Animate/Wan2_2-Animate-14B_fp8_scaled_e4m3fn_KJ_v2.safetensors,https://huggingface.co/Kijai/WanVideo_comfy_fp8_scaled/resolve/main/Wan22Animate/Wan2_2-Animate-14B_fp8_scaled_e4m3fn_KJ_v2.safetensors',
+                                    'clip,umt5-xxl-encoder-Q8_0.gguf,6043068256,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/clip/umt5-xxl-encoder-Q8_0.gguf,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/clip/umt5-xxl-encoder-Q8_0.gguf',
+                                    'vae,Wan2_1_VAE_bf16.safetensors,253806278,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/vae/Wan2_1_VAE_bf16.safetensors,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/vae/Wan2_1_VAE_bf16.safetensors',
+                                    'loras,lightx2v_I2V_14B_480p_cfg_step_distill_rank64_bf16.safetensors,738005744,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/loras/lightx2v_I2V_14B_480p_cfg_step_distill_rank64_bf16.safetensors,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/loras/lightx2v_I2V_14B_480p_cfg_step_distill_rank64_bf16.safetensors',
+                                    'loras,WanAnimate_relight_lora_fp16.safetensors,1436672440,0,https://modelscope.cn/models/Kijai/WanVideo_comfy/resolve/master/LoRAs/Wan22_relight/WanAnimate_relight_lora_fp16.safetensors,https://huggingface.co/Kijai/WanVideo_comfy/resolve/main/LoRAs/Wan22_relight/WanAnimate_relight_lora_fp16.safetensors',
+                                    'controlnet,rife/flownet.pkl,24636301,0,https://www.modelscope.cn/models/windecay/rife/resolve/master/flownet.pkl,https://huggingface.co/windecay/SimpleSDXL2/resolve/main/SimpleModels/controlnet/rife/flownet.pkl',
+                                    'diffusion_models,flux-2-klein-9b-fp8.safetensors,9433061528,0,https://www.modelscope.cn/models/black-forest-labs/FLUX.2-klein-9b-fp8/resolve/master/flux-2-klein-9b-fp8.safetensors,https://www.modelscope.cn/models/black-forest-labs/FLUX.2-klein-9b-fp8/resolve/master/flux-2-klein-9b-fp8.safetensors',
+                                    'text_encoders,qwen3_8b_abliterated_v2-fp8mixed.safetensors,8191194604,0,https://www.modelscope.cn/models/silveroxides/FLUX.2-dev-fp8_scaled/resolve/master/qwen3_8b_abliterated_v2-fp8mixed.safetensors,https://huggingface.co/silveroxides/FLUX.2-dev-fp8_scaled/resolve/main/qwen3_8b_abliterated_v2-fp8mixed.safetensors',
+                                    'vae,flux2-vae.safetensors,336211292,0,https://www.modelscope.cn/models/Comfy-Org/flux2-klein-4B/resolve/master/split_files/vae/flux2-vae.safetensors,https://huggingface.co/windecay/SimpleSDXL2/resolve/main/SimpleModels/vae/flux2-vae.safetensors',
+                         ],
+                         "info_links": ["https://www.modelscope.cn/models/Wan-AI/Wan2.2-Animate-14B"],
+                         "preset_sample": []}
+                         }
 
 MANUAL_DOWNLOAD_MAP = {
     "checkpoints": [
