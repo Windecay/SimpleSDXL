@@ -742,7 +742,7 @@ with shared.gradio_root:
                         scene_audio_placeholder = gr.HTML('<div style="padding: 20px; text-align: center; border: 2px dashed #ccc; border-radius: 8px; background: rgba(128,128,128,0.1); color: #888;">Hide When Generating...</div>', visible=False)
                         scene_additional_prompt_2 = gr.Textbox(label="Blessing words", show_label=True, max_lines=1, visible=False, elem_classes='scene_input_2', elem_id='scene_additional_prompt_2')
                         scene_var_number = gr.Slider(label='Duration(s)', minimum=0, maximum=60, step=1, value=3, visible=False)
-                        with gr.Accordion("Advanced Parameters", open=False, visible=True):
+                        with gr.Accordion("🔧 Advanced Parameters", open=False, visible=True):
                             scene_var_number2 = gr.Slider(label='Int Value 2', minimum=0, maximum=60, step=1, value=1, visible=False)
                             scene_var_number3 = gr.Slider(label='Float Value 1', minimum=0.0, maximum=1.0, step=0.01, value=0.0, visible=False)
                             scene_var_number4 = gr.Slider(label='Float Value 2', minimum=0.0, maximum=1.0, step=0.01, value=0.0, visible=False)
@@ -1671,7 +1671,7 @@ with shared.gradio_root:
                                 describe_image_size = gr.Button(label='Original Size / Recommended Size', elem_id='describe_image_size', visible=False)
                                 with gr.Row():
                                     describe_btn = gr.Button(value='⚡ Execute Instruction' if MiniCPM.get_enable() else 'Describe this Image into Prompt')
-                                    unload_btn = gr.Button(value='Unload Models', min_width=150)
+                                    unload_btn = gr.Button(value='🗑️Unload Models', min_width=150)
                                 with gr.Column(visible=MiniCPM.get_enable()) as vlm_describe_col:
                                     vlm_status_info = gr.HTML(value=f'<div style="margin-bottom: 5px;"> 🤖 <b>VLM Model:</b> <span style="color: #2196F3;">{MiniCPM.current_version}</span></div>')
 
