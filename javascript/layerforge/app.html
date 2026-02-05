@@ -119,7 +119,8 @@
         <button class="btn btn-primary" id="save-btn">保存并关闭</button>
         <button class="btn" id="cancel-btn">取消</button>
         <button class="btn" id="paint-toggle">彩色画笔</button>
-        <input id="paint-color" type="color" value="#ff4d4d" style="margin-right:10px;">
+        <button class="btn" id="paint-eraser">橡皮擦</button>
+        <input id="paint-color" type="color" value="#ffffff" style="margin-right:10px;">
         <input id="paint-size" type="range" min="1" max="160" value="18" style="width:140px; margin-right:10px;">
         <button class="btn" id="paint-new-layer">新建层</button>
         <button class="btn" id="paint-clear-layer">清空层</button>
@@ -165,8 +166,9 @@
 
         let canvasInstance = null;
         let paintEnabled = false;
-        let paintColor = '#ff4d4d';
+        let paintColor = '#ffffff';
         let paintSize = 18;
+        let paintTool = 'brush';
         let paintLayer = null;
         let paintCanvas = null;
         let paintCtx = null;
@@ -177,6 +179,14 @@
         let pinchLastDistance = null;
         let pinchLastMid = null;
         let previousCanvasPointerEvents = null;
+        let isPanning = false;
+        let panPointerId = null;
+        let panStart = null;
+        let lastMouseClient = null;
+        let activeDrawTarget = null;
+        let editLayerCanvas = null;
+        let editLayerCtx = null;
+        let liveRenderPending = false;
 
         const prevOnError = window.onerror;
         window.onerror = (...args) => {
@@ -233,6 +243,7 @@
 
                 const toolbar = document.getElementById('toolbar');
                 const paintToggle = document.getElementById('paint-toggle');
+                const paintEraserToggle = document.getElementById('paint-eraser');
                 const paintColorInput = document.getElementById('paint-color');
                 const paintSizeInput = document.getElementById('paint-size');
                 const paintNewLayerBtn = document.getElementById('paint-new-layer');
@@ -281,10 +292,101 @@
                     overlayCtx.clearRect(0, 0, overlay.width, overlay.height);
                 };
 
+                const getOverlayPointFromClient = (clientX, clientY) => {
+                    const overlayRect = overlay.getBoundingClientRect();
+                    if (!overlayRect.width || !overlayRect.height)
+                        return null;
+                    const scaleX = overlay.width / overlayRect.width;
+                    const scaleY = overlay.height / overlayRect.height;
+                    return {
+                        x: (clientX - overlayRect.left) * scaleX,
+                        y: (clientY - overlayRect.top) * scaleY,
+                        scaleX,
+                        scaleY
+                    };
+                };
+
+                const drawBrushCursor = (clientX, clientY) => {
+                    if (!overlayCtx || !canvasInstance || !paintEnabled)
+                        return;
+                    const p = getOverlayPointFromClient(clientX, clientY);
+                    if (!p)
+                        return;
+                    const zoom = canvasInstance.viewport?.zoom || 1;
+                    const radius = Math.max(0.5, (paintSize / 2) * zoom * ((p.scaleX + p.scaleY) / 2));
+                    const dash = Math.max(4, radius * 0.45);
+                    const gap = Math.max(3, radius * 0.35);
+                    overlayCtx.save();
+                    overlayCtx.setTransform(1, 0, 0, 1, 0, 0);
+                    overlayCtx.globalAlpha = 1;
+                    overlayCtx.setLineDash([dash, gap]);
+                    overlayCtx.lineDashOffset = (Date.now() / 40) % (dash + gap);
+                    overlayCtx.beginPath();
+                    overlayCtx.arc(p.x, p.y, radius, 0, Math.PI * 2);
+                    overlayCtx.lineWidth = 2.6;
+                    overlayCtx.strokeStyle = 'rgba(0,0,0,1)';
+                    overlayCtx.stroke();
+                    overlayCtx.beginPath();
+                    overlayCtx.arc(p.x, p.y, radius, 0, Math.PI * 2);
+                    overlayCtx.lineWidth = 1.6;
+                    overlayCtx.strokeStyle = paintTool === 'eraser' ? 'rgba(255,255,255,1)' : 'rgba(255,255,255,1)';
+                    overlayCtx.stroke();
+                    overlayCtx.beginPath();
+                    overlayCtx.arc(p.x, p.y, radius, 0, Math.PI * 2);
+                    overlayCtx.lineWidth = 0.9;
+                    overlayCtx.strokeStyle = 'rgba(0,0,0,0.9)';
+                    overlayCtx.stroke();
+                    overlayCtx.restore();
+                };
+
+                const refreshBrushCursor = (clientX, clientY) => {
+                    if (!paintEnabled || isPanning)
+                        return;
+                    updateOverlaySize();
+                    clearOverlay();
+                    drawBrushCursor(clientX, clientY);
+                };
+
+                const scheduleLiveRender = () => {
+                    if (!canvasInstance || liveRenderPending)
+                        return;
+                    liveRenderPending = true;
+                    requestAnimationFrame(() => {
+                        liveRenderPending = false;
+                        const target = activeDrawTarget;
+                        if (!target || !canvasInstance)
+                            return;
+                        if (target.kind === 'paint') {
+                            if (target.layer && paintCanvas) {
+                                target.layer.image = paintCanvas;
+                                target.layer.originalWidth = paintCanvas.width;
+                                target.layer.originalHeight = paintCanvas.height;
+                            }
+                        }
+                        else if (target.kind === 'layer') {
+                            if (target.layer && editLayerCanvas) {
+                                target.layer.image = editLayerCanvas;
+                                target.layer.originalWidth = editLayerCanvas.width;
+                                target.layer.originalHeight = editLayerCanvas.height;
+                            }
+                        }
+                        canvasInstance.render();
+                    });
+                };
+
+                const setPaintTool = (tool) => {
+                    paintTool = tool === 'eraser' ? 'eraser' : 'brush';
+                    paintEraserToggle.classList.toggle('btn-primary', paintTool === 'eraser');
+                    if (paintEnabled && lastMouseClient) {
+                        refreshBrushCursor(lastMouseClient.clientX, lastMouseClient.clientY);
+                    }
+                };
+
                 const setPaintEnabled = (enabled) => {
                     paintEnabled = !!enabled;
                     paintToggle.classList.toggle('btn-primary', paintEnabled);
                     overlay.style.pointerEvents = paintEnabled ? 'auto' : 'none';
+                    overlay.style.cursor = paintEnabled ? 'crosshair' : '';
                     if (paintEnabled) {
                         try {
                             canvasInstance?.canvas?.focus?.({ preventScroll: true });
@@ -309,6 +411,12 @@
                     }
                     if (!paintEnabled) {
                         isPainting = false;
+                        isPanning = false;
+                        panPointerId = null;
+                        panStart = null;
+                        activeDrawTarget = null;
+                        editLayerCanvas = null;
+                        editLayerCtx = null;
                         lastPaintPt = null;
                         paintActivePointerId = null;
                         paintPointers.clear();
@@ -326,9 +434,24 @@
                     if (Number.isFinite(v)) {
                         paintSize = Math.max(1, Math.min(160, v));
                     }
+                    if (paintEnabled && lastMouseClient) {
+                        refreshBrushCursor(lastMouseClient.clientX, lastMouseClient.clientY);
+                    }
                 });
                 paintToggle.addEventListener('click', () => {
                     setPaintEnabled(!paintEnabled);
+                    if (paintEnabled && lastMouseClient) {
+                        refreshBrushCursor(lastMouseClient.clientX, lastMouseClient.clientY);
+                    }
+                });
+                paintEraserToggle.addEventListener('click', () => {
+                    if (!paintEnabled) {
+                        setPaintEnabled(true);
+                    }
+                    setPaintTool(paintTool === 'eraser' ? 'brush' : 'eraser');
+                    if (paintEnabled && lastMouseClient) {
+                        refreshBrushCursor(lastMouseClient.clientX, lastMouseClient.clientY);
+                    }
                 });
 
                 const ensurePaintLayer = async () => {
@@ -444,8 +567,66 @@
                     return { x: cx, y: cy };
                 };
 
+                const getSelectedSingleLayer = () => {
+                    const selected = canvasInstance?.canvasSelection?.selectedLayers;
+                    if (!Array.isArray(selected) || selected.length !== 1)
+                        return null;
+                    return selected[0] || null;
+                };
+
+                const ensureEditLayerCanvas = async (layer) => {
+                    if (!layer || !layer.image)
+                        return null;
+                    const imgW = Math.max(1, Math.round(layer.originalWidth || layer.image.width || layer.width || 1));
+                    const imgH = Math.max(1, Math.round(layer.originalHeight || layer.image.height || layer.height || 1));
+                    if (!editLayerCanvas || !editLayerCtx || editLayerCanvas.width !== imgW || editLayerCanvas.height !== imgH || activeDrawTarget?.layer?.id !== layer.id) {
+                        const created = createCanvas(imgW, imgH, '2d', { willReadFrequently: true, alpha: true });
+                        editLayerCanvas = created.canvas;
+                        editLayerCtx = created.ctx;
+                        if (editLayerCtx) {
+                            editLayerCtx.clearRect(0, 0, imgW, imgH);
+                            try {
+                                editLayerCtx.drawImage(layer.image, 0, 0, imgW, imgH);
+                            }
+                            catch {
+                            }
+                        }
+                    }
+                    return { canvas: editLayerCanvas, ctx: editLayerCtx, imgW, imgH };
+                };
+
+                const getLayerPaintPoint = (e, layer, imgW, imgH) => {
+                    const w = getWorldFromClient(e.clientX, e.clientY);
+                    if (!w)
+                        return null;
+                    const lw = layer.width || 0;
+                    const lh = layer.height || 0;
+                    if (!Number.isFinite(lw) || !Number.isFinite(lh) || lw <= 0.001 || lh <= 0.001)
+                        return null;
+                    const cx = layer.x + lw / 2;
+                    const cy = layer.y + lh / 2;
+                    const dx = w.x - cx;
+                    const dy = w.y - cy;
+                    const angle = -((layer.rotation || 0) * Math.PI) / 180;
+                    const cos = Math.cos(angle);
+                    const sin = Math.sin(angle);
+                    const rx = dx * cos - dy * sin;
+                    const ry = dx * sin + dy * cos;
+                    const localX = rx + lw / 2;
+                    const localY = ry + lh / 2;
+                    const px = (localX * imgW) / lw;
+                    const py = (localY * imgH) / lh;
+                    return {
+                        x: Math.max(0, Math.min(imgW, px)),
+                        y: Math.max(0, Math.min(imgH, py)),
+                        scale: ((imgW / lw) + (imgH / lh)) / 2
+                    };
+                };
+
                 const drawOverlayStroke = (a, b) => {
                     if (!overlayCtx || !canvasInstance)
+                        return;
+                    if (paintTool === 'eraser')
                         return;
                     const zoom = canvasInstance.viewport.zoom || 1;
                     const canvasEl = canvasInstance.canvas;
@@ -477,7 +658,7 @@
                     overlayCtx.save();
                     overlayCtx.setTransform(1, 0, 0, 1, 0, 0);
                     overlayCtx.globalAlpha = 1;
-                    overlayCtx.strokeStyle = paintColor;
+                    overlayCtx.strokeStyle = paintTool === 'eraser' ? 'rgba(255,255,255,0.75)' : paintColor;
                     overlayCtx.lineWidth = paintSize * zoom * ((scaleX + scaleY) / 2);
                     overlayCtx.lineCap = 'round';
                     overlayCtx.lineJoin = 'round';
@@ -523,25 +704,109 @@
                 };
 
                 const drawSegment = (fromPt, toPt) => {
-                    if (!paintCtx || !fromPt || !toPt)
+                    const target = activeDrawTarget;
+                    if (!target || !fromPt || !toPt)
                         return;
-                    paintCtx.save();
-                    paintCtx.globalAlpha = 1;
-                    paintCtx.strokeStyle = paintColor;
-                    paintCtx.lineWidth = paintSize;
-                    paintCtx.lineCap = 'round';
-                    paintCtx.lineJoin = 'round';
-                    paintCtx.beginPath();
-                    paintCtx.moveTo(fromPt.x, fromPt.y);
-                    paintCtx.lineTo(toPt.x, toPt.y);
-                    paintCtx.stroke();
-                    paintCtx.restore();
-                    drawOverlayStroke(fromPt, toPt);
+                    const ctx = target.kind === 'paint' ? paintCtx : editLayerCtx;
+                    if (!ctx)
+                        return;
+                    ctx.save();
+                    ctx.globalAlpha = 1;
+                    if (paintTool === 'eraser') {
+                        ctx.globalCompositeOperation = 'destination-out';
+                        ctx.strokeStyle = 'rgba(0,0,0,1)';
+                    }
+                    else {
+                        ctx.globalCompositeOperation = 'source-over';
+                        ctx.strokeStyle = paintColor;
+                    }
+                    const width = target.kind === 'layer' && target.scale ? Math.max(0.5, paintSize * target.scale) : paintSize;
+                    ctx.lineWidth = width;
+                    ctx.lineCap = 'round';
+                    ctx.lineJoin = 'round';
+                    ctx.beginPath();
+                    ctx.moveTo(fromPt.x, fromPt.y);
+                    ctx.lineTo(toPt.x, toPt.y);
+                    ctx.stroke();
+                    ctx.restore();
+                    scheduleLiveRender();
+                };
+
+                const commitEditedLayer = async (layer) => {
+                    if (!canvasInstance || !layer || !editLayerCanvas)
+                        return;
+                    const dataUrl = editLayerCanvas.toDataURL('image/png');
+                    const img = new Image();
+                    img.crossOrigin = 'anonymous';
+                    await new Promise((resolve) => {
+                        img.onload = resolve;
+                        img.onerror = resolve;
+                        img.src = dataUrl;
+                    });
+                    const imageId = generateUUID();
+                    await saveImage(imageId, dataUrl);
+                    canvasInstance.imageCache.set(imageId, dataUrl);
+                    layer.image = img;
+                    layer.imageId = imageId;
+                    layer.originalWidth = img.width;
+                    layer.originalHeight = img.height;
+                    canvasInstance.render();
+                    canvasInstance.saveState();
+                    if (canvasInstance.canvasLayersPanel) {
+                        canvasInstance.canvasLayersPanel.onLayersChanged();
+                        canvasInstance.canvasLayersPanel.onSelectionChanged();
+                    }
+                };
+
+                const performWheelZoom = (clientX, clientY, zoomFactor) => {
+                    if (!canvasInstance?.viewport)
+                        return;
+                    const world = getWorldFromClient(clientX, clientY);
+                    if (!world)
+                        return;
+                    const mouseBufferX = (world.x - canvasInstance.viewport.x) * (canvasInstance.viewport.zoom || 1);
+                    const mouseBufferY = (world.y - canvasInstance.viewport.y) * (canvasInstance.viewport.zoom || 1);
+                    const nextZoom = Math.max(0.1, Math.min(10, (canvasInstance.viewport.zoom || 1) * zoomFactor));
+                    canvasInstance.viewport.zoom = nextZoom;
+                    canvasInstance.viewport.x = world.x - mouseBufferX / nextZoom;
+                    canvasInstance.viewport.y = world.y - mouseBufferY / nextZoom;
+                    try {
+                        canvasInstance.onViewportChange?.();
+                    }
+                    catch {
+                    }
+                    canvasInstance.render();
                 };
 
                 overlay.addEventListener('pointerdown', async (e) => {
                     if (!paintEnabled)
                         return;
+                    if (e.pointerType === 'mouse' && e.button === 1) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        updateOverlaySize();
+                        clearOverlay();
+                        isPanning = true;
+                        panPointerId = e.pointerId;
+                        panStart = {
+                            clientX: e.clientX,
+                            clientY: e.clientY,
+                            viewportX: canvasInstance?.viewport?.x ?? 0,
+                            viewportY: canvasInstance?.viewport?.y ?? 0
+                        };
+                        overlay.style.cursor = 'grabbing';
+                        try {
+                            overlay.setPointerCapture(e.pointerId);
+                        }
+                        catch {
+                        }
+                        return;
+                    }
+                    if (e.pointerType === 'mouse' && e.button !== 0) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return;
+                    }
                     e.preventDefault();
                     e.stopPropagation();
                     try {
@@ -581,13 +846,43 @@
                     pinchLastDistance = null;
                     pinchLastMid = null;
                     clearOverlay();
+                    activeDrawTarget = null;
+                    editLayerCanvas = null;
+                    editLayerCtx = null;
+                    if (paintTool === 'eraser') {
+                        const selected = getSelectedSingleLayer();
+                        if (selected && selected.image && (!paintLayer || selected.id !== paintLayer.id)) {
+                            const edit = await ensureEditLayerCanvas(selected);
+                            if (edit && edit.ctx) {
+                                const p = getLayerPaintPoint(e, selected, edit.imgW, edit.imgH);
+                                if (!p)
+                                    return;
+                                activeDrawTarget = { kind: 'layer', layer: selected, scale: p.scale };
+                                isPainting = true;
+                                paintActivePointerId = e.pointerId;
+                                lastPaintPt = { x: p.x, y: p.y };
+                                scheduleLiveRender();
+                                if (e.pointerType === 'mouse') {
+                                    refreshBrushCursor(e.clientX, e.clientY);
+                                }
+                                return;
+                            }
+                        }
+                    }
                     await ensurePaintLayer();
+                    if (!paintLayer || !paintCtx)
+                        return;
+                    activeDrawTarget = { kind: 'paint', layer: paintLayer };
                     const p = getPaintPoint(e);
-                    if (!p || !paintCtx)
+                    if (!p)
                         return;
                     isPainting = true;
                     paintActivePointerId = e.pointerId;
                     lastPaintPt = p;
+                    scheduleLiveRender();
+                    if (e.pointerType === 'mouse') {
+                        refreshBrushCursor(e.clientX, e.clientY);
+                    }
                 });
 
                 overlay.addEventListener('pointermove', (e) => {
@@ -595,6 +890,30 @@
                         return;
                     e.preventDefault();
                     e.stopPropagation();
+                    if (e.pointerType === 'mouse') {
+                        lastMouseClient = { clientX: e.clientX, clientY: e.clientY };
+                    }
+                    if (isPanning && panPointerId === e.pointerId && panStart && canvasInstance?.canvas && canvasInstance?.viewport) {
+                        const canvasRect = canvasInstance.canvas.getBoundingClientRect();
+                        if (canvasRect.width > 0 && canvasRect.height > 0) {
+                            const deltaCssX = e.clientX - panStart.clientX;
+                            const deltaCssY = e.clientY - panStart.clientY;
+                            const deltaVx = (deltaCssX * canvasInstance.canvas.width) / canvasRect.width;
+                            const deltaVy = (deltaCssY * canvasInstance.canvas.height) / canvasRect.height;
+                            const zoom = canvasInstance.viewport.zoom || 1;
+                            canvasInstance.viewport.x = panStart.viewportX - deltaVx / zoom;
+                            canvasInstance.viewport.y = panStart.viewportY - deltaVy / zoom;
+                            try {
+                                if (typeof canvasInstance.onViewportChange === 'function') {
+                                    canvasInstance.onViewportChange();
+                                }
+                            }
+                            catch {
+                            }
+                            canvasInstance.render();
+                        }
+                        return;
+                    }
                     if (paintPointers.has(e.pointerId)) {
                         paintPointers.set(e.pointerId, { clientX: e.clientX, clientY: e.clientY });
                     }
@@ -617,15 +936,34 @@
                         }
                         return;
                     }
-                    if (!isPainting || !paintCtx || !lastPaintPt || paintActivePointerId !== e.pointerId)
-                        return;
+                    if (!isPainting || !lastPaintPt || paintActivePointerId !== e.pointerId)
+                        return refreshBrushCursor(e.clientX, e.clientY);
                     const events = typeof e.getCoalescedEvents === 'function' ? e.getCoalescedEvents() : [e];
                     for (const ev of events) {
-                        const p = getPaintPoint(ev);
-                        if (!p)
+                        const target = activeDrawTarget;
+                        if (!target)
                             continue;
-                        drawSegment(lastPaintPt, p);
-                        lastPaintPt = p;
+                        if (target.kind === 'layer') {
+                            const layer = target.layer;
+                            if (!layer || !editLayerCanvas || !editLayerCtx)
+                                continue;
+                            const p = getLayerPaintPoint(ev, layer, editLayerCanvas.width, editLayerCanvas.height);
+                            if (!p)
+                                continue;
+                            target.scale = p.scale;
+                            drawSegment(lastPaintPt, { x: p.x, y: p.y });
+                            lastPaintPt = { x: p.x, y: p.y };
+                        }
+                        else {
+                            const p = getPaintPoint(ev);
+                            if (!p)
+                                continue;
+                            drawSegment(lastPaintPt, p);
+                            lastPaintPt = p;
+                        }
+                    }
+                    if (e.pointerType === 'mouse') {
+                        refreshBrushCursor(e.clientX, e.clientY);
                     }
                 }, { passive: false });
 
@@ -634,6 +972,22 @@
                         return;
                     e.preventDefault();
                     e.stopPropagation();
+                    if (isPanning && panPointerId === e.pointerId) {
+                        isPanning = false;
+                        panPointerId = null;
+                        panStart = null;
+                        overlay.style.cursor = 'crosshair';
+                        try {
+                            overlay.releasePointerCapture(e.pointerId);
+                        }
+                        catch {
+                        }
+                        clearOverlay();
+                        if (lastMouseClient) {
+                            refreshBrushCursor(lastMouseClient.clientX, lastMouseClient.clientY);
+                        }
+                        return;
+                    }
                     paintPointers.delete(e.pointerId);
                     try {
                         overlay.releasePointerCapture(e.pointerId);
@@ -650,11 +1004,41 @@
                     lastPaintPt = null;
                     paintActivePointerId = null;
                     clearOverlay();
-                    await commitPaintLayer();
+                    const target = activeDrawTarget;
+                    activeDrawTarget = null;
+                    if (target?.kind === 'layer') {
+                        await commitEditedLayer(target.layer);
+                    }
+                    else {
+                        await commitPaintLayer();
+                    }
+                    if (e.pointerType === 'mouse') {
+                        refreshBrushCursor(e.clientX, e.clientY);
+                    }
                 };
 
                 overlay.addEventListener('pointerup', endPaint, { passive: false });
                 overlay.addEventListener('pointercancel', endPaint, { passive: false });
+                overlay.addEventListener('pointerleave', () => {
+                    if (!paintEnabled)
+                        return;
+                    clearOverlay();
+                }, { passive: true });
+                overlay.addEventListener('contextmenu', (e) => {
+                    if (!paintEnabled)
+                        return;
+                    e.preventDefault();
+                    e.stopPropagation();
+                }, { passive: false });
+                overlay.addEventListener('wheel', (e) => {
+                    if (!paintEnabled)
+                        return;
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const zoomFactor = e.deltaY < 0 ? 1.1 : 1 / 1.1;
+                    performWheelZoom(e.clientX, e.clientY, zoomFactor);
+                    refreshBrushCursor(e.clientX, e.clientY);
+                }, { passive: false });
 
                 let pendingOverlayResize = false;
                 const scheduleOverlayResize = () => {
@@ -669,6 +1053,7 @@
                 const ro = new ResizeObserver(() => scheduleOverlayResize());
                 ro.observe(overlayHost);
                 scheduleOverlayResize();
+                setPaintTool(paintTool);
                 
                 window.addEventListener('message', (event) => {
                     if (event.data.type === 'LOAD_IMAGE' || event.data.type === 'ADD_LAYER') {

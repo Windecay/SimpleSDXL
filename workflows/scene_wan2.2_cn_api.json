@@ -200,7 +200,7 @@
       "scheduler": "simple",
       "start_at_step": 0,
       "end_at_step": [
-        "67",
+        "143",
         0
       ],
       "return_with_leftover_noise": "disable",
@@ -385,7 +385,7 @@
       "sampler_name": "uni_pc",
       "scheduler": "simple",
       "start_at_step": [
-        "67",
+        "143",
         0
       ],
       "end_at_step": 10000,
@@ -431,7 +431,7 @@
       "scheduler": "simple",
       "start_at_step": 0,
       "end_at_step": [
-        "67",
+        "143",
         0
       ],
       "return_with_leftover_noise": "enable",
@@ -566,19 +566,6 @@
     "class_type": "easy ifElse",
     "_meta": {
       "title": "If else"
-    }
-  },
-  "67": {
-    "inputs": {
-      "value": "a/2",
-      "a": [
-        "21",
-        5
-      ]
-    },
-    "class_type": "SimpleMath+",
-    "_meta": {
-      "title": "🔧 Simple Math"
     }
   },
   "76": {
@@ -838,7 +825,7 @@
         0
       ],
       "steps": [
-        "67",
+        "144",
         0
       ],
       "cfg": 1,
@@ -1280,7 +1267,7 @@
       "scheduler": "simple",
       "start_at_step": 0,
       "end_at_step": [
-        "67",
+        "143",
         0
       ],
       "return_with_leftover_noise": "enable",
@@ -1324,7 +1311,7 @@
       "sampler_name": "euler",
       "scheduler": "simple",
       "start_at_step": [
-        "67",
+        "143",
         0
       ],
       "end_at_step": 10000,
@@ -1517,6 +1504,36 @@
     "class_type": "easy ifElse",
     "_meta": {
       "title": "If else"
+    }
+  },
+  "143": {
+    "inputs": {
+      "expression": "int(a/2)",
+      "a": [
+        "21",
+        5
+      ]
+    },
+    "class_type": "UtilityExpression",
+    "_meta": {
+      "title": "Expression"
+    }
+  },
+  "144": {
+    "inputs": {
+      "value": "a-b",
+      "a": [
+        "21",
+        5
+      ],
+      "b": [
+        "143",
+        0
+      ]
+    },
+    "class_type": "SimpleMath+",
+    "_meta": {
+      "title": "🔧 Simple Math"
     }
   }
 }
