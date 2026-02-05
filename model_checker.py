@@ -2562,11 +2562,11 @@ OBSOLETE_MODELS = [
     "qwen-image-Q4_K_M.gguf",
     "qwen_3_8b_fp8mixed.safetensors",
     "anything2real_2601_A_final.safetensors",
-    'jina_clip/model.safetensors',
-    'gemma3/model-00001-of-00002.safetensors',
-    'gemma3/model-00002-of-00002.safetensors',
-    'svdq-int4_r128-qwen-image-edit-2509-lightningv2.0-4steps.safetensors',
-    'svdq-fp4_r128-qwen-image-edit-2509-lightningv2.0-4steps.safetensors'
+    "jina_clip/model.safetensors",
+    "gemma3/model-00001-of-00002.safetensors",
+    "gemma3/model-00002-of-00002.safetensors",
+    "svdq-int4_r128-qwen-image-edit-2509-lightningv2.0-4steps.safetensors",
+    "svdq-fp4_r128-qwen-image-edit-2509-lightningv2.0-4steps.safetensors"
 ]
 
 MODELSCOPE_FILE_CACHE = {}

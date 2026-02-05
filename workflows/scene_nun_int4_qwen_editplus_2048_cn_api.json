@@ -1112,11 +1112,11 @@
   },
   "178": {
     "inputs": {
-      "value": 10
+      "value": 1
     },
     "class_type": "easy int",
     "_meta": {
-      "title": "Int"
+      "title": "var_number"
     }
   },
   "179": {
