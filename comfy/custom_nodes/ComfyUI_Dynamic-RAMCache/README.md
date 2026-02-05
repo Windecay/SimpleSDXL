@@ -9,9 +9,10 @@ A custom node for ComfyUI that dynamically manages RAM usage by intelligently co
 - **Dual Cache Management Modes**: 
   - CLASSIC (No Eviction): Standard cache behavior with no automatic purging
   - RAM_PRESSURE (Auto Purge): Smart cache purging when system memory falls below the threshold
+- **RAM Cache Extreme Cleanup (🧹)**: Performs a one-time aggressive purge and automatically restores the previous mode and threshold.
 - **Configurable Memory Threshold**: Fine-tune the minimum amount of free RAM to maintain
 - **Seamless Cache Migration**: Preserves essential cache data when switching between modes
-- **Real-time Memory Monitoring**: Continuously checks system RAM availability
+- **Real-time Memory Monitoring**: Continuously checks system RAM and virtual memory availability
 
 ## Installation
 
@@ -35,7 +36,18 @@ A custom node for ComfyUI that dynamically manages RAM usage by intelligently co
   - Default: 2.0 GB
   - Determines the minimum amount of free RAM to maintain (in gigabytes)
 
+### Extreme Cleanup Parameters
+
+- **purge_threshold**:
+  - Range: 0.1 - 256.0 GB
+  - Default: 256.0 GB
+  - Temporary headroom used for the one-shot purge
+
+- **restore behavior**:
+  - Automatically restores the mode and threshold that were active before cleanup
+
 3. Connect the node anywhere in your workflow - it will continuously monitor and manage cache based on your settings
+4. Optionally add the "RAMCacheExtremeCleanup" node at the end of a workflow to trigger a one-shot cleanup and restore the previous state
 
 ## How It Works
 

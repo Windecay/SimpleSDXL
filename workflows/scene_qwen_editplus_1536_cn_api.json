@@ -784,7 +784,7 @@
   "141": {
     "inputs": {
       "to_ref": true,
-      "ref_main_image": true,
+      "ref_main_image": false,
       "ref_longest_edge": [
         "143",
         0
