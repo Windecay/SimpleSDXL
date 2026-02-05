@@ -59,11 +59,28 @@
       "title": "Load CLIP"
     }
   },
+  "7": {
+    "inputs": {
+      "lora_name": "Qwen-Image-Edit-2511-Lightning-4steps-V1.0-bf16.safetensors",
+      "strength_model": [
+        "150",
+        1
+      ],
+      "model": [
+        "182",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "LoraLoaderModelOnly"
+    }
+  },
   "8": {
     "inputs": {
       "shift": 3,
       "model": [
-        "34",
+        "183",
         0
       ]
     },
@@ -74,7 +91,10 @@
   },
   "9": {
     "inputs": {
-      "strength": 1,
+      "strength": [
+        "162",
+        0
+      ],
       "model": [
         "8",
         0
@@ -104,7 +124,7 @@
   "15": {
     "inputs": {
       "images": [
-        "14",
+        "163",
         0
       ]
     },
@@ -123,76 +143,6 @@
     "class_type": "easy cleanGpuUsed",
     "_meta": {
       "title": "Clean VRAM Used"
-    }
-  },
-  "31": {
-    "inputs": {
-      "lora_name": "placeholder.safetensors",
-      "strength_model": 0,
-      "model": [
-        "33",
-        0
-      ]
-    },
-    "class_type": "LoraLoaderModelOnly",
-    "_meta": {
-      "title": "lora_2"
-    }
-  },
-  "32": {
-    "inputs": {
-      "lora_name": "placeholder.safetensors",
-      "strength_model": 0,
-      "model": [
-        "31",
-        0
-      ]
-    },
-    "class_type": "LoraLoaderModelOnly",
-    "_meta": {
-      "title": "lora_3"
-    }
-  },
-  "33": {
-    "inputs": {
-      "lora_name": "placeholder.safetensors",
-      "strength_model": 0,
-      "model": [
-        "139",
-        0
-      ]
-    },
-    "class_type": "LoraLoaderModelOnly",
-    "_meta": {
-      "title": "lora_1"
-    }
-  },
-  "34": {
-    "inputs": {
-      "lora_name": "placeholder.safetensors",
-      "strength_model": 0,
-      "model": [
-        "32",
-        0
-      ]
-    },
-    "class_type": "LoraLoaderModelOnly",
-    "_meta": {
-      "title": "lora_4"
-    }
-  },
-  "36": {
-    "inputs": {
-      "fill_background": false,
-      "background_color": "#FFFFFF",
-      "RGBA_image": [
-        "3",
-        0
-      ]
-    },
-    "class_type": "LayerUtility: ImageRemoveAlpha",
-    "_meta": {
-      "title": "LayerUtility: ImageRemoveAlpha"
     }
   },
   "39": {
@@ -319,7 +269,7 @@
         0
       ],
       "positive": [
-        "84",
+        "134",
         0
       ],
       "negative": [
@@ -339,7 +289,7 @@
   "68": {
     "inputs": {
       "conditioning": [
-        "84",
+        "160",
         0
       ]
     },
@@ -451,15 +401,15 @@
         0
       ],
       "value0": [
-        "128",
+        "145",
         0
       ],
       "value1": [
-        "129",
+        "141",
         0
       ],
       "value2": [
-        "130",
+        "142",
         0
       ]
     },
@@ -552,19 +502,10 @@
       "title": "Empty Latent Image"
     }
   },
-  "95": {
-    "inputs": {
-      "value": 1
-    },
-    "class_type": "easy int",
-    "_meta": {
-      "title": "var_number"
-    }
-  },
   "96": {
     "inputs": {
       "boolean": [
-        "98",
+        "135",
         0
       ],
       "on_true": [
@@ -572,39 +513,13 @@
         0
       ],
       "on_false": [
-        "128",
+        "138",
         1
       ]
     },
     "class_type": "easy ifElse",
     "_meta": {
       "title": "If else"
-    }
-  },
-  "97": {
-    "inputs": {
-      "value": 2
-    },
-    "class_type": "easy int",
-    "_meta": {
-      "title": "Int"
-    }
-  },
-  "98": {
-    "inputs": {
-      "comparison": "a == b",
-      "a": [
-        "95",
-        0
-      ],
-      "b": [
-        "97",
-        0
-      ]
-    },
-    "class_type": "easy compare",
-    "_meta": {
-      "title": "Compare"
     }
   },
   "104": {
@@ -614,24 +529,6 @@
     "class_type": "LoadImage",
     "_meta": {
       "title": "i2i_inpaint_mask"
-    }
-  },
-  "107": {
-    "inputs": {
-      "color": "0, 255, 0",
-      "device": "cpu",
-      "image": [
-        "36",
-        0
-      ],
-      "mask": [
-        "110",
-        0
-      ]
-    },
-    "class_type": "DrawMaskOnImage",
-    "_meta": {
-      "title": "Draw Mask On Image"
     }
   },
   "108": {
@@ -659,299 +556,6 @@
       "title": "Convert Image to Mask"
     }
   },
-  "110": {
-    "inputs": {
-      "x": 0,
-      "y": 0,
-      "operation": "subtract",
-      "destination": [
-        "127",
-        0
-      ],
-      "source": [
-        "112",
-        0
-      ]
-    },
-    "class_type": "MaskComposite",
-    "_meta": {
-      "title": "MaskComposite"
-    }
-  },
-  "112": {
-    "inputs": {
-      "expand": -10,
-      "tapered_corners": false,
-      "mask": [
-        "127",
-        0
-      ]
-    },
-    "class_type": "GrowMask",
-    "_meta": {
-      "title": "GrowMask"
-    }
-  },
-  "113": {
-    "inputs": {
-      "boolean": [
-        "108",
-        0
-      ],
-      "on_true": [
-        "36",
-        0
-      ],
-      "on_false": [
-        "107",
-        0
-      ]
-    },
-    "class_type": "easy ifElse",
-    "_meta": {
-      "title": "If else"
-    }
-  },
-  "117": {
-    "inputs": {
-      "string_a": [
-        "2",
-        0
-      ],
-      "string_b": "消除绿色方框",
-      "delimiter": "，"
-    },
-    "class_type": "StringConcatenate",
-    "_meta": {
-      "title": "Concatenate"
-    }
-  },
-  "118": {
-    "inputs": {
-      "boolean": [
-        "108",
-        0
-      ],
-      "on_true": [
-        "2",
-        0
-      ],
-      "on_false": [
-        "117",
-        0
-      ]
-    },
-    "class_type": "easy ifElse",
-    "_meta": {
-      "title": "If else"
-    }
-  },
-  "119": {
-    "inputs": {
-      "continue": [
-        "123",
-        0
-      ],
-      "in": [
-        "107",
-        0
-      ]
-    },
-    "class_type": "easy blocker",
-    "_meta": {
-      "title": "Blocker"
-    }
-  },
-  "121": {
-    "inputs": {
-      "value": false
-    },
-    "class_type": "easy boolean",
-    "_meta": {
-      "title": "Boolean"
-    }
-  },
-  "122": {
-    "inputs": {
-      "value": true
-    },
-    "class_type": "easy boolean",
-    "_meta": {
-      "title": "Boolean"
-    }
-  },
-  "123": {
-    "inputs": {
-      "boolean": [
-        "108",
-        0
-      ],
-      "on_true": [
-        "121",
-        0
-      ],
-      "on_false": [
-        "122",
-        0
-      ]
-    },
-    "class_type": "easy ifElse",
-    "_meta": {
-      "title": "If else"
-    }
-  },
-  "124": {
-    "inputs": {
-      "images": [
-        "119",
-        0
-      ]
-    },
-    "class_type": "SaveImageWebsocket",
-    "_meta": {
-      "title": "result_image2"
-    }
-  },
-  "126": {
-    "inputs": {
-      "sort_method": "left_to_right",
-      "bbox_select": "all",
-      "select_index": "0,",
-      "object_mask": [
-        "109",
-        0
-      ]
-    },
-    "class_type": "LayerMask: ObjectDetectorMask",
-    "_meta": {
-      "title": "LayerMask: Object Detector Mask"
-    }
-  },
-  "127": {
-    "inputs": {
-      "grow_top": 0,
-      "grow_bottom": 0,
-      "grow_left": 0,
-      "grow_right": 0,
-      "image": [
-        "36",
-        0
-      ],
-      "bboxes": [
-        "126",
-        0
-      ]
-    },
-    "class_type": "LayerMask: DrawBBoxMask",
-    "_meta": {
-      "title": "LayerMask: Draw BBox Mask"
-    }
-  },
-  "128": {
-    "inputs": {
-      "prompt": [
-        "118",
-        0
-      ],
-      "vl_resize_indexs": "1,2,3",
-      "main_image_index": 1,
-      "target_size": 1024,
-      "target_vl_size": 384,
-      "upscale_method": "lanczos",
-      "crop_method": "pad",
-      "instruction": "Describe the key features of the input image (color, shape, size, texture, objects, background), then explain how the user's text instruction should alter or modify the image. Generate a new image that meets the user's requirements while maintaining consistency with the original input where appropriate.",
-      "clip": [
-        "6",
-        0
-      ],
-      "vae": [
-        "5",
-        0
-      ],
-      "image1": [
-        "113",
-        0
-      ]
-    },
-    "class_type": "TextEncodeQwenImageEditPlusPro_lrzjason",
-    "_meta": {
-      "title": "TextEncodeQwenImageEditPlusPro lrzjason"
-    }
-  },
-  "129": {
-    "inputs": {
-      "prompt": [
-        "118",
-        0
-      ],
-      "vl_resize_indexs": "1,2,3",
-      "main_image_index": 1,
-      "target_size": 1024,
-      "target_vl_size": 384,
-      "upscale_method": "lanczos",
-      "crop_method": "pad",
-      "instruction": "Describe the key features of the input image (color, shape, size, texture, objects, background), then explain how the user's text instruction should alter or modify the image. Generate a new image that meets the user's requirements while maintaining consistency with the original input where appropriate.",
-      "clip": [
-        "6",
-        0
-      ],
-      "vae": [
-        "5",
-        0
-      ],
-      "image1": [
-        "113",
-        0
-      ],
-      "image2": [
-        "40",
-        0
-      ]
-    },
-    "class_type": "TextEncodeQwenImageEditPlusPro_lrzjason",
-    "_meta": {
-      "title": "TextEncodeQwenImageEditPlusPro lrzjason"
-    }
-  },
-  "130": {
-    "inputs": {
-      "prompt": [
-        "118",
-        0
-      ],
-      "vl_resize_indexs": "1,2,3",
-      "main_image_index": 1,
-      "target_size": 1024,
-      "target_vl_size": 384,
-      "upscale_method": "lanczos",
-      "crop_method": "pad",
-      "instruction": "Describe the key features of the input image (color, shape, size, texture, objects, background), then explain how the user's text instruction should alter or modify the image. Generate a new image that meets the user's requirements while maintaining consistency with the original input where appropriate.",
-      "clip": [
-        "6",
-        0
-      ],
-      "vae": [
-        "5",
-        0
-      ],
-      "image1": [
-        "113",
-        0
-      ],
-      "image2": [
-        "40",
-        0
-      ],
-      "image3": [
-        "74",
-        0
-      ]
-    },
-    "class_type": "TextEncodeQwenImageEditPlusPro_lrzjason",
-    "_meta": {
-      "title": "TextEncodeQwenImageEditPlusPro lrzjason"
-    }
-  },
   "131": {
     "inputs": {
       "enable_fp16_accumulation": true,
@@ -967,10 +571,14 @@
   },
   "132": {
     "inputs": {
-      "value": "a*2.0",
+      "value": "a*b",
       "a": [
         "2",
         2
+      ],
+      "b": [
+        "151",
+        0
       ]
     },
     "class_type": "SimpleMath+",
@@ -980,10 +588,14 @@
   },
   "133": {
     "inputs": {
-      "value": "a*2.0",
+      "value": "a*b",
       "a": [
         "2",
         3
+      ],
+      "b": [
+        "151",
+        0
       ]
     },
     "class_type": "SimpleMath+",
@@ -993,11 +605,600 @@
   },
   "134": {
     "inputs": {
+      "reference_latents_method": "index_timestep_zero",
+      "conditioning": [
+        "160",
+        0
+      ]
+    },
+    "class_type": "FluxKontextMultiReferenceLatentMethod",
+    "_meta": {
+      "title": "FluxKontextMultiReferenceLatentMethod"
+    }
+  },
+  "135": {
+    "inputs": {
+      "value": false
+    },
+    "class_type": "easy boolean",
+    "_meta": {
+      "title": "switch_option1"
+    }
+  },
+  "136": {
+    "inputs": {
+      "value": false
+    },
+    "class_type": "easy boolean",
+    "_meta": {
+      "title": "switch_option2"
+    }
+  },
+  "138": {
+    "inputs": {
+      "prompt": [
+        "2",
+        0
+      ],
+      "return_full_refs_cond": true,
+      "instruction": "Describe the key features of the input image (color, shape, size, texture, objects, background), then explain how the user's text instruction should alter or modify the image. Generate a new image that meets the user's requirements while maintaining consistency with the original input where appropriate.",
+      "clip": [
+        "6",
+        0
+      ],
+      "vae": [
+        "5",
+        0
+      ],
+      "configs": [
+        "84",
+        0
+      ]
+    },
+    "class_type": "TextEncodeQwenImageEditPlusCustom_lrzjason",
+    "_meta": {
+      "title": "TextEncodeQwenImageEditPlusCustom lrzjason"
+    }
+  },
+  "139": {
+    "inputs": {
+      "width": [
+        "152",
+        0
+      ],
+      "height": [
+        "152",
+        0
+      ],
+      "upscale_method": "lanczos",
+      "keep_proportion": "total_pixels",
+      "pad_color": "0, 0, 0",
+      "crop_position": "center",
+      "divisible_by": 8,
+      "device": "cpu",
+      "image": [
+        "3",
+        0
+      ],
+      "mask": [
+        "109",
+        0
+      ]
+    },
+    "class_type": "ImageResizeKJv2",
+    "_meta": {
+      "title": "Resize Image v2"
+    }
+  },
+  "140": {
+    "inputs": {
+      "to_ref": true,
+      "ref_main_image": true,
+      "ref_longest_edge": [
+        "143",
+        0
+      ],
+      "ref_crop": "pad",
+      "ref_upscale": "lanczos",
+      "to_vl": true,
+      "vl_resize": true,
+      "vl_target_size": 384,
+      "vl_crop": "center",
+      "vl_upscale": "lanczos",
+      "image": [
+        "139",
+        0
+      ]
+    },
+    "class_type": "QwenEditConfigPreparer",
+    "_meta": {
+      "title": "Qwen Edit Config Preparer"
+    }
+  },
+  "141": {
+    "inputs": {
+      "to_ref": true,
+      "ref_main_image": false,
+      "ref_longest_edge": [
+        "143",
+        0
+      ],
+      "ref_crop": "pad",
+      "ref_upscale": "lanczos",
+      "to_vl": true,
+      "vl_resize": true,
+      "vl_target_size": 384,
+      "vl_crop": "center",
+      "vl_upscale": "lanczos",
+      "image": [
+        "149",
+        0
+      ],
+      "configs": [
+        "145",
+        0
+      ]
+    },
+    "class_type": "QwenEditConfigPreparer",
+    "_meta": {
+      "title": "Qwen Edit Config Preparer"
+    }
+  },
+  "142": {
+    "inputs": {
+      "to_ref": true,
+      "ref_main_image": false,
+      "ref_longest_edge": [
+        "143",
+        0
+      ],
+      "ref_crop": "pad",
+      "ref_upscale": "lanczos",
+      "to_vl": true,
+      "vl_resize": true,
+      "vl_target_size": 384,
+      "vl_crop": "center",
+      "vl_upscale": "lanczos",
+      "image": [
+        "74",
+        0
+      ],
+      "configs": [
+        "141",
+        0
+      ]
+    },
+    "class_type": "QwenEditConfigPreparer",
+    "_meta": {
+      "title": "Qwen Edit Config Preparer"
+    }
+  },
+  "143": {
+    "inputs": {
+      "image": [
+        "139",
+        0
+      ]
+    },
+    "class_type": "easy imageSizeByLongerSide",
+    "_meta": {
+      "title": "ImageSize (LongerSide)"
+    }
+  },
+  "144": {
+    "inputs": {
+      "image": [
+        "14",
+        0
+      ],
+      "pad_info": [
+        "138",
+        2
+      ]
+    },
+    "class_type": "CropWithPadInfo",
+    "_meta": {
+      "title": "Crop With Pad Info"
+    }
+  },
+  "145": {
+    "inputs": {
+      "boolean": [
+        "108",
+        0
+      ],
+      "on_true": [
+        "140",
+        0
+      ],
+      "on_false": [
+        "146",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "146": {
+    "inputs": {
+      "to_ref": true,
+      "ref_main_image": true,
+      "ref_longest_edge": [
+        "143",
+        0
+      ],
+      "ref_crop": "pad",
+      "ref_upscale": "lanczos",
+      "to_vl": true,
+      "vl_resize": true,
+      "vl_target_size": 384,
+      "vl_crop": "center",
+      "vl_upscale": "lanczos",
+      "image": [
+        "139",
+        0
+      ],
+      "mask": [
+        "157",
+        0
+      ]
+    },
+    "class_type": "QwenEditConfigPreparer",
+    "_meta": {
+      "title": "Qwen Edit Config Preparer"
+    }
+  },
+  "147": {
+    "inputs": {
+      "value": 1024
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "Int"
+    }
+  },
+  "148": {
+    "inputs": {
+      "detect_hand": "enable",
+      "detect_body": "enable",
+      "detect_face": "enable",
+      "resolution": 512,
+      "bbox_detector": "yolox_l.onnx",
+      "pose_estimator": "dw-ll_ucoco_384_bs5.torchscript.pt",
+      "scale_stick_for_xinsr_cn": "enable",
+      "image": [
+        "40",
+        0
+      ]
+    },
+    "class_type": "DWPreprocessor",
+    "_meta": {
+      "title": "DWPose Estimator"
+    }
+  },
+  "149": {
+    "inputs": {
+      "boolean": [
+        "136",
+        0
+      ],
+      "on_true": [
+        "148",
+        0
+      ],
+      "on_false": [
+        "40",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "150": {
+    "inputs": {
+      "value": "-a / 15 + 19 / 15",
+      "a": [
+        "2",
+        5
+      ]
+    },
+    "class_type": "SimpleMath+",
+    "_meta": {
+      "title": "🔧 Simple Math"
+    }
+  },
+  "151": {
+    "inputs": {
+      "value": 2.0
+    },
+    "class_type": "easy float",
+    "_meta": {
+      "title": "Float"
+    }
+  },
+  "152": {
+    "inputs": {
+      "value": "a*b",
+      "a": [
+        "147",
+        0
+      ],
+      "b": [
+        "151",
+        0
+      ]
+    },
+    "class_type": "SimpleMath+",
+    "_meta": {
+      "title": "🔧 Simple Math"
+    }
+  },
+  "155": {
+    "inputs": {
+      "value": "a*20",
+      "a": [
+        "151",
+        0
+      ]
+    },
+    "class_type": "SimpleMath+",
+    "_meta": {
+      "title": "🔧 Simple Math"
+    }
+  },
+  "156": {
+    "inputs": {
+      "conditioning": [
+        "138",
+        0
+      ],
+      "latent": [
+        "161",
+        0
+      ]
+    },
+    "class_type": "ReferenceLatent",
+    "_meta": {
+      "title": "ReferenceLatent"
+    }
+  },
+  "157": {
+    "inputs": {
+      "expand": [
+        "155",
+        0
+      ],
+      "incremental_expandrate": 0,
+      "tapered_corners": true,
+      "flip_input": false,
+      "blur_radius": [
+        "158",
+        1
+      ],
+      "lerp_alpha": 1,
+      "decay_factor": 1,
+      "fill_holes": false,
+      "mask": [
+        "139",
+        3
+      ]
+    },
+    "class_type": "GrowMaskWithBlur",
+    "_meta": {
+      "title": "Grow Mask With Blur"
+    }
+  },
+  "158": {
+    "inputs": {
+      "value": "a*10",
+      "a": [
+        "151",
+        0
+      ]
+    },
+    "class_type": "SimpleMath+",
+    "_meta": {
+      "title": "🔧 Simple Math"
+    }
+  },
+  "160": {
+    "inputs": {
+      "boolean": [
+        "108",
+        0
+      ],
+      "on_true": [
+        "138",
+        0
+      ],
+      "on_false": [
+        "156",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "161": {
+    "inputs": {
+      "pixels": [
+        "3",
+        0
+      ],
+      "vae": [
+        "5",
+        0
+      ]
+    },
+    "class_type": "VAEEncode",
+    "_meta": {
+      "title": "VAE Encode"
+    }
+  },
+  "162": {
+    "inputs": {
+      "value": 0.95
+    },
+    "class_type": "easy float",
+    "_meta": {
+      "title": "var_number3"
+    }
+  },
+  "163": {
+    "inputs": {
+      "method": "mkl",
+      "strength": [
+        "164",
+        0
+      ],
+      "multithread": true,
+      "image_ref": [
+        "139",
+        0
+      ],
+      "image_target": [
+        "144",
+        0
+      ]
+    },
+    "class_type": "ColorMatch",
+    "_meta": {
+      "title": "Color Match"
+    }
+  },
+  "164": {
+    "inputs": {
+      "value": 0
+    },
+    "class_type": "easy float",
+    "_meta": {
+      "title": "var_number4"
+    }
+  },
+  "169": {
+    "inputs": {
+      "lora_name": "Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors",
+      "strength_model": 1,
+      "model": [
+        "182",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "LoraLoaderModelOnly"
+    }
+  },
+  "170": {
+    "inputs": {
+      "boolean": [
+        "171",
+        0
+      ],
+      "on_true": [
+        "7",
+        0
+      ],
+      "on_false": [
+        "169",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "171": {
+    "inputs": {
+      "comparison": "a < b",
+      "a": [
+        "2",
+        5
+      ],
+      "b": [
+        "172",
+        0
+      ]
+    },
+    "class_type": "easy compare",
+    "_meta": {
+      "title": "Compare"
+    }
+  },
+  "172": {
+    "inputs": {
+      "value": 8
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "Int"
+    }
+  },
+  "178": {
+    "inputs": {
+      "value": 10
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "Int"
+    }
+  },
+  "179": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "lora_strength": 0,
+      "model": [
+        "180",
+        0
+      ]
+    },
+    "class_type": "NunchakuQwenImageLoraLoader",
+    "_meta": {
+      "title": "Nunchaku Qwen Image LoRA Loader2"
+    }
+  },
+  "180": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "lora_strength": 0,
+      "model": [
+        "170",
+        0
+      ]
+    },
+    "class_type": "NunchakuQwenImageLoraLoader",
+    "_meta": {
+      "title": "Nunchaku Qwen Image LoRA Loader1"
+    }
+  },
+  "181": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "lora_strength": 0,
+      "model": [
+        "179",
+        0
+      ]
+    },
+    "class_type": "NunchakuQwenImageLoraLoader",
+    "_meta": {
+      "title": "Nunchaku Qwen Image LoRA Loader3"
+    }
+  },
+  "182": {
+    "inputs": {
       "model_name": "placeholder.safetensors",
       "cpu_offload": "enable",
       "vram_margin_gb": 4,
       "num_blocks_on_gpu": [
-        "143",
+        "184",
         1
       ],
       "use_pin_memory": "disable"
@@ -1007,54 +1208,12 @@
       "title": "base_model"
     }
   },
-  "136": {
+  "183": {
     "inputs": {
       "lora_name": "placeholder.safetensors",
       "lora_strength": 0,
       "model": [
-        "134",
-        0
-      ]
-    },
-    "class_type": "NunchakuQwenImageLoraLoader",
-    "_meta": {
-      "title": "Nunchaku Qwen Image LoRA Loader1"
-    }
-  },
-  "137": {
-    "inputs": {
-      "lora_name": "placeholder.safetensors",
-      "lora_strength": 0,
-      "model": [
-        "136",
-        0
-      ]
-    },
-    "class_type": "NunchakuQwenImageLoraLoader",
-    "_meta": {
-      "title": "Nunchaku Qwen Image LoRA Loader2"
-    }
-  },
-  "138": {
-    "inputs": {
-      "lora_name": "placeholder.safetensors",
-      "lora_strength": 0,
-      "model": [
-        "137",
-        0
-      ]
-    },
-    "class_type": "NunchakuQwenImageLoraLoader",
-    "_meta": {
-      "title": "Nunchaku Qwen Image LoRA Loader3"
-    }
-  },
-  "139": {
-    "inputs": {
-      "lora_name": "placeholder.safetensors",
-      "lora_strength": 0,
-      "model": [
-        "138",
+        "181",
         0
       ]
     },
@@ -1063,23 +1222,14 @@
       "title": "Nunchaku Qwen Image LoRA Loader4"
     }
   },
-  "142": {
-    "inputs": {
-      "value": 10
-    },
-    "class_type": "easy int",
-    "_meta": {
-      "title": "Int"
-    }
-  },
-  "143": {
+  "184": {
     "inputs": {
       "signal": [
         "1",
         0
       ],
       "value": [
-        "142",
+        "178",
         0
       ]
     },
