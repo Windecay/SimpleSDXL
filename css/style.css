@@ -523,6 +523,25 @@ iframe::-webkit-scrollbar {
     padding: 0px;
 }
 
+#topbar_row {
+    flex-wrap: wrap;
+}
+
+.topbar_line_break {
+    flex-basis: 100% !important;
+    height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+}
+
+@media (max-width: 768px) {
+    .topbar_line_break {
+        display: none !important;
+    }
+}
+
 .bar_store {
     width: 70px !important;
     padding: 0px;
@@ -534,8 +553,8 @@ iframe::-webkit-scrollbar {
 }
 
 .bar_button {
-    width: 100px !important;
-    min-width: 80px !important;
+    width: 120px !important;
+    min-width: 100px !important;
     padding: 0px;
     white-space: nowrap;
     overflow: visible;
@@ -677,7 +696,7 @@ div.block.tagHelper.active {
 .preset_store {
     height: auto;
     position: absolute;
-    top: 31px;
+    top: 62px;
     left: 0px;
     width: 100%;
     z-index: 1000;

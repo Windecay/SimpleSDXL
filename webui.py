@@ -488,12 +488,14 @@ with shared.gradio_root:
     with gr.Row():
         with gr.Column(scale=2):
             with gr.Group(elem_id='main_content'):
-                with gr.Row():
+                with gr.Row(elem_id="topbar_row"):
                     start_timestamp = gr.Textbox(visible=False)
                     bar_store_button = gr.Button(value='PresetStore', size='sm', min_width=50, elem_id='bar_store', elem_classes='bar_store')
                     bar_buttons = []
                     for i in range(shared.BUTTON_NUM):
                         bar_buttons.append(gr.Button(value='default' if i==0 else '', size='sm', visible=True, min_width=40, elem_id=f'bar{i}', elem_classes='bar_button'))
+                        if i == 5:
+                            gr.HTML(value="", elem_classes="topbar_line_break")
                     shared.gradio_root.load(get_start_timestamp, outputs=start_timestamp, queue=False)
                     shared.gradio_root.load(get_wildcards_list, outputs=start_timestamp, queue=False)
                 with gr.Row(visible=False, elem_classes='preset_store') as preset_store:

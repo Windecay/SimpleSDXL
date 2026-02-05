@@ -525,6 +525,50 @@ def process_before_generation(state_params, seed_random, image_seed, backend_par
     
     if 'scene_frontend' in state_params:
         scene_frontend = state_params['scene_frontend']
+        disvisible = scene_frontend.get('disvisible', []) if isinstance(scene_frontend, dict) else []
+        if not isinstance(disvisible, list):
+            disvisible = []
+        disvisible = set(disvisible)
+
+        if 'scene_canvas_image' in disvisible:
+            scene_canvas_image = None
+        if 'scene_input_image1' in disvisible:
+            scene_input_image1 = None
+        if 'scene_input_image2' in disvisible:
+            scene_input_image2 = None
+        if 'scene_video' in disvisible:
+            scene_video = None
+        if 'scene_audio' in disvisible:
+            scene_audio = None
+        if 'scene_var_number' in disvisible:
+            scene_var_number = None
+        if 'scene_var_number2' in disvisible:
+            scene_var_number2 = None
+        if 'scene_var_number3' in disvisible:
+            scene_var_number3 = None
+        if 'scene_var_number4' in disvisible:
+            scene_var_number4 = None
+        if 'scene_var_number5' in disvisible:
+            scene_var_number5 = None
+        if 'scene_var_number6' in disvisible:
+            scene_var_number6 = None
+        if 'scene_var_number7' in disvisible:
+            scene_var_number7 = None
+        if 'scene_var_number8' in disvisible:
+            scene_var_number8 = None
+        if 'scene_var_number9' in disvisible:
+            scene_var_number9 = None
+        if 'scene_var_number10' in disvisible:
+            scene_var_number10 = None
+        if 'scene_switch_option1' in disvisible:
+            scene_switch_option1 = None
+        if 'scene_switch_option2' in disvisible:
+            scene_switch_option2 = None
+        if 'scene_switch_option3' in disvisible:
+            scene_switch_option3 = None
+        if 'scene_switch_option4' in disvisible:
+            scene_switch_option4 = None
+
         scene_additional_prompt = f'{scene_additional_prompt}{scene_additional_prompt_2}'
         if util.is_chinese(scene_additional_prompt) and not scene_frontend['task_method'][scene_theme].lower().endswith('_cn'):
             scene_additional_prompt = minicpm.translate(scene_additional_prompt, 'Slim Model')

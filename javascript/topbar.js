@@ -318,6 +318,7 @@ function refresh_topbar_status_js(system_params) {
         }
     }
     updatePresetStore(nav_name_list, system_params["user_role"], system_params["preset_store"], theme);
+    syncPresetStorePosition();
     
     const message=system_params["__message"];
     if (message!=null && message.length>60) {
@@ -354,6 +355,14 @@ function refresh_topbar_status_js(system_params) {
         }
     })();
     return
+}
+
+function syncPresetStorePosition() {
+    const preset_store = gradioApp().querySelector('.preset_store');
+    if (!preset_store) return;
+    const topbar_row = gradioApp().getElementById("topbar_row");
+    if (!topbar_row) return;
+    preset_store.style.top = `${topbar_row.offsetHeight + 1}px`;
 }
 
 function updatePresetStore(nav_name_list, role, expand_flag, theme) {
@@ -447,6 +456,19 @@ if (!cookieToken) {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
+    const tryBindTopbarLayoutSync = () => {
+        const topbar_row = gradioApp().getElementById("topbar_row");
+        if (!topbar_row) {
+            setTimeout(tryBindTopbarLayoutSync, 200);
+            return;
+        }
+        const ro = new ResizeObserver(() => syncPresetStorePosition());
+        ro.observe(topbar_row);
+        window.addEventListener("resize", syncPresetStorePosition);
+        syncPresetStorePosition();
+    };
+    tryBindTopbarLayoutSync();
+
     const sysmsg = document.createElement('div');
     sysmsg.id = "sys_msg";
     sysmsg.className = 'systemMsg gradio-container';

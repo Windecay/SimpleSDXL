@@ -16,6 +16,6 @@ torch_device = ''
 
 upstream_did = ''
 
-BUTTON_NUM = 10 
+BUTTON_NUM = 15
 
 gpu_arch = ''
