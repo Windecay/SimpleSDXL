@@ -59,23 +59,6 @@
       "title": "Load CLIP"
     }
   },
-  "7": {
-    "inputs": {
-      "lora_name": "Qwen-Image-Edit-2511-Lightning-4steps-V1.0-bf16.safetensors",
-      "strength_model": [
-        "150",
-        1
-      ],
-      "model": [
-        "182",
-        0
-      ]
-    },
-    "class_type": "LoraLoaderModelOnly",
-    "_meta": {
-      "title": "LoraLoaderModelOnly"
-    }
-  },
   "8": {
     "inputs": {
       "shift": 3,
@@ -1081,20 +1064,6 @@
       "title": "var_number4"
     }
   },
-  "169": {
-    "inputs": {
-      "lora_name": "Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors",
-      "strength_model": 1,
-      "model": [
-        "182",
-        0
-      ]
-    },
-    "class_type": "LoraLoaderModelOnly",
-    "_meta": {
-      "title": "LoraLoaderModelOnly"
-    }
-  },
   "170": {
     "inputs": {
       "boolean": [
@@ -1102,11 +1071,11 @@
         0
       ],
       "on_true": [
-        "7",
+        "185",
         0
       ],
       "on_false": [
-        "169",
+        "186",
         0
       ]
     },
@@ -1236,6 +1205,37 @@
     "class_type": "ImpactExecutionOrderController",
     "_meta": {
       "title": "Execution Order Controller"
+    }
+  },
+  "185": {
+    "inputs": {
+      "lora_name": "Qwen-Image-Edit-2511-Lightning-4steps-V1.0-bf16.safetensors",
+      "lora_strength": [
+        "150",
+        1
+      ],
+      "model": [
+        "182",
+        0
+      ]
+    },
+    "class_type": "NunchakuQwenImageLoraLoader",
+    "_meta": {
+      "title": "lightning_lora"
+    }
+  },
+  "186": {
+    "inputs": {
+      "lora_name": "Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors",
+      "lora_strength": 1,
+      "model": [
+        "182",
+        0
+      ]
+    },
+    "class_type": "NunchakuQwenImageLoraLoader",
+    "_meta": {
+      "title": "lightning_lora"
     }
   }
 }
