@@ -395,7 +395,7 @@ def print_instructions():
     time.sleep(0.1)
     print(f"{Fore.GREEN}★{Style.RESET_ALL}打开默认浏览器设置，关闭GPU加速、或图形加速的选项。{Fore.GREEN}★{Style.RESET_ALL}大内存(64+)与固态硬盘存放模型有助于减少模型加载时间。{Fore.GREEN}★{Style.RESET_ALL}")
     time.sleep(0.1)
-    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：1005085136{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:26.01.21{Fore.GREEN}★{Style.RESET_ALL}")
+    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：1005085136{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:26.02.06{Fore.GREEN}★{Style.RESET_ALL}")
     print()
     time.sleep(0.1)
 
@@ -1105,9 +1105,32 @@ def _print_obsolete_models_report():
         print(f"  {file_path}")
     print(f"{Fore.CYAN}※这些模型已被新版替代，可节省空间: {total_size/1024/1024/1024:.2f}GB{Style.RESET_ALL}")
 
+def _load_comfyd_inputs_excludes(users_dir: str) -> set[str]:
+    excludes: list[str] = ["welcome.png", "0.png", "1.png", "2.png", "3.png", "4.png", "5.png", "6.png", "7.png", "8.png", "9.png", "10.png",
+    "11.png", "12.png", "13.png", "14.png", "audio_example.MP3", "example.jpg", "example.mp4", "example.png", "ghibi.png", "mask.mp4", "motion_signal.mp4",
+    "papercut.png","ttm_example.jpeg", "白瓷雕像风格参考.webp", "人脸修复-风格参考-肖像摄影3.jpg"]
+    config_path = os.path.join(str(users_dir), "config.txt")
+    raw = ""
+    try:
+        raw = open(config_path, "r", encoding="utf-8").read()
+    except Exception:
+        try:
+            raw = open(config_path, "r", encoding="gbk").read()
+        except Exception:
+            raw = ""
+    if raw:
+        try:
+            config = json.loads(raw)
+        except Exception:
+            config = {}
+        value = config.get("cleanup_comfyd_inputs_excludes")
+        if isinstance(value, list):
+            excludes.extend([str(x) for x in value if str(x).strip()])
+    return {str(x).strip().lower() for x in excludes if str(x).strip()}
+
 def delete_specific_image_files():
     """
-    从相对路径查找并删除所有 .png、.webp 和 .jpg/jpeg 文件，排除 welcome.png。
+    从相对路径查找并删除常见媒体文件（图片/动图/视频），支持排除列表。
     """
     users_dir = os.path.join(root_dir, "users")
     if not os.path.isdir(users_dir):
@@ -1115,26 +1138,55 @@ def delete_specific_image_files():
     if not users_dir:
         print(f"{Fore.RED}△未找到 users 目录{Style.RESET_ALL}")
         return
-    target_dir = os.path.join(users_dir, "guest_user", "comfyd_inputs")
-    if not os.path.exists(target_dir):
-        print(f"{Fore.RED}△未找到指定目录: {target_dir}{Style.RESET_ALL}")
+    candidates = []
+    comfyd_inputs_dir = os.path.join(users_dir, "guest_user", "comfyd_inputs")
+    if os.path.exists(comfyd_inputs_dir):
+        candidates.append(comfyd_inputs_dir)
+    comfy_input_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "comfy", "input")
+    if os.path.exists(comfy_input_dir):
+        candidates.append(comfy_input_dir)
+    if not candidates:
+        print(f"{Fore.RED}△未找到可清理的输入目录{Style.RESET_ALL}")
         return
 
-    print(f"{Fore.CYAN}△正在清理目录 '{target_dir}' 中的临时图片缓存...{Style.RESET_ALL}")
+    print(f"{Fore.CYAN}△正在清理输入目录中的临时图片/视频缓存...{Style.RESET_ALL}")
 
     total_size = 0
     files_found = False
     files_to_delete = []
+    allowed_exts = {
+        ".png",
+        ".webp",
+        ".jpg",
+        ".jpeg",
+        ".gif",
+        ".mp3",
+        ".mp4",
+        ".webm",
+        ".mkv",
+        ".mov",
+        ".avi",
+        ".m4v",
+        ".wmv",
+    }
+    excludes = _load_comfyd_inputs_excludes(users_dir)
 
-    for root, _, files in os.walk(target_dir):
-        for file in files:
-            if (file.endswith(".png") or file.endswith(".webp") or file.endswith(".jpg") or file.endswith(".jpeg")) and file != "welcome.png":
-                files_found = True
-                file_path = os.path.join(root, file)
-                files_to_delete.append(file_path)
-                total_size += os.path.getsize(file_path)
+    for target_dir in candidates:
+        for root, _, files in os.walk(target_dir):
+            for file in files:
+                if not file:
+                    continue
+                lower = file.lower()
+                if lower in excludes:
+                    continue
+                _, ext = os.path.splitext(lower)
+                if ext in allowed_exts:
+                    files_found = True
+                    file_path = os.path.join(root, file)
+                    files_to_delete.append(file_path)
+                    total_size += os.path.getsize(file_path)
     if files_found:
-        print(f"{Fore.YELLOW}△以下临时图片缓存文件将被删除：{Style.RESET_ALL}")
+        print(f"{Fore.YELLOW}△以下临时图片/视频缓存文件将被删除：{Style.RESET_ALL}")
         for file_path in files_to_delete:
             print(f"- {file_path}")
         print(f"{Fore.CYAN}△可清理的磁盘空间: {total_size / (1024 * 1024):.2f} MB{Style.RESET_ALL}")
@@ -1150,7 +1202,7 @@ def delete_specific_image_files():
         else:
             print(f"{Fore.RED}△删除操作已取消。{Style.RESET_ALL}")
     else:
-        print(">>>未找到需要删除的临时图片缓存<<<")
+        print(">>>未找到需要删除的临时图片/视频缓存<<<")
         print()
 
 def delete_log_files():
