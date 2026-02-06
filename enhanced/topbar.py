@@ -466,7 +466,7 @@ def refresh_nav_bars(state_params):
         if name:
             results += [gr.update(value=name, interactive=True, visible=visible_flag)]
         else: 
-            results += [gr.update(value='', interactive=False, visible=visible_flag)]
+            results += [gr.update(value='', interactive=False, visible=False)]
     return results
 def wait_for_minicpm_completion(check_interval=0.5):
     try:

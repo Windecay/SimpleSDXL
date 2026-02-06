@@ -300,14 +300,29 @@ def check_base_environment():
     token = simpleai_base.init_local()
     sysinfo = json.loads(token.get_sysinfo().to_json())
     sysinfo.update(dict(did=token.get_sys_did()))
-    logger.info(f'GPU: {sysinfo["gpu_name"]}, RAM: {sysinfo["ram_total"]}MB, SWAP: {sysinfo["ram_swap"]}MB, VRAM: {sysinfo["gpu_memory"]}MB, DiskFree: {sysinfo["disk_free"]}MB, CUDA: {sysinfo["cuda"]}, HOST: {sysinfo["host_type"]}')
+    logger.info(f'GPU: {sysinfo.get("gpu_name")}, RAM: {sysinfo.get("ram_total")}MB, SWAP: {sysinfo.get("ram_swap")}MB, VRAM: {sysinfo.get("gpu_memory")}MB, DiskFree: {sysinfo.get("disk_free")}MB, CUDA: {sysinfo.get("cuda")}, HOST: {sysinfo.get("host_type")}')
     #print(f'[SimpleAI] root: {sysinfo["root_dir"]}, sys_name: {sysinfo["root_name"]}, dev_name:{sysinfo["host_name"]}')
 
-    if (sysinfo["ram_total"]+sysinfo["ram_swap"])<40960 and not shared.args.disable_backend:
+    cuda_raw = sysinfo.get("cuda", None) if isinstance(sysinfo, dict) else None
+    cuda_num = None
+    try:
+        if isinstance(cuda_raw, (int, float)) and not isinstance(cuda_raw, bool):
+            cuda_num = int(cuda_raw)
+        elif isinstance(cuda_raw, str):
+            s = cuda_raw.strip()
+            if s.isdigit():
+                cuda_num = int(s)
+    except Exception:
+        cuda_num = None
+
+    if cuda_num is not None and cuda_num < 12800:
+        logger.warning(f'CUDA driver/runtime version is too low (CUDA: {cuda_raw}). Requires CUDA >= cu128. Please update your GPU driver: https://www.nvidia.cn/drivers/')
+        logger.warning(f'检测到CUDA驱动/运行时版本过低(CUDA: {cuda_raw})。需要CUDA >= cu128。请更新显卡驱动：https://www.nvidia.cn/drivers/')
+
+    if (sysinfo.get("ram_total", 0)+sysinfo.get("ram_swap", 0))<65536 and not shared.args.disable_backend:
         logger.info(f'The total virtual memory capacity of the system is too small, which will affect the loading and computing efficiency of the model. Please expand the total virtual memory capacity of the system to be greater than 40G.')
-        logger.info(f'系统虚拟内存总容量过小，会影响模型的加载与计算效率，请扩充系统虚拟内存总容量(RAM+SWAP)大于40G。')
+        logger.info(f'系统虚拟内存总容量过小，容易引发后端崩溃，建议扩充系统虚拟内存总容量(RAM+SWAP)大于64G。')
         logger.info(f'有任何疑问可到SimpleSDXL的QQ群交流: 1005085136')
-        # sys.exit(0)
 
     return token, sysinfo
 

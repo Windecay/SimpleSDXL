@@ -575,7 +575,7 @@ with shared.gradio_root:
                         return
 
                     gr.Info(f"开始下载预置包的模型: {preset_name}，请耐心等待...可于控制台查看下载进度")
-                    model_loader.download_model_files(preset_name, async_task=True)
+                    model_loader.download_model_files(preset_name, user_did=user_did, async_task=True)
 
                     while True:
                         missing_models = model_loader.get_missing_model_list(preset_name)

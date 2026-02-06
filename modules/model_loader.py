@@ -362,6 +362,9 @@ def download_model_files(preset, user_did=None, async_task=False):
     from modules.config import path_models_root, model_cata_map
     global presets_model_list, default_download_url_prefix, download_queue
 
+    if user_did is None:
+        logger.warning("download_model_files skipped: user_did is None")
+        return False
     if shared.args.disable_backend:
         return False
     if preset.endswith('.'):
@@ -394,18 +397,45 @@ def download_model_files(preset, user_did=None, async_task=False):
                     continue
             else:
                 file_name = path_file.replace('\\', '/').replace(os.sep, '/')
+
             if cata in model_cata_map:
-                model_dir=model_cata_map[cata][0]
+                model_dirs = model_cata_map[cata]
             else:
-                model_dir=os.path.join(path_models_root, cata)
-            full_path_file = os.path.abspath(os.path.join(model_dir, file_name))
-            if os.path.exists(full_path_file):
+                model_dirs = [os.path.join(path_models_root, cata)]
+
+            if isinstance(model_dirs, str):
+                model_dirs = [model_dirs]
+            elif not isinstance(model_dirs, list):
+                model_dirs = list(model_dirs)
+
+            found_existing = False
+            for base_dir in model_dirs:
+                candidate_path = os.path.abspath(os.path.join(base_dir, file_name))
+                if os.path.exists(candidate_path):
+                    if size and os.path.getsize(candidate_path) != size:
+                        continue
+                    found_existing = True
+                    break
+            if found_existing:
                 continue
-            logger.info(f'The model file is not exists, ready to download: {file_name}')
+
+            preferred_dir = None
+            for base_dir in model_dirs:
+                try:
+                    if os.path.basename(os.path.normpath(base_dir)).lower() == str(cata).lower():
+                        preferred_dir = base_dir
+                        break
+                except Exception:
+                    continue
+            if preferred_dir is None:
+                preferred_dir = model_dirs[0] if model_dirs else os.path.join(path_models_root, cata)
+
+            full_path_file = os.path.abspath(os.path.join(preferred_dir, file_name))
             model_dir = os.path.dirname(full_path_file)
             file_name = os.path.basename(full_path_file)
             if url is None or url == '':
                 url = f'{default_download_url_prefix}/{cata}/{path_file}'
+            logger.info(f'The model file is not exists, ready to download: {file_name} -> {full_path_file} from {url}')
             if path_file[:1]=='[' and path_file[-1:]==']' and url.endswith('.zip'):
                 download_diffusers_model(cata, path_file[1:-1], size, url)
             else:

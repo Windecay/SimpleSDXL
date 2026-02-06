@@ -290,7 +290,7 @@ model_cata_map = {
     'audio_encoders': paths_audio_encoders,
     'model_patches': paths_model_patches,
     'detection': paths_detection,
-    'diffusion_models': paths_unet + paths_diffusion_models,
+    'diffusion_models': paths_diffusion_models + paths_unet,
     'text_encoders': paths_text_encoders,
     }
 
