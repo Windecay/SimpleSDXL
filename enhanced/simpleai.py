@@ -34,12 +34,22 @@ def init_modelsinfo(models_root, path_map):
 
 def get_best_local_ip():
     best_ip = '127.0.0.1'
+    best_score = -10_000
     try:
+        stats = psutil.net_if_stats()
         for interface, snics in psutil.net_if_addrs().items():
+            interface_l = str(interface).lower()
+            iface_stats = stats.get(interface)
+            if iface_stats is not None and not iface_stats.isup:
+                continue
+
+            virtual_penalty = 0
+            if any(k in interface_l for k in ("vethernet", "hyper-v", "wsl", "docker", "virtualbox", "vmware", "tailscale", "zerotier", "hamachi", "tap", "tun", "clash tunnel")):
+                virtual_penalty = 80
+
             for snic in snics:
                 if snic.family == socket.AF_INET:
                     ip = snic.address
-                    # Skip loopback
                     if ip == '127.0.0.1':
                         continue
 
@@ -49,10 +59,36 @@ def get_best_local_ip():
                     if ip.startswith('169.254.'):
                         continue
 
-                    if ip.startswith('192.168.') or ip.startswith('10.') or (ip.startswith('172.') and 16 <= int(ip.split('.')[1]) <= 31):
-                        return ip
+                    if ip.startswith('172.18.'):
+                        continue
 
-                    best_ip = ip
+                    score = 0
+                    if ip.startswith('192.168.'):
+                        score = 300
+                    elif ip.startswith('10.'):
+                        score = 250
+                    elif ip.startswith('172.'):
+                        try:
+                            second = int(ip.split('.', 2)[1])
+                            if 16 <= second <= 31:
+                                score = 200
+                            else:
+                                score = 50
+                        except Exception:
+                            score = 50
+                    else:
+                        score = 10
+
+                    score -= virtual_penalty
+                    if iface_stats is not None and isinstance(getattr(iface_stats, "speed", None), (int, float)):
+                        try:
+                            score += min(int(iface_stats.speed), 10_000) // 500
+                        except Exception:
+                            pass
+
+                    if score > best_score:
+                        best_score = score
+                        best_ip = ip
     except Exception as e:
         logger.error(f"Error detecting network interfaces: {e}")
         pass
@@ -62,6 +98,8 @@ def get_best_local_ip():
 def is_fake_or_suspicious_ip(ip):
     if not ip: return False
     if ip.startswith("198.18.") or ip.startswith("198.19."):
+        return True
+    if ip.startswith("172.18."):
         return True
     return False
 
