@@ -9,7 +9,7 @@
                 "version": "v1.1",
                 "theme": ["Wan-Animate-Sam3物体替换","Wan-Animate-Sam3人物替换","Wan-Animate-动作迁移（无需sam3遮罩）","Wan-Remover-sam3视频消除（无需参考图）"],
                 "theme_title": "Wan-Animate数字人视频编辑工具",
-                "disvisible": ["scene_canvas_image", "scene_additional_prompt", "scene_additional_prompt_2", "scene_input_image2", "scene_video", "scene_audio", "scene_refiner_model", "scene_var_number8", "scene_var_number9", "scene_var_number10"],
+                "disvisible": ["scene_canvas_image", "scene_additional_prompt", "scene_additional_prompt_2", "scene_input_image2", "scene_video", "scene_audio", "scene_refiner_model", "scene_var_number9", "scene_var_number10"],
                 "task_method": {
                     "Wan-Animate-Sam3物体替换": "wan_animate_sam3_replace_cn",
                     "Wan-Animate-Sam3人物替换": "wan_animate_sam3_person_cn",
