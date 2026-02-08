@@ -263,6 +263,7 @@ paths_model_patches = get_dir_or_set_default('path_model_patches', f'{path_model
 paths_detection = get_dir_or_set_default('path_detection', f'{path_models_root}/detection', True)
 paths_diffusion_models = get_dir_or_set_default('path_diffusion_models', f'{path_models_root}/diffusion_models', True)
 paths_text_encoders = get_dir_or_set_default('path_text_encoders', f'{path_models_root}/text_encoders', True)
+paths_sam3 = get_dir_or_set_default('path_sam3', f'{path_models_root}/sam3', True)
 
 
 
@@ -292,6 +293,7 @@ model_cata_map = {
     'detection': paths_detection,
     'diffusion_models': paths_diffusion_models + paths_unet,
     'text_encoders': paths_text_encoders,
+    'sam3': paths_sam3,
     }
 
 from enhanced.simpleai import init_modelsinfo, get_path_in_user_dir
@@ -1042,6 +1044,7 @@ comfyui:
      model_patches: {model_patches}
      detection: {detection}
      text_encoders: {text_encoders}
+     sam3: {sam3}
      '''
 
 paths2str = lambda p,n: p[0] if len(p)<=1 else '|\n'+''.join([' ']*(5+len(n)))+''.join(['\n']+[' ']*(5+len(n))).join(p) 
@@ -1069,7 +1072,8 @@ config_comfy_text = config_comfy_formatted_text.format(
         model_patches=paths2str(paths_model_patches, 'model_patches'),
         detection=paths2str(paths_detection, 'detection'),
         text_encoders=paths2str(paths_text_encoders + paths_clip, 'text_encoders'),
-        diffusion_models=paths2str(paths_unet + paths_diffusion_models + paths_checkpoints, 'diffusion_models')
+        diffusion_models=paths2str(paths_unet + paths_diffusion_models + paths_checkpoints, 'diffusion_models'),
+        sam3=paths2str(paths_sam3, 'sam3'),
         )
 
 with open(config_comfy_path, "w", encoding="utf-8") as comfy_file:

@@ -161,6 +161,7 @@ def load_model_paths():
             "gemma3": [os.path.join(simplemodels_root, "gemma3")],
             "nlf": [os.path.join(simplemodels_root, "nlf")],
             "SEEDVR2": [os.path.join(simplemodels_root, "SEEDVR2")],
+            "sam3": [os.path.join(simplemodels_root, "sam3")],
         }
 
     except Exception as e:
@@ -208,6 +209,7 @@ def load_model_paths():
             "gemma3": [os.path.join(simplemodels_root, "gemma3")],
             "nlf": [os.path.join(simplemodels_root, "nlf")],
             "SEEDVR2": [os.path.join(simplemodels_root, "SEEDVR2")],
+            "sam3": [os.path.join(simplemodels_root, "sam3")],
         }
 
     for key in path_mapping:
@@ -691,6 +693,7 @@ def validate_files(packages):
         os.path.join(simplemodels_root, "SEEDVR2"),
         os.path.join(simplemodels_root, "LLM", "Qwen3-VL-4B-Instruct-abliterated"),
         os.path.join(simplemodels_root, "rembg"),
+        os.path.join(simplemodels_root, "sam3"),
         ]
         for model_root in MODEL_PATHS_TO_SCAN:
             if not os.path.exists(model_root):
@@ -989,7 +992,7 @@ def delete_partial_files():
         'vae_approx', 'vae', 'upscale_models', 'inpaint', "ipadapter",
         'clip', 'clip_vision', 'llms', 'LLM', 'unet', 'diffusers', 'model_patches',
         'text_encoders', 'audio_encoders', 'safety_checker', 'layer_model', 'pulid', 'insightface',
-        'prompt_expansion', 'fooocus_expansion', 'gemma3', 'jina_clip', 'rembg',
+        'prompt_expansion', 'fooocus_expansion', 'gemma3', 'jina_clip', 'rembg', 'sam3',
     ]
 
     scan_dirs = []
@@ -2501,6 +2504,7 @@ packages = {'base_package': {'id': 1,
                          "name": "[37]Wan-Animate-视频编辑",
                          "note": "Wan-Animate物体替换/人物替换/动作迁移|显存需求：★★★★ 速度：★★",
                          "files": ['diffusion_models,Wan2_2-Animate-14B_fp8_scaled_e4m3fn_KJ_v2.safetensors,17317143060,0,https://www.modelscope.cn/models/Kijai/WanVideo_comfy_fp8_scaled/resolve/master/Wan22Animate/Wan2_2-Animate-14B_fp8_scaled_e4m3fn_KJ_v2.safetensors,https://huggingface.co/Kijai/WanVideo_comfy_fp8_scaled/resolve/main/Wan22Animate/Wan2_2-Animate-14B_fp8_scaled_e4m3fn_KJ_v2.safetensors',
+                                    'sam3,sam3.pt,3450062241,0,https://www.modelscope.cn/models/facebook/sam3/resolve/master/sam3.pt,https://huggingface.co/pankjkkkkkk/sam3_pt/resolve/main/sam3.pt'
                                     'clip,umt5-xxl-encoder-Q8_0.gguf,6043068256,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/clip/umt5-xxl-encoder-Q8_0.gguf,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/clip/umt5-xxl-encoder-Q8_0.gguf',
                                     'vae,Wan2_1_VAE_bf16.safetensors,253806278,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/vae/Wan2_1_VAE_bf16.safetensors,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/vae/Wan2_1_VAE_bf16.safetensors',
                                     'clip_vision,clip_vision_vit_h.safetensors,1972298538,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/clip_vision/clip_vision_vit_h.safetensors,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/clip_vision/clip_vision_vit_h.safetensors',
