@@ -171,7 +171,7 @@
       "riflex_freq_index": 0,
       "denoise_strength": 1,
       "batched_cfg": false,
-      "rope_function": "comfy_chunked",
+      "rope_function": "comfy",
       "start_step": 0,
       "end_step": -1,
       "add_noise_to_samples": false,

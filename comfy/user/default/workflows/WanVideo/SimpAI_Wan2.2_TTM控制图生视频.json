@@ -3697,7 +3697,7 @@
         0,
         1,
         false,
-        "comfy_chunked",
+        "comfy",
         0,
         4,
         ""
@@ -3887,7 +3887,7 @@
         0,
         1,
         false,
-        "comfy_chunked",
+        "comfy",
         4,
         -1,
         ""
