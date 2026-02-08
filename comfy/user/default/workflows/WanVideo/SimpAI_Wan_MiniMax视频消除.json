@@ -1,8 +1,8 @@
 {
   "id": "3d50c57e-c001-4191-8cd3-56f82f34f364",
   "revision": 0,
-  "last_node_id": 216,
-  "last_link_id": 981,
+  "last_node_id": 217,
+  "last_link_id": 982,
   "nodes": [
     {
       "id": 60,
@@ -60,7 +60,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 33,
+      "order": 34,
       "mode": 0,
       "inputs": [
         {
@@ -357,7 +357,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 34,
+      "order": 35,
       "mode": 0,
       "inputs": [
         {
@@ -439,7 +439,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 61,
+      "order": 62,
       "mode": 0,
       "inputs": [
         {
@@ -523,7 +523,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 67,
+      "order": 68,
       "mode": 0,
       "inputs": [
         {
@@ -568,7 +568,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 83,
+      "order": 84,
       "mode": 0,
       "inputs": [
         {
@@ -641,7 +641,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 80,
+      "order": 81,
       "mode": 0,
       "inputs": [
         {
@@ -708,7 +708,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 74,
+      "order": 75,
       "mode": 0,
       "inputs": [
         {
@@ -754,7 +754,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 70,
+      "order": 71,
       "mode": 0,
       "inputs": [
         {
@@ -900,7 +900,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 36,
+      "order": 37,
       "mode": 0,
       "inputs": [
         {
@@ -945,13 +945,13 @@
       "flags": {
         "pinned": true
       },
-      "order": 37,
+      "order": 45,
       "mode": 0,
       "inputs": [
         {
           "name": "in",
           "type": "*",
-          "link": 842
+          "link": 982
         },
         {
           "name": "continue",
@@ -1114,7 +1114,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 71,
+      "order": 72,
       "mode": 0,
       "inputs": [
         {
@@ -1171,7 +1171,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 73,
+      "order": 74,
       "mode": 0,
       "inputs": [
         {
@@ -1224,7 +1224,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 76,
+      "order": 77,
       "mode": 0,
       "inputs": [
         {
@@ -1294,7 +1294,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 62,
+      "order": 63,
       "mode": 0,
       "inputs": [
         {
@@ -1492,7 +1492,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 84,
+      "order": 85,
       "mode": 0,
       "inputs": [
         {
@@ -1577,7 +1577,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 81,
+      "order": 82,
       "mode": 0,
       "inputs": [
         {
@@ -1651,7 +1651,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 82,
+      "order": 83,
       "mode": 0,
       "inputs": [
         {
@@ -1736,7 +1736,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 63,
+      "order": 64,
       "mode": 0,
       "inputs": [
         {
@@ -1793,7 +1793,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 85,
+      "order": 86,
       "mode": 0,
       "inputs": [
         {
@@ -1845,7 +1845,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 64,
+      "order": 65,
       "mode": 0,
       "inputs": [
         {
@@ -2104,7 +2104,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 78,
+      "order": 79,
       "mode": 0,
       "inputs": [
         {
@@ -2180,7 +2180,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 79,
+      "order": 80,
       "mode": 0,
       "inputs": [
         {
@@ -2346,7 +2346,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 35,
+      "order": 36,
       "mode": 0,
       "inputs": [
         {
@@ -2428,7 +2428,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 77,
+      "order": 78,
       "mode": 0,
       "inputs": [
         {
@@ -2651,7 +2651,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 60,
+      "order": 61,
       "mode": 0,
       "inputs": [
         {
@@ -2712,7 +2712,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 66,
+      "order": 67,
       "mode": 0,
       "inputs": [
         {
@@ -2763,7 +2763,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 68,
+      "order": 69,
       "mode": 0,
       "inputs": [
         {
@@ -2891,7 +2891,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 69,
+      "order": 70,
       "mode": 0,
       "inputs": [
         {
@@ -3032,8 +3032,7 @@
           "name": "IMAGE",
           "type": "IMAGE",
           "links": [
-            360,
-            842
+            360
           ]
         },
         {
@@ -3694,7 +3693,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 46,
+      "order": 47,
       "mode": 0,
       "inputs": [
         {
@@ -4253,7 +4252,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 65,
+      "order": 66,
       "mode": 4,
       "inputs": [
         {
@@ -4379,7 +4378,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 45,
+      "order": 46,
       "mode": 0,
       "inputs": [
         {
@@ -4693,7 +4692,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 59,
+      "order": 60,
       "mode": 0,
       "inputs": [
         {
@@ -4741,75 +4740,6 @@
       "widgets_values": []
     },
     {
-      "id": 157,
-      "type": "easy framesEditor",
-      "pos": [
-        5090,
-        -150
-      ],
-      "size": [
-        680,
-        1140
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 47,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 843
-        }
-      ],
-      "outputs": [
-        {
-          "name": "positive_coords",
-          "type": "STRING",
-          "links": [
-            719
-          ]
-        },
-        {
-          "name": "negative_coords",
-          "type": "STRING",
-          "links": [
-            720
-          ]
-        },
-        {
-          "name": "bboxes",
-          "type": "BBOX",
-          "links": [
-            721
-          ]
-        },
-        {
-          "name": "frame_index",
-          "type": "INT",
-          "links": null
-        }
-      ],
-      "title": "如要开启画板，前往参数设置打开开关",
-      "properties": {
-        "aux_id": "yolain/ComfyUI-Easy-Sam3",
-        "Node name for S&R": "easy framesEditor",
-        "cnr_id": "comfyui-easy-sam3",
-        "ver": "851a5be3c01d6fbd3ef45dbb55092916cfc466af",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.3"
-        }
-      },
-      "widgets_values": [
-        "{\"positive_coords\":[],\"negative_coords\":[],\"bbox\":[],\"frame_index\":0}",
-        1,
-        ""
-      ]
-    },
-    {
       "id": 194,
       "type": "easy ifElse",
       "pos": [
@@ -4823,7 +4753,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 72,
+      "order": 73,
       "mode": 0,
       "inputs": [
         {
@@ -4881,7 +4811,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 75,
+      "order": 76,
       "mode": 0,
       "inputs": [
         {
@@ -4986,7 +4916,7 @@
       "mode": 0,
       "inputs": [],
       "outputs": [],
-      "title": "工作流于SimpAI_comfyd后端发布ver1.0 Design by 冰華",
+      "title": "工作流于SimpAI_comfyd后端发布ver1.1 Design by 冰華",
       "properties": {
         "fontSize": 20,
         "fontFamily": "Arial",
@@ -5006,6 +4936,110 @@
       "bgcolor": "#fff0"
     },
     {
+      "id": 217,
+      "type": "GetNode",
+      "pos": [
+        5090,
+        -160
+      ],
+      "size": [
+        210,
+        60
+      ],
+      "flags": {
+        "collapsed": true,
+        "pinned": true
+      },
+      "order": 32,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            982
+          ]
+        }
+      ],
+      "title": "Get_resized_images",
+      "properties": {},
+      "widgets_values": [
+        "resized_images"
+      ],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 157,
+      "type": "easy framesEditor",
+      "pos": [
+        5090,
+        -130
+      ],
+      "size": [
+        680,
+        1130
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 59,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 843
+        }
+      ],
+      "outputs": [
+        {
+          "name": "positive_coords",
+          "type": "STRING",
+          "links": [
+            719
+          ]
+        },
+        {
+          "name": "negative_coords",
+          "type": "STRING",
+          "links": [
+            720
+          ]
+        },
+        {
+          "name": "bboxes",
+          "type": "BBOX",
+          "links": [
+            721
+          ]
+        },
+        {
+          "name": "frame_index",
+          "type": "INT",
+          "links": null
+        }
+      ],
+      "title": "如要开启画板，前往参数设置打开开关",
+      "properties": {
+        "aux_id": "yolain/ComfyUI-Easy-Sam3",
+        "Node name for S&R": "easy framesEditor",
+        "cnr_id": "comfyui-easy-sam3",
+        "ver": "851a5be3c01d6fbd3ef45dbb55092916cfc466af",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        "{\"positive_coords\":[],\"negative_coords\":[],\"bbox\":[],\"frame_index\":0}",
+        1,
+        ""
+      ]
+    },
+    {
       "id": 151,
       "type": "ParameterControlPanel",
       "pos": [
@@ -5019,7 +5053,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 32,
+      "order": 33,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -5119,7 +5153,7 @@
               "show_top_left_notice": false,
               "notice_text": ""
             },
-            "value": true,
+            "value": false,
             "accessible_to_group_executor": false,
             "accessible_to_group_mute_manager": false
           },
@@ -5132,7 +5166,7 @@
               "show_top_left_notice": false,
               "notice_text": ""
             },
-            "value": false,
+            "value": true,
             "accessible_to_group_executor": false,
             "accessible_to_group_mute_manager": false
           },
@@ -5276,7 +5310,7 @@
             "show_top_left_notice": false,
             "notice_text": ""
           },
-          "value": true,
+          "value": false,
           "accessible_to_group_executor": false,
           "accessible_to_group_mute_manager": false
         },
@@ -5289,7 +5323,7 @@
             "show_top_left_notice": false,
             "notice_text": ""
           },
-          "value": false,
+          "value": true,
           "accessible_to_group_executor": false,
           "accessible_to_group_mute_manager": false
         },
@@ -5914,14 +5948,6 @@
       "INT"
     ],
     [
-      842,
-      65,
-      0,
-      187,
-      0,
-      "*"
-    ],
-    [
       843,
       187,
       0,
@@ -6112,6 +6138,14 @@
       135,
       1,
       "INT"
+    ],
+    [
+      982,
+      217,
+      0,
+      187,
+      0,
+      "IMAGE"
     ]
   ],
   "groups": [
@@ -6320,10 +6354,10 @@
       }
     ],
     "ds": {
-      "scale": 0.8857805000000099,
+      "scale": 1.2968712300500018,
       "offset": [
-        -3942.693529115232,
-        688.8410061794583
+        -4578.872390765406,
+        510.59738704160463
       ]
     },
     "links_added_by_ue": [

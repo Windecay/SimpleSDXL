@@ -2502,8 +2502,9 @@ packages = {'base_package': {'id': 1,
                          "preset_sample": []},
  "wan-animate-video-edit": {"id": 37,
                          "name": "[37]Wan-Animate-视频编辑",
-                         "note": "Wan-Animate物体替换/人物替换/动作迁移|显存需求：★★★★ 速度：★★",
+                         "note": "Wan-Animate物体替换/人物替换/动作迁移/视频消除|显存需求：★★★★ 速度：★★",
                          "files": ['diffusion_models,Wan2_2-Animate-14B_fp8_scaled_e4m3fn_KJ_v2.safetensors,17317143060,0,https://www.modelscope.cn/models/Kijai/WanVideo_comfy_fp8_scaled/resolve/master/Wan22Animate/Wan2_2-Animate-14B_fp8_scaled_e4m3fn_KJ_v2.safetensors,https://huggingface.co/Kijai/WanVideo_comfy_fp8_scaled/resolve/main/Wan22Animate/Wan2_2-Animate-14B_fp8_scaled_e4m3fn_KJ_v2.safetensors',
+                                    'diffusion_models,Wan2_1-MiniMaxRemover_1_3B_fp16.safetensors,2254156824,0,https://www.modelscope.cn/models/Kijai/WanVideo_comfy/resolve/master/Wan2_1-MiniMaxRemover_1_3B_fp16.safetensors,https://huggingface.co/Kijai/WanVideo_comfy/resolve/main/Wan2_1-MiniMaxRemover_1_3B_fp16.safetensors'
                                     'sam3,sam3.pt,3450062241,0,https://www.modelscope.cn/models/facebook/sam3/resolve/master/sam3.pt,https://huggingface.co/pankjkkkkkk/sam3_pt/resolve/main/sam3.pt'
                                     'clip,umt5-xxl-encoder-Q8_0.gguf,6043068256,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/clip/umt5-xxl-encoder-Q8_0.gguf,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/clip/umt5-xxl-encoder-Q8_0.gguf',
                                     'vae,Wan2_1_VAE_bf16.safetensors,253806278,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/vae/Wan2_1_VAE_bf16.safetensors,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/vae/Wan2_1_VAE_bf16.safetensors',

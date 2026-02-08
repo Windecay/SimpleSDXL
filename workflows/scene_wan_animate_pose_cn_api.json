@@ -233,23 +233,6 @@
       "title": "🪛 Switch image"
     }
   },
-  "414": {
-    "inputs": {
-      "value": "max(a, a*b)",
-      "a": [
-        "748",
-        12
-      ],
-      "b": [
-        "715",
-        1
-      ]
-    },
-    "class_type": "SimpleMath+",
-    "_meta": {
-      "title": "🔧 Simple Math"
-    }
-  },
   "470": {
     "inputs": {
       "width": [
@@ -326,7 +309,7 @@
     "inputs": {
       "comparison": "a < b",
       "a": [
-        "414",
+        "715",
         1
       ],
       "b": [

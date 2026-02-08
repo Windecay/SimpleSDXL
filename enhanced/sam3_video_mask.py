@@ -169,25 +169,42 @@ def _is_video_file(path: str) -> bool:
     return ext in [".mp4", ".mov", ".mkv", ".avi", ".webm"]
 
 
+def _has_image_files(folder: str) -> bool:
+    try:
+        for name in os.listdir(folder):
+            ext = os.path.splitext(name)[-1].lower()
+            if ext in (".jpg", ".jpeg", ".png", ".bmp", ".webp"):
+                return True
+    except Exception:
+        return False
+    return False
+
+
+
 def _extract_video_to_temp_frames(video_path: str, *, max_frames: int) -> str:
     tmp_dir = tempfile.mkdtemp(prefix="sam3_frames_")
     cap = cv2.VideoCapture(video_path)
     if not cap.isOpened():
         raise ValueError(f"Cannot open video: {video_path}")
-
-    idx = 0
+    written = 0
     while True:
-        if int(max_frames) >= 0 and idx >= int(max_frames):
+        if int(max_frames) >= 0 and written >= int(max_frames):
             break
         ok, frame_bgr = cap.read()
         if not ok:
             break
-        out_path = os.path.join(tmp_dir, f"{idx:06d}.jpg")
-        cv2.imwrite(out_path, frame_bgr, [int(cv2.IMWRITE_JPEG_QUALITY), 92])
-        idx += 1
+        out_path = os.path.join(tmp_dir, f"{written:06d}.jpg")
+        try:
+            ok_enc, buf = cv2.imencode(".jpg", frame_bgr, [int(cv2.IMWRITE_JPEG_QUALITY), 92])
+            if ok_enc:
+                with open(out_path, "wb") as f:
+                    f.write(buf.tobytes())
+                written += 1
+        except Exception:
+            pass
 
     cap.release()
-    if idx <= 0:
+    if written <= 0 or not _has_image_files(tmp_dir):
         raise RuntimeError("No frames extracted from video.")
     return tmp_dir
 
@@ -934,10 +951,24 @@ def run_sam3_video_mask(
                 and _is_video_file(video_path)
                 and os.path.isfile(video_path)
             ):
-                tmp_frames_dir = _extract_video_to_temp_frames(
-                    video_path, max_frames=int(frame_count) if int(frame_count) > 0 else -1
-                )
-                resource_path = tmp_frames_dir
+                try:
+                    tmp_frames_dir = _extract_video_to_temp_frames(
+                        video_path, max_frames=int(frame_count) if int(frame_count) > 0 else -1
+                    )
+                    if _has_image_files(tmp_frames_dir):
+                        resource_path = tmp_frames_dir
+                    else:
+                        raise RuntimeError("No frames extracted from video.")
+                except Exception:
+                    if tmp_frames_dir:
+                        try:
+                            import shutil
+
+                            shutil.rmtree(tmp_frames_dir, ignore_errors=True)
+                        except Exception:
+                            pass
+                    tmp_frames_dir = None
+                    resource_path = video_path
             response = predictor.handle_request(
                 request=dict(
                     type="start_session",
@@ -1194,10 +1225,24 @@ def run_sam3_video_mask_by_prompt(
                 and _is_video_file(video_path)
                 and os.path.isfile(video_path)
             ):
-                tmp_frames_dir = _extract_video_to_temp_frames(
-                    video_path, max_frames=int(frame_count) if int(frame_count) > 0 else -1
-                )
-                resource_path = tmp_frames_dir
+                try:
+                    tmp_frames_dir = _extract_video_to_temp_frames(
+                        video_path, max_frames=int(frame_count) if int(frame_count) > 0 else -1
+                    )
+                    if _has_image_files(tmp_frames_dir):
+                        resource_path = tmp_frames_dir
+                    else:
+                        raise RuntimeError("No frames extracted from video.")
+                except Exception:
+                    if tmp_frames_dir:
+                        try:
+                            import shutil
+
+                            shutil.rmtree(tmp_frames_dir, ignore_errors=True)
+                        except Exception:
+                            pass
+                    tmp_frames_dir = None
+                    resource_path = video_path
             response = predictor.handle_request(
                 request=dict(
                     type="start_session",

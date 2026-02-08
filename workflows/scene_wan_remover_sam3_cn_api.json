@@ -1,0 +1,784 @@
+{
+  "15": {
+    "inputs": {
+      "mask": [
+        "50",
+        0
+      ]
+    },
+    "class_type": "MaskToImage",
+    "_meta": {
+      "title": "Convert Mask to Image"
+    }
+  },
+  "20": {
+    "inputs": {
+      "width": [
+        "96",
+        1
+      ],
+      "height": [
+        "96",
+        2
+      ],
+      "num_frames": [
+        "65",
+        1
+      ],
+      "latents": [
+        "39",
+        0
+      ],
+      "mask_latents": [
+        "41",
+        0
+      ]
+    },
+    "class_type": "WanVideoMiniMaxRemoverEmbeds",
+    "_meta": {
+      "title": "WanVideo MiniMax Remover Embeds"
+    }
+  },
+  "21": {
+    "inputs": {
+      "enable_vae_tiling": [
+        "216",
+        20
+      ],
+      "tile_x": 272,
+      "tile_y": 272,
+      "tile_stride_x": 144,
+      "tile_stride_y": 128,
+      "normalization": "default",
+      "vae": [
+        "53",
+        0
+      ],
+      "samples": [
+        "44",
+        0
+      ]
+    },
+    "class_type": "WanVideoDecode",
+    "_meta": {
+      "title": "WanVideo Decode"
+    }
+  },
+  "24": {
+    "inputs": {
+      "blocks_to_swap": [
+        "216",
+        17
+      ],
+      "offload_img_emb": false,
+      "offload_txt_emb": false,
+      "use_non_blocking": false,
+      "vace_blocks_to_swap": 0,
+      "prefetch_blocks": 1,
+      "block_swap_debug": false
+    },
+    "class_type": "WanVideoBlockSwap",
+    "_meta": {
+      "title": "WanVideo Block Swap"
+    }
+  },
+  "34": {
+    "inputs": {
+      "expand": [
+        "216",
+        16
+      ],
+      "incremental_expandrate": 0,
+      "tapered_corners": false,
+      "flip_input": false,
+      "blur_radius": 2,
+      "lerp_alpha": 1,
+      "decay_factor": 1,
+      "fill_holes": false,
+      "mask": [
+        "221",
+        0
+      ]
+    },
+    "class_type": "GrowMaskWithBlur",
+    "_meta": {
+      "title": "Grow Mask With Blur"
+    }
+  },
+  "39": {
+    "inputs": {
+      "enable_vae_tiling": [
+        "216",
+        20
+      ],
+      "tile_x": 272,
+      "tile_y": 272,
+      "tile_stride_x": 160,
+      "tile_stride_y": 128,
+      "noise_aug_strength": 0,
+      "latent_strength": 1,
+      "vae": [
+        "53",
+        0
+      ],
+      "image": [
+        "114",
+        0
+      ]
+    },
+    "class_type": "WanVideoEncode",
+    "_meta": {
+      "title": "WanVideo Encode"
+    }
+  },
+  "41": {
+    "inputs": {
+      "enable_vae_tiling": [
+        "216",
+        20
+      ],
+      "tile_x": 272,
+      "tile_y": 272,
+      "tile_stride_x": 160,
+      "tile_stride_y": 128,
+      "noise_aug_strength": 0,
+      "latent_strength": 1,
+      "vae": [
+        "53",
+        0
+      ],
+      "image": [
+        "98",
+        0
+      ]
+    },
+    "class_type": "WanVideoEncode",
+    "_meta": {
+      "title": "WanVideo Encode"
+    }
+  },
+  "44": {
+    "inputs": {
+      "steps": [
+        "216",
+        9
+      ],
+      "cfg": 1,
+      "shift": 5,
+      "seed": 1090689971278054,
+      "force_offload": true,
+      "scheduler": "unipc",
+      "riflex_freq_index": 0,
+      "denoise_strength": 1,
+      "batched_cfg": false,
+      "rope_function": "comfy_chunked",
+      "start_step": 0,
+      "end_step": -1,
+      "add_noise_to_samples": false,
+      "model": [
+        "234",
+        0
+      ],
+      "image_embeds": [
+        "20",
+        0
+      ],
+      "context_options": [
+        "135",
+        0
+      ]
+    },
+    "class_type": "WanVideoSampler",
+    "_meta": {
+      "title": "WanVideo Sampler"
+    }
+  },
+  "50": {
+    "inputs": {
+      "value": 0.5,
+      "width": [
+        "96",
+        1
+      ],
+      "height": [
+        "96",
+        2
+      ]
+    },
+    "class_type": "SolidMask",
+    "_meta": {
+      "title": "SolidMask"
+    }
+  },
+  "53": {
+    "inputs": {
+      "model_name": "Wan2_1_VAE_bf16.safetensors",
+      "precision": "bf16",
+      "use_cpu_cache": false,
+      "verbose": false
+    },
+    "class_type": "WanVideoVAELoader",
+    "_meta": {
+      "title": "WanVideo VAE Loader"
+    }
+  },
+  "54": {
+    "inputs": {
+      "model": "Wan2_1-MiniMaxRemover_1_3B_fp16.safetensors",
+      "base_precision": "fp16",
+      "quantization": "disabled",
+      "load_device": "offload_device",
+      "attention_mode": "sageattn",
+      "rms_norm_function": "default",
+      "block_swap_args": [
+        "24",
+        0
+      ]
+    },
+    "class_type": "WanVideoModelLoader",
+    "_meta": {
+      "title": "WanVideo Model Loader"
+    }
+  },
+  "65": {
+    "inputs": {
+      "video": "motion_signal.mp4",
+      "force_rate": [
+        "216",
+        12
+      ],
+      "custom_width": 0,
+      "custom_height": 0,
+      "frame_load_cap": [
+        "238",
+        0
+      ],
+      "skip_first_frames": [
+        "239",
+        0
+      ],
+      "select_every_nth": 1,
+      "format": "Wan"
+    },
+    "class_type": "VHS_LoadVideo",
+    "_meta": {
+      "title": "Load Video (Upload) 🎥🅥🅗🅢"
+    }
+  },
+  "66": {
+    "inputs": {
+      "generation_width": [
+        "216",
+        6
+      ],
+      "generation_height": [
+        "216",
+        7
+      ],
+      "aspect_ratio_preservation": "keep_input",
+      "image": [
+        "65",
+        0
+      ]
+    },
+    "class_type": "WanVideoImageResizeToClosest",
+    "_meta": {
+      "title": "WanVideo Image Resize To Closest"
+    }
+  },
+  "96": {
+    "inputs": {
+      "width": [
+        "66",
+        1
+      ],
+      "height": [
+        "66",
+        2
+      ],
+      "interpolation": "nearest",
+      "method": "stretch",
+      "condition": "always",
+      "multiple_of": 2,
+      "image": [
+        "65",
+        0
+      ]
+    },
+    "class_type": "ImageResize+",
+    "_meta": {
+      "title": "🔧 Image Resize"
+    }
+  },
+  "98": {
+    "inputs": {
+      "mask": [
+        "34",
+        0
+      ]
+    },
+    "class_type": "MaskToImage",
+    "_meta": {
+      "title": "Convert Mask to Image"
+    }
+  },
+  "114": {
+    "inputs": {
+      "x": 0,
+      "y": 0,
+      "resize_source": false,
+      "destination": [
+        "96",
+        0
+      ],
+      "source": [
+        "15",
+        0
+      ],
+      "mask": [
+        "34",
+        0
+      ]
+    },
+    "class_type": "ImageCompositeMasked",
+    "_meta": {
+      "title": "ImageCompositeMasked"
+    }
+  },
+  "135": {
+    "inputs": {
+      "context_schedule": "uniform_standard",
+      "context_frames": 81,
+      "context_stride": 4,
+      "context_overlap": 16,
+      "freenoise": true,
+      "verbose": false,
+      "fuse_method": "linear"
+    },
+    "class_type": "WanVideoContextOptions",
+    "_meta": {
+      "title": "WanVideo Context Options"
+    }
+  },
+  "147": {
+    "inputs": {
+      "frame_rate": [
+        "218",
+        5
+      ],
+      "loop_count": 0,
+      "filename_prefix": "remover_compare",
+      "format": "video/h264-mp4",
+      "pix_fmt": "yuv420p",
+      "crf": 28,
+      "save_metadata": true,
+      "trim_to_audio": false,
+      "pingpong": true,
+      "save_output": true,
+      "images": [
+        "231",
+        0
+      ],
+      "audio": [
+        "65",
+        2
+      ]
+    },
+    "class_type": "VHS_VideoCombine",
+    "_meta": {
+      "title": "Video Combine 🎥🅥🅗🅢"
+    }
+  },
+  "216": {
+    "inputs": {
+      "prompt": "",
+      "additional_prompt": "",
+      "ip_image": "welcome.png",
+      "ip_image1": "welcome.png",
+      "inpaint_image": "welcome.png",
+      "inpaint_mask": "welcome.png",
+      "width": 640,
+      "height": 640,
+      "cfg": 1,
+      "steps": 4,
+      "var_number": 0,
+      "var_number2": 30,
+      "var_number3": 16,
+      "var_number4": 0,
+      "var_number5": 1,
+      "var_number6": 1,
+      "var_number7": 10,
+      "var_number8": 35,
+      "var_number9": 0,
+      "var_number10": 0,
+      "switch_option1": true,
+      "switch_option2": true,
+      "switch_option3": true,
+      "switch_option4": true,
+      "model_type": 1,
+      "model_type2": 1
+    },
+    "class_type": "SceneInput",
+    "_meta": {
+      "title": "SceneInput"
+    }
+  },
+  "217": {
+    "inputs": {
+      "video": "mask.mp4",
+      "force_rate": [
+        "218",
+        5
+      ],
+      "custom_width": [
+        "218",
+        8
+      ],
+      "custom_height": [
+        "218",
+        9
+      ],
+      "frame_load_cap": [
+        "218",
+        6
+      ],
+      "skip_first_frames": [
+        "239",
+        0
+      ],
+      "select_every_nth": 1,
+      "format": "AnimateDiff"
+    },
+    "class_type": "VHS_LoadVideo",
+    "_meta": {
+      "title": "mask_video"
+    }
+  },
+  "218": {
+    "inputs": {
+      "video_info": [
+        "65",
+        3
+      ]
+    },
+    "class_type": "VHS_VideoInfo",
+    "_meta": {
+      "title": "Video Info 🎥🅥🅗🅢"
+    }
+  },
+  "219": {
+    "inputs": {
+      "enabled": true,
+      "images": [
+        "217",
+        0
+      ]
+    },
+    "class_type": "PoseReformer",
+    "_meta": {
+      "title": "WanAnimate Pose Reformer"
+    }
+  },
+  "220": {
+    "inputs": {
+      "generation_width": [
+        "96",
+        1
+      ],
+      "generation_height": [
+        "96",
+        2
+      ],
+      "aspect_ratio_preservation": "stretch_to_new",
+      "image": [
+        "219",
+        0
+      ]
+    },
+    "class_type": "WanVideoImageResizeToClosest",
+    "_meta": {
+      "title": "WanVideo Image Resize To Closest"
+    }
+  },
+  "221": {
+    "inputs": {
+      "channel": "red",
+      "image": [
+        "220",
+        0
+      ]
+    },
+    "class_type": "ImageToMask",
+    "_meta": {
+      "title": "Convert Image to Mask"
+    }
+  },
+  "222": {
+    "inputs": {
+      "format": "MP4",
+      "codec": "h264",
+      "fps": 24,
+      "crf": 19,
+      "images": [
+        "223",
+        0
+      ]
+    },
+    "class_type": "SaveVideoWebsocket",
+    "_meta": {
+      "title": "SaveVideoWebsocket"
+    }
+  },
+  "223": {
+    "inputs": {
+      "boolean": [
+        "227",
+        0
+      ],
+      "on_true": [
+        "21",
+        0
+      ],
+      "on_false": [
+        "225",
+        0
+      ]
+    },
+    "class_type": "Switch image [Crystools]",
+    "_meta": {
+      "title": "🪛 Switch image"
+    }
+  },
+  "224": {
+    "inputs": {
+      "inputcount": 2,
+      "direction": "right",
+      "match_image_size": true,
+      "Update inputs": null,
+      "image_1": [
+        "230",
+        0
+      ],
+      "image_2": [
+        "21",
+        0
+      ]
+    },
+    "class_type": "ImageConcatMulti",
+    "_meta": {
+      "title": "Image Concatenate Multi"
+    }
+  },
+  "225": {
+    "inputs": {
+      "source_fps": [
+        "218",
+        5
+      ],
+      "target_fps": [
+        "226",
+        1
+      ],
+      "scale": 2,
+      "model_name": "flownet.pkl",
+      "batch_size": 32,
+      "use_fp16": true,
+      "images": [
+        "21",
+        0
+      ]
+    },
+    "class_type": "RIFEInterpolation",
+    "_meta": {
+      "title": "RIFE Frame Interpolation"
+    }
+  },
+  "226": {
+    "inputs": {
+      "value": "a",
+      "a": [
+        "216",
+        11
+      ]
+    },
+    "class_type": "SimpleMath+",
+    "_meta": {
+      "title": "🔧 Simple Math"
+    }
+  },
+  "227": {
+    "inputs": {
+      "comparison": "a < b",
+      "a": [
+        "226",
+        1
+      ],
+      "b": [
+        "216",
+        12
+      ]
+    },
+    "class_type": "easy compare",
+    "_meta": {
+      "title": "Compare"
+    }
+  },
+  "230": {
+    "inputs": {
+      "invert_mask": false,
+      "blend_mode": "normal",
+      "opacity": 50,
+      "color": "#81c784",
+      "background_image": [
+        "96",
+        0
+      ],
+      "layer_image": [
+        "96",
+        0
+      ],
+      "layer_mask": [
+        "34",
+        0
+      ]
+    },
+    "class_type": "LayerStyle: ColorOverlay",
+    "_meta": {
+      "title": "LayerStyle: ColorOverlay"
+    }
+  },
+  "231": {
+    "inputs": {
+      "continue": [
+        "216",
+        22
+      ],
+      "in": [
+        "224",
+        0
+      ]
+    },
+    "class_type": "easy blocker",
+    "_meta": {
+      "title": "Blocker"
+    }
+  },
+  "233": {
+    "inputs": {
+      "model": "Wan2_1-MiniMaxRemover_1_3B_fp16.safetensors",
+      "base_precision": "bf16",
+      "quantization": "disabled",
+      "load_device": "offload_device",
+      "attention_mode": "sdpa",
+      "rms_norm_function": "default",
+      "block_swap_args": [
+        "24",
+        0
+      ]
+    },
+    "class_type": "WanVideoModelLoader",
+    "_meta": {
+      "title": "WanVideo Model Loader"
+    }
+  },
+  "234": {
+    "inputs": {
+      "boolean": [
+        "216",
+        21
+      ],
+      "on_true": [
+        "54",
+        0
+      ],
+      "on_false": [
+        "233",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "235": {
+    "inputs": {
+      "value": 0
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "Int"
+    }
+  },
+  "236": {
+    "inputs": {
+      "comparison": "a == b",
+      "a": [
+        "235",
+        0
+      ],
+      "b": [
+        "216",
+        10
+      ]
+    },
+    "class_type": "easy compare",
+    "_meta": {
+      "title": "Compare"
+    }
+  },
+  "237": {
+    "inputs": {
+      "value": "a*b+1",
+      "a": [
+        "216",
+        10
+      ],
+      "b": [
+        "216",
+        12
+      ]
+    },
+    "class_type": "SimpleMath+",
+    "_meta": {
+      "title": "🔧 Simple Math"
+    }
+  },
+  "238": {
+    "inputs": {
+      "boolean": [
+        "236",
+        0
+      ],
+      "on_true": [
+        "235",
+        0
+      ],
+      "on_false": [
+        "237",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "239": {
+    "inputs": {
+      "value": "a*b",
+      "a": [
+        "216",
+        12
+      ],
+      "b": [
+        "216",
+        13
+      ]
+    },
+    "class_type": "SimpleMath+",
+    "_meta": {
+      "title": "🔧 Simple Math"
+    }
+  }
+}
