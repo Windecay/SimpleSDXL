@@ -46,6 +46,7 @@ import modules.model_loader as model_loader
 import enhanced.qwen_multiangle as qwen_multiangle
 import enhanced.qwen_anglelight as qwen_anglelight
 import enhanced.transfer_style_gallery as transfer_style_gallery
+import enhanced.sam3_video_mask as sam3_video_mask
 import logging
 logger = logging.getLogger(__name__)
 
@@ -485,6 +486,9 @@ with shared.gradio_root:
     comparison_state = gr.State(False)
     scene_video_backup = gr.State(None)
     scene_audio_backup = gr.State(None)
+    scene_original_video_path = gr.State(None)
+    scene_original_video_backup = gr.State(None)
+    active_video_source = gr.State(None)
     with gr.Row():
         with gr.Column(scale=2):
             with gr.Group(elem_id='main_content'):
@@ -686,6 +690,36 @@ with shared.gradio_root:
                                 outputs=None
                             )
 
+                        with gr.Accordion("🎞️ SAM3 Video Mask (Double Click to Open Frames Editor)", open=False, visible=False) as sam3_video_mask_accordion:
+                            gr.HTML(value=sam3_video_mask.get_viewer_html(), elem_id="sam3_video_mask_html")
+                            sam3_original_video_path = gr.State(None)
+                            def sam3_translate_prompt_slim(prompt_text):
+                                prompt_text = translator.normalize_prompt(prompt_text)
+                                try:
+                                    return translator.normalize_prompt(minicpm.translate(prompt_text, "Slim Model"))
+                                except Exception:
+                                    return translator.normalize_prompt(prompt_text)
+                            with gr.Row():
+                                sam3_input_video = gr.Video(label="Video (Upload)", show_label=True, source="upload", type="filepath", height=240, elem_id="sam3_input_video", show_share_button=False)
+                                sam3_mask_video = gr.Video(label="Mask Video (Preview / Upload)", show_label=True, source="upload", type="filepath", height=240, elem_id="sam3_output_mask_video", show_share_button=False)
+                            with gr.Accordion("💬 SAM3 Prompt Segmentation", open=False, visible=True):
+                                with gr.Column():
+                                    sam3_prompt_text = gr.Textbox(label="Segmentation Prompt", show_label=True, max_lines=1, placeholder="e.g. woman, dress", elem_id="sam3_prompt_text")
+                                    sam3_trigger_translate_btn = gr.Button(visible=False, elem_id="sam3_trigger_translate_btn")
+                                    sam3_trigger_translate_btn.click(fn=sam3_translate_prompt_slim, inputs=[sam3_prompt_text], outputs=[sam3_prompt_text], queue=False, show_progress=False)
+                                    sam3_generate_btn = gr.Button("✅ Generate Mask", elem_id="sam3_generate_btn", size="sm")
+                            sam3_editor_payload = gr.Textbox(visible=False, elem_id="sam3_editor_payload")
+                            sam3_points_generate_btn = gr.Button("SAM3 Points Generate", visible=False, elem_id="sam3_points_generate_btn")
+                            with gr.Accordion("🔧 SAM3 Params", open=False, visible=True):
+                                with gr.Row():
+                                    sam3_score_threshold_detection = gr.Slider(label="Detection Score Threshold", minimum=0.0, maximum=1.0, step=0.05, value=0.5)
+                                    sam3_new_det_thresh = gr.Slider(label="New Detection Threshold", minimum=0.0, maximum=1.0, step=0.05, value=0.7)
+                                    sam3_fill_hole_area = gr.Slider(label="Fill Hole Area", minimum=0, maximum=512, step=1, value=16)
+                                    sam3_recondition_every_nth_frame = gr.Slider(label="Recondition Every Nth Frame", minimum=1, maximum=128, step=1, value=16)
+                                with gr.Row():
+                                    sam3_postprocess_strength = gr.Slider(label="Mask Smoothing Strength", minimum=0, maximum=5, step=1, value=0)
+                                    sam3_invert_mask = gr.Checkbox(label="Invert Mask", value=False)
+
                         with gr.Accordion("🎨 Style Selector", open=False, visible=False) as style_transfer_accordion:
                             gr.HTML(value=transfer_style_gallery.get_viewer_html(), elem_id="transfer_style_gallery_container_scene")
 
@@ -694,10 +728,12 @@ with shared.gradio_root:
                             show_camera = bool(theme_l and 'multiangle' in theme_l)
                             show_light = bool(theme_l and ('anglelight' in theme_l or 'lightning' in theme_l))
                             show_style_transfer = bool(theme_l and 'flux2_styletransfer' in theme_l)
+                            show_sam3 = bool(theme_l and 'sam3' in theme_l)
                             return (
                                 gr.update(visible=show_camera, open=show_camera),
                                 gr.update(visible=show_light, open=show_light),
                                 gr.update(visible=show_style_transfer, open=False),
+                                gr.update(visible=show_sam3, open=show_sam3),
                             )
 
                         scene_canvas_image = grh.Image(label='Upload and canvas(1)', show_label=True, source='upload', type='numpy', tool='sketch', height=250, brush_color="#70FF81", mask_color=True, image_mode='RGBA', elem_id='scene_canvas')
@@ -728,22 +764,138 @@ with shared.gradio_root:
                         
                         def on_video_upload(video_path):
                             if video_path is None:
-                                return None
+                                return None, None, None
                             try:
-                                result = util.compress_video(video_path)
+                                preview_path = util.compress_video(video_path)
                                 gr.Info("Compression completed!")
-                                return result
+                                return preview_path, video_path, "scene"
                             except Exception as e:
                                 gr.Warning(f"Compression failed: {e}")
-                                return video_path
+                                return video_path, video_path, "scene"
 
                         scene_video = gr.Video(label="Video (Upload)", visible=False, source="upload", height=400)
-                        scene_video.upload(on_video_upload, inputs=[scene_video], outputs=[scene_video], show_progress=True)
+                        scene_video.upload(on_video_upload, inputs=[scene_video], outputs=[scene_video, scene_original_video_path, active_video_source], show_progress=True)
                         scene_video_placeholder = gr.HTML('<div style="height: 400px; display: flex; align-items: center; justify-content: center; border: 2px dashed #ccc; border-radius: 8px; background: rgba(128,128,128,0.1); color: #888; font-size: 16px;"><span>Hide When Generating...</span></div>', visible=False)
                         scene_audio = gr.Audio(label="Audio (Upload)", visible=False, source="upload", type="filepath")
                         scene_audio_placeholder = gr.HTML('<div style="padding: 20px; text-align: center; border: 2px dashed #ccc; border-radius: 8px; background: rgba(128,128,128,0.1); color: #888;">Hide When Generating...</div>', visible=False)
                         scene_additional_prompt_2 = gr.Textbox(label="Blessing words", show_label=True, max_lines=1, visible=False, elem_classes='scene_input_2', elem_id='scene_additional_prompt_2')
                         scene_var_number = gr.Slider(label='Duration(s)', minimum=0, maximum=60, step=1, value=3, visible=False)
+                        
+                        def sam3_on_video_upload_with_preview(video_path):
+                            if video_path is None: return None, None, None
+                            try: preview_path = util.compress_video(video_path); gr.Info("Compression completed!"); return preview_path, video_path, "sam3"
+                            except Exception as e: gr.Warning(f"Compression failed: {e}"); return video_path, video_path, "sam3"
+
+                        def sam3_cleanup_translator_and_vram():
+                            try: translator.free_translator_model()
+                            except Exception: pass
+                            try:
+                                import torch, gc
+                                if torch.cuda.is_available(): torch.cuda.empty_cache(); torch.cuda.ipc_collect()
+                                gc.collect()
+                            except Exception:
+                                pass
+                            try: model_management.soft_empty_cache()
+                            except Exception: pass
+
+                        def sam3_mask_opts(score_threshold_detection, new_det_thresh, fill_hole_area, recondition_every_nth_frame, postprocess_strength, invert_mask):
+                            return dict(
+                                precision="fp16",
+                                score_threshold_detection=float(score_threshold_detection or 0.0),
+                                new_det_thresh=float(new_det_thresh or 0.0),
+                                det_nms_thresh=0.1,
+                                fill_hole_area=int(fill_hole_area or 0),
+                                recondition_every_nth_frame=int(recondition_every_nth_frame or 1),
+                                image_size=1008,
+                                postprocess_strength=int(postprocess_strength or 0),
+                                postprocess_min_area=0,
+                                debug_print=False,
+                                invert_mask=bool(invert_mask),
+                            )
+
+                        def sam3_generate_mask_by_points(
+                            original_video_path,
+                            video_path,
+                            editor_payload_json,
+                            uploaded_mask_path,
+                            score_threshold_detection,
+                            new_det_thresh,
+                            fill_hole_area,
+                            recondition_every_nth_frame,
+                            postprocess_strength,
+                            invert_mask,
+                        ):
+                            effective_video_path = original_video_path or video_path
+                            if effective_video_path is None: gr.Warning("Please upload a video first."); return uploaded_mask_path
+                            if editor_payload_json is None or not str(editor_payload_json).strip():
+                                if uploaded_mask_path: return uploaded_mask_path
+                                gr.Warning("Please click the video and select targets in the popup, or upload a mask video directly."); return uploaded_mask_path
+                            with worker.external_exclusive_task():
+                                sam3_cleanup_translator_and_vram()
+                                try:
+                                    out_path = sam3_video_mask.run_sam3_video_mask(
+                                        video_path=effective_video_path,
+                                        editor_payload_json=editor_payload_json,
+                                        **sam3_mask_opts(
+                                            score_threshold_detection,
+                                            new_det_thresh,
+                                            fill_hole_area,
+                                            recondition_every_nth_frame,
+                                            postprocess_strength,
+                                            invert_mask,
+                                        ),
+                                    )
+                                    gr.Info("Mask generated!")
+                                    return out_path
+                                except Exception as e:
+                                    logger.exception("SAM3 points mask generation failed")
+                                    gr.Warning(f"SAM3 failed: {e}")
+                                    return uploaded_mask_path
+
+                        def sam3_generate_mask_by_prompt(
+                            original_video_path,
+                            video_path,
+                            prompt_text,
+                            uploaded_mask_path,
+                            score_threshold_detection,
+                            new_det_thresh,
+                            fill_hole_area,
+                            recondition_every_nth_frame,
+                            postprocess_strength,
+                            invert_mask,
+                        ):
+                            effective_video_path = original_video_path or video_path
+                            if effective_video_path is None: gr.Warning("Please upload a video first."); return uploaded_mask_path
+                            if prompt_text is None or not str(prompt_text).strip():
+                                if uploaded_mask_path: return uploaded_mask_path
+                                gr.Warning("Please enter a prompt, or upload a mask video directly."); return uploaded_mask_path
+                            with worker.external_exclusive_task():
+                                try: prompt_text = translator.normalize_prompt(minicpm.translate(str(prompt_text), "Slim Model"))
+                                except Exception: prompt_text = translator.normalize_prompt(str(prompt_text))
+                                sam3_cleanup_translator_and_vram()
+                                try:
+                                    out_path = sam3_video_mask.run_sam3_video_mask_by_prompt(
+                                        video_path=effective_video_path,
+                                        prompt=str(prompt_text),
+                                        **sam3_mask_opts(
+                                            score_threshold_detection,
+                                            new_det_thresh,
+                                            fill_hole_area,
+                                            recondition_every_nth_frame,
+                                            postprocess_strength,
+                                            invert_mask,
+                                        ),
+                                    )
+                                    gr.Info("Mask generated!")
+                                    return out_path
+                                except Exception as e:
+                                    logger.exception("SAM3 semantic prompt mask generation failed")
+                                    gr.Warning(f"SAM3 failed: {e}")
+                                    return uploaded_mask_path
+
+                        sam3_input_video.upload(sam3_on_video_upload_with_preview, inputs=[sam3_input_video], outputs=[sam3_input_video, sam3_original_video_path, active_video_source], show_progress=True)
+                        sam3_points_generate_btn.click(sam3_generate_mask_by_points, inputs=[sam3_original_video_path, sam3_input_video, sam3_editor_payload, sam3_mask_video, sam3_score_threshold_detection, sam3_new_det_thresh, sam3_fill_hole_area, sam3_recondition_every_nth_frame, sam3_postprocess_strength, sam3_invert_mask], outputs=[sam3_mask_video], show_progress=True)
+                        sam3_generate_btn.click(sam3_generate_mask_by_prompt, inputs=[sam3_original_video_path, sam3_input_video, sam3_prompt_text, sam3_mask_video, sam3_score_threshold_detection, sam3_new_det_thresh, sam3_fill_hole_area, sam3_recondition_every_nth_frame, sam3_postprocess_strength, sam3_invert_mask], outputs=[sam3_mask_video], show_progress=True)
                         with gr.Accordion("🔧 Advanced Parameters", open=False, visible=True):
                             scene_var_number2 = gr.Slider(label='Int Value 2', minimum=0, maximum=60, step=1, value=1, visible=False)
                             scene_var_number3 = gr.Slider(label='Float Value 1', minimum=0.0, maximum=1.0, step=0.01, value=0.0, visible=False)
@@ -763,11 +915,12 @@ with shared.gradio_root:
                             with gr.Row():
                                 scene_switch_option3 = gr.Checkbox(label='Switch Option 3', value=False, visible=False)
                                 scene_switch_option4 = gr.Checkbox(label='Switch Option 4', value=False, visible=False)
+                            with gr.Row():
                                 scene_aspect_ratio = gr.Radio(choices=modules.flags.scene_aspect_ratios[:3], label="Aspect Ratios", value=modules.flags.scene_aspect_ratios[0], elem_classes=['scene_aspect_ratio_selections'])
                         with gr.Row():
                             scene_image_number = gr.Slider(label='Image Number', minimum=1, maximum=5, step=1, value=1)
                             scene_mask_color = gr.ColorPicker(label="Scene brush color", value="#70FF81", elem_id="scene_brush_color")
-                        with gr.Accordion("Scene Model Selections", open=False, visible=True, elem_id="scene_model_selections") as scene_model_selections:
+                        with gr.Accordion("⚙️ Scene Model Selections", open=False, visible=True, elem_id="scene_model_selections") as scene_model_selections:
                             with gr.Row():
                                 scene_base_model = gr.Dropdown(
                                     label='Base Model (or HighNoise)',
@@ -2723,9 +2876,9 @@ with shared.gradio_root:
 
         compare_btn.click(toggle_comparison, inputs=[comparison_state, cached_input_image, progress_gallery, gallery], outputs=[comparison_state, comparison_box, progress_gallery, gallery, progress_window, progress_video], show_progress=False)
         protections = [random_button, super_prompter, background_theme, image_tools_checkbox] + nav_bars
-        generate_button.click(lambda v, a, state: (v, a, gr.update(value=None, visible=False), gr.update(value=None, visible=False), gr.update(visible=True if v and 'scene_video' not in state.get("scene_frontend", {}).get('disvisible', []) else False), gr.update(visible=True if a and 'scene_audio' not in state.get("scene_frontend", {}).get('disvisible', []) else False), gr.update(interactive=False), gr.update(interactive=False), gr.update(interactive=False)), inputs=[scene_video, scene_audio, state_topbar], outputs=[scene_video_backup, scene_audio_backup, scene_video, scene_audio, scene_video_placeholder, scene_audio_placeholder, generate_button, skip_button, stop_button], queue=False, show_progress=False) \
+        generate_button.click(lambda v, a, v_orig, state: (v, a, v_orig, gr.update(value=None, visible=False), gr.update(value=None, visible=False), None, gr.update(visible=True if v and 'scene_video' not in state.get("scene_frontend", {}).get('disvisible', []) else False), gr.update(visible=True if a and 'scene_audio' not in state.get("scene_frontend", {}).get('disvisible', []) else False), gr.update(interactive=False), gr.update(interactive=False), gr.update(interactive=False)), inputs=[scene_video, scene_audio, scene_original_video_path, state_topbar], outputs=[scene_video_backup, scene_audio_backup, scene_original_video_backup, scene_video, scene_audio, scene_original_video_path, scene_video_placeholder, scene_audio_placeholder, generate_button, skip_button, stop_button], queue=False, show_progress=False) \
             .then(cache_input_image_func, inputs=[current_tab, uov_input_image, inpaint_input_image, layer_input_image, enhance_input_image, scene_input_image1, scene_canvas_image], outputs=[cached_input_image]) \
-            .then(topbar.process_before_generation, inputs=[state_topbar, seed_random, image_seed, params_backend, scene_theme, scene_canvas_image, scene_input_image1, scene_input_image2, scene_additional_prompt, scene_additional_prompt_2, scene_var_number, scene_var_number2, scene_var_number3, scene_var_number4, scene_var_number5, scene_var_number6, scene_var_number7, scene_var_number8, scene_var_number9, scene_var_number10, scene_steps, scene_switch_option1, scene_switch_option2, scene_switch_option3, scene_switch_option4, scene_aspect_ratio, scene_image_number, scene_video_backup, scene_audio_backup], outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating, index_radio, image_toolbox, prompt_info_box, image_seed] + protections + [preset_store, identity_dialog], show_progress=False) \
+            .then(topbar.process_before_generation, inputs=[state_topbar, seed_random, image_seed, params_backend, scene_theme, scene_canvas_image, scene_input_image1, scene_input_image2, scene_additional_prompt, scene_additional_prompt_2, scene_var_number, scene_var_number2, scene_var_number3, scene_var_number4, scene_var_number5, scene_var_number6, scene_var_number7, scene_var_number8, scene_var_number9, scene_var_number10, scene_steps, scene_switch_option1, scene_switch_option2, scene_switch_option3, scene_switch_option4, scene_aspect_ratio, scene_image_number, scene_video_backup, scene_audio_backup, scene_original_video_backup, active_video_source, sam3_input_video, sam3_original_video_path, sam3_mask_video], outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating, index_radio, image_toolbox, prompt_info_box, image_seed] + protections + [preset_store, identity_dialog], show_progress=False) \
             .then(topbar.wait_for_minicpm_completion, outputs=[], show_progress=False) \
             .then(topbar.avoid_empty_prompt_for_scene, inputs=[prompt, state_topbar, scene_canvas_image, scene_input_image1, scene_theme, scene_additional_prompt, scene_additional_prompt_2], outputs=prompt, show_progress=True) \
             .then(lambda state_topbar_value, use_loras, model1, model2, model3, model4: [ \
@@ -2737,7 +2890,7 @@ with shared.gradio_root:
             .then(fn=generate_clicked, inputs=[currentTask, state_topbar], outputs=[progress_html, progress_window, progress_gallery, progress_video, gallery, comparison_state, comparison_box, compare_btn, stop_button, skip_button]) \
             .then(topbar.process_after_generation, inputs=state_topbar, outputs=[generate_button, stop_button, skip_button, state_is_generating, gallery_index, index_radio] + protections + [gallery_index_stat, history_link], show_progress=False) \
             .then(check_comparison_visibility, inputs=[cached_input_image, progress_gallery, state_topbar], outputs=[compare_btn]) \
-            .then(lambda state, v_bak, a_bak: (gr.update(value=v_bak if not isinstance(v_bak, dict) else v_bak.get('name'), visible='scene_video' not in state.get("scene_frontend", {}).get('disvisible', [])), gr.update(value=a_bak if not isinstance(a_bak, dict) else a_bak.get('name'), visible='scene_audio' not in state.get("scene_frontend", {}).get('disvisible', [])), gr.update(visible=False), gr.update(visible=False)), inputs=[state_topbar, scene_video_backup, scene_audio_backup], outputs=[scene_video, scene_audio, scene_video_placeholder, scene_audio_placeholder], queue=False, show_progress=False) \
+            .then(lambda state, v_bak, a_bak, v_orig_bak: (gr.update(value=v_bak if not isinstance(v_bak, dict) else v_bak.get('name'), visible='scene_video' not in state.get("scene_frontend", {}).get('disvisible', [])), gr.update(value=a_bak if not isinstance(a_bak, dict) else a_bak.get('name'), visible='scene_audio' not in state.get("scene_frontend", {}).get('disvisible', [])), v_orig_bak, gr.update(visible=False), gr.update(visible=False)), inputs=[state_topbar, scene_video_backup, scene_audio_backup, scene_original_video_backup], outputs=[scene_video, scene_audio, scene_original_video_path, scene_video_placeholder, scene_audio_placeholder], queue=False, show_progress=False) \
             .then(lambda x: None, inputs=gallery_index_stat, queue=False, show_progress=False, _js='(x)=>{refresh_finished_images_catalog_label(x);}') \
             .then(fn=lambda: None, _js='playNotification').then(fn=lambda: None, _js='refresh_grid_delayed') \
             .then(fn=update_prompt_history,inputs=[currentTask, state_prompt_history],outputs=state_prompt_history) \
@@ -2746,14 +2899,14 @@ with shared.gradio_root:
         debug_true_state = gr.State(value=True)
         ctrls_preview = [debug_true_state if c == debugging_cn_preprocessor else c for c in ctrls]
 
-        preview_preprocessing.click(lambda v, a: (v, a, gr.update(value=None, visible=False), gr.update(value=None, visible=False), gr.update(visible=True if v else False), gr.update(visible=True if a else False)), inputs=[scene_video, scene_audio], outputs=[scene_video_backup, scene_audio_backup, scene_video, scene_audio, scene_video_placeholder, scene_audio_placeholder], queue=False, show_progress=False) \
+        preview_preprocessing.click(lambda v, a, v_orig: (v, a, v_orig, gr.update(value=None, visible=False), gr.update(value=None, visible=False), None, gr.update(visible=True if v else False), gr.update(visible=True if a else False)), inputs=[scene_video, scene_audio, scene_original_video_path], outputs=[scene_video_backup, scene_audio_backup, scene_original_video_backup, scene_video, scene_audio, scene_original_video_path, scene_video_placeholder, scene_audio_placeholder], queue=False, show_progress=False) \
             .then(lambda: (False, gr.update(visible=False), gr.update(visible=False), gr.update(visible=False), gr.update(value=None, visible=True), gr.update(visible=False, size='sm')), outputs=[comparison_state, comparison_box, progress_window, gallery, progress_gallery, compare_btn]) \
-            .then(topbar.process_before_generation, inputs=[state_topbar, seed_random, image_seed, params_backend, scene_theme, scene_canvas_image, scene_input_image1, scene_input_image2, scene_additional_prompt, scene_additional_prompt_2, scene_var_number, scene_var_number2, scene_var_number3, scene_var_number4, scene_var_number5, scene_var_number6, scene_var_number7, scene_var_number8, scene_var_number9, scene_var_number10, scene_steps, scene_switch_option1, scene_switch_option2, scene_switch_option3, scene_switch_option4, scene_aspect_ratio, scene_image_number, scene_video_backup, scene_audio_backup], outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating, index_radio, image_toolbox, prompt_info_box, image_seed] + protections + [preset_store, identity_dialog], show_progress=False) \
+            .then(topbar.process_before_generation, inputs=[state_topbar, seed_random, image_seed, params_backend, scene_theme, scene_canvas_image, scene_input_image1, scene_input_image2, scene_additional_prompt, scene_additional_prompt_2, scene_var_number, scene_var_number2, scene_var_number3, scene_var_number4, scene_var_number5, scene_var_number6, scene_var_number7, scene_var_number8, scene_var_number9, scene_var_number10, scene_steps, scene_switch_option1, scene_switch_option2, scene_switch_option3, scene_switch_option4, scene_aspect_ratio, scene_image_number, scene_video_backup, scene_audio_backup, scene_original_video_backup, active_video_source, sam3_input_video, sam3_original_video_path, sam3_mask_video], outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating, index_radio, image_toolbox, prompt_info_box, image_seed] + protections + [preset_store, identity_dialog], show_progress=False) \
             .then(fn=get_task, inputs=ctrls_preview, outputs=currentTask) \
             .then(fn=generate_clicked, inputs=[currentTask, state_topbar], outputs=[progress_html, progress_window, progress_gallery, progress_video, gallery, comparison_state, comparison_box, compare_btn, stop_button, skip_button]) \
             .then(topbar.process_after_generation, inputs=state_topbar, outputs=[generate_button, stop_button, skip_button, state_is_generating, gallery_index, index_radio] + protections + [gallery_index_stat, history_link], show_progress=False) \
             .then(check_comparison_visibility, inputs=[cached_input_image, progress_gallery, state_topbar], outputs=[compare_btn]) \
-            .then(lambda state, v_bak, a_bak: (gr.update(value=v_bak if not isinstance(v_bak, dict) else v_bak.get('name'), visible='scene_video' not in state.get("scene_frontend", {}).get('disvisible', [])), gr.update(value=a_bak if not isinstance(a_bak, dict) else a_bak.get('name'), visible='scene_audio' not in state.get("scene_frontend", {}).get('disvisible', [])), gr.update(visible=False), gr.update(visible=False)), inputs=[state_topbar, scene_video_backup, scene_audio_backup], outputs=[scene_video, scene_audio, scene_video_placeholder, scene_audio_placeholder], queue=False, show_progress=False)
+            .then(lambda state, v_bak, a_bak, v_orig_bak: (gr.update(value=v_bak if not isinstance(v_bak, dict) else v_bak.get('name'), visible='scene_video' not in state.get("scene_frontend", {}).get('disvisible', [])), gr.update(value=a_bak if not isinstance(a_bak, dict) else a_bak.get('name'), visible='scene_audio' not in state.get("scene_frontend", {}).get('disvisible', [])), v_orig_bak, gr.update(visible=False), gr.update(visible=False)), inputs=[state_topbar, scene_video_backup, scene_audio_backup, scene_original_video_backup], outputs=[scene_video, scene_audio, scene_original_video_path, scene_video_placeholder, scene_audio_placeholder], queue=False, show_progress=False)
 
         for notification_file in ['notification.ogg', 'notification.mp3']:
             if os.path.exists(notification_file):
@@ -2838,6 +2991,12 @@ with shared.gradio_root:
             try:
                 import extras.wd14tagger
                 extras.wd14tagger.free_model()
+            except Exception:
+                pass
+
+            try:
+                from enhanced.sam3_video_mask import unload_sam3_video_predictor
+                unload_sam3_video_predictor()
             except Exception:
                 pass
 
@@ -3041,7 +3200,7 @@ with shared.gradio_root:
         scene_theme.change(switch_scene_theme, inputs=[state_topbar, image_number, scene_canvas_image, scene_input_image1, scene_additional_prompt, scene_additional_prompt_2, scene_var_number, scene_var_number2, scene_var_number3, scene_var_number4, scene_var_number5, scene_var_number6, scene_var_number7, scene_var_number8, scene_var_number9, scene_var_number10, scene_steps, scene_switch_option1, scene_switch_option2, scene_switch_option3, scene_switch_option4, scene_theme], outputs=scene_params[1:], queue=False, show_progress=False) \
                    .then(update_scene_model_dropdown_visibility, inputs=[state_topbar], outputs=[scene_base_model, scene_refiner_model], queue=False, show_progress=False) \
                    .then(switch_scene_theme_ready_to_gen, inputs=[state_topbar, image_number, scene_canvas_image, scene_input_image1, scene_additional_prompt, scene_additional_prompt_2, scene_theme, scene_video, scene_audio], outputs=[prompt, generate_button], queue=False, show_progress=True) \
-                   .then(check_camera_control_visibility, inputs=[scene_theme, state_topbar], outputs=[camera_control_accordion, anglelight_control_accordion, style_transfer_accordion], queue=False, show_progress=False)
+                   .then(check_camera_control_visibility, inputs=[scene_theme, state_topbar], outputs=[camera_control_accordion, anglelight_control_accordion, style_transfer_accordion, sam3_video_mask_accordion], queue=False, show_progress=False)
 
         scene_video.upload(switch_scene_theme_ready_to_gen, inputs=[state_topbar, image_number, scene_canvas_image, scene_input_image1, scene_additional_prompt, scene_additional_prompt_2, scene_theme, scene_video, scene_audio], outputs=[prompt, generate_button], queue=False, show_progress=False)
         scene_video.clear(switch_scene_theme_ready_to_gen, inputs=[state_topbar, image_number, scene_canvas_image, scene_input_image1, scene_additional_prompt, scene_additional_prompt_2, scene_theme, scene_video, scene_audio], outputs=[prompt, generate_button], queue=False, show_progress=False)
@@ -3139,7 +3298,7 @@ with shared.gradio_root:
                .then(fn=lambda x: None, inputs=system_params, _js='(x)=>{refresh_topbar_status_js(x); refresh_style_localization(); refresh_scene_localization();}') \
                .then(update_describe_output_tags, inputs=engine_class_display, outputs=describe_output_tags, queue=False, show_progress=False) \
                .then(inpaint_mode_change, inputs=[inpaint_mode, inpaint_engine_state, outpaint_selections, state_topbar], outputs=[inpaint_additional_prompt, outpaint_selections, example_inpaint_prompts, inpaint_disable_initial_latent, inpaint_engine, inpaint_strength, inpaint_respective_field], show_progress=False, queue=False) \
-               .then(check_camera_control_visibility, inputs=[scene_theme, state_topbar], outputs=[camera_control_accordion, anglelight_control_accordion, style_transfer_accordion], queue=False, show_progress=False) \
+               .then(check_camera_control_visibility, inputs=[scene_theme, state_topbar], outputs=[camera_control_accordion, anglelight_control_accordion, style_transfer_accordion, sam3_video_mask_accordion], queue=False, show_progress=False) \
                .then(inpaint_engine_state_change, inputs=[inpaint_engine_state, state_topbar] + enhance_inpaint_mode_ctrls, outputs=enhance_inpaint_engine_ctrls, queue=False, show_progress=False)  \
                .then(check_and_show_missing_models, inputs=[bar_buttons[i], state_topbar], outputs=[missing_model_modal, missing_model_list, missing_model_btn]) \
                .then(topbar.stop_comfyd_background, inputs=[comfyd_active_checkbox], queue=False)
@@ -3151,6 +3310,7 @@ with shared.gradio_root:
                       .then(fn=lambda x: None, inputs=system_params, _js='(x)=>{refresh_topbar_status_js(x);}') \
                       .then(topbar.sync_message, inputs=state_topbar) \
                       .then(inpaint_mode_change, inputs=[inpaint_mode, inpaint_engine_state, outpaint_selections, state_topbar], outputs=[inpaint_additional_prompt, outpaint_selections, example_inpaint_prompts, inpaint_disable_initial_latent, inpaint_engine, inpaint_strength, inpaint_respective_field], show_progress=False, queue=False) \
+                      .then(check_camera_control_visibility, inputs=[scene_theme, state_topbar], outputs=[camera_control_accordion, anglelight_control_accordion, style_transfer_accordion, sam3_video_mask_accordion], queue=False, show_progress=False) \
                       .then(lambda x: x, inputs=aspect_ratios_selections[0], outputs=aspect_ratios_selection, queue=False, show_progress=False) \
                       .then(lambda x: None, inputs=aspect_ratios_selections[0], queue=False, show_progress=False, _js='(x)=>{refresh_aspect_ratios_label(x);}') \
                       .then(fn=lambda: None, _js='refresh_grid_delayed') \

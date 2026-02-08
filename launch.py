@@ -5,6 +5,7 @@ import json
 import importlib
 import packaging.version
 import platform
+import re
 import time
 import shared
 import fooocus_version
@@ -96,7 +97,7 @@ def check_base_environment():
     print(f'{now_string()} ✦ | 兴趣使然的版本 | ✦ by冰華 ✦')
 
     base_pkg = "simpleai_base"
-    ver_required = "0.3.34"
+    ver_required = "0.3.35"
     REINSTALL_BASE = False #if '_dev' not in version.get_branch() else True
     base_branch = "dev"
     # if '--dev' in (sys.argv):
@@ -304,20 +305,44 @@ def check_base_environment():
     #print(f'[SimpleAI] root: {sysinfo["root_dir"]}, sys_name: {sysinfo["root_name"]}, dev_name:{sysinfo["host_name"]}')
 
     cuda_raw = sysinfo.get("cuda", None) if isinstance(sysinfo, dict) else None
-    cuda_num = None
+    min_cuda_code = 12040
+    cuda_code = None
+
+    def cuda_code_to_string(code: int) -> str:
+        major = code // 1000
+        minor = (code % 1000) // 10
+        patch = code % 10
+        if patch:
+            return f"{major}.{minor}.{patch}"
+        return f"{major}.{minor}"
+
     try:
         if isinstance(cuda_raw, (int, float)) and not isinstance(cuda_raw, bool):
-            cuda_num = int(cuda_raw)
+            cuda_code = int(cuda_raw)
         elif isinstance(cuda_raw, str):
             s = cuda_raw.strip()
             if s.isdigit():
-                cuda_num = int(s)
+                cuda_code = int(s)
+            else:
+                m = re.search(r"\bcu(\d{3})\b", s, flags=re.IGNORECASE)
+                if m:
+                    cu = int(m.group(1))
+                    cuda_code = (cu // 10) * 1000 + (cu % 10) * 10
+                else:
+                    m = re.search(r"(\d+)\.(\d+)", s)
+                    if m:
+                        major = int(m.group(1))
+                        minor = int(m.group(2))
+                        cuda_code = major * 1000 + minor * 10
     except Exception:
-        cuda_num = None
+        cuda_code = None
 
-    if cuda_num is not None and cuda_num < 12800:
-        logger.warning(f'CUDA driver/runtime version is too low (CUDA: {cuda_raw}). Requires CUDA >= cu128. Please update your GPU driver: https://www.nvidia.cn/drivers/')
-        logger.warning(f'检测到CUDA驱动/运行时版本过低(CUDA: {cuda_raw})。需要CUDA >= cu128。请更新显卡驱动：https://www.nvidia.cn/drivers/')
+    if cuda_code is not None and cuda_code < min_cuda_code:
+        cuda_display = cuda_code_to_string(cuda_code)
+        min_display = cuda_code_to_string(min_cuda_code)
+        min_cu_display = f"cu{(min_cuda_code // 1000) * 10 + ((min_cuda_code % 1000) // 10)}"
+        logger.warning(f'CUDA driver/runtime version is too low (CUDA: {cuda_display}). Requires CUDA >= {min_display} ({min_cu_display}). Please update your GPU driver: https://www.nvidia.cn/drivers/')
+        logger.warning(f'检测到CUDA驱动/运行时版本过低(CUDA: {cuda_display})。需要CUDA >= {min_display} ({min_cu_display})。请更新显卡驱动：https://www.nvidia.cn/drivers/')
 
     if (sysinfo.get("ram_total", 0)+sysinfo.get("ram_swap", 0))<65536 and not shared.args.disable_backend:
         logger.info(f'The total virtual memory capacity of the system is too small, which will affect the loading and computing efficiency of the model. Please expand the total virtual memory capacity of the system to be greater than 40G.')

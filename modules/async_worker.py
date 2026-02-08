@@ -1,6 +1,7 @@
 from re import A
 import threading
 import queue
+from contextlib import contextmanager
 
 import args_manager
 from extras.inpaint_mask import generate_mask_from_image, SAMOptions
@@ -8,6 +9,20 @@ from modules.patch import PatchSettings, patch_settings, patch_all
 import modules.config
 
 patch_all()
+
+exclusive_task_lock = threading.Lock()
+
+@contextmanager
+def external_exclusive_task():
+    global pending_tasks
+    with processing_lock:
+        pending_tasks += 1
+    try:
+        with exclusive_task_lock:
+            yield
+    finally:
+        with processing_lock:
+            pending_tasks = max(0, int(pending_tasks) - 1)
 
 
 class AsyncTask:
@@ -2275,12 +2290,13 @@ def worker():
 
             logger.info(f'Got async_tasks: {task.task_id}')
             try:
-                handler(task)
-                if task.generate_image_grid:
-                    build_image_wall(task)
-                task.yields.append(['finish', task.results])
-                if task.task_class not in flags.comfy_classes and not args_manager.args.disable_backend:
-                    pipeline.prepare_text_encoder(async_call=True)
+                with exclusive_task_lock:
+                    handler(task)
+                    if task.generate_image_grid:
+                        build_image_wall(task)
+                    task.yields.append(['finish', task.results])
+                    if task.task_class not in flags.comfy_classes and not args_manager.args.disable_backend:
+                        pipeline.prepare_text_encoder(async_call=True)
             except:
                 traceback.print_exc()
                 task.yields.append(['finish', task.results])

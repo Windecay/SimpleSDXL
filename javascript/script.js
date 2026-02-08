@@ -753,3 +753,69 @@ function setupAutoTranslate() {
 }
 
 onUiLoaded(setupAutoTranslate);
+
+function setupSam3AutoTranslate() {
+    let retryCount = 0;
+
+    function tryBind() {
+        const promptContainer = gradioApp().getElementById('sam3_prompt_text');
+        const promptInput = promptContainer?.querySelector('textarea, input');
+        const translateBtn = gradioApp().getElementById('sam3_trigger_translate_btn');
+
+        if (!promptInput || !translateBtn) {
+            return false;
+        }
+
+        let timer = null;
+        let lastContent = '';
+
+        const trigger = () => {
+            const currentContent = promptInput.value;
+            if (currentContent === lastContent) return;
+            translateBtn.click();
+            lastContent = currentContent;
+        };
+
+        const handleInput = () => {
+            const currentContent = promptInput.value;
+            if (currentContent === lastContent) return;
+            if (timer) clearTimeout(timer);
+            timer = setTimeout(() => {
+                trigger();
+            }, 500);
+        };
+
+        const handleBlur = () => {
+            if (timer) {
+                clearTimeout(timer);
+                timer = null;
+            }
+            trigger();
+        };
+
+        let lastManualCheck = promptInput.value;
+        setInterval(() => {
+            if (promptInput.value !== lastManualCheck) {
+                lastManualCheck = promptInput.value;
+                handleInput();
+            }
+        }, 1500);
+
+        promptInput.addEventListener('input', handleInput);
+        promptInput.addEventListener('blur', handleBlur);
+        return true;
+    }
+
+    const retryTimer = setInterval(() => {
+        retryCount += 1;
+        if (tryBind()) {
+            clearInterval(retryTimer);
+            return;
+        }
+        if (retryCount >= 20) {
+            clearInterval(retryTimer);
+        }
+    }, 1500);
+}
+
+onUiLoaded(setupSam3AutoTranslate);

@@ -50,8 +50,8 @@
     "model_list": [
         "checkpoints,Wan2.2_T2V_High_Noise_14B_VACE-Q4_K_M.gguf,11629612832,0,",
         "checkpoints,Wan2.2_T2V_Low_Noise_14B_VACE-Q4_K_M.gguf,11629612832,0,",
-        "clip,umt5-xxl-encoder-Q8_0.gguf,6043068256,0,",
-        "vae,Wan2_1_VAE_bf16.safetensors,253806278,0,",
+        "clip,umt5-xxl-encoder-Q8_0.gguf,6043068256,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/clip/umt5-xxl-encoder-Q8_0.gguf",
+        "vae,Wan2_1_VAE_bf16.safetensors,253806278,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/vae/Wan2_1_VAE_bf16.safetensors",
         "loras,lightx2v_T2V_14B_cfg_step_distill_v2_lora_rank64_bf16.safetensors,630697104,0,",
         "controlnet,rife/flownet.pkl,24636301,0,https://www.modelscope.cn/models/windecay/rife/resolve/master/flownet.pkl"
     ]

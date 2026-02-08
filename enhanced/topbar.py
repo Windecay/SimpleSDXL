@@ -495,7 +495,7 @@ def avoid_empty_prompt_for_scene(prompt, state, canvas_image, input_image1, scen
     return gr.update() if describe_prompt is None else describe_prompt
 
 
-def process_before_generation(state_params, seed_random, image_seed, backend_params, scene_theme, scene_canvas_image, scene_input_image1, scene_input_image2, scene_additional_prompt, scene_additional_prompt_2, scene_var_number, scene_var_number2, scene_var_number3, scene_var_number4, scene_var_number5, scene_var_number6, scene_var_number7, scene_var_number8, scene_var_number9, scene_var_number10, scene_steps, scene_switch_option1, scene_switch_option2, scene_switch_option3, scene_switch_option4, scene_aspect_ratio, scene_image_number, scene_video, scene_audio):
+def process_before_generation(state_params, seed_random, image_seed, backend_params, scene_theme, scene_canvas_image, scene_input_image1, scene_input_image2, scene_additional_prompt, scene_additional_prompt_2, scene_var_number, scene_var_number2, scene_var_number3, scene_var_number4, scene_var_number5, scene_var_number6, scene_var_number7, scene_var_number8, scene_var_number9, scene_var_number10, scene_steps, scene_switch_option1, scene_switch_option2, scene_switch_option3, scene_switch_option4, scene_aspect_ratio, scene_image_number, scene_video, scene_audio, scene_original_video_path, active_video_source, sam3_input_video, sam3_original_video_path, sam3_mask_video):
     backend_params.update(dict(
         nickname=state_params["user"].get_nickname(),
         user_did=state_params["user"].get_did(),
@@ -610,6 +610,15 @@ def process_before_generation(state_params, seed_random, image_seed, backend_par
                     mask[:, :, 1] = alpha
                     mask[:, :, 2] = alpha
             scene_canvas_image['mask'] = util.resize_image(util.HWC3(mask), max_side=1280, resize_mode=4) if resize_image_flag else mask
+
+        scene_video_effective = scene_original_video_path if scene_original_video_path else scene_video
+        sam3_video_effective = sam3_original_video_path if sam3_original_video_path else sam3_input_video
+        if active_video_source == "scene":
+            video_effective = scene_video_effective if scene_video_effective else sam3_video_effective
+        elif active_video_source == "sam3":
+            video_effective = sam3_video_effective if sam3_video_effective else scene_video_effective
+        else:
+            video_effective = sam3_video_effective if sam3_video_effective else scene_video_effective
         backend_params.update(dict(
             task_method=f'scene_{scene_frontend["task_method"][scene_theme]}',
             scene_frontend=scene_frontend['version'],
@@ -634,8 +643,9 @@ def process_before_generation(state_params, seed_random, image_seed, backend_par
             scene_switch_option4=scene_switch_option4,
             scene_aspect_ratio=scene_aspect_ratio.split('|')[0] if '×' in scene_aspect_ratio else modules.flags.scene_aspect_ratios_size[scene_aspect_ratio],
             scene_image_number=scene_image_number,
-            video=scene_video,
+            video=video_effective,
             audio=scene_audio,
+            mask_video=sam3_mask_video,
             scene_steps=scene_steps if 'scene_steps' in scene_frontend else None
             ))
     state_params["absent_model"] = False

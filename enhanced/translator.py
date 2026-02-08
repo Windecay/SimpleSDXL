@@ -1,5 +1,6 @@
 import os
 import random
+import re
 import torch
 import tarfile
 import time
@@ -33,6 +34,73 @@ if os.path.exists(translator_path_old) and not os.path.exists(paths_llms[0]):
 g_tokenizer = ''
 g_model = ''
 g_model_type = ''
+
+def singularize_word(word: str) -> str:
+    if not word:
+        return word
+
+    lower = word.lower()
+    oe_plural_s_only = {
+        "shoes",
+        "toes",
+        "canoes",
+        "oboes",
+        "aloes",
+        "floes",
+    }
+    irregular = {
+        "men": "man",
+        "women": "woman",
+        "children": "child",
+        "people": "person",
+        "mice": "mouse",
+        "geese": "goose",
+        "teeth": "tooth",
+        "feet": "foot",
+    }
+    if lower in irregular:
+        base = irregular[lower]
+    elif len(lower) <= 3:
+        base = lower
+    elif lower.endswith("ies") and len(lower) > 4:
+        base = lower[:-3] + "y"
+    elif lower.endswith("oes") and lower in oe_plural_s_only:
+        base = lower[:-1]
+    elif lower.endswith(("ses", "xes", "zes", "ches", "shes", "oes")) and len(lower) > 4:
+        base = lower[:-2]
+    elif lower.endswith("s") and not lower.endswith(("ss", "us", "is", "as", "os")) and len(lower) > 3:
+        base = lower[:-1]
+    else:
+        base = lower
+
+    if word.isupper():
+        return base.upper()
+    if word[:1].isupper() and word[1:].islower():
+        return base[:1].upper() + base[1:]
+    return base
+
+def normalize_prompt(prompt_text: str) -> str:
+    if prompt_text is None:
+        return prompt_text
+    text = str(prompt_text).strip()
+    if not text:
+        return text
+
+    parts = [p.strip() for p in re.split(r"[，,]", text) if p and p.strip()]
+    normalized_parts = []
+    for part in parts:
+        words = part.split()
+        normalized_words = []
+        for w in words:
+            m = re.match(r"^([^A-Za-z]*)([A-Za-z][A-Za-z'-]*)([^A-Za-z]*)$", w)
+            if not m:
+                normalized_words.append(w)
+                continue
+            prefix, core, suffix = m.group(1), m.group(2), m.group(3)
+            normalized_words.append(prefix + singularize_word(core) + suffix)
+        normalized_parts.append(" ".join(normalized_words).strip())
+
+    return ", ".join([p for p in normalized_parts if p])
 
 def Q2B_number_punctuation(text):
     global Q_punct, B_punct

@@ -1416,3 +1416,17 @@ button.gallery-item {
 button[aria-label="Edit"][title="Edit"] {
     display: none !important;
 }
+
+#sam3_input_video,
+#sam3_output_mask_video {
+    outline: 1px dashed rgba(255, 255, 255, 0.35);
+    outline-offset: 0px;
+    border-radius: 8px;
+}
+
+#sam3_input_video video,
+#sam3_output_mask_video video,
+#sam3_input_video canvas,
+#sam3_output_mask_video canvas {
+    border-radius: 8px;
+}

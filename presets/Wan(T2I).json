@@ -49,8 +49,8 @@
     "lora_downloads": {},
     "model_list": [
         "checkpoints,Wan2.2_T2V_Low_Noise_14B_VACE-Q4_K_M.gguf,11629612832,0,",
-        "clip,umt5-xxl-encoder-Q8_0.gguf,6043068256,0,",
-        "vae,Wan2_1_VAE_bf16.safetensors,253806278,0,",
+        "clip,umt5-xxl-encoder-Q8_0.gguf,6043068256,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/clip/umt5-xxl-encoder-Q8_0.gguf",
+        "vae,Wan2_1_VAE_bf16.safetensors,253806278,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/vae/Wan2_1_VAE_bf16.safetensors",
         "loras,Wan21_T2V_14B_lightx2v_cfg_step_distill_lora_rank32.safetensors,316822496,0,",
         "loras,Wan2.1_T2V_14B_FusionX_LoRA.safetensors,316822496,0,",
         "loras,WAN2.1_SmartphoneSnapshotPhotoReality_v1_by-AI_Characters.safetensors,306848672,0,",
