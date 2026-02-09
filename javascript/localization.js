@@ -279,14 +279,24 @@ function init_style_grid_handlers() {
             const negativePrompt = styleData.negative_prompt || '';
             const promptTextarea = document.querySelector('#positive_prompt textarea, #positive_prompt [data-testid="textbox"]');
             const negativePromptTextarea = document.querySelector('#negative_prompt textarea, #negative_prompt [data-testid="textbox"]');
-            if (promptTextarea && prompt) {
-                const current = promptTextarea.value.trim();
-                promptTextarea.value = current ? current + ", " + prompt : prompt;
+            const applyTemplate = (template, userText) => {
+                const t = (template || '').trim();
+                const u = (userText || '').trim();
+                if (!t) return u;
+                if (t.includes('{prompt}')) {
+                    const replaced = t.replace(/\{prompt\}/gi, u);
+                    return replaced.replace(/\s+\.\s+/g, '. ').replace(/\s{2,}/g, ' ').trim();
+                }
+                return u ? `${u}, ${t}` : t;
+            };
+            if (promptTextarea && (prompt || promptTextarea.value)) {
+                const current = promptTextarea.value;
+                promptTextarea.value = applyTemplate(prompt, current);
                 promptTextarea.dispatchEvent(new Event('input', { bubbles: true }));
             }
-            if (negativePromptTextarea && negativePrompt) {
-                const current = negativePromptTextarea.value.trim();
-                negativePromptTextarea.value = current ? current + ", " + negativePrompt : negativePrompt;
+            if (negativePromptTextarea && (negativePrompt || negativePromptTextarea.value)) {
+                const currentNeg = negativePromptTextarea.value;
+                negativePromptTextarea.value = applyTemplate(negativePrompt, currentNeg);
                 negativePromptTextarea.dispatchEvent(new Event('input', { bubbles: true }));
             }
         } catch (err) {}
