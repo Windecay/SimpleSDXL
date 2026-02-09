@@ -563,6 +563,27 @@ def start_comfyui(asyncio_loop=None):
 
     async def start_all():
         await prompt_server.setup()
+
+        # Auto-find free port
+        import socket
+        test_ip = args.listen.split(",")[0]
+        original_port = args.port
+        while True:
+            try:
+                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                    s.bind((test_ip, args.port))
+                break
+            except OSError as e:
+                # 13: Permission denied (excluded port), 98/10048: Address in use
+                if e.errno in (13, 98, 10048, 10013): 
+                    logging.warning(f"Port {args.port} is not available (Errno {e.errno}), trying {args.port+1}")
+                    args.port += 1
+                else:
+                    raise e
+        
+        if args.port != original_port:
+             logging.info(f"Port automatically switched from {original_port} to {args.port}")
+
         await run(prompt_server, address=args.listen, port=args.port, verbose=not args.dont_print_server, call_on_start=call_on_start)
 
     # Returning these so that other code can integrate with the ComfyUI loop and server
