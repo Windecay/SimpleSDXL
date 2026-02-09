@@ -605,8 +605,6 @@ def _sync_bias_dtype_with_weight(model) -> None:
 
 
 def _choose_video_loader_type(prefer_torchcodec: bool = True) -> str:
-    if prefer_torchcodec and importlib.util.find_spec("torchcodec") is not None:
-        return "torchcodec"
     return "cv2"
 
 

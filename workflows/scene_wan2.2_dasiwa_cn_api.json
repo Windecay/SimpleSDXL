@@ -1,0 +1,1498 @@
+{
+  "1": {
+    "inputs": {
+      "value": "a*16+1",
+      "a": [
+        "9",
+        0
+      ]
+    },
+    "class_type": "SimpleMath+",
+    "_meta": {
+      "title": "🔧 Simple Math"
+    }
+  },
+  "2": {
+    "inputs": {
+      "text": [
+        "21",
+        0
+      ],
+      "clip": [
+        "145",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Prompt)"
+    }
+  },
+  "5": {
+    "inputs": {
+      "text": [
+        "21",
+        1
+      ],
+      "clip": [
+        "145",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Prompt)"
+    }
+  },
+  "8": {
+    "inputs": {
+      "seed": 0
+    },
+    "class_type": "SeedInput",
+    "_meta": {
+      "title": "SeedInput"
+    }
+  },
+  "9": {
+    "inputs": {
+      "value": 5
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "var_number"
+    }
+  },
+  "10": {
+    "inputs": {
+      "vae_name": "Wan2_1_VAE_bf16.safetensors"
+    },
+    "class_type": "VAELoader",
+    "_meta": {
+      "title": "Load VAE"
+    }
+  },
+  "13": {
+    "inputs": {
+      "weight": 2,
+      "model": [
+        "15",
+        0
+      ],
+      "latent": [
+        "112",
+        2
+      ]
+    },
+    "class_type": "WanVideoEnhanceAVideoKJ",
+    "_meta": {
+      "title": "WanVideo Enhance A Video (native)"
+    }
+  },
+  "15": {
+    "inputs": {
+      "shift": 8,
+      "model": [
+        "34",
+        0
+      ]
+    },
+    "class_type": "ModelSamplingSD3",
+    "_meta": {
+      "title": "ModelSamplingSD3"
+    }
+  },
+  "16": {
+    "inputs": {
+      "weight": 2,
+      "model": [
+        "27",
+        0
+      ],
+      "latent": [
+        "97",
+        0
+      ]
+    },
+    "class_type": "WanVideoEnhanceAVideoKJ",
+    "_meta": {
+      "title": "WanVideo Enhance A Video (native)"
+    }
+  },
+  "18": {
+    "inputs": {
+      "anything": [
+        "124",
+        0
+      ]
+    },
+    "class_type": "easy cleanGpuUsed",
+    "_meta": {
+      "title": "Clean VRAM Used"
+    }
+  },
+  "19": {
+    "inputs": {
+      "format": "MP4",
+      "codec": "h264",
+      "fps": [
+        "119",
+        1
+      ],
+      "crf": 19,
+      "images": [
+        "18",
+        0
+      ]
+    },
+    "class_type": "SaveVideoWebsocket",
+    "_meta": {
+      "title": "SaveVideoWebsocket"
+    }
+  },
+  "21": {
+    "inputs": {
+      "prompt": "",
+      "negative_prompt": "",
+      "width": 512,
+      "height": 512,
+      "cfg": 3,
+      "steps": 6,
+      "refiner_step": 16,
+      "sampler": "euler",
+      "scheduler": "simple",
+      "denoise": 1,
+      "clip_skip": -1,
+      "inpaint_disable_initial_latent": false,
+      "wavespeed_strength": 0.12,
+      "save_final_enhanced_image_only": false
+    },
+    "class_type": "GeneralInput",
+    "_meta": {
+      "title": "GeneralInput"
+    }
+  },
+  "22": {
+    "inputs": {
+      "add_noise": "enable",
+      "noise_seed": [
+        "8",
+        0
+      ],
+      "steps": [
+        "21",
+        5
+      ],
+      "cfg": [
+        "113",
+        0
+      ],
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "start_at_step": 0,
+      "end_at_step": [
+        "143",
+        0
+      ],
+      "return_with_leftover_noise": "disable",
+      "model": [
+        "13",
+        0
+      ],
+      "positive": [
+        "112",
+        0
+      ],
+      "negative": [
+        "112",
+        1
+      ],
+      "latent_image": [
+        "112",
+        2
+      ]
+    },
+    "class_type": "KSamplerAdvanced",
+    "_meta": {
+      "title": "KSampler (Advanced)"
+    }
+  },
+  "25": {
+    "inputs": {
+      "unet_name": "placeholder.gguf"
+    },
+    "class_type": "UnetLoaderGGUF",
+    "_meta": {
+      "title": "base_model_gguf2"
+    }
+  },
+  "26": {
+    "inputs": {
+      "sage_attention": "auto",
+      "allow_compile": false,
+      "model": [
+        "142",
+        0
+      ]
+    },
+    "class_type": "PathchSageAttentionKJ",
+    "_meta": {
+      "title": "Patch Sage Attention KJ"
+    }
+  },
+  "27": {
+    "inputs": {
+      "shift": 8,
+      "model": [
+        "79",
+        0
+      ]
+    },
+    "class_type": "ModelSamplingSD3",
+    "_meta": {
+      "title": "ModelSamplingSD3"
+    }
+  },
+  "31": {
+    "inputs": {
+      "unet_name": "placeholder.gguf"
+    },
+    "class_type": "UnetLoaderGGUF",
+    "_meta": {
+      "title": "base_model_gguf"
+    }
+  },
+  "32": {
+    "inputs": {
+      "sage_attention": "auto",
+      "allow_compile": false,
+      "model": [
+        "141",
+        0
+      ]
+    },
+    "class_type": "PathchSageAttentionKJ",
+    "_meta": {
+      "title": "Patch Sage Attention KJ"
+    }
+  },
+  "34": {
+    "inputs": {
+      "strength": 1,
+      "model": [
+        "95",
+        0
+      ]
+    },
+    "class_type": "CFGNorm",
+    "_meta": {
+      "title": "CFGNorm"
+    }
+  },
+  "38": {
+    "inputs": {
+      "image": "welcome.png"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "i2i_ip_image1"
+    }
+  },
+  "54": {
+    "inputs": {
+      "image": "welcome.png"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "i2i_ip_image2"
+    }
+  },
+  "55": {
+    "inputs": {
+      "shift": 8,
+      "model": [
+        "76",
+        0
+      ]
+    },
+    "class_type": "ModelSamplingSD3",
+    "_meta": {
+      "title": "ModelSamplingSD3"
+    }
+  },
+  "56": {
+    "inputs": {
+      "shift": 8,
+      "model": [
+        "79",
+        0
+      ]
+    },
+    "class_type": "ModelSamplingSD3",
+    "_meta": {
+      "title": "ModelSamplingSD3"
+    }
+  },
+  "58": {
+    "inputs": {
+      "add_noise": "disable",
+      "noise_seed": [
+        "8",
+        0
+      ],
+      "steps": [
+        "21",
+        5
+      ],
+      "cfg": 1,
+      "sampler_name": "uni_pc",
+      "scheduler": "simple",
+      "start_at_step": [
+        "143",
+        0
+      ],
+      "end_at_step": 10000,
+      "return_with_leftover_noise": "disable",
+      "model": [
+        "56",
+        0
+      ],
+      "positive": [
+        "117",
+        0
+      ],
+      "negative": [
+        "117",
+        1
+      ],
+      "latent_image": [
+        "59",
+        0
+      ]
+    },
+    "class_type": "KSamplerAdvanced",
+    "_meta": {
+      "title": "KSampler (Advanced)"
+    }
+  },
+  "59": {
+    "inputs": {
+      "add_noise": "enable",
+      "noise_seed": [
+        "8",
+        0
+      ],
+      "steps": [
+        "21",
+        5
+      ],
+      "cfg": [
+        "113",
+        0
+      ],
+      "sampler_name": "uni_pc",
+      "scheduler": "simple",
+      "start_at_step": 0,
+      "end_at_step": [
+        "143",
+        0
+      ],
+      "return_with_leftover_noise": "enable",
+      "model": [
+        "55",
+        0
+      ],
+      "positive": [
+        "117",
+        0
+      ],
+      "negative": [
+        "117",
+        1
+      ],
+      "latent_image": [
+        "117",
+        2
+      ]
+    },
+    "class_type": "KSamplerAdvanced",
+    "_meta": {
+      "title": "KSampler (Advanced)"
+    }
+  },
+  "62": {
+    "inputs": {
+      "width": [
+        "81",
+        1
+      ],
+      "height": [
+        "81",
+        2
+      ],
+      "upscale_method": "lanczos",
+      "keep_proportion": "crop",
+      "pad_color": "0, 0, 0",
+      "crop_position": "center",
+      "divisible_by": 16,
+      "device": "cpu",
+      "image": [
+        "89",
+        0
+      ]
+    },
+    "class_type": "ImageResizeKJv2",
+    "_meta": {
+      "title": "Resize Image v2"
+    }
+  },
+  "63": {
+    "inputs": {
+      "width": [
+        "62",
+        1
+      ],
+      "height": [
+        "62",
+        2
+      ],
+      "upscale_method": "lanczos",
+      "keep_proportion": "crop",
+      "pad_color": "0, 0, 0",
+      "crop_position": "center",
+      "divisible_by": 16,
+      "device": "cpu",
+      "image": [
+        "87",
+        0
+      ]
+    },
+    "class_type": "ImageResizeKJv2",
+    "_meta": {
+      "title": "Resize Image v2"
+    }
+  },
+  "64": {
+    "inputs": {
+      "channel": "red",
+      "image": [
+        "87",
+        0
+      ]
+    },
+    "class_type": "ImageToMask",
+    "_meta": {
+      "title": "Convert Image to Mask"
+    }
+  },
+  "65": {
+    "inputs": {
+      "mask": [
+        "64",
+        0
+      ]
+    },
+    "class_type": "easy isMaskEmpty",
+    "_meta": {
+      "title": "Is Mask Empty"
+    }
+  },
+  "66": {
+    "inputs": {
+      "boolean": [
+        "65",
+        0
+      ],
+      "on_true": [
+        "127",
+        0
+      ],
+      "on_false": [
+        "58",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "76": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "78",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_2"
+    }
+  },
+  "77": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "93",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_3"
+    }
+  },
+  "78": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "94",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_1"
+    }
+  },
+  "79": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "77",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_4"
+    }
+  },
+  "80": {
+    "inputs": {
+      "generation_width": 640,
+      "generation_height": 640,
+      "aspect_ratio_preservation": "keep_input",
+      "image": [
+        "89",
+        0
+      ]
+    },
+    "class_type": "WanVideoImageResizeToClosest",
+    "_meta": {
+      "title": "WanVideo Image Resize To Closest"
+    }
+  },
+  "81": {
+    "inputs": {
+      "generation_width": [
+        "21",
+        2
+      ],
+      "generation_height": [
+        "21",
+        3
+      ],
+      "aspect_ratio_preservation": "keep_input",
+      "image": [
+        "89",
+        0
+      ]
+    },
+    "class_type": "WanVideoImageResizeToClosest",
+    "_meta": {
+      "title": "WanVideo Image Resize To Closest"
+    }
+  },
+  "82": {
+    "inputs": {
+      "mask": [
+        "54",
+        1
+      ]
+    },
+    "class_type": "InvertMask",
+    "_meta": {
+      "title": "InvertMask"
+    }
+  },
+  "83": {
+    "inputs": {
+      "fill_background": true,
+      "background_color": "#FFFFFF",
+      "RGBA_image": [
+        "54",
+        0
+      ],
+      "mask": [
+        "82",
+        0
+      ]
+    },
+    "class_type": "LayerUtility: ImageRemoveAlpha",
+    "_meta": {
+      "title": "LayerUtility: ImageRemoveAlpha"
+    }
+  },
+  "84": {
+    "inputs": {
+      "mask": [
+        "38",
+        1
+      ]
+    },
+    "class_type": "InvertMask",
+    "_meta": {
+      "title": "InvertMask"
+    }
+  },
+  "85": {
+    "inputs": {
+      "fill_background": true,
+      "background_color": "#FFFFFF",
+      "RGBA_image": [
+        "38",
+        0
+      ],
+      "mask": [
+        "84",
+        0
+      ]
+    },
+    "class_type": "LayerUtility: ImageRemoveAlpha",
+    "_meta": {
+      "title": "LayerUtility: ImageRemoveAlpha"
+    }
+  },
+  "86": {
+    "inputs": {
+      "mask": [
+        "54",
+        1
+      ]
+    },
+    "class_type": "easy isMaskEmpty",
+    "_meta": {
+      "title": "Is Mask Empty"
+    }
+  },
+  "87": {
+    "inputs": {
+      "boolean": [
+        "86",
+        0
+      ],
+      "on_true": [
+        "54",
+        0
+      ],
+      "on_false": [
+        "83",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "88": {
+    "inputs": {
+      "mask": [
+        "38",
+        1
+      ]
+    },
+    "class_type": "easy isMaskEmpty",
+    "_meta": {
+      "title": "Is Mask Empty"
+    }
+  },
+  "89": {
+    "inputs": {
+      "boolean": [
+        "88",
+        0
+      ],
+      "on_true": [
+        "38",
+        0
+      ],
+      "on_false": [
+        "85",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "90": {
+    "inputs": {
+      "source_fps": 16,
+      "target_fps": [
+        "119",
+        1
+      ],
+      "scale": 2,
+      "model_name": "flownet.pkl",
+      "batch_size": 32,
+      "use_fp16": true,
+      "images": [
+        "121",
+        0
+      ]
+    },
+    "class_type": "RIFEInterpolation",
+    "_meta": {
+      "title": "RIFE Frame Interpolation"
+    }
+  },
+  "91": {
+    "inputs": {
+      "strength": 1,
+      "model": [
+        "16",
+        0
+      ]
+    },
+    "class_type": "CFGNorm",
+    "_meta": {
+      "title": "CFGNorm"
+    }
+  },
+  "92": {
+    "inputs": {
+      "seed": [
+        "8",
+        0
+      ],
+      "steps": [
+        "144",
+        0
+      ],
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 0.55,
+      "model": [
+        "91",
+        0
+      ],
+      "positive": [
+        "116",
+        0
+      ],
+      "negative": [
+        "116",
+        1
+      ],
+      "latent_image": [
+        "97",
+        0
+      ]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "KSampler"
+    }
+  },
+  "93": {
+    "inputs": {
+      "enable_fp16_accumulation": true,
+      "model": [
+        "26",
+        0
+      ]
+    },
+    "class_type": "ModelPatchTorchSettings",
+    "_meta": {
+      "title": "Model Patch Torch Settings"
+    }
+  },
+  "94": {
+    "inputs": {
+      "enable_fp16_accumulation": true,
+      "model": [
+        "32",
+        0
+      ]
+    },
+    "class_type": "ModelPatchTorchSettings",
+    "_meta": {
+      "title": "Model Patch Torch Settings"
+    }
+  },
+  "95": {
+    "inputs": {
+      "lora_name": "wan2.2_i2v_A14b_high_noise_lora_rank64_lightx2v_4step_1022.safetensors",
+      "strength_model": 0.35,
+      "model": [
+        "76",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "LoraLoaderModelOnly"
+    }
+  },
+  "96": {
+    "inputs": {
+      "model": "Wan 2.1 latent upscale 2x",
+      "samples": [
+        "22",
+        0
+      ]
+    },
+    "class_type": "VAEUtils_LatentUpscale",
+    "_meta": {
+      "title": "Latent Upscale (VAE Utils)"
+    }
+  },
+  "97": {
+    "inputs": {
+      "upscale_method": "bicubic",
+      "width": [
+        "81",
+        1
+      ],
+      "height": [
+        "81",
+        2
+      ],
+      "crop": "disabled",
+      "samples": [
+        "96",
+        0
+      ]
+    },
+    "class_type": "LatentUpscale",
+    "_meta": {
+      "title": "Upscale Latent"
+    }
+  },
+  "109": {
+    "inputs": {
+      "samples": [
+        "66",
+        0
+      ],
+      "vae": [
+        "10",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE Decode"
+    }
+  },
+  "112": {
+    "inputs": {
+      "width": [
+        "80",
+        1
+      ],
+      "height": [
+        "80",
+        2
+      ],
+      "length": [
+        "1",
+        0
+      ],
+      "batch_size": 1,
+      "motion_amplitude": [
+        "114",
+        0
+      ],
+      "tile_size": 512,
+      "overlap": 64,
+      "temporal_size": 64,
+      "temporal_overlap": 8,
+      "positive": [
+        "2",
+        0
+      ],
+      "negative": [
+        "5",
+        0
+      ],
+      "vae": [
+        "10",
+        0
+      ],
+      "start_image": [
+        "80",
+        0
+      ]
+    },
+    "class_type": "PainterI2VTiled",
+    "_meta": {
+      "title": "PainterI2V Tiled (Wan2.2 + VAE Tiled)"
+    }
+  },
+  "113": {
+    "inputs": {
+      "value": 1
+    },
+    "class_type": "easy float",
+    "_meta": {
+      "title": "var_number3"
+    }
+  },
+  "114": {
+    "inputs": {
+      "value": 1
+    },
+    "class_type": "easy float",
+    "_meta": {
+      "title": "var_number4"
+    }
+  },
+  "115": {
+    "inputs": {
+      "value": false
+    },
+    "class_type": "easy boolean",
+    "_meta": {
+      "title": "switch_option1"
+    }
+  },
+  "116": {
+    "inputs": {
+      "width": [
+        "81",
+        1
+      ],
+      "height": [
+        "81",
+        2
+      ],
+      "length": [
+        "1",
+        0
+      ],
+      "batch_size": 1,
+      "motion_amplitude": [
+        "114",
+        0
+      ],
+      "tile_size": 512,
+      "overlap": 64,
+      "temporal_size": 64,
+      "temporal_overlap": 8,
+      "positive": [
+        "2",
+        0
+      ],
+      "negative": [
+        "5",
+        0
+      ],
+      "vae": [
+        "10",
+        0
+      ],
+      "start_image": [
+        "81",
+        0
+      ]
+    },
+    "class_type": "PainterI2VTiled",
+    "_meta": {
+      "title": "PainterI2V Tiled (Wan2.2 + VAE Tiled)"
+    }
+  },
+  "117": {
+    "inputs": {
+      "width": [
+        "62",
+        1
+      ],
+      "height": [
+        "62",
+        2
+      ],
+      "length": [
+        "1",
+        0
+      ],
+      "batch_size": 1,
+      "motion_amplitude": [
+        "114",
+        0
+      ],
+      "tile_size": 512,
+      "overlap": 64,
+      "temporal_size": 64,
+      "temporal_overlap": 8,
+      "positive": [
+        "2",
+        0
+      ],
+      "negative": [
+        "5",
+        0
+      ],
+      "vae": [
+        "10",
+        0
+      ],
+      "start_image": [
+        "62",
+        0
+      ],
+      "end_image": [
+        "63",
+        0
+      ]
+    },
+    "class_type": "PainterI2VTiled",
+    "_meta": {
+      "title": "PainterI2V Tiled (Wan2.2 + VAE Tiled)"
+    }
+  },
+  "118": {
+    "inputs": {
+      "value": 60
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "var_number2"
+    }
+  },
+  "119": {
+    "inputs": {
+      "value": "a",
+      "a": [
+        "118",
+        0
+      ]
+    },
+    "class_type": "SimpleMath+",
+    "_meta": {
+      "title": "🔧 Simple Math"
+    }
+  },
+  "120": {
+    "inputs": {
+      "tile_size": 512,
+      "overlap": 64,
+      "temporal_size": 64,
+      "temporal_overlap": 24,
+      "samples": [
+        "66",
+        0
+      ],
+      "vae": [
+        "10",
+        0
+      ]
+    },
+    "class_type": "VAEDecodeTiled",
+    "_meta": {
+      "title": "VAE Decode (Tiled)"
+    }
+  },
+  "121": {
+    "inputs": {
+      "boolean": [
+        "115",
+        0
+      ],
+      "on_true": [
+        "120",
+        0
+      ],
+      "on_false": [
+        "109",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "122": {
+    "inputs": {
+      "comparison": "a == b",
+      "a": [
+        "118",
+        0
+      ],
+      "b": [
+        "123",
+        0
+      ]
+    },
+    "class_type": "easy compare",
+    "_meta": {
+      "title": "Compare"
+    }
+  },
+  "123": {
+    "inputs": {
+      "value": 16
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "Int"
+    }
+  },
+  "124": {
+    "inputs": {
+      "boolean": [
+        "122",
+        0
+      ],
+      "on_true": [
+        "121",
+        0
+      ],
+      "on_false": [
+        "90",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "125": {
+    "inputs": {
+      "value": true
+    },
+    "class_type": "easy boolean",
+    "_meta": {
+      "title": "switch_option2"
+    }
+  },
+  "127": {
+    "inputs": {
+      "boolean": [
+        "125",
+        0
+      ],
+      "on_true": [
+        "92",
+        0
+      ],
+      "on_false": [
+        "129",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "128": {
+    "inputs": {
+      "add_noise": "enable",
+      "noise_seed": [
+        "8",
+        0
+      ],
+      "steps": [
+        "21",
+        5
+      ],
+      "cfg": [
+        "113",
+        0
+      ],
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "start_at_step": 0,
+      "end_at_step": [
+        "143",
+        0
+      ],
+      "return_with_leftover_noise": "enable",
+      "model": [
+        "133",
+        0
+      ],
+      "positive": [
+        "116",
+        0
+      ],
+      "negative": [
+        "116",
+        1
+      ],
+      "latent_image": [
+        "116",
+        2
+      ]
+    },
+    "class_type": "KSamplerAdvanced",
+    "_meta": {
+      "title": "KSampler (Advanced)"
+    }
+  },
+  "129": {
+    "inputs": {
+      "add_noise": "disable",
+      "noise_seed": [
+        "8",
+        0
+      ],
+      "steps": [
+        "21",
+        5
+      ],
+      "cfg": [
+        "113",
+        0
+      ],
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "start_at_step": [
+        "143",
+        0
+      ],
+      "end_at_step": 10000,
+      "return_with_leftover_noise": "disable",
+      "model": [
+        "130",
+        0
+      ],
+      "positive": [
+        "116",
+        0
+      ],
+      "negative": [
+        "116",
+        1
+      ],
+      "latent_image": [
+        "128",
+        0
+      ]
+    },
+    "class_type": "KSamplerAdvanced",
+    "_meta": {
+      "title": "KSampler (Advanced)"
+    }
+  },
+  "130": {
+    "inputs": {
+      "weight": 2,
+      "model": [
+        "27",
+        0
+      ],
+      "latent": [
+        "128",
+        0
+      ]
+    },
+    "class_type": "WanVideoEnhanceAVideoKJ",
+    "_meta": {
+      "title": "WanVideo Enhance A Video (native)"
+    }
+  },
+  "132": {
+    "inputs": {
+      "weight": 2,
+      "model": [
+        "15",
+        0
+      ],
+      "latent": [
+        "116",
+        2
+      ]
+    },
+    "class_type": "WanVideoEnhanceAVideoKJ",
+    "_meta": {
+      "title": "WanVideo Enhance A Video (native)"
+    }
+  },
+  "133": {
+    "inputs": {
+      "strength": 1,
+      "model": [
+        "132",
+        0
+      ]
+    },
+    "class_type": "CFGNorm",
+    "_meta": {
+      "title": "CFGNorm"
+    }
+  },
+  "134": {
+    "inputs": {
+      "unet_name": "placeholder.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "base_model"
+    }
+  },
+  "135": {
+    "inputs": {
+      "unet_name": "placeholder.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "base_model2"
+    }
+  },
+  "136": {
+    "inputs": {
+      "value": 1
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "i2i_model_type2"
+    }
+  },
+  "137": {
+    "inputs": {
+      "comparison": "a == b",
+      "a": [
+        "136",
+        0
+      ],
+      "b": [
+        "138",
+        0
+      ]
+    },
+    "class_type": "easy compare",
+    "_meta": {
+      "title": "Compare"
+    }
+  },
+  "138": {
+    "inputs": {
+      "value": 1
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "Int"
+    }
+  },
+  "139": {
+    "inputs": {
+      "value": 1
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "i2i_model_type"
+    }
+  },
+  "140": {
+    "inputs": {
+      "comparison": "a == b",
+      "a": [
+        "139",
+        0
+      ],
+      "b": [
+        "138",
+        0
+      ]
+    },
+    "class_type": "easy compare",
+    "_meta": {
+      "title": "Compare"
+    }
+  },
+  "141": {
+    "inputs": {
+      "boolean": [
+        "140",
+        0
+      ],
+      "on_true": [
+        "134",
+        0
+      ],
+      "on_false": [
+        "31",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "142": {
+    "inputs": {
+      "boolean": [
+        "137",
+        0
+      ],
+      "on_true": [
+        "135",
+        0
+      ],
+      "on_false": [
+        "25",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "143": {
+    "inputs": {
+      "expression": "int(a/2)",
+      "a": [
+        "21",
+        5
+      ]
+    },
+    "class_type": "UtilityExpression",
+    "_meta": {
+      "title": "Expression"
+    }
+  },
+  "144": {
+    "inputs": {
+      "value": "a-b",
+      "a": [
+        "21",
+        5
+      ],
+      "b": [
+        "143",
+        0
+      ]
+    },
+    "class_type": "SimpleMath+",
+    "_meta": {
+      "title": "🔧 Simple Math"
+    }
+  },
+  "145": {
+    "inputs": {
+      "clip_name": "nsfw_wan_umt5-xxl_bf16_fixed.safetensors",
+      "type": "wan",
+      "device": "default"
+    },
+    "class_type": "CLIPLoader",
+    "_meta": {
+      "title": "Load CLIP"
+    }
+  }
+}
