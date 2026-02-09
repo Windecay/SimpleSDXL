@@ -851,26 +851,7 @@ def reset_layout_values(state_params, is_generating, inpaint_mode):
 
 def check_admin_exists():
     try:
-        has_multiple_users = False
-        try:
-            user_home = os.path.expanduser("~")
-            did_dir = os.path.join(user_home, '.simpleai.vip', '.token')
-            if os.path.exists(did_dir):
-                try:
-                    all_files = os.listdir(did_dir)
-
-                    user_did_files = [f for f in all_files if f.startswith('user_') and f.endswith('.did')]
-
-                    user_did_count = len(user_did_files)
-                    has_multiple_users = user_did_count > 1
-                    return has_multiple_users
-                except Exception as list_error:
-                    return False
-            else:
-                return False
-        except Exception as e:
-            print(f"[DEBUG] 检查用户DID文件时出错: {str(e)}")
-            return False
+        return bool(shared.token.get_admin_did())
     except Exception as e:
         print(f"[DEBUG] 获取管理员变量时出错: {str(e)}")
         return False

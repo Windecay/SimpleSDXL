@@ -373,7 +373,8 @@ theme_color = {
 
 id_info_css = lambda x: f'style="color: {theme_color[x]};"'
 #lambda x: f'style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: inline-block; max-width: 150px; color: {theme_color[x]};"'
-guest_inc = "身份为游客(本机已有管理员)" if shared.token.get_node_mode()=='online' else "为孤岛节点游客"
+has_admin = bool(shared.token.get_admin_did())
+guest_inc = f"身份为游客{'(本端已有管理员)' if has_admin else ''}" if shared.token.get_node_mode()=='online' else "为孤岛节点游客"
 user_inc = "绑定身份为" if shared.token.get_node_mode()=='online' else "为孤岛节点管理员"
 current_id_info = lambda x,y,z,t: f'<b>当前{guest_inc if shared.token.is_guest(y) else user_inc}</b><br>身份昵称: <span {id_info_css(t)}>' + f'{x}' + f'</span><br>身份标识: <span {id_info_css(t)}>{y}</span><br>节点标识: <span {id_info_css(t)}>{z}</span>'
 
