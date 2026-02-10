@@ -61,9 +61,9 @@
   },
   "8": {
     "inputs": {
-      "shift": 3,
+      "shift": 3.1,
       "model": [
-        "183",
+        "191",
         0
       ]
     },
@@ -252,33 +252,21 @@
         0
       ],
       "positive": [
-        "134",
+        "178",
         0
       ],
       "negative": [
-        "68",
-        0
+        "178",
+        1
       ],
       "latent_image": [
-        "96",
-        0
+        "178",
+        2
       ]
     },
     "class_type": "KSampler",
     "_meta": {
       "title": "KSampler"
-    }
-  },
-  "68": {
-    "inputs": {
-      "conditioning": [
-        "160",
-        0
-      ]
-    },
-    "class_type": "ConditioningZeroOut",
-    "_meta": {
-      "title": "ConditioningZeroOut"
     }
   },
   "69": {
@@ -377,50 +365,6 @@
       "title": "Is Mask Empty"
     }
   },
-  "84": {
-    "inputs": {
-      "index": [
-        "89",
-        0
-      ],
-      "value0": [
-        "145",
-        0
-      ],
-      "value1": [
-        "141",
-        0
-      ],
-      "value2": [
-        "142",
-        0
-      ]
-    },
-    "class_type": "easy anythingIndexSwitch",
-    "_meta": {
-      "title": "Any Index Switch"
-    }
-  },
-  "85": {
-    "inputs": {
-      "boolean": [
-        "76",
-        0
-      ],
-      "on_true": [
-        "87",
-        0
-      ],
-      "on_false": [
-        "88",
-        0
-      ]
-    },
-    "class_type": "easy ifElse",
-    "_meta": {
-      "title": "If else"
-    }
-  },
   "86": {
     "inputs": {
       "value": 0
@@ -428,81 +372,6 @@
     "class_type": "easy int",
     "_meta": {
       "title": "Int"
-    }
-  },
-  "87": {
-    "inputs": {
-      "value": 1
-    },
-    "class_type": "easy int",
-    "_meta": {
-      "title": "Int"
-    }
-  },
-  "88": {
-    "inputs": {
-      "value": 2
-    },
-    "class_type": "easy int",
-    "_meta": {
-      "title": "Int"
-    }
-  },
-  "89": {
-    "inputs": {
-      "boolean": [
-        "45",
-        0
-      ],
-      "on_true": [
-        "86",
-        0
-      ],
-      "on_false": [
-        "85",
-        0
-      ]
-    },
-    "class_type": "easy ifElse",
-    "_meta": {
-      "title": "If else"
-    }
-  },
-  "91": {
-    "inputs": {
-      "width": [
-        "132",
-        0
-      ],
-      "height": [
-        "133",
-        0
-      ],
-      "batch_size": 1
-    },
-    "class_type": "EmptyLatentImage",
-    "_meta": {
-      "title": "Empty Latent Image"
-    }
-  },
-  "96": {
-    "inputs": {
-      "boolean": [
-        "135",
-        0
-      ],
-      "on_true": [
-        "91",
-        0
-      ],
-      "on_false": [
-        "138",
-        1
-      ]
-    },
-    "class_type": "easy ifElse",
-    "_meta": {
-      "title": "If else"
     }
   },
   "104": {
@@ -586,19 +455,6 @@
       "title": "🔧 Simple Math"
     }
   },
-  "134": {
-    "inputs": {
-      "reference_latents_method": "index_timestep_zero",
-      "conditioning": [
-        "160",
-        0
-      ]
-    },
-    "class_type": "FluxKontextMultiReferenceLatentMethod",
-    "_meta": {
-      "title": "FluxKontextMultiReferenceLatentMethod"
-    }
-  },
   "135": {
     "inputs": {
       "value": false
@@ -615,32 +471,6 @@
     "class_type": "easy boolean",
     "_meta": {
       "title": "switch_option2"
-    }
-  },
-  "138": {
-    "inputs": {
-      "prompt": [
-        "2",
-        0
-      ],
-      "return_full_refs_cond": true,
-      "instruction": "Describe the key features of the input image (color, shape, size, texture, objects, background), then explain how the user's text instruction should alter or modify the image. Generate a new image that meets the user's requirements while maintaining consistency with the original input where appropriate.",
-      "clip": [
-        "6",
-        0
-      ],
-      "vae": [
-        "5",
-        0
-      ],
-      "configs": [
-        "84",
-        0
-      ]
-    },
-    "class_type": "TextEncodeQwenImageEditPlusCustom_lrzjason",
-    "_meta": {
-      "title": "TextEncodeQwenImageEditPlusCustom lrzjason"
     }
   },
   "139": {
@@ -673,166 +503,6 @@
       "title": "Resize Image v2"
     }
   },
-  "140": {
-    "inputs": {
-      "to_ref": true,
-      "ref_main_image": true,
-      "ref_longest_edge": [
-        "143",
-        0
-      ],
-      "ref_crop": "pad",
-      "ref_upscale": "lanczos",
-      "to_vl": true,
-      "vl_resize": true,
-      "vl_target_size": 384,
-      "vl_crop": "center",
-      "vl_upscale": "lanczos",
-      "image": [
-        "139",
-        0
-      ]
-    },
-    "class_type": "QwenEditConfigPreparer",
-    "_meta": {
-      "title": "Qwen Edit Config Preparer"
-    }
-  },
-  "141": {
-    "inputs": {
-      "to_ref": true,
-      "ref_main_image": false,
-      "ref_longest_edge": [
-        "143",
-        0
-      ],
-      "ref_crop": "pad",
-      "ref_upscale": "lanczos",
-      "to_vl": true,
-      "vl_resize": true,
-      "vl_target_size": 384,
-      "vl_crop": "center",
-      "vl_upscale": "lanczos",
-      "image": [
-        "149",
-        0
-      ],
-      "configs": [
-        "145",
-        0
-      ]
-    },
-    "class_type": "QwenEditConfigPreparer",
-    "_meta": {
-      "title": "Qwen Edit Config Preparer"
-    }
-  },
-  "142": {
-    "inputs": {
-      "to_ref": true,
-      "ref_main_image": false,
-      "ref_longest_edge": [
-        "143",
-        0
-      ],
-      "ref_crop": "pad",
-      "ref_upscale": "lanczos",
-      "to_vl": true,
-      "vl_resize": true,
-      "vl_target_size": 384,
-      "vl_crop": "center",
-      "vl_upscale": "lanczos",
-      "image": [
-        "74",
-        0
-      ],
-      "configs": [
-        "141",
-        0
-      ]
-    },
-    "class_type": "QwenEditConfigPreparer",
-    "_meta": {
-      "title": "Qwen Edit Config Preparer"
-    }
-  },
-  "143": {
-    "inputs": {
-      "image": [
-        "139",
-        0
-      ]
-    },
-    "class_type": "easy imageSizeByLongerSide",
-    "_meta": {
-      "title": "ImageSize (LongerSide)"
-    }
-  },
-  "144": {
-    "inputs": {
-      "image": [
-        "14",
-        0
-      ],
-      "pad_info": [
-        "138",
-        2
-      ]
-    },
-    "class_type": "CropWithPadInfo",
-    "_meta": {
-      "title": "Crop With Pad Info"
-    }
-  },
-  "145": {
-    "inputs": {
-      "boolean": [
-        "108",
-        0
-      ],
-      "on_true": [
-        "140",
-        0
-      ],
-      "on_false": [
-        "146",
-        0
-      ]
-    },
-    "class_type": "easy ifElse",
-    "_meta": {
-      "title": "If else"
-    }
-  },
-  "146": {
-    "inputs": {
-      "to_ref": true,
-      "ref_main_image": true,
-      "ref_longest_edge": [
-        "143",
-        0
-      ],
-      "ref_crop": "pad",
-      "ref_upscale": "lanczos",
-      "to_vl": true,
-      "vl_resize": true,
-      "vl_target_size": 384,
-      "vl_crop": "center",
-      "vl_upscale": "lanczos",
-      "image": [
-        "139",
-        0
-      ],
-      "mask": [
-        "157",
-        0
-      ]
-    },
-    "class_type": "QwenEditConfigPreparer",
-    "_meta": {
-      "title": "Qwen Edit Config Preparer"
-    }
-  },
   "147": {
     "inputs": {
       "value": 1024
@@ -847,7 +517,7 @@
       "detect_hand": "enable",
       "detect_body": "enable",
       "detect_face": "enable",
-      "resolution": 512,
+      "resolution": 1024,
       "bbox_detector": "yolox_l.onnx",
       "pose_estimator": "dw-ll_ucoco_384_bs5.torchscript.pt",
       "scale_stick_for_xinsr_cn": "enable",
@@ -896,7 +566,7 @@
   },
   "151": {
     "inputs": {
-      "value": 2.0
+      "value": 2
     },
     "class_type": "easy float",
     "_meta": {
@@ -931,22 +601,6 @@
     "class_type": "SimpleMath+",
     "_meta": {
       "title": "🔧 Simple Math"
-    }
-  },
-  "156": {
-    "inputs": {
-      "conditioning": [
-        "138",
-        0
-      ],
-      "latent": [
-        "161",
-        0
-      ]
-    },
-    "class_type": "ReferenceLatent",
-    "_meta": {
-      "title": "ReferenceLatent"
     }
   },
   "157": {
@@ -988,42 +642,6 @@
       "title": "🔧 Simple Math"
     }
   },
-  "160": {
-    "inputs": {
-      "boolean": [
-        "108",
-        0
-      ],
-      "on_true": [
-        "138",
-        0
-      ],
-      "on_false": [
-        "156",
-        0
-      ]
-    },
-    "class_type": "easy ifElse",
-    "_meta": {
-      "title": "If else"
-    }
-  },
-  "161": {
-    "inputs": {
-      "pixels": [
-        "3",
-        0
-      ],
-      "vae": [
-        "5",
-        0
-      ]
-    },
-    "class_type": "VAEEncode",
-    "_meta": {
-      "title": "VAE Encode"
-    }
-  },
   "162": {
     "inputs": {
       "value": 0.95
@@ -1046,7 +664,7 @@
         0
       ],
       "image_target": [
-        "144",
+        "14",
         0
       ]
     },
@@ -1064,6 +682,13 @@
       "title": "var_number4"
     }
   },
+  "167": {
+    "inputs": {},
+    "class_type": "GetGPUInfo",
+    "_meta": {
+      "title": "Get GPU Info (Compute Capability)"
+    }
+  },
   "170": {
     "inputs": {
       "boolean": [
@@ -1071,11 +696,11 @@
         0
       ],
       "on_true": [
-        "185",
+        "195",
         0
       ],
       "on_false": [
-        "186",
+        "196",
         0
       ]
     },
@@ -1112,28 +737,203 @@
   },
   "178": {
     "inputs": {
-      "value": 1
-    },
-    "class_type": "easy int",
-    "_meta": {
-      "title": "var_number"
-    }
-  },
-  "179": {
-    "inputs": {
-      "lora_name": "placeholder.safetensors",
-      "lora_strength": 0,
-      "model": [
+      "prompt": [
+        "2",
+        0
+      ],
+      "mode": "3_image",
+      "batch_size": 1,
+      "width": [
+        "186",
+        0
+      ],
+      "height": [
+        "187",
+        0
+      ],
+      "clip": [
+        "6",
+        0
+      ],
+      "vae": [
+        "5",
+        0
+      ],
+      "image1_mask": [
+        "183",
+        0
+      ],
+      "image1": [
         "180",
+        0
+      ],
+      "image2": [
+        "181",
+        0
+      ],
+      "image3": [
+        "182",
         0
       ]
     },
-    "class_type": "NunchakuQwenImageLoraLoader",
+    "class_type": "PainterQwenImageEditPlus",
     "_meta": {
-      "title": "Nunchaku Qwen Image LoRA Loader2"
+      "title": "Painter Qwen Image Edit Plus"
+    }
+  },
+  "179": {
+    "inputs": {},
+    "class_type": "noneNode",
+    "_meta": {
+      "title": "None"
     }
   },
   "180": {
+    "inputs": {
+      "boolean": [
+        "185",
+        0
+      ],
+      "on_true": [
+        "179",
+        0
+      ],
+      "on_false": [
+        "139",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "181": {
+    "inputs": {
+      "boolean": [
+        "45",
+        0
+      ],
+      "on_true": [
+        "179",
+        0
+      ],
+      "on_false": [
+        "149",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "182": {
+    "inputs": {
+      "boolean": [
+        "76",
+        0
+      ],
+      "on_true": [
+        "179",
+        0
+      ],
+      "on_false": [
+        "74",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "183": {
+    "inputs": {
+      "boolean": [
+        "108",
+        0
+      ],
+      "on_true": [
+        "179",
+        0
+      ],
+      "on_false": [
+        "157",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "184": {
+    "inputs": {
+      "channel": "red",
+      "image": [
+        "3",
+        0
+      ]
+    },
+    "class_type": "ImageToMask",
+    "_meta": {
+      "title": "Convert Image to Mask"
+    }
+  },
+  "185": {
+    "inputs": {
+      "mask": [
+        "184",
+        0
+      ]
+    },
+    "class_type": "easy isMaskEmpty",
+    "_meta": {
+      "title": "Is Mask Empty"
+    }
+  },
+  "186": {
+    "inputs": {
+      "boolean": [
+        "135",
+        0
+      ],
+      "on_true": [
+        "132",
+        0
+      ],
+      "on_false": [
+        "139",
+        1
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "187": {
+    "inputs": {
+      "boolean": [
+        "135",
+        0
+      ],
+      "on_true": [
+        "133",
+        0
+      ],
+      "on_false": [
+        "139",
+        2
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "188": {
     "inputs": {
       "lora_name": "placeholder.safetensors",
       "lora_strength": 0,
@@ -1147,12 +947,26 @@
       "title": "Nunchaku Qwen Image LoRA Loader1"
     }
   },
-  "181": {
+  "189": {
     "inputs": {
       "lora_name": "placeholder.safetensors",
       "lora_strength": 0,
       "model": [
-        "179",
+        "188",
+        0
+      ]
+    },
+    "class_type": "NunchakuQwenImageLoraLoader",
+    "_meta": {
+      "title": "Nunchaku Qwen Image LoRA Loader2"
+    }
+  },
+  "190": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "lora_strength": 0,
+      "model": [
+        "189",
         0
       ]
     },
@@ -1161,13 +975,43 @@
       "title": "Nunchaku Qwen Image LoRA Loader3"
     }
   },
-  "182": {
+  "191": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "lora_strength": 0,
+      "model": [
+        "190",
+        0
+      ]
+    },
+    "class_type": "NunchakuQwenImageLoraLoader",
+    "_meta": {
+      "title": "Nunchaku Qwen Image LoRA Loader4"
+    }
+  },
+  "192": {
+    "inputs": {
+      "signal": [
+        "1",
+        0
+      ],
+      "value": [
+        "194",
+        0
+      ]
+    },
+    "class_type": "ImpactExecutionOrderController",
+    "_meta": {
+      "title": "Execution Order Controller"
+    }
+  },
+  "193": {
     "inputs": {
       "model_name": "placeholder.safetensors",
       "cpu_offload": "enable",
       "vram_margin_gb": 4,
       "num_blocks_on_gpu": [
-        "184",
+        "192",
         1
       ],
       "use_pin_memory": "disable"
@@ -1177,37 +1021,16 @@
       "title": "base_model"
     }
   },
-  "183": {
+  "194": {
     "inputs": {
-      "lora_name": "placeholder.safetensors",
-      "lora_strength": 0,
-      "model": [
-        "181",
-        0
-      ]
+      "value": 1
     },
-    "class_type": "NunchakuQwenImageLoraLoader",
+    "class_type": "easy int",
     "_meta": {
-      "title": "Nunchaku Qwen Image LoRA Loader4"
+      "title": "var_number"
     }
   },
-  "184": {
-    "inputs": {
-      "signal": [
-        "1",
-        0
-      ],
-      "value": [
-        "178",
-        0
-      ]
-    },
-    "class_type": "ImpactExecutionOrderController",
-    "_meta": {
-      "title": "Execution Order Controller"
-    }
-  },
-  "185": {
+  "195": {
     "inputs": {
       "lora_name": "Qwen-Image-Edit-2511-Lightning-4steps-V1.0-bf16.safetensors",
       "lora_strength": [
@@ -1215,7 +1038,7 @@
         1
       ],
       "model": [
-        "182",
+        "193",
         0
       ]
     },
@@ -1224,12 +1047,12 @@
       "title": "lightning_lora"
     }
   },
-  "186": {
+  "196": {
     "inputs": {
       "lora_name": "Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors",
       "lora_strength": 1,
       "model": [
-        "182",
+        "193",
         0
       ]
     },

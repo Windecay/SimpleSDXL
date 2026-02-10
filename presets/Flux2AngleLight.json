@@ -6,38 +6,52 @@
             "available_aspect_ratios_selection": "Flux",
             "scene_frontend": {
                 "version": "m1.1",
-                "theme": ["Flux2-AngleLight-1024px"],
+                "theme": ["Flux2-AngleLight-1024px", "Flux2-AngleLight-1536px", "Flux2-AngleLight-2048px"],
                 "theme_title": "Flux2-多角度打光",
                 "disvisible": ["scene_additional_prompt", "scene_video", "scene_audio","scene_canvas_image","scene_input_image2",
                 "scene_var_number","scene_var_number2","scene_var_number3","scene_switch_option2", "scene_refiner_model", "scene_var_number5", "scene_var_number6", "scene_var_number7", "scene_var_number8", "scene_var_number9", "scene_var_number10"
                 ,"scene_switch_option3","scene_switch_option4"],
                 "task_method": {
-                    "Flux2-AngleLight-1024px": "flux2_anglelight_1024_cn"
+                    "Flux2-AngleLight-1024px": "flux2_anglelight_1024_cn",
+                    "Flux2-AngleLight-1536px": "flux2_anglelight_1536_cn",
+                    "Flux2-AngleLight-2048px": "flux2_anglelight_2048_cn"
                 },
                 "prompt": {
-                    "Flux2-AngleLight-1024px": " "
+                    "Flux2-AngleLight-1024px": " ",
+                    "Flux2-AngleLight-1536px": " ",
+                    "Flux2-AngleLight-2048px": " "
                 },
                 "scene_steps_min": 4,
                 "scene_steps_max": 6,
                 "scene_steps": {
-                    "Flux2-AngleLight-1024px": 4
+                    "Flux2-AngleLight-1024px": 4,
+                    "Flux2-AngleLight-1536px": 4,
+                    "Flux2-AngleLight-2048px": 4
                 },
                 "image_preprocessor_method": {
-                    "Flux2-AngleLight-1024px": [["-normalization"]]
+                    "Flux2-AngleLight-1024px": [["-normalization"]],
+                    "Flux2-AngleLight-1536px": [["-normalization"]],
+                    "Flux2-AngleLight-2048px": [["-normalization"]]
                 },
                 "var_number4_title": "颜色匹配原图",
                 "var_number4_min": 0,
                 "var_number4_max": 1.0,
                 "var_number4": {
-                    "Flux2-AngleLight-1024px": 0
+                    "Flux2-AngleLight-1024px": 0,
+                    "Flux2-AngleLight-1536px": 0,
+                    "Flux2-AngleLight-2048px": 0
                 },
                 "switch_option1_title": "自定义比例[下方选择]",
                 "switch_option1": {
-                    "Flux2-AngleLight-1024px": false
+                    "Flux2-AngleLight-1024px": false,
+                    "Flux2-AngleLight-1536px": false,
+                    "Flux2-AngleLight-2048px": false
                 },
                 "additional_prompt_title_2": "灯光参数",
                 "additional_prompt_2": {
-                    "Flux2-AngleLight-1024px": "SCENE LOCK, FIXED VIEWPOINT, maintaining character consistency and pose. RELIGHTING ONLY: light source from the right, high-angle light source, bright colored light (#FFFFFF), cinematic relighting"
+                    "Flux2-AngleLight-1024px": "SCENE LOCK, FIXED VIEWPOINT, maintaining character consistency and pose. RELIGHTING ONLY: light source from the right, high-angle light source, bright colored light (#FFFFFF), cinematic relighting",
+                    "Flux2-AngleLight-1536px": "SCENE LOCK, FIXED VIEWPOINT, maintaining character consistency and pose. RELIGHTING ONLY: light source from the right, high-angle light source, bright colored light (#FFFFFF), cinematic relighting",
+                    "Flux2-AngleLight-2048px": "SCENE LOCK, FIXED VIEWPOINT, maintaining character consistency and pose. RELIGHTING ONLY: light source from the right, high-angle light source, bright colored light (#FFFFFF), cinematic relighting"
                 },
                 "aspect_ratio" : [ "1024|1:1", "756|9:16", "832|2:3", "1216|4:3", "1248|3:2", "1344|16:9"]
             }

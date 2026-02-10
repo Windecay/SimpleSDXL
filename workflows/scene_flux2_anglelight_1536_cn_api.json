@@ -297,7 +297,7 @@
   },
   "151": {
     "inputs": {
-      "value": 1
+      "value": 1.5
     },
     "class_type": "easy float",
     "_meta": {

@@ -17,8 +17,8 @@
       "cfg": 1,
       "steps": 8,
       "refiner_step": 16,
-      "sampler": "er_sde",
-      "scheduler": "beta",
+      "sampler": "euler",
+      "scheduler": "simple",
       "denoise": 1,
       "clip_skip": -1,
       "inpaint_disable_initial_latent": false,
@@ -41,7 +41,7 @@
   },
   "8": {
     "inputs": {
-      "shift": 3,
+      "shift": 3.1,
       "model": [
         "34",
         0
@@ -75,7 +75,7 @@
         0
       ],
       "vae": [
-        "173",
+        "188",
         2
       ]
     },
@@ -141,7 +141,7 @@
       "lora_name": "placeholder.safetensors",
       "strength_model": 0,
       "model": [
-        "175",
+        "189",
         0
       ]
     },
@@ -284,37 +284,25 @@
       ],
       "denoise": 1,
       "model": [
-        "174",
+        "190",
         0
       ],
       "positive": [
-        "134",
+        "178",
         0
       ],
       "negative": [
-        "68",
-        0
+        "178",
+        1
       ],
       "latent_image": [
-        "96",
-        0
+        "178",
+        2
       ]
     },
     "class_type": "KSampler",
     "_meta": {
       "title": "KSampler"
-    }
-  },
-  "68": {
-    "inputs": {
-      "conditioning": [
-        "160",
-        0
-      ]
-    },
-    "class_type": "ConditioningZeroOut",
-    "_meta": {
-      "title": "ConditioningZeroOut"
     }
   },
   "69": {
@@ -413,50 +401,6 @@
       "title": "Is Mask Empty"
     }
   },
-  "84": {
-    "inputs": {
-      "index": [
-        "89",
-        0
-      ],
-      "value0": [
-        "145",
-        0
-      ],
-      "value1": [
-        "141",
-        0
-      ],
-      "value2": [
-        "142",
-        0
-      ]
-    },
-    "class_type": "easy anythingIndexSwitch",
-    "_meta": {
-      "title": "Any Index Switch"
-    }
-  },
-  "85": {
-    "inputs": {
-      "boolean": [
-        "76",
-        0
-      ],
-      "on_true": [
-        "87",
-        0
-      ],
-      "on_false": [
-        "88",
-        0
-      ]
-    },
-    "class_type": "easy ifElse",
-    "_meta": {
-      "title": "If else"
-    }
-  },
   "86": {
     "inputs": {
       "value": 0
@@ -464,81 +408,6 @@
     "class_type": "easy int",
     "_meta": {
       "title": "Int"
-    }
-  },
-  "87": {
-    "inputs": {
-      "value": 1
-    },
-    "class_type": "easy int",
-    "_meta": {
-      "title": "Int"
-    }
-  },
-  "88": {
-    "inputs": {
-      "value": 2
-    },
-    "class_type": "easy int",
-    "_meta": {
-      "title": "Int"
-    }
-  },
-  "89": {
-    "inputs": {
-      "boolean": [
-        "45",
-        0
-      ],
-      "on_true": [
-        "86",
-        0
-      ],
-      "on_false": [
-        "85",
-        0
-      ]
-    },
-    "class_type": "easy ifElse",
-    "_meta": {
-      "title": "If else"
-    }
-  },
-  "91": {
-    "inputs": {
-      "width": [
-        "132",
-        0
-      ],
-      "height": [
-        "133",
-        0
-      ],
-      "batch_size": 1
-    },
-    "class_type": "EmptyLatentImage",
-    "_meta": {
-      "title": "Empty Latent Image"
-    }
-  },
-  "96": {
-    "inputs": {
-      "boolean": [
-        "135",
-        0
-      ],
-      "on_true": [
-        "91",
-        0
-      ],
-      "on_false": [
-        "138",
-        1
-      ]
-    },
-    "class_type": "easy ifElse",
-    "_meta": {
-      "title": "If else"
     }
   },
   "104": {
@@ -622,19 +491,6 @@
       "title": "🔧 Simple Math"
     }
   },
-  "134": {
-    "inputs": {
-      "reference_latents_method": "index_timestep_zero",
-      "conditioning": [
-        "160",
-        0
-      ]
-    },
-    "class_type": "FluxKontextMultiReferenceLatentMethod",
-    "_meta": {
-      "title": "FluxKontextMultiReferenceLatentMethod"
-    }
-  },
   "135": {
     "inputs": {
       "value": false
@@ -651,32 +507,6 @@
     "class_type": "easy boolean",
     "_meta": {
       "title": "switch_option2"
-    }
-  },
-  "138": {
-    "inputs": {
-      "prompt": [
-        "2",
-        0
-      ],
-      "return_full_refs_cond": true,
-      "instruction": "Describe the key features of the input image (color, shape, size, texture, objects, background), then explain how the user's text instruction should alter or modify the image. Generate a new image that meets the user's requirements while maintaining consistency with the original input where appropriate.",
-      "clip": [
-        "173",
-        1
-      ],
-      "vae": [
-        "173",
-        2
-      ],
-      "configs": [
-        "84",
-        0
-      ]
-    },
-    "class_type": "TextEncodeQwenImageEditPlusCustom_lrzjason",
-    "_meta": {
-      "title": "TextEncodeQwenImageEditPlusCustom lrzjason"
     }
   },
   "139": {
@@ -709,166 +539,6 @@
       "title": "Resize Image v2"
     }
   },
-  "140": {
-    "inputs": {
-      "to_ref": true,
-      "ref_main_image": true,
-      "ref_longest_edge": [
-        "143",
-        0
-      ],
-      "ref_crop": "pad",
-      "ref_upscale": "lanczos",
-      "to_vl": true,
-      "vl_resize": true,
-      "vl_target_size": 384,
-      "vl_crop": "center",
-      "vl_upscale": "lanczos",
-      "image": [
-        "139",
-        0
-      ]
-    },
-    "class_type": "QwenEditConfigPreparer",
-    "_meta": {
-      "title": "Qwen Edit Config Preparer"
-    }
-  },
-  "141": {
-    "inputs": {
-      "to_ref": true,
-      "ref_main_image": false,
-      "ref_longest_edge": [
-        "143",
-        0
-      ],
-      "ref_crop": "pad",
-      "ref_upscale": "lanczos",
-      "to_vl": true,
-      "vl_resize": true,
-      "vl_target_size": 384,
-      "vl_crop": "center",
-      "vl_upscale": "lanczos",
-      "image": [
-        "149",
-        0
-      ],
-      "configs": [
-        "145",
-        0
-      ]
-    },
-    "class_type": "QwenEditConfigPreparer",
-    "_meta": {
-      "title": "Qwen Edit Config Preparer"
-    }
-  },
-  "142": {
-    "inputs": {
-      "to_ref": true,
-      "ref_main_image": false,
-      "ref_longest_edge": [
-        "143",
-        0
-      ],
-      "ref_crop": "pad",
-      "ref_upscale": "lanczos",
-      "to_vl": true,
-      "vl_resize": true,
-      "vl_target_size": 384,
-      "vl_crop": "center",
-      "vl_upscale": "lanczos",
-      "image": [
-        "74",
-        0
-      ],
-      "configs": [
-        "141",
-        0
-      ]
-    },
-    "class_type": "QwenEditConfigPreparer",
-    "_meta": {
-      "title": "Qwen Edit Config Preparer"
-    }
-  },
-  "143": {
-    "inputs": {
-      "image": [
-        "139",
-        0
-      ]
-    },
-    "class_type": "easy imageSizeByLongerSide",
-    "_meta": {
-      "title": "ImageSize (LongerSide)"
-    }
-  },
-  "144": {
-    "inputs": {
-      "image": [
-        "14",
-        0
-      ],
-      "pad_info": [
-        "138",
-        2
-      ]
-    },
-    "class_type": "CropWithPadInfo",
-    "_meta": {
-      "title": "Crop With Pad Info"
-    }
-  },
-  "145": {
-    "inputs": {
-      "boolean": [
-        "108",
-        0
-      ],
-      "on_true": [
-        "140",
-        0
-      ],
-      "on_false": [
-        "146",
-        0
-      ]
-    },
-    "class_type": "easy ifElse",
-    "_meta": {
-      "title": "If else"
-    }
-  },
-  "146": {
-    "inputs": {
-      "to_ref": true,
-      "ref_main_image": true,
-      "ref_longest_edge": [
-        "143",
-        0
-      ],
-      "ref_crop": "pad",
-      "ref_upscale": "lanczos",
-      "to_vl": true,
-      "vl_resize": true,
-      "vl_target_size": 384,
-      "vl_crop": "center",
-      "vl_upscale": "lanczos",
-      "image": [
-        "139",
-        0
-      ],
-      "mask": [
-        "157",
-        0
-      ]
-    },
-    "class_type": "QwenEditConfigPreparer",
-    "_meta": {
-      "title": "Qwen Edit Config Preparer"
-    }
-  },
   "147": {
     "inputs": {
       "value": 1024
@@ -883,7 +553,7 @@
       "detect_hand": "enable",
       "detect_body": "enable",
       "detect_face": "enable",
-      "resolution": 512,
+      "resolution": 1024,
       "bbox_detector": "yolox_l.onnx",
       "pose_estimator": "dw-ll_ucoco_384_bs5.torchscript.pt",
       "scale_stick_for_xinsr_cn": "enable",
@@ -915,6 +585,19 @@
     "class_type": "easy ifElse",
     "_meta": {
       "title": "If else"
+    }
+  },
+  "150": {
+    "inputs": {
+      "value": "-a / 15 + 19 / 15",
+      "a": [
+        "2",
+        5
+      ]
+    },
+    "class_type": "SimpleMath+",
+    "_meta": {
+      "title": "🔧 Simple Math"
     }
   },
   "151": {
@@ -956,22 +639,6 @@
       "title": "🔧 Simple Math"
     }
   },
-  "156": {
-    "inputs": {
-      "conditioning": [
-        "138",
-        0
-      ],
-      "latent": [
-        "161",
-        0
-      ]
-    },
-    "class_type": "ReferenceLatent",
-    "_meta": {
-      "title": "ReferenceLatent"
-    }
-  },
   "157": {
     "inputs": {
       "expand": [
@@ -1011,42 +678,6 @@
       "title": "🔧 Simple Math"
     }
   },
-  "160": {
-    "inputs": {
-      "boolean": [
-        "108",
-        0
-      ],
-      "on_true": [
-        "138",
-        0
-      ],
-      "on_false": [
-        "156",
-        0
-      ]
-    },
-    "class_type": "easy ifElse",
-    "_meta": {
-      "title": "If else"
-    }
-  },
-  "161": {
-    "inputs": {
-      "pixels": [
-        "3",
-        0
-      ],
-      "vae": [
-        "173",
-        2
-      ]
-    },
-    "class_type": "VAEEncode",
-    "_meta": {
-      "title": "VAE Encode"
-    }
-  },
   "162": {
     "inputs": {
       "value": 0.95
@@ -1069,7 +700,7 @@
         0
       ],
       "image_target": [
-        "144",
+        "14",
         0
       ]
     },
@@ -1142,7 +773,231 @@
       "title": "If else"
     }
   },
-  "173": {
+  "171": {
+    "inputs": {
+      "comparison": "a < b",
+      "a": [
+        "2",
+        5
+      ],
+      "b": [
+        "172",
+        0
+      ]
+    },
+    "class_type": "easy compare",
+    "_meta": {
+      "title": "Compare"
+    }
+  },
+  "172": {
+    "inputs": {
+      "value": 8
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "Int"
+    }
+  },
+  "178": {
+    "inputs": {
+      "prompt": [
+        "2",
+        0
+      ],
+      "mode": "3_image",
+      "batch_size": 1,
+      "width": [
+        "186",
+        0
+      ],
+      "height": [
+        "187",
+        0
+      ],
+      "clip": [
+        "188",
+        1
+      ],
+      "vae": [
+        "188",
+        2
+      ],
+      "image1_mask": [
+        "183",
+        0
+      ],
+      "image1": [
+        "180",
+        0
+      ],
+      "image2": [
+        "181",
+        0
+      ],
+      "image3": [
+        "182",
+        0
+      ]
+    },
+    "class_type": "PainterQwenImageEditPlus",
+    "_meta": {
+      "title": "Painter Qwen Image Edit Plus"
+    }
+  },
+  "179": {
+    "inputs": {},
+    "class_type": "noneNode",
+    "_meta": {
+      "title": "None"
+    }
+  },
+  "180": {
+    "inputs": {
+      "boolean": [
+        "185",
+        0
+      ],
+      "on_true": [
+        "179",
+        0
+      ],
+      "on_false": [
+        "139",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "181": {
+    "inputs": {
+      "boolean": [
+        "45",
+        0
+      ],
+      "on_true": [
+        "179",
+        0
+      ],
+      "on_false": [
+        "149",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "182": {
+    "inputs": {
+      "boolean": [
+        "76",
+        0
+      ],
+      "on_true": [
+        "179",
+        0
+      ],
+      "on_false": [
+        "74",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "183": {
+    "inputs": {
+      "boolean": [
+        "108",
+        0
+      ],
+      "on_true": [
+        "179",
+        0
+      ],
+      "on_false": [
+        "157",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "184": {
+    "inputs": {
+      "channel": "red",
+      "image": [
+        "3",
+        0
+      ]
+    },
+    "class_type": "ImageToMask",
+    "_meta": {
+      "title": "Convert Image to Mask"
+    }
+  },
+  "185": {
+    "inputs": {
+      "mask": [
+        "184",
+        0
+      ]
+    },
+    "class_type": "easy isMaskEmpty",
+    "_meta": {
+      "title": "Is Mask Empty"
+    }
+  },
+  "186": {
+    "inputs": {
+      "boolean": [
+        "135",
+        0
+      ],
+      "on_true": [
+        "132",
+        0
+      ],
+      "on_false": [
+        "139",
+        1
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "187": {
+    "inputs": {
+      "boolean": [
+        "135",
+        0
+      ],
+      "on_true": [
+        "133",
+        0
+      ],
+      "on_false": [
+        "139",
+        2
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "188": {
     "inputs": {
       "ckpt_name": "placeholder.safetensors"
     },
@@ -1151,7 +1006,20 @@
       "title": "base_model"
     }
   },
-  "174": {
+  "189": {
+    "inputs": {
+      "ckpt_name": "placeholder.safetensors",
+      "any": [
+        "178",
+        0
+      ]
+    },
+    "class_type": "CheckpointLoaderSimple_Any",
+    "_meta": {
+      "title": "base_model"
+    }
+  },
+  "190": {
     "inputs": {
       "anything": [
         "168",
@@ -1161,19 +1029,6 @@
     "class_type": "easy cleanGpuUsed",
     "_meta": {
       "title": "Clean VRAM Used"
-    }
-  },
-  "175": {
-    "inputs": {
-      "ckpt_name": "placeholder.safetensors",
-      "any": [
-        "134",
-        0
-      ]
-    },
-    "class_type": "CheckpointLoaderSimple_Any",
-    "_meta": {
-      "title": "base_model"
     }
   }
 }

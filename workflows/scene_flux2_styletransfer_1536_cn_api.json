@@ -297,7 +297,7 @@
   },
   "151": {
     "inputs": {
-      "value": 1
+      "value": 1.5
     },
     "class_type": "easy float",
     "_meta": {
@@ -392,32 +392,6 @@
       "title": "Resize Image v2"
     }
   },
-  "176": {
-    "inputs": {
-      "value": "SCENE LOCK, FIXED VIEWPOINT, maintaining character consistency and pose. RELIGHTING ONLY: light source from the right, overhead top-down light source, intense colored light (#FFFFFF), cinematic relighting"
-    },
-    "class_type": "easy string",
-    "_meta": {
-      "title": "additional_prompt"
-    }
-  },
-  "177": {
-    "inputs": {
-      "string_a": [
-        "176",
-        0
-      ],
-      "string_b": [
-        "2",
-        0
-      ],
-      "delimiter": ","
-    },
-    "class_type": "StringConcatenate",
-    "_meta": {
-      "title": "Concatenate"
-    }
-  },
   "186": {
     "inputs": {
       "value": 1
@@ -485,7 +459,7 @@
   "191": {
     "inputs": {
       "prompt": [
-        "177",
+        "2",
         0
       ],
       "mode": "1_image",
@@ -507,7 +481,7 @@
         0
       ],
       "image1": [
-        "171",
+        "194",
         0
       ]
     },
@@ -534,6 +508,58 @@
     "class_type": "easy ifElse",
     "_meta": {
       "title": "If else"
+    }
+  },
+  "193": {
+    "inputs": {},
+    "class_type": "noneNode",
+    "_meta": {
+      "title": "None"
+    }
+  },
+  "194": {
+    "inputs": {
+      "boolean": [
+        "196",
+        0
+      ],
+      "on_true": [
+        "193",
+        0
+      ],
+      "on_false": [
+        "171",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "195": {
+    "inputs": {
+      "channel": "red",
+      "image": [
+        "43",
+        0
+      ]
+    },
+    "class_type": "ImageToMask",
+    "_meta": {
+      "title": "Convert Image to Mask"
+    }
+  },
+  "196": {
+    "inputs": {
+      "mask": [
+        "195",
+        0
+      ]
+    },
+    "class_type": "easy isMaskEmpty",
+    "_meta": {
+      "title": "Is Mask Empty"
     }
   }
 }

@@ -6,18 +6,22 @@
             "available_aspect_ratios_selection": "Flux",
             "scene_frontend": {
                 "version": "m1.1",
-                "theme": ["Flux2_StyleTransfer"],
+                "theme": ["Flux2_StyleTransfer_1024px", "Flux2_StyleTransfer_1536px", "Flux2_StyleTransfer_2048px"],
                 "theme_title": "Flux2风格转绘",
                 "disvisible": ["scene_additional_prompt", "scene_additional_prompt_2", "scene_video", "scene_audio","scene_canvas_image","scene_input_image2",
                 "scene_var_number","scene_var_number2","scene_var_number3","scene_switch_option2", "scene_refiner_model", "scene_var_number5", "scene_var_number6", "scene_var_number7", "scene_var_number8", "scene_var_number9", "scene_var_number10"
                 ,"scene_switch_option3","scene_switch_option4"],
                 "task_method": {
-                    "Flux2_StyleTransfer": "flux2_styletransfer_cn"
+                    "Flux2_StyleTransfer_1024px": "flux2_styletransfer_1024_cn",
+                    "Flux2_StyleTransfer_1536px": "flux2_styletransfer_1536_cn",
+                    "Flux2_StyleTransfer_2048px": "flux2_styletransfer_2048_cn"
                 },
                 "scene_steps_min": 4,
                 "scene_steps_max": 6,
                 "scene_steps": {
-                    "Flux2_StyleTransfer": 4
+                    "Flux2_StyleTransfer_1024px": 4,
+                    "Flux2_StyleTransfer_1536px": 4,
+                    "Flux2_StyleTransfer_2048px": 4
                 },
                 "image_preprocessor_method": {
                     "Flux2_StyleTransfer": [["-normalization"]]
@@ -26,11 +30,15 @@
                 "var_number4_min": 0,
                 "var_number4_max": 1.0,
                 "var_number4": {
-                    "Flux2_StyleTransfer": 0
+                    "Flux2_StyleTransfer_1024px": 0,
+                    "Flux2_StyleTransfer_1536px": 0,
+                    "Flux2_StyleTransfer_2048px": 0
                 },
                 "switch_option1_title": "自定义比例[下方选择]",
                 "switch_option1": {
-                    "Flux2_StyleTransfer": false
+                    "Flux2_StyleTransfer_1024px": false,
+                    "Flux2_StyleTransfer_1536px": false,
+                    "Flux2_StyleTransfer_2048px": false
                 },
                 "aspect_ratio" : [ "1024|1:1", "756|9:16", "832|2:3", "1216|4:3", "1248|3:2", "1344|16:9"]
             }
