@@ -1141,7 +1141,7 @@ with shared.gradio_root:
                     identity_qr.upload(simpleai.trigger_input_identity, inputs=identity_qr, outputs=identity_ctrls + [input_id_info], show_progress=False, queue=False)
                 
                 nav_bars = [bar_store_button] + bar_buttons
-                bar_store_button.click(topbar.toggle_preset_store, inputs=state_topbar, outputs=[preset_store, system_params, identity_dialog, current_id_info, current_upstream_status, identity_export_btn] + identity_ctrls + identity_input, show_progress=False).then(fn=lambda x: None, inputs=system_params, _js='(x)=>{refresh_topbar_status_js(x);}')
+                bar_store_button.click(topbar.toggle_preset_store, inputs=state_topbar, outputs=[preset_store, preset_store_list, system_params, identity_dialog, current_id_info, current_upstream_status, identity_export_btn] + identity_ctrls + identity_input, show_progress=False).then(fn=lambda x: None, inputs=system_params, _js='(x)=>{refresh_topbar_status_js(x);}')
                 preset_store_list.click(topbar.update_navbar_from_mystore, inputs=[preset_store_list, state_topbar], outputs=nav_bars + [system_params], show_progress=False).then(fn=lambda x: None, inputs=system_params, _js='(x)=>{refresh_topbar_status_js(x);}')
                 
             with gr.Group():

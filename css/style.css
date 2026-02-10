@@ -705,6 +705,42 @@ div.block.tagHelper.active {
     background-color: darkslategray;
 }
 
+.preset_store button {
+    border: none !important;
+    box-shadow: none;
+    margin: 2px;
+}
+
+.preset_store button.preset-complete {
+    box-shadow: 0 0 4px color-mix(in srgb, var(--secondary-300) 45%, transparent);
+}
+
+.preset_store button.preset-complete div.gallery {
+    text-shadow: 0 0 2px color-mix(in srgb, var(--secondary-300) 45%, transparent);
+}
+
+.preset_store button.preset-missing {
+    border: 1px solid #4B5563 !important;
+}
+
+:root[data-theme="light"] .preset_store button.preset-missing,
+html[data-theme="light"] .preset_store button.preset-missing,
+body[data-theme="light"] .preset_store button.preset-missing {
+    border-color: #ffffff !important;
+}
+
+:root[data-theme="dark"] .preset_store button.preset-missing,
+html[data-theme="dark"] .preset_store button.preset-missing,
+body[data-theme="dark"] .preset_store button.preset-missing {
+    border-color: #4B5563 !important;
+}
+
+.preset_store .gallery,
+.preset_store .grid,
+.preset_store .dataset {
+    overflow: visible !important;
+}
+
 .infobox {
     height: auto;
     position: relative;

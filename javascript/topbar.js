@@ -1,6 +1,7 @@
 let webpath = 'file';
 let nickname = 'guest';
 let task_class_name = 'Fooocus';
+const presetCompleteMarker = "||complete";
 
 async function set_language_by_ui(newLanguage) {
     if (newLanguage === "En") {
@@ -401,9 +402,39 @@ function updatePresetStore(nav_name_list, role, expand_flag, theme) {
         let text = div.textContent.trim();
         let item_name = originalText || text;
         item_name = item_name.trim();
+        let base_name = item_name;
+        let is_complete = div.getAttribute("data-complete") === "1";
+        const had_missing_marker = div.getAttribute("data-missing") === "1";
+        const has_download_marker = had_missing_marker || text.includes('\u2B07') || item_name.includes('\u2B07');
+        const markerIndex = item_name.indexOf(presetCompleteMarker);
+        if (markerIndex >= 0) {
+            base_name = item_name.slice(0, markerIndex).trim();
+            is_complete = true;
+        }
+        if (base_name.endsWith('\u2B07')) {
+            base_name = base_name.slice(0, -1).trim();
+        }
+        if (originalText !== base_name) {
+            div.setAttribute("data-original-text", base_name);
+        }
+        if (div.textContent.trim() !== base_name) {
+            div.textContent = base_name;
+        }
+        if (is_complete) {
+            div.setAttribute("data-complete", "1");
+        } else {
+            div.removeAttribute("data-complete");
+        }
+        if (has_download_marker) {
+            div.setAttribute("data-missing", "1");
+        } else {
+            div.removeAttribute("data-missing");
+        }
+        button.classList.toggle('preset-complete', is_complete);
+        button.classList.toggle('preset-missing', has_download_marker);
 	// console.log("updatePresetStore: otext="+originalText+", text="+text+", name="+item_name);
-	if (item_name) {
-            if (nav_name_list.includes(item_name)) {
+	if (base_name) {
+            if (nav_name_list.includes(base_name)) {
                 if (theme === 'light') {
 		    button.style.background= 'var(--neutral-50)';
                 } else {

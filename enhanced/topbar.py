@@ -127,10 +127,120 @@ def preset_filter(presets):
                         seen_presets.add(modified_name)
                         filtered_presets.append(modified_name)
         return filtered_presets
-
-    except Exception as e:
-        logger.info(f"预置包过滤过程中出现错误: {str(e)}")
+    except Exception:
         return presets
+
+PRESET_COMPLETE_MARKER = "||complete"
+PRESET_MISSING_MARKER = "\u2B07"
+PRESET_STORE_ORDER = [
+    "Z-imageT",
+    "Z-TTP",
+    "Flux2-9BAIO",
+    "Flux2-9BEdit",
+    "Flux2AngleLight",
+    "FluxAIO",
+    "FluxAIOplus",
+    "FluxKontext",
+    "ClothingSwapplus",
+
+    "NunClothingSwap_fp4",
+    "NunClothingSwap_int4",
+    "NunFlux_fp4",
+    "NunFlux_int4",
+    "NunQwen-Edit+_fp4",
+    "NunQwen-Edit+_int4",
+    "Qwen-Edit+",
+    "Qwen2512",
+    "QwenA2R",
+    "QwenMultiAngle",
+    "QwenNSFW",
+    "Illustrious",
+    "Illustrious2",
+    "IllustriousAIO",
+    "NewBie",
+    "StyleTransfer+",
+    "StyleTransfer",
+    "Wan(I2V)",
+    "Dasiwa(I2V)",
+    "Wan(T2I)",
+    "Wan-TTP",
+    "Wan(T2V)",
+    "Wan-Animate",
+    "Animate-Outpaint",
+    "Wan-SCAIL",
+    "default",
+    "eraser-a",
+    "StyleTransfer+",
+    "StyleTransfer",
+    "x1-okremovebg",
+    "x2-okimagerepair+",
+    "OneKeyKontext",
+    "OneKeyPose",
+    "x3-swapface",
+    "x4-okdepthstatue",
+    "Tile",
+    "relight",
+    "SD15AIO",
+]
+
+def _strip_preset_marker(name):
+    if not isinstance(name, str):
+        return name
+    base = name
+    if PRESET_COMPLETE_MARKER in base:
+        base = base.split(PRESET_COMPLETE_MARKER, 1)[0].strip()
+    if base.endswith(PRESET_MISSING_MARKER):
+        base = base[:-len(PRESET_MISSING_MARKER)].strip()
+    return base
+
+def _canonicalize_preset_name(name):
+    if not isinstance(name, str):
+        return name
+    name = _strip_preset_marker(name)
+    if name.endswith('.'):
+        name = name[:-1]
+    if name.endswith('_fp4'):
+        name = name[:-4]
+    elif name.endswith('_int4'):
+        name = name[:-5]
+    return name
+
+def _append_status_marker(preset_name, user_did=None):
+    if not isinstance(preset_name, str) or not preset_name:
+        return preset_name
+    base_name = _strip_preset_marker(preset_name).strip()
+    if is_models_file_absent(base_name, user_did):
+        return f"{base_name}{PRESET_MISSING_MARKER}"
+    return f"{base_name}{PRESET_COMPLETE_MARKER}"
+
+def _apply_complete_markers(preset_list, user_did=None):
+    marked_list = []
+    for item in preset_list:
+        if isinstance(item, list) and len(item) > 0:
+            marked_name = _append_status_marker(item[0], user_did)
+            marked_list.append([marked_name] + item[1:])
+        else:
+            marked_list.append(item)
+    return marked_list
+
+def _filter_existing_presets(presets, user_did=None):
+    path_preset = os.path.abspath(f'./presets/')
+    user_path_preset = get_path_in_user_dir('presets', user_did) if user_did else get_path_in_user_dir('presets')
+    available = []
+    arch_str = config.get_gpu_arch_str_in_preset_name()
+    for preset in presets:
+        preset_name = _strip_preset_marker(preset)
+        if preset_name.endswith('.'):
+            preset_file = os.path.join(user_path_preset, f'{preset_name[:-1]}.json')
+            preset_file2 = os.path.join(user_path_preset, f'{preset_name[:-1]}{arch_str}.json')
+        else:
+            preset_file = os.path.join(path_preset, f'{preset_name}.json')
+            preset_file2 = os.path.join(path_preset, f'{preset_name}{arch_str}.json')
+        if os.path.exists(preset_file2):
+            preset_file = preset_file2
+        if os.path.exists(preset_file):
+            available.append(preset)
+    return available
 
 def get_preset_name_list(user_session, ua_hash):
     user_did = shared.token.check_sstoken_and_get_did(user_session, ua_hash)
@@ -218,27 +328,80 @@ def get_preset_name_list(user_session, ua_hash):
     return presets_list
 
 preset_samples = {}
+preset_samples_user_mtime = {}
+preset_samples_base_mtime = {}
+PRESET_COMPLETE_REFRESH_SECONDS = 8
+preset_samples_complete_ts = {}
 def get_preset_samples(user_did=None):
-    global preset_samples
+    global preset_samples, preset_samples_user_mtime, preset_samples_base_mtime, preset_samples_complete_ts
+    cache_key = user_did if user_did else 'guest'
     path_preset = os.path.abspath(f'./presets/')
-    presets = [p[:-5] for p in util.get_files_from_folder(path_preset, ['.json'], None) 
-              if not p.startswith('.') and 'deprecated' not in p]
+    base_files = [p for p in util.get_files_from_folder(path_preset, ['.json'], None) 
+                 if not p.startswith('.') and 'deprecated' not in p]
+    base_presets = [p[:-5] for p in base_files]
+    base_mtime = 0
+    for f in base_files:
+        try:
+            base_mtime = max(base_mtime, os.path.getmtime(os.path.join(path_preset, f)))
+        except Exception:
+            continue
+
     user_path_preset = get_path_in_user_dir('presets', user_did) if user_did else get_path_in_user_dir('presets')
+    user_presets = []
+    user_mtime = 0
     if user_path_preset and os.path.exists(user_path_preset):
         presets2 = [p for p in util.get_files_from_folder(user_path_preset, ['.json'], None)
                    if not p.startswith('.') and 'deprecated' not in p]
-        presets2 = [f'{p[:-5]}.' for p in presets2]
-        presets = presets + presets2
-    presets = sorted(presets)
-    refresh_model_list(presets, user_did)
-    # presets.remove(config.preset)
-    presets = [[p] for p in presets]
-    presets = preset_filter(presets)
-    if user_did:
-        preset_samples[user_did] = presets
+        for p in presets2:
+            user_presets.append(f'{p[:-5]}.')
+            try:
+                user_mtime = max(user_mtime, os.path.getmtime(os.path.join(user_path_preset, p)))
+            except Exception:
+                continue
+
+    store_list = _filter_existing_presets(PRESET_STORE_ORDER, user_did)
+
+    if (
+        cache_key in preset_samples
+        and preset_samples_user_mtime.get(cache_key, -1) == user_mtime
+        and preset_samples_base_mtime.get(cache_key, -1) == base_mtime
+    ):
+        cached = preset_samples[cache_key]
+        now = time.time()
+        last_ts = preset_samples_complete_ts.get(cache_key, 0)
+        if now - last_ts < PRESET_COMPLETE_REFRESH_SECONDS:
+            return cached
+        refreshed = _apply_complete_markers(cached, user_did)
+        preset_samples[cache_key] = refreshed
+        preset_samples_complete_ts[cache_key] = now
+        return refreshed
+
+    if store_list:
+        ordered_presets = store_list[:]
     else:
-        preset_samples['guest'] = presets
-    return presets
+        ordered_presets = []
+    existing = {_canonicalize_preset_name(p) for p in ordered_presets}
+    # 追加：开发者硬编码之外的基础预置（按文件名字典序）
+    for preset in sorted(base_presets):
+        canonical = _canonicalize_preset_name(preset)
+        if canonical not in existing:
+            ordered_presets.append(preset)
+            existing.add(canonical)
+    # 追加：用户自定义预置（末尾，带.标识）
+    for preset in user_presets:
+        canonical = _canonicalize_preset_name(preset)
+        if canonical not in existing:
+            ordered_presets.append(preset)
+            existing.add(canonical)
+
+    refresh_model_list(ordered_presets, user_did)
+    ordered_list = preset_filter([[p] for p in ordered_presets])
+    marked_list = _apply_complete_markers(ordered_list, user_did)
+    preset_samples[cache_key] = marked_list
+    preset_samples_user_mtime[cache_key] = user_mtime
+    preset_samples_base_mtime[cache_key] = base_mtime
+    preset_samples_complete_ts[cache_key] = time.time()
+    return marked_list
 
 
 def get_system_message():
@@ -858,6 +1021,7 @@ def check_admin_exists():
 
 def toggle_preset_store(state):
     user_in_state = 'user' in state
+    store_update = gr.update(samples=get_preset_samples(state["user"].get_did() if user_in_state else None))
     is_guest = shared.token.is_guest(state["user"].get_did()) if user_in_state else True
     if user_in_state and not is_guest:
         if 'preset_store' in state:
@@ -867,7 +1031,7 @@ def toggle_preset_store(state):
             flag = False
         state['preset_store'] = not flag
         state['identity_dialog'] = False
-        return [gr.update(visible=not flag)] + update_topbar_js_params(state) + [gr.update(visible=False)] + [gr.update()]*17
+        return [gr.update(visible=not flag), store_update] + update_topbar_js_params(state) + [gr.update(visible=False)] + [gr.update()]*17
     else:
         has_admin = False
         has_admin = check_admin_exists()
@@ -880,9 +1044,9 @@ def toggle_preset_store(state):
                 flag = False
             state['preset_store'] = not flag
             state['identity_dialog'] = False
-            return [gr.update(visible=not flag)] + update_topbar_js_params(state) + [gr.update(visible=False)] + [gr.update()]*17
+            return [gr.update(visible=not flag), store_update] + update_topbar_js_params(state) + [gr.update(visible=False)] + [gr.update()]*17
         else:
-            return [gr.update()] + update_topbar_js_params(state) + toggle_identity_dialog(state)
+            return [gr.update(), store_update] + update_topbar_js_params(state) + toggle_identity_dialog(state)
 
 def update_navbar_from_mystore(selected_preset, state):
     global preset_samples
@@ -890,6 +1054,7 @@ def update_navbar_from_mystore(selected_preset, state):
     is_guest = shared.token.is_guest(user_did)
 
     selected_preset_name = preset_samples[user_did if not is_guest else 'guest'][selected_preset][0]
+    selected_preset_name = _strip_preset_marker(selected_preset_name)
 
     results = refresh_nav_bars(state)
     results2 = update_topbar_js_params(state)
