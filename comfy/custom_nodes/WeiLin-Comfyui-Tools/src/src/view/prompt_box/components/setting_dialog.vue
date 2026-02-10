@@ -6,6 +6,9 @@
           <li :class="{ 'weilin-comfyui-active': selectedSetting === 'translator' }"
             @click="selectSetting('translator')">{{
               t('promptBox.settings.translator') }}</li>
+          <li :class="{ 'weilin-comfyui-active': selectedSetting === 'setting_function_toggles' }"
+            @click="selectSetting('setting_function_toggles')">{{
+              t('promptBox.settings.setting_function_toggles') }}</li>
           <li :class="{ 'weilin-comfyui-active': selectedSetting === 'setting_auto_complete_limit' }"
             @click="selectSetting('setting_auto_complete_limit')">{{
               t('promptBox.settings.setting_auto_complete_limit') }}</li>
@@ -32,8 +35,8 @@
           <div class="weilin-comfyui-setting-select">
             <label> {{ t('promptBox.settings.selectTranslater') }}</label>
             <select style="margin-left: 10px;" v-model="settingTranslater" class="weilin-comfyui-common-select">
-              <!-- <option value="network"> {{ t('promptBox.settings.selectOptionNetworkTranslator') }}</option>
-              <option value="translater">{{ t('promptBox.settings.selectOptionPythonTranslater') }}</option> -->
+              <!-- <option value="network"> {{ t('promptBox.settings.selectOptionNetworkTranslator') }}</option> -->
+              <option value="translater">{{ t('promptBox.settings.selectOptionPythonTranslater') }}</option>
               <option value="other_ai_plate">使用三方AI平台翻译</option>
               <option value="openai">OpenAI API 翻译</option>
             </select>
@@ -71,12 +74,13 @@
                 {{ t('promptBox.settings.save') }}
               </button>
             </div>
+            <!-- 网络API翻译接口 -->
             <div class="weilin-comfyui-group-box" v-if="settingTranslater == 'translater'">
               <div class="weilin-comfyui-group-title">{{ t('promptBox.settings.selectOptionPythonTranslaterTitle') }}
               </div>
-              <div class="weilin-comfyui-note-top">{{ t('promptBox.settings.selectOptionPythonTranslaterInfo')
-              }}：https://github.com/UlionTse/translators</div>
-              <div class="weilin-comfyui-translater-innstall-status">
+              <!-- <div class="weilin-comfyui-note-top">{{ t('promptBox.settings.selectOptionPythonTranslaterInfo')
+              }}：https://github.com/UlionTse/translators</div> -->
+              <!-- <div class="weilin-comfyui-translater-innstall-status">
                 <div class="weilin-comfyui-translater-install-label">
                   {{ t('promptBox.settings.nowTranlaterPackageState') }} {{ hasTranslaterPackage ?
                     t('promptBox.settings.tranlaterPackageStateTrue') : t('promptBox.settings.tranlaterPackageStateFlase')
@@ -91,8 +95,8 @@
                     {{ installTranslater ? t('promptBox.settings.installed') : t('promptBox.settings.install') }}
                   </button>
                 </div>
-              </div>
-              <div class="weilin-comfyui-translater-setting-box" v-if="hasTranslaterPackage">
+              </div> -->
+              <div class="weilin-comfyui-translater-setting-box">
                 <div class="weilin-comfyui-setting-small-titile">{{ t('promptBox.settings.translaterSetting') }}</div>
                 <div class="weilin-comfyui-setting-item">
                   <label>{{ t('promptBox.settings.chooseTranslaterSetting') }}</label>
@@ -121,15 +125,15 @@
                   {{ t('promptBox.settings.saveTranslaterSetting') }}
                 </button>
               </div>
-              <div class="weilin-comfyui-tranlater-text-box" v-if="hasTranslaterPackage">
+              <div class="weilin-comfyui-tranlater-text-box">
                 <div class="weilin-comfyui-setting-small-titile">{{ t('promptBox.settings.testTranslaterTitle') }}</div>
                 <div class="weilin-comfyui-setting-item">
-                  <label>{{ t('promptBox.settings.inputTestTranslater') }}</label>
+                  <label>{{ t('promptBox.settings.inputTestTranslater') }} - {{ t('translaterLanguage.' +retLanguageName(targetLanguage)) }}</label>
                   <input type="text" v-model="testTranslaterInputText"
                     :placeholder="t('promptBox.settings.inputTestTranslaterPlaceholder')" />
                 </div>
                 <div class="weilin-comfyui-setting-item">
-                  <label>{{ t('promptBox.settings.outPutTestTranslater') }}</label>
+                  <label>{{ t('promptBox.settings.outPutTestTranslater') }} - {{ t('translaterLanguage.' +retLanguageName(sourceLanguage)) }} </label>
                   <input type="text" v-model="testTranslaterOutputText" readonly
                     :placeholder="t('promptBox.settings.outPutTestTranslaterPlaceholder')" />
                 </div>
@@ -159,6 +163,50 @@
                 :placeholder="t('promptBox.settings.settingAutoCompleteHeightPlaceholder')" />
             </div>
             <button class="weilin-comfyui-save-button" @click="saveAutoCompleteSetting">
+              {{ t('promptBox.settings.save') }}
+            </button>
+          </div>
+        </div>
+        <div v-if="selectedSetting === 'setting_function_toggles'">
+          <h3>{{ t('promptBox.settings.setting_function_toggles_full') }}</h3>
+          <div class="weilin-comfyui-floating-ball-settings">
+            <div class="weilin-comfyui-setting-item">
+              <label>
+                <input type="checkbox" v-model="isClearAllEnabled" />
+                {{ t('promptBox.settings.enableClearAll') }}
+              </label>
+            </div>
+            <div class="weilin-comfyui-setting-item">
+              <label>
+                <input type="checkbox" v-model="isDeleteButtonEnabled" />
+                {{ t('promptBox.settings.enableDeleteButton') }}
+              </label>
+            </div>
+            <div class="weilin-comfyui-setting-item">
+              <label>
+                <input type="checkbox" v-model="isRandomTagEnabled" />
+                {{ t('promptBox.settings.enableRandomTag') }}
+              </label>
+            </div>
+            <div class="weilin-comfyui-setting-item">
+              <label>
+                <input type="checkbox" v-model="isRandomTagSettingsEnabled" />
+                {{ t('promptBox.settings.enableRandomTagSettings') }}
+              </label>
+            </div>
+            <div class="weilin-comfyui-setting-item">
+              <label>
+                <input type="checkbox" v-model="isTranslateTagEnabled" />
+                {{ t('promptBox.settings.enableTranslateTag') }}
+              </label>
+            </div>
+            <div class="weilin-comfyui-setting-item">
+              <label>
+                <input type="checkbox" v-model="isClearDisabledEnabled" />
+                {{ t('promptBox.settings.enableClearDisabled') }}
+              </label>
+            </div>
+            <button class="weilin-comfyui-save-button" @click="saveFunctionToggles">
               {{ t('promptBox.settings.save') }}
             </button>
           </div>
@@ -386,8 +434,10 @@
 
 <script setup>
 import Dialog from '@/components/Dialog.vue'
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, defineEmits } from 'vue'
 import { useI18n } from 'vue-i18n'
+
+const emit = defineEmits(['functionTogglesUpdated'])
 import { translatorApi } from '@/api/translator'
 import { autocompleteApi } from '@/api/autocomplete'
 import message from '@/utils/message'
@@ -427,7 +477,14 @@ const isUnderscoreToBracketEnabled = ref(localStorage.getItem('weilin_prompt_ui_
 const isCommaCloseAutocompleteEnabled = ref(localStorage.getItem('weilin_prompt_ui_comma_close_autocomplete') === 'true');
 const isBracketEscapeEnabled = ref(localStorage.getItem('weilin_prompt_ui_bracket_escape') === 'true');
 
-// 翻译库设置
+// 功能开关状态
+const isClearAllEnabled = ref(localStorage.getItem('weilin_function_toggles_clearAll') !== 'false'); // 默认true
+const isDeleteButtonEnabled = ref(localStorage.getItem('weilin_function_toggles_deleteButton') !== 'false'); // 默认true
+const isRandomTagEnabled = ref(localStorage.getItem('weilin_function_toggles_randomTag') !== 'false'); // 默认true
+const isRandomTagSettingsEnabled = ref(localStorage.getItem('weilin_function_toggles_randomTagSettings') !== 'false'); // 默认true
+const isTranslateTagEnabled = ref(localStorage.getItem('weilin_function_toggles_translateTag') !== 'false'); // 默认true
+const isClearDisabledEnabled = ref(localStorage.getItem('weilin_function_toggles_clearDisabled') !== 'false'); // 默认true
+
 const selectedTranslatorService = ref('');
 const sourceLanguage = ref('');
 const targetLanguage = ref('');
@@ -505,6 +562,28 @@ const saveTranslatorSettings = () => {
   // 显示保存成功提示
   message({ type: "success", str: 'message.saveSuccess' });
 }
+
+// 保存功能开关设置
+const saveFunctionToggles = () => {
+  localStorage.setItem('weilin_function_toggles_clearAll', isClearAllEnabled.value);
+  localStorage.setItem('weilin_function_toggles_deleteButton', isDeleteButtonEnabled.value);
+  localStorage.setItem('weilin_function_toggles_randomTag', isRandomTagEnabled.value);
+  localStorage.setItem('weilin_function_toggles_randomTagSettings', isRandomTagSettingsEnabled.value);
+  localStorage.setItem('weilin_function_toggles_translateTag', isTranslateTagEnabled.value);
+  localStorage.setItem('weilin_function_toggles_clearDisabled', isClearDisabledEnabled.value);
+
+  // 通知父组件更新功能开关状态
+  emit('functionTogglesUpdated', {
+    clearAll: isClearAllEnabled.value,
+    deleteButton: isDeleteButtonEnabled.value,
+    randomTag: isRandomTagEnabled.value,
+    randomTagSettings: isRandomTagSettingsEnabled.value,
+    translateTag: isTranslateTagEnabled.value,
+    clearDisabled: isClearDisabledEnabled.value
+  });
+
+  message({ type: "success", str: 'message.saveSuccess' });
+};
 
 // 添加皮肤上传处理函数
 const handleSkinUpload = (e) => {
@@ -672,18 +751,18 @@ const startPanel = () => {
 };
 
 
-const getTranskatePackagesState = () => {
-  translatorApi.getTranslatePackagesState().then(res => {
-    // console.log(res)
-    if (res.info == "ok") {
-      hasTranslaterPackage.value = true;
-    } else {
-      hasTranslaterPackage.value = false;
-    }
-  }).catch(err => {
-    message({ type: "warn", str: 'message.getTranslaterFail' });
-  })
-};
+// const getTranskatePackagesState = () => {
+//   translatorApi.getTranslatePackagesState().then(res => {
+//     // console.log(res)
+//     if (res.info == "ok") {
+//       hasTranslaterPackage.value = true;
+//     } else {
+//       hasTranslaterPackage.value = false;
+//     }
+//   }).catch(err => {
+//     message({ type: "warn", str: 'message.getTranslaterFail' });
+//   })
+// };
 
 const getTranskateSetting = () => {
   translatorApi.getTranslateSetting().then(res => {
@@ -736,58 +815,68 @@ const saveTranslaterSetting = () => {
 
 // 翻译文本
 const translaterTextTest = () => {
-  translatorApi.translaterInputText(testTranslaterInputText.value).then(res => {
-    // console.log(res)
-    testTranslaterOutputText.value = res.text;
-  }).catch(err => {
-    message({ type: "warn", str: 'message.translaterTestFail' });
-  })
+  // if (settingTranslater.value == 'translater') {
+    translatorApi.translaterInputText("", testTranslaterInputText.value).then(res => {
+      // console.log(res)
+      testTranslaterOutputText.value = res.data;
+    }).catch(err => {
+      message({ type: "warn", str: 'message.translaterTestFail' });
+    })
+  // } else {
+  //   translatorApi.translaterInputText(testTranslaterInputText.value).then(res => {
+  //     // console.log(res)
+  //     testTranslaterOutputText.value = res.text;
+  //   }).catch(err => {
+  //     message({ type: "warn", str: 'message.translaterTestFail' });
+  //   })
+  // }
+
 };
 
 const installCheckInterval = ref(null);
 
-const installTranslaterPackage = () => {
-  installTranslater.value = true;
-  translatorApi.installTranslatePackage().then(res => {
-    installTranslater.value = false;
-    hasTranslaterPackage.value = true;
-    // console.log(res)
-    message({ type: "success", str: 'message.tranlaterPackageInstallSuccess' });
-  }).catch(err => {
-    installTranslater.value = false;
-    message({ type: "warn", str: 'message.tranlaterPackageInstallFail' });
-  })
-  // 开始定时检查
-  // installTranslater.value = true;
-  //   installCheckInterval.value = setInterval(() => {
-  //     checkTranskatePackagesState();
-  // }, 1000);
-};
+// const installTranslaterPackage = () => {
+//   installTranslater.value = true;
+//   translatorApi.installTranslatePackage().then(res => {
+//     installTranslater.value = false;
+//     hasTranslaterPackage.value = true;
+//     // console.log(res)
+//     message({ type: "success", str: 'message.tranlaterPackageInstallSuccess' });
+//   }).catch(err => {
+//     installTranslater.value = false;
+//     message({ type: "warn", str: 'message.tranlaterPackageInstallFail' });
+//   })
+//   // 开始定时检查
+//   // installTranslater.value = true;
+//   //   installCheckInterval.value = setInterval(() => {
+//   //     checkTranskatePackagesState();
+//   // }, 1000);
+// };
 
-const checkTranskatePackagesState = () => {
-  translatorApi.getTranslatePackagesState().then(res => {
-    // console.log(res)
-    if (res.info == "ok") {
-      hasTranslaterPackage.value = true;
-      // 停止定时器
-      if (installCheckInterval.value) {
-        clearInterval(installCheckInterval.value);
-        installCheckInterval.value = null;
-      }
-      message({ type: "success", str: 'message.tranlaterPackageInstallSuccess' });
-    } else {
-      hasTranslaterPackage.value = false;
-    }
-  }).catch(err => {
-    installTranslater.value = false;
-    // 出错时也停止定时器
-    if (installCheckInterval.value) {
-      clearInterval(installCheckInterval.value);
-      installCheckInterval.value = null;
-    }
-    message({ type: "warn", str: 'message.getTranslaterFail' });
-  })
-};
+// const checkTranskatePackagesState = () => {
+//   translatorApi.getTranslatePackagesState().then(res => {
+//     // console.log(res)
+//     if (res.info == "ok") {
+//       hasTranslaterPackage.value = true;
+//       // 停止定时器
+//       if (installCheckInterval.value) {
+//         clearInterval(installCheckInterval.value);
+//         installCheckInterval.value = null;
+//       }
+//       message({ type: "success", str: 'message.tranlaterPackageInstallSuccess' });
+//     } else {
+//       hasTranslaterPackage.value = false;
+//     }
+//   }).catch(err => {
+//     installTranslater.value = false;
+//     // 出错时也停止定时器
+//     if (installCheckInterval.value) {
+//       clearInterval(installCheckInterval.value);
+//       installCheckInterval.value = null;
+//     }
+//     message({ type: "warn", str: 'message.getTranslaterFail' });
+//   })
+// };
 
 
 const getAutoCompleteSetting = async () => {
@@ -810,10 +899,15 @@ const saveAutoCompleteSetting = async () => {
   })
 }
 
+const retLanguageName = (code) => {
+  const lang = language.find(lang => lang.translator === code);
+  return lang ? lang.language : code;
+}
+
 // 初始化时加载设置
 onMounted(() => {
   getTranskateBuktSetting();
-  getTranskatePackagesState();
+  // getTranskatePackagesState();
   getTranskateSetting();
   loadOpenaiSettings();
 });

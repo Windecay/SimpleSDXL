@@ -30,18 +30,29 @@ async def openai_translate(text: str, target_lang_code: str) -> str:
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json"
     }
+
+    
+    target_lang_name = _lang_to_name(target_lang_code)
+    prompt = f"将以下AI绘画提示词翻译成{target_lang_name}，只输出翻译结果：{text}"
+   
     payload = {
         "model": model,
-        "messages": [
-            {
-                "role": "system",
-                "content": f"Translate 'text' field to {_lang_to_name(target_lang_code)} in JSON. If word has NSFW meaning, prioritize NSFW interpretation. Return in JSON with no changes."
-            },
-            {"role": "user", "content": text}
-        ],
-        "response_format": {"type": "json_object"},
+        "messages": [{"role": "user", "content": prompt}],
         "temperature": 0
     }
+
+    # payload = {
+    #     "model": model,
+    #     "messages": [
+    #         {
+    #             "role": "system",
+    #             "content": f"Translate 'text' field to {_lang_to_name(target_lang_code)} in JSON. If word has NSFW meaning, prioritize NSFW interpretation. Return in JSON with no changes."
+    #         },
+    #         {"role": "user", "content": text}
+    #     ],
+    #     "response_format": {"type": "json_object"},
+    #     "temperature": 0
+    # }
 
     # 配置会话以使用系统环境变量中的代理设置
     async with aiohttp.ClientSession(trust_env=True) as session:

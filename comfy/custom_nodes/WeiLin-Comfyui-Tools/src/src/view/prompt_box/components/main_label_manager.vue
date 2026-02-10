@@ -4,6 +4,19 @@
       <input v-model="search" class="mlm-search" type="text" placeholder="搜索标签…" />
       <button class="mlm-add" @click="createNew">+ 新建标签</button>
 
+      <!-- 从浏览器迁移数据按钮 -->
+      <button class="mlm-migrate" @click="migrateFromLocalStorage" title="将浏览器中的旧数据迁移到服务器">
+        📦 从浏览器迁移数据
+      </button>
+
+      <!-- 导入导出按钮区域 -->
+      <div class="mlm-io-grid">
+        <button class="mlm-export" @click="exportToJSON" title="导出提示词数据到JSON文件">导出数据</button>
+        <button class="mlm-import" @click="triggerImport" title="从JSON文件导入提示词数据">导入数据</button>
+      </div>
+      <input ref="fileInput" type="file" accept=".json" style="display: none;" @change="importFromJSON" />
+
+      <!-- 排序和编辑按钮区域 -->
       <div class="mlm-grid">
         <button class="mlm-sort" @click="toggleTimeSort">
           按时间 {{ sortTimeDesc ? '后→先' : '先→后' }}
@@ -65,11 +78,14 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, defineExpose } from 'vue'
+import axios from 'axios'
 
-const STORAGE_KEY = 'weilin_prompt_ui_main_labels_v1'
+const API_BASE = '/weilin/prompt_ui/api/'
 
 const props = defineProps({ selectedId: { type: String, default: null } })
 const emit = defineEmits(['select'])
+
+const fileInput = ref(null)
 
 const search = ref('')
 const items = ref([]) // { id, name, content, createdAt, updatedAt, pinned, highlighted, order }
@@ -83,8 +99,11 @@ const sortMode = ref('time') // 'time' | 'name' | 'manual'
 const draggingId = ref(null)
 const dragOverId = ref(null)
 
+// localStorage 迁移相关
+const LEGACY_STORAGE_KEY = 'weilin_prompt_ui_main_labels_v1'
+
 /** ---------------- 持久化 ---------------- **/
-function save() {
+async function save() {
   const payload = {
     items: items.value,
     settings: {
@@ -94,14 +113,21 @@ function save() {
       selectedId: internalSelectedId.value
     }
   }
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(payload))
+
+  try {
+    await axios.post(API_BASE + 'labels/save', payload)
+  } catch (error) {
+    console.error('保存标签数据失败:', error)
+    alert('保存失败: ' + error.message)
+  }
 }
 
-function load() {
+async function load() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (!raw) throw new Error('no data')
-    const parsed = JSON.parse(raw)
+    const response = await axios.get(API_BASE + 'labels/get')
+    const parsed = response.data?.data
+
+    if (!parsed) throw new Error('no data')
 
     // 兼容旧数据（纯数组）与新数据（带 settings）
     const loadedItems = Array.isArray(parsed) ? parsed : (parsed?.items ?? [])
@@ -124,41 +150,43 @@ function load() {
     if (typeof settings.selectedId === 'string' || settings.selectedId === null) {
       internalSelectedId.value = settings.selectedId
     }
-  } catch {
+  } catch (error) {
+    console.error('加载标签数据失败:', error)
     items.value = []
   }
 }
 
 /** ---------------- 生命周期 ---------------- **/
-onMounted(() => {
-  load()
+onMounted(async () => {
+  // 等待数据加载完成
+  await load()
 
   // 1) 首次无数据：初始化示例并选中 + 通知父组件
-  if (items.value.length === 0) {
-    const id = genId()
-    items.value.push({
-      id,
-      name: '示例标签',
-      content: '',
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-      pinned: false,
-      highlighted: false,
-      order: 0
-    })
-    save()
-    internalSelectedId.value = id         // 触发上面的 watcher -> 会 emit('select', {...})
-    return
-  }
+  // if (items.value.length === 0) {
+  //   const id = genId()
+  //   items.value.push({
+  //     id,
+  //     name: '示例标签',
+  //     content: '',
+  //     createdAt: Date.now(),
+  //     updatedAt: Date.now(),
+  //     pinned: false,
+  //     highlighted: false,
+  //     order: 0
+  //   })
+  //   await save()
+  //   internalSelectedId.value = id         // 触发上面的 watcher -> 会 emit('select', {...})
+  //   return
+  // }
 
   // 2) 有数据：校验 selectedId 是否仍然存在
-  if (!getById(internalSelectedId.value)) {
-    internalSelectedId.value = items.value[0]?.id ?? null  // 触发 watcher -> emit
-  } else {
-    // 存在：手动补发一次（以防 selectedId 未变化而 watcher不触发）
-    const node = getById(internalSelectedId.value)
-    emit('select', node ? { ...node } : null)
-  }
+  // if (!getById(internalSelectedId.value)) {
+  //   internalSelectedId.value = items.value[0]?.id ?? null  // 触发 watcher -> emit
+  // } else {
+  //   // 存在：手动补发一次（以防 selectedId 未变化而 watcher不触发）
+  //   const node = getById(internalSelectedId.value)
+  //   emit('select', node ? { ...node } : null)
+  // }
 })
 
 
@@ -393,6 +421,259 @@ function onDragEnd() {
   dragOverId.value = null
 }
 
+/** ---------------- localStorage 迁移功能 ---------------- **/
+async function migrateFromLocalStorage() {
+  try {
+    const raw = localStorage.getItem(LEGACY_STORAGE_KEY)
+    if (!raw) {
+      alert('未找到浏览器中的旧数据')
+      return
+    }
+
+    const parsed = JSON.parse(raw)
+
+    // 兼容旧数据（纯数组）与新数据（带 settings）
+    const localItems = Array.isArray(parsed) ? parsed : (parsed?.items ?? [])
+    const localSettings = Array.isArray(parsed) ? {} : (parsed?.settings ?? {})
+
+    if (!Array.isArray(localItems) || localItems.length === 0) {
+      alert('浏览器中没有可迁移的数据')
+      return
+    }
+
+    // 询问用户迁移模式
+    const confirmed = window.confirm(
+      `发现浏览器中有 ${localItems.length} 个标签\n\n` +
+      `点击"确定"将这些数据迁移到服务器\n` +
+      `（会与服务器现有数据合并，不会覆盖）`
+    )
+
+    if (!confirmed) return
+
+    // 合并模式：检查ID冲突
+    const existingIds = new Set(items.value.map(i => i.id))
+    const maxOrder = items.value.reduce((m, x) =>
+      Math.max(m, typeof x.order === 'number' ? x.order : m), -1)
+
+    let addedCount = 0
+    localItems.forEach((i, idx) => {
+      let finalId = i.id
+      // 如果ID冲突，重新生成
+      if (existingIds.has(finalId)) {
+        finalId = genId()
+      }
+      existingIds.add(finalId)
+
+      items.value.push({
+        id: finalId,
+        name: i.name ?? '未命名',
+        content: i.content ?? '',
+        createdAt: i.createdAt ?? i.updatedAt ?? Date.now(),
+        updatedAt: i.updatedAt ?? i.createdAt ?? Date.now(),
+        pinned: !!i.pinned,
+        highlighted: !!i.highlighted,
+        order: typeof i.order === 'number' ? (maxOrder + 1 + idx) : (maxOrder + 1 + idx)
+      })
+      addedCount++
+    })
+
+    // 可选：恢复旧设置（如果服务器端没有设置的话）
+    if (!sortMode.value && localSettings.sortMode) {
+      sortMode.value = localSettings.sortMode
+    }
+    if (typeof sortTimeDesc.value === 'undefined' && typeof localSettings.sortTimeDesc === 'boolean') {
+      sortTimeDesc.value = localSettings.sortTimeDesc
+    }
+    if (typeof sortNameAsc.value === 'undefined' && typeof localSettings.sortNameAsc === 'boolean') {
+      sortNameAsc.value = localSettings.sortNameAsc
+    }
+
+    // 保存到服务器
+    await save()
+
+    alert(`迁移成功！\n\n已从浏览器迁移 ${addedCount} 个标签到服务器\n当前共 ${items.value.length} 个标签`)
+
+  } catch (error) {
+    console.error('迁移失败:', error)
+    alert('迁移失败: ' + error.message)
+  }
+}
+
+/** ---------------- 导出/导入功能 ---------------- **/
+function exportToJSON() {
+  try {
+    // 获取完整的localStorage数据
+    const payload = {
+      items: items.value,
+      settings: {
+        sortMode: sortMode.value,
+        sortTimeDesc: sortTimeDesc.value,
+        sortNameAsc: sortNameAsc.value,
+        selectedId: internalSelectedId.value
+      },
+      exportTime: new Date().toISOString(),
+      version: 'v1'
+    }
+
+    // 转换为JSON字符串
+    const jsonStr = JSON.stringify(payload, null, 2)
+
+    // 创建Blob对象
+    const blob = new Blob([jsonStr], { type: 'application/json' })
+
+    // 创建下载链接
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+
+    // 生成文件名：weilin_prompt_labels_YYYYMMDD_HHMMSS.json
+    const now = new Date()
+    const dateStr = now.getFullYear() +
+                   (now.getMonth() + 1).toString().padStart(2, '0') +
+                   now.getDate().toString().padStart(2, '0')
+    const timeStr = now.getHours().toString().padStart(2, '0') +
+                   now.getMinutes().toString().padStart(2, '0') +
+                   now.getSeconds().toString().padStart(2, '0')
+    a.download = `weilin_prompt_labels_${dateStr}_${timeStr}.json`
+
+    // 触发下载
+    document.body.appendChild(a)
+    a.click()
+
+    // 清理
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+
+    alert(`导出成功！共导出 ${items.value.length} 个标签`)
+  } catch (error) {
+    console.error('导出失败:', error)
+    alert('导出失败: ' + error.message)
+  }
+}
+
+function triggerImport() {
+  // 触发隐藏的文件选择器
+  fileInput.value?.click()
+}
+
+async function importFromJSON(event) {
+  const file = event.target.files?.[0]
+  if (!file) return
+
+  const reader = new FileReader()
+
+  reader.onload = async (e) => {
+    try {
+      const content = e.target?.result
+      if (typeof content !== 'string') {
+        throw new Error('文件读取失败')
+      }
+
+      const parsed = JSON.parse(content)
+
+      // 验证数据格式
+      if (!parsed || typeof parsed !== 'object') {
+        throw new Error('JSON格式不正确')
+      }
+
+      // 兼容旧格式（纯数组）和新格式（带settings）
+      const importedItems = Array.isArray(parsed) ? parsed : (parsed?.items ?? [])
+      const importedSettings = Array.isArray(parsed) ? {} : (parsed?.settings ?? {})
+
+      if (!Array.isArray(importedItems)) {
+        throw new Error('数据格式错误：未找到items数组')
+      }
+
+      // 询问用户是合并还是替换
+      const mode = window.confirm(
+        `检测到 ${importedItems.length} 个标签\n\n` +
+        `点击"确定"将替换当前所有数据\n` +
+        `点击"取消"将合并导入（保留现有数据）`
+      ) ? 'replace' : 'merge'
+
+      if (mode === 'replace') {
+        // 替换模式：直接替换所有数据
+        items.value = importedItems.map((i, idx) => ({
+          id: i.id ?? genId(),
+          name: i.name ?? '未命名',
+          content: i.content ?? '',
+          createdAt: i.createdAt ?? i.updatedAt ?? Date.now(),
+          updatedAt: i.updatedAt ?? i.createdAt ?? Date.now(),
+          pinned: !!i.pinned,
+          highlighted: !!i.highlighted,
+          order: typeof i.order === 'number' ? i.order : idx
+        }))
+
+        // 恢复设置
+        if (importedSettings.sortMode) sortMode.value = importedSettings.sortMode
+        if (typeof importedSettings.sortTimeDesc === 'boolean') sortTimeDesc.value = importedSettings.sortTimeDesc
+        if (typeof importedSettings.sortNameAsc === 'boolean') sortNameAsc.value = importedSettings.sortNameAsc
+
+        // 选中第一个或导入的selectedId
+        const targetId = importedSettings.selectedId && items.value.find(i => i.id === importedSettings.selectedId)
+          ? importedSettings.selectedId
+          : items.value[0]?.id ?? null
+        internalSelectedId.value = targetId
+
+      } else {
+        // 合并模式：检查ID冲突，重新生成ID
+        const existingIds = new Set(items.value.map(i => i.id))
+        const maxOrder = items.value.reduce((m, x) =>
+          Math.max(m, typeof x.order === 'number' ? x.order : m), -1)
+
+        let addedCount = 0
+        importedItems.forEach((i, idx) => {
+          let finalId = i.id
+          // 如果ID冲突，重新生成
+          if (existingIds.has(finalId)) {
+            finalId = genId()
+          }
+          existingIds.add(finalId)
+
+          items.value.push({
+            id: finalId,
+            name: i.name ?? '未命名',
+            content: i.content ?? '',
+            createdAt: i.createdAt ?? i.updatedAt ?? Date.now(),
+            updatedAt: i.updatedAt ?? i.createdAt ?? Date.now(),
+            pinned: !!i.pinned,
+            highlighted: !!i.highlighted,
+            order: typeof i.order === 'number' ? (maxOrder + 1 + idx) : (maxOrder + 1 + idx)
+          })
+          addedCount++
+        })
+
+        alert(`合并成功！新增 ${addedCount} 个标签，当前共 ${items.value.length} 个标签`)
+      }
+
+      // 保存到服务器（tag_labels.json）
+      await save()
+
+      if (mode === 'replace') {
+        alert(`导入成功！已替换为 ${items.value.length} 个标签`)
+      }
+
+    } catch (error) {
+      console.error('导入失败:', error)
+      alert('导入失败: ' + error.message)
+    } finally {
+      // 清空文件选择器，允许重复导入同一文件
+      if (fileInput.value) {
+        fileInput.value.value = ''
+      }
+    }
+  }
+
+  reader.onerror = () => {
+    alert('文件读取失败')
+    if (fileInput.value) {
+      fileInput.value.value = ''
+    }
+  }
+
+  reader.readAsText(file)
+}
+
 defineExpose({ updateSelectedContent })
 </script>
 
@@ -437,6 +718,35 @@ defineExpose({ updateSelectedContent })
   height: 32px;
   width: 100%;
   cursor: pointer;
+}
+
+.mlm-migrate {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  height: 32px;
+  width: 100%;
+  cursor: pointer;
+  font-weight: 500;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+}
+
+.mlm-migrate:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+}
+
+.mlm-migrate:active {
+  transform: translateY(0);
+}
+
+.mlm-io-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  width: 100%;
 }
 
 .mlm-grid {
@@ -584,7 +894,9 @@ defineExpose({ updateSelectedContent })
 /* ========== 排序/编辑/删除按钮 ========== */
 .mlm-sort,
 .mlm-edit,
-.mlm-delete {
+.mlm-delete,
+.mlm-export,
+.mlm-import {
   height: 32px;
   width: 100%;
   font-size: 12px;
@@ -593,16 +905,35 @@ defineExpose({ updateSelectedContent })
   background: color-mix(in srgb, var(--weilin-prompt-ui-button-bg) 90%, #000 10%);
   color: var(--weilin-prompt-ui-button-text);
   transition: background 0.15s ease, border-color 0.15s ease;
+  cursor: pointer;
 }
 .mlm-sort:hover,
 .mlm-edit:hover,
-.mlm-delete:hover {
+.mlm-delete:hover,
+.mlm-export:hover,
+.mlm-import:hover {
   background: color-mix(in srgb, var(--weilin-prompt-ui-button-bg) 80%, #fff 20%);
 }
 .mlm-delete {
   color: #ff6b6b;
   background: color-mix(in srgb, #ff6b6b 10%, transparent);
   border-color: color-mix(in srgb, #ff6b6b 30%, transparent);
+}
+.mlm-export {
+  color: #3b82f6;
+  background: color-mix(in srgb, #3b82f6 10%, transparent);
+  border-color: color-mix(in srgb, #3b82f6 30%, transparent);
+}
+.mlm-export:hover {
+  background: color-mix(in srgb, #3b82f6 20%, transparent);
+}
+.mlm-import {
+  color: #10b981;
+  background: color-mix(in srgb, #10b981 10%, transparent);
+  border-color: color-mix(in srgb, #10b981 30%, transparent);
+}
+.mlm-import:hover {
+  background: color-mix(in srgb, #10b981 20%, transparent);
 }
 .mlm-grid button:disabled {
   cursor: not-allowed;

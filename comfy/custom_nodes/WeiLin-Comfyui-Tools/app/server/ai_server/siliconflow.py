@@ -17,7 +17,7 @@ def _lang_to_name(code: str) -> str:
 
 
 # 硅基AI翻译接口
-async def translateObject(objectData: str, target_lang_code: str = "zh") -> str:
+async def translateObject(text: str, target_lang_code: str = "zh") -> str:
     ai_info_setting = get_ai_info_setting()
     api_key = ai_info_setting.get("api_key", "")
     base_url = ai_info_setting.get(
@@ -28,18 +28,18 @@ async def translateObject(objectData: str, target_lang_code: str = "zh") -> str:
 
     url = f"{base_url}/chat/completions"
 
+
+    target_lang_name = _lang_to_name(target_lang_code)
+    # 处理批量翻译：如果文本包含换行符，说明是多个翻译项
+    if '\n' in text:
+        prompt = f"将以下每一行AI绘画提示词翻译成{target_lang_name}，每行对应一个翻译结果，保持相同的行数和顺序：\n{text}"
+    else:
+        prompt = f"将以下AI绘画提示词翻译成{target_lang_name}，只输出翻译结果：{text}"
+   
     payload = {
         "model": model,
-        "messages": [
-            {
-                "role": "system",
-                "content": f"ying You are a data translation processing expert, translate the text field of the JSON string data passed by the user into {_lang_to_name(target_lang_code)} (excluding numbers and other special characters, only translate the text) and fill in the corresponding translate field. You only need to return the corresponding JSON string data and do not modify any other data or parameters"
-            },
-            {
-                "content": objectData,
-                "role": "user"
-            }
-        ],
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": 0,
         "stream": False,
         "max_tokens": 4096,
         "enable_thinking": False,
@@ -51,15 +51,42 @@ async def translateObject(objectData: str, target_lang_code: str = "zh") -> str:
         "top_k": 50,
         "frequency_penalty": 0.5,
         "n": 1,
-        "response_format": {"type": "json_object"},
+        "response_format": {"type": "text"},
         "tools": []
     }
+
+    # payload = {
+    #     "model": model,
+    #     "messages": [
+    #         {
+    #             "role": "system",
+    #             "content": f"ying You are a data translation processing expert, translate the text field of the JSON string data passed by the user into {_lang_to_name(target_lang_code)} (excluding numbers and other special characters, only translate the text) and fill in the corresponding translate field. You only need to return the corresponding JSON string data and do not modify any other data or parameters"
+    #         },
+    #         {
+    #             "content": objectData,
+    #             "role": "user"
+    #         }
+    #     ],
+    #     "stream": False,
+    #     "max_tokens": 4096,
+    #     "enable_thinking": False,
+    #     "thinking_budget": 4096,
+    #     "min_p": 0.05,
+    #     "stop": None,
+    #     "temperature": 0,
+    #     "top_p": 0.7,
+    #     "top_k": 50,
+    #     "frequency_penalty": 0.5,
+    #     "n": 1,
+    #     "response_format": {"type": "json_object"},
+    #     "tools": []
+    # }
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json"
     }
 
-    response = requests.post(url, json=payload, headers=headers)
+    response = requests.post(url, json=payload, headers=headers,timeout=(10,60))
     dataResponse = response.json()
     if response.status_code != 200:
         raise RuntimeError(

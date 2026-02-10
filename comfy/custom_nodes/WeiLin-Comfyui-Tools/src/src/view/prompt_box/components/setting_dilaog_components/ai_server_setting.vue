@@ -166,17 +166,17 @@ const saveTranslaterSetting = () => {
 // 翻译文本
 const translaterTextTest = () => {
 
-    testTranslaterOutputText.value = ''
-    let needTranslateData = { text: testTranslaterInputText.value, translate: '' }
-    const jsonString = JSON.stringify(needTranslateData)
+    // testTranslaterOutputText.value = ''
+    // let needTranslateData = { text: testTranslaterInputText.value, translate: '' }
+    // const jsonString = JSON.stringify(needTranslateData)
 
-    translatorApi.translaterInputText(jsonString, "").then(res => {
+    translatorApi.translaterInputText('', testTranslaterInputText.value).then(res => {
         if (res) {
             if (res.data) {
-                const jsonData = JSON.parse(res.data)
+                // const jsonData = JSON.parse(res.data)
                 // console.log(jsonData)
                 // token.translate = jsonData.translate
-                testTranslaterOutputText.value = jsonData.translate
+                testTranslaterOutputText.value = res.data
             }
         }
     }).catch(err => {

@@ -760,9 +760,32 @@
 /* 中间翻译区域 */
 .prompt-input-translate-area {
     margin-top: 10px;
-    width: 100%;
     display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    white-space: nowrap;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 4px;
+    padding-left: 10px;
+    scrollbar-width: thin; /* Firefox */
     flex-direction: row-reverse;
+}
+
+.prompt-input-translate-area::-webkit-scrollbar {
+  height: 8px;
+}
+.prompt-input-translate-area::-webkit-scrollbar-thumb {
+  background: #e0e0e0;
+  border-radius: 4px;
+}
+.prompt-input-translate-area::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* 保证每个按钮和输入框不会被压缩 */
+.prompt-input-translate-area > * {
+  flex: 0 0 auto;
 }
 
 .prompt-input-translate-area-textarea {
@@ -807,7 +830,7 @@
 }
 
 .translate-btn {
-    padding: 4px 8px;
+    padding: 7px 8px;
     margin-right: 4px;
     background: var(--weilin-prompt-ui-secondary-bg);
     border: 1px solid var(--weilin-prompt-ui-border-color);
@@ -834,6 +857,31 @@
 
 .translate-btn:hover .utils-item-icon {
     fill: white;
+}
+
+/* 删除按钮开关的活跃状态样式 - 只让图标变色 */
+.translate-btn.toggle-delete-btn.active .utils-item-icon {
+    fill: var(--weilin-prompt-ui-primary-color);
+}
+
+.translate-btn.toggle-delete-btn.active:hover .utils-item-icon {
+    fill: var(--weilin-prompt-ui-primary-color-hover);
+}
+
+/* 快捷删除按钮样式 */
+.quick-delete-btn {
+    opacity: 0.6;
+    transition: opacity 0.2s;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 2px;
+    border-radius: 3px;
+}
+
+.quick-delete-btn:hover {
+    opacity: 1;
+    background: rgba(255, 77, 79, 0.1);
 }
 
 /* 操作按钮 */

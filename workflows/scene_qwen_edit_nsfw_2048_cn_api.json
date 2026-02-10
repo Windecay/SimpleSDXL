@@ -141,7 +141,7 @@
       "lora_name": "placeholder.safetensors",
       "strength_model": 0,
       "model": [
-        "173",
+        "175",
         0
       ]
     },
@@ -1144,7 +1144,7 @@
   },
   "173": {
     "inputs": {
-      "ckpt_name": "Qwen-Rapid-AIO-NSFW-v20.safetensors"
+      "ckpt_name": "placeholder.safetensors"
     },
     "class_type": "CheckpointLoaderSimple",
     "_meta": {
@@ -1161,6 +1161,19 @@
     "class_type": "easy cleanGpuUsed",
     "_meta": {
       "title": "Clean VRAM Used"
+    }
+  },
+  "175": {
+    "inputs": {
+      "ckpt_name": "placeholder.safetensors",
+      "any": [
+        "134",
+        0
+      ]
+    },
+    "class_type": "CheckpointLoaderSimple_Any",
+    "_meta": {
+      "title": "base_model"
     }
   }
 }

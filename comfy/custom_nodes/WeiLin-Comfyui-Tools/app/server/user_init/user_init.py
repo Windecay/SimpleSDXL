@@ -46,7 +46,7 @@ default_settings = {
             "model": "deepseek-chat"
         }
     ],
-    "translate_setting": "network",
+    "translate_setting": "translater",
     "translate_service": "alibaba",
     "translate_source_lang": "en",
     "translate_target_lang": "zh",
@@ -94,7 +94,7 @@ def get_translate_setting():
     
     # 如果不存在translate_setting参数，则添加默认值
     if 'translate_setting' not in data:
-        data['translate_setting'] = 'network'
+        data['translate_setting'] = 'translater'
         with open(init_file_path, 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=4)
     

@@ -287,11 +287,9 @@ class PainterI2VTiled:
 
 # Node registration mapping
 NODE_CLASS_MAPPINGS = {
-    "PainterI2V": PainterI2V,
     "PainterI2VTiled": PainterI2VTiled,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "PainterI2V": "PainterI2V (Wan2.2 Slow-Motion Fix)",
     "PainterI2VTiled": "PainterI2V Tiled (Wan2.2 + VAE Tiled)",
 }

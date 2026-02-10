@@ -24,9 +24,41 @@ Due to limited personal time, the frequency of updating plug-ins will not be ver
 
 # Version update introduction
 
-> Last updated: 2025-11-08
+> Last updated: 2025-12-21
 
-> 0.0.68 Public Beta Version Introduction: If you want to use this plugin, please be sure to join our official QQ group (1018231382)! 
+> 0.0.72 Public Beta Version Introduction: If you want to use this plugin, please be sure to join our official QQ group (1018231382)! 
+>
+> 1. The API translation mode has returned. Currently, the translation interface has been rewritten and only supports Alibaba Translation Interface, Bing Translation interface, and Youdao Translation interface (this interface has request restrictions and is not recommended for use). At present, all three interfaces are free, and we will write paid translation interfaces for integration in the future
+>
+> 2. The issues with silicon-based AI and OpenAI translation have been modified, and the original model has been restored
+>
+> 3. Merger PR [#57](https://github.com/weilin9999/WeiLin-Comfyui-Tools/pull/57) thank you for your friend's help
+>
+
+<details>
+<summary>Click here for more updates from the past</summary>
+
+> 0.0.71 Public Beta Version 2025-12-20
+>
+> 1. The API translation mode has returned. Currently, the translation interface has been rewritten and only supports Alibaba Translation Interface, Bing Translation interface, and Youdao Translation interface (this interface has request restrictions and is not recommended for use). At present, all three interfaces are free, and we will write paid translation interfaces for integration in the future
+>
+> 2. The issues with silicon-based AI and OpenAI translation have been modified, and the original model has been restored
+>
+
+
+> 0.0.70 Public Beta Version 2025-12-19
+>
+> 1. The API translation mode has returned. Currently, the translation interface has been rewritten and only supports Alibaba Translation Interface, Bing Translation interface, and Youdao Translation interface (this interface has request restrictions and is not recommended for use). At present, all three interfaces are free, and we will write paid translation interfaces for integration in the future
+>
+
+> 0.0.69 Public Beta Version 2025-12-06
+>
+> 1. Merger PR [#50](https://github.com/weilin9999/WeiLin-Comfyui-Tools/pull/50) thank you for your friend's help
+>
+> 2. Merger PR [#52](https://github.com/weilin9999/WeiLin-Comfyui-Tools/pull/52) thank you for your friend's help
+>
+
+> 0.0.68 Public Beta Version 2025-11-08
 >
 > 1. Fixed the missing style of the hover ball menu
 >
@@ -34,9 +66,6 @@ Due to limited personal time, the frequency of updating plug-ins will not be ver
 >
 > 3. New feature: One click clear function, can clear all the content
 >
-
-<details>
-<summary>Click here for more updates from the past</summary>
 
 > 0.0.67 Public Beta Version 2025-10-26
 >
