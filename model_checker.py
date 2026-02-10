@@ -988,7 +988,7 @@ def delete_partial_files():
         return
 
     scan_categories = [
-        'checkpoints', 'loras', 'controlnet', 'embeddings',
+        'checkpoints', 'loras', 'controlnet', 'embeddings', 'diffusion_models',
         'vae_approx', 'vae', 'upscale_models', 'inpaint', "ipadapter",
         'clip', 'clip_vision', 'llms', 'LLM', 'unet', 'diffusers', 'model_patches',
         'text_encoders', 'audio_encoders', 'safety_checker', 'layer_model', 'pulid', 'insightface',

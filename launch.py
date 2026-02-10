@@ -542,6 +542,19 @@ def download_models(default_model, previous_default_models, checkpoint_downloads
 
     return default_model, checkpoint_downloads
 
+def download_required_assets():
+    from modules.model_loader import load_file_from_url
+
+    vae_approx_filenames = [
+        ('xlvaeapp.pth', 'https://huggingface.co/lllyasviel/misc/resolve/main/xlvaeapp.pth'),
+        ('vaeapp_sd15.pth', 'https://huggingface.co/lllyasviel/misc/resolve/main/vaeapp_sd15.pt'),
+        ('xl-to-v1_interposer-v4.0.safetensors',
+        'https://huggingface.co/mashb1t/misc/resolve/main/xl-to-v1_interposer-v4.0.safetensors')
+    ]
+
+    for file_name, url in vae_approx_filenames:
+        load_file_from_url(url=url, model_dir=config.paths_vae_approx[0], file_name=file_name)
+
 def is_port_available(port, host='127.0.0.1'):
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -682,23 +695,12 @@ pyhash_key = shared.token.get_pyhash_key(fooocus_version.version, comfy_version.
 reset_env_args()
 env_ready_code = shared.token.check_ready(fooocus_version.version, comfy_version.version, version.get_simplesdxl_ver(), config.path_models_root)
 logger.info(f'Env_ready_code: {env_ready_code}')
-#if env_ready_code!=0 and env_ready_code!=4:
-#    print("系统环境检测不达标。请根据前面提示信息，重新检查并更新后再启动!")
-#    print(f'有任何疑问可到SimpleSDXL的QQ群交流: 1005085136')
-#    sys.exit(0)
 
-# if not shared.args.disable_backend:
-    # config.default_base_model_name, config.checkpoint_downloads = download_models(
-    #     config.default_base_model_name, config.previous_default_models, config.checkpoint_downloads,
-    #     config.embeddings_downloads, config.lora_downloads, config.vae_downloads)
-
-    # 检查默认模型是否存在
-    # default_model_path = shared.modelsinfo.get_file_path_by_name('diffusion_models', config.default_base_model_name)
-    # if not os.path.exists(default_model_path):
-    #     logger.error(f"默认模型尚未下载: {config.default_base_model_name}")
-    #     logger.error(f"请运行模型检测器或手动下载模型到: {os.path.dirname(default_model_path)}")
-    #     # 设置标志以便UI显示错误信息
-    #     shared.args.absent_model = True
+if not shared.args.disable_backend:
+    try:
+        download_required_assets()
+    except Exception as e:
+        logger.error(f"下载必要资源失将在下次启动重试: {e}")
 
 config.update_files()
 init_cache(config.model_filenames, config.paths_checkpoints, config.lora_filenames, config.paths_loras)
