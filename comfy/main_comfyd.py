@@ -15,6 +15,8 @@ def install_requirements_sequential():
 
     import subprocess
     import importlib.metadata
+    import re
+    from urllib.parse import unquote, urlparse
 
     try:
         import packaging.requirements
@@ -40,12 +42,43 @@ def install_requirements_sequential():
     except Exception:
         force_reinstall_names.add("aiohttp")
 
+    def extract_expected_version_from_url(name: str, url: str) -> str | None:
+        try:
+            parsed = urlparse(url)
+            filename = os.path.basename(parsed.path)
+            filename = unquote(filename)
+            if not filename.endswith(".whl"):
+                return None
+
+            parts = filename[:-4].split("-")
+            if len(parts) < 2:
+                return None
+
+            dist = parts[0]
+            version = parts[1]
+
+            def norm(s: str) -> str:
+                return re.sub(r"[-_.]+", "-", s).lower()
+
+            if norm(dist) == norm(name):
+                return version
+
+            for p in parts[1:]:
+                if re.match(r"^\d+(?:\.\d+)*(?:[a-zA-Z0-9\.\+\-]*)?$", p):
+                    return p
+        except Exception:
+            return None
+        return None
+
     def is_requirement_satisfied(req_line: str) -> bool:
         try:
             req = packaging.requirements.Requirement(req_line)
             if req.name in force_reinstall_names:
                 return False
             installed_version = importlib.metadata.version(req.name)
+            if getattr(req, "url", None):
+                expected_version = extract_expected_version_from_url(req.name, req.url)
+                return expected_version is not None and installed_version == expected_version
             if not req.specifier:
                 return True
             return req.specifier.contains(packaging.version.parse(installed_version), prereleases=True)

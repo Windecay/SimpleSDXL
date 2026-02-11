@@ -23,6 +23,7 @@ SQLAlchemy
 av>=14.2.0
 comfy-kitchen>=0.2.7
 comfy-aimdo>=0.1.7
+sox @ https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/sox/sox-1.5.0-py3-none-any.whl
 requests
 
 #non essential dependencies:

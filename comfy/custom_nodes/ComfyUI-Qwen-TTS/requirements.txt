@@ -1,0 +1,16 @@
+torch
+torchaudio
+transformers>=4.57.0
+librosa
+soundfile
+accelerate
+numpy
+einops
+tiktoken
+sentencepiece
+sox
+huggingface_hub
+onnxruntime
+onnxruntime-gpu
+safetensors
+scipy>=1.11.0

@@ -145,7 +145,7 @@ def check_base_environment():
                 pkg_command = f'pip install {extra_pkg_name} -i {index_url}'
                 run(f'"{python}" -m {pkg_command}', f'Installing {extra_pkg_name}', f"Couldn't install {extra_pkg_name}", live=True)
 
-        update_pkgs = [('comfyui_frontend_package', '1.37.11'), ('comfyui_workflow_templates', '0.8.27'), ('comfyui-embedded-docs', '0.4.0'), ('transformers', '4.56.2'), ('bitsandbytes', '0.45.5'), ('accelerate', '1.10.1'), ('av', '14.2.0'), ('yarl', '1.18.0'), ('gguf', '0.14.0'),
+        update_pkgs = [('comfyui_frontend_package', '1.37.11'), ('comfyui_workflow_templates', '0.8.27'), ('comfyui-embedded-docs', '0.4.0'), ('transformers', '4.57.0'), ('bitsandbytes', '0.45.5'), ('accelerate', '1.10.1'), ('av', '14.2.0'), ('yarl', '1.18.0'), ('gguf', '0.14.0'),
                        ('sentencepiece', '0.2.0'), ('diffusers', '0.36.0'), ('huggingface_hub', '0.35.1'), ('peft', '0.17.1'), ('tokenizers', '0.22.1'), ('tiktoken', '0.11.0'), ('librosa', '0.11.0'), ('moviepy', '2.2.1'), ('piexif', '1.1.3'), ('deepdiff', '8.6.0'), ('pydantic', '2.12.2'),
                        ('GitPython', '3.1.45'), ('PyGithub', '2.8.1'), ('matrix-nio', '0.24.0'), ('toml', '0.10.2'), ('uv', '0.9.3'), ('clip-interrogator', '0.6.0'), ('simpleeval', '1.0.3'), ('compel', '2.3.0'), ('rotary-embedding-torch', '0.8.9'), ('hydra-core', '1.3.2'), ('uuid7', '0.1.0'), ('aiosqlite', '0.21.0'), ('configs','3.0.3'),
                        ('mmdet', '3.3.0'), ('mmengine', '0.10.7'), ('munkres', '1.1.4'), ('terminaltables', '3.1.10'), ('color-matcher', '0.6.0'), ('natsort', '8.4.0'), ('olefile', '0.47'), ('taichi', '1.7.4'), ('torchdiffeq', '0.2.5'), ('lark', '1.3.1'), ('comfy-kitchen', '0.2.7'), ('comfy-aimdo', '0.1.7')]
@@ -244,6 +244,19 @@ def check_base_environment():
         except Exception as e:
             print(f'Error installing mmcv: {str(e)}')
             print('Skipping mmcv installation and continuing...')
+
+        try:
+            if not is_installed_version('sox', '1.5.0'):
+                sox_url = 'https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/sox/sox-1.5.0-py3-none-any.whl'
+                sox_path = os.path.abspath(os.path.join(root, 'sox-1.5.0-py3-none-any.whl'))
+                print('check sox...')
+                has_update_sox = download_if_updated(sox_url, sox_path)
+                if has_update_sox or not is_installed_version('sox', '1.5.0'):
+                    print(f'ready to install {sox_path}')
+                    run(f'"{python}" -m pip install -U {sox_path}', f'Install {sox_path}', live=True)
+        except Exception as e:
+            print(f'Error installing sox: {str(e)}')
+            print('Skipping sox installation and continuing...')
 
         try:
             is_llama_installed = is_installed_version('llama_cpp_python', '0.3.16')
