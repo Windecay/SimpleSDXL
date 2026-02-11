@@ -24,12 +24,30 @@ def answer(input_text="", max_new_tokens=256, repetition_penalty=1.2, temperatur
         if not os.path.exists(modelDir):
             org_modelDir = os.path.join(shared.root, "models/llms/superprompt-v1")
             shutil.copytree(org_modelDir, modelDir)
+        else:
+            org_modelDir = os.path.join(shared.root, "models/llms/superprompt-v1")
+            if os.path.isdir(org_modelDir):
+                required = ("spiece.model", "tokenizer.json", "tokenizer_config.json")
+                for name in required:
+                    dst = os.path.join(modelDir, name)
+                    src = os.path.join(org_modelDir, name)
+                    if not os.path.exists(dst) and os.path.exists(src):
+                        try:
+                            shutil.copy2(src, dst)
+                        except Exception:
+                            pass
         if not os.path.exists(os.path.join(modelDir, "model.safetensors")):
             config.downloading_superprompter_model()
             logger.info("Downloaded the model file for superprompter. \n")
 
-        tokenizer = T5Tokenizer.from_pretrained(modelDir)
-        model = T5ForConditionalGeneration.from_pretrained(modelDir, torch_dtype=torch.float16).to(shared.torch_device)
+        try:
+            tokenizer = T5Tokenizer.from_pretrained(modelDir)
+            model = T5ForConditionalGeneration.from_pretrained(modelDir, torch_dtype=torch.float16).to(shared.torch_device)
+        except Exception as e:
+            logger.warning(f"Failed to load superprompter model: {e}")
+            tokenizer = None
+            model = None
+            return input_text
 
 
     input_ids = tokenizer(input_text, return_tensors="pt").input_ids.to(shared.torch_device)

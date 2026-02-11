@@ -700,8 +700,8 @@ with shared.gradio_root:
                                 except Exception:
                                     return translator.normalize_prompt(prompt_text)
                             with gr.Row():
-                                sam3_input_video = gr.Video(label="Video (Upload)", show_label=True, source="upload", type="filepath", height=240, elem_id="sam3_input_video", show_share_button=False)
-                                sam3_mask_video = gr.Video(label="Mask Video (Preview / Upload)", show_label=True, source="upload", type="filepath", height=240, elem_id="sam3_output_mask_video", show_share_button=False)
+                                sam3_input_video = gr.Video(label="Video (Upload)", show_label=True, source="upload", height=240, elem_id="sam3_input_video", show_share_button=False)
+                                sam3_mask_video = gr.Video(label="Mask Video (Preview / Upload)", show_label=True, source="upload", height=240, elem_id="sam3_output_mask_video", show_share_button=False)
                             with gr.Accordion("💬 SAM3 Prompt Segmentation", open=False, visible=True):
                                 with gr.Column():
                                     sam3_prompt_text = gr.Textbox(label="Segmentation Prompt", show_label=True, max_lines=1, placeholder="e.g. woman, dress", elem_id="sam3_prompt_text")

@@ -55,7 +55,8 @@
         "clip_vision,clip_vision_vit_h.safetensors,1972298538,0,",
         "controlnet,lllyasviel/Annotators/ZoeD_M12_N.pt,1443406099,0,",
         "controlnet,noob_sdxl_controlnet_inpainting.safetensors,5004167832,0,",
-        "controlnet,xinsir_cn_union_sdxl_1.0_promax.safetensors,2513342408,0,"
+        "controlnet,xinsir_cn_union_sdxl_1.0_promax.safetensors,2513342408,0,",
+        "vae,ponyDiffusionV6XL_vae.safetensors,334641162,0,"
     ]
 }
 
