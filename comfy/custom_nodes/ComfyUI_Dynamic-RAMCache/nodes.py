@@ -130,8 +130,13 @@ class DynamicRAMCacheControl:
 
     def _find_executor(self):
         for obj in gc.get_objects():
-            if obj.__class__.__name__ == 'PromptExecutor':
-                return obj
+            try:
+                if obj.__class__.__name__ == 'PromptExecutor':
+                    return obj
+            except (ReferenceError, AttributeError):
+                continue
+            except Exception:
+                continue
         return None
 
     def _get_cache_set(self, executor):
@@ -147,13 +152,17 @@ class DynamicRAMCacheControl:
         return cache_set
 
     def _update_cache_set(self, cache_set, new_cache):
-
-        cache_set.outputs = new_cache
-        
-        if hasattr(cache_set, 'all') and isinstance(cache_set.all, list):
-            for i, item in enumerate(cache_set.all):
-                if i == 0: 
-                    cache_set.all[i] = new_cache
+        try:
+            cache_set.outputs = new_cache
+            
+            if hasattr(cache_set, 'all') and isinstance(cache_set.all, list):
+                for i, item in enumerate(cache_set.all):
+                    if i == 0: 
+                        cache_set.all[i] = new_cache
+        except (ReferenceError, AttributeError):
+            logging.warning("[DynamicRAMCache] Failed to update cache_set: object no longer exists.")
+        except Exception as e:
+            logging.warning(f"[DynamicRAMCache] Unexpected error updating cache_set: {e}")
 
     def _switch_to_ram_pressure(self, cache_set, old_cache, caching_mod):
         key_class = getattr(old_cache, 'key_class', None)
@@ -188,16 +197,21 @@ class DynamicRAMCacheControl:
 
     def _migrate_cache_data(self, old_cache, new_cache):
         """迁移缓存核心数据"""
-        # Fix for 'NullCache' object has no attribute 'cache'
-        if hasattr(old_cache, 'cache'):
-            new_cache.cache = old_cache.cache
-        
-        if hasattr(old_cache, 'subcaches'):
-            new_cache.subcaches = old_cache.subcaches
+        try:
+            # Fix for 'NullCache' object has no attribute 'cache'
+            if hasattr(old_cache, 'cache'):
+                new_cache.cache = old_cache.cache
             
-        new_cache.dynprompt = getattr(old_cache, 'dynprompt', None)
-        new_cache.cache_key_set = getattr(old_cache, 'cache_key_set', None)
-        new_cache.initialized = getattr(old_cache, 'initialized', False)
+            if hasattr(old_cache, 'subcaches'):
+                new_cache.subcaches = old_cache.subcaches
+                
+            new_cache.dynprompt = getattr(old_cache, 'dynprompt', None)
+            new_cache.cache_key_set = getattr(old_cache, 'cache_key_set', None)
+            new_cache.initialized = getattr(old_cache, 'initialized', False)
+        except (ReferenceError, AttributeError):
+            logging.warning("[DynamicRAMCache] Failed to migrate cache data: source object no longer exists.")
+        except Exception as e:
+            logging.warning(f"[DynamicRAMCache] Unexpected error migrating cache data: {e}")
 
 class RAMCacheExtremeCleanup(DynamicRAMCacheControl):
     def __init__(self):
