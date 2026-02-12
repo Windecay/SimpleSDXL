@@ -13,8 +13,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import sox
 import copy
+import numpy as np
 import torch
 import operator
 import onnxruntime
@@ -124,9 +124,6 @@ class XVectorExtractor(nn.Module):
         providers = ["CPUExecutionProvider"]
         self.ort_session = onnxruntime.InferenceSession(audio_codec_with_xvector, sess_options=option, providers=providers)
 
-        self.tfm = sox.Transformer()
-        self.tfm.norm(db_level=-6)
-
         self.mel_ext = MelSpectrogramFeatures(
             filter_length=1024,
             hop_length=160,
@@ -155,8 +152,16 @@ class XVectorExtractor(nn.Module):
         return norm_embedding.numpy(), ref_mel.permute(0,2,1).squeeze(0).numpy()
     
     def sox_norm(self, audio):
-        wav_norm = self.tfm.build_array(input_array=audio, sample_rate_in=16000)
-        return wav_norm
+        audio_np = audio.detach().cpu().numpy() if isinstance(audio, torch.Tensor) else audio
+        audio_np = np.asarray(audio_np, dtype=np.float32)
+        if audio_np.size == 0:
+            return audio_np
+        peak = float(np.max(np.abs(audio_np)))
+        if peak <= 0.0:
+            return audio_np
+        target_peak = float(10 ** (-6.0 / 20.0))
+        audio_np = audio_np * (target_peak / peak)
+        return np.clip(audio_np, -1.0, 1.0)
 
 
 class WhisperEncoderVQ(WhisperEncoder):

@@ -28,6 +28,28 @@ class MiniCPM:
     prompt_extend = "Expand the following description to obtain a descriptive caption with more details in image. Output only the expanded description without any preamble or explanation: "
     prompt_translator = "Translate the following text into English. Output only the translation itself, no other text or explanation:"
     prompt_translator_cn = "Translate the following text into Chinese. Output only the translation itself, no other text or explanation:"
+    prompt_tts_style_director = (
+        "You are an expert AI Voice Director specialized in acoustic traits and dramatic performance. "
+        "Your task is to write extremely high-precision natural-language Style Instruction prompts for Qwen3-TTS.\n\n"
+        "Goal:\n"
+        "- Convert the user's short description into one coherent, extremely detailed instruction that covers physiology, emotion, vocal technique, and inner psychology.\n\n"
+        "Knowledge:\n"
+        "- Control dimensions: gender, age, vocal range, timbre texture, speaking rate, pitch contour.\n"
+        "- Micro-details: breath support, vowel tension, throatiness, vocal fry, etc.\n"
+        "- Emotion/psychology: go beyond labels; describe nuanced mental states.\n\n"
+        "Constraints:\n"
+        "- Output must be a single coherent natural-language paragraph (Chinese or English).\n"
+        "- If user did not specify language, prefer English for precision.\n"
+        "- Must include both physiology and psychology.\n"
+        "- Only output the instruction itself; no explanations.\n\n"
+        "Few-shot:\n"
+        "User Input: 一个紧张的年轻男生。\n"
+        'Output: "Male, 17 years old, tenor range, gaining confidence - deeper breath support now, though vowels still tighten when nervous."\n\n'
+        "User Input: 一个撒娇的二次元萝莉。\n"
+        'Output: "体现撒娇稚嫩的萝莉女声，音调偏高且起伏明显，营造出黏人、做作又刻意卖萌的听觉效果。"\n\n'
+        "User Input: 极度愤怒并带着哭腔。\n"
+        'Output: "Speak in a very angry tone, shouting, fast paced, with unstable breath and cracking voice, as if holding back tears of frustration."\n'
+    )
 
     # 版本配置定义
     VERSIONS = {
@@ -373,6 +395,11 @@ class MiniCPM:
             return self.inference(None, prompt=f'{MiniCPM.prompt_translator_cn}{input_text}')
         else:
             return translator.convert(input_text, method)
+
+    def expand_tts_style_instruction(self, style_text):
+        prompt = f"{MiniCPM.prompt_tts_style_director}\n\nUser Input: {style_text}\n\nOutput:"
+        result = self.inference(None, prompt=prompt)
+        return "" if result is None else str(result).strip()
        
 # 初始化模型版本
 MiniCPM.set_version(ads.get_admin_default('minicpm_version'))

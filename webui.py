@@ -6,6 +6,7 @@ import os
 import json
 import time
 import re
+import random
 import shared
 import modules.config
 import modules.html
@@ -658,7 +659,7 @@ with shared.gradio_root:
                         with gr.Row():
                             scene_additional_prompt = gr.Textbox(label="Blessing words", show_label=True, max_lines=1, elem_classes='scene_input')
                             scene_theme = gr.Radio(choices=modules.flags.scene_themes, label="Themes", value=modules.flags.scene_themes[0])
-                        
+
                         # Qwen Multiangle Camera Control
                         with gr.Accordion("📸 3D Camera Control", open=False, visible=False) as camera_control_accordion:
                             gr.HTML(value=qwen_multiangle.get_viewer_html(), elem_id="qwen_viewer_container")
@@ -736,6 +737,14 @@ with shared.gradio_root:
                                 gr.update(visible=show_sam3, open=show_sam3),
                             )
 
+                        scene_theme.change(
+                            fn=check_camera_control_visibility,
+                            inputs=[scene_theme, state_topbar],
+                            outputs=[camera_control_accordion, anglelight_control_accordion, style_transfer_accordion, sam3_video_mask_accordion],
+                            queue=False,
+                            show_progress=False
+                        )
+                            
                         scene_canvas_image = grh.Image(label='Upload and canvas(1)', show_label=True, source='upload', type='numpy', tool='sketch', height=250, brush_color="#70FF81", mask_color=True, image_mode='RGBA', elem_id='scene_canvas')
                         with gr.Row() as scene_input_images:
                             scene_input_image1 = grh.Image(label='Upload prompt image(2)', value=None, source='upload', type='numpy', image_mode='RGBA', show_label=True, height=300, show_download_button=False)
@@ -1240,9 +1249,364 @@ with shared.gradio_root:
             with gr.Row(elem_classes='advanced_check_row'):
                 input_image_checkbox = gr.Checkbox(label='Input Image', value=modules.config.default_image_prompt_checkbox, container=False, elem_classes='min_check')
                 prompt_panel_checkbox = gr.Checkbox(label='Prompt Panel', value=False, container=False, elem_classes='min_check')
+                qwen_tts_checkbox = gr.Checkbox(label='TTS Audio', value=False, container=False, elem_classes='min_check')
                 advanced_checkbox = gr.Checkbox(label='Advanced+', value=modules.config.default_advanced_checkbox, container=False, elem_classes='min_check')
             
             engine_class_display = gr.HTML(visible=False, value="Z-image", elem_classes=["engineClass"], elem_id='engine_class')
+            with gr.Row(visible=False, elem_id="tts_panel") as tts_panel:
+                with gr.Column():
+                    with gr.Tabs():
+                        with gr.Tab("Voice Design"):
+                            qwen_design_text = gr.Textbox(label="Text to Speech", lines=3, placeholder="Enter text here...")
+                            qwen_tts_style_presets = {
+                                "Catgirl (Neko)": "Cute catgirl voice: high-pitched, bright and sweet, youthful and playful. Add occasional short interjections like 'nya', 'meow', 'na', 'ne', 'ya' (not every sentence). Expressive with subtle emotional shifts: shy -> softer, breathy, slightly shaky; tsundere -> quick pitch rise and a small 'hmph'; teary -> light sob or choked tone. Optionally add close-mic ASMR details (soft breathing, whispery delivery) while keeping articulation clear.",
+                                "Warm Female": "Female, mid-20s, warm and friendly, medium pace, clear articulation, slight smile in voice, natural breath and gentle intonation.",
+                                "News Anchor": "Male, 30s, calm professional news anchor, steady rhythm, neutral emotion, crisp consonants, confident delivery, minimal pitch fluctuation.",
+                                "Energetic Teen": "Young energetic teen, bright tone, fast pace, playful rising intonation, light laughter between phrases, vivid emphasis on keywords.",
+                                "Elderly Hoarse": "Elderly male, ~70, slightly hoarse and breathy, slow pace, reflective mood, soft volume, longer pauses, subtle trembling on sustained vowels.",
+                                "Audiobook Narrator": "Audiobook narrator, 40s, cinematic and immersive, controlled dynamics, clear phrasing, dramatic pauses, rich low-mid register, smooth resonance.",
+                            }
+                            with gr.Row():
+                                with gr.Column(scale=4):
+                                    qwen_design_instruct = gr.Textbox(label="Style Instruction", lines=4, placeholder="e.g. A cheerful young woman...")
+                                with gr.Column(scale=1):
+                                    qwen_design_expand_btn = gr.Button(value="Style Expand", elem_classes="type_row_half", size="sm", min_width=70, visible=MiniCPM.get_enable())
+                                    qwen_design_style_preset_choices = gr.Dropdown(label="Style Presets", choices=list(qwen_tts_style_presets.keys()), value=None)
+                            with gr.Row():
+                                qwen_design_btn = gr.Button("Generate Audio", elem_classes="type_row_half")
+                                qwen_design_stop_btn = gr.Button("Stop", elem_classes="type_row_half", min_width=70, visible=False)
+                            qwen_design_output = gr.Audio(label="Output Audio")
+                            qwen_design_info = gr.Markdown(value="",show_progress=False)
+                        
+                        with gr.Tab("Voice Clone"):
+                            qwen_clone_ref_audio = gr.Audio(label="Reference Audio", source="upload", type="numpy")
+                            qwen_clone_ref_text = gr.Textbox(label="Reference Audio Text", lines=3, placeholder="Recommended: the spoken content in reference audio")
+                            qwen_clone_target_text = gr.Textbox(label="Target Text to Speech", lines=3)
+                            with gr.Row():
+                                qwen_clone_btn = gr.Button("Clone & Generate", elem_classes="type_row_half")
+                                qwen_clone_stop_btn = gr.Button("Stop", elem_classes="type_row_half", min_width=70, visible=False)
+                            qwen_clone_output = gr.Audio(label="Output Audio")
+                            qwen_clone_info = gr.Markdown(value="",show_progress=False)
+
+                        with gr.Tab("Custom Voice"):
+                            qwen_custom_text = gr.Textbox(label="Text to Speech", lines=5)
+                            _qwen_speaker_notes = {"Serena": ("苏瑶", "中文", "其实我真的有发现，我是一个特别善于观察别人情绪的人。"), "Uncle_fu": ("福伯", "中文", "叶师傅，切他的中路"), "Vivian": ("十三", "中文", "这事情看上去很复杂，其实一点都不简单。"), "Aiden": ("艾登", "英文", "Then by the end of the movie, I got a little bit teary."), "Ryan": ("甜茶", "英文", "Then by the end of the movie, I got a little bit teary."), "Ono_anna": ("小野杏", "日语", "やばい、明日のプレゼン資料まだ完成してない… 助けて！"), "Sohee": ("素熙", "韩语", "야, 오늘 점심에 뭐 먹을지 생각해 봤어? 근처에 새로 생긴 분식집 어때?"), "Dylan": ("晓东", "中文方言-北京话", "我们就在山上啊，就是其实也没什么，就是在土坡上跑来跑去。"), "Eric": ("程川", "中文方言-四川话", "你龟儿太过分了，把我的东西都搞坏了，还晓不晓得认错。")}
+                            _qwen_speaker_display_to_key = {"艾登 Aiden": "Aiden", "晓东 Dylan": "Dylan", "程川 Eric": "Eric", "小野杏 Ono Anna": "Ono_anna", "甜茶 Ryan": "Ryan", "苏瑶 Serena": "Serena", "素熙 Sohee": "Sohee", "福伯 Uncle Fu": "Uncle_fu", "十三 Vivian": "Vivian"}
+                            _qwen_default_speaker_display = "甜茶 Ryan"
+
+                            def _qwen_speaker_key(speaker_value):
+                                v = speaker_value[1] if isinstance(speaker_value, (list, tuple)) and len(speaker_value) >= 2 else speaker_value
+                                s = "" if v is None else str(v).strip()
+                                s = _qwen_speaker_display_to_key.get(s, s)
+                                if s.startswith("(") and s.endswith(")"):
+                                    try:
+                                        import ast
+                                        p = ast.literal_eval(s)
+                                        if isinstance(p, (list, tuple)) and len(p) >= 2:
+                                            s = "" if p[1] is None else str(p[1]).strip()
+                                    except Exception:
+                                        pass
+                                s = _qwen_speaker_display_to_key.get(s, s)
+                                if s not in _qwen_speaker_notes and " " in s:
+                                    c = s.split()[-1].strip()
+                                    if c in _qwen_speaker_notes:
+                                        s = c
+                                return s
+
+                            def _format_qwen_speaker_note(speaker_value: str):
+                                speaker_key = _qwen_speaker_key(speaker_value)
+                                note = _qwen_speaker_notes.get(speaker_key, None)
+                                if not note:
+                                    return "在左侧选择说话人后，这里会显示角色介绍。"
+                                alias, lang, text = note
+                                title = f"{alias} {speaker_key}".strip()
+                                return f"**音色**：{title}\n\n**语种**：{lang}\n\n**合成文本示例**：{text}"
+
+                            with gr.Row():
+                                with gr.Column(scale=1):
+                                    qwen_custom_speaker = gr.Dropdown(label="Speaker", choices=list(_qwen_speaker_display_to_key.keys()), value=_qwen_default_speaker_display)
+                                with gr.Column(scale=3):
+                                    qwen_custom_speaker_note = gr.Markdown(value=_format_qwen_speaker_note(_qwen_speaker_display_to_key[_qwen_default_speaker_display]))
+                            with gr.Row():
+                                with gr.Column(scale=4):
+                                    qwen_custom_instruct = gr.Textbox(label="Style Instruction (Optional)", lines=4)
+                                with gr.Column(scale=1):
+                                    qwen_custom_expand_btn = gr.Button(value="Style Expand", elem_classes="type_row_half", size="sm", min_width=70, visible=MiniCPM.get_enable())
+                                    qwen_custom_style_preset_choices = gr.Dropdown(label="Style Presets", choices=list(qwen_tts_style_presets.keys()), value=None)
+                            with gr.Row():
+                                qwen_custom_btn = gr.Button("Generate Audio", elem_classes="type_row_half")
+                                qwen_custom_stop_btn = gr.Button("Stop", elem_classes="type_row_half", min_width=70, visible=False)
+                            qwen_custom_output = gr.Audio(label="Output Audio")
+                            qwen_custom_info = gr.Markdown(value="",show_progress=False)
+
+                        with gr.Tab("Dialogue"):
+                            qwen_dialogue_script = gr.Textbox(label="Script", lines=8, placeholder="Format: 角色名: 文本（每行一句）\n\n角色1: 你好，今天我们聊点什么？\n角色2: 我想了解一下 Qwen3-TTS 的语音克隆。\n角色3: 我来总结参数设置要点。\n旁白: 他们开始了一段轻松的对话。")
+                            def _qwen_dialogue_role(role_label, default_name):
+                                with gr.Column():
+                                    name = gr.Textbox(label=f"{role_label} Name", value=default_name)
+                                    audio = gr.Audio(label=f"{role_label} Reference Audio", source="upload", type="numpy")
+                                    ref_text = gr.Textbox(label=f"{role_label} Reference Text", lines=2)
+                                return name, audio, ref_text
+                            with gr.Row():
+                                qwen_role_1_name, qwen_role_1_audio, qwen_role_1_ref_text = _qwen_dialogue_role("Role 1", "角色1")
+                                qwen_role_2_name, qwen_role_2_audio, qwen_role_2_ref_text = _qwen_dialogue_role("Role 2", "角色2")
+                            with gr.Row():
+                                qwen_role_3_name, qwen_role_3_audio, qwen_role_3_ref_text = _qwen_dialogue_role("Role 3", "角色3")
+                                qwen_role_4_name, qwen_role_4_audio, qwen_role_4_ref_text = _qwen_dialogue_role("Role 4", "旁白")
+                            with gr.Row():
+                                qwen_dialogue_btn = gr.Button("Generate Dialogue Audio", elem_classes="type_row_half")
+                                qwen_dialogue_stop_btn = gr.Button("Stop", elem_classes="type_row_half", min_width=70, visible=False)
+                            qwen_dialogue_output = gr.Audio(label="Output Audio")
+                            qwen_dialogue_info = gr.Markdown(value="")
+                        
+                        with gr.Tab("Settings"):
+                            with gr.Row():
+                                with gr.Column(scale=1):
+                                    qwen_tts_model_size = gr.Radio(["0.6B", "1.7B"], label="Model Size", value="1.7B")
+                                with gr.Column(scale=1):
+                                    qwen_tts_precision = gr.Radio(["bf16", "fp32"], label="Precision", value="bf16")
+                            with gr.Row():
+                                with gr.Column(scale=1):
+                                    qwen_tts_device = gr.Dropdown(label="Device", choices=["auto", "cuda", "mps", "cpu"], value="auto")
+                                with gr.Column(scale=1):
+                                    qwen_tts_language = gr.Dropdown(label="Language", choices=["Auto", "Chinese", "English", "Japanese", "Korean"], value="Auto")
+                            with gr.Row():
+                                with gr.Column(scale=1):
+                                    qwen_tts_attention = gr.Dropdown(label="Attention", choices=["auto", "sage_attn", "flash_attn", "sdpa", "eager"], value="auto")
+                                with gr.Column(scale=1):
+                                    with gr.Row():
+                                        qwen_tts_seed_random = gr.Checkbox(label="Random", value=True)
+                                        qwen_tts_seed = gr.Number(label="Seed", value=0, precision=0)
+                            with gr.Row():
+                                with gr.Column(scale=1):
+                                    qwen_tts_max_new_tokens = gr.Slider(label="Max new tokens", minimum=512, maximum=4096, step=256, value=2048)
+                                with gr.Column(scale=1):
+                                    qwen_tts_temperature = gr.Slider(label="Temperature", minimum=0.1, maximum=2.0, step=0.1, value=1.0)
+                            with gr.Row():
+                                with gr.Column(scale=1):
+                                    qwen_tts_top_p = gr.Slider(label="Top-p", minimum=0.0, maximum=1.0, step=0.05, value=0.8)
+                                with gr.Column(scale=1):
+                                    qwen_tts_top_k = gr.Slider(label="Top-k", minimum=0, maximum=100, step=1, value=20)
+                            with gr.Row():
+                                with gr.Column(scale=1):
+                                    qwen_tts_repetition_penalty = gr.Slider(label="Repetition penalty", minimum=1.0, maximum=2.0, step=0.05, value=1.05)
+                                with gr.Column(scale=1):
+                                    qwen_tts_unload = gr.Checkbox(label="Unload model after generate", value=True)
+                            with gr.Accordion("Dialogue Pause Settings", open=False):
+                                with gr.Row():
+                                    with gr.Column(scale=1):
+                                        qwen_pause_linebreak = gr.Slider(label="Linebreak pause", minimum=0.0, maximum=5.0, step=0.1, value=0.5)
+                                    with gr.Column(scale=1):
+                                        qwen_period_pause = gr.Slider(label="Period pause (.)", minimum=0.0, maximum=5.0, step=0.1, value=0.4)
+                                with gr.Row():
+                                    with gr.Column(scale=1):
+                                        qwen_comma_pause = gr.Slider(label="Comma pause (,)", minimum=0.0, maximum=5.0, step=0.1, value=0.2)
+                                    with gr.Column(scale=1):
+                                        qwen_question_pause = gr.Slider(label="Question pause (?)", minimum=0.0, maximum=5.0, step=0.1, value=0.6)
+                                with gr.Row():
+                                    with gr.Column(scale=1):
+                                        qwen_hyphen_pause = gr.Slider(label="Hyphen pause (-)", minimum=0.0, maximum=5.0, step=0.1, value=0.3)
+                                    with gr.Column(scale=1):
+                                        qwen_dialogue_merge = gr.Checkbox(label="Merge outputs", value=True)
+                                with gr.Row():
+                                    with gr.Column(scale=1):
+                                        qwen_dialogue_batch = gr.Slider(label="Batch size", minimum=1, maximum=32, step=1, value=4)
+                                    with gr.Column(scale=1):
+                                        qwen_dialogue_max_tokens = gr.Slider(label="Max new tokens per line", minimum=512, maximum=4096, step=256, value=2048)
+                    gr.HTML(
+                        value='项目来源：<a href="https://www.modelscope.cn/collections/Qwen/Qwen3-TTS" target="_blank" rel="noopener noreferrer">https://www.modelscope.cn/collections/Qwen/Qwen3-TTS</a>',
+                        elem_id="qwen_tts_source_badge",
+                    )
+
+                    try:
+                        from enhanced import webui_qwen_tts
+
+                        def _get_user_did_from_state(state_params):
+                            try:
+                                if isinstance(state_params, dict):
+                                    user = state_params.get("user", None)
+                                    if user is not None and hasattr(user, "get_did"):
+                                        return user.get_did()
+                            except Exception:
+                                pass
+                            return None
+
+                        def _resolve_tts_seed(seed_value, seed_random_value):
+                            try:
+                                seed_int = int(seed_value)
+                            except Exception:
+                                seed_int = 0
+                            if seed_random_value:
+                                return random.randint(0, 2147483647)
+                            return seed_int
+
+                        def _is_blank(value):
+                            if value is None:
+                                return True
+                            try:
+                                return str(value).strip() == ""
+                            except Exception:
+                                return True
+
+                        def _qwen_tts_set_interrupt(value: bool):
+                            try:
+                                model_management.interrupt_current_processing(bool(value))
+                            except Exception:
+                                pass
+                            try:
+                                from comfy import model_management as comfy_model_management
+                                comfy_model_management.interrupt_current_processing(bool(value))
+                            except Exception:
+                                pass
+
+                        def _qwen_tts_begin():
+                            _qwen_tts_set_interrupt(False)
+                            return gr.update(visible=False), gr.update(visible=True), "生成中…"
+
+                        def _qwen_tts_end():
+                            _qwen_tts_set_interrupt(False)
+                            return gr.update(visible=True), gr.update(visible=False)
+
+                        def _qwen_tts_stop():
+                            _qwen_tts_set_interrupt(True)
+                            return "正在停止…"
+
+                        def _qwen_is_interrupt_exception(e: Exception) -> bool:
+                            if type(e).__name__ == "InterruptProcessingException":
+                                return True
+                            try:
+                                if isinstance(e, model_management.InterruptProcessingException):
+                                    return True
+                            except Exception:
+                                pass
+                            try:
+                                from comfy import model_management as comfy_model_management
+                                if isinstance(e, comfy_model_management.InterruptProcessingException):
+                                    return True
+                            except Exception:
+                                pass
+                            return False
+
+                        qwen_tts_seed_random.change(fn=lambda is_random: gr.update(interactive=not bool(is_random)), inputs=[qwen_tts_seed_random], outputs=[qwen_tts_seed], queue=False, show_progress=False)
+
+                        qwen_custom_speaker.change(fn=_format_qwen_speaker_note, inputs=[qwen_custom_speaker], outputs=[qwen_custom_speaker_note], queue=False, show_progress=False)
+
+                        def _apply_style_presets(selected_preset): return "" if not selected_preset else str(qwen_tts_style_presets.get(str(selected_preset), "")).strip()
+
+                        qwen_design_style_preset_choices.change(fn=_apply_style_presets, inputs=[qwen_design_style_preset_choices], outputs=[qwen_design_instruct], queue=False, show_progress=False)
+                        qwen_custom_style_preset_choices.change(fn=_apply_style_presets, inputs=[qwen_custom_style_preset_choices], outputs=[qwen_custom_instruct], queue=False, show_progress=False)
+
+                        def _expand_tts_style_instruction(style_text, state_params):
+                            if _is_blank(style_text):
+                                return style_text, "请先输入 Style Instruction，再进行风格扩展。"
+                            if not MiniCPM.get_enable():
+                                return style_text, "请先在 Identity -> Local System 启用 VLM。"
+                            if not minicpm.model_exists():
+                                return style_text, "VLM 模型未就绪，请先下载/配置 VLM 模型。"
+                            try:
+                                with worker.external_exclusive_task():
+                                    expanded = minicpm.expand_tts_style_instruction(style_text)
+                                expanded = str(expanded).strip() if expanded is not None else ""
+                                if not expanded:
+                                    return style_text, "风格扩展未返回有效内容。"
+                                return expanded, ""
+                            except Exception as e:
+                                return style_text, f"风格扩展失败：{type(e).__name__}: {e}"
+
+                        qwen_design_expand_btn.click(fn=_expand_tts_style_instruction, inputs=[qwen_design_instruct, state_topbar], outputs=[qwen_design_instruct, qwen_design_info], queue=False, show_progress=True)
+                        qwen_custom_expand_btn.click(fn=_expand_tts_style_instruction, inputs=[qwen_custom_instruct, state_topbar], outputs=[qwen_custom_instruct, qwen_custom_info], queue=False, show_progress=True)
+
+                        def _qwen_after_unload(unload):
+                            if not bool(unload):
+                                return
+                            try:
+                                webui_qwen_tts.unload_qwen_tts_models()
+                            except Exception:
+                                pass
+                            try:
+                                unload_models_clicked(False)
+                            except Exception:
+                                pass
+
+                        def _qwen_call(handler_fn, seed_random, seed, unload, state_params, **kwargs):
+                            try:
+                                seed_int = int(seed)
+                            except Exception:
+                                seed_int = 0
+                            result = None
+                            interrupted = False
+                            try:
+                                used_seed = _resolve_tts_seed(seed, seed_random)
+                                audio_path = webui_qwen_tts.enqueue_task(handler_fn, user_did=_get_user_did_from_state(state_params), seed=int(used_seed), **kwargs)
+                                _qwen_after_unload(unload)
+                                result = (audio_path, used_seed, "")
+                            except Exception as e:
+                                interrupted = _qwen_is_interrupt_exception(e)
+                                if interrupted:
+                                    result = (gr.update(value=None), seed_int, "已中断。")
+                                else:
+                                    result = (gr.update(value=None), seed_int, f"生成失败：{type(e).__name__}: {e}")
+                            if interrupted:
+                                _qwen_after_unload(unload)
+                            return result
+
+                        def qwen_voice_design_fn(text, instruct, model_choice, precision, device, language, seed_random, seed, max_new_tokens, top_p, top_k, temperature, repetition_penalty, attention, unload, state_params):
+                            try:
+                                seed_int = int(seed)
+                            except Exception:
+                                seed_int = 0
+                            if _is_blank(text):
+                                return gr.update(value=None), seed_int, "请输入“Text to Speech”后再生成。"
+                            return _qwen_call(webui_qwen_tts.qwen_tts_handler.voice_design, seed_random, seed, unload, state_params, text=text, instruct=instruct, model_choice=model_choice, device=device, precision=precision, language=language, max_new_tokens=int(max_new_tokens), top_p=float(top_p), top_k=int(top_k), temperature=float(temperature), repetition_penalty=float(repetition_penalty), attention=attention, unload_model_after_generate=bool(unload))
+
+                        qwen_design_btn.click(fn=_qwen_tts_begin, inputs=[], outputs=[qwen_design_btn, qwen_design_stop_btn, qwen_design_info], queue=False, show_progress=False).then(fn=qwen_voice_design_fn, inputs=[qwen_design_text, qwen_design_instruct, qwen_tts_model_size, qwen_tts_precision, qwen_tts_device, qwen_tts_language, qwen_tts_seed_random, qwen_tts_seed, qwen_tts_max_new_tokens, qwen_tts_top_p, qwen_tts_top_k, qwen_tts_temperature, qwen_tts_repetition_penalty, qwen_tts_attention, qwen_tts_unload, state_topbar], outputs=[qwen_design_output, qwen_tts_seed, qwen_design_info], queue=True, show_progress=True).then(fn=_qwen_tts_end, inputs=[], outputs=[qwen_design_btn, qwen_design_stop_btn], queue=False, show_progress=False)
+                        qwen_design_stop_btn.click(fn=_qwen_tts_stop, inputs=[], outputs=[qwen_design_info], queue=False, show_progress=False)
+
+                        def qwen_voice_clone_fn(ref_audio, ref_text, target_text, model_choice, precision, device, language, seed_random, seed, max_new_tokens, top_p, top_k, temperature, repetition_penalty, attention, unload, state_params):
+                            try:
+                                seed_int = int(seed)
+                            except Exception:
+                                seed_int = 0
+                            if ref_audio is None:
+                                return gr.update(value=None), seed_int, "请先上传“Reference Audio”。"
+                            if _is_blank(target_text):
+                                return gr.update(value=None), seed_int, "请输入“Target Text to Speech”后再生成。"
+                            return _qwen_call(webui_qwen_tts.qwen_tts_handler.voice_clone, seed_random, seed, unload, state_params, ref_audio=ref_audio, ref_text=ref_text, target_text=target_text, model_choice=model_choice, device=device, precision=precision, language=language, max_new_tokens=int(max_new_tokens), top_p=float(top_p), top_k=int(top_k), temperature=float(temperature), repetition_penalty=float(repetition_penalty), x_vector_only=False, attention=attention, unload_model_after_generate=bool(unload))
+
+                        qwen_clone_btn.click(fn=_qwen_tts_begin, inputs=[], outputs=[qwen_clone_btn, qwen_clone_stop_btn, qwen_clone_info], queue=False, show_progress=False).then(fn=qwen_voice_clone_fn, inputs=[qwen_clone_ref_audio, qwen_clone_ref_text, qwen_clone_target_text, qwen_tts_model_size, qwen_tts_precision, qwen_tts_device, qwen_tts_language, qwen_tts_seed_random, qwen_tts_seed, qwen_tts_max_new_tokens, qwen_tts_top_p, qwen_tts_top_k, qwen_tts_temperature, qwen_tts_repetition_penalty, qwen_tts_attention, qwen_tts_unload, state_topbar], outputs=[qwen_clone_output, qwen_tts_seed, qwen_clone_info], queue=True, show_progress=True).then(fn=_qwen_tts_end, inputs=[], outputs=[qwen_clone_btn, qwen_clone_stop_btn], queue=False, show_progress=False)
+                        qwen_clone_stop_btn.click(fn=_qwen_tts_stop, inputs=[], outputs=[qwen_clone_info], queue=False, show_progress=False)
+
+                        def qwen_custom_voice_fn(text, speaker, instruct, model_choice, precision, device, language, seed_random, seed, max_new_tokens, top_p, top_k, temperature, repetition_penalty, attention, unload, state_params):
+                            try:
+                                seed_int = int(seed)
+                            except Exception:
+                                seed_int = 0
+                            if _is_blank(text):
+                                return gr.update(value=None), seed_int, "请输入“Text to Speech”后再生成。"
+                            speaker_key = "" if speaker is None else str(speaker).strip()
+                            if _is_blank(speaker_key):
+                                return gr.update(value=None), seed_int, "请选择“Speaker”后再生成。"
+                            if speaker_key in _qwen_speaker_display_to_key:
+                                speaker_key = _qwen_speaker_display_to_key[speaker_key]
+                            return _qwen_call(webui_qwen_tts.qwen_tts_handler.custom_voice, seed_random, seed, unload, state_params, text=text, speaker=speaker_key, instruct=instruct, model_choice=model_choice, device=device, precision=precision, language=language, max_new_tokens=int(max_new_tokens), top_p=float(top_p), top_k=int(top_k), temperature=float(temperature), repetition_penalty=float(repetition_penalty), attention=attention, unload_model_after_generate=bool(unload), custom_model_path="", custom_speaker_name="")
+
+                        qwen_custom_btn.click(fn=_qwen_tts_begin, inputs=[], outputs=[qwen_custom_btn, qwen_custom_stop_btn, qwen_custom_info], queue=False, show_progress=False).then(fn=qwen_custom_voice_fn, inputs=[qwen_custom_text, qwen_custom_speaker, qwen_custom_instruct, qwen_tts_model_size, qwen_tts_precision, qwen_tts_device, qwen_tts_language, qwen_tts_seed_random, qwen_tts_seed, qwen_tts_max_new_tokens, qwen_tts_top_p, qwen_tts_top_k, qwen_tts_temperature, qwen_tts_repetition_penalty, qwen_tts_attention, qwen_tts_unload, state_topbar], outputs=[qwen_custom_output, qwen_tts_seed, qwen_custom_info], queue=True, show_progress=True).then(fn=_qwen_tts_end, inputs=[], outputs=[qwen_custom_btn, qwen_custom_stop_btn], queue=False, show_progress=False)
+                        qwen_custom_stop_btn.click(fn=_qwen_tts_stop, inputs=[], outputs=[qwen_custom_info], queue=False, show_progress=False)
+
+                        def qwen_dialogue_fn(script, r1n, r1a, r1t, r2n, r2a, r2t, r3n, r3a, r3t, r4n, r4a, r4t, model_choice, precision, device, language, seed_random, seed, top_p, top_k, temperature, repetition_penalty, attention, unload, pause_linebreak, period_pause, comma_pause, question_pause, hyphen_pause, merge_outputs, batch_size, max_tokens_per_line, state_params):
+                            try:
+                                seed_int = int(seed)
+                            except Exception:
+                                seed_int = 0
+                            if _is_blank(script):
+                                return gr.update(value=None), seed_int, "请先填写“Script”（可参考占位示例）。"
+                            return _qwen_call(webui_qwen_tts.qwen_tts_handler.dialogue, seed_random, seed, unload, state_params, script=script, role_1_name=r1n, role_1_audio=r1a, role_1_ref_text=r1t, role_2_name=r2n, role_2_audio=r2a, role_2_ref_text=r2t, role_3_name=r3n, role_3_audio=r3a, role_3_ref_text=r3t, role_4_name=r4n, role_4_audio=r4a, role_4_ref_text=r4t, model_choice=model_choice, device=device, precision=precision, language=language, pause_linebreak=float(pause_linebreak), period_pause=float(period_pause), comma_pause=float(comma_pause), question_pause=float(question_pause), hyphen_pause=float(hyphen_pause), merge_outputs=bool(merge_outputs), batch_size=int(batch_size), max_new_tokens_per_line=int(max_tokens_per_line), top_p=float(top_p), top_k=int(top_k), temperature=float(temperature), repetition_penalty=float(repetition_penalty), attention=attention, unload_model_after_generate=bool(unload))
+
+                        qwen_dialogue_btn.click(fn=_qwen_tts_begin, inputs=[], outputs=[qwen_dialogue_btn, qwen_dialogue_stop_btn, qwen_dialogue_info], queue=False, show_progress=False).then(fn=qwen_dialogue_fn, inputs=[qwen_dialogue_script, qwen_role_1_name, qwen_role_1_audio, qwen_role_1_ref_text, qwen_role_2_name, qwen_role_2_audio, qwen_role_2_ref_text, qwen_role_3_name, qwen_role_3_audio, qwen_role_3_ref_text, qwen_role_4_name, qwen_role_4_audio, qwen_role_4_ref_text, qwen_tts_model_size, qwen_tts_precision, qwen_tts_device, qwen_tts_language, qwen_tts_seed_random, qwen_tts_seed, qwen_tts_top_p, qwen_tts_top_k, qwen_tts_temperature, qwen_tts_repetition_penalty, qwen_tts_attention, qwen_tts_unload, qwen_pause_linebreak, qwen_period_pause, qwen_comma_pause, qwen_question_pause, qwen_hyphen_pause, qwen_dialogue_merge, qwen_dialogue_batch, qwen_dialogue_max_tokens, state_topbar], outputs=[qwen_dialogue_output, qwen_tts_seed, qwen_dialogue_info], queue=True, show_progress=True).then(fn=_qwen_tts_end, inputs=[], outputs=[qwen_dialogue_btn, qwen_dialogue_stop_btn], queue=False, show_progress=False)
+                        qwen_dialogue_stop_btn.click(fn=_qwen_tts_stop, inputs=[], outputs=[qwen_dialogue_info], queue=False, show_progress=False)
+
+                    except ImportError:
+                        print("Warning: webui_qwen_tts module not found. TTS features disabled.")
             with gr.Row(visible=modules.config.default_image_prompt_checkbox) as image_input_panel:
                 with gr.Tabs(selected=modules.config.default_selected_image_input_tab_id, elem_id='image_input_tabs'):
                     with gr.Tab(label='Image Prompt', id='ip_tab', elem_id='ip_tab') as ip_tab:
@@ -1612,6 +1976,7 @@ with shared.gradio_root:
                                                 queue=False, show_progress=False)
 
             switch_js = "(x) => {if(x){viewer_to_bottom(100);viewer_to_bottom(500);}else{viewer_to_top();} return x;}"
+            switch_js_two = "(x,y) => {if(x){viewer_to_bottom(100);viewer_to_bottom(500);}else{if(!y){viewer_to_top();}} return [x,y];}"
             down_js = "() => {viewer_to_bottom();}"
 
             ip_advanced.change(lambda: None, queue=False, show_progress=False, _js=down_js)
@@ -1650,7 +2015,6 @@ with shared.gradio_root:
                                 if use_random:
                                     available_ratios = flags.available_aspect_ratios_list[current_template]
                                     if available_ratios:
-                                        import random
                                         selected_ratio = random.choice(available_ratios)
                                         width_height = selected_ratio.split('×')[0]
                                         width = int(width_height.split('|')[0] if '|' in width_height else width_height)
@@ -2413,7 +2777,7 @@ with shared.gradio_root:
                 def toggle_minicpm(x, state):
                     MiniCPM.set_enable(x)
                     ads.set_admin_default_value('minicpm_checkbox', x, state) 
-                    return gr.update(visible=not x), gr.update(visible=x), gr.update(visible=x), gr.update(visible= x), gr.update(visible=not x), gr.update(visible=x), gr.update(visible=x), gr.update(value='⚡ Execute Instruction' if x else 'Describe this Image into Prompt')
+                    return gr.update(visible=not x), gr.update(visible=x), gr.update(visible=x), gr.update(visible= x), gr.update(visible=not x), gr.update(visible=x), gr.update(visible=x), gr.update(value='⚡ Execute Instruction' if x else 'Describe this Image into Prompt'), gr.update(interactive=x), gr.update(interactive=x)
 
                 translation_methods.change(lambda x,y: ads.set_admin_default_value('translation_methods',x,y), inputs=[translation_methods, state_topbar])
                 backfill_prompt.change(lambda x,y: ads.set_user_default_value("backfill_prompt",x,y), inputs=[backfill_prompt, state_topbar])
@@ -2427,7 +2791,7 @@ with shared.gradio_root:
                 metadata_scheme.change(lambda x,y: ads.set_user_default_value("metadata_scheme", x, y), inputs=[metadata_scheme, state_topbar])
 
                 fast_comfyd_checkbox.change(simpleai.start_fast_comfyd, inputs=[fast_comfyd_checkbox, state_topbar])
-                minicpm_checkbox.change(toggle_minicpm, inputs=[minicpm_checkbox, state_topbar], outputs=[describe_apply_styles, describe_output_tags, describe_output_chinese, describe_output_artist, describe_methods, describe_prompt, vlm_describe_col, describe_btn], queue=False, show_progress=False).then(None, _js="() => localizeWholePage()")
+                minicpm_checkbox.change(toggle_minicpm, inputs=[minicpm_checkbox, state_topbar], outputs=[describe_apply_styles, describe_output_tags, describe_output_chinese, describe_output_artist, describe_methods, describe_prompt, vlm_describe_col, describe_btn, qwen_design_expand_btn, qwen_custom_expand_btn], queue=False, show_progress=False).then(None, _js="() => localizeWholePage()")
                 minicpm_version.change(fn=lambda version, state: [minicpm.set_version(version), ads.set_admin_default_value('minicpm_version', version, state), gr.update(value=f'<div style="margin-bottom: 5px;">🤖 <b>VLM Model:</b> <span style="color: #2196F3;">{version}</span></div>')][-1], inputs=[minicpm_version, state_topbar], outputs=vlm_status_info)
                 reserved_vram.change(lambda x,y: ads.set_admin_default_value('reserved_vram',x,y), inputs=[reserved_vram, state_topbar])
                 cache_ram.change(lambda x,y: ads.set_admin_default_value('cache_ram',x,y), inputs=[cache_ram, state_topbar])
@@ -2461,9 +2825,42 @@ with shared.gradio_root:
             layer_tab.select(lambda: 'layer', outputs=current_tab, queue=False, _js=down_js, show_progress=False).then(toggle_image_tab,inputs=[current_tab, style_selections], outputs=layout_image_tab, show_progress=False, queue=False)
             enhance_tab.select(lambda: 'enhance', outputs=current_tab, queue=False, _js=down_js, show_progress=False).then(toggle_image_tab,inputs=[current_tab, style_selections], outputs=layout_image_tab, show_progress=False, queue=False)
 
-            input_image_checkbox.change(lambda x: [gr.update(visible=x), gr.update(visible=x), gr.update(choices=flags.Performance.list()), gr.update(), 
-                gr.update()] + [gr.update(interactive=True)]*27, inputs=input_image_checkbox,
-                outputs=[image_input_panel, engine_class_display] + layout_image_tab, queue=False, show_progress=False, _js=switch_js)
+            def toggle_image_input_panel(is_checked, is_tts_checked):
+                result = [
+                    gr.update(visible=is_checked),
+                    gr.update(visible=is_checked),
+                    gr.update(choices=flags.Performance.list()),
+                    gr.update(),
+                    gr.update(),
+                ] + [gr.update(interactive=True)] * 27
+                if is_checked:
+                    result += [gr.update(visible=False), gr.update(value=False)]
+                else:
+                    result += [gr.update(), gr.update()]
+                return result
+
+            input_image_checkbox.change(
+                toggle_image_input_panel,
+                inputs=[input_image_checkbox, qwen_tts_checkbox],
+                outputs=[image_input_panel, engine_class_display] + layout_image_tab + [tts_panel, qwen_tts_checkbox],
+                queue=False,
+                show_progress=False,
+                _js=switch_js_two
+            )
+
+            def toggle_tts_panel(tts_checked, image_panel_checked):
+                if tts_checked:
+                    return gr.update(visible=True), gr.update(visible=False), gr.update(value=False)
+                return gr.update(visible=False), gr.update(visible=image_panel_checked), gr.update()
+
+            qwen_tts_checkbox.change(
+                fn=toggle_tts_panel,
+                inputs=[qwen_tts_checkbox, input_image_checkbox],
+                outputs=[tts_panel, image_input_panel, input_image_checkbox],
+                queue=False,
+                show_progress=False,
+                _js="(x,y) => {if(x){viewer_to_bottom(100);viewer_to_bottom(500);} return [x,y];}"
+            )
             prompt_panel_checkbox.change(lambda x: [gr.update(visible=x, open=x if x else True), gr.update(visible=x)],
                                          inputs=prompt_panel_checkbox, outputs=[prompt_wildcards, prompt_history], queue=False, show_progress=False,
                                          _js=switch_js).then(
@@ -2997,6 +3394,12 @@ with shared.gradio_root:
             try:
                 from enhanced.sam3_video_mask import unload_sam3_video_predictor
                 unload_sam3_video_predictor()
+            except Exception:
+                pass
+
+            try:
+                from enhanced import webui_qwen_tts
+                webui_qwen_tts.unload_qwen_tts_models()
             except Exception:
                 pass
 

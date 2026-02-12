@@ -597,11 +597,11 @@ def load_qwen_model(model_type: str, model_choice: str, device: str, precision: 
     """Shared model loading logic with caching and local path priority"""
     global _MODEL_CACHE
     
-    if previous_attention is not None and previous_attention != attention:
-        print(f"🔄 [Qwen3-TTS] Attention changed from '{previous_attention}' to '{attention}', clearing cache...")
-        unload_cached_model()
-    
     attn_impl = get_attention_implementation(attention)
+    
+    if previous_attention is not None and previous_attention != attn_impl:
+        print(f"🔄 [Qwen3-TTS] Attention changed from '{previous_attention}' to '{attn_impl}', clearing cache...")
+        unload_cached_model()
     
     # Check and download tokenizer (shared by all models)
     check_and_download_tokenizer()
@@ -633,7 +633,14 @@ def load_qwen_model(model_type: str, model_choice: str, device: str, precision: 
     # Cache key includes attention implementation and custom model path
     cache_key = (model_type, model_choice, device, precision, attn_impl, custom_model_path)
     if cache_key in _MODEL_CACHE:
-        return _MODEL_CACHE[cache_key]
+        model = _MODEL_CACHE[cache_key]
+        if unload_after:
+            def unload_callback():
+                unload_cached_model()
+            model._unload_callback = unload_callback
+        else:
+            model._unload_callback = None
+        return model
 
     # Clear old cache only when adding a new model with different config
     if _MODEL_CACHE:
@@ -1163,6 +1170,8 @@ class VoiceCloneNode:
                     results.append(silence)
 
         except Exception as e:
+            if isinstance(e, model_management.InterruptProcessingException):
+                raise
             raise RuntimeError(f"Generation failed: {e}")
 
         pbar.update_absolute(3, 3, None)
@@ -1620,6 +1629,8 @@ class DialogueInferenceNode:
                 pbar.update_absolute(current_chunk + 1, total_stages, None)
 
         except Exception as e:
+            if isinstance(e, model_management.InterruptProcessingException):
+                raise
             raise RuntimeError(f"Dialogue generation failed during chunked inference: {e}")
 
         if not results:

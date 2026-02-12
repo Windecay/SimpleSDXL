@@ -486,3 +486,20 @@ def patched_wait_for(fut, timeout):
 
 gradio.routes.asyncio.wait_for = patched_wait_for
 
+if not hasattr(gradio.routes, "original_FileResponse"):
+    gradio.routes.original_FileResponse = gradio.routes.FileResponse
+
+
+def patched_FileResponse(path, *args, **kwargs):
+    if "filename" not in kwargs:
+        try:
+            kwargs["filename"] = Path(path).name
+        except Exception:
+            pass
+    if "filename" in kwargs and "content_disposition_type" not in kwargs:
+        kwargs["content_disposition_type"] = "inline"
+    return gradio.routes.original_FileResponse(path, *args, **kwargs)
+
+
+gradio.routes.FileResponse = patched_FileResponse
+

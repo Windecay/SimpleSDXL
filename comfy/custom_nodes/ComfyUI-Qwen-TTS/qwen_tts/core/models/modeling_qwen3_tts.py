@@ -25,6 +25,7 @@ from torch import nn
 from torch.nn import functional as F
 from transformers.activations import ACT2FN
 from transformers.cache_utils import Cache, DynamicCache
+from transformers.generation.stopping_criteria import StoppingCriteria, StoppingCriteriaList
 from transformers.generation import GenerationMixin
 from transformers.integrations import use_kernel_forward_from_hub
 from transformers.masking_utils import (
@@ -1990,6 +1991,46 @@ class Qwen3TTSForConditionalGeneration(Qwen3TTSPreTrainedModel, GenerationMixin)
         repetition_penalty: float = 1.05,
         **kwargs,
     ):
+        class _InterruptStoppingCriteria(StoppingCriteria):
+            def __call__(self, input_ids, scores, **kwargs):
+                try:
+                    import ldm_patched.modules.model_management as _mm
+                except Exception:
+                    _mm = None
+
+                try:
+                    from comfy import model_management as _cm
+                except Exception:
+                    _cm = None
+                interrupted = False
+                if _mm is not None:
+                    try:
+                        interrupted = interrupted or bool(_mm.processing_interrupted())
+                    except Exception:
+                        pass
+                if _cm is not None:
+                    try:
+                        interrupted = interrupted or bool(_cm.processing_interrupted())
+                    except Exception:
+                        pass
+                if interrupted:
+                    if _mm is not None:
+                        try:
+                            _mm.interrupt_current_processing(False)
+                        except Exception:
+                            pass
+                    if _cm is not None:
+                        try:
+                            _cm.interrupt_current_processing(False)
+                        except Exception:
+                            pass
+                    if _cm is not None:
+                        raise _cm.InterruptProcessingException()
+                    if _mm is not None:
+                        raise _mm.InterruptProcessingException()
+                    raise RuntimeError("Interrupted")
+                return False
+
         talker_kwargs = {
             "max_new_tokens": max_new_tokens,
             "min_new_tokens": 2,
@@ -2218,11 +2259,13 @@ class Qwen3TTSForConditionalGeneration(Qwen3TTSPreTrainedModel, GenerationMixin)
         trailing_text_hiddens = padded_hiddens
 
         # forward
+        stopping_criteria = StoppingCriteriaList([_InterruptStoppingCriteria()])
         talker_result = self.talker.generate(
             inputs_embeds=talker_input_embeds,
             attention_mask=talker_attention_mask,
             trailing_text_hidden=trailing_text_hiddens,
             tts_pad_embed=tts_pad_embed,
+            stopping_criteria=stopping_criteria,
             **talker_kwargs,
         )
 

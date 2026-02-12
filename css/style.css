@@ -109,7 +109,7 @@ div:has(> #positive_prompt) {
 }
 
 .advanced_check_row{
-  width: 350px !important;
+  width: 450px !important;
 }
 
 .model-dropdown{
@@ -1465,4 +1465,18 @@ button[aria-label="Edit"][title="Edit"] {
 #sam3_input_video canvas,
 #sam3_output_mask_video canvas {
     border-radius: 8px;
+}
+
+#tts_panel {
+    position: relative;
+}
+
+#qwen_tts_source_badge {
+    position: absolute;
+    right: 0px;
+    bottom: -12px;
+    z-index: 50;
+    font-size: 12px;
+    opacity: 0.75;
+    text-align: right;
 }
