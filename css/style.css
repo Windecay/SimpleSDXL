@@ -94,6 +94,32 @@ div:has(> #positive_prompt) {
   overflow: hidden;
 }
 
+.qwen_tts_preset_stack{
+  gap: 0 !important;
+}
+
+.qwen_tts_preset_stack > .qwen_tts_stack_item{
+  margin-top: 0 !important;
+}
+
+.qwen_tts_preset_stack > .qwen_tts_stack_item + .qwen_tts_stack_item{
+  margin-top: -1px !important;
+}
+
+.qwen_tts_preset_stack > .qwen_tts_stack_item :is(button, input, textarea, select){
+  border-radius: 0 !important;
+}
+
+.qwen_tts_preset_stack > .qwen_tts_stack_item:first-child :is(button, input, textarea, select){
+  border-top-left-radius: 8px !important;
+  border-top-right-radius: 8px !important;
+}
+
+.qwen_tts_preset_stack > .qwen_tts_stack_item:last-child :is(button, input, textarea, select){
+  border-bottom-left-radius: 8px !important;
+  border-bottom-right-radius: 8px !important;
+}
+
 .type_row_third{
   height: 32px !important;
   font-size: 14px !important; 

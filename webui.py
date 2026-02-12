@@ -1266,12 +1266,90 @@ with shared.gradio_root:
                                 "Elderly Hoarse": "Elderly male, ~70, slightly hoarse and breathy, slow pace, reflective mood, soft volume, longer pauses, subtle trembling on sustained vowels.",
                                 "Audiobook Narrator": "Audiobook narrator, 40s, cinematic and immersive, controlled dynamics, clear phrasing, dramatic pauses, rich low-mid register, smooth resonance.",
                             }
+                            def _qwen_get_user_did_from_state(state_params):
+                                try:
+                                    if isinstance(state_params, dict):
+                                        user = state_params.get("user", None)
+                                        if user is not None and hasattr(user, "get_did"):
+                                            return user.get_did()
+                                except Exception:
+                                    pass
+                                try:
+                                    return shared.token.get_guest_did()
+                                except Exception:
+                                    return None
+
+                            def _qwen_safe_preset_name(name):
+                                s = "" if name is None else str(name).strip()
+                                s = re.sub(r"[\\/:*?\"<>|\r\n\t]", "_", s)
+                                s = s.strip(" .")
+                                return s[:80]
+
+                            def _qwen_character_presets_dir(user_did):
+                                try:
+                                    base = shared.token.get_path_in_user_dir(user_did or shared.token.get_guest_did(), "presets")
+                                    path = os.path.join(base, "characters")
+                                    os.makedirs(path, exist_ok=True)
+                                    return path
+                                except Exception:
+                                    return None
+
+                            def _qwen_load_user_character_presets(user_did):
+                                presets = {}
+                                preset_dir = _qwen_character_presets_dir(user_did)
+                                if not preset_dir or not os.path.isdir(preset_dir):
+                                    return presets
+                                try:
+                                    for file_name in os.listdir(preset_dir):
+                                        if not file_name.lower().endswith(".json"):
+                                            continue
+                                        full_path = os.path.join(preset_dir, file_name)
+                                        if not os.path.isfile(full_path):
+                                            continue
+                                        try:
+                                            with open(full_path, "r", encoding="utf-8") as f:
+                                                payload = json.load(f)
+                                        except Exception:
+                                            continue
+                                        key = os.path.splitext(file_name)[0]
+                                        text = ""
+                                        if isinstance(payload, dict):
+                                            key = payload.get("name", key)
+                                            text = payload.get("instruction", "")
+                                        elif isinstance(payload, str):
+                                            text = payload
+                                        key = "" if key is None else str(key).strip()
+                                        text = "" if text is None else str(text).strip()
+                                        if key and text:
+                                            presets[key] = text
+                                except Exception:
+                                    pass
+                                return presets
+
+                            def _qwen_get_style_preset_choices(state_params):
+                                base_keys = list(qwen_tts_style_presets.keys())
+                                user_did = _qwen_get_user_did_from_state(state_params)
+                                user_presets = _qwen_load_user_character_presets(user_did)
+                                extra = [k for k in sorted(user_presets.keys()) if k not in base_keys]
+                                return base_keys + extra
+
+                            def _qwen_refresh_style_preset_dropdowns(state_params, design_value, custom_value):
+                                choices = _qwen_get_style_preset_choices(state_params)
+                                dv = None if design_value not in choices else design_value
+                                cv = None if custom_value not in choices else custom_value
+                                return gr.update(choices=choices, value=dv), gr.update(choices=choices, value=cv)
                             with gr.Row():
                                 with gr.Column(scale=4):
                                     qwen_design_instruct = gr.Textbox(label="Style Instruction", lines=4, placeholder="e.g. A cheerful young woman...")
                                 with gr.Column(scale=1):
-                                    qwen_design_expand_btn = gr.Button(value="Style Expand", elem_classes="type_row_half", size="sm", min_width=70, visible=MiniCPM.get_enable())
-                                    qwen_design_style_preset_choices = gr.Dropdown(label="Style Presets", choices=list(qwen_tts_style_presets.keys()), value=None)
+                                    qwen_design_expand_btn = gr.Button(value="Style Expand", elem_classes=["type_row_half", "qwen_tts_stack_item"], size="sm", min_width=70, visible=MiniCPM.get_enable())
+                                    qwen_design_style_preset_choices = gr.Dropdown(label="Character Presets", choices=list(qwen_tts_style_presets.keys()), value=None, show_label=True, elem_classes="qwen_tts_stack_item")
+                            with gr.Row():
+                                with gr.Column(scale=4):
+                                    qwen_design_style_preset_name = gr.Textbox(label="Character Name", lines=1, placeholder="给你的角色/风格起个名字")
+                                with gr.Column(scale=1, elem_classes="qwen_tts_preset_stack"):
+                                    qwen_design_style_preset_save_btn = gr.Button(value="Save Character", elem_classes=["type_row_half", "qwen_tts_stack_item"], size="sm", min_width=70)
+                                    qwen_design_style_preset_delete_btn = gr.Button(value="Delete Character", elem_classes=["type_row_half", "qwen_tts_stack_item"], size="sm", min_width=70)
                             with gr.Row():
                                 qwen_design_btn = gr.Button("Generate Audio", elem_classes="type_row_half")
                                 qwen_design_stop_btn = gr.Button("Stop", elem_classes="type_row_half", min_width=70, visible=False)
@@ -1331,8 +1409,14 @@ with shared.gradio_root:
                                 with gr.Column(scale=4):
                                     qwen_custom_instruct = gr.Textbox(label="Style Instruction (Optional)", lines=4)
                                 with gr.Column(scale=1):
-                                    qwen_custom_expand_btn = gr.Button(value="Style Expand", elem_classes="type_row_half", size="sm", min_width=70, visible=MiniCPM.get_enable())
-                                    qwen_custom_style_preset_choices = gr.Dropdown(label="Style Presets", choices=list(qwen_tts_style_presets.keys()), value=None)
+                                    qwen_custom_expand_btn = gr.Button(value="Style Expand", elem_classes=["type_row_half", "qwen_tts_stack_item"], size="sm", min_width=70, visible=MiniCPM.get_enable())
+                                    qwen_custom_style_preset_choices = gr.Dropdown(label="Character Presets", choices=list(qwen_tts_style_presets.keys()), value=None, show_label=True, elem_classes="qwen_tts_stack_item")
+                            with gr.Row():
+                                with gr.Column(scale=4):
+                                    qwen_custom_style_preset_name = gr.Textbox(label="Character Name", lines=1, placeholder="给你的角色/风格起个名字", elem_classes="qwen_tts_stack_item")
+                                with gr.Column(scale=1, elem_classes="qwen_tts_preset_stack"):   
+                                    qwen_custom_style_preset_save_btn = gr.Button(value="Save Character", elem_classes=["type_row_half", "qwen_tts_stack_item"], size="sm", min_width=70)
+                                    qwen_custom_style_preset_delete_btn = gr.Button(value="Delete Character", elem_classes=["type_row_half", "qwen_tts_stack_item"], size="sm", min_width=70)
                             with gr.Row():
                                 qwen_custom_btn = gr.Button("Generate Audio", elem_classes="type_row_half")
                                 qwen_custom_stop_btn = gr.Button("Stop", elem_classes="type_row_half", min_width=70, visible=False)
@@ -1421,15 +1505,7 @@ with shared.gradio_root:
                     try:
                         from enhanced import webui_qwen_tts
 
-                        def _get_user_did_from_state(state_params):
-                            try:
-                                if isinstance(state_params, dict):
-                                    user = state_params.get("user", None)
-                                    if user is not None and hasattr(user, "get_did"):
-                                        return user.get_did()
-                            except Exception:
-                                pass
-                            return None
+                        def _get_user_did_from_state(state_params): return _qwen_get_user_did_from_state(state_params)
 
                         def _resolve_tts_seed(seed_value, seed_random_value):
                             try:
@@ -1491,10 +1567,70 @@ with shared.gradio_root:
 
                         qwen_custom_speaker.change(fn=_format_qwen_speaker_note, inputs=[qwen_custom_speaker], outputs=[qwen_custom_speaker_note], queue=False, show_progress=False)
 
-                        def _apply_style_presets(selected_preset): return "" if not selected_preset else str(qwen_tts_style_presets.get(str(selected_preset), "")).strip()
+                        def _apply_style_presets(selected_preset, state_params):
+                            if _is_blank(selected_preset):
+                                return ""
+                            k = str(selected_preset).strip()
+                            v = qwen_tts_style_presets.get(k, None)
+                            if v is not None:
+                                return str(v).strip()
+                            user_did = _get_user_did_from_state(state_params)
+                            user_presets = _qwen_load_user_character_presets(user_did)
+                            return str(user_presets.get(k, "")).strip()
 
-                        qwen_design_style_preset_choices.change(fn=_apply_style_presets, inputs=[qwen_design_style_preset_choices], outputs=[qwen_design_instruct], queue=False, show_progress=False)
-                        qwen_custom_style_preset_choices.change(fn=_apply_style_presets, inputs=[qwen_custom_style_preset_choices], outputs=[qwen_custom_instruct], queue=False, show_progress=False)
+                        qwen_design_style_preset_choices.change(fn=_apply_style_presets, inputs=[qwen_design_style_preset_choices, state_topbar], outputs=[qwen_design_instruct], queue=False, show_progress=False)
+                        qwen_custom_style_preset_choices.change(fn=_apply_style_presets, inputs=[qwen_custom_style_preset_choices, state_topbar], outputs=[qwen_custom_instruct], queue=False, show_progress=False)
+
+                        def _save_user_character_preset(preset_name, style_text, state_params, design_value, custom_value, target):
+                            user_did = _get_user_did_from_state(state_params)
+                            name = _qwen_safe_preset_name(preset_name)
+                            text = "" if style_text is None else str(style_text).strip()
+                            if not name:
+                                return _qwen_refresh_style_preset_dropdowns(state_params, design_value, custom_value) + (gr.update(value=preset_name), "Preset Name 不能为空")
+                            if not text:
+                                return _qwen_refresh_style_preset_dropdowns(state_params, design_value, custom_value) + (gr.update(value=preset_name), "Style Instruction 不能为空")
+                            preset_dir = _qwen_character_presets_dir(user_did)
+                            if not preset_dir:
+                                return _qwen_refresh_style_preset_dropdowns(state_params, design_value, custom_value) + (gr.update(value=preset_name), "保存失败：无法定位用户目录")
+                            file_path = os.path.join(preset_dir, f"{name}.json")
+                            payload = {"name": name, "instruction": text, "updated_at": int(time.time())}
+                            try:
+                                with open(file_path, "w", encoding="utf-8") as f:
+                                    json.dump(payload, f, ensure_ascii=False, indent=2)
+                            except Exception as e:
+                                return _qwen_refresh_style_preset_dropdowns(state_params, design_value, custom_value) + (gr.update(value=preset_name), f"保存失败：{type(e).__name__}: {e}")
+                            dv = name if str(target) == "design" else design_value
+                            cv = name if str(target) == "custom" else custom_value
+                            return _qwen_refresh_style_preset_dropdowns(state_params, dv, cv) + (gr.update(value=""), f"已保存到 users/{user_did}/presets/characters/{name}.json")
+
+                        def _delete_user_character_preset(preset_name, state_params, design_value, custom_value, target):
+                            user_did = _get_user_did_from_state(state_params)
+                            selected = design_value if str(target) == "design" else custom_value
+                            name = _qwen_safe_preset_name(preset_name)
+                            if not name:
+                                name = _qwen_safe_preset_name(selected)
+                            if not name:
+                                return _qwen_refresh_style_preset_dropdowns(state_params, design_value, custom_value) + (gr.update(value=preset_name), "Preset Name 不能为空")
+                            if name in qwen_tts_style_presets:
+                                return _qwen_refresh_style_preset_dropdowns(state_params, design_value, custom_value) + (gr.update(value=preset_name), "不能删除内置 Preset")
+                            preset_dir = _qwen_character_presets_dir(user_did)
+                            if not preset_dir:
+                                return _qwen_refresh_style_preset_dropdowns(state_params, design_value, custom_value) + (gr.update(value=preset_name), "删除失败：无法定位用户目录")
+                            file_path = os.path.join(preset_dir, f"{name}.json")
+                            if not os.path.isfile(file_path):
+                                return _qwen_refresh_style_preset_dropdowns(state_params, design_value, custom_value) + (gr.update(value=preset_name), f"未找到 Preset：{name}")
+                            try:
+                                os.remove(file_path)
+                            except Exception as e:
+                                return _qwen_refresh_style_preset_dropdowns(state_params, design_value, custom_value) + (gr.update(value=preset_name), f"删除失败：{type(e).__name__}: {e}")
+                            dv = None if str(target) == "design" and str(design_value).strip() == name else design_value
+                            cv = None if str(target) == "custom" and str(custom_value).strip() == name else custom_value
+                            return _qwen_refresh_style_preset_dropdowns(state_params, dv, cv) + (gr.update(value=""), f"已删除 users/{user_did}/presets/characters/{name}.json")
+
+                        qwen_design_style_preset_save_btn.click(fn=lambda a, b, c, d, e: _save_user_character_preset(a, b, c, d, e, "design"), inputs=[qwen_design_style_preset_name, qwen_design_instruct, state_topbar, qwen_design_style_preset_choices, qwen_custom_style_preset_choices], outputs=[qwen_design_style_preset_choices, qwen_custom_style_preset_choices, qwen_design_style_preset_name, qwen_design_info], queue=False, show_progress=False)
+                        qwen_custom_style_preset_save_btn.click(fn=lambda a, b, c, d, e: _save_user_character_preset(a, b, c, d, e, "custom"), inputs=[qwen_custom_style_preset_name, qwen_custom_instruct, state_topbar, qwen_design_style_preset_choices, qwen_custom_style_preset_choices], outputs=[qwen_design_style_preset_choices, qwen_custom_style_preset_choices, qwen_custom_style_preset_name, qwen_custom_info], queue=False, show_progress=False)
+                        qwen_design_style_preset_delete_btn.click(fn=lambda a, b, c, d: _delete_user_character_preset(a, b, c, d, "design"), inputs=[qwen_design_style_preset_name, state_topbar, qwen_design_style_preset_choices, qwen_custom_style_preset_choices], outputs=[qwen_design_style_preset_choices, qwen_custom_style_preset_choices, qwen_design_style_preset_name, qwen_design_info], queue=False, show_progress=False)
+                        qwen_custom_style_preset_delete_btn.click(fn=lambda a, b, c, d: _delete_user_character_preset(a, b, c, d, "custom"), inputs=[qwen_custom_style_preset_name, state_topbar, qwen_design_style_preset_choices, qwen_custom_style_preset_choices], outputs=[qwen_design_style_preset_choices, qwen_custom_style_preset_choices, qwen_custom_style_preset_name, qwen_custom_info], queue=False, show_progress=False)
 
                         def _expand_tts_style_instruction(style_text, state_params):
                             if _is_blank(style_text):
@@ -3670,12 +3806,15 @@ with shared.gradio_root:
     after_identity = [gallery_index, index_radio, gallery_index_stat, layer_method, layer_input_image, preset_store, preset_store_list, history_link, identity_introduce, configure_panel, local_system_tab, admin_panel, p2p_panel, admin_link, system_params] + ip_types
     identity_phrases_confirm_button.click(lambda a, b, c: simpleai.set_phrases(a,b,c,'confirm'), inputs=identity_input_info + [identity_phrase_input], outputs=identity_ctrls + [current_id_info, current_upstream_status, identity_export_btn], show_progress=False) \
         .then(topbar.update_after_identity_all, inputs=state_topbar, outputs=nav_bars + after_identity + user_app_ctrls, show_progress=False) \
+        .then(_qwen_refresh_style_preset_dropdowns, inputs=[state_topbar, qwen_design_style_preset_choices, qwen_custom_style_preset_choices], outputs=[qwen_design_style_preset_choices, qwen_custom_style_preset_choices], queue=False, show_progress=False) \
         .then(fn=lambda x: None, inputs=system_params, _js='(x)=>{refresh_topbar_status_js(x);}')
     identity_confirm_button.click(simpleai.confirm_identity, inputs=identity_input_info + [identity_phrase_input], outputs=identity_ctrls + [current_id_info, current_upstream_status, identity_export_btn], show_progress=False) \
         .then(topbar.update_after_identity_all, inputs=state_topbar, outputs=nav_bars + after_identity + user_app_ctrls, show_progress=False) \
+        .then(_qwen_refresh_style_preset_dropdowns, inputs=[state_topbar, qwen_design_style_preset_choices, qwen_custom_style_preset_choices], outputs=[qwen_design_style_preset_choices, qwen_custom_style_preset_choices], queue=False, show_progress=False) \
         .then(fn=lambda x: None, inputs=system_params, _js='(x)=>{refresh_topbar_status_js(x);}')
     identity_unbind_button.click(simpleai.unbind_identity, inputs=identity_input_info + [identity_phrase_input], outputs=identity_ctrls + identity_input + [current_id_info, current_upstream_status, identity_export_btn], show_progress=False) \
         .then(topbar.update_after_identity_all, inputs=state_topbar, outputs=nav_bars + after_identity + user_app_ctrls, show_progress=False) \
+        .then(_qwen_refresh_style_preset_dropdowns, inputs=[state_topbar, qwen_design_style_preset_choices, qwen_custom_style_preset_choices], outputs=[qwen_design_style_preset_choices, qwen_custom_style_preset_choices], queue=False, show_progress=False) \
         .then(fn=lambda x: None, inputs=system_params, _js='(x)=>{refresh_topbar_status_js(x);}')
     binding_id_button.click(simpleai.toggle_identity_dialog, inputs=state_topbar, outputs=[identity_dialog, current_id_info, current_upstream_status, identity_export_btn] + identity_ctrls + identity_input, show_progress=False)
 
@@ -3707,6 +3846,7 @@ with shared.gradio_root:
                .then(topbar.stop_comfyd_background, inputs=[comfyd_active_checkbox], queue=False)
     shared.gradio_root.load(fn=lambda x: x, inputs=system_params, outputs=state_topbar, _js=topbar.get_system_params_js, queue=False, show_progress=False) \
                       .then(topbar.init_nav_bars, inputs=[state_topbar] + admin_ctrls, outputs=[progress_window, language_ui, background_theme, preset_instruction] + user_app_ctrls + admin_ctrls, show_progress=False) \
+                      .then(_qwen_refresh_style_preset_dropdowns, inputs=[state_topbar, qwen_design_style_preset_choices, qwen_custom_style_preset_choices], outputs=[qwen_design_style_preset_choices, qwen_custom_style_preset_choices], queue=False, show_progress=False) \
                       .then(topbar.reset_layout_ui, inputs=reset_preset_inputs, outputs=reset_layout_ui_outputs + [state_topbar, comparison_state, comparison_box, progress_gallery, compare_btn, progress_window], show_progress=False) \
                       .then(topbar.reset_layout_values, inputs=reset_values_inputs, outputs=reset_layout_values_outputs, show_progress=False) \
                       .then(sync_scene_model_selections, inputs=[state_topbar, base_model, refiner_model] + lora_ctrls, outputs=[scene_base_model, scene_refiner_model, scene_use_lora, lora_group, scene_lora_model, scene_lora_weight, scene_lora_model_2, scene_lora_weight_2, scene_lora_model_3, scene_lora_weight_3, scene_lora_model_4, scene_lora_weight_4], queue=False, show_progress=False) \
