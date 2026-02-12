@@ -162,6 +162,7 @@ def load_model_paths():
             "nlf": [os.path.join(simplemodels_root, "nlf")],
             "SEEDVR2": [os.path.join(simplemodels_root, "SEEDVR2")],
             "sam3": [os.path.join(simplemodels_root, "sam3")],
+            "qwen-tts": [os.path.join(simplemodels_root, "qwen-tts")],
         }
 
     except Exception as e:
@@ -210,6 +211,7 @@ def load_model_paths():
             "nlf": [os.path.join(simplemodels_root, "nlf")],
             "SEEDVR2": [os.path.join(simplemodels_root, "SEEDVR2")],
             "sam3": [os.path.join(simplemodels_root, "sam3")],
+            "qwen-tts": [os.path.join(simplemodels_root, "qwen-tts")],
         }
 
     for key in path_mapping:
@@ -397,7 +399,7 @@ def print_instructions():
     time.sleep(0.1)
     print(f"{Fore.GREEN}★{Style.RESET_ALL}打开默认浏览器设置，关闭GPU加速、或图形加速的选项。{Fore.GREEN}★{Style.RESET_ALL}大内存(64+)与固态硬盘存放模型有助于减少模型加载时间。{Fore.GREEN}★{Style.RESET_ALL}")
     time.sleep(0.1)
-    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：1005085136{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:26.02.08{Fore.GREEN}★{Style.RESET_ALL}")
+    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：1005085136{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:26.02.12{Fore.GREEN}★{Style.RESET_ALL}")
     print()
     time.sleep(0.1)
 
@@ -694,6 +696,7 @@ def validate_files(packages):
         os.path.join(simplemodels_root, "LLM", "Qwen3-VL-4B-Instruct-abliterated"),
         os.path.join(simplemodels_root, "rembg"),
         os.path.join(simplemodels_root, "sam3"),
+        os.path.join(simplemodels_root, "qwen-tts"),
         ]
         for model_root in MODEL_PATHS_TO_SCAN:
             if not os.path.exists(model_root):
@@ -992,7 +995,7 @@ def delete_partial_files():
         'vae_approx', 'vae', 'upscale_models', 'inpaint', "ipadapter",
         'clip', 'clip_vision', 'llms', 'LLM', 'unet', 'diffusers', 'model_patches',
         'text_encoders', 'audio_encoders', 'safety_checker', 'layer_model', 'pulid', 'insightface',
-        'prompt_expansion', 'fooocus_expansion', 'gemma3', 'jina_clip', 'rembg', 'sam3',
+        'prompt_expansion', 'fooocus_expansion', 'gemma3', 'jina_clip', 'rembg', 'sam3', 'qwen-tts',
     ]
 
     scan_dirs = []
@@ -1067,7 +1070,7 @@ def _find_obsolete_model_files():
         'vae_approx', 'vae', 'upscale_models', 'inpaint', "ipadapter",
         'clip', 'clip_vision', 'llms', 'LLM', 'unet', 'diffusers', 'model_patches',
         'text_encoders', 'audio_encoders', 'safety_checker', 'layer_model', 'pulid', 'insightface',
-        'prompt_expansion', 'fooocus_expansion', 'gemma3', 'jina_clip',
+        'prompt_expansion', 'fooocus_expansion', 'gemma3', 'jina_clip', 'rembg', 'sam3', 'qwen-tts',
     ]
 
     scan_dirs = []
@@ -2530,7 +2533,83 @@ packages = {'base_package': {'id': 1,
                                'controlnet,rife/flownet.pkl,24636301,0,https://www.modelscope.cn/models/windecay/rife/resolve/master/flownet.pkl,https://huggingface.co/windecay/SimpleSDXL2/resolve/main/SimpleModels/controlnet/rife/flownet.pkl'],
                      'info_links': ['https://civitai.com/models/1981116/dasiwa-wan-22-i2v-14b-or-lightspeed-or-safetensors'],
                      'preset_sample': []},
-                         }
+ 'qwen_tts_0_6b': {'id': 39, 'name': '[39]Qwen3-TTS 0.6B模型包', 
+                        'note': 'Qwen3-TTS 0.6B语音生成、克隆模块', 
+                        'files': ['qwen-tts,Qwen3-TTS-Tokenizer-12Hz/config.json,2336,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-Tokenizer-12Hz/resolve/master/config.json,https://huggingface.co/Qwen/Qwen3-TTS-Tokenizer-12Hz/resolve/main/config.json',
+                                'qwen-tts,Qwen3-TTS-Tokenizer-12Hz/configuration.json,76,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-Tokenizer-12Hz/resolve/master/configuration.json,https://huggingface.co/Qwen/Qwen3-TTS-Tokenizer-12Hz/resolve/main/configuration.json',
+                                'qwen-tts,Qwen3-TTS-Tokenizer-12Hz/model.safetensors,682293092,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-Tokenizer-12Hz/resolve/master/model.safetensors,https://huggingface.co/Qwen/Qwen3-TTS-Tokenizer-12Hz/resolve/main/model.safetensors',
+                                'qwen-tts,Qwen3-TTS-Tokenizer-12Hz/preprocessor_config.json,234,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-Tokenizer-12Hz/resolve/master/preprocessor_config.json,https://huggingface.co/Qwen/Qwen3-TTS-Tokenizer-12Hz/resolve/main/preprocessor_config.json',
+                                'qwen-tts,Qwen3-TTS-12Hz-0.6B-Base/config.json,4494,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-0.6B-Base/resolve/master/config.json,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-0.6B-Base/resolve/main/config.json',
+                                'qwen-tts,Qwen3-TTS-12Hz-0.6B-Base/configuration.json,47,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-0.6B-Base/resolve/master/configuration.json,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-0.6B-Base/resolve/main/configuration.json',
+                                'qwen-tts,Qwen3-TTS-12Hz-0.6B-Base/generation_config.json,245,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-0.6B-Base/resolve/master/generation_config.json,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-0.6B-Base/resolve/main/generation_config.json',
+                                'qwen-tts,Qwen3-TTS-12Hz-0.6B-Base/merges.txt,1671839,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-0.6B-Base/resolve/master/merges.txt,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-0.6B-Base/resolve/main/merges.txt',
+                                'qwen-tts,Qwen3-TTS-12Hz-0.6B-Base/model.safetensors,1829344272,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-0.6B-Base/resolve/master/model.safetensors,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-0.6B-Base/resolve/main/model.safetensors',
+                                'qwen-tts,Qwen3-TTS-12Hz-0.6B-Base/preprocessor_config.json,127,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-0.6B-Base/resolve/master/preprocessor_config.json,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-0.6B-Base/resolve/main/preprocessor_config.json',
+                                'qwen-tts,Qwen3-TTS-12Hz-0.6B-Base/speech_tokenizer/config.json,2336,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-0.6B-Base/resolve/master/speech_tokenizer/config.json,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-0.6B-Base/resolve/main/speech_tokenizer/config.json',
+                                'qwen-tts,Qwen3-TTS-12Hz-0.6B-Base/speech_tokenizer/configuration.json,76,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-0.6B-Base/resolve/master/speech_tokenizer/configuration.json,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-0.6B-Base/resolve/main/speech_tokenizer/configuration.json',
+                                'qwen-tts,Qwen3-TTS-12Hz-0.6B-Base/speech_tokenizer/model.safetensors,682293092,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-0.6B-Base/resolve/master/speech_tokenizer/model.safetensors,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-0.6B-Base/resolve/main/speech_tokenizer/model.safetensors',
+                                'qwen-tts,Qwen3-TTS-12Hz-0.6B-Base/speech_tokenizer/preprocessor_config.json,234,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-0.6B-Base/resolve/master/speech_tokenizer/preprocessor_config.json,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-0.6B-Base/resolve/main/speech_tokenizer/preprocessor_config.json',
+                                'qwen-tts,Qwen3-TTS-12Hz-0.6B-Base/tokenizer_config.json,7344,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-0.6B-Base/resolve/master/tokenizer_config.json,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-0.6B-Base/resolve/main/tokenizer_config.json',
+                                'qwen-tts,Qwen3-TTS-12Hz-0.6B-Base/vocab.json,2776833,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-0.6B-Base/resolve/master/vocab.json,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-0.6B-Base/resolve/main/vocab.json',
+                                'qwen-tts,Qwen3-TTS-12Hz-0.6B-CustomVoice/config.json,4908,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice/resolve/master/config.json,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice/resolve/main/config.json',
+                                'qwen-tts,Qwen3-TTS-12Hz-0.6B-CustomVoice/configuration.json,47,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice/resolve/master/configuration.json,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice/resolve/main/configuration.json',
+                                'qwen-tts,Qwen3-TTS-12Hz-0.6B-CustomVoice/generation_config.json,245,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice/resolve/master/generation_config.json,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice/resolve/main/generation_config.json',
+                                'qwen-tts,Qwen3-TTS-12Hz-0.6B-CustomVoice/merges.txt,1671839,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice/resolve/master/merges.txt,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice/resolve/main/merges.txt',
+                                'qwen-tts,Qwen3-TTS-12Hz-0.6B-CustomVoice/model.safetensors,1811626576,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice/resolve/master/model.safetensors,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice/resolve/main/model.safetensors',
+                                'qwen-tts,Qwen3-TTS-12Hz-0.6B-CustomVoice/preprocessor_config.json,127,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice/resolve/master/preprocessor_config.json,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice/resolve/main/preprocessor_config.json',
+                                'qwen-tts,Qwen3-TTS-12Hz-0.6B-CustomVoice/speech_tokenizer/config.json,2336,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice/resolve/master/speech_tokenizer/config.json,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice/resolve/main/speech_tokenizer/config.json',
+                                'qwen-tts,Qwen3-TTS-12Hz-0.6B-CustomVoice/speech_tokenizer/configuration.json,76,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice/resolve/master/speech_tokenizer/configuration.json,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice/resolve/main/speech_tokenizer/configuration.json',
+                                'qwen-tts,Qwen3-TTS-12Hz-0.6B-CustomVoice/speech_tokenizer/model.safetensors,682293092,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice/resolve/master/speech_tokenizer/model.safetensors,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice/resolve/main/speech_tokenizer/model.safetensors',
+                                'qwen-tts,Qwen3-TTS-12Hz-0.6B-CustomVoice/speech_tokenizer/preprocessor_config.json,234,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice/resolve/master/speech_tokenizer/preprocessor_config.json,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice/resolve/main/speech_tokenizer/preprocessor_config.json',
+                                'qwen-tts,Qwen3-TTS-12Hz-0.6B-CustomVoice/tokenizer_config.json,7344,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice/resolve/master/tokenizer_config.json,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice/resolve/main/tokenizer_config.json',
+                                'qwen-tts,Qwen3-TTS-12Hz-0.6B-CustomVoice/vocab.json,2776833,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice/resolve/master/vocab.json,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice/resolve/main/vocab.json'],
+                        'info_links': ['https://www.modelscope.cn/collections/Qwen/Qwen3-TTS'],
+                        "preset_sample": []}, 
+ 'qwen_tts_1_7b': {'id': 40, 'name': '[40]Qwen3-TTS 1.7B模型包', 
+                        'note': 'Qwen3-TTS 1.7B语音生成、克隆模块', 
+                        'files': ['qwen-tts,Qwen3-TTS-Tokenizer-12Hz/config.json,2336,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-Tokenizer-12Hz/resolve/master/config.json,https://huggingface.co/Qwen/Qwen3-TTS-Tokenizer-12Hz/resolve/main/config.json',
+                                'qwen-tts,Qwen3-TTS-Tokenizer-12Hz/configuration.json,76,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-Tokenizer-12Hz/resolve/master/configuration.json,https://huggingface.co/Qwen/Qwen3-TTS-Tokenizer-12Hz/resolve/main/configuration.json',
+                                'qwen-tts,Qwen3-TTS-Tokenizer-12Hz/model.safetensors,682293092,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-Tokenizer-12Hz/resolve/master/model.safetensors,https://huggingface.co/Qwen/Qwen3-TTS-Tokenizer-12Hz/resolve/main/model.safetensors',
+                                'qwen-tts,Qwen3-TTS-Tokenizer-12Hz/preprocessor_config.json,234,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-Tokenizer-12Hz/resolve/master/preprocessor_config.json,https://huggingface.co/Qwen/Qwen3-TTS-Tokenizer-12Hz/resolve/main/preprocessor_config.json',
+                                'qwen-tts,Qwen3-TTS-12Hz-1.7B-Base/config.json,4494,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-1.7B-Base/resolve/master/config.json,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-Base/resolve/main/config.json',
+                                'qwen-tts,Qwen3-TTS-12Hz-1.7B-Base/configuration.json,47,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-1.7B-Base/resolve/master/configuration.json,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-Base/resolve/main/configuration.json',
+                                'qwen-tts,Qwen3-TTS-12Hz-1.7B-Base/generation_config.json,245,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-1.7B-Base/resolve/master/generation_config.json,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-Base/resolve/main/generation_config.json',
+                                'qwen-tts,Qwen3-TTS-12Hz-1.7B-Base/merges.txt,1671839,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-1.7B-Base/resolve/master/merges.txt,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-Base/resolve/main/merges.txt',
+                                'qwen-tts,Qwen3-TTS-12Hz-1.7B-Base/model.safetensors,3857413744,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-1.7B-Base/resolve/master/model.safetensors,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-Base/resolve/main/model.safetensors',
+                                'qwen-tts,Qwen3-TTS-12Hz-1.7B-Base/preprocessor_config.json,127,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-1.7B-Base/resolve/master/preprocessor_config.json,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-Base/resolve/main/preprocessor_config.json',
+                                'qwen-tts,Qwen3-TTS-12Hz-1.7B-Base/speech_tokenizer/config.json,2336,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-1.7B-Base/resolve/master/speech_tokenizer/config.json,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-Base/resolve/main/speech_tokenizer/config.json',
+                                'qwen-tts,Qwen3-TTS-12Hz-1.7B-Base/speech_tokenizer/configuration.json,76,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-1.7B-Base/resolve/master/speech_tokenizer/configuration.json,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-Base/resolve/main/speech_tokenizer/configuration.json',
+                                'qwen-tts,Qwen3-TTS-12Hz-1.7B-Base/speech_tokenizer/model.safetensors,682293092,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-1.7B-Base/resolve/master/speech_tokenizer/model.safetensors,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-Base/resolve/main/speech_tokenizer/model.safetensors',
+                                'qwen-tts,Qwen3-TTS-12Hz-1.7B-Base/speech_tokenizer/preprocessor_config.json,234,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-1.7B-Base/resolve/master/speech_tokenizer/preprocessor_config.json,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-Base/resolve/main/speech_tokenizer/preprocessor_config.json',
+                                'qwen-tts,Qwen3-TTS-12Hz-1.7B-Base/tokenizer_config.json,7344,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-1.7B-Base/resolve/master/tokenizer_config.json,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-Base/resolve/main/tokenizer_config.json',
+                                'qwen-tts,Qwen3-TTS-12Hz-1.7B-Base/vocab.json,2776833,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-1.7B-Base/resolve/master/vocab.json,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-Base/resolve/main/vocab.json',
+                                'qwen-tts,Qwen3-TTS-12Hz-1.7B-CustomVoice/config.json,4908,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice/resolve/master/config.json,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice/resolve/main/config.json',
+                                'qwen-tts,Qwen3-TTS-12Hz-1.7B-CustomVoice/configuration.json,47,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice/resolve/master/configuration.json,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice/resolve/main/configuration.json',
+                                'qwen-tts,Qwen3-TTS-12Hz-1.7B-CustomVoice/generation_config.json,245,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice/resolve/master/generation_config.json,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice/resolve/main/generation_config.json',
+                                'qwen-tts,Qwen3-TTS-12Hz-1.7B-CustomVoice/merges.txt,1671839,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice/resolve/master/merges.txt,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice/resolve/main/merges.txt',
+                                'qwen-tts,Qwen3-TTS-12Hz-1.7B-CustomVoice/model.safetensors,3833402552,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice/resolve/master/model.safetensors,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice/resolve/main/model.safetensors',
+                                'qwen-tts,Qwen3-TTS-12Hz-1.7B-CustomVoice/preprocessor_config.json,127,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice/resolve/master/preprocessor_config.json,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice/resolve/main/preprocessor_config.json',
+                                'qwen-tts,Qwen3-TTS-12Hz-1.7B-CustomVoice/speech_tokenizer/config.json,2336,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice/resolve/master/speech_tokenizer/config.json,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice/resolve/main/speech_tokenizer/config.json',
+                                'qwen-tts,Qwen3-TTS-12Hz-1.7B-CustomVoice/speech_tokenizer/configuration.json,76,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice/resolve/master/speech_tokenizer/configuration.json,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice/resolve/main/speech_tokenizer/configuration.json',
+                                'qwen-tts,Qwen3-TTS-12Hz-1.7B-CustomVoice/speech_tokenizer/model.safetensors,682293092,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice/resolve/master/speech_tokenizer/model.safetensors,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice/resolve/main/speech_tokenizer/model.safetensors',
+                                'qwen-tts,Qwen3-TTS-12Hz-1.7B-CustomVoice/speech_tokenizer/preprocessor_config.json,234,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice/resolve/master/speech_tokenizer/preprocessor_config.json,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice/resolve/main/speech_tokenizer/preprocessor_config.json',
+                                'qwen-tts,Qwen3-TTS-12Hz-1.7B-CustomVoice/tokenizer_config.json,7344,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice/resolve/master/tokenizer_config.json,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice/resolve/main/tokenizer_config.json',
+                                'qwen-tts,Qwen3-TTS-12Hz-1.7B-CustomVoice/vocab.json,2776833,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice/resolve/master/vocab.json,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice/resolve/main/vocab.json',
+                                'qwen-tts,Qwen3-TTS-12Hz-1.7B-VoiceDesign/config.json,4421,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign/resolve/master/config.json,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign/resolve/main/config.json',
+                                'qwen-tts,Qwen3-TTS-12Hz-1.7B-VoiceDesign/configuration.json,47,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign/resolve/master/configuration.json,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign/resolve/main/configuration.json',
+                                'qwen-tts,Qwen3-TTS-12Hz-1.7B-VoiceDesign/generation_config.json,245,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign/resolve/master/generation_config.json,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign/resolve/main/generation_config.json',
+                                'qwen-tts,Qwen3-TTS-12Hz-1.7B-VoiceDesign/merges.txt,1671839,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign/resolve/master/merges.txt,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign/resolve/main/merges.txt',
+                                'qwen-tts,Qwen3-TTS-12Hz-1.7B-VoiceDesign/model.safetensors,3833402552,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign/resolve/master/model.safetensors,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign/resolve/main/model.safetensors',
+                                'qwen-tts,Qwen3-TTS-12Hz-1.7B-VoiceDesign/preprocessor_config.json,127,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign/resolve/master/preprocessor_config.json,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign/resolve/main/preprocessor_config.json',
+                                'qwen-tts,Qwen3-TTS-12Hz-1.7B-VoiceDesign/speech_tokenizer/config.json,2336,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign/resolve/master/speech_tokenizer/config.json,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign/resolve/main/speech_tokenizer/config.json',
+                                'qwen-tts,Qwen3-TTS-12Hz-1.7B-VoiceDesign/speech_tokenizer/configuration.json,76,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign/resolve/master/speech_tokenizer/configuration.json,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign/resolve/main/speech_tokenizer/configuration.json',
+                                'qwen-tts,Qwen3-TTS-12Hz-1.7B-VoiceDesign/speech_tokenizer/model.safetensors,682293092,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign/resolve/master/speech_tokenizer/model.safetensors,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign/resolve/main/speech_tokenizer/model.safetensors',
+                                'qwen-tts,Qwen3-TTS-12Hz-1.7B-VoiceDesign/speech_tokenizer/preprocessor_config.json,234,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign/resolve/master/speech_tokenizer/preprocessor_config.json,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign/resolve/main/speech_tokenizer/preprocessor_config.json',
+                                'qwen-tts,Qwen3-TTS-12Hz-1.7B-VoiceDesign/tokenizer_config.json,7344,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign/resolve/master/tokenizer_config.json,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign/resolve/main/tokenizer_config.json',
+                                'qwen-tts,Qwen3-TTS-12Hz-1.7B-VoiceDesign/vocab.json,2776833,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign/resolve/master/vocab.json,https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign/resolve/main/vocab.json'],
+                        'info_links': ['https://www.modelscope.cn/collections/Qwen/Qwen3-TTS'],
+                        "preset_sample": []}, 
+                        }
 
 MANUAL_DOWNLOAD_MAP = {
     "checkpoints": [

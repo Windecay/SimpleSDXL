@@ -1323,7 +1323,7 @@ with shared.gradio_root:
                                 return f"**音色**：{title}\n\n**语种**：{lang}\n\n**合成文本示例**：{text}"
 
                             with gr.Row():
-                                with gr.Column(scale=1):
+                                with gr.Column(scale=3):
                                     qwen_custom_speaker = gr.Dropdown(label="Speaker", choices=list(_qwen_speaker_display_to_key.keys()), value=_qwen_default_speaker_display)
                                 with gr.Column(scale=3):
                                     qwen_custom_speaker_note = gr.Markdown(value=_format_qwen_speaker_note(_qwen_speaker_display_to_key[_qwen_default_speaker_display]))
