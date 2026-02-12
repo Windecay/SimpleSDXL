@@ -141,7 +141,7 @@
       "lora_name": "placeholder.safetensors",
       "strength_model": 0,
       "model": [
-        "189",
+        "188",
         0
       ]
     },
@@ -1002,19 +1002,6 @@
       "ckpt_name": "placeholder.safetensors"
     },
     "class_type": "CheckpointLoaderSimple",
-    "_meta": {
-      "title": "base_model"
-    }
-  },
-  "189": {
-    "inputs": {
-      "ckpt_name": "placeholder.safetensors",
-      "any": [
-        "178",
-        0
-      ]
-    },
-    "class_type": "CheckpointLoaderSimple_Any",
     "_meta": {
       "title": "base_model"
     }
