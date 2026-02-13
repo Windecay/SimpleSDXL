@@ -1,0 +1,793 @@
+{
+  "2": {
+    "inputs": {
+      "vae_name": "Wan2_1_VAE_bf16.safetensors"
+    },
+    "class_type": "VAELoader",
+    "_meta": {
+      "title": "Load VAE"
+    }
+  },
+  "4": {
+    "inputs": {
+      "name": "wan2.1_infiniteTalk_single_fp16.safetensors"
+    },
+    "class_type": "ModelPatchLoader",
+    "_meta": {
+      "title": "ModelPatchLoader"
+    }
+  },
+  "5": {
+    "inputs": {
+      "audio_encoder_name": "wav2vec2-chinese-base_fp16.safetensors"
+    },
+    "class_type": "AudioEncoderLoader",
+    "_meta": {
+      "title": "AudioEncoderLoader"
+    }
+  },
+  "10": {
+    "inputs": {
+      "sage_attention": "auto",
+      "allow_compile": false,
+      "model": [
+        "13",
+        0
+      ]
+    },
+    "class_type": "PathchSageAttentionKJ",
+    "_meta": {
+      "title": "Patch Sage Attention KJ"
+    }
+  },
+  "11": {
+    "inputs": {
+      "enable_fp16_accumulation": true,
+      "model": [
+        "10",
+        0
+      ]
+    },
+    "class_type": "ModelPatchTorchSettings",
+    "_meta": {
+      "title": "Model Patch Torch Settings"
+    }
+  },
+  "12": {
+    "inputs": {
+      "unet_name": "Wan2_1-I2V-14B-480P_fp8_e4m3fn.safetensors",
+      "weight_dtype": "fp8_e4m3fn"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "base_model"
+    }
+  },
+  "13": {
+    "inputs": {
+      "lora_name": "lightx2v_I2V_14B_480p_cfg_step_distill_rank64_bf16.safetensors",
+      "strength_model": 1,
+      "model": [
+        "12",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "LoraLoaderModelOnly"
+    }
+  },
+  "18": {
+    "inputs": {
+      "samples": [
+        "103",
+        0
+      ],
+      "vae": [
+        "2",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE Decode"
+    }
+  },
+  "19": {
+    "inputs": {
+      "mode": "single_speaker",
+      "width": [
+        "122",
+        1
+      ],
+      "height": [
+        "122",
+        2
+      ],
+      "length": [
+        "72",
+        0
+      ],
+      "motion_frame_count": 9,
+      "audio_scale": 1,
+      "model": [
+        "11",
+        0
+      ],
+      "model_patch": [
+        "4",
+        0
+      ],
+      "positive": [
+        "37",
+        0
+      ],
+      "negative": [
+        "29",
+        0
+      ],
+      "vae": [
+        "2",
+        0
+      ],
+      "audio_encoder_output_1": [
+        "42",
+        0
+      ],
+      "start_image": [
+        "122",
+        0
+      ],
+      "previous_frames": [
+        "63",
+        2
+      ]
+    },
+    "class_type": "WanInfiniteTalkToVideo",
+    "_meta": {
+      "title": "WanInfiniteTalkToVideo"
+    }
+  },
+  "20": {
+    "inputs": {
+      "text": "9",
+      "anything": [
+        "19",
+        4
+      ]
+    },
+    "class_type": "easy showAnything",
+    "_meta": {
+      "title": "Show Any"
+    }
+  },
+  "21": {
+    "inputs": {
+      "text": "0",
+      "anything": [
+        "36",
+        4
+      ]
+    },
+    "class_type": "easy showAnything",
+    "_meta": {
+      "title": "Show Any"
+    }
+  },
+  "22": {
+    "inputs": {
+      "batch_index": [
+        "19",
+        4
+      ],
+      "length": 4096,
+      "image": [
+        "18",
+        0
+      ]
+    },
+    "class_type": "ImageFromBatch",
+    "_meta": {
+      "title": "ImageFromBatch"
+    }
+  },
+  "26": {
+    "inputs": {
+      "samples": [
+        "102",
+        0
+      ],
+      "vae": [
+        "2",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE Decode"
+    }
+  },
+  "27": {
+    "inputs": {
+      "flow": [
+        "63",
+        0
+      ],
+      "initial_value1": [
+        "30",
+        0
+      ]
+    },
+    "class_type": "easy forLoopEnd",
+    "_meta": {
+      "title": "For Loop End"
+    }
+  },
+  "29": {
+    "inputs": {
+      "conditioning": [
+        "37",
+        0
+      ]
+    },
+    "class_type": "ConditioningZeroOut",
+    "_meta": {
+      "title": "ConditioningZeroOut"
+    }
+  },
+  "30": {
+    "inputs": {
+      "image1": [
+        "63",
+        2
+      ],
+      "image2": [
+        "22",
+        0
+      ]
+    },
+    "class_type": "ImageBatch",
+    "_meta": {
+      "title": "Batch Images"
+    }
+  },
+  "34": {
+    "inputs": {
+      "model_name": "MelBandRoformer_fp16.safetensors"
+    },
+    "class_type": "MelBandRoFormerModelLoader",
+    "_meta": {
+      "title": "Mel-Band RoFormer Model Loader"
+    }
+  },
+  "36": {
+    "inputs": {
+      "mode": "single_speaker",
+      "width": [
+        "122",
+        1
+      ],
+      "height": [
+        "122",
+        2
+      ],
+      "length": [
+        "72",
+        0
+      ],
+      "motion_frame_count": 9,
+      "audio_scale": 1,
+      "model": [
+        "11",
+        0
+      ],
+      "model_patch": [
+        "4",
+        0
+      ],
+      "positive": [
+        "37",
+        0
+      ],
+      "negative": [
+        "29",
+        0
+      ],
+      "vae": [
+        "2",
+        0
+      ],
+      "audio_encoder_output_1": [
+        "42",
+        0
+      ],
+      "start_image": [
+        "122",
+        0
+      ]
+    },
+    "class_type": "WanInfiniteTalkToVideo",
+    "_meta": {
+      "title": "WanInfiniteTalkToVideo"
+    }
+  },
+  "37": {
+    "inputs": {
+      "text": [
+        "121",
+        0
+      ],
+      "clip": [
+        "118",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Prompt)"
+    }
+  },
+  "42": {
+    "inputs": {
+      "audio_encoder": [
+        "5",
+        0
+      ],
+      "audio": [
+        "50",
+        0
+      ]
+    },
+    "class_type": "AudioEncoderEncode",
+    "_meta": {
+      "title": "AudioEncoderEncode"
+    }
+  },
+  "50": {
+    "inputs": {
+      "model": [
+        "34",
+        0
+      ],
+      "audio": [
+        "110",
+        0
+      ]
+    },
+    "class_type": "MelBandRoFormerSampler",
+    "_meta": {
+      "title": "Mel-Band RoFormer Sampler"
+    }
+  },
+  "63": {
+    "inputs": {
+      "total": [
+        "75",
+        0
+      ],
+      "initial_value1": [
+        "26",
+        0
+      ]
+    },
+    "class_type": "easy forLoopStart",
+    "_meta": {
+      "title": "For Loop Start"
+    }
+  },
+  "72": {
+    "inputs": {
+      "python_expression": "(a // 4) * 4+1",
+      "print_to_console": "False",
+      "a": [
+        "131",
+        0
+      ],
+      "b": 0,
+      "c": 0
+    },
+    "class_type": "Evaluate Integers",
+    "_meta": {
+      "title": "Evaluate Integers"
+    }
+  },
+  "75": {
+    "inputs": {
+      "a": [
+        "84",
+        0
+      ],
+      "b": 1,
+      "operation": "subtract"
+    },
+    "class_type": "easy mathInt",
+    "_meta": {
+      "title": "Math Int"
+    }
+  },
+  "84": {
+    "inputs": {
+      "python_expression": "1 if a <= b else ((a - b + (b - c) - 1) // (b - c) + 1)",
+      "print_to_console": "False",
+      "a": [
+        "117",
+        0
+      ],
+      "b": [
+        "72",
+        0
+      ],
+      "c": 9
+    },
+    "class_type": "Evaluate Integers",
+    "_meta": {
+      "title": "Evaluate Integers"
+    }
+  },
+  "102": {
+    "inputs": {
+      "seed": [
+        "136",
+        0
+      ],
+      "steps": 4,
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "normal",
+      "denoise": 1,
+      "model": [
+        "36",
+        0
+      ],
+      "positive": [
+        "36",
+        1
+      ],
+      "negative": [
+        "36",
+        2
+      ],
+      "latent_image": [
+        "36",
+        3
+      ]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "KSampler"
+    }
+  },
+  "103": {
+    "inputs": {
+      "seed": [
+        "136",
+        0
+      ],
+      "steps": 4,
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "normal",
+      "denoise": 1,
+      "model": [
+        "19",
+        0
+      ],
+      "positive": [
+        "19",
+        1
+      ],
+      "negative": [
+        "19",
+        2
+      ],
+      "latent_image": [
+        "19",
+        3
+      ]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "KSampler"
+    }
+  },
+  "106": {
+    "inputs": {
+      "batch_index": 0,
+      "length": [
+        "117",
+        0
+      ],
+      "image": [
+        "134",
+        0
+      ]
+    },
+    "class_type": "ImageFromBatch",
+    "_meta": {
+      "title": "ImageFromBatch"
+    }
+  },
+  "110": {
+    "inputs": {
+      "audio": "audio_example.mp3",
+      "start_time": [
+        "121",
+        12
+      ],
+      "duration": [
+        "132",
+        1
+      ]
+    },
+    "class_type": "VHS_LoadAudioUpload",
+    "_meta": {
+      "title": "Load Audio (Upload)🎥🅥🅗🅢"
+    }
+  },
+  "117": {
+    "inputs": {
+      "value": "a*25",
+      "a": [
+        "110",
+        1
+      ]
+    },
+    "class_type": "SimpleMath+",
+    "_meta": {
+      "title": "🔧 Simple Math"
+    }
+  },
+  "118": {
+    "inputs": {
+      "clip_name": "umt5-xxl-encoder-Q8_0.gguf",
+      "type": "wan"
+    },
+    "class_type": "CLIPLoaderGGUF",
+    "_meta": {
+      "title": "CLIPLoader (GGUF)"
+    }
+  },
+  "121": {
+    "inputs": {
+      "prompt": "",
+      "additional_prompt": "",
+      "ip_image": "welcome.png",
+      "ip_image1": "welcome.png",
+      "inpaint_image": "welcome.png",
+      "inpaint_mask": "welcome.png",
+      "width": 640,
+      "height": 640,
+      "cfg": 1,
+      "steps": 4,
+      "var_number": 3,
+      "var_number2": 25,
+      "var_number3": 0,
+      "var_number4": 0,
+      "var_number5": 0,
+      "var_number6": 0,
+      "var_number7": 121,
+      "var_number8": 0,
+      "var_number9": 0,
+      "var_number10": 0,
+      "switch_option1": false,
+      "switch_option2": false,
+      "switch_option3": false,
+      "switch_option4": false,
+      "model_type": 1,
+      "model_type2": 1
+    },
+    "class_type": "SceneInput",
+    "_meta": {
+      "title": "SceneInput"
+    }
+  },
+  "122": {
+    "inputs": {
+      "generation_width": [
+        "121",
+        6
+      ],
+      "generation_height": [
+        "121",
+        6
+      ],
+      "aspect_ratio_preservation": "keep_input",
+      "image": [
+        "123",
+        0
+      ]
+    },
+    "class_type": "WanVideoImageResizeToClosest",
+    "_meta": {
+      "title": "WanVideo Image Resize To Closest"
+    }
+  },
+  "123": {
+    "inputs": {
+      "image_name": [
+        "121",
+        2
+      ],
+      "image": "None"
+    },
+    "class_type": "LoadInputImage",
+    "_meta": {
+      "title": "LoadInputImage"
+    }
+  },
+  "125": {
+    "inputs": {
+      "format": "MP4",
+      "codec": "h264",
+      "fps": [
+        "127",
+        0
+      ],
+      "crf": 19,
+      "images": [
+        "133",
+        0
+      ],
+      "audio": [
+        "110",
+        0
+      ]
+    },
+    "class_type": "SaveVideoWebsocket",
+    "_meta": {
+      "title": "SaveVideoWebsocket"
+    }
+  },
+  "126": {
+    "inputs": {
+      "value": "a",
+      "a": [
+        "121",
+        11
+      ]
+    },
+    "class_type": "SimpleMath+",
+    "_meta": {
+      "title": "🔧 Simple Math"
+    }
+  },
+  "127": {
+    "inputs": {
+      "boolean": [
+        "129",
+        0
+      ],
+      "on_true": [
+        "130",
+        0
+      ],
+      "on_false": [
+        "126",
+        1
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "129": {
+    "inputs": {
+      "comparison": "a < b",
+      "a": [
+        "126",
+        1
+      ],
+      "b": [
+        "130",
+        0
+      ]
+    },
+    "class_type": "easy compare",
+    "_meta": {
+      "title": "Compare"
+    }
+  },
+  "130": {
+    "inputs": {
+      "value": 25
+    },
+    "class_type": "easy float",
+    "_meta": {
+      "title": "Float"
+    }
+  },
+  "131": {
+    "inputs": {
+      "value": "((a - 1 + 3) // 4) * 4 + 1",
+      "a": [
+        "121",
+        16
+      ]
+    },
+    "class_type": "SimpleMath+",
+    "_meta": {
+      "title": "🔧 Simple Math"
+    }
+  },
+  "132": {
+    "inputs": {
+      "value": "a",
+      "a": [
+        "121",
+        10
+      ]
+    },
+    "class_type": "SimpleMath+",
+    "_meta": {
+      "title": "🔧 Simple Math"
+    }
+  },
+  "133": {
+    "inputs": {
+      "source_fps": 25,
+      "target_fps": [
+        "126",
+        1
+      ],
+      "scale": 2,
+      "model_name": "flownet.pkl",
+      "batch_size": 32,
+      "use_fp16": true,
+      "images": [
+        "106",
+        0
+      ]
+    },
+    "class_type": "RIFEInterpolation",
+    "_meta": {
+      "title": "RIFE Frame Interpolation"
+    }
+  },
+  "134": {
+    "inputs": {
+      "boolean": [
+        "135",
+        0
+      ],
+      "on_true": [
+        "26",
+        0
+      ],
+      "on_false": [
+        "27",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "135": {
+    "inputs": {
+      "comparison": "a < b",
+      "a": [
+        "117",
+        0
+      ],
+      "b": [
+        "131",
+        0
+      ]
+    },
+    "class_type": "easy compare",
+    "_meta": {
+      "title": "Compare"
+    }
+  },
+  "136": {
+    "inputs": {
+      "seed": 0
+    },
+    "class_type": "SeedInput",
+    "_meta": {
+      "title": "SeedInput"
+    }
+  }
+}

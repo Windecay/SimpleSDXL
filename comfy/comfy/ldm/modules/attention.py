@@ -463,7 +463,15 @@ def attention_xformers(q, k, v, heads, mask=None, attn_precision=None, skip_resh
         mask = mask_out[..., :mask.shape[-1]]
         mask = mask.expand(b, heads, -1, -1)
 
-    out = xformers.ops.memory_efficient_attention(q, k, v, attn_bias=mask)
+    try:
+        out = xformers.ops.memory_efficient_attention(q, k, v, attn_bias=mask)
+    except Exception as e:
+        logging.warning("xformers attention failed ({}: {}), falling back to pytorch attention".format(type(e).__name__, e))
+        q_pt, k_pt, v_pt = map(lambda t: t.permute(0, 2, 1, 3), (q, k, v))
+        out_pt = attention_pytorch(q_pt, k_pt, v_pt, heads, mask=mask, skip_reshape=True, skip_output_reshape=True, **kwargs)
+        if skip_output_reshape:
+            return out_pt.permute(0, 2, 1, 3)
+        return out_pt.transpose(1, 2).reshape(b, -1, heads * dim_head)
 
     if skip_output_reshape:
         out = out.permute(0, 2, 1, 3)

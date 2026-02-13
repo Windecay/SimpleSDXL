@@ -7,6 +7,8 @@ import json
 import time
 import re
 import random
+import tempfile
+import wave
 import shared
 import modules.config
 import modules.html
@@ -1255,6 +1257,15 @@ with shared.gradio_root:
             engine_class_display = gr.HTML(visible=False, value="Z-image", elem_classes=["engineClass"], elem_id='engine_class')
             with gr.Row(visible=False, elem_id="tts_panel") as tts_panel:
                 with gr.Column():
+                    qwen_send_target_options = {
+                        "Voice Clone / Reference Audio": "qwen_clone_ref_audio",
+                        "Dialogue / Role 1 Reference Audio": "qwen_role_1_audio",
+                        "Dialogue / Role 2 Reference Audio": "qwen_role_2_audio",
+                        "Dialogue / Role 3 Reference Audio": "qwen_role_3_audio",
+                        "Dialogue / Role 4 Reference Audio": "qwen_role_4_audio",
+                        "Scene / Audio (Upload)": "scene_audio",
+                    }
+                    qwen_send_target_choices = list(qwen_send_target_options.keys())
                     with gr.Tabs():
                         with gr.Tab("Voice Design"):
                             qwen_design_text = gr.Textbox(label="Text to Speech", lines=3, placeholder="Enter text here...")
@@ -1353,7 +1364,12 @@ with shared.gradio_root:
                             with gr.Row():
                                 qwen_design_btn = gr.Button("Generate Audio", elem_classes="type_row_half")
                                 qwen_design_stop_btn = gr.Button("Stop", elem_classes="type_row_half", min_width=70, visible=False)
-                            qwen_design_output = gr.Audio(label="Output Audio")
+                            with gr.Row():
+                                with gr.Column(scale=5):
+                                    qwen_design_output = gr.Audio(label="Output Audio", interactive=False, show_edit_button=False)
+                                with gr.Column(scale=2):
+                                    qwen_design_send_target = gr.Dropdown(label="Send To", choices=qwen_send_target_choices, value=None)
+                                    qwen_design_send_btn = gr.Button("Send", size="sm")
                             qwen_design_info = gr.Markdown(value="",show_progress=False)
                         
                         with gr.Tab("Voice Clone"):
@@ -1363,7 +1379,12 @@ with shared.gradio_root:
                             with gr.Row():
                                 qwen_clone_btn = gr.Button("Clone & Generate", elem_classes="type_row_half")
                                 qwen_clone_stop_btn = gr.Button("Stop", elem_classes="type_row_half", min_width=70, visible=False)
-                            qwen_clone_output = gr.Audio(label="Output Audio")
+                            with gr.Row():
+                                with gr.Column(scale=5):
+                                    qwen_clone_output = gr.Audio(label="Output Audio", interactive=False, show_edit_button=False)
+                                with gr.Column(scale=2):
+                                    qwen_clone_send_target = gr.Dropdown(label="Send To", choices=qwen_send_target_choices, value=None)
+                                    qwen_clone_send_btn = gr.Button("Send", size="sm")
                             qwen_clone_info = gr.Markdown(value="",show_progress=False)
 
                         with gr.Tab("Custom Voice"):
@@ -1420,7 +1441,12 @@ with shared.gradio_root:
                             with gr.Row():
                                 qwen_custom_btn = gr.Button("Generate Audio", elem_classes="type_row_half")
                                 qwen_custom_stop_btn = gr.Button("Stop", elem_classes="type_row_half", min_width=70, visible=False)
-                            qwen_custom_output = gr.Audio(label="Output Audio")
+                            with gr.Row():
+                                with gr.Column(scale=5):
+                                    qwen_custom_output = gr.Audio(label="Output Audio", interactive=False, show_edit_button=False)
+                                with gr.Column(scale=2):
+                                    qwen_custom_send_target = gr.Dropdown(label="Send To", choices=qwen_send_target_choices, value=None)
+                                    qwen_custom_send_btn = gr.Button("Send", size="sm")
                             qwen_custom_info = gr.Markdown(value="",show_progress=False)
 
                         with gr.Tab("Dialogue"):
@@ -1440,7 +1466,12 @@ with shared.gradio_root:
                             with gr.Row():
                                 qwen_dialogue_btn = gr.Button("Generate Dialogue Audio", elem_classes="type_row_half")
                                 qwen_dialogue_stop_btn = gr.Button("Stop", elem_classes="type_row_half", min_width=70, visible=False)
-                            qwen_dialogue_output = gr.Audio(label="Output Audio")
+                            with gr.Row():
+                                with gr.Column(scale=5):
+                                    qwen_dialogue_output = gr.Audio(label="Output Audio", interactive=False, show_edit_button=False)
+                                with gr.Column(scale=2):
+                                    qwen_dialogue_send_target = gr.Dropdown(label="Send To", choices=qwen_send_target_choices, value=None)
+                                    qwen_dialogue_send_btn = gr.Button("Send", size="sm")
                             qwen_dialogue_info = gr.Markdown(value="")
                         
                         with gr.Tab("Settings"):
@@ -1566,6 +1597,144 @@ with shared.gradio_root:
                         qwen_tts_seed_random.change(fn=lambda is_random: gr.update(interactive=not bool(is_random)), inputs=[qwen_tts_seed_random], outputs=[qwen_tts_seed], queue=False, show_progress=False)
 
                         qwen_custom_speaker.change(fn=_format_qwen_speaker_note, inputs=[qwen_custom_speaker], outputs=[qwen_custom_speaker_note], queue=False, show_progress=False)
+
+                        qwen_send_target_key_to_index = {
+                            "qwen_clone_ref_audio": 0,
+                            "qwen_role_1_audio": 1,
+                            "qwen_role_2_audio": 2,
+                            "qwen_role_3_audio": 3,
+                            "qwen_role_4_audio": 4,
+                            "scene_audio": 5,
+                        }
+                        qwen_send_numpy_target_keys = {
+                            "qwen_clone_ref_audio",
+                            "qwen_role_1_audio",
+                            "qwen_role_2_audio",
+                            "qwen_role_3_audio",
+                            "qwen_role_4_audio",
+                        }
+
+                        def _qwen_read_wav_file(audio_path: str):
+                            p = "" if audio_path is None else str(audio_path).strip()
+                            if not p:
+                                return None
+                            if not os.path.isfile(p):
+                                return None
+                            try:
+                                with wave.open(p, "rb") as wf:
+                                    sr = int(wf.getframerate())
+                                    channels = int(wf.getnchannels())
+                                    sample_width = int(wf.getsampwidth())
+                                    frames = wf.readframes(int(wf.getnframes()))
+                                if sample_width == 2:
+                                    data = np.frombuffer(frames, dtype=np.int16)
+                                elif sample_width == 4:
+                                    data32 = np.frombuffer(frames, dtype=np.int32)
+                                    data = (data32 / 65536.0).astype(np.int16)
+                                else:
+                                    return None
+                                if channels > 1:
+                                    data = data.reshape(-1, channels)
+                                return sr, data
+                            except Exception:
+                                return None
+
+                        def _qwen_write_wav_temp(sr: int, wav):
+                            try:
+                                sample_rate = int(sr)
+                            except Exception:
+                                return None
+                            try:
+                                audio = wav
+                                if hasattr(audio, "cpu"):
+                                    audio = audio.cpu().numpy()
+                                audio = np.asarray(audio)
+                                audio = np.squeeze(audio)
+                                if audio.ndim == 2 and audio.shape[0] <= 8 and audio.shape[1] > 8:
+                                    audio = audio.T
+                                if audio.ndim == 1:
+                                    audio = audio[:, None]
+                                if audio.dtype != np.int16:
+                                    audio_f = audio.astype(np.float32, copy=False)
+                                    audio_f = np.clip(audio_f, -1.0, 1.0)
+                                    audio = (audio_f * 32767.0).astype(np.int16)
+                                audio = np.ascontiguousarray(audio)
+                                channels = int(audio.shape[1])
+                                with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp:
+                                    out_path = os.path.abspath(tmp.name)
+                                with wave.open(out_path, "wb") as wf:
+                                    wf.setnchannels(channels)
+                                    wf.setsampwidth(2)
+                                    wf.setframerate(sample_rate)
+                                    wf.writeframes(audio.tobytes())
+                                return out_path
+                            except Exception:
+                                return None
+
+                        def _qwen_audio_to_numpy(audio):
+                            if audio is None:
+                                return None
+                            if isinstance(audio, dict) and "waveform" in audio and "sample_rate" in audio:
+                                sr = audio.get("sample_rate", None)
+                                wav = audio.get("waveform", None)
+                                if sr is None or wav is None:
+                                    return None
+                                if hasattr(wav, "cpu"):
+                                    wav = wav.cpu().numpy()
+                                wav = np.asarray(wav)
+                                wav = np.squeeze(wav)
+                                if wav.dtype == np.float32:
+                                    wav = np.clip(wav, -1.0, 1.0)
+                                    wav = (wav * 32767.0).astype(np.int16)
+                                return int(sr), wav
+                            if isinstance(audio, (tuple, list)) and len(audio) == 2:
+                                sr, wav = audio
+                                if sr is None or wav is None:
+                                    return None
+                                if hasattr(wav, "cpu"):
+                                    wav = wav.cpu().numpy()
+                                return int(sr), np.asarray(wav)
+                            if isinstance(audio, str):
+                                return _qwen_read_wav_file(audio)
+                            return None
+
+                        def _qwen_audio_to_filepath(audio):
+                            if audio is None:
+                                return None
+                            if isinstance(audio, str):
+                                p = "" if audio is None else str(audio).strip()
+                                return p if p else None
+                            as_numpy = _qwen_audio_to_numpy(audio)
+                            if as_numpy is None:
+                                return None
+                            sr, wav = as_numpy
+                            return _qwen_write_wav_temp(sr, wav)
+
+                        def _qwen_send_audio_to_target(output_audio, target_label):
+                            outputs = [gr.update()] * 6
+                            if _is_blank(target_label):
+                                gr.Warning("请选择要覆盖的 Audio 控件。")
+                                return outputs
+                            target_key = qwen_send_target_options.get(str(target_label).strip(), None)
+                            if not target_key:
+                                gr.Warning("未识别的目标 Audio 控件。")
+                                return outputs
+                            if output_audio is None:
+                                gr.Warning("当前没有可发送的输出音频。")
+                                return outputs
+                            if target_key in qwen_send_numpy_target_keys:
+                                value = _qwen_audio_to_numpy(output_audio)
+                            else:
+                                value = _qwen_audio_to_filepath(output_audio)
+                            if value is None:
+                                gr.Warning("音频格式转换失败，无法覆盖目标。")
+                                return outputs
+                            idx = qwen_send_target_key_to_index.get(target_key, None)
+                            if idx is None:
+                                gr.Warning("目标 Audio 控件索引异常。")
+                                return outputs
+                            outputs[idx] = value
+                            return outputs
 
                         def _apply_style_presets(selected_preset, state_params):
                             if _is_blank(selected_preset):
@@ -1740,6 +1909,12 @@ with shared.gradio_root:
 
                         qwen_dialogue_btn.click(fn=_qwen_tts_begin, inputs=[], outputs=[qwen_dialogue_btn, qwen_dialogue_stop_btn, qwen_dialogue_info], queue=False, show_progress=False).then(fn=qwen_dialogue_fn, inputs=[qwen_dialogue_script, qwen_role_1_name, qwen_role_1_audio, qwen_role_1_ref_text, qwen_role_2_name, qwen_role_2_audio, qwen_role_2_ref_text, qwen_role_3_name, qwen_role_3_audio, qwen_role_3_ref_text, qwen_role_4_name, qwen_role_4_audio, qwen_role_4_ref_text, qwen_tts_model_size, qwen_tts_precision, qwen_tts_device, qwen_tts_language, qwen_tts_seed_random, qwen_tts_seed, qwen_tts_top_p, qwen_tts_top_k, qwen_tts_temperature, qwen_tts_repetition_penalty, qwen_tts_attention, qwen_tts_unload, qwen_pause_linebreak, qwen_period_pause, qwen_comma_pause, qwen_question_pause, qwen_hyphen_pause, qwen_dialogue_merge, qwen_dialogue_batch, qwen_dialogue_max_tokens, state_topbar], outputs=[qwen_dialogue_output, qwen_tts_seed, qwen_dialogue_info], queue=True, show_progress=True).then(fn=_qwen_tts_end, inputs=[], outputs=[qwen_dialogue_btn, qwen_dialogue_stop_btn], queue=False, show_progress=False)
                         qwen_dialogue_stop_btn.click(fn=_qwen_tts_stop, inputs=[], outputs=[qwen_dialogue_info], queue=False, show_progress=False)
+
+                        qwen_send_outputs = [qwen_clone_ref_audio, qwen_role_1_audio, qwen_role_2_audio, qwen_role_3_audio, qwen_role_4_audio, scene_audio]
+                        qwen_design_send_btn.click(fn=_qwen_send_audio_to_target, inputs=[qwen_design_output, qwen_design_send_target], outputs=qwen_send_outputs, queue=False, show_progress=False)
+                        qwen_clone_send_btn.click(fn=_qwen_send_audio_to_target, inputs=[qwen_clone_output, qwen_clone_send_target], outputs=qwen_send_outputs, queue=False, show_progress=False)
+                        qwen_custom_send_btn.click(fn=_qwen_send_audio_to_target, inputs=[qwen_custom_output, qwen_custom_send_target], outputs=qwen_send_outputs, queue=False, show_progress=False)
+                        qwen_dialogue_send_btn.click(fn=_qwen_send_audio_to_target, inputs=[qwen_dialogue_output, qwen_dialogue_send_target], outputs=qwen_send_outputs, queue=False, show_progress=False)
 
                     except ImportError:
                         print("Warning: webui_qwen_tts module not found. TTS features disabled.")
