@@ -90,6 +90,24 @@ def get_task(*args):
     args = api_params.normalization(args, modules.config.default_max_lora_number, modules.config.default_controlnet_image_count, modules.config.default_enhance_tabs)
     return worker.AsyncTask(args=args)
 
+def refresh_files_clicked(state_params):
+    engine = state_params.get('engine', 'Fooocus') if isinstance(state_params, dict) else 'Fooocus'
+    task_method = state_params.get('task_method', None) if isinstance(state_params, dict) else None
+    model_filenames, lora_filenames, vae_filenames = modules.config.update_files(engine, task_method)
+    try:
+        gr.Info(f"[RefreshFiles] Models={len(model_filenames)} LoRAs={len(lora_filenames)}")
+    except Exception as e:
+        logger.info(f"[RefreshFiles] gr.Info failed: {e}")
+    results = [gr.update(choices=model_filenames)]
+    results += [gr.update(choices=['None'] + model_filenames)]
+    results += [gr.update(choices=[flags.default_vae] + vae_filenames)]
+    for _ in range(4):
+        results.append(gr.update(choices=['None'] + lora_filenames))
+        results.append(gr.update(interactive=True))
+    for _ in range(modules.config.default_max_lora_number):
+        results += [gr.update(interactive=True), gr.update(choices=['None'] + lora_filenames), gr.update()]
+    return results
+
 def generate_clicked(task: worker.AsyncTask, state):
     user_did = None
     try:
@@ -1085,6 +1103,8 @@ with shared.gradio_root:
                                     outputs=trigger_word_containers,
                                     queue=False, show_progress=False
                                 )
+                            with gr.Row():
+                                scene_refresh_files = gr.Button(label='Refresh', value='\U0001f504 Refresh All Files', variant='secondary', elem_classes='refresh_button')
 
                                 scene_lora_ctrls = [scene_lora_model, scene_lora_weight,
                                                     scene_lora_model_2, scene_lora_weight_2,
@@ -2889,25 +2909,11 @@ with shared.gradio_root:
                 #sync_model_info.change(lambda x: (gr.update(visible=x), gr.update(visible=x),  gr.update(visible=x)), inputs=sync_model_info, outputs=[info_sync_texts, info_sync_button, info_progress], queue=False, show_progress=False)
                 #info_sync_button.click(toolbox.sync_model_info_click, inputs=models_infos, outputs=models_infos, queue=False, show_progress=False)
 
-
-                def refresh_files_clicked(state_params):
-                    engine = state_params.get('engine', 'Fooocus')
-                    task_method = state_params.get('task_method', None)
-                    model_filenames, lora_filenames, vae_filenames = modules.config.update_files(engine, task_method)
-                    results = [gr.update(choices=model_filenames)]
-                    results += [gr.update(choices=['None'] + model_filenames)]
-                    results += [gr.update(choices=[flags.default_vae] + vae_filenames)]
-                    for i in range(4):
-                        results.append(gr.update(choices=['None'] + lora_filenames))
-                        results.append(gr.update(interactive=True))
-                    for i in range(modules.config.default_max_lora_number):
-                        results += [gr.update(interactive=True),
-                                    gr.update(choices=['None'] + lora_filenames), gr.update()]
-                    return results
-
                 refresh_files_output = [base_model, refiner_model, vae_name] + scene_lora_ctrls
                 refresh_files.click(refresh_files_clicked, [state_topbar], refresh_files_output + lora_ctrls,
-                                    queue=False, show_progress=False)
+                                    queue=True, show_progress=False)
+                scene_refresh_files.click(refresh_files_clicked, [state_topbar], refresh_files_output + lora_ctrls,
+                                    queue=True, show_progress=False)
 
             # with gr.Tab(label='Gallery', elem_id="scrollable-box"):
             #     with gr.Row():

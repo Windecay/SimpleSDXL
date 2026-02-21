@@ -185,7 +185,7 @@
   "Show Trigger Words Panel": "显示触发词面板",
   "Refresh": "刷新",
 
-  "\ud83d\udd04 Refresh All Files": "\ud83d\udd04 本地刷新",
+  "\ud83d\udd04 Refresh All Files": "\ud83d\udd04 刷新本地模型列表",
   "Image Sharpness": "图像锐度",
   "Higher value means image and texture are sharper.": "数值越高纹理越清晰。后续设置仅适用于SDXL",
   "Guidance Scale": "引导系数CFG",
