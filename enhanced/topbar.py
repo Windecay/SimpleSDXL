@@ -130,6 +130,19 @@ def preset_filter(presets):
     except Exception:
         return presets
 
+def is_preset_file_allowed(p):
+    if not p:
+        return False
+    if p.startswith('.'):
+        return False
+    p2 = str(p).replace('\\', '/').strip('/')
+    parts = [x for x in p2.split('/') if x]
+    if 'deprecated' in parts:
+        return False
+    if 'characters' in parts:
+        return False
+    return True
+
 PRESET_COMPLETE_MARKER = "||complete"
 PRESET_MISSING_MARKER = "\u2B07"
 PRESET_STORE_ORDER = [
@@ -271,13 +284,13 @@ def get_preset_name_list(user_session, ua_hash):
         user_preset_file = get_path_in_user_dir('presets.txt', user_did, 'presets')
         if not os.path.exists(user_preset_file):
             path_preset = os.path.abspath(f'./presets/')
-            presets = [p for p in util.get_files_from_folder(path_preset, ['.json'], None) 
-                      if not p.startswith('.') and 'deprecated' not in p]
+            presets = [p for p in util.get_files_from_folder(path_preset, ['.json'], None)
+                      if is_preset_file_allowed(p)]
             file_times = [(f[:-5], os.path.getmtime(os.path.join(path_preset, f))) for f in presets]
             user_path_preset = get_path_in_user_dir('presets', user_did)
             if os.path.exists(user_path_preset):
-                presets2 = [p for p in util.get_files_from_folder(user_path_preset, ['.json'], None) 
-                           if not p.startswith('.') and 'deprecated' not in p]
+                presets2 = [p for p in util.get_files_from_folder(user_path_preset, ['.json'], None)
+                           if is_preset_file_allowed(p)]
                 file_times2 = [(f'{f[:-5]}.', os.path.getmtime(os.path.join(user_path_preset, f))) for f in presets2]
                 file_times = file_times + file_times2
             presets = sorted(file_times, key=lambda x: x[1], reverse=True)
@@ -303,8 +316,8 @@ def get_preset_name_list(user_session, ua_hash):
                 presets_list = nav_preset_file.read()
         else:
             path_preset = os.path.abspath(f'./presets/')
-            presets = [p for p in util.get_files_from_folder(path_preset, ['.json'], None) 
-                      if not p.startswith('.') and 'deprecated' not in p]
+            presets = [p for p in util.get_files_from_folder(path_preset, ['.json'], None)
+                      if is_preset_file_allowed(p)]
             file_times = [(f[:-5], os.path.getmtime(os.path.join(path_preset, f))) for f in presets]
             presets = sorted(file_times, key=lambda x: x[1], reverse=True)
             presets = [f[0] for f in presets]
@@ -337,7 +350,7 @@ def get_preset_samples(user_did=None):
     cache_key = user_did if user_did else 'guest'
     path_preset = os.path.abspath(f'./presets/')
     base_files = [p for p in util.get_files_from_folder(path_preset, ['.json'], None) 
-                 if not p.startswith('.') and 'deprecated' not in p]
+                 if is_preset_file_allowed(p)]
     base_presets = [p[:-5] for p in base_files]
     base_mtime = 0
     for f in base_files:
@@ -351,7 +364,7 @@ def get_preset_samples(user_did=None):
     user_mtime = 0
     if user_path_preset and os.path.exists(user_path_preset):
         presets2 = [p for p in util.get_files_from_folder(user_path_preset, ['.json'], None)
-                   if not p.startswith('.') and 'deprecated' not in p]
+                   if is_preset_file_allowed(p)]
         for p in presets2:
             user_presets.append(f'{p[:-5]}.')
             try:

@@ -9,7 +9,7 @@
                 "task_method": "il_v_pre_aio"
                 }
         },
-    "default_model": "oneObsession_13.safetensors",
+    "default_model": "OneObsession_20Bold.safetensors",
     "default_refiner": "None",
     "default_refiner_switch": 0.5,
     "default_loras": [
@@ -48,7 +48,7 @@
     "embeddings_downloads": {},
     "lora_downloads": {},
     "model_list": [
-        "checkpoints,oneObsession_13.safetensors,6938040682,0,",
+        "checkpoints,OneObsession_20Bold.safetensors,6938040682,0,https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/checkpoints/OneObsession_20Bold.safetensors",
         "ipadapter,noob_ip_adapter.bin,1396798350,0,",
         "upscale_models,RealESRGAN_x4plus_anime_6B.pth,17938799,0,",
         "upscale_models,4x-UltraSharp.pth,66961958,0,",

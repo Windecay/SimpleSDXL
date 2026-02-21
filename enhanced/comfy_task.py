@@ -119,6 +119,18 @@ def get_comfy_task(user_did, task_class, task_name, task_method, default_params,
 
     #print(f'task_class:{task_class}, task_name:{task_name}, task_method:{task_method}')
     total_steps = default_params.pop("display_steps", default_params['steps'])
+    task_method_l = (task_method or "").lower()
+    if "infinitetalk" in task_method_l:
+        audio = default_params.get("audio")
+        if isinstance(audio, str):
+            audio = audio.strip()
+            if not audio or audio.lower() == "none":
+                audio = None
+        elif isinstance(audio, dict):
+            if not any(audio.get(k) for k in ("path", "name", "data", "url")):
+                audio = None
+        if not audio:
+            raise ValueError("该任务必须传入音频(audio)")
     if "scene_" in task_method or task_class in ("Qwen", "Wan", "Z-image"):
         base_model = default_params.get("base_model")
         if base_model and base_model != "auto":

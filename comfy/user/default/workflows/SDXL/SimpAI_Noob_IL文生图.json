@@ -1880,7 +1880,7 @@
         }
       },
       "widgets_values": [
-        "oneObsession_13.safetensors"
+        "OneObsession_20Bold.safetensors"
       ],
       "color": "#223",
       "bgcolor": "#335"
@@ -3707,7 +3707,7 @@
         }
       },
       "widgets_values": [
-        "oneObsession_13.safetensors"
+        "OneObsession_20Bold.safetensors"
       ],
       "color": "#223",
       "bgcolor": "#335"
@@ -10901,7 +10901,7 @@
         }
       },
       "widgets_values": [
-        "https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/checkpoints/oneObsession_13.safetensors",
+        "https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/checkpoints/OneObsession_20Bold.safetensors",
         "checkpoints",
         true,
         false

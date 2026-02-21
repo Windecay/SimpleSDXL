@@ -161,6 +161,9 @@ def switch_scene_theme_ready_to_gen(state, image_number, canvas_image, input_ima
             use_image = input_img
 
     describe_prompt, img_is_ok = describe_prompt_for_scene(state, use_image, theme, f'{additional_prompt}{additional_prompt_2}') if ready_to_gen else ('', False)
+    task_method = scenes.get("task_method", {}).get(theme, "")
+    if "infinitetalk" in (task_method or "").lower():
+        return describe_prompt if describe_prompt else gr.update(), gr.update(interactive=bool(use_image is not None and audio is not None and img_is_ok))
     return describe_prompt if describe_prompt else gr.update(), gr.update(interactive=True if not ready_to_gen else img_is_ok)
 
 
