@@ -1,9 +1,8 @@
 import os
-import re
 import json
-import math
 import numbers
 import shutil
+from typing import Any, Dict, List, Optional, Tuple
 
 import args_manager
 import tempfile
@@ -16,9 +15,10 @@ import ldm_patched.modules.model_management as mm
 
 from modules.model_loader import load_file_from_url
 from modules.extra_utils import makedirs_with_log, get_files_from_folder, try_eval_env_var
-from modules.flags import OutputFormat, Performance, MetadataScheme
+from modules.flags import OutputFormat, Performance
 from enhanced.logger import format_name
 logger = logging.getLogger(format_name(__name__))
+ARCH_FAMILY_ALGO = 2
 
 def get_config_path(key, default_value):
     env = os.getenv(key)
@@ -39,10 +39,10 @@ visited_keys = []
 wildcards_max_bfs_depth = 64
 
 try:
-    with open(os.path.abspath(f'./presets/Z-imageT.json'), "r", encoding="utf-8") as json_file:
+    with open(os.path.abspath('./presets/Z-imageT.json'), "r", encoding="utf-8") as json_file:
         config_dict.update(json.load(json_file))
 except Exception as e:
-    logger.info(f'Load Z-imageT preset failed.')
+    logger.info('Load Z-imageT preset failed.')
     logger.info(e)
 
 try:
@@ -135,8 +135,8 @@ def try_get_preset_content(preset, user_did=None):
                 preset_path = os.path.join(get_path_in_user_dir('presets', user_did), f'{preset[:-1]}.json')
                 preset_path2 = os.path.join(get_path_in_user_dir('presets', user_did), f'{preset[:-1]}{arch_str}.json')
             else:
-                preset_path = os.path.join(os.path.abspath(f'./presets/'), f'{preset}.json')
-                preset_path2 = os.path.join(os.path.abspath(f'./presets/'), f'{preset}{arch_str}.json')
+                preset_path = os.path.join(os.path.abspath('./presets/'), f'{preset}.json')
+                preset_path2 = os.path.join(os.path.abspath('./presets/'), f'{preset}{arch_str}.json')
             if os.path.exists(preset_path2):
                 preset_path = preset_path2
             if os.path.exists(preset_path):
@@ -320,7 +320,7 @@ def get_config_item_or_set_default(key, default_value, validator, disable_empty_
 
     if key not in visited_keys:
         visited_keys.append(key)
-    
+
     v = os.getenv(key)
     if v is not None:
         v = try_eval_env_var(v, expected_type)
@@ -1087,6 +1087,261 @@ vae_filenames = []
 wildcard_filenames = []
 
 
+def _load_models_info_json(models_root: str) -> Tuple[str, Dict[str, Any]]:
+    path = os.path.abspath(os.path.join(models_root, "models_info.json"))
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        if isinstance(data, dict):
+            return path, data
+    except Exception:
+        pass
+    return path, {}
+
+
+def _save_models_info_json(path: str, data: Dict[str, Any]) -> None:
+    tmp_path = f"{path}.tmp"
+    with open(tmp_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=4, ensure_ascii=True)
+    os.replace(tmp_path, path)
+
+
+def _get_engine_arch_families(engine: str) -> Optional[set]:
+    mapping = {
+        "SD3x": {"sd3"},
+        "SDXL": {"sdxl"},
+        "Flux": {"flux"},
+        "HyDiT": {"hunyuan"},
+        "Kolors": {"kolors"},
+        "Wan": {"wan"},
+        "Qwen": {"qwen"},
+        "Z-image": {"z_image"},
+        "Fooocus": {"sdxl"},
+    }
+    return mapping.get(engine)
+
+
+def _normalize_model_name(name: str) -> str:
+    s = str(name or "")
+    s = s.replace("\\", "/")
+    while s.startswith("/"):
+        s = s[1:]
+    return s
+
+
+def _resolve_models_info_key(data: Dict[str, Any], catalog: str, model_name: str) -> Optional[str]:
+    catalog = _normalize_model_name(catalog)
+    model_name = _normalize_model_name(model_name)
+    exact = f"{catalog}/{model_name}"
+    if exact in data:
+        return exact
+
+    suffix = f"/{model_name}"
+    candidates: List[str] = []
+    for k in data.keys():
+        if k.startswith(f"{catalog}/") and k.endswith(suffix):
+            candidates.append(k)
+    if len(candidates) == 1:
+        return candidates[0]
+    return None
+
+
+def _build_catalog_basename_index(data: Dict[str, Any], catalog: str) -> Dict[str, Optional[str]]:
+    index: Dict[str, Optional[str]] = {}
+    prefix = f"{catalog}/"
+    for k in data.keys():
+        if not k.startswith(prefix):
+            continue
+        base = k.rsplit("/", 1)[-1]
+        if base in index:
+            index[base] = None
+        else:
+            index[base] = k
+    return index
+
+
+def _ensure_weight_inspector_cache_for_keys(models_root: str, model_keys: List[str]) -> None:
+    import enhanced.weight_inspector as weight_inspector
+
+    modelsinfo = shared.modelsinfo
+    if modelsinfo is None:
+        return
+
+    info_path, data = _load_models_info_json(models_root)
+    if not data:
+        return
+
+    updated = False
+    basename_index_by_catalog: Dict[str, Dict[str, Optional[str]]] = {}
+    for key in model_keys:
+        key = _normalize_model_name(key)
+        if "/" not in key:
+            continue
+        catalog, model_name = key.split("/", 1)
+        resolved_key = _resolve_models_info_key(data, catalog, model_name)
+        if not resolved_key and "/" not in model_name:
+            idx = basename_index_by_catalog.get(catalog)
+            if idx is None:
+                idx = _build_catalog_basename_index(data, catalog)
+                basename_index_by_catalog[catalog] = idx
+            resolved_key = idx.get(model_name) or None
+        if not resolved_key:
+            continue
+
+        entry = data.get(resolved_key)
+        if not isinstance(entry, dict):
+            continue
+        if "file" not in entry:
+            continue
+
+        _, resolved_model_name = resolved_key.split("/", 1)
+        try:
+            file_path = modelsinfo.get_model_filepath(catalog, resolved_model_name)
+        except Exception:
+            file_path = None
+        if not file_path or not os.path.isfile(file_path):
+            continue
+
+        try:
+            current_size = int(os.path.getsize(file_path))
+        except Exception:
+            current_size = None
+        try:
+            current_mtime = float(os.path.getmtime(file_path))
+        except Exception:
+            current_mtime = None
+        current_stamp = {"size": current_size, "mtime": current_mtime}
+
+        if (
+            entry.get("arch_family")
+            and entry.get("arch_family_stamp") == current_stamp
+            and entry.get("arch_family_algo") == ARCH_FAMILY_ALGO
+        ):
+            continue
+
+        try:
+            r = weight_inspector.inspect_weight_file(
+                file_path,
+                torch_ckpt_load=False,
+                include_metadata=False,
+                include_key_examples=False,
+            )
+        except Exception as e:
+            r = {"arch_family": "unknown", "weight_kind": "unknown", "file_type": "unknown", "parse_mode": "", "error": f"{type(e).__name__}: {e}"}
+
+        entry["arch_family"] = r.get("arch_family", "unknown")
+        entry["arch_family_algo"] = ARCH_FAMILY_ALGO
+        entry["arch_family_stamp"] = current_stamp
+        updated = True
+        try:
+            mi = shared.modelsinfo
+            if mi is not None and isinstance(getattr(mi, "m_info", None), dict):
+                mi_entry = mi.m_info.get(resolved_key)
+                if isinstance(mi_entry, dict):
+                    mi_entry["arch_family"] = entry["arch_family"]
+                    mi_entry["arch_family_algo"] = entry["arch_family_algo"]
+                    mi_entry["arch_family_stamp"] = entry["arch_family_stamp"]
+        except Exception:
+            pass
+
+    if updated:
+        _save_models_info_json(info_path, data)
+
+
+def _refine_names_by_catalog(models_root: str, engine: str, catalog: str, names: List[str]) -> List[str]:
+    families = _get_engine_arch_families(engine)
+    if not families:
+        return names
+
+    patterns = modules.flags.model_file_filter.get(engine)
+    def match_name_filter(name: str) -> bool:
+        if not patterns:
+            return False
+        s = _normalize_model_name(name).lower()
+        for item in patterns:
+            group = [item] if isinstance(item, str) else list(item)
+            if group and all(str(t).lower() in s for t in group):
+                return True
+        return False
+
+    names = [_normalize_model_name(n) for n in names]
+    keys = [f"{catalog}/{name}" for name in names]
+    _ensure_weight_inspector_cache_for_keys(models_root, keys)
+
+    _, data = _load_models_info_json(models_root)
+    if not data:
+        return names
+
+    basename_index = _build_catalog_basename_index(data, catalog)
+    out: List[str] = []
+    for name in names:
+        resolved_key = _resolve_models_info_key(data, catalog, name)
+        if not resolved_key and "/" not in name:
+            resolved_key = basename_index.get(name) or None
+        if not resolved_key:
+            continue
+        entry = data.get(resolved_key)
+        if match_name_filter(name):
+            out.append(name)
+            continue
+        if isinstance(entry, dict) and entry.get("arch_family") in families:
+            out.append(name)
+    return out
+
+
+def _refine_models_by_arch_family(models_root: str, engine: str, models: List[str]) -> List[str]:
+    families = _get_engine_arch_families(engine)
+    if not families:
+        return models
+
+    patterns = modules.flags.model_file_filter.get(engine)
+    def match_name_filter(name: str) -> bool:
+        if not patterns:
+            return False
+        s = _normalize_model_name(name).lower()
+        for item in patterns:
+            group = [item] if isinstance(item, str) else list(item)
+            if group and all(str(t).lower() in s for t in group):
+                return True
+        return False
+
+    keys: List[str] = []
+    models = [_normalize_model_name(n) for n in models]
+    for name in models:
+        keys.append(f"checkpoints/{name}")
+        keys.append(f"diffusion_models/{name}")
+    _ensure_weight_inspector_cache_for_keys(models_root, keys)
+
+    _, data = _load_models_info_json(models_root)
+    if not data:
+        return models
+
+    ck_basename_index = _build_catalog_basename_index(data, "checkpoints")
+    dm_basename_index = _build_catalog_basename_index(data, "diffusion_models")
+    out: List[str] = []
+    for name in models:
+        if match_name_filter(name):
+            out.append(name)
+            continue
+        ck_key = _resolve_models_info_key(data, "checkpoints", name)
+        if not ck_key and "/" not in name:
+            ck_key = ck_basename_index.get(name) or None
+        ck = data.get(ck_key) if ck_key else None
+        if isinstance(ck, dict):
+            if ck.get("arch_family") in families:
+                out.append(name)
+                continue
+        dm_key = _resolve_models_info_key(data, "diffusion_models", name)
+        if not dm_key and "/" not in name:
+            dm_key = dm_basename_index.get(name) or None
+        dm = data.get(dm_key) if dm_key else None
+        if isinstance(dm, dict):
+            if dm.get("arch_family") in families:
+                out.append(name)
+                continue
+    return out
+
+
 def get_model_filenames(folder_paths, extensions=None, name_filter=None):
     if extensions is None:
         extensions = ['.pth', '.ckpt', '.bin', '.safetensors', '.fooocus.patch', '.gguf']
@@ -1102,18 +1357,13 @@ def get_model_filenames(folder_paths, extensions=None, name_filter=None):
 
 def get_base_model_list(engine='Z-image', task_method=None):
     global modelsinfo
-    file_filter = modules.flags.model_file_filter.get(engine, [])
-    if engine in ['Flux'] and task_method and 'aio' in task_method:
-        file_filter = [f + ['!nf4'] for f in file_filter]
-    base_model_list = modelsinfo.get_model_names('checkpoints', file_filter)
-    base_model_list.extend(modelsinfo.get_model_names('diffusion_models', file_filter))
-    if engine in ['Fooocus', 'Comfy']:
-        fooocus_filter = modules.flags.model_file_filter['Fooocus']
-        base_model_list = modelsinfo.get_model_names('checkpoints', fooocus_filter, reverse=True)
-        base_model_list.extend(modelsinfo.get_model_names('diffusion_models', fooocus_filter, reverse=True))
-    elif task_method == 'flux_base2_gguf':
-        base_model_list = [f for f in base_model_list if ("hyp8" in f or "hyp16" in f) and f.endswith("gguf")]
+    base_model_list = modelsinfo.get_model_names('checkpoints', [])
+    base_model_list.extend(modelsinfo.get_model_names('diffusion_models', []))
+    base_model_list = [_normalize_model_name(n) for n in base_model_list]
+    if task_method == 'flux_base2_gguf':
+        base_model_list = [f for f in base_model_list if f.lower().endswith(".gguf")]
     base_model_list = list(dict.fromkeys(base_model_list))
+    base_model_list = _refine_models_by_arch_family(path_models_root, engine, base_model_list)
     return base_model_list
 
 def update_files(engine='Z-image', task_method=None):
@@ -1121,6 +1371,8 @@ def update_files(engine='Z-image', task_method=None):
     modelsinfo.refresh_from_path()
     model_filenames = get_base_model_list(engine, task_method)
     lora_filenames = modelsinfo.get_model_names('loras')
+    lora_filenames = [_normalize_model_name(n) for n in lora_filenames]
+    lora_filenames = _refine_names_by_catalog(path_models_root, engine, "loras", lora_filenames)
     vae_filenames = modelsinfo.get_model_names('vae')
     wildcard_filenames = []
     for path in paths_wildcards:
@@ -1355,15 +1607,13 @@ def downloading_safety_checker_model():
     return os.path.join(paths_safety_checker[0], 'stable-diffusion-safety-checker.bin')
 
 def download_sam_model(sam_model: str) -> str:
-    match sam_model:
-        case 'vit_b':
-            return downloading_sam_vit_b()
-        case 'vit_l':
-            return downloading_sam_vit_l()
-        case 'vit_h':
-            return downloading_sam_vit_h()
-        case _:
-            raise ValueError(f"sam model {sam_model} does not exist.")
+    if sam_model == 'vit_b':
+        return downloading_sam_vit_b()
+    if sam_model == 'vit_l':
+        return downloading_sam_vit_l()
+    if sam_model == 'vit_h':
+        return downloading_sam_vit_h()
+    raise ValueError(f"sam model {sam_model} does not exist.")
 
 
 def downloading_sam_vit_b():

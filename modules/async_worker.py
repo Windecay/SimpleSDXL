@@ -171,6 +171,8 @@ class AsyncTask:
         self.enhance_stats = {}
 
         self.task_class = self.params_backend.pop('backend_engine', 'Z-image')
+        if self.task_class == 'SDXL':
+            self.task_class = 'Comfy'
         self.task_name = self.params_backend.pop('preset', 'default')
         self.task_method = self.params_backend.pop('task_method', 'z_image_turbo_aio_cn')
         if 'layer' in self.current_tab and self.task_class == 'Fooocus' and self.input_image_checkbox:

@@ -232,10 +232,11 @@ available_aspect_ratios_list = {
 }
 
 
-backend_engines = ['Fooocus', 'Comfy', 'Kolors', 'SD3x', 'HyDiT', 'Flux', 'Wan', 'Qwen', 'Z-image']
+backend_engines = ['Fooocus', 'SDXL', 'Comfy', 'Kolors', 'SD3x', 'HyDiT', 'Flux', 'Wan', 'Qwen', 'Z-image']
 
 model_file_filter = {
         'SD3x'   : ['sd3'],
+        'SDXL'   : ['sdxl', 'sd-xl', 'xl'],
         'Flux'   : [['flux'], ['f.1']],
         'HyDiT'  : ['hunyuan'],
         'Kolors' : ['kolors'],
@@ -250,7 +251,8 @@ language_radio_revert = lambda x: 'cn' if x=='中文' else 'en'
 
 task_class_mapping = {
             'Fooocus': 'SDXL-Fooocus',
-            'Comfy'  : 'SDXL-Comfy',
+            'SDXL'   : 'SDXL',
+            'Comfy'  : 'SComfy',
             'Kolors' : 'Kwai-Kolors',
             'SD3x'   : 'SD3m-SD3.5x',
             'HyDiT'  : 'Hunyuan-DiT',
@@ -278,6 +280,16 @@ default_class_params = {
         'available_scheduler_name': scheduler_list,
         'available_uov_method': uov_list,
         'backend_params': {},
+        },
+    'SDXL': {
+        'disvisible': [],
+        'disinteractive': [],
+        'available_aspect_ratios_selection': 'SDXL',
+        'available_sampler_name': comfy_sampler_list,
+        'available_scheduler_name': comfy_scheduler_list,
+        'backend_params': {
+            "task_method": "il_v_pre_aio",
+            },
         },
     'Comfy': {
         'disvisible': [],

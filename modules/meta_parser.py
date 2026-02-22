@@ -41,6 +41,27 @@ get_layout_update_label_visible_inter = lambda t,v,x,y,z:gr.update(label=t, valu
 get_layout_update_label_and_choice_visible_inter = lambda t,l,v,x,y,z:gr.update(label=t, choices=l, value=v, visible=x not in y, interactive=x not in z) if t else gr.update(choices=l, value=v, visible=x not in y, interactive=x not in z)
 get_layout_update_and_visible_inter = lambda v,x,y,z:gr.update(value=v, visible=x not in y, interactive=x not in z)
 
+def get_layout_visible_inter_loras_with_choices(visible, inter, max_number, lora_choices):
+    x = 'loras'
+    y1 = max_number if x in visible else -1
+    for key in visible:
+        if '-' in key and x == key.split('-')[0]:
+            y1 = int(key.split('-')[1])
+            break
+    z1 = max_number if x in inter else -1
+    for key in inter:
+        if '-' in key and x == key.split('-')[0]:
+            z1 = int(key.split('-')[1])
+            break
+    results = []
+    for i in range(max_number):
+        is_visible = i + y1 < max_number or y1 < 0
+        is_interactive = i + z1 < max_number or z1 < 0
+        results.append(gr.update(visible=is_visible, interactive=is_interactive))
+        results.append(gr.update(choices=lora_choices, visible=is_visible, interactive=is_interactive))
+        results.append(gr.update(visible=is_visible, interactive=is_interactive))
+    return results
+
 def get_layout_visible_inter_loras(y,z,max_number):
     x = 'loras'
     y1 = max_number if x in y else -1 
@@ -359,6 +380,7 @@ def switch_layout_template(presetdata: dict | str, state_params, preset_url=''):
             ))
 
     task_method = params_backend.get('task_method', None)
+    modules.config.update_files(template_engine, task_method)
     base_model_list = modules.config.get_base_model_list(template_engine, task_method)
     logging.info(f'template_engine:{template_engine}')
 
@@ -394,7 +416,8 @@ def switch_layout_template(presetdata: dict | str, state_params, preset_url=''):
     results.append(get_layout_empty_visible_inter('layer_input_image', visible, inter))
     results.append(get_layout_toggle_visible_inter('enhance_checkbox', visible, inter))
     results.append(get_layout_empty_visible_inter('enhance_input_image', visible, inter))
-    results += get_layout_visible_inter_loras(visible, inter, modules.config.default_max_lora_number)
+    lora_choices = ['None'] + modules.config.lora_filenames
+    results += get_layout_visible_inter_loras_with_choices(visible, inter, modules.config.default_max_lora_number, lora_choices)
 
     #[output_format, inpaint_advanced_masking_checkbox, mixing_image_prompt_and_vary_upscale, mixing_image_prompt_and_inpaint, backfill_prompt, translation_methods, input_image_checkbox]
     # if default_X in config_prese then update the value to gr.X else update with default value in ads.default[X]

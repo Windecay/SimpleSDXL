@@ -1,7 +1,7 @@
 
 {
     "default_engine": {
-        "backend_engine": "Comfy",
+        "backend_engine": "SDXL",
         "disvisible": ["backend_selection", "performance_selection", "refiner_model"],
         "disinteractive": ["performance_selection", "refiner_model", "FaceSwap"],
         "available_aspect_ratios_selection": "SDXL",
