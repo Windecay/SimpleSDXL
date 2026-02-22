@@ -540,8 +540,6 @@ def _infer_arch_family_from_keys(keys: List[str], metadata: Dict[str, Any]) -> s
         return "wan"
     if "wan" in joined or "wan2" in joined:
         return "wan"
-    if "noise_refiner" in joined and "context_refiner" in joined and "cap_embedder" in joined:
-        return "newbie"
     if "cap_embedder" in joined and "context_refiner" in joined:
         return "z_image"
     return "unknown"
@@ -695,8 +693,11 @@ def inspect_weight_file(
         signature = _make_key_signature(keys)
         out_metadata = metadata if include_metadata else {}
         arch_family = _infer_arch_family_from_keys(keys, out_metadata)
-        if arch_family == "unknown":
-            arch_family = _infer_arch_family_from_filename(path_abs)
+        arch_family_from_filename = _infer_arch_family_from_filename(path_abs)
+        if arch_family_from_filename == "newbie":
+            arch_family = "newbie"
+        elif arch_family == "unknown":
+            arch_family = arch_family_from_filename
         result.update(
             {
                 "file_type": "safetensors",
@@ -745,8 +746,11 @@ def inspect_weight_file(
         components = _infer_components_from_keys(keys)
         signature = _make_key_signature(keys)
         arch_family = _infer_arch_family_from_keys(keys, {})
-        if arch_family == "unknown":
-            arch_family = _infer_arch_family_from_filename(path_abs)
+        arch_family_from_filename = _infer_arch_family_from_filename(path_abs)
+        if arch_family_from_filename == "newbie":
+            arch_family = "newbie"
+        elif arch_family == "unknown":
+            arch_family = arch_family_from_filename
         shapes: List[Tuple[str, Tuple[int, ...]]] = []
         for k in keys[: min(2000, len(keys))]:
             v = state_dict.get(k)

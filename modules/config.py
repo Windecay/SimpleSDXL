@@ -1212,12 +1212,17 @@ def _ensure_weight_inspector_cache_for_keys(models_root: str, model_keys: List[s
             current_mtime = None
         current_stamp = {"size": current_size, "mtime": current_mtime}
 
+        cached_arch_family = entry.get("arch_family")
         if (
-            entry.get("arch_family")
+            cached_arch_family
             and entry.get("arch_family_stamp") == current_stamp
             and entry.get("arch_family_algo") == ARCH_FAMILY_ALGO
         ):
-            continue
+            if str(cached_arch_family).lower() != "newbie":
+                continue
+            s = f"{os.path.basename(os.path.dirname(file_path)).lower()} {os.path.basename(file_path).lower()}"
+            if "newbie" in s:
+                continue
 
         try:
             r = weight_inspector.inspect_weight_file(
