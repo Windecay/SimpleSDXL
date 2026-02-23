@@ -78,6 +78,15 @@ class AsyncTask:
         self.refiner_model_name = args.pop()
         self.refiner_switch = args.pop()
         self.loras = get_enabled_loras([(bool(lora[0]), str(lora[1]), float(lora[2])) for lora in args.pop()])
+
+        if self.base_model_name is not None and self.base_model_name != 'None':
+            self.base_model_name = str(self.base_model_name).replace("\\", os.sep).replace("/", os.sep)
+            while self.base_model_name.startswith(os.sep):
+                self.base_model_name = self.base_model_name[1:]
+        if self.refiner_model_name is not None and self.refiner_model_name != 'None':
+            self.refiner_model_name = str(self.refiner_model_name).replace("\\", os.sep).replace("/", os.sep)
+            while self.refiner_model_name.startswith(os.sep):
+                self.refiner_model_name = self.refiner_model_name[1:]
         
         self.input_image_checkbox = args.pop()
         self.current_tab = args.pop()

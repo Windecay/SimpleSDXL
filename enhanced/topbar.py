@@ -181,6 +181,7 @@ PRESET_STORE_ORDER = [
     "Wan-Animate",
     "Animate-Outpaint",
     "Wan-SCAIL",
+    "InfiniteTalk",
     "default",
     "eraser-a",
     "StyleTransfer+",

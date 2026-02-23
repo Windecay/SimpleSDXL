@@ -50,7 +50,7 @@ def cleanup_obsolete_custom_nodes():
         except Exception as e:
             logger.warning(f"[Cleanup] Failed to remove obsolete custom node folder: {target_path} ({e})")
 
-cleanup_obsolete_custom_nodes()
+# cleanup_obsolete_custom_nodes()
 
 os.environ["SIMPAI_LOG_FILE"] = get_log_file()
 os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "1"
