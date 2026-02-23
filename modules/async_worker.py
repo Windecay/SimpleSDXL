@@ -2,7 +2,7 @@ from re import A
 import threading
 import queue
 from contextlib import contextmanager
-
+import os
 import args_manager
 from extras.inpaint_mask import generate_mask_from_image, SAMOptions
 from modules.patch import PatchSettings, patch_settings, patch_all
@@ -189,6 +189,7 @@ class AsyncTask:
                         f"lora_{i+1}_strength": 0.0,
                     })
                 else:
+                    lora_name = str(lora_name).replace("\\", os.sep).replace("/", os.sep).lstrip(os.sep)
                     self.params_backend.update({
                         f"lora_{i+1}": lora_name,
                         f"lora_{i+1}_strength": lora_strength,

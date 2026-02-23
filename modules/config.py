@@ -1218,6 +1218,22 @@ def _ensure_weight_inspector_cache_for_keys(models_root: str, model_keys: List[s
             and entry.get("arch_family_stamp") == current_stamp
             and entry.get("arch_family_algo") == ARCH_FAMILY_ALGO
         ):
+            if str(cached_arch_family).lower() == "sd15":
+                entry["arch_family"] = "sdxl"
+                entry["arch_family_algo"] = ARCH_FAMILY_ALGO
+                entry["arch_family_stamp"] = current_stamp
+                updated = True
+                try:
+                    mi = shared.modelsinfo
+                    if mi is not None and isinstance(getattr(mi, "m_info", None), dict):
+                        mi_entry = mi.m_info.get(resolved_key)
+                        if isinstance(mi_entry, dict):
+                            mi_entry["arch_family"] = entry["arch_family"]
+                            mi_entry["arch_family_algo"] = entry["arch_family_algo"]
+                            mi_entry["arch_family_stamp"] = entry["arch_family_stamp"]
+                except Exception:
+                    pass
+                continue
             if str(cached_arch_family).lower() != "newbie":
                 continue
             s = f"{os.path.basename(os.path.dirname(file_path)).lower()} {os.path.basename(file_path).lower()}"
@@ -1376,8 +1392,9 @@ def update_files(engine='Z-image', task_method=None):
     modelsinfo.refresh_from_path()
     model_filenames = get_base_model_list(engine, task_method)
     lora_filenames = modelsinfo.get_model_names('loras')
-    lora_filenames = [_normalize_model_name(n) for n in lora_filenames]
-    lora_filenames = _refine_names_by_catalog(path_models_root, engine, "loras", lora_filenames)
+    lora_filenames_norm = [_normalize_model_name(n) for n in lora_filenames]
+    lora_filenames_norm = _refine_names_by_catalog(path_models_root, engine, "loras", lora_filenames_norm)
+    lora_filenames = [str(n).replace("/", os.sep).replace("\\", os.sep).lstrip(os.sep) for n in lora_filenames_norm]
     vae_filenames = modelsinfo.get_model_names('vae')
     wildcard_filenames = []
     for path in paths_wildcards:

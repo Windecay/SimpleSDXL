@@ -386,7 +386,7 @@ def _infer_arch_family_from_keys(keys: List[str], metadata: Dict[str, Any]) -> s
         if "sd3" in s or "sd-3" in s:
             return "sd3"
         if "sd15" in s or "sd1.5" in s or "sd_1.5" in s or "sd-v1-5" in s:
-            return "sd15"
+            return "sdxl"
 
     arch = str(metadata.get("modelspec.architecture", "") or "")
     if arch:
@@ -402,7 +402,7 @@ def _infer_arch_family_from_keys(keys: List[str], metadata: Dict[str, Any]) -> s
         ):
             return "sdxl"
         if "sd-1" in arch_l or "sd1" in arch_l or "sd-v1" in arch_l:
-            return "sd15"
+            return "sdxl"
         if "flux" in arch_l:
             return "flux"
         if "wan" in arch_l:
@@ -448,7 +448,7 @@ def _infer_arch_family_from_keys(keys: List[str], metadata: Dict[str, Any]) -> s
         if "sd-v2" in md_l or "sd2" in md_l:
             return "sd2"
         if "sd_1.5" in md_l or "sd-v1-5" in md_l or "sd1" in md_l:
-            return "sd15"
+            return "sdxl"
         if "flux" in md_l:
             return "flux"
         if "wan" in md_l:
@@ -507,7 +507,7 @@ def _infer_arch_family_from_keys(keys: List[str], metadata: Dict[str, Any]) -> s
     if "model.diffusion_model" in joined and "cond_stage_model" in joined:
         if "cond_stage_model.model" in joined:
             return "sd2"
-        return "sd15"
+        return "sdxl"
     if "qwen" in joined or ("transformer_blocks." in joined and "time_text_embed" in joined and "img_in" in joined):
         return "qwen"
     if "transformer.transformer_blocks" in joined:
@@ -524,9 +524,9 @@ def _infer_arch_family_from_keys(keys: List[str], metadata: Dict[str, Any]) -> s
             return "qwen"
         return "sd3"
     if "lora_unet_input_blocks_" in joined or "lora_unet_output_blocks_" in joined:
-        return "sd15"
+        return "sdxl"
     if "lora_unet_down_blocks_3" in joined or "lora_unet_up_blocks_3" in joined:
-        return "sd15"
+        return "sdxl"
     if "lora_unet_add_embedding" in joined or "lora_unet_add_time_embedding" in joined:
         return "sdxl"
     if (
@@ -565,10 +565,10 @@ def _infer_arch_family_from_filename(path: str) -> str:
         return "wan"
     if "flux" in s:
         return "flux"
-    if "sdxl" in s or "sd-xl" in s or re.search(r"(^|[^a-z])xl([^a-z]|$)", s):
+    if "sdxl" in s or "sd-xl" in s or "xl" in s:
         return "sdxl"
     if "sd15" in s or "sd1.5" in s or "sd_1.5" in s or "v1-5" in s or "sd-v1-5" in s:
-        return "sd15"
+        return "sdxl"
     return "unknown"
 
 
@@ -698,6 +698,8 @@ def inspect_weight_file(
             arch_family = "newbie"
         elif arch_family == "unknown":
             arch_family = arch_family_from_filename
+        if arch_family == "sd15":
+            arch_family = "sdxl"
         result.update(
             {
                 "file_type": "safetensors",
@@ -751,6 +753,8 @@ def inspect_weight_file(
             arch_family = "newbie"
         elif arch_family == "unknown":
             arch_family = arch_family_from_filename
+        if arch_family == "sd15":
+            arch_family = "sdxl"
         shapes: List[Tuple[str, Tuple[int, ...]]] = []
         for k in keys[: min(2000, len(keys))]:
             v = state_dict.get(k)
@@ -792,6 +796,8 @@ def inspect_weight_file(
             arch_family = _infer_arch_family_from_keys(keys, out_metadata)
             if arch_family == "unknown":
                 arch_family = _infer_arch_family_from_filename(path_abs)
+            if arch_family == "sd15":
+                arch_family = "sdxl"
             result.update(
                 {
                     "metadata": {} if not include_metadata else out_metadata,
@@ -816,6 +822,8 @@ def inspect_weight_file(
         except Exception as e:
             result["weight_kind"] = "checkpoint"
             result["arch_family"] = _infer_arch_family_from_filename(path_abs)
+            if result["arch_family"] == "sd15":
+                result["arch_family"] = "sdxl"
             result["error"] = f"GGUF parse failed: {type(e).__name__}: {e}"
         return result
 
