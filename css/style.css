@@ -566,6 +566,10 @@ iframe::-webkit-scrollbar {
     .topbar_line_break {
         display: none !important;
     }
+    .advanced_check_row{
+        width: 100% !important;
+        flex-wrap: wrap !important;
+    }
 }
 
 .bar_store {

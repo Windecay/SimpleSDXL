@@ -23,7 +23,7 @@ from modules.util import HWC3, resize_image, is_chinese
 from enhanced.simpleai import comfyd, p2p_task
 
 class MiniCPM:
-    prompt_i2t = "A descriptive caption for this image. Output only the caption text without any preamble or explanation."
+    prompt_i2t = "Write a highly detailed and descriptive caption for this image. Output only the caption text without any preamble or explanation."
     output_chinese = "and output it in Chinese. Only provide the Chinese text, no other explanation."
     prompt_extend = "Expand the following description to obtain a descriptive caption with more details in image. Output only the expanded description without any preamble or explanation: "
     prompt_translator = "Translate the following text into English. Output only the translation itself, no other text or explanation:"

@@ -6,9 +6,11 @@ import threading
 import queue
 from typing import Optional, List, Dict, Any, Tuple
 import time
+import logging
 import datetime
 import random
 import wave
+import re
 
 # Try importing Qwen3-TTS nodes from ComfyUI custom nodes
 # Assuming we are running in the root context where 'comfy' package is accessible
@@ -24,6 +26,7 @@ try:
         SaveVoiceNode,
         LoadSpeakerNode,
         QwenTTSConfigNode,
+        LANGUAGE_MAP,
         load_qwen_model
     )
 except ImportError:
@@ -77,6 +80,7 @@ except ImportError:
             SaveVoiceNode,
             LoadSpeakerNode,
             QwenTTSConfigNode,
+            LANGUAGE_MAP,
             load_qwen_model
         )
     except ImportError as e:
@@ -91,6 +95,7 @@ except ImportError:
         class SaveVoiceNode: pass
         class LoadSpeakerNode: pass
         class QwenTTSConfigNode: pass
+        LANGUAGE_MAP = {"Auto": "auto"}
         def load_qwen_model(*args, **kwargs): pass
 
 def _try_load_extra_model_paths():
@@ -174,6 +179,188 @@ class QwenTTSWrapper:
         self.loaded_model = None
         self.model_config = {}
 
+    def _split_long_text(self, text: str, max_chars: int = 200, hard_max_chars: int = 260) -> List[str]:
+        if text is None:
+            return []
+        raw = str(text).strip()
+        if not raw:
+            return []
+        if len(raw) <= max_chars:
+            return [raw]
+
+        raw = raw.replace("\r\n", "\n").replace("\r", "\n")
+        raw = re.sub(r"[ \t]+", " ", raw)
+
+        sentence_delims = r"([。！？!?；;…]+|(?<!\d)\.(?!\d))"
+        chunks: List[str] = []
+        current = ""
+
+        def add_terminal_period(s: str) -> str:
+            t = (s or "").strip()
+            if not t:
+                return t
+            if t.endswith("。。"):
+                return t + "。"
+            if t.endswith(("。", "！", "？", "!", "?")):
+                return t + "。。"
+            return t + "。。"
+
+        def flush():
+            nonlocal current
+            s = current.strip()
+            if s:
+                chunks.append(add_terminal_period(s))
+            current = ""
+
+        lines = [ln.strip() for ln in raw.split("\n")]
+        for line in lines:
+            if not line:
+                flush()
+                continue
+            parts = re.split(sentence_delims, line)
+            pieces: List[str] = []
+            for i in range(0, len(parts), 2):
+                base = (parts[i] or "").strip()
+                if not base:
+                    continue
+                delim = parts[i + 1] if i + 1 < len(parts) else ""
+                pieces.append((base + (delim or "")).strip())
+
+            for piece in pieces or [line]:
+                if len(piece) > hard_max_chars:
+                    weak_delims = r"([，,、:：]+)"
+                    weak_parts = re.split(weak_delims, piece)
+                    weak_pieces: List[str] = []
+                    for i in range(0, len(weak_parts), 2):
+                        base = (weak_parts[i] or "").strip()
+                        if not base:
+                            continue
+                        delim = weak_parts[i + 1] if i + 1 < len(weak_parts) else ""
+                        weak_pieces.append((base + (delim or "")).strip())
+                    for wp in weak_pieces or [piece]:
+                        if len(wp) > hard_max_chars:
+                            start = 0
+                            while start < len(wp):
+                                sub = wp[start:start + hard_max_chars].strip()
+                                if sub:
+                                    if current and len(current) + 1 + len(sub) > max_chars:
+                                        flush()
+                                    current = (current + " " + sub).strip() if current else sub
+                                    flush()
+                                start += hard_max_chars
+                        else:
+                            if current and len(current) + 1 + len(wp) > max_chars:
+                                flush()
+                            current = (current + " " + wp).strip() if current else wp
+                            flush()
+                    continue
+
+                if not current:
+                    current = piece
+                    continue
+                if len(current) + 1 + len(piece) <= max_chars:
+                    current = (current + " " + piece).strip()
+                else:
+                    flush()
+                    current = piece
+
+        flush()
+        if chunks:
+            return chunks
+        return [add_terminal_period(raw)]
+
+    def _merge_audio_dicts(self, audio_dicts: List[Dict[str, Any]], gap_seconds: float = 0.06, tail_seconds: float = 0.32) -> Dict[str, Any]:
+        if not audio_dicts:
+            raise ValueError("No audio segments to merge")
+        sr = int(audio_dicts[0].get("sample_rate"))
+        waveforms = []
+        for a in audio_dicts:
+            if int(a.get("sample_rate")) != sr:
+                raise ValueError("Mismatched sample_rate across segments")
+            w = a.get("waveform")
+            if hasattr(w, "detach"):
+                w = w.detach()
+            if hasattr(w, "cpu"):
+                w = w.cpu()
+            if isinstance(w, np.ndarray):
+                w = torch.from_numpy(w)
+            waveforms.append(w)
+
+        target_channels = int(waveforms[0].shape[1]) if getattr(waveforms[0], "ndim", 0) >= 2 else 1
+        fixed = []
+        for w in waveforms:
+            if getattr(w, "ndim", 0) == 1:
+                w = w[None, None, :]
+            elif getattr(w, "ndim", 0) == 2:
+                w = w[None, :, :]
+            if int(w.shape[1]) != target_channels:
+                if target_channels == 2 and int(w.shape[1]) == 1:
+                    w = w.repeat(1, 2, 1)
+                elif target_channels == 1 and int(w.shape[1]) == 2:
+                    w = w.mean(dim=1, keepdim=True)
+            fixed.append(w)
+
+        def _edge_silence_seconds(w: torch.Tensor, at_start: bool) -> float:
+            try:
+                x = w
+                if getattr(x, "ndim", 0) == 3:
+                    x = x[0]
+                if getattr(x, "ndim", 0) == 2:
+                    x = x.mean(dim=0)
+                x = x.to(torch.float32)
+                n = int(x.shape[-1])
+                if n <= 0:
+                    return 0.0
+                edge = int(min(n, int(float(sr) * 0.8)))
+                if edge <= 0:
+                    return 0.0
+                seg = x[:edge] if at_start else x[-edge:]
+                thr = 0.0035
+                mask = seg.abs() > thr
+                if not bool(mask.any().item()):
+                    return float(edge) / float(sr)
+                if at_start:
+                    first = int(torch.argmax(mask.to(torch.int32)).item())
+                    return float(first) / float(sr)
+                rev = torch.flip(mask, dims=[0])
+                last_from_end = int(torch.argmax(rev.to(torch.int32)).item())
+                return float(last_from_end) / float(sr)
+            except Exception:
+                return 0.0
+
+        min_pause_s = float(max(0.0, float(gap_seconds)))
+        if len(fixed) == 1 or min_pause_s <= 0.0:
+            merged_waveform = torch.cat(fixed, dim=-1)
+        else:
+            leading = [_edge_silence_seconds(w, at_start=True) for w in fixed]
+            trailing = [_edge_silence_seconds(w, at_start=False) for w in fixed]
+            merged_parts = [fixed[0]]
+            for i in range(len(fixed) - 1):
+                pause_present = float(trailing[i]) + float(leading[i + 1])
+                need = max(0.0, min_pause_s - pause_present)
+                need_samples = int(need * float(sr))
+                if need_samples > 0:
+                    merged_parts.append(torch.zeros((1, target_channels, need_samples), dtype=fixed[i].dtype))
+                merged_parts.append(fixed[i + 1])
+            merged_waveform = torch.cat(merged_parts, dim=-1)
+        tail_samples = int(max(0.0, float(tail_seconds)) * float(sr))
+        if tail_samples > 0:
+            merged_waveform = torch.cat(
+                [merged_waveform, torch.zeros((1, target_channels, tail_samples), dtype=merged_waveform.dtype)],
+                dim=-1,
+            )
+        return {"waveform": merged_waveform, "sample_rate": sr}
+
+    def _extract_audio_dict(self, result: Any) -> Dict[str, Any]:
+        if not result or not isinstance(result, tuple):
+            raise ValueError("Invalid output from node")
+        audio_dict = result[0]
+        if not isinstance(audio_dict, dict):
+            raise ValueError("Invalid audio output type")
+        if "waveform" not in audio_dict or "sample_rate" not in audio_dict:
+            raise ValueError("Missing waveform or sample_rate")
+        return audio_dict
+
     def _get_user_did(self, user_did: Optional[str]) -> Optional[str]:
         if user_did:
             return user_did
@@ -247,32 +434,177 @@ class QwenTTSWrapper:
         precision="bf16",
         language="Auto",
         seed=0,
-        max_new_tokens=2048,
+        max_new_tokens=4096,
         top_p=0.8,
         top_k=20,
         temperature=1.0,
         repetition_penalty=1.05,
         attention="auto",
         unload_model_after_generate=False,
+        lock_timbre_with_first_segment=False,
+        clone_batch_size=4,
+        progress_callback=None,
     ):
+        t0 = time.perf_counter()
+        segments = self._split_long_text(str(text), max_chars=200, hard_max_chars=260)
+        per_seg_tokens = int(max(1, int(max_new_tokens)))
+        try:
+            bs = int(clone_batch_size)
+        except Exception:
+            bs = 1
+        if bs < 1:
+            bs = 1
+        if bs > 16:
+            bs = 16
         node = VoiceDesignNode()
-        result = node.generate(
-            text=text,
-            instruct=instruct,
-            model_choice=model_choice,
-            device=device,
-            precision=precision,
-            language=language,
-            seed=seed,
-            max_new_tokens=max_new_tokens,
-            top_p=top_p,
-            top_k=top_k,
-            temperature=temperature,
-            repetition_penalty=repetition_penalty,
-            attention=attention,
-            unload_model_after_generate=unload_model_after_generate,
-        )
-        sr, wav = self._process_output(result)
+        audios = []
+        if callable(progress_callback):
+            try:
+                progress_callback(0, f"准备分段：{len(segments)} 段")
+            except Exception:
+                pass
+        lock_timbre = bool(lock_timbre_with_first_segment) and len(segments) > 1
+        if not lock_timbre:
+            model = load_qwen_model("VoiceDesign", model_choice, device, precision, attention, False, None, "")
+            mapped_lang = LANGUAGE_MAP.get(language, "auto")
+            done_count = 0
+            start_index = 0
+            while start_index < len(segments):
+                batch_texts = segments[start_index:start_index + bs]
+                if callable(progress_callback):
+                    try:
+                        pct = int(done_count * 100 / max(len(segments), 1))
+                        progress_callback(pct, f"生成音频：{done_count + 1}-{min(done_count + len(batch_texts), len(segments))}/{len(segments)}")
+                    except Exception:
+                        pass
+                try:
+                    wavs, sr = model.generate_voice_design(
+                        text=batch_texts,
+                        instruct=instruct,
+                        language=[mapped_lang] * len(batch_texts),
+                        max_new_tokens=per_seg_tokens,
+                        top_p=top_p,
+                        top_k=top_k,
+                        temperature=temperature,
+                        repetition_penalty=repetition_penalty,
+                    )
+                except RuntimeError as e:
+                    msg = str(e).lower()
+                    if ("out of memory" in msg or "cuda" in msg) and bs > 1:
+                        bs = max(1, bs // 2)
+                        continue
+                    raise
+                for w in wavs:
+                    waveform = torch.from_numpy(w).float()
+                    if waveform.ndim == 1:
+                        waveform = waveform.unsqueeze(0).unsqueeze(0)
+                    elif waveform.ndim == 2:
+                        waveform = waveform.unsqueeze(0)
+                    audios.append({"waveform": waveform, "sample_rate": sr})
+                    done_count += 1
+                start_index += len(batch_texts)
+        else:
+            if callable(progress_callback):
+                try:
+                    progress_callback(0, "生成首段（用于锁定音色）")
+                except Exception:
+                    pass
+            first_text = segments[0]
+            first_result = node.generate(
+                text=first_text,
+                instruct=instruct,
+                model_choice=model_choice,
+                device=device,
+                precision=precision,
+                language=language,
+                seed=int(seed),
+                max_new_tokens=per_seg_tokens,
+                top_p=top_p,
+                top_k=top_k,
+                temperature=temperature,
+                repetition_penalty=repetition_penalty,
+                attention=attention,
+                unload_model_after_generate=False,
+            )
+            first_audio = self._extract_audio_dict(first_result)
+            audios.append(first_audio)
+
+            if callable(progress_callback):
+                try:
+                    progress_callback(20, "提取首段音色特征")
+                except Exception:
+                    pass
+            prompt_node = VoiceClonePromptNode()
+            voice_clone_prompt = prompt_node.create_prompt(
+                ref_audio=first_audio,
+                ref_text=first_text,
+                model_choice=model_choice,
+                device=device,
+                precision=precision,
+                attention=attention,
+                x_vector_only=False,
+                unload_model_after_generate=False,
+            )[0]
+
+            model = load_qwen_model("Base", model_choice, device, precision, attention, False, None, "")
+            mapped_lang = LANGUAGE_MAP.get(language, "auto")
+
+            tail = segments[1:]
+
+            done_count = 1
+            start_index = 0
+            while start_index < len(tail):
+                batch_texts = tail[start_index:start_index + bs]
+                if callable(progress_callback):
+                    try:
+                        pct = 20 + int(done_count * 80 / max(len(segments), 1))
+                        progress_callback(pct, f"锁定音色生成：{done_count + 1}-{min(done_count + len(batch_texts), len(segments))}/{len(segments)}")
+                    except Exception:
+                        pass
+                try:
+                    wavs, sr = model.generate_voice_clone(
+                        text=batch_texts,
+                        language=[mapped_lang] * len(batch_texts),
+                        voice_clone_prompt=voice_clone_prompt,
+                        ref_text=first_text,
+                        x_vector_only_mode=False,
+                        max_new_tokens=per_seg_tokens,
+                        top_p=top_p,
+                        top_k=top_k,
+                        temperature=temperature,
+                        repetition_penalty=repetition_penalty,
+                    )
+                except RuntimeError as e:
+                    msg = str(e).lower()
+                    if ("out of memory" in msg or "cuda" in msg) and bs > 1:
+                        bs = 1
+                        continue
+                    raise
+
+                for w in wavs:
+                    waveform = torch.from_numpy(w).float()
+                    if waveform.ndim == 1:
+                        waveform = waveform.unsqueeze(0).unsqueeze(0)
+                    elif waveform.ndim == 2:
+                        waveform = waveform.unsqueeze(0)
+                    audios.append({"waveform": waveform, "sample_rate": sr})
+                    done_count += 1
+
+                start_index += len(batch_texts)
+        merged = self._merge_audio_dicts(audios, gap_seconds=0.4) if len(audios) > 1 else audios[0]
+        if unload_model_after_generate:
+            try:
+                unload_qwen_tts_models()
+            except Exception:
+                pass
+        sr, wav = self._process_output((merged,))
+        elapsed_s = time.perf_counter() - t0
+        logging.info("QwenTTS voice_design done: batch_size=%s, elapsed_s=%.3f", bs, elapsed_s)
+        if callable(progress_callback):
+            try:
+                progress_callback(100, f"完成，批次大小: {bs}，耗时: {elapsed_s:.3f}秒")
+            except Exception:
+                pass
         return self._save_wav(sr, wav, "tts_voice_design", user_did)
 
     @synchronized_execution
@@ -287,7 +619,7 @@ class QwenTTSWrapper:
         precision="bf16",
         language="Auto",
         seed=0,
-        max_new_tokens=2048,
+        max_new_tokens=4096,
         top_p=0.8,
         top_k=20,
         temperature=1.0,
@@ -296,29 +628,99 @@ class QwenTTSWrapper:
         attention="auto",
         unload_model_after_generate=False,
         custom_model_path="",
+        batch_size=4,
+        progress_callback=None,
     ):
-        clone_node = VoiceCloneNode()
+        t0 = time.perf_counter()
+        segments = self._split_long_text(str(target_text), max_chars=200, hard_max_chars=260)
+        per_seg_tokens = int(max(1, int(max_new_tokens)))
+        prompt_node = VoiceClonePromptNode()
         audio_dict = self._audio_input_to_comfy_audio(ref_audio)
-        result = clone_node.generate(
-            target_text=target_text,
+        if callable(progress_callback):
+            try:
+                progress_callback(0, "准备参考音频")
+            except Exception:
+                pass
+        voice_clone_prompt = prompt_node.create_prompt(
+            ref_audio=audio_dict,
+            ref_text=ref_text or "",
             model_choice=model_choice,
             device=device,
             precision=precision,
-            language=language,
-            ref_audio=audio_dict,
-            ref_text=ref_text or "",
-            seed=seed,
-            max_new_tokens=max_new_tokens,
-            top_p=top_p,
-            top_k=top_k,
-            temperature=temperature,
-            repetition_penalty=repetition_penalty,
-            x_vector_only=x_vector_only,
             attention=attention,
-            unload_model_after_generate=unload_model_after_generate,
-            custom_model_path=custom_model_path or "",
-        )
-        sr, wav = self._process_output(result)
+            x_vector_only=bool(x_vector_only),
+            unload_model_after_generate=False,
+        )[0]
+        if callable(progress_callback):
+            try:
+                progress_callback(5, f"提取声音特征，准备分段：{len(segments)} 段")
+            except Exception:
+                pass
+
+        model = load_qwen_model("Base", model_choice, device, precision, attention, False, None, custom_model_path or "")
+        mapped_lang = LANGUAGE_MAP.get(language, "auto")
+        try:
+            bs = int(batch_size)
+        except Exception:
+            bs = 1
+        if bs < 1:
+            bs = 1
+        if bs > 16:
+            bs = 16
+
+        audios = []
+        done_count = 0
+        start_index = 0
+        while start_index < len(segments):
+            batch_texts = segments[start_index:start_index + bs]
+            if callable(progress_callback):
+                try:
+                    pct = 5 + int(done_count * 95 / max(len(segments), 1))
+                    progress_callback(pct, f"生成音频：{done_count + 1}-{min(done_count + len(batch_texts), len(segments))}/{len(segments)}")
+                except Exception:
+                    pass
+            try:
+                wavs, sr = model.generate_voice_clone(
+                    text=batch_texts,
+                    language=[mapped_lang] * len(batch_texts),
+                    voice_clone_prompt=voice_clone_prompt,
+                    ref_text=(ref_text.strip() if isinstance(ref_text, str) and ref_text.strip() else None),
+                    x_vector_only_mode=bool(x_vector_only),
+                    max_new_tokens=per_seg_tokens,
+                    top_p=top_p,
+                    top_k=top_k,
+                    temperature=temperature,
+                    repetition_penalty=repetition_penalty,
+                )
+            except RuntimeError as e:
+                msg = str(e).lower()
+                if ("out of memory" in msg or "cuda" in msg) and bs > 1:
+                    bs = max(1, bs // 2)
+                    continue
+                raise
+            for w in wavs:
+                waveform = torch.from_numpy(w).float()
+                if waveform.ndim == 1:
+                    waveform = waveform.unsqueeze(0).unsqueeze(0)
+                elif waveform.ndim == 2:
+                    waveform = waveform.unsqueeze(0)
+                audios.append({"waveform": waveform, "sample_rate": sr})
+                done_count += 1
+            start_index += len(batch_texts)
+        merged = self._merge_audio_dicts(audios, gap_seconds=0.14) if len(audios) > 1 else audios[0]
+        if unload_model_after_generate:
+            try:
+                unload_qwen_tts_models()
+            except Exception:
+                pass
+        sr, wav = self._process_output((merged,))
+        elapsed_s = time.perf_counter() - t0
+        logging.info("QwenTTS voice_clone done: batch_size=%s, elapsed_s=%.3f", bs, elapsed_s)
+        if callable(progress_callback):
+            try:
+                progress_callback(100, f"完成，批次大小: {bs}，耗时: {elapsed_s:.3f}秒")
+            except Exception:
+                pass
         return self._save_wav(sr, wav, "tts_voice_clone", user_did)
 
     @synchronized_execution
@@ -333,7 +735,7 @@ class QwenTTSWrapper:
         language="Auto",
         seed=0,
         instruct="",
-        max_new_tokens=2048,
+        max_new_tokens=4096,
         top_p=0.8,
         top_k=20,
         temperature=1.0,
@@ -342,28 +744,85 @@ class QwenTTSWrapper:
         unload_model_after_generate=False,
         custom_model_path="",
         custom_speaker_name="",
+        batch_size=4,
+        progress_callback=None,
     ):
-        node = CustomVoiceNode()
-        result = node.generate(
-            text=text,
-            speaker=speaker,
-            model_choice=model_choice,
-            device=device,
-            precision=precision,
-            language=language,
-            seed=seed,
-            instruct=instruct or "",
-            max_new_tokens=max_new_tokens,
-            top_p=top_p,
-            top_k=top_k,
-            temperature=temperature,
-            repetition_penalty=repetition_penalty,
-            attention=attention,
-            unload_model_after_generate=unload_model_after_generate,
-            custom_model_path=custom_model_path or "",
-            custom_speaker_name=custom_speaker_name or "",
-        )
-        sr, wav = self._process_output(result)
+        t0 = time.perf_counter()
+        segments = self._split_long_text(str(text), max_chars=200, hard_max_chars=260)
+        per_seg_tokens = int(max(1, int(max_new_tokens)))
+        model = load_qwen_model("CustomVoice", model_choice, device, precision, attention, False, None, custom_model_path or "")
+        mapped_lang = LANGUAGE_MAP.get(language, "auto")
+        if custom_speaker_name and str(custom_speaker_name).strip():
+            target_speaker = str(custom_speaker_name).strip()
+        else:
+            target_speaker = ("" if speaker is None else str(speaker)).lower().replace(" ", "_")
+
+        try:
+            bs = int(batch_size)
+        except Exception:
+            bs = 1
+        if bs < 1:
+            bs = 1
+        if bs > 16:
+            bs = 16
+
+        audios = []
+        if callable(progress_callback):
+            try:
+                progress_callback(0, f"准备分段：{len(segments)} 段")
+            except Exception:
+                pass
+        done_count = 0
+        start_index = 0
+        while start_index < len(segments):
+            batch_texts = segments[start_index:start_index + bs]
+            if callable(progress_callback):
+                try:
+                    pct = int(done_count * 100 / max(len(segments), 1))
+                    progress_callback(pct, f"生成音频：{done_count + 1}-{min(done_count + len(batch_texts), len(segments))}/{len(segments)}")
+                except Exception:
+                    pass
+            try:
+                wavs, sr = model.generate_custom_voice(
+                    text=batch_texts,
+                    speaker=[target_speaker] * len(batch_texts),
+                    language=[mapped_lang] * len(batch_texts),
+                    instruct=(instruct if isinstance(instruct, str) and instruct.strip() else None),
+                    max_new_tokens=per_seg_tokens,
+                    top_p=top_p,
+                    top_k=top_k,
+                    temperature=temperature,
+                    repetition_penalty=repetition_penalty,
+                )
+            except RuntimeError as e:
+                msg = str(e).lower()
+                if ("out of memory" in msg or "cuda" in msg) and bs > 1:
+                    bs = max(1, bs // 2)
+                    continue
+                raise
+            for w in wavs:
+                waveform = torch.from_numpy(w).float()
+                if waveform.ndim == 1:
+                    waveform = waveform.unsqueeze(0).unsqueeze(0)
+                elif waveform.ndim == 2:
+                    waveform = waveform.unsqueeze(0)
+                audios.append({"waveform": waveform, "sample_rate": sr})
+                done_count += 1
+            start_index += len(batch_texts)
+        merged = self._merge_audio_dicts(audios, gap_seconds=0.14) if len(audios) > 1 else audios[0]
+        if unload_model_after_generate:
+            try:
+                unload_qwen_tts_models()
+            except Exception:
+                pass
+        sr, wav = self._process_output((merged,))
+        elapsed_s = time.perf_counter() - t0
+        logging.info("QwenTTS custom_voice done: batch_size=%s, elapsed_s=%.3f", bs, elapsed_s)
+        if callable(progress_callback):
+            try:
+                progress_callback(100, f"完成，批次大小: {bs}，耗时: {elapsed_s:.3f}秒")
+            except Exception:
+                pass
         return self._save_wav(sr, wav, "tts_custom_voice", user_did)
 
     @synchronized_execution
@@ -395,20 +854,42 @@ class QwenTTSWrapper:
         merge_outputs=True,
         batch_size=4,
         seed=0,
-        max_new_tokens_per_line=2048,
+        max_new_tokens_per_line=4096,
         top_p=0.8,
         top_k=20,
         temperature=1.0,
         repetition_penalty=1.05,
         attention="auto",
         unload_model_after_generate=False,
+        progress_callback=None,
     ):
+        t0 = time.perf_counter()
+        try:
+            bs = int(batch_size)
+        except Exception:
+            bs = 1
+        if bs < 1:
+            bs = 1
+        if bs > 16:
+            bs = 16
         prompt_node = VoiceClonePromptNode()
         role_bank_node = RoleBankNode()
         dialogue_node = DialogueInferenceNode()
 
         prompts = []
         names = []
+        if callable(progress_callback):
+            try:
+                progress_callback(0, "准备角色音色")
+            except Exception:
+                pass
+        role_items = [
+            (role_1_name, role_1_audio, role_1_ref_text),
+            (role_2_name, role_2_audio, role_2_ref_text),
+            (role_3_name, role_3_audio, role_3_ref_text),
+            (role_4_name, role_4_audio, role_4_ref_text),
+        ]
+        roles_with_audio = [(n, a, t) for (n, a, t) in role_items if n and a is not None]
         for role_name, role_audio, role_ref_text in [
             (role_1_name, role_1_audio, role_1_ref_text),
             (role_2_name, role_2_audio, role_2_ref_text),
@@ -429,6 +910,12 @@ class QwenTTSWrapper:
                 )[0]
                 prompts.append(prompt)
                 names.append(role_name)
+                if callable(progress_callback):
+                    try:
+                        pct = int(len(prompts) * 30 / max(len(roles_with_audio), 1))
+                        progress_callback(pct, f"准备角色音色：{len(prompts)}/{len(roles_with_audio)}")
+                    except Exception:
+                        pass
 
         kwargs = {}
         for i, (name, prompt) in enumerate(zip(names, prompts), start=1):
@@ -436,6 +923,11 @@ class QwenTTSWrapper:
             kwargs[f"prompt_{i}"] = prompt
         role_bank = role_bank_node.create_bank(**kwargs)[0]
 
+        if callable(progress_callback):
+            try:
+                progress_callback(40, "生成对话音频")
+            except Exception:
+                pass
         result = dialogue_node.generate_dialogue(
             script=script,
             role_bank=role_bank,
@@ -449,7 +941,7 @@ class QwenTTSWrapper:
             question_pause=question_pause,
             hyphen_pause=hyphen_pause,
             merge_outputs=merge_outputs,
-            batch_size=batch_size,
+            batch_size=bs,
             seed=seed,
             max_new_tokens_per_line=max_new_tokens_per_line,
             top_p=top_p,
@@ -459,7 +951,19 @@ class QwenTTSWrapper:
             attention=attention,
             unload_model_after_generate=unload_model_after_generate,
         )
+        if callable(progress_callback):
+            try:
+                progress_callback(90, "合并输出")
+            except Exception:
+                pass
         sr, wav = self._process_output(result)
+        elapsed_s = time.perf_counter() - t0
+        logging.info("QwenTTS dialogue done: batch_size=%s, elapsed_s=%.3f", bs, elapsed_s)
+        if callable(progress_callback):
+            try:
+                progress_callback(100, f"完成，批次大小: {bs}，耗时: {elapsed_s:.3f}秒")
+            except Exception:
+                pass
         return self._save_wav(sr, wav, "tts_dialogue", user_did)
 
     def _audio_input_to_comfy_audio(self, audio):
@@ -507,9 +1011,8 @@ class QwenTTSWrapper:
             elif isinstance(wav, np.ndarray):
                 wav = wav.squeeze()
                 
-            if isinstance(wav, np.ndarray) and wav.dtype == np.float32:
-                wav = np.clip(wav, -1.0, 1.0)
-                wav = (wav * 32767.0).astype(np.int16)
+            if isinstance(wav, np.ndarray) and np.issubdtype(wav.dtype, np.floating):
+                wav = np.clip(wav.astype(np.float32, copy=False), -1.0, 1.0)
             return (sr, wav)
         raise ValueError("Missing waveform or sample_rate")
 
