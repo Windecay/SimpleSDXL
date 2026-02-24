@@ -78,6 +78,15 @@ class PulidFluxModel(nn.Module):
 
     def from_pretrained(self, path: str):
         state_dict = comfy.utils.load_torch_file(path, safe_load=True)
+        float8_dtypes = []
+        for n in ("float8_e4m3fn", "float8_e5m2", "float8_e8m0fnu"):
+            dt = getattr(torch, n, None)
+            if dt is not None:
+                float8_dtypes.append(dt)
+        if float8_dtypes:
+            for k, v in state_dict.items():
+                if isinstance(v, torch.Tensor) and v.dtype in float8_dtypes:
+                    state_dict[k] = v.to(dtype=torch.float16)
         state_dict_dict = {}
         for k, v in state_dict.items():
             module = k.split('.')[0]
@@ -260,10 +269,23 @@ class ApplyPulidFlux:
         if model.model.manual_cast_dtype is not None:
             dtype = model.model.manual_cast_dtype
 
+        float8_dtypes = []
+        for n in ("float8_e4m3fn", "float8_e5m2", "float8_e8m0fnu"):
+            dt = getattr(torch, n, None)
+            if dt is not None:
+                float8_dtypes.append(dt)
+        if dtype in float8_dtypes:
+            use_bf16 = False
+            if device.type == "cuda" and hasattr(torch.cuda, "is_bf16_supported"):
+                use_bf16 = torch.cuda.is_bf16_supported()
+            dtype = torch.bfloat16 if use_bf16 else torch.float16
+
         eva_clip.to(device, dtype=dtype)
         pulid_flux.model.to(dtype=dtype)
-        model_management.load_models_gpu([pulid_flux], force_full_load=True)
+        force_full_load = not model_management.is_device_cpu(model_management.unet_offload_device())
+        model_management.load_models_gpu([pulid_flux], force_full_load=force_full_load)
         # model_management.load_model_gpu(pulid_flux)
+        pulid_flux.model.pulid_encoder.to(device, dtype=dtype)
 
         if attn_mask is not None:
             if attn_mask.dim() > 3:
@@ -362,6 +384,7 @@ class ApplyPulidFlux:
             cond.append(pulid_flux.model.get_embeds(id_cond, id_vit_hidden))
 
         eva_clip.to(torch.device('cpu'))
+        pulid_flux.model.pulid_encoder.to(torch.device('cpu'))
         if not cond:
             # No faces detected, return the original model
             logging.warning("PuLID warning: No faces detected in any of the given images, returning unmodified model.")
