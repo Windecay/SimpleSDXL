@@ -387,7 +387,7 @@ class QwenTTSWrapper:
         except Exception:
             return os.path.abspath("./outputs")
 
-    def _save_wav(self, sr: int, wav: Any, prefix: str, user_did: Optional[str]) -> str:
+    def _save_wav(self, sr: int, wav: Any, prefix: str, user_did: Optional[str], log_metadata: Optional[list] = None) -> str:
         user_did = self._get_user_did(user_did)
         base_dir = self._get_output_path_for_user(user_did)
 
@@ -420,6 +420,16 @@ class QwenTTSWrapper:
             wf.setsampwidth(2)
             wf.setframerate(int(sr))
             wf.writeframes(audio.tobytes())
+
+        try:
+            from modules.private_logger import log_audio_file
+
+            meta = list(log_metadata) if isinstance(log_metadata, list) else []
+            meta = [("File", "file", os.path.basename(out_path))] + meta
+            meta = [("Sample Rate", "sample_rate", int(sr)), ("Channels", "channels", channels)] + meta
+            log_audio_file(out_path, meta, user_did=user_did)
+        except Exception:
+            pass
 
         return out_path
 
@@ -605,7 +615,28 @@ class QwenTTSWrapper:
                 progress_callback(100, f"完成，批次大小: {bs}，耗时: {elapsed_s:.3f}秒")
             except Exception:
                 pass
-        return self._save_wav(sr, wav, "tts_voice_design", user_did)
+        return self._save_wav(
+            sr,
+            wav,
+            "tts_voice_design",
+            user_did,
+            log_metadata=[
+                ("Mode", "mode", "voice_design"),
+                ("Model", "model_choice", model_choice),
+                ("Language", "language", language),
+                ("Seed", "seed", seed),
+                ("Text", "text", text),
+                ("Instruct", "instruct", instruct),
+                ("Lock Timbre", "lock_timbre_with_first_segment", lock_timbre_with_first_segment),
+                ("Batch Size", "clone_batch_size", bs),
+                ("Max New Tokens", "max_new_tokens", max_new_tokens),
+                ("Top P", "top_p", top_p),
+                ("Top K", "top_k", top_k),
+                ("Temperature", "temperature", temperature),
+                ("Repetition Penalty", "repetition_penalty", repetition_penalty),
+                ("Elapsed(s)", "elapsed_s", f"{elapsed_s:.3f}"),
+            ],
+        )
 
     @synchronized_execution
     def voice_clone(
@@ -721,7 +752,28 @@ class QwenTTSWrapper:
                 progress_callback(100, f"完成，批次大小: {bs}，耗时: {elapsed_s:.3f}秒")
             except Exception:
                 pass
-        return self._save_wav(sr, wav, "tts_voice_clone", user_did)
+        return self._save_wav(
+            sr,
+            wav,
+            "tts_voice_clone",
+            user_did,
+            log_metadata=[
+                ("Mode", "mode", "voice_clone"),
+                ("Model", "model_choice", model_choice),
+                ("Language", "language", language),
+                ("Seed", "seed", seed),
+                ("Target Text", "target_text", target_text),
+                ("Ref Text", "ref_text", ref_text),
+                ("XVector Only", "x_vector_only", x_vector_only),
+                ("Batch Size", "batch_size", bs),
+                ("Max New Tokens", "max_new_tokens", max_new_tokens),
+                ("Top P", "top_p", top_p),
+                ("Top K", "top_k", top_k),
+                ("Temperature", "temperature", temperature),
+                ("Repetition Penalty", "repetition_penalty", repetition_penalty),
+                ("Elapsed(s)", "elapsed_s", f"{elapsed_s:.3f}"),
+            ],
+        )
 
     @synchronized_execution
     def custom_voice(
@@ -823,7 +875,29 @@ class QwenTTSWrapper:
                 progress_callback(100, f"完成，批次大小: {bs}，耗时: {elapsed_s:.3f}秒")
             except Exception:
                 pass
-        return self._save_wav(sr, wav, "tts_custom_voice", user_did)
+        return self._save_wav(
+            sr,
+            wav,
+            "tts_custom_voice",
+            user_did,
+            log_metadata=[
+                ("Mode", "mode", "custom_voice"),
+                ("Model", "model_choice", model_choice),
+                ("Language", "language", language),
+                ("Seed", "seed", seed),
+                ("Speaker", "speaker", speaker),
+                ("Custom Speaker", "custom_speaker_name", custom_speaker_name),
+                ("Text", "text", text),
+                ("Instruct", "instruct", instruct),
+                ("Batch Size", "batch_size", bs),
+                ("Max New Tokens", "max_new_tokens", max_new_tokens),
+                ("Top P", "top_p", top_p),
+                ("Top K", "top_k", top_k),
+                ("Temperature", "temperature", temperature),
+                ("Repetition Penalty", "repetition_penalty", repetition_penalty),
+                ("Elapsed(s)", "elapsed_s", f"{elapsed_s:.3f}"),
+            ],
+        )
 
     @synchronized_execution
     def dialogue(
@@ -964,7 +1038,35 @@ class QwenTTSWrapper:
                 progress_callback(100, f"完成，批次大小: {bs}，耗时: {elapsed_s:.3f}秒")
             except Exception:
                 pass
-        return self._save_wav(sr, wav, "tts_dialogue", user_did)
+        return self._save_wav(
+            sr,
+            wav,
+            "tts_dialogue",
+            user_did,
+            log_metadata=[
+                ("Mode", "mode", "dialogue"),
+                ("Model", "model_choice", model_choice),
+                ("Language", "language", language),
+                ("Seed", "seed", seed),
+                ("Role1", "role_1_name", role_1_name),
+                ("Role2", "role_2_name", role_2_name),
+                ("Role3", "role_3_name", role_3_name),
+                ("Role4", "role_4_name", role_4_name),
+                ("Script", "script", script),
+                ("Pause Linebreak", "pause_linebreak", pause_linebreak),
+                ("Period Pause", "period_pause", period_pause),
+                ("Comma Pause", "comma_pause", comma_pause),
+                ("Question Pause", "question_pause", question_pause),
+                ("Hyphen Pause", "hyphen_pause", hyphen_pause),
+                ("Batch Size", "batch_size", bs),
+                ("Max New Tokens/Line", "max_new_tokens_per_line", max_new_tokens_per_line),
+                ("Top P", "top_p", top_p),
+                ("Top K", "top_k", top_k),
+                ("Temperature", "temperature", temperature),
+                ("Repetition Penalty", "repetition_penalty", repetition_penalty),
+                ("Elapsed(s)", "elapsed_s", f"{elapsed_s:.3f}"),
+            ],
+        )
 
     def _audio_input_to_comfy_audio(self, audio):
         if audio is None:

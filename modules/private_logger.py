@@ -40,7 +40,7 @@ css_styles = (
     ".metadata .label { width: 15%; } "
     ".metadata .value { width: 85%; font-weight: bold; } "
     ".metadata th, .metadata td { border: 1px solid #4d4d4d; padding: 4px; } "
-    ".image-container img, .image-container video { height: auto; max-width: 512px; display: block; padding-right:10px; } "
+    ".image-container img, .image-container video, .image-container audio { height: auto; max-width: 512px; display: block; padding-right:10px; } "
     ".image-container div { text-align: center; padding: 4px; } "
     "hr { border-color: gray; } "
     "button { background-color: black; color: white; border: 1px solid grey; border-radius: 5px; padding: 5px 10px; text-align: center; display: inline-block; font-size: 16px; cursor: pointer; }"
@@ -78,15 +78,74 @@ end_part = f'\n<!--fooocus-log-split--></body></html>'
 
 def item_head_html(only_name):
     root, ext = os.path.splitext(only_name)
+    ext = ext.lower()
     is_video = ext in ['.mp4', '.webm']
+    is_audio = ext in ['.wav', '.mp3', '.flac', '.ogg', '.opus', '.m4a', '.aac']
 
     div_name = only_name.replace('.', '_')
     item_head = f"<div id=\"{div_name}\" class=\"image-container\"><hr><table><tr>\n"
     if is_video:
         item_head += f"<td><a href=\"{only_name}\" target=\"_blank\"><video src='{only_name}' controls width='512' onerror=\"this.closest('.image-container').style.display='none';\" loading='lazy'></video></a><div>{only_name}</div></td>"
+    elif is_audio:
+        item_head += f"<td><audio src='{only_name}' controls preload='none' style='width: 512px; height: 54px; display: block;' onerror=\"this.closest('.image-container').style.display='none';\"></audio><div><a href=\"{only_name}\" target=\"_blank\">{only_name}</a></div></td>"
     else:
         item_head += f"<td><a href=\"{only_name}\" target=\"_blank\"><img src='{only_name}' onerror=\"this.closest('.image-container').style.display='none';\" loading='lazy'/></a><div>{only_name}</div></td>"
     return item_head
+
+
+def log_audio_file(audio_path: str, metadata, user_did=None):
+    if not audio_path:
+        return audio_path
+    if args_manager.args.disable_image_log:
+        return audio_path
+
+    if not user_did:
+        user_did = shared.token.get_guest_did()
+
+    local_audio_path = os.path.abspath(audio_path)
+    out_dir = os.path.dirname(local_audio_path)
+    only_name = os.path.basename(local_audio_path)
+    date_string = os.path.basename(out_dir) if out_dir else ""
+    if not date_string:
+        date_string = "unknown"
+
+    begin_part = begin_part_html(date_string)
+    html_name = os.path.join(out_dir, "log.html")
+
+    middle_part = log_cache.get(html_name, "")
+    if middle_part == "":
+        if os.path.exists(html_name):
+            existing_split = open(html_name, "r", encoding="utf-8").read().split("<!--fooocus-log-split-->")
+            if len(existing_split) == 3:
+                middle_part = existing_split[1]
+            else:
+                middle_part = existing_split[0]
+
+    item_head = item_head_html(only_name)
+
+    item = "<td><table class='metadata'>"
+    for label, key, value in metadata or []:
+        value_txt = str(value)
+        if len(value_txt) > 2000:
+            value_txt = value_txt[:2000] + "..."
+        value_txt = value_txt.replace("\n", " </br> ")
+        item += f"<tr><td class='label'>{label}</td><td class='value'>{value_txt}</td></tr>\n"
+    item += "</table>"
+    item += "</td>"
+    item += "</tr></table></div>\n\n"
+
+    middle_part = item_head + item + middle_part
+
+    with open(html_name, "w", encoding="utf-8") as f:
+        f.write(begin_part + middle_part + end_part)
+
+    log_cache[html_name] = middle_part
+    try:
+        log_ext(local_audio_path)
+    except Exception:
+        pass
+
+    return audio_path
 
 def log(img, metadata, metadata_parser: MetadataParser | None = None, output_format=None, task=None, persist_image=True, user_did=None, remote_task=None):
     global css_styles, js, end_part
