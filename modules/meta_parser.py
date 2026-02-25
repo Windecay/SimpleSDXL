@@ -601,7 +601,7 @@ def get_welcome_image(preset=None, is_mobile=False, is_change=False, no_welcome=
     return file_welcome
 
 
-def load_parameter_button_click(raw_metadata: dict | str, is_generating: bool, inpaint_mode: str, no_welcome=False):
+def load_parameter_button_click(raw_metadata: dict | str, is_generating: bool, inpaint_mode: str, use_resolution_override: bool = False, no_welcome=False):
     loaded_parameter_dict = raw_metadata
     if isinstance(raw_metadata, str):
         loaded_parameter_dict = json.loads(raw_metadata)
@@ -621,7 +621,7 @@ def load_parameter_button_click(raw_metadata: dict | str, is_generating: bool, i
     performance = get_str('performance', 'Performance', loaded_parameter_dict, results)
     get_steps('steps', 'Steps', loaded_parameter_dict, results)
     get_number('overwrite_switch', 'Overwrite Switch', loaded_parameter_dict, results)
-    get_resolution('resolution', 'Resolution', loaded_parameter_dict, results)
+    get_resolution('resolution', 'Resolution', loaded_parameter_dict, results, use_resolution_override=use_resolution_override)
     get_number('guidance_scale', 'Guidance Scale', loaded_parameter_dict, results)
     get_number('sharpness', 'Sharpness', loaded_parameter_dict, results)
     get_adm_guidance('adm_guidance', 'ADM Guidance', loaded_parameter_dict, results)
@@ -727,7 +727,7 @@ def get_steps(key: str, fallback: str | None, source_dict: dict, results: list, 
         results.append(-1)
 
 
-def get_resolution(key: str, fallback: str | None, source_dict: dict, results: list, default=None):
+def get_resolution(key: str, fallback: str | None, source_dict: dict, results: list, default=None, use_resolution_override=False):
     try:
         h = source_dict.get(key, source_dict.get(fallback, default))
         width, height = eval(h)
@@ -741,8 +741,12 @@ def get_resolution(key: str, fallback: str | None, source_dict: dict, results: l
         if formatted in modules.flags.available_aspect_ratios_list[template]:
             h = f'{formatted},{template}'
             results.append(h)
-            results.append(-1)
-            results.append(-1)
+            if use_resolution_override:
+                results.append(int(width))
+                results.append(int(height))
+            else:
+                results.append(-1)
+                results.append(-1)
         else:
             results.append(gr.update())
             results.append(int(width))

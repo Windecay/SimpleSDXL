@@ -819,3 +819,190 @@ function setupSam3AutoTranslate() {
 }
 
 onUiLoaded(setupSam3AutoTranslate);
+
+function _ro_getSliderValue(elemId) {
+    const root = gradioApp().getElementById(elemId);
+    if (!root) return null;
+    const numberInput = root.querySelector('input[type="number"]');
+    const rangeInput = root.querySelector('input[type="range"]');
+    const raw = (numberInput?.value ?? rangeInput?.value);
+    const v = parseInt(raw, 10);
+    return Number.isFinite(v) ? v : null;
+}
+
+function _ro_setSliderValue(elemId, value) {
+    const root = gradioApp().getElementById(elemId);
+    if (!root) return false;
+    const numberInput = root.querySelector('input[type="number"]');
+    const rangeInput = root.querySelector('input[type="range"]');
+    const v = String(value);
+    if (rangeInput) {
+        rangeInput.value = v;
+        rangeInput.dispatchEvent(new Event('input', { bubbles: true }));
+        rangeInput.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    if (numberInput) {
+        numberInput.value = v;
+        numberInput.dispatchEvent(new Event('input', { bubbles: true }));
+        numberInput.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    return true;
+}
+
+function _ro_gcd(a, b) {
+    a = Math.abs(a);
+    b = Math.abs(b);
+    while (b) {
+        const t = b;
+        b = a % b;
+        a = t;
+    }
+    return a || 1;
+}
+
+function initResolutionOverrideWidget() {
+    const widget = gradioApp().getElementById('resolution_override_widget');
+    if (!widget) return;
+    if (widget.dataset.initialized === '1') {
+        if (typeof widget.__ro_sync === 'function') {
+            widget.__ro_sync();
+        }
+        return;
+    }
+
+    const pad = widget.querySelector('[data-role="pad"]');
+    const rect = widget.querySelector('[data-role="rect"]');
+    const wInput = widget.querySelector('[data-role="winput"]');
+    const hInput = widget.querySelector('[data-role="hinput"]');
+    if (!pad || !rect || !wInput || !hInput) return;
+
+    const syncFromSliders = () => {
+        const w = _ro_getSliderValue('overwrite_width');
+        const h = _ro_getSliderValue('overwrite_height');
+
+        const enabled = (w != null && h != null && w > 0 && h > 0);
+        if (!enabled) {
+            wInput.value = '-1';
+            hInput.value = '-1';
+            rect.style.width = Math.round(pad.clientWidth * 0.5) + 'px';
+            rect.style.height = Math.round(pad.clientHeight * 0.5) + 'px';
+            rect.style.left = '0px';
+            rect.style.top = '0px';
+            return;
+        }
+
+        wInput.value = String(w);
+        hInput.value = String(h);
+
+        const pw = Math.max(1, pad.clientWidth);
+        const ph = Math.max(1, pad.clientHeight);
+        const maxSide = 2048;
+        const dw = Math.max(6, Math.round((w / maxSide) * pw));
+        const dh = Math.max(6, Math.round((h / maxSide) * ph));
+        rect.style.width = dw + 'px';
+        rect.style.height = dh + 'px';
+        rect.style.left = '0px';
+        rect.style.top = '0px';
+    };
+
+    const setFromPointer = (clientX, clientY) => {
+        const r = pad.getBoundingClientRect();
+        const x = Math.max(0, Math.min(r.width, clientX - r.left));
+        const y = Math.max(0, Math.min(r.height, clientY - r.top));
+        const maxSide = 2048;
+        const minSide = 512;
+        const step = 8;
+
+        let w = Math.round((x / Math.max(1, r.width)) * maxSide);
+        let h = Math.round((y / Math.max(1, r.height)) * maxSide);
+        w = Math.max(minSide, Math.min(maxSide, w));
+        h = Math.max(minSide, Math.min(maxSide, h));
+        w = Math.round(w / step) * step;
+        h = Math.round(h / step) * step;
+        if (w < minSide) w = minSide;
+        if (h < minSide) h = minSide;
+
+        _ro_setSliderValue('overwrite_width', w);
+        _ro_setSliderValue('overwrite_height', h);
+        syncFromSliders();
+    };
+
+    const disable = () => {
+        _ro_setSliderValue('overwrite_width', -1);
+        _ro_setSliderValue('overwrite_height', -1);
+        syncFromSliders();
+    };
+
+    const commitManualInput = () => {
+        const w = parseInt(wInput.value, 10);
+        const h = parseInt(hInput.value, 10);
+        const clamp = (v) => {
+            if (!Number.isFinite(v)) return -1;
+            if (v <= 0) return -1;
+            if (v < 512) return 512;
+            if (v > 2048) return 2048;
+            return Math.round(v / 8) * 8;
+        };
+        const wv = clamp(w);
+        const hv = clamp(h);
+        _ro_setSliderValue('overwrite_width', wv);
+        _ro_setSliderValue('overwrite_height', hv);
+        syncFromSliders();
+    };
+
+    wInput.addEventListener('change', commitManualInput);
+    hInput.addEventListener('change', commitManualInput);
+
+    const widthRoot = gradioApp().getElementById('overwrite_width');
+    const heightRoot = gradioApp().getElementById('overwrite_height');
+    for (const root of [widthRoot, heightRoot]) {
+        if (!root) continue;
+        const rangeInput = root.querySelector('input[type="range"]');
+        const numberInput = root.querySelector('input[type="number"]');
+        rangeInput?.addEventListener('input', syncFromSliders);
+        numberInput?.addEventListener('input', syncFromSliders);
+        rangeInput?.addEventListener('change', syncFromSliders);
+        numberInput?.addEventListener('change', syncFromSliders);
+    }
+
+    let dragging = false;
+    const onMove = (e) => {
+        if (!dragging) return;
+        if (e.touches && e.touches.length) {
+            setFromPointer(e.touches[0].clientX, e.touches[0].clientY);
+        } else {
+            setFromPointer(e.clientX, e.clientY);
+        }
+    };
+    const onUp = () => {
+        dragging = false;
+        window.removeEventListener('pointermove', onMove, true);
+        window.removeEventListener('pointerup', onUp, true);
+        window.removeEventListener('touchmove', onMove, true);
+        window.removeEventListener('touchend', onUp, true);
+    };
+
+    const onDown = (e) => {
+        dragging = true;
+        if (e.touches && e.touches.length) {
+            setFromPointer(e.touches[0].clientX, e.touches[0].clientY);
+        } else {
+            setFromPointer(e.clientX, e.clientY);
+        }
+        window.addEventListener('pointermove', onMove, true);
+        window.addEventListener('pointerup', onUp, true);
+        window.addEventListener('touchmove', onMove, true);
+        window.addEventListener('touchend', onUp, true);
+    };
+
+    pad.addEventListener('pointerdown', onDown, { passive: true });
+    pad.addEventListener('touchstart', onDown, { passive: true });
+    pad.addEventListener('dblclick', disable);
+
+    widget.dataset.initialized = '1';
+    widget.__ro_sync = syncFromSliders;
+    syncFromSliders();
+}
+
+onUiLoaded(initResolutionOverrideWidget);
+onAfterUiUpdate(initResolutionOverrideWidget);

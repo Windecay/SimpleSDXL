@@ -2444,22 +2444,49 @@ with shared.gradio_root:
                         image_number = gr.Slider(label='Image Number', minimum=1, maximum=modules.config.default_max_image_number, step=1, value=modules.config.default_image_number)
                         with gr.Accordion(label='Aspect Ratios', open=False, elem_id='aspect_ratios_accordion') as aspect_ratios_accordion:
                             aspect_ratios_selection = gr.Textbox(value='', visible=False) 
-                            random_aspect_ratio_checkbox = gr.Checkbox(label='Random Aspect Ratio', value=False)
+                            with gr.Row():
+                                random_aspect_ratio_checkbox = gr.Checkbox(label='Random Aspect Ratio', value=False)
+                                use_resolution_override_checkbox = gr.Checkbox(label='Resolution Box', value=False)
                             aspect_ratios_selections = []
                             for template in flags.aspect_ratios_templates:
                                 aspect_ratios_selections.append(gr.Radio(label='aspect ratios', choices=flags.available_aspect_ratios_list[template], value=flags.default_aspect_ratios[template], visible= template=='SDXL', info='Vertical(9:16), Portrait(4:5), Photo(4:3), Landscape(3:2), Widescreen(16:9), Cinematic(21:9)', elem_classes='aspect_ratios'))
 
-                            overwrite_width = gr.Slider(label='Forced Overwrite of Generating Width',
-                                                    minimum=-1, maximum=2048, step=1, value=-1,
-                                                    info='Set as -1 to disable. For developer debugging. '
-                                                         'Results will be worse for non-standard numbers that SDXL is not trained on.')
-                            overwrite_height = gr.Slider(label='Forced Overwrite of Generating Height',
-                                                     minimum=-1, maximum=2048, step=1, value=-1)
+                            resolution_override = gr.HTML(
+                                value="""
+                                <div id="resolution_override_widget" style="display:flex; flex-direction:column; gap:12px; padding:12px; border:1px solid var(--neutral-700); border-radius:12px; width:100%; margin:0 auto; align-items:center;">
+                                  <div style="display:flex; gap:10px; align-items:center; justify-content:center; flex-wrap:wrap; width:100%;">
+                                    <label style="display:flex; gap:6px; align-items:center; font-size:12px; opacity:0.9;">
+                                      W
+                                      <input data-role="winput" type="number" min="-1" max="2048" step="8" value="-1" style="width:96px; padding:6px 8px; border-radius:8px; border:1px solid var(--neutral-700); background:var(--neutral-900); color:inherit;" />
+                                    </label>
+                                    <label style="display:flex; gap:6px; align-items:center; font-size:12px; opacity:0.9;">
+                                      H
+                                      <input data-role="hinput" type="number" min="-1" max="2048" step="8" value="-1" style="width:96px; padding:6px 8px; border-radius:8px; border:1px solid var(--neutral-700); background:var(--neutral-900); color:inherit;" />
+                                    </label>
+                                  </div>
+                                  <div data-role="pad" style="position:relative; width:min(520px, 100%); aspect-ratio:1/1; height:auto; border-radius:12px; border:1px solid var(--neutral-700); background:radial-gradient(circle at 1px 1px, rgba(255,255,255,0.07) 1px, transparent 1px) 0 0 / 18px 18px; overflow:hidden; user-select:none; touch-action:none; margin:0 auto;">
+                                    <div data-role="rect" style="position:absolute; left:0; top:0; width:110px; height:110px; background:rgba(255,255,255,0.08); border:2px solid rgba(255,255,255,0.35); border-radius:8px; box-sizing:border-box;">
+                                      <div data-role="handle" style="position:absolute; right:0; bottom:0; width:14px; height:14px; border-radius:50%; background:rgba(255,255,255,0.75); border:2px solid rgba(0,0,0,0.35); box-sizing:border-box; transform:translate(50%, 50%);"></div>
+                                    </div>
+                                  </div>
+                                </div>
+                                """
+                                , visible=False
+                            )
+                            overwrite_width = gr.Slider(
+                                label='Forced Overwrite of Generating Width',
+                                minimum=-1, maximum=2048, step=1, value=-1,
+                                visible=False,
+                                elem_id="overwrite_width",
+                                info='Set as -1 to disable. For developer debugging. Results will be worse for non-standard numbers that SDXL is not trained on.'
+                            )
+                            overwrite_height = gr.Slider(
+                                label='Forced Overwrite of Generating Height',
+                                minimum=-1, maximum=2048, step=1, value=-1,
+                                visible=False,
+                                elem_id="overwrite_height",
+                            )
 
-                            for aspect_ratios_select in aspect_ratios_selections:
-                                aspect_ratios_select.change(lambda x: x, inputs=aspect_ratios_select, outputs=aspect_ratios_selection, queue=False, show_progress=False) \
-                                    .then(lambda x: None, inputs=aspect_ratios_select, queue=False, show_progress=False, _js='(x)=>{refresh_aspect_ratios_label(x);}') \
-                                    .then(lambda: [gr.update(value=-1), gr.update(value=-1)], outputs=[overwrite_width, overwrite_height], queue=False, show_progress=False)
                             def select_random_aspect_ratio(use_random, current_template='SDXL'):
                                 if use_random:
                                     available_ratios = flags.available_aspect_ratios_list[current_template]
@@ -2481,8 +2508,9 @@ with shared.gradio_root:
                                     last_preset_ratio = ratio_value
                                 return ratio_value
 
-                            for aspect_ratios_select in aspect_ratios_selections:
-                                aspect_ratios_select.change(save_selected_preset_ratio, inputs=aspect_ratios_select, outputs=aspect_ratios_selection, queue=False, show_progress=False) \
+                            for i, aspect_ratios_select in enumerate(aspect_ratios_selections):
+                                template = flags.aspect_ratios_templates[i]
+                                aspect_ratios_select.change(lambda x, t=template: save_selected_preset_ratio(f"{x},{t}"), inputs=aspect_ratios_select, outputs=aspect_ratios_selection, queue=False, show_progress=False) \
                                     .then(lambda x: None, inputs=aspect_ratios_select, queue=False, show_progress=False, _js='(x)=>{refresh_aspect_ratios_label(x);}') \
                                     .then(lambda: [gr.update(value=-1), gr.update(value=-1)], outputs=[overwrite_width, overwrite_height], queue=False, show_progress=False)
 
@@ -2506,7 +2534,7 @@ with shared.gradio_root:
                                          value=modules.config.default_output_format)
 
                         negative_prompt = gr.Textbox(label='Negative Prompt', show_label=True, placeholder="Type prompt here.", lines=2,
-                                             elem_id='negative_prompt', value=modules.config.default_prompt_negative)
+                                             elem_id='negative_prompt', value=modules.config.default_prompt_negative, visible=False)
                         seed_random = gr.Checkbox(label='Random', value=True)
                         image_seed = gr.Textbox(label='Seed', value=0, max_lines=1, visible=False) # workaround for https://github.com/gradio-app/gradio/issues/5354
 
@@ -2521,6 +2549,7 @@ with shared.gradio_root:
                     quick_enhance.change(fn=lambda x: [x, 'Upscale (1.5x)' if x else 'Disabled', gr.update(visible=x, value=0.2)],
                                         inputs=quick_enhance,outputs=[enhance_checkbox, enhance_uov_method, quick_enhance_uov_strength], queue=False, show_progress=False)
                     quick_enhance_uov_strength.change(fn=lambda x: x,inputs=quick_enhance_uov_strength,outputs=enhance_uov_strength, queue=False, show_progress=False)
+
                 with gr.Tab(label="Advanced"):
                     with gr.Group():
                         guidance_scale = gr.Slider(label='Guidance Scale', minimum=0.01, maximum=30.0, step=0.01,
@@ -3409,14 +3438,26 @@ with shared.gradio_root:
                                      ], queue=False, show_progress=False)
 
         
-        def reset_aspect_ratios(aspect_ratios):
-            if len(aspect_ratios.split(','))>1:
+        def reset_aspect_ratios(aspect_ratios, use_resolution_override):
+            if use_resolution_override:
+                return [gr.update(visible=False)] * len(flags.aspect_ratios_templates)
+
+            template = None
+            if len(aspect_ratios.split(',')) > 1:
                 template = aspect_ratios.split(',')[1]
                 aspect_ratios = aspect_ratios.split(',')[0]
+            else:
+                template = 'SDXL'
+
+            if template:
                 results = []
+                is_hit = False
                 for aspect_ratio_name in flags.aspect_ratios_templates:
                     if template == aspect_ratio_name:
-                        results.append(gr.update(value=aspect_ratios, visible=True))
+                        if aspect_ratios:
+                            results.append(gr.update(value=aspect_ratios, visible=True))
+                        else:
+                            results.append(gr.update(visible=True))
                         is_hit = True
                     else:
                         results.append(gr.update(visible=False))
@@ -3427,7 +3468,36 @@ with shared.gradio_root:
             return results
 
 
-        aspect_ratios_selection.change(reset_aspect_ratios, inputs=aspect_ratios_selection, outputs=aspect_ratios_selections, queue=False, show_progress=False).then(lambda x: None, inputs=aspect_ratios_selection, queue=False, show_progress=False, _js='(x)=>{refresh_aspect_ratios_label(x);}')
+        aspect_ratios_selection.change(reset_aspect_ratios, inputs=[aspect_ratios_selection, use_resolution_override_checkbox], outputs=aspect_ratios_selections, queue=False, show_progress=False).then(lambda x: None, inputs=aspect_ratios_selection, queue=False, show_progress=False, _js='(x)=>{refresh_aspect_ratios_label(x);}')
+
+        def toggle_resolution_override(use_override, aspect_ratios):
+            aspect_updates = reset_aspect_ratios(aspect_ratios, use_override)
+            
+            w_val = -1
+            h_val = -1
+            if use_override:
+                try:
+                    res = aspect_ratios.split(',')[0]
+                    if '×' in res:
+                        width_height = res.split('×')
+                        w_val = int(width_height[0].strip())
+                        h_val = int(width_height[1].split(' ')[0].strip())
+                    elif '*' in res:
+                        parts = res.split('*')
+                        w_val = int(parts[0])
+                        h_val = int(parts[1])
+                except Exception as e:
+                    pass
+            
+            return [gr.update(visible=use_override)] + aspect_updates + [gr.update(value=w_val), gr.update(value=h_val)]
+
+        use_resolution_override_checkbox.change(
+            toggle_resolution_override,
+            inputs=[use_resolution_override_checkbox, aspect_ratios_selection],
+            outputs=[resolution_override] + aspect_ratios_selections + [overwrite_width, overwrite_height],
+            queue=False,
+            show_progress=False
+        )
 
 
         output_format.input(lambda x: gr.update(output_format=x), inputs=output_format)
@@ -4168,7 +4238,7 @@ with shared.gradio_root:
     topbar.reset_layout_num = len(reset_layout_ui_outputs) - len(nav_bars)
     topbar.reset_layout_ui_outputs_len = len(reset_layout_ui_outputs)
     reset_preset_inputs = [prompt, negative_prompt, state_topbar, state_is_generating, inpaint_mode, comfyd_active_checkbox]
-    reset_values_inputs = [state_topbar, state_is_generating, inpaint_mode]
+    reset_values_inputs = [state_topbar, state_is_generating, inpaint_mode, use_resolution_override_checkbox]
 
     for i in range(shared.BUTTON_NUM):
         bar_buttons[i].click(topbar.reset_layout_ui, inputs=reset_preset_inputs + [bar_buttons[i]], outputs=reset_layout_ui_outputs + [state_topbar, comparison_state, comparison_box, progress_gallery, compare_btn, progress_window], show_progress=False) \

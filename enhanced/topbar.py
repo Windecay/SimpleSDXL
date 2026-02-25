@@ -995,7 +995,7 @@ def reset_layout_ui(prompt, negative_prompt, state_params, is_generating, inpain
     
     return results + [state_params] + comparison_outputs
 
-def reset_layout_values(state_params, is_generating, inpaint_mode):
+def reset_layout_values(state_params, is_generating, inpaint_mode, use_resolution_override):
     preset = state_params["__preset"]
 
     preset_prepared = state_params.get('__preset_prepared', None)
@@ -1009,7 +1009,7 @@ def reset_layout_values(state_params, is_generating, inpaint_mode):
             'task_method': task_method,
             'is_mobile': state_params["__is_mobile"] })
 
-    results = meta_parser.load_parameter_button_click(preset_prepared, is_generating, inpaint_mode, no_welcome=ads.get_admin_default("no_welcome_checkbox"))
+    results = meta_parser.load_parameter_button_click(preset_prepared, is_generating, inpaint_mode, use_resolution_override, no_welcome=ads.get_admin_default("no_welcome_checkbox"))
     results += update_after_identity_sub(state_params)
 
     reset_ui_results = [None, None, None] + \
