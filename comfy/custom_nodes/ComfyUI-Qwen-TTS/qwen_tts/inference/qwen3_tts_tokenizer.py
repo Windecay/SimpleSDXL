@@ -369,8 +369,125 @@ class Qwen3TTSTokenizer:
             else:
                 raise ValueError(f"Unknown model type: {model_type}")
 
+        fs = int(self.model.get_output_sample_rate())
         wavs = [w.to(torch.float32).detach().cpu().numpy() for w in wav_tensors]
-        return wavs, int(self.model.get_output_sample_rate())
+
+        def _suppress_ringing_in_silences(x: np.ndarray, sr: int) -> np.ndarray:
+            a = np.asarray(x, dtype=np.float32)
+            if a.ndim != 1:
+                return a
+            n = int(a.size)
+            if n < int(0.3 * sr):
+                return a
+            a = np.clip(a, -1.0, 1.0, out=a)
+
+            frame = max(128, int(0.02 * sr))
+            hop = max(64, int(0.01 * sr))
+            if n < frame:
+                return a
+            count = 1 + (n - frame) // hop
+            rms = np.empty((count,), dtype=np.float32)
+            for i in range(count):
+                s = i * hop
+                w = a[s : s + frame]
+                rms[i] = float(np.sqrt(np.mean(w * w) + 1e-12))
+
+            rms_max = float(np.max(rms))
+            if not np.isfinite(rms_max) or rms_max <= 0.0:
+                return a
+
+            speech_thr = max(0.02 * rms_max, 0.0025)
+            gate_thr = max(0.20 * speech_thr, 0.00035)
+            speech = rms > speech_thr
+            if not bool(np.any(speech)):
+                return a
+
+            speech_idx = np.flatnonzero(speech)
+            segments = []
+            s0 = int(speech_idx[0])
+            prev = int(speech_idx[0])
+            for idx in speech_idx[1:]:
+                idx = int(idx)
+                if idx == prev + 1:
+                    prev = idx
+                    continue
+                segments.append((s0, prev))
+                s0 = idx
+                prev = idx
+            segments.append((s0, prev))
+
+            out = a
+            modified = False
+
+            def _frame_to_sample(i: int) -> int:
+                return int(i * hop)
+
+            def _cleanup_interval(start_s: int, end_s: int) -> None:
+                nonlocal out, modified
+                is_end_clip = end_s >= n
+                min_keep = int((0.03 if is_end_clip else 0.06) * sr)
+                if end_s <= start_s + min_keep:
+                    return
+                i0 = max(0, start_s // hop)
+                i1 = min(count - 1, max(0, (end_s - frame) // hop))
+                if i1 <= i0:
+                    return
+
+                win_len = min(int(0.5 * sr // hop), i1 - i0 + 1)
+                if win_len <= 0:
+                    return
+                max_win = float(np.max(rms[i0 : i0 + win_len]))
+                if max_win < gate_thr:
+                    if not is_end_clip:
+                        return
+                    if max_win < 0.0004:
+                        return
+                    ring_end = end_s
+
+                if max_win >= gate_thr:
+                    need = 4
+                    below = rms[i0 : i1 + 1] < gate_thr
+                    ring_end_frame = None
+                    run = 0
+                    for j, b in enumerate(below):
+                        if bool(b):
+                            run += 1
+                            if run >= need:
+                                ring_end_frame = i0 + j - need + 1
+                                break
+                        else:
+                            run = 0
+
+                    if ring_end_frame is None:
+                        ring_end = end_s if is_end_clip else min(end_s, start_s + int(0.80 * sr))
+                    else:
+                        ring_end = min(end_s, _frame_to_sample(ring_end_frame) + frame)
+
+                if ring_end <= start_s + int(0.02 * sr):
+                    return
+
+                out_seg = out.copy() if not modified else out
+                fade_n = int(0.020 * sr)
+                fade_n = max(16, min(fade_n, ring_end - start_s))
+                ramp = np.linspace(1.0, 0.0, fade_n, dtype=np.float32)
+                out_seg[start_s : start_s + fade_n] *= ramp
+                out_seg[start_s + fade_n : ring_end] = 0.0
+                out = out_seg
+                modified = True
+
+            for i, (seg_s0, seg_s1) in enumerate(segments):
+                end_speech = min(n, _frame_to_sample(seg_s1) + frame)
+                next_start = n
+                if i + 1 < len(segments):
+                    next_start = max(0, _frame_to_sample(segments[i + 1][0]))
+                start_sil = min(n, end_speech + int(0.005 * sr))
+                end_sil = int(next_start)
+                _cleanup_interval(start_sil, end_sil)
+
+            return out
+
+        wavs = [_suppress_ringing_in_silences(w, fs) for w in wavs]
+        return wavs, fs
 
     def get_model_type(self) -> str:
         """

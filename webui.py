@@ -1377,7 +1377,7 @@ with shared.gradio_root:
                                     qwen_design_style_preset_choices = gr.Dropdown(label="Character Presets", choices=list(qwen_tts_style_presets.keys()), value=None, show_label=True, elem_classes="qwen_tts_stack_item")
                             with gr.Row():
                                 with gr.Column(scale=4):
-                                    qwen_design_style_preset_name = gr.Textbox(label="Character Name", lines=1, placeholder="给你的角色/风格起个名字")
+                                    qwen_design_style_preset_name = gr.Textbox(label="Character Name", lines=1, placeholder="Character Name for Your Role/Style")
                                 with gr.Column(scale=1, elem_classes="qwen_tts_preset_stack"):
                                     qwen_design_style_preset_save_btn = gr.Button(value="Save Character", elem_classes=["type_row_half", "qwen_tts_stack_item"], size="sm", min_width=70)
                                     qwen_design_style_preset_delete_btn = gr.Button(value="Delete Character", elem_classes=["type_row_half", "qwen_tts_stack_item"], size="sm", min_width=70)
@@ -1459,7 +1459,7 @@ with shared.gradio_root:
                             qwen_custom_batch_size = gr.Slider(label="Batch size", minimum=1, maximum=16, step=1, value=4)
                             with gr.Row():
                                 with gr.Column(scale=4):
-                                    qwen_custom_style_preset_name = gr.Textbox(label="Character Name", lines=1, placeholder="给你的角色/风格起个名字", elem_classes="qwen_tts_stack_item")
+                                    qwen_custom_style_preset_name = gr.Textbox(label="Character Name", lines=1, placeholder="Character Name for Your Role/Style", elem_classes="qwen_tts_stack_item")
                                 with gr.Column(scale=1, elem_classes="qwen_tts_preset_stack"):   
                                     qwen_custom_style_preset_save_btn = gr.Button(value="Save Character", elem_classes=["type_row_half", "qwen_tts_stack_item"], size="sm", min_width=70)
                                     qwen_custom_style_preset_delete_btn = gr.Button(value="Delete Character", elem_classes=["type_row_half", "qwen_tts_stack_item"], size="sm", min_width=70)
@@ -1857,28 +1857,6 @@ with shared.gradio_root:
                                 unload_models_clicked(False)
                             except Exception:
                                 pass
-
-                        def _qwen_call(handler_fn, seed_random, seed, unload, state_params, **kwargs):
-                            try:
-                                seed_int = int(seed)
-                            except Exception:
-                                seed_int = 0
-                            result = None
-                            interrupted = False
-                            try:
-                                used_seed = _resolve_tts_seed(seed, seed_random)
-                                audio_path = webui_qwen_tts.enqueue_task(handler_fn, user_did=_get_user_did_from_state(state_params), seed=int(used_seed), **kwargs)
-                                _qwen_after_unload(unload)
-                                result = (audio_path, used_seed, "")
-                            except Exception as e:
-                                interrupted = _qwen_is_interrupt_exception(e)
-                                if interrupted:
-                                    result = (gr.update(value=None), seed_int, "已中断。")
-                                else:
-                                    result = (gr.update(value=None), seed_int, f"生成失败：{type(e).__name__}: {e}")
-                            if interrupted:
-                                _qwen_after_unload(unload)
-                            return result
 
                         def _qwen_call_progress(handler_fn, seed_random, seed, unload, state_params, **kwargs):
                             import queue as _queue

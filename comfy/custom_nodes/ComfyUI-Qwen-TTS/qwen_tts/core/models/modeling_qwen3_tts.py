@@ -2258,6 +2258,26 @@ class Qwen3TTSForConditionalGeneration(Qwen3TTSPreTrainedModel, GenerationMixin)
         padded_hiddens[padding_mask] = pad_embedding_vector
         trailing_text_hiddens = padded_hiddens
 
+        try:
+            max_trailing_len = int(max(trailing_text_original_lengths)) if trailing_text_original_lengths else 0
+        except Exception:
+            max_trailing_len = 0
+        if max_trailing_len > 0:
+            try:
+                min_new_tokens_dynamic = int(max(16, round(max_trailing_len * 2.5)))
+            except Exception:
+                min_new_tokens_dynamic = 16
+            try:
+                max_new = int(talker_kwargs.get("max_new_tokens", max_new_tokens))
+            except Exception:
+                max_new = int(max_new_tokens)
+            if max_new > 0:
+                min_new_tokens_dynamic = min(min_new_tokens_dynamic, max(1, max_new - 1))
+            try:
+                talker_kwargs["min_new_tokens"] = max(int(talker_kwargs.get("min_new_tokens", 2)), int(min_new_tokens_dynamic))
+            except Exception:
+                talker_kwargs["min_new_tokens"] = int(min_new_tokens_dynamic)
+
         # forward
         stopping_criteria = StoppingCriteriaList([_InterruptStoppingCriteria()])
         talker_result = self.talker.generate(
@@ -2273,13 +2293,41 @@ class Qwen3TTSForConditionalGeneration(Qwen3TTSPreTrainedModel, GenerationMixin)
         talker_hidden_states = torch.cat([hid[0][-1][:, -1:] for hid in talker_result.hidden_states], dim=1)[:, :-1]
         
         first_codebook = talker_codes[:, :, 0]
-        is_stop_token = (first_codebook ==  self.config.talker_config.codec_eos_token_id)
+        eos_id = talker_kwargs.get("eos_token_id", self.config.talker_config.codec_eos_token_id)
+        is_stop_token = (first_codebook == eos_id)
         stop_indices = torch.argmax(is_stop_token.int(), dim=1)
         has_stop_token = is_stop_token.any(dim=1)
         effective_lengths = torch.where(has_stop_token, stop_indices, talker_codes.shape[1])
         
         talker_codes_list = [talker_codes[i, :length, ] for i, length in enumerate(effective_lengths)]
         talker_hidden_states_list = [talker_hidden_states[i, :length, :] for i, length in enumerate(effective_lengths)]
+
+        try:
+            tail_pad_frames = int(kwargs.get("tail_pad_frames", 8))
+        except Exception:
+            tail_pad_frames = 8
+        if tail_pad_frames < 0:
+            tail_pad_frames = 0
+        if tail_pad_frames > 64:
+            tail_pad_frames = 64
+        if tail_pad_frames > 0:
+            padded_codes_list = []
+            padded_hs_list = []
+            for codes, hs in zip(talker_codes_list, talker_hidden_states_list):
+                if codes is None or codes.numel() == 0:
+                    padded_codes_list.append(codes)
+                    padded_hs_list.append(hs)
+                    continue
+                last_codes = codes[-1:, :].expand(tail_pad_frames, -1)
+                padded_codes_list.append(torch.cat([codes, last_codes], dim=0))
+
+                if hs is not None and hs.numel() > 0:
+                    last = hs[-1:, :].expand(tail_pad_frames, -1)
+                    padded_hs_list.append(torch.cat([hs, last], dim=0))
+                else:
+                    padded_hs_list.append(hs)
+            talker_codes_list = padded_codes_list
+            talker_hidden_states_list = padded_hs_list
         
         return talker_codes_list, talker_hidden_states_list
 
