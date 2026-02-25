@@ -178,6 +178,7 @@
   "Models": "模型",
   "Base Model (or HighNoise)": "基础模型(或高噪模型)",
   "Refiner (or LowNoise)": "精炼模型(或低噪模型)",
+  "Use Model Filters": "使用模型过滤器",
   "🗑️Unload Models": "🗑️卸载模型到内存",
   "WanT2I selects VACE here": "WanT2I于此处选择VACE模型",
   "Right Click for Model Gallery": "右键点击查看模型库",

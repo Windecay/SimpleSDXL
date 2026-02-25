@@ -90,14 +90,15 @@ def get_task(*args):
     args = api_params.normalization(args, modules.config.default_max_lora_number, modules.config.default_controlnet_image_count, modules.config.default_enhance_tabs)
     return worker.AsyncTask(args=args)
 
-def refresh_files_clicked(state_params):
+def refresh_files_clicked(state_params, use_model_filter: bool = True, show_info: bool = True):
     engine = state_params.get('engine', 'Fooocus') if isinstance(state_params, dict) else 'Fooocus'
     task_method = state_params.get('task_method', None) if isinstance(state_params, dict) else None
-    model_filenames, lora_filenames, vae_filenames = modules.config.update_files(engine, task_method)
-    try:
-        gr.Info(f"[RefreshFiles] Models={len(model_filenames)} LoRAs={len(lora_filenames)}")
-    except Exception as e:
-        logger.info(f"[RefreshFiles] gr.Info failed: {e}")
+    model_filenames, lora_filenames, vae_filenames = modules.config.update_files(engine, task_method, use_model_filter=use_model_filter)
+    if show_info:
+        try:
+            gr.Info(f"[RefreshFiles] Models={len(model_filenames)} LoRAs={len(lora_filenames)}")
+        except Exception as e:
+            logger.info(f"[RefreshFiles] gr.Info failed: {e}")
     results = [gr.update(choices=model_filenames)]
     results += [gr.update(choices=['None'] + model_filenames)]
     results += [gr.update(choices=[flags.default_vae] + vae_filenames)]
@@ -949,6 +950,10 @@ with shared.gradio_root:
                         with gr.Row():
                             scene_image_number = gr.Slider(label='Image Number', minimum=1, maximum=5, step=1, value=1)
                             scene_mask_color = gr.ColorPicker(label="Scene brush color", value="#70FF81", elem_id="scene_brush_color")
+
+                        model_filter_state = gr.State(True)
+                        model_filter_sync_lock = gr.State(False)
+
                         with gr.Accordion("⚙️ Scene Model Selections", open=False, visible=True, elem_id="scene_model_selections") as scene_model_selections:
                             with gr.Row():
                                 scene_base_model = gr.Dropdown(
@@ -979,7 +984,9 @@ with shared.gradio_root:
                                 scene_lora_trigger_words = []
                                 scene_lora_send_to_prompt_btns = []
                                 scene_lora_save_btns = []
-                                show_trigger_words_panel = gr.Checkbox(label='Show Trigger Words Panel', value=False, elem_classes='show_trigger_words_panel')
+                                with gr.Row():
+                                    show_trigger_words_panel = gr.Checkbox(label='Show Trigger Words Panel', value=False, elem_classes='show_trigger_words_panel')
+                                    scene_use_model_filter_checkbox = gr.Checkbox(label='Use Model Filters', value=True, elem_classes='use_model_filter_checkbox')
                                 trigger_word_containers = []
                                 with gr.Row():
                                     scene_lora_model = gr.Dropdown(label='LoRA 1 / HighNoise ',
@@ -1393,7 +1400,7 @@ with shared.gradio_root:
                                 with gr.Column(scale=2):
                                     qwen_design_send_target = gr.Dropdown(label="Send To", choices=qwen_send_target_choices, value=None)
                                     qwen_design_send_btn = gr.Button("Send", size="sm")
-                            qwen_design_info = gr.Markdown(value="",show_progress=False)
+                            qwen_design_info = gr.Markdown(value="")
                         
                         with gr.Tab("Voice Clone"):
                             qwen_clone_ref_audio = gr.Audio(label="Reference Audio", source="upload", type="numpy")
@@ -1409,7 +1416,7 @@ with shared.gradio_root:
                                 with gr.Column(scale=2):
                                     qwen_clone_send_target = gr.Dropdown(label="Send To", choices=qwen_send_target_choices, value=None)
                                     qwen_clone_send_btn = gr.Button("Send", size="sm")
-                            qwen_clone_info = gr.Markdown(value="",show_progress=False)
+                            qwen_clone_info = gr.Markdown(value="")
 
                         with gr.Tab("Custom Voice"):
                             qwen_custom_text = gr.Textbox(label="Text to Speech", lines=5)
@@ -1472,7 +1479,7 @@ with shared.gradio_root:
                                 with gr.Column(scale=2):
                                     qwen_custom_send_target = gr.Dropdown(label="Send To", choices=qwen_send_target_choices, value=None)
                                     qwen_custom_send_btn = gr.Button("Send", size="sm")
-                            qwen_custom_info = gr.Markdown(value="",show_progress=False)
+                            qwen_custom_info = gr.Markdown(value="")
 
                         with gr.Tab("Dialogue"):
                             qwen_dialogue_script = gr.Textbox(label="Script", lines=8, placeholder="Format: 角色名: 文本（每行一句）\n\n角色1: 你好，今天我们聊点什么？\n角色2: 我想了解一下 Qwen3-TTS 的语音克隆。\n角色3: 我来总结参数设置要点。\n旁白: 他们开始了一段轻松的对话。")
@@ -2773,45 +2780,50 @@ with shared.gradio_root:
                         return default_paths
 
                 def get_model_previews():
-                    config = load_config_paths()
-                    allowed_models = {
-                        os.path.normpath(path).lower().replace('/', '\\')
-                        for path in modules.config.model_filenames}
                     previews = []
-                    for model_dir in config.get("path_checkpoints", []):
-                        if not os.path.exists(model_dir):
+                    no_image_path = os.path.normpath(os.path.join(script_dir, "presets", "samples", "noimage.jpg"))
+                    for model_name in modules.config.model_filenames:
+                        model_key = str(model_name).replace("\\", "/").lstrip("/")
+                        model_full_path = None
+                        for catalog in ("checkpoints", "diffusion_models"):
+                            try:
+                                resolved = modules.config.modelsinfo.get_model_filepath(catalog, model_key)
+                            except Exception:
+                                resolved = ""
+                            if resolved:
+                                model_full_path = os.path.normpath(resolved)
+                                break
+                        if not model_full_path:
                             continue
-                        for root, dirs, files in os.walk(model_dir):
-                            model_files = [f for f in files if f.lower().endswith(('.safetensors', '.ckpt', '.pt', '.gguf'))]
-                            for model_file in model_files:
-                                full_path = os.path.normpath(os.path.join(root, model_file))
-                                relative_model_path = os.path.relpath(full_path, model_dir).replace('/', '\\').lower()
-                                filename_only = model_file.lower()
-                                if filename_only not in allowed_models and relative_model_path not in allowed_models:
-                                    continue
-                                relative_path = os.path.relpath(root, model_dir).replace('/', '\\')
-                                base_name = os.path.splitext(model_file)[0]
-                                model_full_path = os.path.normpath(os.path.join(root, model_file))
-                                image_path = None
-                                for ext in ['.jpg', '.jpeg', '.png', '.webp']:
-                                    possible_path = os.path.join(root, f"{base_name}{ext}")
-                                    if os.path.exists(possible_path):
-                                        image_path = possible_path
-                                        break
-                                if not image_path and relative_path != ".":
-                                    parent_dir = os.path.dirname(root)
-                                    for ext in ['.jpg', '.jpeg', '.png', '.webp']:
-                                        possible_path = os.path.join(parent_dir, f"{base_name}{ext}")
-                                        if os.path.exists(possible_path):
-                                            image_path = possible_path
-                                            break
-                                image_path = image_path or os.path.normpath(os.path.join(script_dir, "presets", "samples", "noimage.jpg"))
-                                display_name = f"{relative_path}\{model_file}" if relative_path != "." else model_file
-                                previews.append((image_path, display_name, model_full_path))
+
+                        root = os.path.dirname(model_full_path)
+                        model_file = os.path.basename(model_full_path)
+                        base_name = os.path.splitext(model_file)[0]
+
+                        image_path = None
+                        for ext in ['.jpg', '.jpeg', '.png', '.webp']:
+                            possible_path = os.path.normpath(os.path.join(root, f"{base_name}{ext}"))
+                            if os.path.exists(possible_path):
+                                image_path = possible_path
+                                break
+                        if not image_path:
+                            parent_dir = os.path.dirname(root)
+                            for ext in ['.jpg', '.jpeg', '.png', '.webp']:
+                                possible_path = os.path.normpath(os.path.join(parent_dir, f"{base_name}{ext}"))
+                                if os.path.exists(possible_path):
+                                    image_path = possible_path
+                                    break
+                        image_path = image_path or no_image_path
+                        display_name = str(model_name).replace('/', '\\')
+                        previews.append((image_path, display_name, model_full_path))
                     return previews
 
                 def get_lora_previews():
                     config = load_config_paths()
+                    allowed_loras = {
+                        os.path.normpath(path).lower().replace('/', '\\')
+                        for path in modules.config.lora_filenames
+                    }
                     previews = []
                     for lora_dir in config.get("path_loras", []):
                         if not os.path.exists(lora_dir):
@@ -2819,6 +2831,11 @@ with shared.gradio_root:
                         for root, dirs, files in os.walk(lora_dir):
                             lora_files = [f for f in files if f.lower().endswith(('.safetensors', '.ckpt', '.pt', '.gguf'))]
                             for lora_file in lora_files:
+                                full_path = os.path.normpath(os.path.join(root, lora_file))
+                                relative_lora_path = os.path.relpath(full_path, lora_dir).replace('/', '\\').lower()
+                                filename_only = lora_file.lower()
+                                if filename_only not in allowed_loras and relative_lora_path not in allowed_loras:
+                                    continue
                                 relative_path = os.path.relpath(root, lora_dir).replace('/', '\\')
                                 base_name = os.path.splitext(lora_file)[0]
                                 lora_full_path = os.path.normpath(os.path.join(root, lora_file))
@@ -2840,8 +2857,8 @@ with shared.gradio_root:
                                 previews.append((image_path, display_name, lora_full_path))
                     return previews
 
-                def show_model_gallery(current_visible, current_active_target, target_type, state_params):
-                                       refresh_files_clicked(state_params)
+                def show_model_gallery(current_visible, current_active_target, target_type, state_params, use_model_filter):
+                                       refresh_files_clicked(state_params, use_model_filter, False)
                                        if current_active_target != target_type:
                                            new_visible = True
                                        else:
@@ -2856,8 +2873,9 @@ with shared.gradio_root:
                                                    gr.Button.update(variant="secondary"),
                                                    gr.Button.update(variant="secondary")]
 
-                def show_lora_gallery(current_visible, index):
+                def show_lora_gallery(current_visible, index, state_params, use_model_filter):
                                       new_visible = not current_visible
+                                      refresh_files_clicked(state_params, use_model_filter, False)
                                       previews = get_lora_previews()
                                       lora_current_previews[index].value = previews
                                       return (gr.Gallery.update(value=[(p[0], p[1]) for p in previews], visible=new_visible), new_visible, previews, gr.Button.update(variant="primary" if new_visible else "secondary"))
@@ -2888,12 +2906,12 @@ with shared.gradio_root:
                         base_preview_btn = gr.Button( "🖼️ Base Model", variant="secondary", visible=False,elem_id="base_preview_btn")
                         refiner_preview_btn = gr.Button("🖼️ Refiner", variant="secondary", visible=False,elem_id="refiner_preview_btn")
                     model_gallery = gr.Gallery(label="Model Previews", columns=4, rows=2, height="auto", visible=False, elem_classes="model-gallery")
-                    base_preview_btn.click(fn=lambda cv, cat, tt, sp: show_model_gallery(cv, cat, tt, sp),
-                                           inputs=[gallery_visible, active_target, gr.State("base"), state_topbar],
+                    base_preview_btn.click(fn=lambda cv, cat, tt, sp, umf: show_model_gallery(cv, cat, tt, sp, umf),
+                                           inputs=[gallery_visible, active_target, gr.State("base"), state_topbar, model_filter_state],
                                            outputs=[model_gallery, gallery_visible, current_previews, active_target, base_preview_btn, refiner_preview_btn], show_progress=False, queue=False) \
                                            .then(fn=None,_js='''(galleryVisible, activeTarget) => {highlightModelDropdown("base");}''')
-                    refiner_preview_btn.click(fn=lambda cv, cat, tt, sp: show_model_gallery(cv, cat, tt, sp),
-                                              inputs=[gallery_visible, active_target, gr.State("refiner"), state_topbar],
+                    refiner_preview_btn.click(fn=lambda cv, cat, tt, sp, umf: show_model_gallery(cv, cat, tt, sp, umf),
+                                              inputs=[gallery_visible, active_target, gr.State("refiner"), state_topbar, model_filter_state],
                                               outputs=[model_gallery, gallery_visible, current_previews, active_target, base_preview_btn, refiner_preview_btn], show_progress=False, queue=False) \
                                            .then(fn=None,_js='''(galleryVisible, activeTarget) => {highlightModelDropdown("refiner");}''')
                     model_gallery.select(on_gallery_select, inputs=[current_previews, active_target], outputs=[base_model, refiner_model, model_gallery], show_progress=False, queue=False)
@@ -2920,7 +2938,9 @@ with shared.gradio_root:
                     lora_trigger_words = []
                     lora_send_to_prompt_btns = []
                     lora_save_btns = []
-                    show_trigger_words_panel = gr.Checkbox(label='Show Trigger Words Panel', value=False, elem_classes='show_trigger_words_panel')
+                    with gr.Row():
+                        show_trigger_words_panel = gr.Checkbox(label='Show Trigger Words Panel', value=False, elem_classes='show_trigger_words_panel')
+                        use_model_filter_checkbox = gr.Checkbox(label='Use Model Filters', value=True, elem_classes='use_model_filter_checkbox')
                     trigger_word_containers = []
                     from modules.lora_trigger_manager import get_lora_trigger_word, update_trigger_word, save_trigger_word, send_trigger_to_prompt
 
@@ -3005,9 +3025,9 @@ with shared.gradio_root:
                         lora_galleries[i].select(on_lora_gallery_select,
                                                  inputs=[lora_current_previews[i], gr.State(i)],
                                                  outputs=[lora_models[i]], show_progress=False, queue=False)
-                        lora_preview_btns[i].click(fn=lambda current_visible,
-                                                   idx=i: show_lora_gallery(current_visible, idx),
-                                                   inputs=[lora_gallery_visible[i]],
+                        lora_preview_btns[i].click(fn=lambda current_visible, sp, umf,
+                                                   idx=i: show_lora_gallery(current_visible, idx, sp, umf),
+                                                   inputs=[lora_gallery_visible[i], state_topbar, model_filter_state],
                                                    outputs=[lora_galleries[i], lora_gallery_visible[i], lora_current_previews[i], lora_preview_btns[i]], show_progress=False, queue=False)
                 with gr.Row():
                     refresh_files = gr.Button(label='Refresh', value='\U0001f504 Refresh All Files', variant='secondary', elem_classes='refresh_button')
@@ -3021,10 +3041,37 @@ with shared.gradio_root:
                 #info_sync_button.click(toolbox.sync_model_info_click, inputs=models_infos, outputs=models_infos, queue=False, show_progress=False)
 
                 refresh_files_output = [base_model, refiner_model, vae_name] + scene_lora_ctrls
-                refresh_files.click(refresh_files_clicked, [state_topbar], refresh_files_output + lora_ctrls,
+                refresh_files_targets = refresh_files_output + lora_ctrls
+                refresh_files.click(refresh_files_clicked, [state_topbar, model_filter_state], refresh_files_output + lora_ctrls,
                                     queue=True, show_progress=False)
-                scene_refresh_files.click(refresh_files_clicked, [state_topbar], refresh_files_output + lora_ctrls,
+                scene_refresh_files.click(refresh_files_clicked, [state_topbar, model_filter_state], refresh_files_output + lora_ctrls,
                                     queue=True, show_progress=False)
+
+                def _on_model_filter_toggle_from_main(state_params, use_model_filter, sync_lock, current_state):
+                    if sync_lock:
+                        return [current_state, gr.update(), False] + [gr.update()] * len(refresh_files_targets)
+                    return [use_model_filter, gr.update(value=use_model_filter), True] + refresh_files_clicked(state_params, use_model_filter)
+
+                def _on_model_filter_toggle_from_scene(state_params, use_model_filter, sync_lock, current_state):
+                    if sync_lock:
+                        return [current_state, gr.update(), False] + [gr.update()] * len(refresh_files_targets)
+                    return [use_model_filter, gr.update(value=use_model_filter), True] + refresh_files_clicked(state_params, use_model_filter)
+
+                use_model_filter_checkbox.change(
+                    fn=_on_model_filter_toggle_from_main,
+                    inputs=[state_topbar, use_model_filter_checkbox, model_filter_sync_lock, model_filter_state],
+                    outputs=[model_filter_state, scene_use_model_filter_checkbox, model_filter_sync_lock] + refresh_files_targets,
+                    queue=True,
+                    show_progress=False,
+                )
+
+                scene_use_model_filter_checkbox.change(
+                    fn=_on_model_filter_toggle_from_scene,
+                    inputs=[state_topbar, scene_use_model_filter_checkbox, model_filter_sync_lock, model_filter_state],
+                    outputs=[model_filter_state, use_model_filter_checkbox, model_filter_sync_lock] + refresh_files_targets,
+                    queue=True,
+                    show_progress=False,
+                )
 
             # with gr.Tab(label='Gallery', elem_id="scrollable-box"):
             #     with gr.Row():
@@ -3955,9 +4002,7 @@ with shared.gradio_root:
             if not isinstance(state, dict):
                 state = {}
 
-            engine = state.get("engine", "Z-image")
-            task_method = state.get("task_method", None)
-            base_choices = modules.config.get_base_model_list(engine, task_method)
+            base_choices = modules.config.model_filenames
             refiner_choices = ["None"] + base_choices
             lora_choices = ["None"] + modules.config.lora_filenames
 
@@ -4128,6 +4173,7 @@ with shared.gradio_root:
     for i in range(shared.BUTTON_NUM):
         bar_buttons[i].click(topbar.reset_layout_ui, inputs=reset_preset_inputs + [bar_buttons[i]], outputs=reset_layout_ui_outputs + [state_topbar, comparison_state, comparison_box, progress_gallery, compare_btn, progress_window], show_progress=False) \
                .then(topbar.reset_layout_values, inputs=reset_values_inputs, outputs=reset_layout_values_outputs, show_progress=False) \
+               .then(lambda sp, umf: refresh_files_clicked(sp, umf, False), inputs=[state_topbar, model_filter_state], outputs=refresh_files_output + lora_ctrls, queue=True, show_progress=False) \
                .then(sync_scene_model_selections, inputs=[state_topbar, base_model, refiner_model] + lora_ctrls, outputs=[scene_base_model, scene_refiner_model, scene_use_lora, lora_group, scene_lora_model, scene_lora_weight, scene_lora_model_2, scene_lora_weight_2, scene_lora_model_3, scene_lora_weight_3, scene_lora_model_4, scene_lora_weight_4], queue=False, show_progress=False) \
                .then(fn=lambda x: None, inputs=system_params, _js='(x)=>{refresh_topbar_status_js(x); refresh_style_localization(); refresh_scene_localization();}') \
                .then(update_describe_output_tags, inputs=engine_class_display, outputs=describe_output_tags, queue=False, show_progress=False) \
@@ -4141,6 +4187,7 @@ with shared.gradio_root:
                       .then(_qwen_refresh_style_preset_dropdowns, inputs=[state_topbar, qwen_design_style_preset_choices, qwen_custom_style_preset_choices], outputs=[qwen_design_style_preset_choices, qwen_custom_style_preset_choices], queue=False, show_progress=False) \
                       .then(topbar.reset_layout_ui, inputs=reset_preset_inputs, outputs=reset_layout_ui_outputs + [state_topbar, comparison_state, comparison_box, progress_gallery, compare_btn, progress_window], show_progress=False) \
                       .then(topbar.reset_layout_values, inputs=reset_values_inputs, outputs=reset_layout_values_outputs, show_progress=False) \
+                      .then(lambda sp, umf: refresh_files_clicked(sp, umf, False), inputs=[state_topbar, model_filter_state], outputs=refresh_files_output + lora_ctrls, queue=True, show_progress=False) \
                       .then(sync_scene_model_selections, inputs=[state_topbar, base_model, refiner_model] + lora_ctrls, outputs=[scene_base_model, scene_refiner_model, scene_use_lora, lora_group, scene_lora_model, scene_lora_weight, scene_lora_model_2, scene_lora_weight_2, scene_lora_model_3, scene_lora_weight_3, scene_lora_model_4, scene_lora_weight_4], queue=False, show_progress=False) \
                       .then(fn=lambda x: None, inputs=system_params, _js='(x)=>{refresh_topbar_status_js(x);}') \
                       .then(topbar.sync_message, inputs=state_topbar) \

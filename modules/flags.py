@@ -237,12 +237,12 @@ backend_engines = ['Fooocus', 'SDXL', 'Comfy', 'Kolors', 'SD3x', 'HyDiT', 'Flux'
 model_file_filter = {
         'SD3x'   : ['sd3'],
         'SDXL'   : ['sdxl', 'sd-xl', 'xl'],
-        'Flux'   : [['flux'], ['f.1']],
+        'Flux'   : [['flux'], ['f.1'], ['klein']],
         'HyDiT'  : ['hunyuan'],
         'Kolors' : ['kolors'],
         'Wan'    : ['wan'],
         'Qwen'   : ['qwen'],
-        'Z-image': [['z_image'], ['z-image'], ['zimage'], ['zit']],
+        'Z-image': [['z_image'], ['z-image'], ['zimage'], ['zit'], ['zib']],
         }
 model_file_filter['Fooocus'] = model_file_filter['SD3x'] + model_file_filter['Flux'] + model_file_filter['HyDiT']
 

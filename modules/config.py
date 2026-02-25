@@ -1129,6 +1129,13 @@ def _normalize_model_name(name: str) -> str:
     return s
 
 
+def _is_placeholder_model_name(name: str) -> bool:
+    s = _normalize_model_name(name)
+    base = s.rsplit("/", 1)[-1]
+    stem = base.rsplit(".", 1)[0]
+    return stem.lower() == "placeholder"
+
+
 def _resolve_models_info_key(data: Dict[str, Any], catalog: str, model_name: str) -> Optional[str]:
     catalog = _normalize_model_name(catalog)
     model_name = _normalize_model_name(model_name)
@@ -1305,8 +1312,13 @@ def _refine_names_by_catalog(models_root: str, engine: str, catalog: str, names:
         if match_name_filter(name):
             out.append(name)
             continue
-        if isinstance(entry, dict) and entry.get("arch_family") in families:
-            out.append(name)
+        if isinstance(entry, dict):
+            arch_family = entry.get("arch_family")
+            if not arch_family or str(arch_family).lower() == "unknown":
+                out.append(name)
+                continue
+            if arch_family in families:
+                out.append(name)
     return out
 
 
@@ -1349,7 +1361,11 @@ def _refine_models_by_arch_family(models_root: str, engine: str, models: List[st
             ck_key = ck_basename_index.get(name) or None
         ck = data.get(ck_key) if ck_key else None
         if isinstance(ck, dict):
-            if ck.get("arch_family") in families:
+            ck_arch = ck.get("arch_family")
+            if not ck_arch or str(ck_arch).lower() == "unknown":
+                out.append(name)
+                continue
+            if ck_arch in families:
                 out.append(name)
                 continue
         dm_key = _resolve_models_info_key(data, "diffusion_models", name)
@@ -1357,7 +1373,11 @@ def _refine_models_by_arch_family(models_root: str, engine: str, models: List[st
             dm_key = dm_basename_index.get(name) or None
         dm = data.get(dm_key) if dm_key else None
         if isinstance(dm, dict):
-            if dm.get("arch_family") in families:
+            dm_arch = dm.get("arch_family")
+            if not dm_arch or str(dm_arch).lower() == "unknown":
+                out.append(name)
+                continue
+            if dm_arch in families:
                 out.append(name)
                 continue
     return out
@@ -1376,26 +1396,31 @@ def get_model_filenames(folder_paths, extensions=None, name_filter=None):
     return files
 
 
-def get_base_model_list(engine='Z-image', task_method=None):
+def get_base_model_list(engine='Z-image', task_method=None, use_model_filter: bool = True):
     global modelsinfo
     base_model_list = modelsinfo.get_model_names('checkpoints', [])
     base_model_list.extend(modelsinfo.get_model_names('diffusion_models', []))
     base_model_list = [_normalize_model_name(n) for n in base_model_list]
+    base_model_list = [n for n in base_model_list if not _is_placeholder_model_name(n)]
     if task_method == 'flux_base2_gguf':
         base_model_list = [f for f in base_model_list if f.lower().endswith(".gguf")]
     base_model_list = list(dict.fromkeys(base_model_list))
-    base_model_list = _refine_models_by_arch_family(path_models_root, engine, base_model_list)
+    if use_model_filter:
+        base_model_list = _refine_models_by_arch_family(path_models_root, engine, base_model_list)
+    base_model_list = [str(n).replace("/", os.sep).replace("\\", os.sep).lstrip(os.sep) for n in base_model_list]
     return base_model_list
 
-def update_files(engine='Z-image', task_method=None):
+def update_files(engine='Z-image', task_method=None, use_model_filter: bool = True):
     global modelsinfo, model_filenames, lora_filenames, vae_filenames, wildcard_filenames 
     modelsinfo.refresh_from_path()
-    model_filenames = get_base_model_list(engine, task_method)
+    model_filenames = get_base_model_list(engine, task_method, use_model_filter=use_model_filter)
     lora_filenames = modelsinfo.get_model_names('loras')
     lora_filenames_norm = [_normalize_model_name(n) for n in lora_filenames]
-    lora_filenames_norm = _refine_names_by_catalog(path_models_root, engine, "loras", lora_filenames_norm)
+    lora_filenames_norm = [n for n in lora_filenames_norm if not _is_placeholder_model_name(n)]
+    if use_model_filter:
+        lora_filenames_norm = _refine_names_by_catalog(path_models_root, engine, "loras", lora_filenames_norm)
     lora_filenames = [str(n).replace("/", os.sep).replace("\\", os.sep).lstrip(os.sep) for n in lora_filenames_norm]
-    vae_filenames = modelsinfo.get_model_names('vae')
+    vae_filenames = [n for n in modelsinfo.get_model_names('vae') if not _is_placeholder_model_name(n)]
     wildcard_filenames = []
     for path in paths_wildcards:
         files = get_files_from_folder(path, ['.txt'])

@@ -571,24 +571,6 @@ def _infer_arch_family_from_filename(path: str) -> str:
         return "sdxl"
     return "unknown"
 
-
-def _infer_category(folder_type: str, weight_kind: str, components: Iterable[str]) -> str:
-    ft = (folder_type or "").lower()
-    wk = (weight_kind or "").lower()
-    comps = set((c or "").lower() for c in (components or []))
-    if wk == "lora":
-        return "loras"
-    if wk == "vae":
-        return "vae"
-    if ft in ("loras", "vae", "unet", "diffusion_models", "checkpoints"):
-        return ft
-    if comps == {"vae"}:
-        return "vae"
-    if comps == {"unet"}:
-        return "unet"
-    return "checkpoints"
-
-
 def _infer_weight_kind(keys: List[str], metadata: Dict[str, Any]) -> str:
     if any(_is_lora_key(k) for k in keys):
         return "lora"
@@ -696,8 +678,6 @@ def inspect_weight_file(
         arch_family_from_filename = _infer_arch_family_from_filename(path_abs)
         if arch_family_from_filename == "newbie":
             arch_family = "newbie"
-        elif arch_family == "unknown":
-            arch_family = arch_family_from_filename
         if arch_family == "sd15":
             arch_family = "sdxl"
         result.update(
@@ -751,8 +731,6 @@ def inspect_weight_file(
         arch_family_from_filename = _infer_arch_family_from_filename(path_abs)
         if arch_family_from_filename == "newbie":
             arch_family = "newbie"
-        elif arch_family == "unknown":
-            arch_family = arch_family_from_filename
         if arch_family == "sd15":
             arch_family = "sdxl"
         shapes: List[Tuple[str, Tuple[int, ...]]] = []
@@ -794,8 +772,6 @@ def inspect_weight_file(
             components = _infer_components_from_keys(keys)
             signature = _make_key_signature(keys)
             arch_family = _infer_arch_family_from_keys(keys, out_metadata)
-            if arch_family == "unknown":
-                arch_family = _infer_arch_family_from_filename(path_abs)
             if arch_family == "sd15":
                 arch_family = "sdxl"
             result.update(
