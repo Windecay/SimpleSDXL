@@ -127,8 +127,6 @@ except Exception as e:
 import modules.config as config
 import ldm_patched.modules.model_management
 
-logger = logging.getLogger(format_name(__name__))
-
 class LlamaCppVLM:
     def __init__(self):
         self.llm = None
