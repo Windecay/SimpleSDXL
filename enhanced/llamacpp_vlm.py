@@ -133,7 +133,7 @@ class LlamaCppVLM:
     def __init__(self):
         self.llm = None
         self.chat_handler = None
-        self.lock = threading.Lock()
+        self.lock = threading.RLock()
         self.current_model_path = None
         self.current_chat_handler_name = None
 
@@ -301,88 +301,90 @@ class LlamaCppVLM:
             ldm_patched.modules.model_management.print_memory_info("after load llama.cpp model")
 
     def free_model(self):
-        if self.llm:
-            self.llm.close()
-            self.llm = None
-        if self.chat_handler:
-            try:
-                self.chat_handler._exit_stack.close()
-            except:
-                pass
-            self.chat_handler = None
-        self.current_model_path = None
-        self.current_chat_handler_name = None
-        gc.collect()
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
+        with self.lock:
+            if self.llm:
+                self.llm.close()
+                self.llm = None
+            if self.chat_handler:
+                try:
+                    self.chat_handler._exit_stack.close()
+                except:
+                    pass
+                self.chat_handler = None
+            self.current_model_path = None
+            self.current_chat_handler_name = None
+            gc.collect()
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
 
     def inference(self, image, prompt, chat_handler_override=None, max_tokens=1024, temperature=0.8, top_p=0.9, top_k=40, repetition_penalty=1.1, seed=-1):
-        if self.llm is None:
-            logger.error("Model not loaded")
-            return "Error: Model not loaded"
+        with self.lock:
+            if self.llm is None:
+                logger.error("Model not loaded")
+                return "Error: Model not loaded"
 
-        import io
-        import base64
+            import io
+            import base64
 
-        if chat_handler_override and self.current_chat_handler_name != chat_handler_override:
-             logger.info(f"Inference with chat_handler_override: {chat_handler_override}")
+            if chat_handler_override and self.current_chat_handler_name != chat_handler_override:
+                 logger.info(f"Inference with chat_handler_override: {chat_handler_override}")
 
-        def image_to_base64(img_np):
-            img = Image.fromarray(img_np)
-            if img.mode != 'RGB':
-                img = img.convert('RGB')
-            buffered = io.BytesIO()
-            img.save(buffered, format="JPEG", quality=85)
-            return base64.b64encode(buffered.getvalue()).decode('utf-8')
+            def image_to_base64(img_np):
+                img = Image.fromarray(img_np)
+                if img.mode != 'RGB':
+                    img = img.convert('RGB')
+                buffered = io.BytesIO()
+                img.save(buffered, format="JPEG", quality=85)
+                return base64.b64encode(buffered.getvalue()).decode('utf-8')
 
-        messages = []
-        system_msg = "You are a helpful assistant. Follow instructions precisely. For any task (captioning, translation, expansion), output ONLY the result. Do not include any preamble, introduction, explanation, or conversational filler."
-        messages.append({"role": "system", "content": system_msg})
+            messages = []
+            system_msg = "You are a helpful assistant. Follow instructions precisely. For any task (captioning, translation, expansion), output ONLY the result. Do not include any preamble, introduction, explanation, or conversational filler."
+            messages.append({"role": "system", "content": system_msg})
 
-        if image is not None:
-            user_content = []
-            user_content.append({"type": "text", "text": prompt})
+            if image is not None:
+                user_content = []
+                user_content.append({"type": "text", "text": prompt})
+                
+                images = image if isinstance(image, (list, tuple)) else [image]
+                for img in images:
+                    if img is None:
+                        continue
+                    if isinstance(img, np.ndarray):
+                        base64_image = image_to_base64(img)
+                    elif isinstance(img, Image.Image):
+                        if img.mode != 'RGB':
+                            img = img.convert('RGB')
+                        buffered = io.BytesIO()
+                        img.save(buffered, format="JPEG", quality=85)
+                        base64_image = base64.b64encode(buffered.getvalue()).decode('utf-8')
+                    else:
+                        base64_image = None
+
+                    if base64_image:
+                        user_content.append({
+                            "type": "image_url",
+                            "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}
+                        })
+                messages.append({"role": "user", "content": user_content})
+            else:
+                messages.append({"role": "user", "content": prompt})
+
+            logger.info(f"LlamaCpp Inference: prompt={prompt[:50]}... (image={'Yes' if image is not None else 'No'})")
             
-            images = image if isinstance(image, (list, tuple)) else [image]
-            for img in images:
-                if img is None:
-                    continue
-                if isinstance(img, np.ndarray):
-                    base64_image = image_to_base64(img)
-                elif isinstance(img, Image.Image):
-                    if img.mode != 'RGB':
-                        img = img.convert('RGB')
-                    buffered = io.BytesIO()
-                    img.save(buffered, format="JPEG", quality=85)
-                    base64_image = base64.b64encode(buffered.getvalue()).decode('utf-8')
-                else:
-                    base64_image = None
-
-                if base64_image:
-                    user_content.append({
-                        "type": "image_url",
-                        "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}
-                    })
-            messages.append({"role": "user", "content": user_content})
-        else:
-            messages.append({"role": "user", "content": prompt})
-
-        logger.info(f"LlamaCpp Inference: prompt={prompt[:50]}... (image={'Yes' if image is not None else 'No'})")
-        
-        try:
-            output = self.llm.create_chat_completion(
-                messages=messages,
-                max_tokens=max_tokens,
-                temperature=temperature,
-                top_p=top_p,
-                top_k=top_k,
-                repeat_penalty=repetition_penalty,
-                seed=seed if seed != -1 else None
-            )
-            result = output['choices'][0]['message']['content']
-            return result.strip()
-        except Exception as e:
-            logger.error(f"LlamaCpp Inference Error: {str(e)}")
-            return f"Error during inference: {str(e)}"
+            try:
+                output = self.llm.create_chat_completion(
+                    messages=messages,
+                    max_tokens=max_tokens,
+                    temperature=temperature,
+                    top_p=top_p,
+                    top_k=top_k,
+                    repeat_penalty=repetition_penalty,
+                    seed=seed if seed != -1 else None
+                )
+                result = output['choices'][0]['message']['content']
+                return result.strip()
+            except Exception as e:
+                logger.error(f"LlamaCpp Inference Error: {str(e)}")
+                return f"Error during inference: {str(e)}"
 
 llamacpp_vlm = LlamaCppVLM()
