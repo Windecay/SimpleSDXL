@@ -874,6 +874,8 @@ function initResolutionOverrideWidget() {
     const rect = widget.querySelector('[data-role="rect"]');
     const wInput = widget.querySelector('[data-role="winput"]');
     const hInput = widget.querySelector('[data-role="hinput"]');
+    const btnUp = widget.querySelector('[data-role="scale_up"]');
+    const btnDown = widget.querySelector('[data-role="scale_down"]');
     if (!pad || !rect || !wInput || !hInput) return;
 
     const syncFromSliders = () => {
@@ -953,6 +955,34 @@ function initResolutionOverrideWidget() {
     wInput.addEventListener('change', commitManualInput);
     hInput.addEventListener('change', commitManualInput);
 
+    const scaleFromCurrent = (factor) => {
+        const step = 8;
+        const minSide = 512;
+        const maxSide = 2048;
+        const clamp = (v) => {
+            if (!Number.isFinite(v)) return minSide;
+            v = Math.round(v / step) * step;
+            if (v < minSide) v = minSide;
+            if (v > maxSide) v = maxSide;
+            return v;
+        };
+
+        let w = _ro_getSliderValue('overwrite_width');
+        let h = _ro_getSliderValue('overwrite_height');
+        if (!(w != null && h != null && w > 0 && h > 0)) {
+            w = minSide;
+            h = minSide;
+        }
+        const nw = clamp(Math.round(w * factor));
+        const nh = clamp(Math.round(h * factor));
+        _ro_setSliderValue('overwrite_width', nw);
+        _ro_setSliderValue('overwrite_height', nh);
+        syncFromSliders();
+    };
+
+    btnUp?.addEventListener('click', () => scaleFromCurrent(1.1));
+    btnDown?.addEventListener('click', () => scaleFromCurrent(0.9));
+
     const widthRoot = gradioApp().getElementById('overwrite_width');
     const heightRoot = gradioApp().getElementById('overwrite_height');
     for (const root of [widthRoot, heightRoot]) {
@@ -998,6 +1028,14 @@ function initResolutionOverrideWidget() {
     pad.addEventListener('pointerdown', onDown, { passive: true });
     pad.addEventListener('touchstart', onDown, { passive: true });
     pad.addEventListener('dblclick', disable);
+
+    const requestSync = () => syncFromSliders();
+    if ('ResizeObserver' in window) {
+        const ro = new ResizeObserver(requestSync);
+        ro.observe(pad);
+        widget.__ro_resize_observer = ro;
+    }
+    window.addEventListener('resize', requestSync, { passive: true });
 
     widget.dataset.initialized = '1';
     widget.__ro_sync = syncFromSliders;

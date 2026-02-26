@@ -2454,18 +2454,24 @@ with shared.gradio_root:
                             resolution_override = gr.HTML(
                                 value="""
                                 <div id="resolution_override_widget" style="display:flex; flex-direction:column; gap:12px; padding:12px; border:1px solid var(--neutral-700); border-radius:12px; width:100%; margin:0 auto; align-items:center;">
-                                  <div style="display:flex; gap:10px; align-items:center; justify-content:center; flex-wrap:wrap; width:100%;">
-                                    <label style="display:flex; gap:6px; align-items:center; font-size:12px; opacity:0.9;">
-                                      W
-                                      <input data-role="winput" type="number" min="-1" max="2048" step="8" value="-1" style="width:96px; padding:6px 8px; border-radius:8px; border:1px solid var(--neutral-700); background:var(--neutral-900); color:inherit;" />
-                                    </label>
-                                    <label style="display:flex; gap:6px; align-items:center; font-size:12px; opacity:0.9;">
-                                      H
-                                      <input data-role="hinput" type="number" min="-1" max="2048" step="8" value="-1" style="width:96px; padding:6px 8px; border-radius:8px; border:1px solid var(--neutral-700); background:var(--neutral-900); color:inherit;" />
-                                    </label>
+                                  <div style="display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap; width:100%;">
+                                    <div style="display:flex; gap:10px; align-items:center; justify-content:flex-start; flex-wrap:wrap;">
+                                      <label style="display:flex; gap:6px; align-items:center; font-size:12px; opacity:0.9;">
+                                        W
+                                        <input data-role="winput" type="number" min="-1" max="2048" step="8" value="-1" style="width:96px; padding:6px 8px; border-radius:8px; border:1px solid var(--neutral-700); background:var(--neutral-900); color:inherit;" />
+                                      </label>
+                                      <label style="display:flex; gap:6px; align-items:center; font-size:12px; opacity:0.9;">
+                                        H
+                                        <input data-role="hinput" type="number" min="-1" max="2048" step="8" value="-1" style="width:96px; padding:6px 8px; border-radius:8px; border:1px solid var(--neutral-700); background:var(--neutral-900); color:inherit;" />
+                                      </label>
+                                    </div>
+                                    <div style="display:flex; gap:8px; align-items:center; justify-content:flex-end;">
+                                      <button data-role="scale_down" type="button" title="缩小 10%" style="width:36px; height:30px; border-radius:8px; border:1px solid var(--neutral-700); background:var(--neutral-900); color:inherit; cursor:pointer; font-size:14px; line-height:1;">-</button>
+                                      <button data-role="scale_up" type="button" title="放大 10%" style="width:36px; height:30px; border-radius:8px; border:1px solid var(--neutral-700); background:var(--neutral-900); color:inherit; cursor:pointer; font-size:14px; line-height:1;">+</button>
+                                    </div>
                                   </div>
                                   <div data-role="pad" style="position:relative; width:min(520px, 100%); aspect-ratio:1/1; height:auto; border-radius:12px; border:1px solid var(--neutral-700); background:radial-gradient(circle at 1px 1px, rgba(255,255,255,0.07) 1px, transparent 1px) 0 0 / 18px 18px; overflow:hidden; user-select:none; touch-action:none; margin:0 auto;">
-                                    <div data-role="rect" style="position:absolute; left:0; top:0; width:110px; height:110px; background:rgba(255,255,255,0.08); border:2px solid rgba(255,255,255,0.35); border-radius:8px; box-sizing:border-box;">
+                                    <div data-role="rect" style="position:absolute; left:0; top:0; width:50%; height:50%; background:rgba(255,255,255,0.08); border:2px solid rgba(255,255,255,0.35); border-radius:8px; box-sizing:border-box;">
                                       <div data-role="handle" style="position:absolute; right:0; bottom:0; width:14px; height:14px; border-radius:50%; background:rgba(255,255,255,0.75); border:2px solid rgba(0,0,0,0.35); box-sizing:border-box; transform:translate(50%, 50%);"></div>
                                     </div>
                                   </div>
