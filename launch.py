@@ -379,7 +379,7 @@ def prepare_environment():
     if is_installed("torch"):
         try:
             current_torch_ver = torch.__version__.split('+')[0]  # 获取主版本号
-            target_torch_ver = '2.9.0'
+            target_torch_ver = '2.9.1'
             def _parse_semver3(v: str):
                 m = re.match(r"^\s*(\d+)\.(\d+)\.(\d+)", v or "")
                 if not m:

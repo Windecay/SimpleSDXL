@@ -32,13 +32,13 @@ class SimpleOnnxInference(object):
                 if not SimpleOnnxInference._global_warning_shown:
                     SimpleOnnxInference._global_warning_shown = True
                     print(f"Warning: Cannot use CUDAExecutionProvider, falling back to CPU. Please install onnxruntime-gpu.")
-                    self._print_reinstall_command()
+                    # self._print_reinstall_command()
         except Exception as e:
             print(f"Error initializing ONNX session with {device}: {e}")
             if not SimpleOnnxInference._global_warning_shown:
                 SimpleOnnxInference._global_warning_shown = True
                 print("Falling back to CPUExecutionProvider. Please install onnxruntime-gpu.")
-                self._print_reinstall_command()
+                # self._print_reinstall_command()
             self.session = onnxruntime.InferenceSession(checkpoint, providers=['CPUExecutionProvider'])
             actual_providers = self.session.get_providers()
 
