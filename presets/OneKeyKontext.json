@@ -7,7 +7,7 @@
             "scene_frontend": {
                 "version": "m1.1",
                 "theme": ["通用","全能","家电","美妆","金属","服装","珠宝","数码电器","融图打光","图案提取","场景生成","人像精修","角度编辑","IP三视图","万物移除","姿态还原","衣服提取","物体置入","清晰背景","深度参考"],
-                "theme_title": "一键Kontext精修预设",
+                "theme_title": "一键Kontext精修预设【最终尺寸匹配输入原图】",
                 "prompt": {
                     "通用": "Retouch the product in the image and change the background to a pure white one.",
                     "全能": "Perform high-quality restoration on product photos to remove scratches, dust and dents, and enhance clarity and material texture while maintaining the original lighting, shooting angle and image composition.",
@@ -31,7 +31,7 @@
                     "深度参考": "redepthkontext change depth map to photo."
                 },
                 "disvisible": ["scene_canvas_image", "scene_input_image2", "scene_additional_prompt","scene_additional_prompt_2", "scene_use_lora", "scene_video", "scene_audio",
-                    "scene_var_number2","scene_var_number3","scene_var_number4","scene_switch_option1","scene_switch_option2","scene_steps", "scene_refiner_model", "scene_var_number5", "scene_var_number6", "scene_var_number7", "scene_var_number8", "scene_var_number9", "scene_var_number10"
+                    "scene_var_number2","scene_var_number","scene_var_number4","scene_switch_option1","scene_switch_option2","scene_steps", "scene_refiner_model", "scene_var_number5", "scene_var_number6", "scene_var_number7", "scene_var_number8", "scene_var_number9", "scene_var_number10"
                     ,"scene_switch_option3","scene_switch_option4"],
                 "task_method": {
                     "通用": "kontext_gen",

@@ -14,7 +14,7 @@ import enhanced.version as version
 import socket
 import logging
 import shutil
-
+import torch
 from pathlib import Path
 from build_launcher import build_launcher, ready_checker, is_win32_standalone_build, python_embeded_path, download_if_updated
 from modules.launch_util import is_installed, is_installed_version, run, python, run_pip, requirements_met, delete_folder_content, git_clone, index_url, extra_index_url, target_path_install, met_diff
@@ -137,7 +137,19 @@ def check_base_environment():
             else:
                 logger.warning(f"无法下载更新包 {base_pkg}，将继续使用当前版本 {importlib.metadata.version(base_pkg)}。")
 
-    if is_installed("sageattention"):
+    if torch.__version__ == '2.9.1+cu130':
+        logger.info(f'当前环境：PyTorch 2.9.1+CUDA 13.0. 50系以上显卡支持Nvfp4模型加速推理.')
+        update_pkgs = [('comfyui_frontend_package', '1.37.11'), ('comfyui_workflow_templates', '0.8.27'), ('comfyui-embedded-docs', '0.4.0'), ('comfy-kitchen', '0.2.7'), ('comfy-aimdo', '0.1.7')]
+        for (update_pkg_name, update_pkg_version) in update_pkgs:
+            if not is_installed_version(update_pkg_name, update_pkg_version):
+                success = install_package_with_retry(update_pkg_name, update_pkg_version)
+                if not success:
+                    logger.error(f"无法安装{update_pkg_name}，请检查网络状态")
+
+    elif is_installed("sageattention"):
+        # logger.info(f'检测到旧版环境. 您可以更新到最新CUDA 13.0环境以获得更好的性能.')
+        # logger.info(f'请参考SimpAI.cn的安装说明重新部署.')
+        
         extra_pkgs = [('comfyui_embedded_docs', 'comfyui_embedded_docs==0.2.3'), ('socketio', 'python-socketio'), ('jsonpatch', 'jsonpatch'), 
                 ('alembic', 'alembic'), ('sqlalchemy', 'SQLAlchemy'), ('pyloudnorm', 'pyloudnorm'), ('pydantic', 'pydantic~=2.0'), ('pydantic_settings', 'pydantic-settings~=2.0')]
         for (extra_pkg, extra_pkg_name) in extra_pkgs:
@@ -145,7 +157,7 @@ def check_base_environment():
                 pkg_command = f'pip install {extra_pkg_name} -i {index_url}'
                 run(f'"{python}" -m {pkg_command}', f'Installing {extra_pkg_name}', f"Couldn't install {extra_pkg_name}", live=True)
 
-        update_pkgs = [('comfyui_frontend_package', '1.37.11'), ('comfyui_workflow_templates', '0.8.27'), ('comfyui-embedded-docs', '0.4.0'), ('transformers', '4.57.0'), ('bitsandbytes', '0.45.5'), ('accelerate', '1.10.1'), ('av', '14.2.0'), ('yarl', '1.18.0'), ('gguf', '0.14.0'),
+        update_pkgs = [('comfyui_frontend_package', '1.37.11'), ('comfyui_workflow_templates', '0.8.27'), ('comfyui-embedded-docs', '0.4.0'), ('transformers', '4.57.1'), ('bitsandbytes', '0.45.5'), ('accelerate', '1.10.1'), ('av', '14.2.0'), ('yarl', '1.18.0'), ('gguf', '0.14.0'),
                        ('sentencepiece', '0.2.0'), ('diffusers', '0.36.0'), ('huggingface_hub', '0.35.1'), ('peft', '0.17.1'), ('tokenizers', '0.22.1'), ('tiktoken', '0.11.0'), ('librosa', '0.11.0'), ('moviepy', '2.2.1'), ('piexif', '1.1.3'), ('deepdiff', '8.6.0'), ('pydantic', '2.12.2'),
                        ('GitPython', '3.1.45'), ('PyGithub', '2.8.1'), ('matrix-nio', '0.24.0'), ('toml', '0.10.2'), ('uv', '0.9.3'), ('clip-interrogator', '0.6.0'), ('simpleeval', '1.0.3'), ('compel', '2.3.0'), ('rotary-embedding-torch', '0.8.9'), ('hydra-core', '1.3.2'), ('uuid7', '0.1.0'), ('aiosqlite', '0.21.0'), ('configs','3.0.3'),
                        ('mmdet', '3.3.0'), ('mmengine', '0.10.7'), ('munkres', '1.1.4'), ('terminaltables', '3.1.10'), ('color-matcher', '0.6.0'), ('natsort', '8.4.0'), ('olefile', '0.47'), ('taichi', '1.7.4'), ('torchdiffeq', '0.2.5'), ('lark', '1.3.1'), ('comfy-kitchen', '0.2.7'), ('comfy-aimdo', '0.1.7')]
@@ -171,7 +183,6 @@ def check_base_environment():
                     need_nunchaku_install = True
 
             if need_nunchaku_install:
-                import torch
                 torch_version = torch.__version__
                 print(f'Detected PyTorch version: {torch_version}')
 
@@ -288,18 +299,6 @@ def check_base_environment():
             print(f'Error installing llama_cpp_python: {str(e)}')
             print('Skipping llama_cpp_python installation and continuing...')
 
-        if platform.system() == 'Windows' and is_installed("rembg") and not is_installed("facexlib") and not is_installed("insightface"):
-            logger.info(f'Due to Windows restrictions, The new version of SimpleSDXL requires downloading a new installation package, updating the system environment, and then running it. Download URL: https://hf-mirror.com/metercai/SimpleSDXL2/')
-            logger.info(f'受组件安装限制，SimpleSDXL2新版本(增加对混元、可图和SD3支持)需要下载新的程序包和基本模型包。具体操作详见：https://hf-mirror.com/metercai/SimpleSDXL2/')
-            logger.info(f'If not updated, you can run the commit version using the following scripte: run_SimpleSDXL_commit.bat')
-            logger.info(f'如果不升级，可下载SimpleSDXL1的独立分支完全包(未来仅修bug不加功能): https://hf-mirror.com/metercai/SimpleSDXL2/resolve/main/SimpleSDXL1_win64_all.exe.7z; 也可点击run_SimpleSDXL_commit.bat继续运行旧版本(历史存档,无法修bug也不加功能)。')
-            logger.info(f'有任何疑问可到SimpleSDXL的QQ群交流: 1005085136')
-            sys.exit(0)
-        if platform.system() == 'Windows' and is_installed("facexlib") and is_installed("insightface") and (not is_installed("cpm_kernels") or not is_installed_version("bitsandbytes", "0.45.5")):
-            logger.info(f'运行环境中缺乏必要组件或组件版本不匹配, 或最新程序环境已升级。请参考SimpAI.cn的安装说明重新部署。')
-            logger.info(f'The program running environment lacks necessary components, or the latest program environment package has been upgraded. Please refer to the installation instructions on SimpAI.cn to redeploy.')
-            logger.info(f'有任何疑问可到SimpleSDXL的QQ群交流: 1005085136')
-            sys.exit(0)
     else:
         logger.info(f'环境缺失必要组件或系统不匹配。请参考SimpAI.cn的安装说明重新部署。')
         logger.info(f'The program running environment lacks necessary components or the system does not match. Please refer to the installation instructions on SimpAI.cn to redeploy.')
@@ -379,11 +378,18 @@ def prepare_environment():
     torchvisio_ver = '0.22.1'
     if is_installed("torch"):
         try:
-            import torch
             current_torch_ver = torch.__version__.split('+')[0]  # 获取主版本号
-            if current_torch_ver != '2.9.0':
-                logger.info(f'当前使用的PyTorch版本为{current_torch_ver}，可尝试使用一键部署升级为PyTorch 2.9.0获得更好的显存利用效率和速度。')
-                logger.info(f'请注意：系统不会自动为您更新PyTorch，您可以自行选择是否升级。')
+            target_torch_ver = '2.9.0'
+            def _parse_semver3(v: str):
+                m = re.match(r"^\s*(\d+)\.(\d+)\.(\d+)", v or "")
+                if not m:
+                    return None
+                return (int(m.group(1)), int(m.group(2)), int(m.group(3)))
+            current_parsed = _parse_semver3(current_torch_ver)
+            target_parsed = _parse_semver3(target_torch_ver)
+            if current_parsed is not None and target_parsed is not None and current_parsed < target_parsed:
+                logger.info(f'当前使用的PyTorch版本为{current_torch_ver}，如果你的显卡是RTX20系及以上，可尝试使用一键部署升级为PyTorch {target_torch_ver}获得更好的显存利用效率和速度。')
+                logger.info(f'请注意：系统不会自动为您更新PyTorch，在正常使用的情况下，您可以自行选择是否升级。')
         except Exception as e:
             logger.error(f'检测PyTorch版本时发生错误: {str(e)}')
     if shared.sysinfo['gpu_brand'] == 'NVIDIA':

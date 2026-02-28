@@ -197,6 +197,45 @@ class CacheSet:
         }
         return result
 
+
+def _clear_easyuse_global_cache():
+    target_tail = "/py/libs/cache.py"
+    for module in tuple(sys.modules.values()):
+        module_file = getattr(module, "__file__", None)
+        if not module_file:
+            continue
+
+        module_file_norm = module_file.lower().replace("\\", "/")
+        while "//" in module_file_norm:
+            module_file_norm = module_file_norm.replace("//", "/")
+
+        if "comfyui-easy-use" not in module_file_norm or not module_file_norm.endswith(target_tail):
+            continue
+
+        try:
+            remove_cache = getattr(module, "remove_cache", None)
+            if callable(remove_cache):
+                remove_cache("*")
+        except Exception:
+            pass
+
+        try:
+            cache_obj = getattr(module, "cache", None)
+            clear = getattr(cache_obj, "clear", None)
+            if callable(clear):
+                clear()
+        except Exception:
+            pass
+
+        try:
+            cache_count = getattr(module, "cache_count", None)
+            if isinstance(cache_count, dict):
+                cache_count.clear()
+        except Exception:
+            pass
+
+        break
+
 SENSITIVE_EXTRA_DATA_KEYS = ("auth_token_comfy_org", "api_key_comfy_org")
 
 def get_input_data(inputs, class_def, unique_id, execution_list=None, dynprompt=None, extra_data={}):
@@ -813,6 +852,19 @@ class PromptExecutor:
             if comfy.model_management.DISABLE_SMART_MEMORY:
                 comfy.model_management.unload_all_models()
             comfy.model_management.print_memory_info("end of execution")
+            if getattr(args, "cache_clear_on_finish", False):
+                try:
+                    self.caches = CacheSet(cache_type=self.cache_type, cache_args=self.cache_args)
+                except Exception:
+                    pass
+                try:
+                    _clear_easyuse_global_cache()
+                except Exception:
+                    pass
+                try:
+                    comfy.model_management.unload_and_free_everything()
+                except Exception:
+                    pass
 
 
 async def validate_inputs(prompt_id, prompt, item, validated):

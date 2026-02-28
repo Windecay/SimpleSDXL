@@ -11,6 +11,8 @@ import shared
 import shutil
 from lxml import etree
 import logging
+import threading
+import time
 from enhanced.logger import format_name
 logger = logging.getLogger(format_name(__name__))
 
@@ -26,66 +28,197 @@ videos_list = {}
 image_types = ['.png', '.jpg', '.jpeg', '.webp'] 
 video_types = ['.webm', '.mp4']
 output_images_regex = re.compile(r'\d{4}-\d{2}-\d{2}')
+_output_list_cache = {}
+_output_list_cache_lock = threading.Lock()
+_output_list_inflight = set()
 
 def refresh_output_list(max_per_page, max_catalog, user_did=None, engine_type='image'):
     global image_types, images_list, images_list_keys, images_prompt, images_prompt_keys, images_ads, videos_list
 
-    user_path_outputs = config.get_user_path_outputs(user_did)
-    if not os.path.exists(user_path_outputs):
-        logger.info(f'[Gallery] Makedirs for new user: {user_path_outputs}')
-        os.makedirs(user_path_outputs, exist_ok=True)
-    listdirs = [f for f in os.listdir(user_path_outputs) if output_images_regex.findall(f) and os.path.isdir(os.path.join(user_path_outputs,f))]
-    if not listdirs:
-        return [], 0, 0
+    cache_key = (str(user_did), str(engine_type), int(max_per_page), int(max_catalog))
+    with _output_list_cache_lock:
+        cached = _output_list_cache.get(cache_key)
+        if cache_key in _output_list_inflight:
+            return cached if cached is not None else ([], 0, 0)
+        _output_list_inflight.add(cache_key)
 
-    valid_listdirs = []
-    for d in listdirs:
-        path_gallery = os.path.join(user_path_outputs, d)
-        if len(util.get_files_from_folder(path_gallery, image_types + video_types, None)) > 0:
-            valid_listdirs.append(d)
-    listdirs = valid_listdirs
+    start_perf = time.perf_counter()
+    deadline = time.monotonic() + 2.5
 
-    if not listdirs:
-        return [], 0, 0
+    def _check_deadline():
+        if time.monotonic() > deadline:
+            raise TimeoutError()
 
-    listdirs1 = listdirs.copy()
-    total_nums = 0
-    video_files = {}
-    for index in listdirs:
-        path_gallery = os.path.join(user_path_outputs, index)
-        nums = len(util.get_files_from_folder(path_gallery, image_types, None))
-        total_nums += nums
-        if nums > max_per_page:
-            max_page_no = math.ceil(nums/max_per_page)
-            for i in range(1,max_page_no+1):
-                listdirs1.append("{}/{}".format(index, str(i).zfill(len(str(max_page_no)))))
-            listdirs1.remove(index)
-        video_files.update({"{}{}".format(index.replace('-', ''), ''.join(v.split('_')[1].split('-')) if '_' in v else ''): os.path.join(index, v) for v in util.get_files_from_folder(path_gallery, video_types, None)})
-    videos_list[user_did] = video_files
-    if engine_type == 'video':
-        output_list = sorted(video_files.keys(), reverse=True)
-        total_nums = len(output_list)
-        output_list = output_list[:max_catalog]
-        return output_list, total_nums, len(output_list)
+    def _walk_files_with_deadline(folder_path, extensions):
+        if not os.path.isdir(folder_path):
+            return []
+        filenames = []
+        for root, _, files in os.walk(folder_path, topdown=False):
+            _check_deadline()
+            relative_path = os.path.relpath(root, folder_path)
+            if relative_path == ".":
+                relative_path = ""
+            for filename in sorted(files, key=lambda s: s.casefold()):
+                _check_deadline()
+                _, file_extension = os.path.splitext(filename)
+                if extensions is None or file_extension.lower() in extensions:
+                    filenames.append(os.path.join(relative_path, filename) if relative_path else filename)
+        return filenames
 
-    output_list = sorted([f[2:] for f in listdirs1], reverse=True)
-    pages = len(output_list)
-    display_max_pages = max_catalog
-    logger.info(f'Refresh_output_catalog: A total of {total_nums} images and {pages} pages, displaying the latest {pages if pages<display_max_pages else display_max_pages} pages.')
-    output_list = output_list[:display_max_pages]
+    def _list_files_quick(folder_path, extensions):
+        try:
+            _check_deadline()
+            has_dirs = False
+            files = []
+            for entry in os.scandir(folder_path):
+                _check_deadline()
+                try:
+                    if entry.is_dir():
+                        has_dirs = True
+                        continue
+                    if not entry.is_file():
+                        continue
+                    _, ext = os.path.splitext(entry.name)
+                    if ext.lower() in extensions:
+                        files.append(entry.name)
+                except OSError:
+                    continue
+            if files or not has_dirs:
+                return files
+        except Exception:
+            pass
+        try:
+            return _walk_files_with_deadline(folder_path, extensions)
+        except Exception:
+            return []
 
-    if user_did not in images_list:
-        images_list[user_did]={}
-    if user_did not in images_list_keys:
-        images_list_keys[user_did]=[]
-    if user_did not in images_prompt:
-        images_prompt[user_did]={}
-    if user_did not in images_prompt_keys:
-        images_prompt_keys[user_did]=[]
-    if user_did not in images_ads:
-        images_ads[user_did]={}
+    def _has_any_files_quick(folder_path, extensions):
+        try:
+            _check_deadline()
+            has_dirs = False
+            for entry in os.scandir(folder_path):
+                _check_deadline()
+                try:
+                    if entry.is_dir():
+                        has_dirs = True
+                        continue
+                    if not entry.is_file():
+                        continue
+                    _, ext = os.path.splitext(entry.name)
+                    if ext.lower() in extensions:
+                        return True
+                except OSError:
+                    continue
+            if not has_dirs:
+                return False
+        except Exception:
+            pass
+        try:
+            return len(_walk_files_with_deadline(folder_path, extensions)) > 0
+        except Exception:
+            return False
 
-    return output_list, total_nums, pages
+    try:
+        user_path_outputs = config.get_user_path_outputs(user_did)
+        if not os.path.exists(user_path_outputs):
+            logger.info(f'[Gallery] Makedirs for new user: {user_path_outputs}')
+            os.makedirs(user_path_outputs, exist_ok=True)
+
+        listdirs = []
+        for entry in os.scandir(user_path_outputs):
+            _check_deadline()
+            try:
+                if not entry.is_dir():
+                    continue
+                name = entry.name
+                if output_images_regex.findall(name):
+                    listdirs.append(name)
+            except OSError:
+                continue
+        if not listdirs:
+            result = ([], 0, 0)
+            with _output_list_cache_lock:
+                _output_list_cache[cache_key] = result
+            return result
+
+        valid_listdirs = []
+        for d in listdirs:
+            _check_deadline()
+            path_gallery = os.path.join(user_path_outputs, d)
+            if _has_any_files_quick(path_gallery, image_types + video_types):
+                valid_listdirs.append(d)
+        listdirs = valid_listdirs
+
+        if not listdirs:
+            result = ([], 0, 0)
+            with _output_list_cache_lock:
+                _output_list_cache[cache_key] = result
+            return result
+
+        listdirs1 = listdirs.copy()
+        total_nums = 0
+        video_files = {}
+        for index in listdirs:
+            _check_deadline()
+            path_gallery = os.path.join(user_path_outputs, index)
+            nums = len(_list_files_quick(path_gallery, image_types))
+            total_nums += nums
+            if nums > max_per_page:
+                max_page_no = math.ceil(nums/max_per_page)
+                for i in range(1, max_page_no + 1):
+                    _check_deadline()
+                    listdirs1.append("{}/{}".format(index, str(i).zfill(len(str(max_page_no)))))
+                listdirs1.remove(index)
+            for v in _list_files_quick(path_gallery, video_types):
+                _check_deadline()
+                base = os.path.basename(v)
+                key_suffix = ''.join(base.split('_')[1].split('-')) if '_' in base else ''
+                video_files.update({f"{index.replace('-', '')}{key_suffix}": os.path.join(index, v)})
+
+        videos_list[user_did] = video_files
+        if engine_type == 'video':
+            output_list = sorted(video_files.keys(), reverse=True)
+            total_nums = len(output_list)
+            output_list = output_list[:max_catalog]
+            result = (output_list, total_nums, len(output_list))
+            with _output_list_cache_lock:
+                _output_list_cache[cache_key] = result
+            elapsed_s = time.perf_counter() - start_perf
+            if elapsed_s >= 0.2:
+                logger.info(f"[Gallery] refresh_output_list elapsed_s={elapsed_s:.2f}, user_did={user_did}, engine_type={engine_type}, total={total_nums}, pages={result[2]}")
+            return result
+
+        output_list = sorted([f[2:] for f in listdirs1], reverse=True)
+        pages = len(output_list)
+        display_max_pages = max_catalog
+        logger.info(f'Refresh_output_catalog: A total of {total_nums} images and {pages} pages, displaying the latest {pages if pages<display_max_pages else display_max_pages} pages.')
+        output_list = output_list[:display_max_pages]
+
+        if user_did not in images_list:
+            images_list[user_did] = {}
+        if user_did not in images_list_keys:
+            images_list_keys[user_did] = []
+        if user_did not in images_prompt:
+            images_prompt[user_did] = {}
+        if user_did not in images_prompt_keys:
+            images_prompt_keys[user_did] = []
+        if user_did not in images_ads:
+            images_ads[user_did] = {}
+
+        result = (output_list, total_nums, pages)
+        with _output_list_cache_lock:
+            _output_list_cache[cache_key] = result
+        elapsed_s = time.perf_counter() - start_perf
+        if elapsed_s >= 0.2:
+            logger.info(f"[Gallery] refresh_output_list elapsed_s={elapsed_s:.2f}, user_did={user_did}, engine_type={engine_type}, total={total_nums}, pages={pages}")
+        return result
+    except TimeoutError:
+        elapsed_s = time.perf_counter() - start_perf
+        logger.warning(f"[Gallery] refresh_output_list timeout, returning cached: waited_s={elapsed_s:.2f}, user_did={user_did}, engine_type={engine_type}")
+        return cached if cached is not None else ([], 0, 0)
+    finally:
+        with _output_list_cache_lock:
+            _output_list_inflight.discard(cache_key)
 
 
 def images_list_update(choice, image_tools_checkbox, state_params):

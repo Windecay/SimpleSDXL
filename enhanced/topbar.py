@@ -502,10 +502,10 @@ function(system_params) {
 }
 '''
 
-def init_nav_bars(state_params, comfyd_active_checkbox, fast_comfyd_checkbox, reserved_vram, ram_pressure, minicpm_checkbox, minicpm_version, advanced_logs, wavespeed_strength, translation_methods, p2p_active_checkbox, p2p_remote_process, p2p_in_did_list, p2p_out_did_list, no_welcome_checkbox, missing_model_filter_checkbox, request: gr.Request):
+def init_nav_bars(state_params, comfyd_active_checkbox, fast_comfyd_checkbox, cache_clear_on_finish_checkbox, reserved_vram, ram_pressure, minicpm_checkbox, minicpm_version, advanced_logs, wavespeed_strength, translation_methods, p2p_active_checkbox, p2p_remote_process, p2p_in_did_list, p2p_out_did_list, no_welcome_checkbox, missing_model_filter_checkbox, request: gr.Request):
     #logger.info(f'request.headers:{request.headers}')
     #logger.info(f'request.client:{request.client}')
-    admin_currunt_value = [comfyd_active_checkbox, fast_comfyd_checkbox, reserved_vram, ram_pressure, minicpm_checkbox, minicpm_version, advanced_logs, wavespeed_strength, translation_methods, p2p_active_checkbox, p2p_remote_process, p2p_in_did_list, p2p_out_did_list, no_welcome_checkbox, missing_model_filter_checkbox]
+    admin_currunt_value = [comfyd_active_checkbox, fast_comfyd_checkbox, cache_clear_on_finish_checkbox, reserved_vram, ram_pressure, minicpm_checkbox, minicpm_version, advanced_logs, wavespeed_strength, translation_methods, p2p_active_checkbox, p2p_remote_process, p2p_in_did_list, p2p_out_did_list, no_welcome_checkbox, missing_model_filter_checkbox]
     #logger.info(f'admin_currunt_value: {admin_currunt_value}')
 
     user_agent = request.headers["user-agent"]
@@ -898,7 +898,6 @@ def process_after_generation(state_params):
         try:
             output_index = state_params["__output_list"][0].split('/')[0]
             gallery_util.refresh_images_catalog(output_index, True, user_did)
-            gallery_util.parse_html_log(output_index, True, user_did)
         except Exception as e:
             logger.error(f'Error in post-generation gallery processing: {e}')
    
@@ -996,18 +995,35 @@ def reset_layout_ui(prompt, negative_prompt, state_params, is_generating, inpain
     return results + [state_params] + comparison_outputs
 
 def reset_layout_values(state_params, is_generating, inpaint_mode, use_resolution_override):
-    preset = state_params["__preset"]
+    if not isinstance(state_params, dict):
+        state_params = {}
+
+    preset = state_params.get("__preset", None)
+    if not preset:
+        preset = config.preset
+        state_params["__preset"] = preset
 
     preset_prepared = state_params.get('__preset_prepared', None)
     if preset_prepared is None:
-        config_preset = config.try_get_preset_content(preset, state_params["user"].get_did())
+        try:
+            user = state_params.get("user", None)
+            user_did = user.get_did() if user is not None and hasattr(user, "get_did") else None
+        except Exception:
+            user_did = None
+        if not user_did:
+            try:
+                user_did = shared.token.get_guest_did()
+            except Exception:
+                user_did = None
+
+        config_preset = config.try_get_preset_content(preset, user_did)
         preset_prepared = meta_parser.parse_meta_from_preset(config_preset)
 
         task_method = state_params.get("task_method", "text2image")
         preset_prepared.update({
             'preset': preset,
             'task_method': task_method,
-            'is_mobile': state_params["__is_mobile"] })
+            'is_mobile': state_params.get("__is_mobile", False) })
 
     results = meta_parser.load_parameter_button_click(preset_prepared, is_generating, inpaint_mode, use_resolution_override, no_welcome=ads.get_admin_default("no_welcome_checkbox"))
     results += update_after_identity_sub(state_params)
@@ -1379,7 +1395,7 @@ def get_all_user_default(state):
     return results
 
 def get_all_admin_default(currunt_value):
-    admin_keys = ['comfyd_active_checkbox', 'fast_comfyd_checkbox', 'reserved_vram', 'cache_ram', 'minicpm_checkbox', 'minicpm_version', 'advanced_logs', 'wavespeed_strength', 'translation_methods', 'p2p_active_checkbox', "p2p_remote_process", "p2p_in_did_list", "p2p_out_did_list", "no_welcome_checkbox", "missing_model_filter_checkbox"]
+    admin_keys = ['comfyd_active_checkbox', 'fast_comfyd_checkbox', 'cache_clear_on_finish_checkbox', 'reserved_vram', 'cache_ram', 'minicpm_checkbox', 'minicpm_version', 'advanced_logs', 'wavespeed_strength', 'translation_methods', 'p2p_active_checkbox', "p2p_remote_process", "p2p_in_did_list", "p2p_out_did_list", "no_welcome_checkbox", "missing_model_filter_checkbox"]
     result = []
     for i, admin_key in enumerate(admin_keys):
         admin_value = ads.get_admin_default(admin_key)

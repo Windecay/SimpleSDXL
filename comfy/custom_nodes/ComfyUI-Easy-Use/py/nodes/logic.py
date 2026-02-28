@@ -788,9 +788,18 @@ class whileLoopEnd:
                     node.set_input(k, v)
 
         new_open = graph.lookup_node(open_node)
+        open_node_inputs = {}
+        try:
+            open_node_inputs = dynprompt.get_node(open_node).get("inputs", {})
+        except Exception:
+            open_node_inputs = {}
         for i in range(MAX_FLOW_NUM):
             key = "initial_value%d" % i
-            new_open.set_input(key, kwargs.get(key, None))
+            raw_v = open_node_inputs.get(key, None)
+            if is_link(raw_v) and raw_v[0] not in contained:
+                new_open.set_input(key, raw_v)
+            else:
+                new_open.set_input(key, kwargs.get(key, None))
         my_clone = graph.lookup_node("Recurse")
         result = map(lambda x: my_clone.out(x), range(MAX_FLOW_NUM))
         return {
@@ -810,7 +819,7 @@ class forLoopStart:
                 "total": ("INT", {"default": 1, "min": 1, "max": 100000, "step": 1}),
             },
             "optional": {
-                "initial_value%d" % i: (any_type,) for i in range(1, MAX_FLOW_NUM)
+                "initial_value%d" % i: (any_type, {"rawLink": True}) for i in range(1, MAX_FLOW_NUM)
             },
             "hidden": {
                 "initial_value0": (any_type,),
@@ -835,9 +844,9 @@ class forLoopStart:
         initial_values = {("initial_value%d" % num): kwargs.get("initial_value%d" % num, None) for num in
                           range(1, MAX_FLOW_NUM)}
         while_open = graph.node("easy whileLoopStart", condition=total, initial_value0=i, **initial_values)
-        outputs = [kwargs.get("initial_value%d" % num, None) for num in range(1, MAX_FLOW_NUM)]
+        outputs = [while_open.out(i) for i in range(1, MAX_FLOW_NUM + 1)]
         return {
-            "result": tuple(["stub", i] + outputs),
+            "result": tuple(["stub"] + outputs),
             "expand": graph.finalize(),
         }
 

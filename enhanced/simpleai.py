@@ -167,10 +167,11 @@ def reset_simpleai_args():
     reserve_vram = [['--reserve-vram', f'{reserve_vram_value}']] if reserve_vram_value and reserve_vram_value>0 else [] 
     cache_ram_value = ads.get_admin_default('cache_ram')
     cache_ram = [['--cache-ram', f'{cache_ram_value}']] if cache_ram_value and cache_ram_value>0 else []
+    cache_clear_on_finish = [["--cache-clear-on-finish"]] if ads.get_admin_default('cache_clear_on_finish_checkbox') else []
     smart_memory = [] if shared.sysinfo['gpu_memory']<8180 else [['--disable-smart-memory']]
     windows_standalone = [["--windows-standalone-build"]] if is_win32_standalone_build else []
     fast_mode = [['--fast', 'fp16_accumulation']] if ads.get_admin_default('fast_comfyd_checkbox') else []
-    args_comfyd = comfyd.args_mapping(sys.argv) + [["--listen"], ["--port", f'{shared.sysinfo["loopback_port"]}']] + smart_memory + windows_standalone + reserve_vram + fast_mode + cache_ram
+    args_comfyd = comfyd.args_mapping(sys.argv) + [["--listen"], ["--port", f'{shared.sysinfo["loopback_port"]}']] + smart_memory + windows_standalone + reserve_vram + fast_mode + cache_ram + cache_clear_on_finish
     args_comfyd += [["--cuda-malloc"]] if not shared.args.disable_async_cuda_allocation and not shared.args.async_cuda_allocation else []
     comfyd_images_path = os.path.join(shared.path_userhome, 'guest_user')
     comfyd_intput = os.path.join(comfyd_images_path, 'comfyd_inputs')
@@ -288,6 +289,17 @@ def start_fast_comfyd(fast, state):
     else:
         comfyd.start(args_patch=[[]], force=True)
     ads.set_admin_default_value('fast_comfyd_checkbox', fast, state)
+    return
+
+def set_cache_clear_on_finish(enabled, state):
+    if args_manager.args.disable_backend or args_manager.args.disable_comfyd:
+        return
+    ads.set_admin_default_value('cache_clear_on_finish_checkbox', enabled, state)
+    if comfyd.is_running():
+        comfyd.stop(force=True)
+    reset_simpleai_args()
+    if getattr(comfyd, "comfyd_active", False):
+        comfyd.start()
     return
 
 def change_advanced_logs(advanced_logs, state):

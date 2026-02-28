@@ -137,15 +137,36 @@ let cancelGenerateForever = function() {
 (function() {
     //Start example Context Menu Items
     let generateOnRepeat = function(genbuttonid, interruptbuttonid) {
-        let genbutton = gradioApp().querySelector(genbuttonid);
-        let interruptbutton = gradioApp().querySelector(interruptbuttonid);
-        if (!interruptbutton.offsetParent) {
-            genbutton.click();
+        let shouldTrigger = function() {
+            let genbutton = gradioApp().querySelector(genbuttonid);
+            let interruptbutton = gradioApp().querySelector(interruptbuttonid);
+            if (!genbutton || !interruptbutton) {
+                return false;
+            }
+            if (genbutton.disabled || genbutton.getAttribute("aria-disabled") === "true") {
+                return false;
+            }
+            if (interruptbutton.offsetParent) {
+                return false;
+            }
+            let sceneVideoPlaceholder = gradioApp().querySelector("#scene_video_placeholder");
+            if (sceneVideoPlaceholder && sceneVideoPlaceholder.offsetParent) {
+                return false;
+            }
+            let sceneAudioPlaceholder = gradioApp().querySelector("#scene_audio_placeholder");
+            if (sceneAudioPlaceholder && sceneAudioPlaceholder.offsetParent) {
+                return false;
+            }
+            return true;
+        };
+
+        if (shouldTrigger()) {
+            gradioApp().querySelector(genbuttonid)?.click();
         }
         clearInterval(window.generateOnRepeatInterval);
         window.generateOnRepeatInterval = setInterval(function() {
-            if (!interruptbutton.offsetParent) {
-                genbutton.click();
+            if (shouldTrigger()) {
+                gradioApp().querySelector(genbuttonid)?.click();
             }
         },
         500);
