@@ -334,6 +334,14 @@ def worker():
         async_task.yields.append(['preview', (number, text, img)])
         async_task.lasttime = time.time()
 
+    def clamp_progress_total(current_step, reported_total_steps):
+        try:
+            current_i = int(current_step)
+            total_i = int(reported_total_steps) if reported_total_steps is not None else 0
+            return max(current_i, total_i, 1)
+        except Exception:
+            return reported_total_steps
+
     def yield_result(async_task, imgs, progressbar_index, black_out_nsfw, censor=True, do_not_show_finished_images=False):
         if async_task.remote_task is not None:
             p2p_task.call_remote_result(async_task, imgs, progressbar_index, black_out_nsfw, censor, do_not_show_finished_images)
@@ -1735,7 +1743,8 @@ def worker():
                 async_task.callback_steps = 0
             async_task.callback_steps += (100 - preparation_steps) / float(all_steps)
             percentage = int(current_progress + async_task.callback_steps)
-            progressbar(async_task, percentage, f'采样步数 {step + 1}/{total_steps}, 图片 {current_task_id + 1}/{total_count} ...', y)
+            display_total_steps = clamp_progress_total(step + 1, total_steps)
+            progressbar(async_task, percentage, f'采样步数 {step + 1}/{display_total_steps}, 图片 {current_task_id + 1}/{total_count} ...', y)
 
         def callback_comfytask(step, total_steps, y):
             if step == 1:
@@ -1761,7 +1770,8 @@ def worker():
                 return
 
             percentage = int(current_progress + async_task.callback_steps)
-            progressbar(async_task, percentage, f'采样步数 {step}/{total_steps}, 图片 {current_task_id + 1}/{total_count} ...', y)
+            display_total_steps = clamp_progress_total(step, total_steps)
+            progressbar(async_task, percentage, f'采样步数 {step}/{display_total_steps}, 图片 {current_task_id + 1}/{total_count} ...', y)
             async_task._last_percentage = percentage
 
         callback_function = callback

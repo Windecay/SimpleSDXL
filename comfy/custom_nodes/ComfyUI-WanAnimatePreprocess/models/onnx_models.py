@@ -9,6 +9,7 @@ from ..pose_utils.pose2d_utils import box_convert_simple, keypoints_from_heatmap
 
 class SimpleOnnxInference(object):
     _global_warning_shown = False
+    _runtime_fallback_warning_shown = False
 
     def __init__(self, checkpoint, device='CUDAExecutionProvider', **kwargs):
         # Store initialization parameters for potential reinit
@@ -43,8 +44,6 @@ class SimpleOnnxInference(object):
             actual_providers = self.session.get_providers()
 
             print(f"Using CPUExecutionProvider after fallback. Providers available: {actual_providers}")
-
-        self.session = onnxruntime.InferenceSession(checkpoint, providers=provider)
         self.input_name = self.session.get_inputs()[0].name
         self.output_name = self.session.get_outputs()[0].name
         self.input_resolution = self.session.get_inputs()[0].shape[2:]
@@ -100,6 +99,35 @@ class SimpleOnnxInference(object):
             self.output_name = self.session.get_outputs()[0].name
             self.input_resolution = self.session.get_inputs()[0].shape[2:]
             self.input_resolution = np.array(self.input_resolution)
+
+    def run(self, output_names, input_feed):
+        try:
+            return self.session.run(output_names, input_feed)
+        except Exception as e:
+            error_text = str(e)
+            is_cuda_kernel_mismatch = (
+                "cudaErrorNoKernelImageForDevice" in error_text
+                or "no kernel image is available for execution on the device" in error_text
+            )
+            if is_cuda_kernel_mismatch and hasattr(self, "session") and self.session is not None:
+                try:
+                    providers = self.session.get_providers()
+                except Exception:
+                    providers = []
+                if "CUDAExecutionProvider" in providers:
+                    if not SimpleOnnxInference._runtime_fallback_warning_shown:
+                        SimpleOnnxInference._runtime_fallback_warning_shown = True
+                        print(
+                            "ONNXRuntime CUDA 推理失败（GPU 架构/驱动/ORT CUDA 版本不匹配），已自动回退到 CPUExecutionProvider。"
+                        )
+                    try:
+                        self.cleanup()
+                        self.provider = ["CPUExecutionProvider"]
+                        self.reinit(provider=self.provider)
+                        return self.session.run(output_names, input_feed)
+                    except Exception:
+                        raise e
+            raise
 
 class Yolo(SimpleOnnxInference):
     def __init__(self, checkpoint, device='cuda', threshold_conf=0.05, threshold_multi_persons=0.1, input_resolution=(640, 640), threshold_iou=0.5, threshold_bbox_shape_ratio=0.4, cat_id=[1], select_type='max', strict=True, sorted_func=None, **kwargs):
@@ -312,7 +340,7 @@ class Yolo(SimpleOnnxInference):
             img = img.cpu().numpy()
             shape_raw = shape_raw.cpu().numpy()
 
-        outputs = self.session.run(None, {self.session.get_inputs()[0].name: img})[0]
+        outputs = self.run(None, {self.input_name: img})[0]
         person_results = [[{'bbox': np.array([0., 0., 1.*shape_raw[i][1], 1.*shape_raw[i][0], -1]), 'track_id': -1}] for i in range(len(outputs))]
 
         for i in range(len(outputs)):
@@ -325,7 +353,7 @@ class ViTPose(SimpleOnnxInference):
         super(ViTPose, self).__init__(checkpoint, device=device)
 
     def forward(self, img, center, scale, **kwargs):
-        heatmaps = self.session.run([], {self.session.get_inputs()[0].name: img})[0]
+        heatmaps = self.run([], {self.input_name: img})[0]
         points, prob = keypoints_from_heatmaps(heatmaps=heatmaps,
                                             center=center,
                                             scale=scale*200,
