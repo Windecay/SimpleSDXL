@@ -9,6 +9,37 @@ import re
 import random
 import tempfile
 import wave
+
+try:
+    import gradio.processing_utils as _gr_processing_utils
+
+    if hasattr(_gr_processing_utils, "video_is_playable"):
+        _orig_video_is_playable = _gr_processing_utils.video_is_playable
+
+        def _video_is_playable_safe(video):
+            try:
+                return _orig_video_is_playable(video)
+            except Exception as e:
+                if e.__class__.__name__ == "FFExecutableNotFoundError" or "ffprobe" in str(e).lower():
+                    return True
+                raise
+
+        _gr_processing_utils.video_is_playable = _video_is_playable_safe
+
+    if hasattr(_gr_processing_utils, "audio_is_playable"):
+        _orig_audio_is_playable = _gr_processing_utils.audio_is_playable
+
+        def _audio_is_playable_safe(audio):
+            try:
+                return _orig_audio_is_playable(audio)
+            except Exception as e:
+                if e.__class__.__name__ == "FFExecutableNotFoundError" or "ffprobe" in str(e).lower():
+                    return True
+                raise
+
+        _gr_processing_utils.audio_is_playable = _audio_is_playable_safe
+except Exception:
+    pass
 import shared
 import modules.config
 import modules.html
