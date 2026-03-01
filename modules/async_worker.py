@@ -1039,7 +1039,7 @@ def worker():
         progressbar(async_task, current_progress, '准备提示词 ...')
         tasks = []
         task_rng = random.Random(async_task.seed % (constants.MAX_SEED + 1))
-        prompt, wildcards_arrays, arrays_mult, seed_fixed = wildcards.compile_arrays(prompt, task_rng)
+        prompt, wildcards_arrays, arrays_mult, seed_fixed = wildcards.compile_arrays(prompt, task_rng, user_did=async_task.user_did)
         for i in range(image_number if arrays_mult==0 else arrays_mult):
             if arrays_mult==0 or not seed_fixed or not disable_seed_increment:
                 task_seed = (async_task.seed + i) % (constants.MAX_SEED + 1)  # randint is inclusive, % is not
@@ -1048,10 +1048,10 @@ def worker():
 
             task_rng = random.Random(task_seed)  # may bind to inpaint noise in the future
             task_prompt = wildcards.apply_arrays(prompt, i, wildcards_arrays, arrays_mult)
-            task_prompt = wildcards.replace_wildcard(task_prompt, task_rng)
-            task_negative_prompt = wildcards.apply_wildcards(negative_prompt, task_rng)
-            task_extra_positive_prompts = [wildcards.apply_wildcards(pmt, task_rng) for pmt in extra_positive_prompts]
-            task_extra_negative_prompts = [wildcards.apply_wildcards(pmt, task_rng) for pmt in extra_negative_prompts]
+            task_prompt = wildcards.replace_wildcard(task_prompt, task_rng, user_did=async_task.user_did)
+            task_negative_prompt = wildcards.apply_wildcards(negative_prompt, task_rng, user_did=async_task.user_did)
+            task_extra_positive_prompts = [wildcards.apply_wildcards(pmt, task_rng, user_did=async_task.user_did) for pmt in extra_positive_prompts]
+            task_extra_negative_prompts = [wildcards.apply_wildcards(pmt, task_rng, user_did=async_task.user_did) for pmt in extra_negative_prompts]
            
             if not async_task.task_method.lower().endswith('_cn') and async_task.task_class not in ['Kolors', 'HyDiT', 'Wan', 'Qwen', 'Z-image']:
                 task_prompt = minicpm.translate(task_prompt, async_task.translation_methods)

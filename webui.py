@@ -1302,15 +1302,72 @@ with shared.gradio_root:
                                       outputs=prompt,show_progress=False,queue=False)
 
                 with gr.Accordion(label='Wildcards & Batch Prompts', visible=False, open=True) as prompt_wildcards:
-                    wildcards_list = gr.Dataset(components=[prompt], type='index', label='Wildcards: [__color__:L3:4], take 3 phrases starting from the 4th in color in order. [__color__:3], take 3 randomly. [__color__], take 1 randomly.', samples=wildcards.get_wildcards_samples(), visible=True, samples_per_page=28)
+                    gr.HTML(value='<a href="wildcards/readme" target="_blank" rel="noopener noreferrer">Wildcards readme</a>')
+                    with gr.Accordion(label="🎯 Wildcards Helper", visible=True, open=False):
+                        wildcard_names = [x[0] for x in wildcards.get_wildcards_samples(trans=False)]
+                        with gr.Row():
+                            with gr.Column(scale=1, min_width=220):
+                                wc_target = gr.Dropdown(label="Target",value="Array (batch)",choices=["Array (batch)", "Single in prompt"])
+                            with gr.Column(scale=1, min_width=220):
+                                wc_method = gr.Dropdown(label="Method",value="Random Select",choices=["Random Select", "In order"])
+                            with gr.Column(scale=1, min_width=220):
+                                wc_seed_mode = gr.Dropdown(label="Seed mode",value="Fixed seed",choices=["Fixed seed", "Random seed"])
+                        with gr.Row():
+                            with gr.Column(scale=1, min_width=220):
+                                wc_name = gr.Dropdown(label="Wildcard",value=wildcard_names[0] if len(wildcard_names) > 0 else "",choices=wildcard_names)
+                            with gr.Column(scale=1, min_width=220):
+                                wc_count = gr.Number(label="Count", value=1, precision=0)
+                            with gr.Column(scale=1, min_width=220):
+                                wc_start = gr.Number(label="Start index", value=1, precision=0, visible=False)
+                                wc_group_size = gr.Number(label="Group size", value=1, precision=0, visible=True)
+                        wc_preview = gr.HTML(value="")
+                        wc_insert_btn = gr.Button(value="Append to prompt")
+
+                        wc_target.change(wildcards.update_wildcards_helper_controls, inputs=[wc_target, wc_method, wc_seed_mode, wc_name, wc_count, wc_start, wc_group_size], outputs=[wc_start, wc_group_size], show_progress=False, queue=False)
+                        wc_method.change(wildcards.update_wildcards_helper_controls, inputs=[wc_target, wc_method, wc_seed_mode, wc_name, wc_count, wc_start, wc_group_size], outputs=[wc_start, wc_group_size], show_progress=False, queue=False)
+
+                        for c in [wc_target, wc_method, wc_seed_mode, wc_name, wc_count, wc_start, wc_group_size]:
+                            c.change(wildcards.update_wildcards_helper_preview, inputs=[wc_target, wc_method, wc_seed_mode, wc_name, wc_count, wc_start, wc_group_size], outputs=[wc_preview], show_progress=False, queue=False)
+
+                        wc_insert_btn.click(
+                            wildcards.append_wildcards_helper_tag_to_prompt,
+                            inputs=[prompt, wc_target, wc_method, wc_seed_mode, wc_name, wc_count, wc_start, wc_group_size],
+                            outputs=[prompt],
+                            show_progress=False,
+                            queue=False
+                        )
+                    wildcards_list = gr.Dataset(components=[prompt], type='index', label='Wildcards examples: [__color__:L3:4] = 3 items in order starting from the 4th. [__color__:3] = 3 random candidates (3 images). __color__ = 1 random per image.', samples=wildcards.get_wildcards_samples(), visible=True, samples_per_page=28)
                     with gr.Accordion(label='Words/phrases of wildcard', visible=True, open=False) as words_in_wildcard:
                         wildcard_tag_name_selection = gr.Dataset(components=[prompt], label='Words:', samples=wildcards.get_words_of_wildcard_samples(), visible=True, samples_per_page=30, type='index')
                     wildcards_list.click(wildcards.add_wildcards_and_array_to_prompt, inputs=[wildcards_list, prompt, state_topbar], outputs=[prompt, wildcard_tag_name_selection, words_in_wildcard], show_progress=False, queue=False)
-                    wildcard_tag_name_selection.click(wildcards.add_word_to_prompt, inputs=[wildcards_list, wildcard_tag_name_selection, prompt], outputs=prompt, show_progress=False, queue=False)
-                    wildcards_array = [prompt_wildcards, words_in_wildcard, wildcards_list, wildcard_tag_name_selection]
-                    wildcards_array_show =lambda x: [gr.update(visible=True)] * 2 + [gr.Dataset.update(visible=True, samples=wildcards.get_wildcards_samples()), gr.Dataset.update(visible=True, samples=wildcards.get_words_of_wildcard_samples(x))]
-                    wildcards_array_hidden = [gr.update(visible=False)] * 2 + [gr.Dataset.update(visible=False, samples=wildcards.get_wildcards_samples()), gr.Dataset.update(visible=False, samples=wildcards.get_words_of_wildcard_samples())]
-                    wildcards_array_hold = [gr.update()] * 4
+                    wildcard_tag_name_selection.click(wildcards.add_word_to_prompt, inputs=[wildcards_list, wildcard_tag_name_selection, prompt, state_topbar], outputs=prompt, show_progress=False, queue=False)
+                    wildcards_array = [prompt_wildcards, words_in_wildcard, wildcards_list, wildcard_tag_name_selection, wc_name]
+
+                    def wildcards_array_show(state_params):
+                        user_did = state_params["user"].get_did() if isinstance(state_params, dict) and "user" in state_params and state_params["user"] is not None else None
+                        wildcard_in = state_params.get("wildcard_in_wildcards", "root") if isinstance(state_params, dict) else "root"
+                        names = [x[0] for x in wildcards.get_wildcards_samples(trans=False, user_did=user_did)]
+                        name_value = names[0] if len(names) > 0 else ""
+                        return (
+                            [gr.update(visible=True)] * 2
+                            + [
+                                gr.Dataset.update(visible=True, samples=wildcards.get_wildcards_samples(user_did=user_did)),
+                                gr.Dataset.update(visible=True, samples=wildcards.get_words_of_wildcard_samples(wildcard_in, user_did=user_did)),
+                                gr.update(choices=names, value=name_value),
+                            ]
+                        )
+
+                    def wildcards_array_hidden():
+                        return (
+                            [gr.update(visible=False)] * 2
+                            + [
+                                gr.Dataset.update(visible=False, samples=[]),
+                                gr.Dataset.update(visible=False, samples=[]),
+                                gr.update(),
+                            ]
+                        )
+
+                    wildcards_array_hold = [gr.update()] * 5
             
             with gr.Row(elem_classes='advanced_check_row'):
                 input_image_checkbox = gr.Checkbox(label='Input Image', value=modules.config.default_image_prompt_checkbox, container=False, elem_classes='min_check')
@@ -3413,7 +3470,7 @@ with shared.gradio_root:
             prompt_panel_checkbox.change(lambda x: [gr.update(visible=x, open=x if x else True), gr.update(visible=x)],
                                          inputs=prompt_panel_checkbox, outputs=[prompt_wildcards, prompt_history], queue=False, show_progress=False,
                                          _js=switch_js).then(
-                                         lambda x,y: wildcards_array_show(y['wildcard_in_wildcards']) if x else wildcards_array_hidden,
+                                         lambda x,y: wildcards_array_show(y) if x else wildcards_array_hidden(),
                                          inputs=[prompt_panel_checkbox, state_topbar],
                                          outputs=wildcards_array, queue=False, show_progress=False)
 
@@ -4261,14 +4318,17 @@ with shared.gradio_root:
     after_identity = [gallery_index, index_radio, gallery_index_stat, layer_method, layer_input_image, preset_store, preset_store_list, history_link, identity_introduce, configure_panel, local_system_tab, admin_panel, p2p_panel, admin_link, system_params] + ip_types
     identity_phrases_confirm_button.click(lambda a, b, c: simpleai.set_phrases(a,b,c,'confirm'), inputs=identity_input_info + [identity_phrase_input], outputs=identity_ctrls + [current_id_info, current_upstream_status, identity_export_btn], show_progress=False) \
         .then(topbar.update_after_identity_all, inputs=state_topbar, outputs=nav_bars + after_identity + user_app_ctrls, show_progress=False) \
+        .then(wildcards.refresh_wildcards_components, inputs=state_topbar, outputs=[wildcards_list, wc_name, wildcard_tag_name_selection], show_progress=False, queue=False) \
         .then(_qwen_refresh_style_preset_dropdowns, inputs=[state_topbar, qwen_design_style_preset_choices, qwen_custom_style_preset_choices], outputs=[qwen_design_style_preset_choices, qwen_custom_style_preset_choices], queue=False, show_progress=False) \
         .then(fn=lambda x: None, inputs=system_params, _js='(x)=>{refresh_topbar_status_js(x);}')
     identity_confirm_button.click(simpleai.confirm_identity, inputs=identity_input_info + [identity_phrase_input], outputs=identity_ctrls + [current_id_info, current_upstream_status, identity_export_btn], show_progress=False) \
         .then(topbar.update_after_identity_all, inputs=state_topbar, outputs=nav_bars + after_identity + user_app_ctrls, show_progress=False) \
+        .then(wildcards.refresh_wildcards_components, inputs=state_topbar, outputs=[wildcards_list, wc_name, wildcard_tag_name_selection], show_progress=False, queue=False) \
         .then(_qwen_refresh_style_preset_dropdowns, inputs=[state_topbar, qwen_design_style_preset_choices, qwen_custom_style_preset_choices], outputs=[qwen_design_style_preset_choices, qwen_custom_style_preset_choices], queue=False, show_progress=False) \
         .then(fn=lambda x: None, inputs=system_params, _js='(x)=>{refresh_topbar_status_js(x);}')
     identity_unbind_button.click(simpleai.unbind_identity, inputs=identity_input_info + [identity_phrase_input], outputs=identity_ctrls + identity_input + [current_id_info, current_upstream_status, identity_export_btn], show_progress=False) \
         .then(topbar.update_after_identity_all, inputs=state_topbar, outputs=nav_bars + after_identity + user_app_ctrls, show_progress=False) \
+        .then(wildcards.refresh_wildcards_components, inputs=state_topbar, outputs=[wildcards_list, wc_name, wildcard_tag_name_selection], show_progress=False, queue=False) \
         .then(_qwen_refresh_style_preset_dropdowns, inputs=[state_topbar, qwen_design_style_preset_choices, qwen_custom_style_preset_choices], outputs=[qwen_design_style_preset_choices, qwen_custom_style_preset_choices], queue=False, show_progress=False) \
         .then(fn=lambda x: None, inputs=system_params, _js='(x)=>{refresh_topbar_status_js(x);}')
     binding_id_button.click(simpleai.toggle_identity_dialog, inputs=state_topbar, outputs=[identity_dialog, current_id_info, current_upstream_status, identity_export_btn] + identity_ctrls + identity_input, show_progress=False)
@@ -4420,6 +4480,7 @@ app, local_url, share_url = shared.gradio_root.launch(
 import threading
 from fastapi import Body
 from fastapi.responses import JSONResponse
+from fastapi.responses import HTMLResponse, PlainTextResponse
 from starlette.concurrency import run_in_threadpool
 import enhanced.layerforge_matting as layerforge_matting
 
@@ -4459,5 +4520,43 @@ async def matting_endpoint(payload: dict = Body(...)):
             },
             status_code=500,
         )
+
+@app.get("/wildcards/readme")
+async def wildcards_readme():
+    import html
+    try:
+        md_path = os.path.join(os.path.dirname(__file__), "wildcards", "readme.md")
+        content = open(md_path, encoding="utf-8").read()
+        body = html.escape(content)
+        page = f"""<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>wildcards/readme.md</title>
+  <style>
+    body {{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; padding: 16px; }}
+    pre {{ white-space: pre-wrap; word-break: break-word; }}
+    a {{ color: #2563eb; text-decoration: none; }}
+    a:hover {{ text-decoration: underline; }}
+  </style>
+</head>
+<body>
+  <div><a href="readme/raw" target="_blank" rel="noopener noreferrer">Open raw</a></div>
+  <pre>{body}</pre>
+</body>
+</html>"""
+        return HTMLResponse(content=page)
+    except Exception as e:
+        return PlainTextResponse(content=str(e), status_code=500)
+
+@app.get("/wildcards/readme/raw")
+async def wildcards_readme_raw():
+    try:
+        md_path = os.path.join(os.path.dirname(__file__), "wildcards", "readme.md")
+        content = open(md_path, encoding="utf-8").read()
+        return PlainTextResponse(content=content)
+    except Exception as e:
+        return PlainTextResponse(content=str(e), status_code=500)
 
 threading.Event().wait()
