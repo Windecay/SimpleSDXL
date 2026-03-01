@@ -277,7 +277,7 @@ def get_words_with_wildcard(wildcard, rng, method='R', number=1, start_at=1, use
         nums = 1 if start_at<=1 else start_at
         for i in range(number):
             words_each = rng.sample(words, nums)
-            words_result.append(words_each[0] if nums==1 else f'({" ".join(words_each)})')
+            words_result.append(words_each[0] if nums==1 else ", ".join(words_each))
     words_result = [replace_wildcard(txt, rng, user_did=user_did) for txt in words_result]
     logger.info(f'Get words from wildcard:__{wildcard}__, method:{method}, number:{number}, start_at:{start_at}, result:{words_result}')
     return words_result
@@ -387,7 +387,8 @@ def compile_arrays(text, rng, user_did=None):
         if delimiter == ';':
             nonlocal seed_fixed
             seed_fixed = False
-        return delimiter.join(words)
+        joiner = ', ' if delimiter == ',' else '; '
+        return joiner.join(words)
 
     def sub_outside_arrays(pattern, repl, input_text):
         parts = []
@@ -583,14 +584,12 @@ def build_wildcards_helper_tag(target, method, seed_mode, name, count, start, gr
 
     if target == "Single in prompt":
         if in_order:
-            if count == 1 and start == 1:
-                return f"__{name}__"
             return f"__{name}__:{method_letter}{count}:{start}"
-        if count == 1:
-            return f"__{name}__"
         if group_size > 1:
             return f"__{name}__:{method_letter}{count}:{group_size}"
-        return f"__{name}__:{count}"
+        if count > 1:
+            return f"__{name}__:{method_letter}{count}"
+        return f"__{name}__"
 
     if in_order:
         return f"[__{name}__:{method_letter}{count}:{start}]"

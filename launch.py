@@ -139,7 +139,7 @@ def check_base_environment():
 
     if torch.__version__ == '2.9.1+cu130':
         logger.info(f'当前环境：PyTorch 2.9.1+CUDA 13.0. 50系以上显卡支持Nvfp4模型加速推理.')
-        update_pkgs = [('comfyui_frontend_package', '1.37.11'), ('comfyui_workflow_templates', '0.8.27'), ('comfyui-embedded-docs', '0.4.0'), ('comfy-kitchen', '0.2.7'), ('comfy-aimdo', '0.1.7')]
+        update_pkgs = [('comfyui_frontend_package', '1.37.11'), ('comfyui_workflow_templates', '0.8.27'), ('comfyui-embedded-docs', '0.4.0'), ('comfy-kitchen', '0.2.7'), ('comfy-aimdo', '0.1.7'), ('transformers', '4.57.1')]
         for (update_pkg_name, update_pkg_version) in update_pkgs:
             if not is_installed_version(update_pkg_name, update_pkg_version):
                 success = install_package_with_retry(update_pkg_name, update_pkg_version)
@@ -318,6 +318,8 @@ def check_base_environment():
 
     cuda_raw = sysinfo.get("cuda", None) if isinstance(sysinfo, dict) else None
     min_cuda_code = 12040
+    if torch.__version__ == '2.9.1+cu130':
+        min_cuda_code = 13000
     cuda_code = None
 
     def cuda_code_to_string(code: int) -> str:
@@ -677,7 +679,7 @@ if shared.args.gpu_device_id is not None:
 
 if shared.sysinfo["gpu_memory"]<4000 and not shared.args.disable_backend:
     logger.info(f'The GPU memory capacity of the system is too small to run the latest models such as Flux, SD3m, Kolors, and HyDiT properly, and the Comfyd engine will be automatically disabled.')
-    logger.info(f'系统GPU显存容量太小，无法正常运行Flux, SD3m, Kolors和HyDiT等最新模型，将自动禁用Comfyd引擎。请知晓，尽早升级硬件。')
+    logger.info(f'系统GPU显存容量太小，或是检测不到GPU实际容量，可能是操作系统阻止或需要升级硬件。')
     logger.info(f'有任何疑问可到SimpleSDXL的QQ群交流: 1005085136')
     shared.args.async_cuda_allocation = False
     shared.args.disable_async_cuda_allocation = True
@@ -692,7 +694,10 @@ if shared.args.async_cuda_allocation:
     os.environ['PYTORCH_CUDA_ALLOC_CONF'] = env_var
 
 
+_phase_t0 = time.perf_counter()
+logger.info("Phase: importing modules.config ...")
 from modules import config
+logger.info(f"Phase: imported modules.config in {time.perf_counter() - _phase_t0:.3f}s")
 from modules.hash_cache import init_cache
 os.environ["U2NET_HOME"] = config.paths_inpaint[0]
 os.environ["BERT_HOME"] = config.paths_llms[0]
@@ -724,5 +729,8 @@ if not shared.args.disable_backend:
 config.update_files()
 init_cache(config.model_filenames, config.paths_checkpoints, config.lora_filenames, config.paths_loras)
 create_placeholder_files()
+_phase_t0 = time.perf_counter()
+logger.info("Phase: importing webui ...")
 from webui import *
+logger.info(f"Phase: imported webui in {time.perf_counter() - _phase_t0:.3f}s")
 

@@ -1316,10 +1316,10 @@ with shared.gradio_root:
                             with gr.Column(scale=1, min_width=220):
                                 wc_name = gr.Dropdown(label="Wildcard",value=wildcard_names[0] if len(wildcard_names) > 0 else "",choices=wildcard_names)
                             with gr.Column(scale=1, min_width=220):
-                                wc_count = gr.Number(label="Count", value=1, precision=0)
+                                wc_count = gr.Number(label="Count", value=1, precision=0, minimum=1, step=1)
                             with gr.Column(scale=1, min_width=220):
-                                wc_start = gr.Number(label="Start index", value=1, precision=0, visible=False)
-                                wc_group_size = gr.Number(label="Group size", value=1, precision=0, visible=True)
+                                wc_start = gr.Number(label="Start index", value=1, precision=0, minimum=1, step=1, visible=False)
+                                wc_group_size = gr.Number(label="Group size", value=1, precision=0, minimum=1, step=1, visible=True)
                         wc_preview = gr.HTML(value="")
                         wc_insert_btn = gr.Button(value="Append to prompt")
 
