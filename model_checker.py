@@ -50,6 +50,18 @@ def load_model_paths():
     config_path = os.path.normpath(os.path.join(root_dir, "users", "config.txt"))
     path_mapping = {}
 
+    def _dedupe_keep_order(items):
+        seen = set()
+        out = []
+        for x in items or []:
+            if not x:
+                continue
+            if x in seen:
+                continue
+            seen.add(x)
+            out.append(x)
+        return out
+
     try:
         with open(config_path, 'r', encoding='utf-8') as f:
             config = json.load(f)
@@ -213,6 +225,23 @@ def load_model_paths():
             "sam3": [os.path.join(simplemodels_root, "sam3")],
             "qwen-tts": [os.path.join(simplemodels_root, "qwen-tts")],
         }
+
+    checkpoints_dirs = path_mapping.get("checkpoints", [])
+    diffusion_models_dirs = path_mapping.get("diffusion_models", [])
+    unet_dirs = path_mapping.get("unet", [])
+    text_encoders_dirs = path_mapping.get("text_encoders", [])
+    clip_dirs = path_mapping.get("clip", [])
+    clip_vision_dirs = path_mapping.get("clip_vision", [])
+    ipadapter_dirs = path_mapping.get("ipadapter", [])
+    controlnet_dirs = path_mapping.get("controlnet", [])
+
+    path_mapping["checkpoints"] = _dedupe_keep_order(diffusion_models_dirs + checkpoints_dirs)
+    path_mapping["unet"] = _dedupe_keep_order(unet_dirs + diffusion_models_dirs + checkpoints_dirs)
+    path_mapping["diffusion_models"] = _dedupe_keep_order(unet_dirs + diffusion_models_dirs + checkpoints_dirs)
+    path_mapping["clip"] = _dedupe_keep_order(text_encoders_dirs + clip_dirs)
+    path_mapping["text_encoders"] = _dedupe_keep_order(text_encoders_dirs + clip_dirs)
+    path_mapping["clip_vision"] = _dedupe_keep_order(clip_vision_dirs + ipadapter_dirs)
+    path_mapping["ipadapter"] = _dedupe_keep_order(ipadapter_dirs + controlnet_dirs)
 
     for key in path_mapping:
         path_mapping[key] = [

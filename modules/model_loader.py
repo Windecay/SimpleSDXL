@@ -155,6 +155,52 @@ def load_file_from_url(
 presets_model_list = {}
 presets_mtime = {}
 
+def _resolve_model_filepath(cata: str, path_file: str) -> str:
+    try:
+        file_path = shared.modelsinfo.get_model_filepath(cata, path_file)
+    except Exception:
+        file_path = ''
+    if file_path and os.path.exists(file_path):
+        return file_path
+
+    if path_file and os.path.isabs(path_file) and os.path.exists(path_file):
+        return os.path.abspath(path_file)
+
+    normalized_rel = str(path_file or "").replace("\\", "/").lstrip("/")
+    rel_parts = [p for p in normalized_rel.split("/") if p]
+
+    try:
+        from modules.config import model_cata_map, path_models_root
+    except Exception:
+        model_cata_map = {}
+        path_models_root = "models"
+
+    roots = model_cata_map.get(cata, [])
+    if isinstance(roots, str):
+        roots = [roots]
+    elif not isinstance(roots, list):
+        try:
+            roots = list(roots)
+        except Exception:
+            roots = []
+
+    roots = list(roots) + [os.path.join(path_models_root, cata)]
+    for base_dir in roots:
+        if not base_dir:
+            continue
+        candidate = os.path.abspath(os.path.join(base_dir, *rel_parts))
+        if os.path.exists(candidate):
+            return candidate
+
+    try:
+        manual_path = os.path.abspath(os.path.join('..', '..', 'SimpleModels', cata, *rel_parts))
+        if os.path.exists(manual_path):
+            return manual_path
+    except Exception:
+        pass
+
+    return ''
+
 def refresh_model_list(presets, user_did=None):
     from enhanced.simpleai import get_path_in_user_dir
     global presets_model_list, presets_mtime
@@ -208,13 +254,7 @@ def check_models_exists(preset, user_did=None):
                     logger.info(f'Missing model dir in preset({preset}): {cata}, filter={path_file}, len={size}\nresult={result}')
                     return False
             else:
-                file_path = shared.modelsinfo.get_model_filepath(cata, path_file)
-
-                if not file_path or not os.path.exists(file_path):
-                    path_parts = path_file.split('/')
-                    manual_path = os.path.abspath(os.path.join('..', '..', 'SimpleModels', cata, *path_parts))
-                    if os.path.exists(manual_path):
-                        file_path = manual_path
+                file_path = _resolve_model_filepath(cata, path_file)
 
                 if file_path is None or file_path == '' or not os.path.exists(file_path) or size != os.path.getsize(file_path):
                     logger.info(f'Missing model file in preset({preset}): {cata}, {path_file}')
@@ -261,7 +301,7 @@ def is_models_file_absent(preset_name, user_did=None):
                     path_file = model_entry[1]
 
                     # 检查文件是否存在
-                    file_path = shared.modelsinfo.get_model_filepath(cata, path_file)
+                    file_path = _resolve_model_filepath(cata, path_file)
                     if file_path is None or file_path == '' or not os.path.exists(file_path):
                         # 记录缺失的文件信息
                         logger.info(f'Missing model file in preset({preset_name}): {cata}, {path_file}')
@@ -274,7 +314,7 @@ def is_models_file_absent(preset_name, user_did=None):
                         path_file = parts[1].strip()
 
                         # 检查文件是否存在
-                        file_path = shared.modelsinfo.get_model_filepath(cata, path_file)
+                        file_path = _resolve_model_filepath(cata, path_file)
                         if file_path is None or file_path == '' or not os.path.exists(file_path):
                             # 记录缺失的文件信息
                             logger.info(f'Missing model file in preset({preset_name}): {cata}, {path_file}')
@@ -334,16 +374,7 @@ def get_missing_model_list(preset_name, user_did=None):
 
         for cata, path_file, size, hash10, url in model_list:
             url = url.strip().strip('`')
-            file_path = shared.modelsinfo.get_model_filepath(cata, path_file)
-
-            if not file_path or not os.path.exists(file_path):
-
-                from modules.config import path_models_root
-
-                full_path = os.path.abspath(os.path.join(path_models_root, cata, path_file))
-
-                if os.path.exists(full_path):
-                    file_path = full_path
+            file_path = _resolve_model_filepath(cata, path_file)
 
             if file_path is None or file_path == '' or not os.path.exists(file_path):
                 human_size = format_size(size)

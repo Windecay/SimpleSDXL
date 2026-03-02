@@ -268,7 +268,7 @@ paths_sam3 = get_dir_or_set_default('path_sam3', f'{path_models_root}/sam3', Tru
 
 
 model_cata_map = {
-    'checkpoints': paths_checkpoints,
+    'checkpoints': paths_diffusion_models + paths_checkpoints,
     'loras': paths_loras,
     'embeddings': paths_embeddings,
     'diffusers': paths_diffusers,
@@ -277,24 +277,47 @@ model_cata_map = {
     'upscale_models': paths_upscale_models,
     'inpaint': paths_inpaint,
     'controlnet': paths_controlnet,
-    'clip': paths_clip,
+    'clip': paths_text_encoders + paths_clip,
     'clip_vision': paths_clip_vision,
     'llms': paths_llms,
     'LLM': paths_LLM,
-    'unet': paths_unet,
+    'unet': paths_unet + paths_diffusion_models + paths_checkpoints,
     'rembg': paths_rembg,
     'layer_model': paths_layer_model,
     'pulid': paths_pulid,
-    'ipadapter': paths_ipadapter,
+    'ipadapter': paths_ipadapter + paths_controlnet,
     'insightface': paths_insightface,
     'style_models': paths_style_models,
     'audio_encoders': paths_audio_encoders,
     'model_patches': paths_model_patches,
     'detection': paths_detection,
-    'diffusion_models': paths_diffusion_models + paths_unet,
-    'text_encoders': paths_text_encoders,
+    'diffusion_models': paths_unet + paths_diffusion_models + paths_checkpoints,
+    'text_encoders': paths_text_encoders + paths_clip,
     'sam3': paths_sam3,
     }
+
+def _normalize_model_dirs(paths):
+    out = []
+    seen = set()
+    if not paths:
+        return out
+    for p in paths:
+        if not p or not isinstance(p, str):
+            continue
+        try:
+            p2 = os.path.expandvars(os.path.expanduser(p))
+            if not os.path.isabs(p2):
+                p2 = os.path.join(shared.root, p2)
+            p2 = os.path.normpath(os.path.abspath(p2))
+        except Exception:
+            continue
+        if p2 in seen:
+            continue
+        seen.add(p2)
+        out.append(p2)
+    return out
+
+model_cata_map = {k: _normalize_model_dirs(v) for k, v in model_cata_map.items()}
 
 from enhanced.simpleai import init_modelsinfo, get_path_in_user_dir
 modelsinfo = init_modelsinfo(path_models_root, model_cata_map)
@@ -1169,6 +1192,7 @@ def _build_catalog_basename_index(data: Dict[str, Any], catalog: str) -> Dict[st
 
 def _ensure_weight_inspector_cache_for_keys(models_root: str, model_keys: List[str]) -> None:
     import enhanced.weight_inspector as weight_inspector
+    import time
 
     modelsinfo = shared.modelsinfo
     if modelsinfo is None:
@@ -1180,6 +1204,9 @@ def _ensure_weight_inspector_cache_for_keys(models_root: str, model_keys: List[s
 
     updated = False
     basename_index_by_catalog: Dict[str, Dict[str, Optional[str]]] = {}
+    candidates: List[Tuple[str, str, str, str, Dict[str, Any], Dict[str, Any]]] = []
+    to_scan: List[Tuple[str, str, str, str, Dict[str, Any], Dict[str, Any]]] = []
+
     for key in model_keys:
         key = _normalize_model_name(key)
         if "/" not in key:
@@ -1246,6 +1273,26 @@ def _ensure_weight_inspector_cache_for_keys(models_root: str, model_keys: List[s
             s = f"{os.path.basename(os.path.dirname(file_path)).lower()} {os.path.basename(file_path).lower()}"
             if "newbie" in s:
                 continue
+        payload = (key, catalog, resolved_key, file_path, entry, current_stamp)
+        candidates.append(payload)
+        to_scan.append(payload)
+
+    if to_scan:
+        logger.info(f"[WeightInspector] scanning {len(to_scan)}/{len(candidates)} model headers (unique_keys={len(model_keys)}) ...")
+    else:
+        if updated:
+            _save_models_info_json(info_path, data)
+        return
+
+    start_t = time.time()
+    last_log_t = start_t
+    scanned = 0
+    for _key, catalog, resolved_key, file_path, entry, current_stamp in to_scan:
+        scanned += 1
+        now = time.time()
+        if scanned == 1 or (now - last_log_t) >= 2.0:
+            last_log_t = now
+            logger.info(f"[WeightInspector] scanning {scanned}/{len(to_scan)}")
 
         try:
             r = weight_inspector.inspect_weight_file(
