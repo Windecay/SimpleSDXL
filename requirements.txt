@@ -1,6 +1,6 @@
-comfyui-frontend-package==1.37.11
-comfyui-workflow-templates==0.8.27
-comfyui-embedded-docs==0.4.0
+comfyui-frontend-package==1.39.19
+comfyui-workflow-templates==0.9.4
+comfyui-embedded-docs==0.4.3
 transformers==4.57.1 #4.42.4 #
 huggingface_hub==0.35.1
 diffusers>=0.36.0 #0.29.0
@@ -109,18 +109,20 @@ qrcode
 pyzbar
 transparent-background
 comfy-kitchen==0.2.7
-comfy-aimdo>=0.1.7
+comfy-aimdo>=0.2.4
 sox @ https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/sox/sox-1.5.0-py3-none-any.whl
 facexlib
 insightface
 facenet-pytorch==2.6.0
+PyOpenGL
+glfw
 SAM_2 @ https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/sam/SAM_2-1.0-cp310-cp310-win_amd64.whl ; python_version == "3.10" and platform_system == "Windows"
 mmcv @ https://archive1.piwheels.org/simple/mmcv/mmcv-2.1.0-py2.py3-none-any.whl ; platform_system == "Windows"
 mmcv==2.1.0 ; platform_system == "Linux"
-llama_cpp_python @ https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/llama/llama_cpp_python-0.3.16-cp310-cp310-win_amd64.whl ; python_version == "3.10" and platform_system == "Windows"
-llama_cpp_python @ https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/llama/llama_cpp_python-0.3.16-cp310-cp310-linux_x86_64.whl ; python_version == "3.10" and platform_system == "Linux"
-nunchaku @ https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/nunchaku/nunchaku-1.2.1%2Bcu12.8torch2.9-cp310-cp310-win_amd64.whl ; python_version == "3.10" and platform_system == "Windows"
-nunchaku @ https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/nunchaku/nunchaku-1.2.1%2Bcu12.8torch2.9-cp310-cp310-linux_x86_64.whl ; python_version == "3.10" and platform_system == "Linux"
+# llama_cpp_python @ https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/llama/llama_cpp_python-0.3.16-cp310-cp310-win_amd64.whl ; python_version == "3.10" and platform_system == "Windows"
+# llama_cpp_python @ https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/llama/llama_cpp_python-0.3.16-cp310-cp310-linux_x86_64.whl ; python_version == "3.10" and platform_system == "Linux"
+# nunchaku @ https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/nunchaku/nunchaku-1.2.1%2Bcu12.8torch2.9-cp310-cp310-win_amd64.whl ; python_version == "3.10" and platform_system == "Windows"
+# nunchaku @ https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/nunchaku/nunchaku-1.2.1%2Bcu12.8torch2.9-cp310-cp310-linux_x86_64.whl ; python_version == "3.10" and platform_system == "Linux"
 # 如果你的运行环境是 torch 2.7，请注释掉上面 torch2.9 的两行，并启用下面两行
 # nunchaku @ https://www.modelscope.cn/models/nunchaku-tech/nunchaku/resolve/master/nunchaku-1.0.2%2Btorch2.7-cp310-cp310-win_amd64.whl ; python_version == "3.10" and platform_system == "Windows"
 # nunchaku @ https://www.modelscope.cn/models/nunchaku-tech/nunchaku/resolve/master/nunchaku-1.0.2%2Btorch2.7-cp310-cp310-linux_x86_64.whl ; python_version == "3.10" and platform_system == "Linux"
