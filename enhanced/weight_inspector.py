@@ -447,7 +447,7 @@ def _infer_arch_family_from_keys(keys: List[str], metadata: Dict[str, Any]) -> s
             return "sd3"
         if "sd-v2" in md_l or "sd2" in md_l:
             return "sd2"
-        if "sd_1.5" in md_l or "sd-v1-5" in md_l or "sd1" in md_l:
+        if "sd_1.5" in md_l or "sd-v1-5" in md_l or "sd15" in md_l or "sd1.5" in md_l:
             return "sdxl"
         if "flux" in md_l:
             return "flux"
@@ -507,6 +507,8 @@ def _infer_arch_family_from_keys(keys: List[str], metadata: Dict[str, Any]) -> s
     if "model.diffusion_model" in joined and "cond_stage_model" in joined:
         if "cond_stage_model.model" in joined:
             return "sd2"
+        if "text_encoder_2" in joined or "conditioner.embedders." in joined:
+            return "sdxl"
         return "sdxl"
     if "qwen" in joined or ("transformer_blocks." in joined and "time_text_embed" in joined and "img_in" in joined):
         return "qwen"
@@ -536,6 +538,31 @@ def _infer_arch_family_from_keys(keys: List[str], metadata: Dict[str, Any]) -> s
         and ("lora_unet_down_blocks_2" in joined or "lora_unet_up_blocks_2" in joined)
     ):
         return "sdxl"
+    if (
+        "diffusion_model.blocks." in joined
+        and "cross_attn.k" in joined
+        and "cross_attn.q" in joined
+        and "cross_attn.v" in joined
+        and "self_attn.q" in joined
+        and "self_attn.k" in joined
+        and "self_attn.v" in joined
+    ):
+        return "wan"
+    if (
+        "transformer_blocks." in joined
+        and ("attn.add_k_proj" in joined or "attn_add_k_proj" in joined)
+        and "img_mlp" in joined
+        and ("txt_mlp" in joined or "txt_mod" in joined)
+    ):
+        return "qwen"
+    if (
+        "model.diffusion_model.blocks." in joined
+        and "self_attn" in joined
+        and "cross_attn" in joined
+        and "patch_embedding" in joined
+        and "text_embedding" in joined
+    ):
+        return "wan"
     if "cross_attn" in joined and ("k_img" in joined or "v_img" in joined):
         return "wan"
     if "wan" in joined or "wan2" in joined:
@@ -551,8 +578,6 @@ def _infer_arch_family_from_filename(path: str) -> str:
     parent = os.path.basename(os.path.dirname(p)).lower()
     s = f"{parent} {base}"
 
-    if "lightx2v" in s or "ltxv" in s:
-        return "ltxv"
     if "ltx2" in s or ("ltx" in s and "2" in s):
         return "ltx2"
     if "newbie" in s:
@@ -565,7 +590,7 @@ def _infer_arch_family_from_filename(path: str) -> str:
         return "wan"
     if "flux" in s:
         return "flux"
-    if "sdxl" in s or "sd-xl" in s or "xl" in s:
+    if "sdxl" in s or "sd-xl" in s or re.search(r"(^|[^a-z0-9])xl([^a-z0-9]|$)", s):
         return "sdxl"
     if "sd15" in s or "sd1.5" in s or "sd_1.5" in s or "v1-5" in s or "sd-v1-5" in s:
         return "sdxl"
@@ -673,13 +698,13 @@ def inspect_weight_file(
         lora_key_count = sum(1 for k in keys if _is_lora_key(k))
         components = _infer_components_from_keys(keys)
         signature = _make_key_signature(keys)
-        out_metadata = metadata if include_metadata else {}
-        arch_family = _infer_arch_family_from_keys(keys, out_metadata)
+        arch_family = _infer_arch_family_from_keys(keys, metadata)
         arch_family_from_filename = _infer_arch_family_from_filename(path_abs)
         if arch_family_from_filename == "newbie":
             arch_family = "newbie"
-        if arch_family == "sd15":
-            arch_family = "sdxl"
+        elif arch_family == "unknown" and arch_family_from_filename != "unknown":
+            arch_family = arch_family_from_filename
+        out_metadata = metadata if include_metadata else {}
         result.update(
             {
                 "file_type": "safetensors",
@@ -731,8 +756,8 @@ def inspect_weight_file(
         arch_family_from_filename = _infer_arch_family_from_filename(path_abs)
         if arch_family_from_filename == "newbie":
             arch_family = "newbie"
-        if arch_family == "sd15":
-            arch_family = "sdxl"
+        elif arch_family == "unknown" and arch_family_from_filename != "unknown":
+            arch_family = arch_family_from_filename
         shapes: List[Tuple[str, Tuple[int, ...]]] = []
         for k in keys[: min(2000, len(keys))]:
             v = state_dict.get(k)
@@ -772,8 +797,9 @@ def inspect_weight_file(
             components = _infer_components_from_keys(keys)
             signature = _make_key_signature(keys)
             arch_family = _infer_arch_family_from_keys(keys, out_metadata)
-            if arch_family == "sd15":
-                arch_family = "sdxl"
+            arch_family_from_filename = _infer_arch_family_from_filename(path_abs)
+            if arch_family == "unknown" and arch_family_from_filename != "unknown":
+                arch_family = arch_family_from_filename
             result.update(
                 {
                     "metadata": {} if not include_metadata else out_metadata,

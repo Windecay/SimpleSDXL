@@ -18,7 +18,8 @@ from modules.extra_utils import makedirs_with_log, get_files_from_folder, try_ev
 from modules.flags import OutputFormat, Performance
 from enhanced.logger import format_name
 logger = logging.getLogger(format_name(__name__))
-ARCH_FAMILY_ALGO = 2
+ARCH_FAMILY_ALGO = 3
+ARCH_FAMILY_CATALOGS = {"checkpoints", "diffusion_models", "loras", "vae", "unet"}
 
 def get_config_path(key, default_value):
     env = os.getenv(key)
@@ -319,8 +320,41 @@ def _normalize_model_dirs(paths):
 
 model_cata_map = {k: _normalize_model_dirs(v) for k, v in model_cata_map.items()}
 
+def _build_modelsinfo_path_map(path_map: Dict[str, List[str]]) -> Dict[str, List[str]]:
+    def base_name(p: str) -> str:
+        try:
+            return os.path.basename(os.path.normpath(p)).lower()
+        except Exception:
+            return ""
+
+    out: Dict[str, List[str]] = {k: list(v) for k, v in (path_map or {}).items()}
+
+    def keep_only_not(paths: List[str], banned_basenames: set[str]) -> List[str]:
+        return [p for p in paths if base_name(p) not in banned_basenames]
+
+    def keep_only_in(paths: List[str], allowed_basenames: set[str]) -> List[str]:
+        return [p for p in paths if base_name(p) in allowed_basenames]
+
+    if "unet" in out:
+        out["unet"] = _normalize_model_dirs(paths_unet)
+    if "diffusion_models" in out:
+        out["diffusion_models"] = _normalize_model_dirs(paths_diffusion_models)
+    if "checkpoints" in out:
+        out["checkpoints"] = _normalize_model_dirs(paths_checkpoints)
+
+    if "clip" in out:
+        out["clip"] = _normalize_model_dirs(paths_clip)
+    if "text_encoders" in out:
+        out["text_encoders"] = _normalize_model_dirs(paths_text_encoders)
+    if "clip_vision" in out:
+        out["clip_vision"] = _normalize_model_dirs(paths_clip_vision)
+    if "ipadapter" in out:
+        out["ipadapter"] = _normalize_model_dirs(paths_ipadapter)
+
+    return out
+
 from enhanced.simpleai import init_modelsinfo, get_path_in_user_dir
-modelsinfo = init_modelsinfo(path_models_root, model_cata_map)
+modelsinfo = init_modelsinfo(path_models_root, _build_modelsinfo_path_map(model_cata_map))
 
 shared.path_userhome = path_userhome
 shared.token.set_user_base_dir(path_userhome)
@@ -1212,6 +1246,8 @@ def _ensure_weight_inspector_cache_for_keys(models_root: str, model_keys: List[s
         if "/" not in key:
             continue
         catalog, model_name = key.split("/", 1)
+        if catalog not in ARCH_FAMILY_CATALOGS:
+            continue
         resolved_key = _resolve_models_info_key(data, catalog, model_name)
         if not resolved_key and "/" not in model_name:
             idx = basename_index_by_catalog.get(catalog)
@@ -1252,22 +1288,6 @@ def _ensure_weight_inspector_cache_for_keys(models_root: str, model_keys: List[s
             and entry.get("arch_family_stamp") == current_stamp
             and entry.get("arch_family_algo") == ARCH_FAMILY_ALGO
         ):
-            if str(cached_arch_family).lower() == "sd15":
-                entry["arch_family"] = "sdxl"
-                entry["arch_family_algo"] = ARCH_FAMILY_ALGO
-                entry["arch_family_stamp"] = current_stamp
-                updated = True
-                try:
-                    mi = shared.modelsinfo
-                    if mi is not None and isinstance(getattr(mi, "m_info", None), dict):
-                        mi_entry = mi.m_info.get(resolved_key)
-                        if isinstance(mi_entry, dict):
-                            mi_entry["arch_family"] = entry["arch_family"]
-                            mi_entry["arch_family_algo"] = entry["arch_family_algo"]
-                            mi_entry["arch_family_stamp"] = entry["arch_family_stamp"]
-                except Exception:
-                    pass
-                continue
             if str(cached_arch_family).lower() != "newbie":
                 continue
             s = f"{os.path.basename(os.path.dirname(file_path)).lower()} {os.path.basename(file_path).lower()}"
