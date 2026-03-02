@@ -10,21 +10,26 @@ import os
 import re
 import json
 import importlib
-from PIL.PngImagePlugin import PngInfo
+import hashlib
+import pathlib
+import logging
 from io import BytesIO
 
 try:
     import cv2
 except:
-    print("OpenCV not installed")
+    logging.warning("OpenCV not installed")
     pass
-from PIL import ImageGrab, ImageDraw, ImageFont, Image, ImageOps
+
+from PIL import ImageGrab, ImageDraw, ImageFont, Image, ImageOps, ImageSequence, ImageStat
+from PIL.PngImagePlugin import PngInfo
 
 from nodes import MAX_RESOLUTION, SaveImage
 from comfy_extras.nodes_mask import composite
 from comfy.cli_args import args
 from comfy.utils import ProgressBar, common_upscale
 from comfy import model_management
+from comfy_api.latest import io
 import node_helpers
 import folder_paths
 
@@ -133,7 +138,7 @@ https://github.com/hahnec/color-matcher/
                 return torch.from_numpy(image_result)
                 
             except Exception as e:
-                print(f"Thread {i} error: {e}")
+                logging.warning(f"Thread {i} error: {e}")
                 return torch.from_numpy(image_target_np_i)  # fallback
 
         if multithread and batch_size > 1:
@@ -146,7 +151,112 @@ https://github.com/hahnec/color-matcher/
         out = torch.stack(out, dim=0).to(torch.float32)
         out.clamp_(0, 1)
         return (out,)
-    
+
+class ColorMatchV2(io.ComfyNode):
+    @classmethod
+    def define_schema(cls):
+        return io.Schema(
+            node_id="ColorMatchV2",
+            category="KJNodes/image",
+            description="""
+color-matcher enables color transfer across images which comes in handy for automatic  
+color-grading of photographs, paintings and film sequences as well as light-field  
+and stopmotion corrections.  
+
+The methods behind the mappings are based on the approach from Reinhard et al.,  
+the Monge-Kantorovich Linearization (MKL) as proposed by Pitie et al. and our analytical solution  
+to a Multi-Variate Gaussian Distribution (MVGD) transfer in conjunction with classical histogram   
+matching. As shown below our HM-MVGD-HM compound outperforms existing methods.   
+https://github.com/hahnec/color-matcher/   
+
+'reinhard_lab_gpu' method uses Kornia for GPU-accelerated color transfer in Lab color space.
+""",
+            inputs=[
+                io.Image.Input("image_target"),
+                io.Image.Input("image_ref"),
+                io.Combo.Input("method", 
+                    options=['mkl', 'hm', 'reinhard', 'mvgd', 'hm-mvgd-hm', 'hm-mkl-hm', 'reinhard_lab_gpu'],
+                    default='mkl'),
+                io.Float.Input("strength", default=1.0, min=0.0, max=10.0, step=0.01),
+                io.Boolean.Input("multithread", default=True),
+            ],
+            outputs=[
+                io.Image.Output(display_name="image"),
+            ],
+        )
+
+    @classmethod
+    def execute(cls, image_target, image_ref, method, strength=1.0, multithread=True) -> io.NodeOutput:
+        # Skip unnecessary processing
+        if strength == 0:
+            return io.NodeOutput(image_target)
+
+        if method == "reinhard_lab_gpu":
+            import kornia
+            device = model_management.get_torch_device()
+
+            B, H, W, C = image_target.shape
+
+            src_bchw = image_target.to(device).permute(0, 3, 1, 2).contiguous() # (B, H, W, C) -> (B, C, H, W)
+            ref_bchw = image_ref.to(device).permute(0, 3, 1, 2).contiguous()
+            # RGB->Lab
+            src_lab = kornia.color.rgb_to_lab(src_bchw)
+            ref_lab = kornia.color.rgb_to_lab(ref_bchw)
+
+            src_lab_flat = src_lab.view(B, C, -1)  # (B, C, HW)
+            ref_lab_flat = ref_lab.view(ref_lab.shape[0], C, -1)  # (B or 1, C, HW)
+
+            src_std, src_mean = torch.std_mean(src_lab_flat, dim=-1, keepdim=True, unbiased=False)
+            ref_std, ref_mean = torch.std_mean(ref_lab_flat, dim=-1, keepdim=True, unbiased=False)
+            src_std = src_std.clamp_min_(1e-6)
+
+            if ref_lab.shape[0] == 1 and B > 1:
+                ref_mean = ref_mean.expand(B, -1, -1)
+                ref_std = ref_std.expand(B, -1, -1)
+
+            corrected_lab_flat = (src_lab_flat - src_mean) * (ref_std / src_std) + ref_mean
+            corrected_lab = corrected_lab_flat.view(B, C, H, W)
+
+            # Lab->RGB
+            corrected_rgb_01 = kornia.color.lab_to_rgb(corrected_lab)
+            out = (1.0 - strength) * src_bchw + strength * corrected_rgb_01
+            out = out.permute(0, 2, 3, 1).contiguous() # (B, C, H, W) -> (B, H, W, C)
+
+            return io.NodeOutput(out.cpu().float().clamp_(0, 1))
+
+        try:
+            from color_matcher import ColorMatcher
+        except:
+            raise Exception("Can't import color-matcher, did you install requirements.txt? Manual install: pip install color-matcher")
+
+        batch_size = image_target.size(0)
+        ref_batch_size = image_ref.size(0)
+
+        def process(i):
+            cm = ColorMatcher()
+            image_target_np = image_target[i].cpu().numpy()
+            image_ref_np = image_ref[min(i, ref_batch_size - 1)].cpu().numpy()
+            try:
+                image_result = cm.transfer(src=image_target_np, ref=image_ref_np, method=method)
+                if strength != 1:
+                    image_result = image_target_np + strength * (image_result - image_target_np)
+
+                return torch.from_numpy(image_result)
+
+            except Exception as e:
+                logging.error(f"Thread {i} error: {e}")
+                return torch.from_numpy(image_target_np)  # fallback
+        if multithread and batch_size > 1:
+            max_threads = min(os.cpu_count() or 1, batch_size)
+            with ThreadPoolExecutor(max_workers=max_threads) as executor:
+                out = list(executor.map(process, range(batch_size)))
+        else:
+            out = [process(i) for i in range(batch_size)]
+
+        out = torch.stack(out, dim=0).to(torch.float32).clamp_(0, 1)
+
+        return io.NodeOutput(out)
+
 class SaveImageWithAlpha:
     def __init__(self):
         self.output_dir = folder_paths.get_output_directory()
@@ -171,12 +281,9 @@ Saves an image and mask as .PNG with the mask as the alpha channel.
 """
 
     def save_images_alpha(self, images, mask, filename_prefix="ComfyUI_image_with_alpha", prompt=None, extra_pnginfo=None):
-        from PIL.PngImagePlugin import PngInfo
         filename_prefix += self.prefix_append
         full_output_folder, filename, counter, subfolder, filename_prefix = folder_paths.get_save_image_path(filename_prefix, self.output_dir, images[0].shape[1], images[0].shape[0])
         results = list()
-        if mask.dtype == torch.float16:
-            mask = mask.to(torch.float32)
         def file_counter():
             max_counter = 0
             # Loop through the existing files
@@ -193,9 +300,9 @@ Saves an image and mask as .PNG with the mask as the alpha channel.
 
         for image, alpha in zip(images, mask):
             i = 255. * image.cpu().numpy()
-            a = 255. * alpha.cpu().numpy()
+            a = 255. * (1.0 - alpha.cpu().float()).numpy()
             img = Image.fromarray(np.clip(i, 0, 255).astype(np.uint8))
-            
+
              # Resize the mask to match the image size
             a_resized = Image.fromarray(a).resize(img.size, Image.LANCZOS)
             a_resized = np.clip(a_resized, 0, 255).astype(np.uint8)
@@ -208,7 +315,7 @@ Saves an image and mask as .PNG with the mask as the alpha channel.
                 if extra_pnginfo is not None:
                     for x in extra_pnginfo:
                         metadata.add_text(x, json.dumps(extra_pnginfo[x]))
-           
+
             # Increment the counter by 1 to get the next available value
             counter = file_counter() + 1
             file = f"{filename}_{counter:05}.png"
@@ -319,8 +426,6 @@ Concatenates the image2 to image1 in the specified direction.
             concatenated_image = torch.cat((image2_resized, image1), dim=1)  # Concatenate along height
         return concatenated_image,
 
-import torch  # Make sure you have PyTorch installed
-
 class ImageConcatFromBatch:
     @classmethod
     def INPUT_TYPES(s):
@@ -344,8 +449,8 @@ class ImageConcatFromBatch:
         batch_size, height, width, channels = images.shape
         num_rows = (batch_size + num_columns - 1) // num_columns  # Calculate number of rows
 
-        print(f"Initial dimensions: batch_size={batch_size}, height={height}, width={width}, channels={channels}")
-        print(f"num_rows={num_rows}, num_columns={num_columns}")
+        logging.info(f"Initial dimensions: batch_size={batch_size}, height={height}, width={width}, channels={channels}")
+        logging.info(f"num_rows={num_rows}, num_columns={num_columns}")
 
         if match_image_size:
             target_shape = images[0].shape
@@ -363,7 +468,7 @@ class ImageConcatFromBatch:
                     target_width = target_shape[1]
                     target_height = int(target_width / original_aspect_ratio)
 
-                print(f"Resizing image from ({original_height}, {original_width}) to ({target_height}, {target_width})")
+                logging.info(f"Resizing image from ({original_height}, {original_width}) to ({target_height}, {target_width})")
 
                 # Resize the image to match the target size while preserving aspect ratio
                 resized_image = common_upscale(image.movedim(-1, 0), target_width, target_height, "lanczos", "disabled")
@@ -379,7 +484,7 @@ class ImageConcatFromBatch:
         grid_height = num_rows * height
         grid_width = num_columns * width
 
-        print(f"Grid dimensions before scaling: grid_height={grid_height}, grid_width={grid_width}")
+        logging.info(f"Grid dimensions before scaling: grid_height={grid_height}, grid_width={grid_width}")
 
         # Original scale factor calculation remains unchanged
         scale_factor = min(max_resolution / grid_height, max_resolution / grid_width, 1.0)
@@ -400,8 +505,8 @@ class ImageConcatFromBatch:
         # Recalculate grid dimensions with adjusted height and width
         grid_height = num_rows * height
         grid_width = num_columns * width
-        print(f"Grid dimensions after scaling: grid_height={grid_height}, grid_width={grid_width}")
-        print(f"Final image dimensions: height={height}, width={width}")
+        logging.info(f"Grid dimensions after scaling: grid_height={grid_height}, grid_width={grid_width}")
+        logging.info(f"Final image dimensions: height={height}, width={width}")
 
         grid = torch.zeros((grid_height, grid_width, channels), dtype=images.dtype)
 
@@ -561,7 +666,7 @@ Can be used for realtime diffusion with autoqueue.
                 time.sleep(delay)
 
         elapsed_time = time.time() - start_time
-        print(f"screengrab took {elapsed_time} seconds.")
+        logging.info(f"screengrab took {elapsed_time} seconds.")
         
         return (torch.cat(captures, dim=0),)
     
@@ -831,7 +936,7 @@ class GetLatentSizeAndCount:
         }}
 
     RETURN_TYPES = ("LATENT","INT", "INT", "INT", "INT", "INT")
-    RETURN_NAMES = ("latent", "batch_size", "channels", "frames", "width", "height")
+    RETURN_NAMES = ("latent", "batch_size", "channels", "frames", "height", "width")
     FUNCTION = "getsize"
     CATEGORY = "KJNodes/image"
     DESCRIPTION = """
@@ -852,9 +957,8 @@ and passes the latent through unchanged.
             "text": [f"{B}x{C}x{T}x{H}x{W}"]}, 
             "result": (latent, B, C, T, H, W) 
         }
-    
+
 class ImageBatchRepeatInterleaving:
-    
     RETURN_TYPES = ("IMAGE", "MASK",)
     FUNCTION = "repeat"
     CATEGORY = "KJNodes/image"
@@ -875,21 +979,20 @@ with repeats 2 becomes batch of 10 images: 0, 0, 1, 1, 2, 2, 3, 3, 4, 4
                 "mask": ("MASK",),
             }
         }
-    
+
     def repeat(self, images, repeats, mask=None):
         original_count = images.shape[0]
         total_count = original_count * repeats
-       
+
         repeated_images = torch.repeat_interleave(images, repeats=repeats, dim=0)
         if mask is not None:
             mask = torch.repeat_interleave(mask, repeats=repeats, dim=0)
         else:
-            mask = torch.zeros((total_count, images.shape[1], images.shape[2]), 
+            mask = torch.zeros((total_count, images.shape[1], images.shape[2]),
                               device=images.device, dtype=images.dtype)
             for i in range(original_count):
                 mask[i * repeats] = 1.0
 
-        print("mask shape", mask.shape)
         return (repeated_images, mask)
 
 class ImageUpscaleWithModelBatched:
@@ -1078,7 +1181,7 @@ class ImagePadForOutpaintMasked:
     def expand_image(self, image, left, top, right, bottom, feathering, mask=None):
         if mask is not None:
             if torch.allclose(mask, torch.zeros_like(mask)):
-                    print("Warning: The incoming mask is fully black. Handling it as None.")
+                    logging.warning("The incoming mask is fully black. Handling it as None.")
                     mask = None
         B, H, W, C = image.size()
 
@@ -1218,7 +1321,7 @@ class ImagePrepForICLora:
 
         if reference_mask is not None:
             if torch.allclose(reference_mask, torch.zeros_like(reference_mask)):
-                    print("Warning: The incoming mask is fully black. Handling it as None.")
+                    logging.warning("The incoming mask is fully black. Handling it as None.")
                     reference_mask = None
         image = reference_image
         if latent_image is not None:
@@ -1233,7 +1336,6 @@ class ImagePrepForICLora:
                 size=(H, W),
                 mode='nearest'
             ).squeeze(1)
-            print(resized_mask.shape)
             image = image * resized_mask.unsqueeze(-1)
 
         # Calculate new width maintaining aspect ratio
@@ -1547,17 +1649,6 @@ def gaussian_blur(mask, blur_radius):
         mask = F.conv2d(mask, kernel2d, padding=kernel_size // 2, groups=mask.shape[1])
         mask = mask.squeeze(0).permute(1, 2, 0)  # Change back to [H, W, C]
     return mask
-
-easing_functions = {
-    "linear": lambda t: t,
-    "ease_in": ease_in,
-    "ease_out": ease_out,
-    "ease_in_out": ease_in_out,
-    "bounce": bounce,
-    "elastic": elastic,
-    "glitchy": glitchy,
-    "exponential_ease_out": exponential_ease_out,
-}
 
 class TransitionImagesMulti:
     RETURN_TYPES = ("IMAGE",)
@@ -2304,7 +2395,6 @@ class ImageBatchMulti:
             "required": {
                 "inputcount": ("INT", {"default": 2, "min": 2, "max": 1000, "step": 1}),
                 "image_1": ("IMAGE", ),
-                
             },
             "optional": {
                 "image_2": ("IMAGE", ),
@@ -2322,14 +2412,39 @@ with the **inputcount** and clicking update.
 """
 
     def combine(self, inputcount, **kwargs):
-        from nodes import ImageBatch
-        image_batch_node = ImageBatch()
-        image = kwargs["image_1"].cpu()
-        first_image_shape = image.shape
+        first = kwargs["image_1"]
+        h, w = first.shape[1], first.shape[2]
+
+        # determine output shape
+        max_ch = first.shape[-1]
+        total_frames = first.shape[0]
         for c in range(1, inputcount):
-            new_image = kwargs.get(f"image_{c + 1}", torch.zeros(first_image_shape)).cpu()
-            image, = image_batch_node.batch(image, new_image)
-        return (image,)
+            img = kwargs.get(f"image_{c + 1}")
+            if img is not None:
+                max_ch = max(max_ch, img.shape[-1])
+                total_frames += img.shape[0]
+            else:
+                total_frames += first.shape[0]
+
+        # pre-allocate output
+        out = torch.empty((total_frames, h, w, max_ch), dtype=first.dtype)
+        offset = 0
+
+        for c in range(inputcount):
+            img = kwargs.get(f"image_{c + 1}", torch.zeros((first.shape[0], h, w, max_ch), dtype=first.dtype))
+
+            if img.shape[1:3] != (h, w):
+                img = common_upscale(img.movedim(-1, 1), w, h, "bilinear", "center").movedim(1, -1)
+
+            if img.shape[-1] < max_ch:
+                img = torch.nn.functional.pad(img, (0, max_ch - img.shape[-1]), mode='constant', value=1.0)
+
+            n = img.shape[0]
+            out[offset:offset + n].copy_(img, non_blocking=True)
+            offset += n
+            del img
+
+        return (out.cpu(),)
 
 
 class ImageTensorList:
@@ -2514,7 +2629,7 @@ class PreviewAnimation:
                 mask_img = Image.fromarray(np.clip(mask_np, 0, 255).astype(np.uint8))
                 pil_images.append(mask_img)
         else:
-            print("PreviewAnimation: No images or masks provided")
+            logging.warning("PreviewAnimation: No images or masks provided")
             return { "ui": { "images": results, "animated": (None,), "text": "empty" }}
 
         num_frames = len(pil_images)
@@ -2742,7 +2857,7 @@ highest dimension.
                     except:
                         pass
                 else:
-                    print(f"[ImageResizeKJv2] estimated output ~{est_mb:.2f} MB; batching {per_batch}/{B}")
+                    logging.info(f"[ImageResizeKJv2] estimated output ~{est_mb:.2f} MB; batching {per_batch}/{B}")
             except:
                 pass
 
@@ -2841,7 +2956,7 @@ highest dimension.
                         pass
                 else:
                     try:
-                        print(f"[ImageResizeKJv2] batch {current_batch}/{total_batches} · images {end_idx}/{B}")
+                        logging.info(f"[ImageResizeKJv2] batch {current_batch}/{total_batches} · images {end_idx}/{B}")
                     except:
                         pass
             out_image = torch.cat(chunks, dim=0)
@@ -2865,7 +2980,6 @@ highest dimension.
 
         return (out_image.cpu(), out_image.shape[2], out_image.shape[1], out_mask.cpu() if out_mask is not None else torch.zeros(64,64, device=torch.device("cpu"), dtype=torch.float32))
 
-import pathlib    
 class LoadAndResizeImage:
     _color_channels = ["alpha", "red", "green", "blue"]
     @classmethod
@@ -2892,12 +3006,8 @@ class LoadAndResizeImage:
     FUNCTION = "load_image"
 
     def load_image(self, image, resize, width, height, repeat, keep_proportion, divisible_by, mask_channel, background_color):
-        from PIL import Image, ImageOps, ImageSequence
-        import numpy as np
-        import torch
         image_path = folder_paths.get_annotated_filepath(image)
 
-        import node_helpers
         img = node_helpers.pillow(Image.open, image_path)
         img = ImageOps.exif_transpose(img)
 
@@ -3015,7 +3125,6 @@ class LoadAndResizeImage:
 
         return True
 
-import hashlib
 class LoadImagesFromFolderKJ:
     # Dictionary to store folder hashes
     folder_hashes = {}
@@ -3223,7 +3332,6 @@ class LoadImagesFromFolderKJ:
                 padded.paste(img, (padding, 0))
                 return padded
     def get_edge_color(self, img):
-        from PIL import ImageStat
         """Sample edges and return dominant color"""
         width, height = img.size
         img = img.convert('RGBA')
@@ -3263,7 +3371,6 @@ class ImageGridtoBatch:
 
     def decompose(self, image, columns, rows):
         B, H, W, C = image.shape
-        print("input size: ", image.shape)
 
         # Calculate cell width, rounding down
         cell_width = W // columns
@@ -3358,7 +3465,7 @@ class SaveImageKJ:
             if caption is not None:
                 txt_file = base_file_name + caption_file_extension
                 file_path = os.path.join(full_output_folder, txt_file)
-                with open(file_path, 'w') as f:
+                with open(file_path, "w", encoding="utf-8") as f:
                     f.write(caption)
 
             counter += 1
@@ -3396,7 +3503,7 @@ class SaveStringKJ:
 
     def save_string(self, string, output_folder, filename_prefix="text", file_extension=".txt"):
         filename_prefix += self.prefix_append
-        
+
         full_output_folder, filename, counter, subfolder, filename_prefix = folder_paths.get_save_image_path(filename_prefix, self.output_dir)
         if output_folder and not os.path.isabs(output_folder) and args.base_directory:
             output_folder = os.path.join(args.base_directory, output_folder)
@@ -3410,7 +3517,7 @@ class SaveStringKJ:
 
         txt_file = base_file_name + file_extension
         file_path = os.path.join(full_output_folder, txt_file)
-        with open(file_path, 'w') as f:
+        with open(file_path, 'w', encoding="utf-8") as f:
             f.write(string)
 
         return results,
@@ -3459,7 +3566,6 @@ class ImageCropByMaskAndResize:
                 "padding": ("INT", { "default": 0, "min": 0, "max": MAX_RESOLUTION, "step": 1, }),
                 "min_crop_resolution": ("INT", { "default": 128, "min": 0, "max": MAX_RESOLUTION, "step": 8, }),
                 "max_crop_resolution": ("INT", { "default": 512, "min": 0, "max": MAX_RESOLUTION, "step": 8, }),
-           
             },
         }
 
@@ -3469,9 +3575,14 @@ class ImageCropByMaskAndResize:
     CATEGORY = "KJNodes/image"
 
     def crop_by_mask(self, mask, padding=0, min_crop_resolution=None, max_crop_resolution=None):
+        """
+        Calculate bounding box from mask with proper padding boundary protection
+        Ensures crop region never exceeds original image boundaries
+        """
         iy, ix = (mask == 1).nonzero(as_tuple=True)
         h0, w0 = mask.shape
 
+        # Handle empty mask
         if iy.numel() == 0:
             x_c = w0 / 2.0
             y_c = h0 / 2.0
@@ -3482,51 +3593,49 @@ class ImageCropByMaskAndResize:
             x_max = ix.max().item()
             y_min = iy.min().item()
             y_max = iy.max().item()
-
-            width = x_max - x_min
-            height = y_max - y_min
-
-            if width > w0 or height > h0:
-                raise Exception("Masked area out of bounds")
-
+            width = x_max - x_min + 1  # Include boundary pixels
+            height = y_max - y_min + 1
             x_c = (x_min + x_max) / 2.0
             y_c = (y_min + y_max) / 2.0
 
+        # Apply min/max resolution constraints
         if min_crop_resolution:
             width = max(width, min_crop_resolution)
             height = max(height, min_crop_resolution)
-
         if max_crop_resolution:
             width = min(width, max_crop_resolution)
             height = min(height, max_crop_resolution)
 
-        if w0 <= width:
-            x0 = 0
-            w = w0
-        else:
-            x0 = max(0, x_c - width / 2 - padding)
-            w = width + 2 * padding
-            if x0 + w > w0:
-                x0 = w0 - w
+        # Critical: Limit padding expansion to available image space
+        # Calculate maximum possible padding for each direction
+        max_padding_x = min((w0 - width) // 2, padding)
+        max_padding_y = min((h0 - height) // 2, padding)
+        
+        # Apply constrained padding
+        final_width = width + 2 * max_padding_x
+        final_height = height + 2 * max_padding_y
 
-        if h0 <= height:
-            y0 = 0
-            h = h0
-        else:
-            y0 = max(0, y_c - height / 2 - padding)
-            h = height + 2 * padding
-            if y0 + h > h0:
-                y0 = h0 - h
+        # Ensure final dimensions don't exceed image bounds
+        final_width = min(final_width, w0)
+        final_height = min(final_height, h0)
 
-        return (int(x0), int(y0), int(w), int(h))
+        # Calculate top-left corner with boundary protection
+        # Center the crop while respecting image boundaries
+        x0 = max(0, min(int(x_c - final_width / 2), w0 - final_width))
+        y0 = max(0, min(int(y_c - final_height / 2), h0 - final_height))
+
+        return (x0, y0, final_width, final_height)
 
     def crop(self, image, mask, base_resolution, padding=0, min_crop_resolution=128, max_crop_resolution=512):
+        """
+        Main crop and resize function with uniform target dimensions for all batch items
+        """
         mask = mask.round()
         image_list = []
         mask_list = []
         bbox_list = []
 
-        # First, collect all bounding boxes
+        # Step 1: Calculate individual bounding boxes
         bbox_params = []
         aspect_ratios = []
         for i in range(image.shape[0]):
@@ -3534,15 +3643,16 @@ class ImageCropByMaskAndResize:
             bbox_params.append((x0, y0, w, h))
             aspect_ratios.append(w / h)
 
-        # Find maximum width and height
+        # Step 2: Calculate uniform target dimensions based on maximum aspect ratio
         max_w = max([w for x0, y0, w, h in bbox_params])
         max_h = max([h for x0, y0, w, h in bbox_params])
         max_aspect_ratio = max(aspect_ratios)
 
-        # Ensure dimensions are divisible by 16
+        # Round up to nearest multiple of 16 for stable processing
         max_w = (max_w + 15) // 16 * 16
         max_h = (max_h + 15) // 16 * 16
-        # Calculate common target dimensions
+
+        # Determine target dimensions maintaining aspect ratio
         if max_aspect_ratio > 1:
             target_width = base_resolution
             target_height = int(base_resolution / max_aspect_ratio)
@@ -3550,31 +3660,36 @@ class ImageCropByMaskAndResize:
             target_height = base_resolution
             target_width = int(base_resolution * max_aspect_ratio)
 
+        # Ensure target dimensions are multiples of 16
+        target_width = (target_width + 15) // 16 * 16
+        target_height = (target_height + 15) // 16 * 16
+
+        # Step 3: Process each image with uniform crop size
         for i in range(image.shape[0]):
-            x0, y0, w, h = bbox_params[i]
+            orig_x0, orig_y0, orig_w, orig_h = bbox_params[i]
+            
+            # Calculate center of original bounding box
+            x_center = orig_x0 + orig_w / 2
+            y_center = orig_y0 + orig_h / 2
 
-            # Adjust cropping to use maximum width and height
-            x_center = x0 + w / 2
-            y_center = y0 + h / 2
+            # Define uniform crop region centered on each image's bounding box
+            # This ensures all crops have exactly the same dimensions
+            x0_new = max(0, min(int(x_center - max_w / 2), image.shape[2] - max_w))
+            y0_new = max(0, min(int(y_center - max_h / 2), image.shape[1] - max_h))
+            x1_new = x0_new + max_w
+            y1_new = y0_new + max_h
 
-            x0_new = int(max(0, x_center - max_w / 2))
-            y0_new = int(max(0, y_center - max_h / 2))
-            x1_new = int(min(x0_new + max_w, image.shape[2]))
-            y1_new = int(min(y0_new + max_h, image.shape[1]))
-            x0_new = x1_new - max_w
-            y0_new = y1_new - max_h
-
+            # Extract cropped regions
             cropped_image = image[i][y0_new:y1_new, x0_new:x1_new, :]
             cropped_mask = mask[i][y0_new:y1_new, x0_new:x1_new]
-            
-            # Ensure dimensions are divisible by 16
-            target_width = (target_width + 15) // 16 * 16
-            target_height = (target_height + 15) // 16 * 16
 
-            cropped_image = cropped_image.unsqueeze(0).movedim(-1, 1)  # Move C to the second position (B, C, H, W)
+            # Resize to exact target dimensions
+            # Image with lanczos interpolation
+            cropped_image = cropped_image.unsqueeze(0).movedim(-1, 1)
             cropped_image = common_upscale(cropped_image, target_width, target_height, "lanczos", "disabled")
             cropped_image = cropped_image.movedim(1, -1).squeeze(0)
 
+            # Mask with bilinear interpolation
             cropped_mask = cropped_mask.unsqueeze(0).unsqueeze(0)
             cropped_mask = common_upscale(cropped_mask, target_width, target_height, 'bilinear', "disabled")
             cropped_mask = cropped_mask.squeeze(0).squeeze(0)
@@ -3582,7 +3697,6 @@ class ImageCropByMaskAndResize:
             image_list.append(cropped_image)
             mask_list.append(cropped_mask)
             bbox_list.append((x0_new, y0_new, x1_new, y1_new))
-
 
         return (torch.stack(image_list), torch.stack(mask_list), bbox_list)
     
@@ -3716,7 +3830,6 @@ class ImageCropByMaskBatch:
         mask_count = BM
         if HM != H or WM != W:
             masks = F.interpolate(masks.unsqueeze(1), size=(H, W), mode='nearest-exact').squeeze(1)
-            print(masks.shape)
         output_images = []
         output_masks = []
 
@@ -4041,7 +4154,7 @@ class LoadVideosFromFolder:
                 if len(file_parts) > 1 and (file_parts[-1].lower() in ['webm', 'mp4', 'mkv', 'gif', 'mov']):
                     videos_list.append(os.path.join(kwargs['video'], f))
                     filenames.append(f)
-        print(videos_list)
+
         kwargs.pop('video')
         loaded_videos = []
         for idx, video in enumerate(videos_list):
@@ -4111,7 +4224,6 @@ class LoadVideosFromFolder:
                 row_tensor = torch.cat(padded_row_videos, dim=2)  # Concatenate horizontally
                 row_tensors.append(row_tensor)
             out_tensor = torch.cat(row_tensors, dim=1)  # Concatenate rows vertically
-        print(out_tensor.shape)
         return out_tensor,
 
     @classmethod

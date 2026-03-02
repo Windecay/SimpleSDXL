@@ -474,6 +474,8 @@ class LTX2_NAG(io.ComfyNode):
         if nag_cond_video is not None:
             diffusion_model.caption_projection.to(device)
             context_video = nag_cond_video[0][0].to(device, dtype)
+            if hasattr(diffusion_model, "preprocess_text_embeds"):
+                context_video = diffusion_model.preprocess_text_embeds(context_video.to(device=device, dtype=dtype))
             v_context, _ = torch.split(context_video, int(context_video.shape[-1] / 2), len(context_video.shape) - 1)
             context_video = diffusion_model.caption_projection(v_context)
             diffusion_model.caption_projection.to(offload_device)
@@ -485,6 +487,8 @@ class LTX2_NAG(io.ComfyNode):
         if nag_cond_audio is not None and diffusion_model.audio_caption_projection is not None:
             diffusion_model.audio_caption_projection.to(device)
             context_audio = nag_cond_audio[0][0].to(device, dtype)
+            if hasattr(diffusion_model, "preprocess_text_embeds"):
+                context_audio = diffusion_model.preprocess_text_embeds(context_audio.to(device=device, dtype=dtype))
             _, a_context = torch.split(context_audio, int(context_audio.shape[-1] / 2), len(context_audio.shape) - 1)
             context_audio = diffusion_model.audio_caption_projection(a_context)
             diffusion_model.audio_caption_projection.to(offload_device)
@@ -634,7 +638,7 @@ class WrappedPreviewer():
 
     def decode_latent_to_preview(self, x0):
         if self.taeltx is not None:
-            x0 = x0.unsqueeze(0).to(dtype=self.taeltx.vae_dtype, device=device)
+            x0 = x0.unsqueeze(0).to(dtype=self.taeltx.first_stage_model.decoder[1].weight.dtype, device=device)
             x_sample = self.taeltx.first_stage_model.decode(x0)[0].permute(1, 2, 3, 0)
             return x_sample
         else:
@@ -846,7 +850,7 @@ class LTX2SamplingPreviewOverride(io.ComfyNode):
             node_id="LTX2SamplingPreviewOverride",
             display_name="LTX2 Sampling Preview Override",
             description="Overrides the LTX2 preview sampling preview function, temporary measure until previews are in comfy core",
-            category="KJNodes/experimental",
+            category="KJNodes/ltxv",
             is_experimental=True,
             inputs=[
                 io.Model.Input("model", tooltip="The model to add preview override to."),
@@ -959,7 +963,7 @@ class LTX2AudioLatentNormalizingSampling(io.ComfyNode):
             node_id="LTX2AudioLatentNormalizingSampling",
             display_name="LTX2 Audio Latent Normalizing Sampling",
             description="Improves LTX2 generated audio quality by normalizing audio latents at specified sampling steps.",
-            category="KJNodes/experimental",
+            category="KJNodes/ltxv",
             is_experimental=True,
             inputs=[
                 io.Model.Input("model", tooltip="The model to add preview override to."),
@@ -1094,7 +1098,7 @@ class LTXVImgToVideoInplaceKJ(io.ComfyNode):
 def ltx2_forward(
         self, x: Tuple[torch.Tensor, torch.Tensor], v_context=None, a_context=None, attention_mask=None, v_timestep=None, a_timestep=None,
         v_pe=None, a_pe=None, v_cross_pe=None, a_cross_pe=None, v_cross_scale_shift_timestep=None, a_cross_scale_shift_timestep=None,
-        v_cross_gate_timestep=None, a_cross_gate_timestep=None, transformer_options=None,
+        v_cross_gate_timestep=None, a_cross_gate_timestep=None, transformer_options=None, self_attention_mask=None, **kwargs
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         run_vx = transformer_options.get("run_vx", True)
         run_ax = transformer_options.get("run_ax", True)
@@ -1115,11 +1119,11 @@ def ltx2_forward(
             norm_vx = comfy.ldm.common_dit.rms_norm(vx) * (1 + vscale_msa) + vshift_msa
             del vshift_msa, vscale_msa
 
-            attn1_out = self.attn1(norm_vx, pe=v_pe, transformer_options=transformer_options)
+            attn1_out = self.attn1(norm_vx, pe=v_pe, mask=self_attention_mask, transformer_options=transformer_options)
             del norm_vx
 
             vgate_msa = self.get_ada_values(self.scale_shift_table, vx.shape[0], v_timestep, slice(2, 3))[0]
-            vx.addcmul_(attn1_out, vgate_msa, value=video_scale)
+            vx += attn1_out * vgate_msa * video_scale
             del vgate_msa, attn1_out
             vx.add_(self.attn2(comfy.ldm.common_dit.rms_norm(vx), context=v_context, mask=attention_mask, transformer_options=transformer_options), alpha=video_scale)
 
@@ -1134,7 +1138,7 @@ def ltx2_forward(
             del norm_ax
 
             agate_msa = self.get_ada_values(self.audio_scale_shift_table, ax.shape[0], a_timestep, slice(2, 3))[0]
-            ax.addcmul_(attn1_out, agate_msa, value=audio_scale)
+            ax += attn1_out * agate_msa * audio_scale
             del agate_msa, attn1_out
             ax.add_(self.audio_attn2(comfy.ldm.common_dit.rms_norm(ax), context=a_context, mask=attention_mask, transformer_options=transformer_options), alpha=audio_scale)
 
@@ -1160,7 +1164,7 @@ def ltx2_forward(
                 del vx_scaled, ax_scaled
 
                 gate_out_a2v = self.get_ada_values(self.scale_shift_table_a2v_ca_video[4:, :], vx.shape[0], v_cross_gate_timestep, slice(0, 1))[0]
-                vx.addcmul_(a2v_out, gate_out_a2v, value=audio_to_video_scale)
+                vx += a2v_out * gate_out_a2v * audio_to_video_scale
                 del gate_out_a2v, a2v_out
 
             # video to audio cross attention
@@ -1179,7 +1183,7 @@ def ltx2_forward(
                 del ax_scaled, vx_scaled
 
                 gate_out_v2a = self.get_ada_values(self.scale_shift_table_a2v_ca_audio[4:, :], ax.shape[0], a_cross_gate_timestep, slice(0, 1))[0]
-                ax.addcmul_(v2a_out, gate_out_v2a, value=video_to_audio_scale)
+                ax += v2a_out * gate_out_v2a * video_to_audio_scale
                 del gate_out_v2a, v2a_out
 
         # video feedforward
@@ -1192,7 +1196,7 @@ def ltx2_forward(
             del vx_scaled
 
             vgate_mlp = self.get_ada_values(self.scale_shift_table, vx.shape[0], v_timestep, slice(5, 6))[0]
-            vx.addcmul_(ff_out, vgate_mlp)
+            vx += ff_out * vgate_mlp * video_scale
             del vgate_mlp, ff_out
 
         # audio feedforward
@@ -1205,7 +1209,7 @@ def ltx2_forward(
             del ax_scaled
 
             agate_mlp = self.get_ada_values(self.audio_scale_shift_table, ax.shape[0], a_timestep, slice(5, 6))[0]
-            ax.addcmul_(ff_out, agate_mlp)
+            ax += ff_out * agate_mlp * audio_scale
             del agate_mlp, ff_out
 
         return vx, ax
@@ -1292,6 +1296,8 @@ class LTX2MemoryEfficientSageAttentionPatch(io.ComfyNode):
 
     @classmethod
     def execute(cls, model) -> io.NodeOutput:
+        if _cuda_archs is None:
+            raise RuntimeError("sageattention is not new enough version or could not determine CUDA architecture, cannot apply LTX2 Memory Efficient Sage Attention Patch.")
         model_clone = model.clone()
         diffusion_model = model_clone.get_model_object("diffusion_model")
 
@@ -1316,6 +1322,7 @@ def get_cuda_version():
         return 0, 0
 
 sageplus_sm89_available = False
+_cuda_archs = None
 try:
     from sageattention.core import per_thread_int8_triton, per_warp_int8_cuda, per_block_int8_triton, per_channel_fp8, get_cuda_arch_versions, attn_false
     _cuda_archs = get_cuda_arch_versions()

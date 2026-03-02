@@ -51,6 +51,7 @@ NODE_CONFIG = {
     #images
     "AddLabel": {"class": AddLabel, "name": "Add Label"},
     "ColorMatch": {"class": ColorMatch, "name": "Color Match"},
+    "ColorMatchV2": {"class": ColorMatchV2, "name": "Color Match V2"},
     "ImageTensorList": {"class": ImageTensorList, "name": "Image Tensor List"},
     "CrossFadeImages": {"class": CrossFadeImages, "name": "Cross Fade Images"},
     "CrossFadeImagesMulti": {"class": CrossFadeImagesMulti, "name": "Cross Fade Images Multi"},
@@ -218,6 +219,7 @@ NODE_CONFIG = {
     "ModelMemoryUseReportPatch": {"class": ModelMemoryUseReportPatch, "name": "Model Memory Use Report Patch"},
     "ModelMemoryUsageFactorOverride": {"class": ModelMemoryUsageFactorOverride, "name": "Model Memory Usage Factor Override"},
     "WanChunkFeedForward": {"class": WanChunkFeedForward, "name": "Wan ChunkFeedForward"},
+    "SamplerSelfRefineVideo": {"class": SamplerSelfRefineVideo, "name": "Sampler SelfRefineVideo"},
 
     #instance diffusion
     "CreateInstanceDiffusionTracking": {"class": CreateInstanceDiffusionTracking},

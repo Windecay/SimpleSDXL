@@ -7,6 +7,7 @@ import numpy as np
 from contextlib import nullcontext
 import os
 from tqdm import tqdm
+import logging
 
 from comfy import model_management
 from comfy.utils import ProgressBar
@@ -101,7 +102,7 @@ Segments an image or batch of images using CLIPSeg.
         mask_tensor = torch.sigmoid(outputs.logits)
         mask_tensor = (mask_tensor - mask_tensor.min()) / (mask_tensor.max() - mask_tensor.min())
         mask_tensor = torch.where(mask_tensor > (threshold), mask_tensor, torch.tensor(0, dtype=torch.float))
-        print(mask_tensor.shape)
+
         if len(mask_tensor.shape) == 2:
             mask_tensor = mask_tensor.unsqueeze(0)
         mask_tensor = F.interpolate(mask_tensor.unsqueeze(1), size=(H, W), mode='nearest')
@@ -383,7 +384,7 @@ class CreateFluidMask:
         INFLOW_VELOCITY = inflow_velocity
         INFLOW_COUNT = inflow_count
 
-        print('Generating fluid solver, this may take some time.')
+        logging.info('Generating fluid solver, this may take some time.')
         fluid = Fluid(RESOLUTION, 'dye')
 
         center = np.floor_divide(RESOLUTION, 2)
@@ -403,7 +404,7 @@ class CreateFluidMask:
 
         
         for f in range(DURATION):
-            print(f'Computing frame {f + 1} of {DURATION}.')
+            logging.info(f'Computing frame {f + 1} of {DURATION}.')
             if f <= INFLOW_DURATION:
                 fluid.velocity += inflow_velocity
                 fluid.dye += inflow_dye
@@ -1007,7 +1008,7 @@ class GrowMaskWithBlur:
         current_expand = expand
         for m in tqdm(growmask, desc="Expanding/Contracting Mask"):
             output = m.unsqueeze(0).unsqueeze(0).to(main_device)  # Add batch and channel dims for kornia
-            if abs(round(current_expand)) > 0:
+            if abs(round(current_expand)) > 0 and output.max() > 0:
                 # Create kernel - kornia expects kernel on same device as input
                 if tapered_corners:
                     kernel = torch.tensor([[0, 1, 0],
@@ -1305,7 +1306,6 @@ def get_mask_polygon(self, mask_np):
     
     return polygon.squeeze()
 
-import cv2
 class SeparateMasks:
     @classmethod
     def INPUT_TYPES(cls):
@@ -1328,6 +1328,7 @@ class SeparateMasks:
     DESCRIPTION = "Separates a mask into multiple masks based on the size of the connected components."
 
     def polygon_to_mask(self, polygon, shape):
+        import cv2
         mask = np.zeros((shape[0], shape[1]), dtype=np.uint8)  # Fixed shape handling
 
         if len(polygon.shape) == 2:  # Check if polygon points are valid
@@ -1336,6 +1337,7 @@ class SeparateMasks:
         return mask
 
     def get_mask_polygon(self, mask_np, max_points):
+        import cv2
         contours, _ = cv2.findContours(mask_np, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         if not contours:
             return None
@@ -1345,7 +1347,6 @@ class SeparateMasks:
         
         # Initialize with smaller epsilon for more points
         perimeter = cv2.arcLength(hull, True)
-        epsilon = perimeter * 0.01  # Start smaller
         
         min_eps = perimeter * 0.001  # Much smaller minimum
         max_eps = perimeter * 0.2   # Smaller maximum
@@ -1381,9 +1382,6 @@ class SeparateMasks:
         return best_approx.squeeze() if best_approx is not None else hull.squeeze()
 
     def separate(self, mask: torch.Tensor, size_threshold_width: int, size_threshold_height: int, max_poly_points: int, mode: str):
-        from scipy.ndimage import label, center_of_mass
-        import numpy as np
-        
         B, H, W = mask.shape
         separated = []
 
@@ -1392,7 +1390,7 @@ class SeparateMasks:
         for b in range(B):
             mask_np = mask[b].cpu().numpy().astype(np.uint8)
             structure = np.ones((3, 3), dtype=np.int8)
-            labeled, ncomponents = label(mask_np, structure=structure)
+            labeled, ncomponents = scipy.ndimage.label(mask_np, structure=structure)
             pbar = ProgressBar(ncomponents)
             
             for component in range(1, ncomponents + 1):
@@ -1406,7 +1404,7 @@ class SeparateMasks:
                 width = x_max - x_min + 1
                 height = y_max - y_min + 1
                 centroid_x = (x_min + x_max) / 2  # Calculate x centroid
-                print(f"Component {component}: width={width}, height={height}, x_pos={centroid_x}")
+                logging.info(f"Component {component}: width={width}, height={height}, x_pos={centroid_x}")
                 
                 if width >= size_threshold_width and height >= size_threshold_height:
                     if mode == "convex_polygons":
@@ -1509,7 +1507,7 @@ class ConsolidateMasksKJ:
             merged.append(mask_idx)
             final_masks.append(combined_mask)
 
-        print(f"Consolidated {B} masks into {len(final_masks)}")
+        logging.info(f"Consolidated {B} masks into {len(final_masks)}")
         return (torch.stack(final_masks, dim=0),)
 
 

@@ -66,9 +66,9 @@ def extract_lora(diff, key, rank, algorithm, lora_type, lowrank_iters=7, adaptiv
                 s_fro = torch.sqrt(torch.sum(S_squared))
                 s_red_fro = torch.sqrt(torch.sum(S_squared[:lora_rank]))
                 fro_percent = float(s_red_fro / s_fro)
-                print(f"{key} Extracted LoRA rank: {lora_rank}, Frobenius retained: {fro_percent:.1%}")
+                logging.info(f"{key} Extracted LoRA rank: {lora_rank}, Frobenius retained: {fro_percent:.1%}")
             else:
-                print(f"{key} Extracted LoRA rank: {lora_rank}")
+                logging.info(f"{key} Extracted LoRA rank: {lora_rank}")
         else:
             lora_rank = rank
 
@@ -161,14 +161,14 @@ class LoraExtractKJ:
                     "finetuned_model": ("MODEL",),
                     "original_model": ("MODEL",),
                     "filename_prefix": ("STRING", {"default": "loras/ComfyUI_extracted_lora"}),
-                    "rank": ("INT", {"default": 8, "min": 1, "max": 4096, "step": 1, "tooltip": "The rank to use for standard LoRA, or maximum rank limit for adaptive methods."}),
+                    "rank": ("INT", {"default": 64, "min": 1, "max": 4096, "step": 1, "tooltip": "The rank to use for standard LoRA, or maximum rank limit for adaptive methods."}),
                     "lora_type": (["standard", "full", "adaptive_ratio", "adaptive_quantile", "adaptive_energy", "adaptive_fro"],),
-                    "algorithm": (["svd_linalg", "svd_lowrank"], {"default": "svd_linalg", "tooltip": "SVD algorithm to use, svd_lowrank is faster but less accurate."}),
+                    "algorithm": (["svd_linalg", "svd_lowrank"], {"default": "svd_lowrank", "tooltip": "SVD algorithm to use, svd_lowrank is faster but less accurate."}),
                     "lowrank_iters": ("INT", {"default": 7, "min": 1, "max": 100, "step": 1, "tooltip": "The number of subspace iterations for lowrank SVD algorithm."}),
                     "output_dtype": (["fp16", "bf16", "fp32"], {"default": "fp16"}),
                     "bias_diff": ("BOOLEAN", {"default": True}),
                     "adaptive_param": ("FLOAT", {"default": 0.15, "min": 0.0, "max": 1.0, "step": 0.01, "tooltip": "For ratio mode, this is the ratio of the maximum singular value. For quantile mode, this is the quantile of the singular values. For fro mode, this is the Frobenius norm retention ratio."}),
-                    "clamp_quantile": ("BOOLEAN", {"default": True}),
+                    "clamp_quantile": ("BOOLEAN", {"default": False}),
                 },
 
     }
@@ -256,7 +256,7 @@ class LoraReduceRank:
         for k, v in lora_sd.items():
             new_lora_sd[k.replace(".default", "")] = v
         del lora_sd
-        print("Resizing Lora...")
+        logging.info("Resizing Lora...")
         output_sd, old_dim, new_alpha, rank_list = resize_lora_model(new_lora_sd, new_rank, save_dtype, device, dynamic_method, dynamic_param, verbose)
 
         # update metadata
@@ -288,7 +288,7 @@ class LoraReduceRank:
         rank_str = new_rank if dynamic_method == "disabled" else f"dynamic_{average_rank}"
         output_checkpoint = f"{filename.replace('.safetensors', '')}_resized_from_{old_dim}_to_{rank_str}{output_dtype_str}_{counter:05}_.safetensors"
         output_checkpoint = os.path.join(full_output_folder, output_checkpoint)
-        print(f"Saving resized LoRA to {output_checkpoint}")
+        logging.info(f"Saving resized LoRA to {output_checkpoint}")
 
         comfy.utils.save_torch_file(output_sd, output_checkpoint, metadata=metadata)
         return {}
@@ -471,7 +471,7 @@ def resize_lora_model(lora_sd, new_rank, save_dtype, device, dynamic_method, dyn
     rank_list = []
 
     if dynamic_method:
-        print(f"Dynamically determining new alphas and dims based off {dynamic_method}: {dynamic_param}, max rank is {new_rank}")
+        logging.info(f"Dynamically determining new alphas and dims based off {dynamic_method}: {dynamic_param}, max rank is {new_rank}")
 
     lora_down_weight = None
     lora_up_weight = None
@@ -579,5 +579,5 @@ def resize_lora_model(lora_sd, new_rank, save_dtype, device, dynamic_method, dyn
         pbar.update(1)
 
     if verbose:
-        print(f"Average Frobenius norm retention: {np.mean(fro_list):.2%} | std: {np.std(fro_list):0.3f}")
+        logging.info(f"Average Frobenius norm retention: {np.mean(fro_list):.2%} | std: {np.std(fro_list):0.3f}")
     return o_lora_sd, max_old_rank, new_alpha, rank_list

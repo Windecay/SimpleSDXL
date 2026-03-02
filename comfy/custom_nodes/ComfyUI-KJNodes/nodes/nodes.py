@@ -2,15 +2,21 @@ import torch
 import torch.nn as nn
 import numpy as np
 from PIL import Image
-import json, re, os, io, time
+import json
+import re
+import os
+import time
+import math
 import importlib
+import logging
 
 from comfy import model_management
 import folder_paths
 from nodes import MAX_RESOLUTION
-from comfy.utils import common_upscale, ProgressBar, load_torch_file
+from comfy.utils import common_upscale, ProgressBar, load_torch_file, save_torch_file
 from comfy.comfy_types.node_typing import IO
 from comfy_api.latest import io
+import comfy.latent_formats
 import node_helpers
 from io import BytesIO
 
@@ -28,6 +34,7 @@ class BOOLConstant:
     RETURN_NAMES = ("value",)
     FUNCTION = "get_value"
     CATEGORY = "KJNodes/constants"
+    SEARCH_ALIASES = ["boolean", "value"]
 
     def get_value(self, value):
         return (value,)
@@ -43,6 +50,7 @@ class INTConstant:
     RETURN_NAMES = ("value",)
     FUNCTION = "get_value"
     CATEGORY = "KJNodes/constants"
+    SEARCH_ALIASES = ["integer", "value"]
 
     def get_value(self, value):
         return (value,)
@@ -59,6 +67,7 @@ class FloatConstant:
     RETURN_NAMES = ("value",)
     FUNCTION = "get_value"
     CATEGORY = "KJNodes/constants"
+    SEARCH_ALIASES = ["float", "value"]
 
     def get_value(self, value):
         return (round(value, 6),)
@@ -74,6 +83,7 @@ class StringConstant:
     RETURN_TYPES = ("STRING",)
     FUNCTION = "passtring"
     CATEGORY = "KJNodes/constants"
+    SEARCH_ALIASES = ["text", "value"]
 
     def passtring(self, string):
         return (string, )
@@ -90,6 +100,7 @@ class StringConstantMultiline:
     RETURN_TYPES = ("STRING",)
     FUNCTION = "stringify"
     CATEGORY = "KJNodes/constants"
+    SEARCH_ALIASES = ["text", "value"]
 
     def stringify(self, string, strip_newlines):
         new_string = string
@@ -621,7 +632,7 @@ class VRAM_Debug:
     RETURN_TYPES = (IO.ANY, "IMAGE","MODEL","INT", "INT",)
     RETURN_NAMES = ("any_output", "image_pass", "model_pass", "freemem_before", "freemem_after")
     FUNCTION = "VRAMdebug"
-    CATEGORY = "KJNodes/misc"
+    CATEGORY = "KJNodes/memory"
     DESCRIPTION = """
 Returns the inputs unchanged, they are only used as triggers,  
 and performs comfy model management functions and garbage collection,  
@@ -630,7 +641,7 @@ reports free VRAM before and after the operations.
 
     def VRAMdebug(self, gc_collect, empty_cache, unload_all_models, image_pass=None, model_pass=None, any_input=None):
         freemem_before = model_management.get_free_memory()
-        print("VRAMdebug: free memory before: ", f"{freemem_before:,.0f}")
+        logging.info(f"VRAMdebug: free memory before: {freemem_before:,.0f}")
         if empty_cache:
             model_management.soft_empty_cache()
         if unload_all_models:
@@ -639,8 +650,8 @@ reports free VRAM before and after the operations.
             import gc
             gc.collect()
         freemem_after = model_management.get_free_memory()
-        print("VRAMdebug: free memory after: ", f"{freemem_after:,.0f}")
-        print("VRAMdebug: freed memory: ", f"{freemem_after - freemem_before:,.0f}")
+        logging.info(f"VRAMdebug: free memory after: {freemem_after:,.0f}")
+        logging.info(f"VRAMdebug: freed memory: {freemem_after - freemem_before:,.0f}")
         return {"ui": {
             "text": [f"{freemem_before:,.0f}x{freemem_after:,.0f}"]}, 
             "result": (any_input, image_pass, model_pass, freemem_before, freemem_after) 
@@ -895,7 +906,7 @@ The 'any_input' is required for making sure the node you want the value from exi
                         node_id = node["id"]
                         break
                 else:
-                    print("Node title not found.")
+                    logging.warning("Node title not found.")
             elif id != 0:
                 if node["id"] == id:
                     node_id = id
@@ -1553,18 +1564,17 @@ class LoadResAdapterNormalization:
     CATEGORY = "KJNodes/experimental"
 
     def load_res_adapter(self, model, resadapter_path):
-        print("ResAdapter: Checking ResAdapter path")
+        logging.info("ResAdapter: Checking ResAdapter path")
         resadapter_full_path = folder_paths.get_full_path("checkpoints", resadapter_path)
         if not os.path.exists(resadapter_full_path):
             raise Exception("Invalid model path")
         else:
-            print("ResAdapter: Loading ResAdapter normalization weights")
-            from comfy.utils import load_torch_file
+            logging.info("ResAdapter: Loading ResAdapter normalization weights")
             prefix_to_remove = 'diffusion_model.'
             model_clone = model.clone()
             norm_state_dict = load_torch_file(resadapter_full_path)
             new_values = {key[len(prefix_to_remove):]: value for key, value in norm_state_dict.items() if key.startswith(prefix_to_remove)}
-            print("ResAdapter: Attempting to add patches with ResAdapter weights")
+            logging.info("ResAdapter: Attempting to add patches with ResAdapter weights")
             try:
                 for key in model.model.diffusion_model.state_dict().keys():
                     if key in new_values:
@@ -1573,10 +1583,10 @@ class LoadResAdapterNormalization:
                         if original_tensor.shape == new_tensor.shape:
                             model_clone.add_object_patch(f"diffusion_model.{key}.data", new_tensor)
                         else:
-                            print("ResAdapter: No match for key: ",key)
+                            logging.warning("ResAdapter: No match for key: %s", key)
             except:
                 raise Exception("Could not patch model, this way of patching was added to ComfyUI on March 3rd 2024, is your ComfyUI up to date?")
-            print("ResAdapter: Added resnet normalization patches")
+            logging.info("ResAdapter: Added resnet normalization patches")
             return (model_clone, )
         
 class Superprompt:
@@ -1608,7 +1618,7 @@ https://huggingface.co/roborovski/superprompt-v1
 
         checkpoint_path = os.path.join(script_directory, "models","superprompt-v1")
         if not os.path.exists(checkpoint_path):
-                print(f"Downloading model to: {checkpoint_path}")
+                logging.info(f"Downloading model to: {checkpoint_path}")
                 from huggingface_hub import snapshot_download
                 snapshot_download(repo_id="roborovski/superprompt-v1", 
                                   local_dir=checkpoint_path, 
@@ -1681,7 +1691,7 @@ or a .txt file with RealEstate camera intrinsics and coordinates, in a 3D plot.
         self.ax.set_zlabel('z', color='#999999')
         for text in self.ax.get_xticklabels() + self.ax.get_yticklabels() + self.ax.get_zticklabels():
             text.set_color('#999999')
-        print('initialize camera pose visualizer')
+        logging.info('initialize camera pose visualizer')
 
         if pose_file_path != "":
             with open(pose_file_path, 'r') as f:
@@ -1819,7 +1829,7 @@ class CheckpointPerturbWeights:
         pbar = ProgressBar(len(keys))
         for k in keys:
             v = dict[k]
-            print(f'{k}: {v.std()}') 
+            logging.info(f'{k}: {v.std()}')
             if k.startswith('joint_blocks'):
                 multiplier = joint_blocks
             elif k.startswith('final_layer'):
@@ -1916,7 +1926,7 @@ class HunyuanVideoBlockLoraSelect:
     OUTPUT_TOOLTIPS = ("The modified diffusion model.",)
     FUNCTION = "load_lora"
 
-    CATEGORY = "KJNodes/experimental"
+    CATEGORY = "KJNodes/hunyuanvideo"
     DESCRIPTION = "Select individual block alpha values, value of 0 removes the block altogether"
 
     def load_lora(self, **kwargs):
@@ -1938,7 +1948,7 @@ class Wan21BlockLoraSelect:
     OUTPUT_TOOLTIPS = ("The modified diffusion model.",)
     FUNCTION = "load_lora"
 
-    CATEGORY = "KJNodes/experimental"
+    CATEGORY = "KJNodes/wan"
     DESCRIPTION = "Select individual block alpha values, value of 0 removes the block altogether"
 
     def load_lora(self, **kwargs):
@@ -1960,7 +1970,7 @@ class LTX2BlockLoraSelect:
     OUTPUT_TOOLTIPS = ("The modified diffusion model.",)
     FUNCTION = "load_lora"
 
-    CATEGORY = "KJNodes/experimental"
+    CATEGORY = "KJNodes/ltxv"
     DESCRIPTION = "Select individual block alpha values, value of 0 removes the block altogether"
 
     def load_lora(self, **kwargs):
@@ -1989,7 +1999,7 @@ class DiTBlockLoraLoader:
     RETURN_NAMES = ("model", "rank", )
     OUTPUT_TOOLTIPS = ("The modified diffusion model.", "possible rank of the LoRA.")
     FUNCTION = "load_lora"
-    CATEGORY = "KJNodes/experimental"
+    CATEGORY = "KJNodes/lora"
 
     def load_lora(self, model, strength_model, lora_name=None, opt_lora_path=None, blocks=None):
         
@@ -2016,10 +2026,10 @@ class DiTBlockLoraLoader:
         weight_key = next((key for key in lora.keys() if key.endswith('weight')), None)
         # Print the shape of the value corresponding to the key
         if weight_key:
-            print(f"Shape of the first 'weight' key ({weight_key}): {lora[weight_key].shape}")
+            logging.info(f"Shape of the first 'weight' key ({weight_key}): {lora[weight_key].shape}")
             rank = str(lora[weight_key].shape[0])
         else:
-            print("No key ending with 'weight' found.")
+            logging.warning("No key ending with 'weight' found.")
             rank = "Couldn't find rank"
         self.loaded_lora = (lora_path, lora)
 
@@ -2051,22 +2061,22 @@ class DiTBlockLoraLoader:
                             # Only modify LoRA adapters, skip diff tuples
                             value = loaded[key]
                             if hasattr(value, 'weights'):
-                                print(f"Modifying LoRA adapter for key: {key}")
+                                logging.info(f"Modifying LoRA adapter for key: {key}")
                                 weights_list = list(value.weights)
                                 weights_list[2] = ratio
                                 loaded[key].weights = tuple(weights_list)
                             else:
-                                print(f"Skipping non-LoRA entry for key: {key}")
+                                logging.info(f"Skipping non-LoRA entry for key: {key}")
 
             for key in keys_to_delete:
                 del loaded[key]
 
-            print("loading lora keys:")
+            logging.info("loading lora keys:")
             for key, value in loaded.items():
                 if hasattr(value, 'weights'):
-                    print(f"Key: {key}, Alpha: {value.weights[2]}")
+                    logging.info(f"Key: {key}, Alpha: {value.weights[2]}")
                 else:
-                    print(f"Key: {key}, Type: {type(value)}")
+                    logging.info(f"Key: {key}, Type: {type(value)}")
 
         if model is not None:
             new_modelpatcher = model.clone()
@@ -2075,7 +2085,7 @@ class DiTBlockLoraLoader:
         k = set(k)
         for x in loaded:
             if (x not in k):
-                print("NOT LOADED {}".format(x))
+                logging.warning(f"NOT LOADED {x}")
 
         return (new_modelpatcher, rank)
     
@@ -2109,7 +2119,7 @@ class CustomControlNetWeightsFluxFromList:
         TimestepKeyframe = adv_control.utils.TimestepKeyframe
 
         weights = ControlWeights.controlnet(weights_input=list_of_floats, uncond_multiplier=uncond_multiplier, extras=cn_extras)
-        print(weights.weights_input)
+        logging.info(weights.weights_input)
         return (weights, TimestepKeyframeGroup.default(TimestepKeyframe(control_weights=weights)))
     
 SHAKKERLABS_UNION_CONTROLNET_TYPES = {
@@ -2162,7 +2172,6 @@ class ModelSaveKJ:
     CATEGORY = "advanced/model_merging"
 
     def save(self, model, filename_prefix, model_key_prefix, prompt=None, extra_pnginfo=None):
-        from comfy.utils import save_torch_file
         full_output_folder, filename, counter, subfolder, filename_prefix = folder_paths.get_save_image_path(filename_prefix, self.output_dir)
     
         output_checkpoint = f"{filename}_{counter:05}_.safetensors"
@@ -2185,7 +2194,7 @@ class ModelSaveKJ:
             if not t.is_contiguous():
                 t = t.contiguous()
             new_sd[new_key] = t
-        print(full_output_folder)
+        logging.info(f"full_output_folder: {full_output_folder}")
         if not os.path.exists(full_output_folder):
             os.makedirs(full_output_folder)
         save_torch_file(new_sd, os.path.join(full_output_folder, output_checkpoint))
@@ -2240,9 +2249,8 @@ Concatenates the audio1 to audio2 in the specified direction.
         sample_rate_2 = audio2["sample_rate"]
         if sample_rate_1 != sample_rate_2:
             raise Exception("Sample rates of the two audios do not match")
-        
+
         waveform_1 = audio1["waveform"]
-        print(waveform_1.shape)
         waveform_2 = audio2["waveform"]
 
         # Concatenate based on the specified direction
@@ -2269,7 +2277,7 @@ class LeapfusionHunyuanI2V:
     RETURN_TYPES = ("MODEL",)
     FUNCTION = "patch"
 
-    CATEGORY = "KJNodes/experimental"
+    CATEGORY = "KJNodes/hunyuanvideo"
 
     def patch(self, model, latent, index, strength, start_percent, end_percent):
 
@@ -2386,11 +2394,11 @@ class VAELoaderKJ:
         encoder = next(filter(lambda a: a.startswith("{}_encoder.".format(name)), approx_vaes))
         decoder = next(filter(lambda a: a.startswith("{}_decoder.".format(name)), approx_vaes))
 
-        enc = comfy.utils.load_torch_file(folder_paths.get_full_path_or_raise("vae_approx", encoder))
+        enc = load_torch_file(folder_paths.get_full_path_or_raise("vae_approx", encoder))
         for k in enc:
             sd["taesd_encoder.{}".format(k)] = enc[k]
 
-        dec = comfy.utils.load_torch_file(folder_paths.get_full_path_or_raise("vae_approx", decoder))
+        dec = load_torch_file(folder_paths.get_full_path_or_raise("vae_approx", decoder))
         for k in dec:
             sd["taesd_decoder.{}".format(k)] = dec[k]
 
@@ -2440,7 +2448,7 @@ class VAELoaderKJ:
                 vae_path = folder_paths.get_full_path_or_raise("vae_approx", vae_name)
             else:
                 vae_path = folder_paths.get_full_path_or_raise("vae", vae_name)
-            sd, metadata = comfy.utils.load_torch_file(vae_path, return_metadata=True)
+            sd, metadata = load_torch_file(vae_path, return_metadata=True)
 
         if "vocoder.conv_post.weight" in sd:
             from comfy.ldm.lightricks.vae.audio_vae import AudioVAE
@@ -2530,7 +2538,7 @@ class ApplyRifleXRoPE_WanVideo:
 
     RETURN_TYPES = ("MODEL",)
     FUNCTION = "patch"
-    CATEGORY = "KJNodes/experimental"
+    CATEGORY = "KJNodes/wan"
     EXPERIMENTAL = True
     DESCRIPTION = "Extends the potential frame count of HunyuanVideo using this method: https://github.com/thu-ml/RIFLEx"
 
@@ -2566,7 +2574,7 @@ class ApplyRifleXRoPE_HunuyanVideo:
 
     RETURN_TYPES = ("MODEL",)
     FUNCTION = "patch"
-    CATEGORY = "KJNodes/experimental"
+    CATEGORY = "KJNodes/hunyuanvideo"
     EXPERIMENTAL = True
     DESCRIPTION = "Extends the potential frame count of HunyuanVideo using this method: https://github.com/thu-ml/RIFLEx"
 
@@ -2691,7 +2699,7 @@ class HunyuanVideoEncodeKeyframesToCond:
     RETURN_NAMES = ("model", "positive", "negative", "latent")
     FUNCTION = "encode"
 
-    CATEGORY = "KJNodes/videomodels"
+    CATEGORY = "KJNodes/hunyuanvideo"
 
     def encode(self, model, positive, start_frame, end_frame, num_frames, vae, tile_size, overlap, temporal_size, temporal_overlap, negative=None):
 
@@ -2835,6 +2843,7 @@ class LatentInpaintTTM:
     FUNCTION = "patch"
     EXPERIMENTAL = True
     DESCRIPTION = "https://github.com/time-to-move/TTM"
+    SEARCH_ALIASES = ["time to move"]
     CATEGORY = "KJNodes/experimental"
 
     def patch(self, model, steps, mask=None):
@@ -2843,33 +2852,46 @@ class LatentInpaintTTM:
         return (m, )
 
 
-class SimpleCalculatorKJ:
+class SimpleCalculatorKJ(io.ComfyNode):
     @classmethod
-    def INPUT_TYPES(s):
-        return {
-            "required": {
-                "expression": ("STRING", {"default": "a + b", "multiline": True}),
-            },
-            "optional": {
-                "a": (IO.ANY, {"default": 0.0, "min": -1e10, "max": 1e10, "step": 0.01, "forceInput": True}),
-                "b": (IO.ANY, {"default": 0.0, "min": -1e10, "max": 1e10, "step": 0.01, "forceInput": True}),
-            }
-        }
+    def define_schema(cls):
+        template = io.Autogrow.TemplateNames(input=io.MultiType.Input("var", [io.Int, io.Float, io.Boolean], optional=True), names=["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k"], min=2)
+        return io.Schema(
+            node_id="SimpleCalculatorKJ",
+            category="KJNodes/misc",
+            description="""
+Calculator node that evaluates a mathematical expression using inputs a and b.  
+    Supported operations: +, -, *, /, //, %, **, <<, >>, unary +/-  
+    Supported comparisons: ==, !=, <, <=, >, >=  
+    Supported logic: and, or, not  
+    Supported functions: abs(), round(), min(), max(), pow(), sqrt(), sin(), cos(), tan(), log(), log10(), exp(), floor(), ceil()  
+    Supported constants: pi, euler, True, False  
+""",
+            search_aliases=["math", "arithmetic", "expression", "logic"],
+            inputs=[
+                io.String.Input("expression", default="a + b", multiline=True),
+                io.Autogrow.Input("variables", template=template),
+            ],
+            outputs=[
+                io.Float.Output(),
+                io.Int.Output(),
+                io.Boolean.Output(),
+            ],
+        )
 
-    RETURN_TYPES = ("FLOAT", "INT",)
-    FUNCTION = "calculate"
-    CATEGORY = "KJNodes/misc"
-    DESCRIPTION = "Calculator node that evaluates a mathematical expression using inputs a and b."
-
-    def calculate(self, expression, a=None, b=None):
-
+    @classmethod
+    def execute(cls, variables, expression, a=None, b=None) -> io.NodeOutput:
         import ast
         import operator
-        import math
 
         # Allowed operations
-        allowed_operators = {ast.Add: operator.add, ast.Sub: operator.sub, ast.Mult: operator.mul,  ast.Div: operator.truediv,
-            ast.Pow: operator.pow, ast.USub: operator.neg, ast.UAdd: operator.pos, ast.LShift: operator.lshift, ast.RShift: operator.rshift,
+        allowed_operators = {
+            ast.Add: operator.add, ast.Sub: operator.sub, ast.Mult: operator.mul, ast.Div: operator.truediv,
+            ast.FloorDiv: operator.floordiv, ast.Mod: operator.mod, ast.Pow: operator.pow, 
+            ast.USub: operator.neg, ast.UAdd: operator.pos, ast.LShift: operator.lshift, 
+            ast.RShift: operator.rshift, ast.Eq: operator.eq, ast.NotEq: operator.ne, ast.Lt: operator.lt,
+            ast.LtE: operator.le, ast.Gt: operator.gt, ast.GtE: operator.ge, ast.And: operator.and_, 
+            ast.Or: operator.or_, ast.Not: operator.not_,
         }
 
         # Allowed functions
@@ -2881,11 +2903,21 @@ class SimpleCalculatorKJ:
             'ceil': math.ceil
         }
 
-        # Allowed constants
-        allowed_names = {'a': a, 'b': b, 'pi': math.pi, 'e': math.e}
+        # Allowed constants - start with pi, e, True, False
+        allowed_names = {'pi': math.pi, 'euler': math.e, 'True': True, 'False': False}
+
+        # Add all variables from autogrow to allowed_names
+        for var_name, var_value in variables.items():
+            allowed_names[var_name] = var_value
+
+        # Backwards compatibility: add a and b if they're provided (for old workflows)
+        if a is not None:
+            allowed_names['a'] = a
+        if b is not None:
+            allowed_names['b'] = b
 
         def eval_node(node):
-            if isinstance(node, ast.Constant):  # Numbers
+            if isinstance(node, ast.Constant):  # Numbers and booleans
                 return node.value
             elif isinstance(node, ast.Name):  # Variables
                 if node.id in allowed_names:
@@ -2902,6 +2934,25 @@ class SimpleCalculatorKJ:
                     raise ValueError(f"Operator {type(node.op).__name__} is not allowed")
                 operand = eval_node(node.operand)
                 return allowed_operators[type(node.op)](operand)
+            elif isinstance(node, ast.Compare):  # Comparison operations
+                left = eval_node(node.left)
+                for op, comparator in zip(node.ops, node.comparators):
+                    if type(op) not in allowed_operators:
+                        raise ValueError(f"Operator {type(op).__name__} is not allowed")
+                    right = eval_node(comparator)
+                    result = allowed_operators[type(op)](left, right)
+                    if not result:
+                        return False
+                    left = right
+                return True
+            elif isinstance(node, ast.BoolOp):  # Boolean operations (and, or)
+                if type(node.op) not in allowed_operators:
+                    raise ValueError(f"Operator {type(node.op).__name__} is not allowed")
+                values = [eval_node(value) for value in node.values]
+                if isinstance(node.op, ast.And):
+                    return all(values)
+                elif isinstance(node.op, ast.Or):
+                    return any(values)
             elif isinstance(node, ast.Call):  # Function calls
                 if not isinstance(node.func, ast.Name):
                     raise ValueError("Only simple function calls are allowed")
@@ -2915,10 +2966,10 @@ class SimpleCalculatorKJ:
         try:
             tree = ast.parse(expression, mode='eval')
             result = eval_node(tree.body)
-            return (float(result), int(result))
+            return io.NodeOutput(float(result), int(result), bool(result))
         except Exception as e:
-            print(f"CalculatorKJ Error: {str(e)}")
-            return (0.0, 0)
+            logging.error(f"CalculatorKJ Error: {str(e)}")
+            return io.NodeOutput(0.0, 0, False)
 
 
 class GetTrackRange(io.ComfyNode):
@@ -3055,7 +3106,6 @@ class VAEDecodeLoopKJ:
 
         return (images, )
 
-import comfy.latent_formats
 class WanImageToVideoSVIPro(io.ComfyNode):
     @classmethod
     def define_schema(cls):
@@ -3239,7 +3289,7 @@ class PreviewLatentNoiseMask(io.ComfyNode):
     def define_schema(cls):
         return io.Schema(
             node_id="PreviewLatentNoiseMask",
-            category="KJNodes/latent",
+            category="KJNodes/latents",
             description="Previews the latent noise mask",
             inputs=[
                 io.Latent.Input("latent",),
