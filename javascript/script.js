@@ -1122,3 +1122,100 @@ function initPersonalWildcardsPopup() {
 
 onUiLoaded(initPersonalWildcardsPopup);
 onAfterUiUpdate(initPersonalWildcardsPopup);
+
+function initPersonalWildcardsContentLineOverlay() {
+    const modal = gradioApp().getElementById('user_personal_wildcards_modal');
+    if (modal && getComputedStyle(modal).display === 'none') return;
+
+    const root = gradioApp().getElementById('user_personal_wildcards_content');
+    if (!root) return;
+    const textarea = root.querySelector('textarea');
+    if (!textarea) return;
+
+    if (textarea.dataset.lineOverlayInit === '1') {
+        if (typeof textarea.__lineOverlayMaybeUpdate === 'function') textarea.__lineOverlayMaybeUpdate();
+        return;
+    }
+    textarea.dataset.lineOverlayInit = '1';
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'line-overlay-wrapper';
+
+    const viewport = document.createElement('div');
+    viewport.className = 'line-overlay-viewport';
+
+    const content = document.createElement('div');
+    content.className = 'line-overlay-content';
+
+    viewport.appendChild(content);
+
+    const parent = textarea.parentNode;
+    if (!parent) return;
+    parent.insertBefore(wrapper, textarea);
+    wrapper.appendChild(viewport);
+    wrapper.appendChild(textarea);
+
+    const syncScroll = () => {
+        const x = textarea.scrollLeft || 0;
+        const y = textarea.scrollTop || 0;
+        content.style.transform = `translate(${-x}px, ${-y}px)`;
+    };
+
+    const applyTextareaStyles = () => {
+        const cs = getComputedStyle(textarea);
+        wrapper.style.borderRadius = cs.borderRadius;
+        viewport.style.borderRadius = cs.borderRadius;
+        content.style.fontFamily = cs.fontFamily;
+        content.style.fontSize = cs.fontSize;
+        content.style.fontWeight = cs.fontWeight;
+        content.style.fontStyle = cs.fontStyle;
+        content.style.letterSpacing = cs.letterSpacing;
+        content.style.lineHeight = cs.lineHeight;
+        content.style.padding = cs.padding;
+        content.style.boxSizing = cs.boxSizing;
+        content.style.width = `${textarea.clientWidth}px`;
+    };
+
+    const update = () => {
+        const value = textarea.value ?? '';
+        textarea.dataset.lineOverlayLastValue = value;
+        const lines = value.split('\n');
+        const frag = document.createDocumentFragment();
+
+        for (let i = 0; i < lines.length; i++) {
+            const lineEl = document.createElement('div');
+            lineEl.className = 'line-overlay-line';
+            lineEl.textContent = lines[i].length ? lines[i] : '\u200b';
+            frag.appendChild(lineEl);
+        }
+
+        content.replaceChildren(frag);
+        syncScroll();
+    };
+
+    const maybeUpdate = () => {
+        const value = textarea.value ?? '';
+        if (value === (textarea.dataset.lineOverlayLastValue ?? '')) return;
+        update();
+    };
+
+    const sync = () => {
+        applyTextareaStyles();
+        update();
+    };
+
+    textarea.addEventListener('input', update);
+    textarea.addEventListener('change', maybeUpdate);
+    textarea.addEventListener('scroll', syncScroll);
+
+    const ro = new ResizeObserver(sync);
+    ro.observe(textarea);
+
+    textarea.__lineOverlaySync = sync;
+    textarea.__lineOverlayMaybeUpdate = maybeUpdate;
+
+    sync();
+}
+
+onUiLoaded(initPersonalWildcardsContentLineOverlay);
+onAfterUiUpdate(initPersonalWildcardsContentLineOverlay);

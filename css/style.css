@@ -1326,6 +1326,51 @@ button.gallery-item {
   cursor: grabbing;
 }
 
+.line-overlay-textbox .line-overlay-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.line-overlay-textbox .line-overlay-viewport {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.line-overlay-textbox .line-overlay-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  color: transparent;
+}
+
+.line-overlay-textbox .line-overlay-line {
+  display: block;
+}
+
+:root[data-theme="light"] .line-overlay-textbox .line-overlay-line:nth-child(odd),
+html[data-theme="light"] .line-overlay-textbox .line-overlay-line:nth-child(odd),
+body[data-theme="light"] .line-overlay-textbox .line-overlay-line:nth-child(odd) {
+  background-color: rgba(0, 0, 0, 0.135);
+}
+
+:root[data-theme="dark"] .line-overlay-textbox .line-overlay-line:nth-child(odd),
+html[data-theme="dark"] .line-overlay-textbox .line-overlay-line:nth-child(odd),
+body[data-theme="dark"] .line-overlay-textbox .line-overlay-line:nth-child(odd) {
+  background-color: rgba(255, 255, 255, 0.145);
+}
+
+.line-overlay-textbox textarea {
+  background-color: transparent !important;
+  position: relative;
+  z-index: 1;
+}
+
 #missing_model_dataframe_container {
   background-color: var(--background-fill-secondary);
   border: 1px solid var(--border-color-primary);

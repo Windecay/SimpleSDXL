@@ -1417,7 +1417,7 @@ with shared.gradio_root:
                             with gr.Row():
                                 user_personal_wildcards_name = gr.Textbox(label="Name", placeholder="e.g. my_style (saved as .txt)", lines=1)
                             with gr.Row():
-                                user_personal_wildcards_content = gr.Textbox(label="Content (one per line)", lines=12)
+                                user_personal_wildcards_content = gr.Textbox(label="Content (one per line)", lines=12, elem_id="user_personal_wildcards_content", elem_classes=["line-overlay-textbox"])
                             with gr.Row():
                                 user_personal_wildcards_save_btn = gr.Button(value="💾 Save", interactive=False)
                                 user_personal_wildcards_delete_btn = gr.Button(value="🗑️ Delete", variant="secondary", interactive=False)
