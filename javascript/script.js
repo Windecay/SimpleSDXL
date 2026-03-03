@@ -1044,3 +1044,81 @@ function initResolutionOverrideWidget() {
 
 onUiLoaded(initResolutionOverrideWidget);
 onAfterUiUpdate(initResolutionOverrideWidget);
+
+function initPersonalWildcardsPopup() {
+    const app = (typeof gradioApp === 'function') ? gradioApp() : null;
+    if (!app) return;
+
+    const modal = app.getElementById('user_personal_wildcards_modal');
+    const content = app.getElementById('user_personal_wildcards_modal_content');
+    const handle = app.getElementById('user_personal_wildcards_modal_handle');
+    if (!modal || !content || !handle) return;
+    if (content.dataset.pw_inited === '1') return;
+    content.dataset.pw_inited = '1';
+
+    const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
+
+    const placeDefault = () => {
+        const w = content.getBoundingClientRect().width || 970;
+        const h = content.getBoundingClientRect().height || 520;
+        const margin = 10;
+        let top = 220;
+        let left = ((window.innerWidth - w) / 2) - 260;
+        top = clamp(top, margin, window.innerHeight - margin - h);
+        left = clamp(left, margin, window.innerWidth - margin - w);
+        content.style.top = `${top}px`;
+        content.style.left = `${left}px`;
+        content.style.right = 'auto';
+        content.style.bottom = 'auto';
+    };
+
+    const onShow = () => {
+        if (modal.style.display === 'none') return;
+        if (!content.style.left && !content.style.top) {
+            placeDefault();
+        }
+    };
+
+    const observer = new MutationObserver(onShow);
+    observer.observe(modal, { attributes: true, attributeFilter: ['style'] });
+    onShow();
+
+    let dragging = false;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    const onMove = (e) => {
+        if (!dragging) return;
+        const x = e.clientX ?? 0;
+        const y = e.clientY ?? 0;
+        const rect = content.getBoundingClientRect();
+        const margin = 10;
+        const nextLeft = clamp(x - offsetX, margin, window.innerWidth - margin - rect.width);
+        const nextTop = clamp(y - offsetY, margin, window.innerHeight - margin - rect.height);
+        content.style.left = `${nextLeft}px`;
+        content.style.top = `${nextTop}px`;
+    };
+
+    const onUp = () => {
+        dragging = false;
+        window.removeEventListener('pointermove', onMove, true);
+        window.removeEventListener('pointerup', onUp, true);
+    };
+
+    const onDown = (e) => {
+        if (e.button !== 0) return;
+        if (modal.style.display === 'none') return;
+        const rect = content.getBoundingClientRect();
+        dragging = true;
+        offsetX = e.clientX - rect.left;
+        offsetY = e.clientY - rect.top;
+        window.addEventListener('pointermove', onMove, true);
+        window.addEventListener('pointerup', onUp, true);
+        e.preventDefault();
+    };
+
+    handle.addEventListener('pointerdown', onDown, { passive: false });
+}
+
+onUiLoaded(initPersonalWildcardsPopup);
+onAfterUiUpdate(initPersonalWildcardsPopup);

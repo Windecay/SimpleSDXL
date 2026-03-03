@@ -1300,6 +1300,32 @@ button.gallery-item {
   z-index: 10;
 }
 
+.user-wildcards-modal.modal {
+  background-color: transparent;
+  pointer-events: none;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.user-wildcards-modal .modal-content {
+  position: fixed;
+  pointer-events: auto;
+  width: 970px;
+  max-width: calc(100vw - 40px);
+  max-height: calc(100vh - 160px);
+  overflow: auto;
+  border-radius: 16px;
+}
+
+#user_personal_wildcards_modal_handle {
+  cursor: grab;
+  user-select: none;
+}
+
+#user_personal_wildcards_modal_handle:active {
+  cursor: grabbing;
+}
+
 #missing_model_dataframe_container {
   background-color: var(--background-fill-secondary);
   border: 1px solid var(--border-color-primary);

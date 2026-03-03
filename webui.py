@@ -1352,7 +1352,11 @@ with shared.gradio_root:
                                 wc_start = gr.Number(label="Start index", value=1, precision=0, minimum=1, step=1, visible=False)
                                 wc_group_size = gr.Number(label="Group size", value=1, precision=0, minimum=1, step=1, visible=True)
                         wc_preview = gr.HTML(value="")
-                        wc_insert_btn = gr.Button(value="Append to prompt")
+                        with gr.Row():
+                            with gr.Column(scale=5, min_width=220):
+                                wc_insert_btn = gr.Button(value="Append to prompt")
+                            with gr.Column(scale=5, min_width=220):
+                                wc_manage_personal_btn = gr.Button(value="Wildcards Editor")
 
                         wc_target.change(wildcards.update_wildcards_helper_controls, inputs=[wc_target, wc_method, wc_seed_mode, wc_name, wc_count, wc_start, wc_group_size], outputs=[wc_start, wc_group_size], show_progress=False, queue=False)
                         wc_method.change(wildcards.update_wildcards_helper_controls, inputs=[wc_target, wc_method, wc_seed_mode, wc_name, wc_count, wc_start, wc_group_size], outputs=[wc_start, wc_group_size], show_progress=False, queue=False)
@@ -1399,6 +1403,38 @@ with shared.gradio_root:
                         )
 
                     wildcards_array_hold = [gr.update()] * 5
+
+                    user_personal_wildcards_modal = gr.Box(visible=False, elem_id="user_personal_wildcards_modal", elem_classes=["modal", "user-wildcards-modal"])
+                    with user_personal_wildcards_modal:
+                        user_personal_wildcards_modal_content = gr.Column(elem_classes=["modal-content"], elem_id="user_personal_wildcards_modal_content", scale=1, min_width=800)
+                        with user_personal_wildcards_modal_content:
+                            user_personal_wildcards_title = gr.Markdown("### Personal Wildcards", elem_id="user_personal_wildcards_modal_handle")
+                            user_personal_wildcards_status = gr.Markdown("")
+                            with gr.Row():
+                                user_personal_wildcards_select = gr.Dropdown(label="File", choices=[], value=None, scale=5)
+                                user_personal_wildcards_refresh_btn = gr.Button(value="🔄 Refresh", size="sm", min_width=60, scale=1)
+                                user_personal_wildcards_close_btn = gr.Button(value="❌ Close", size="sm", min_width=60, scale=1)
+                            with gr.Row():
+                                user_personal_wildcards_name = gr.Textbox(label="Name", placeholder="e.g. my_style (saved as .txt)", lines=1)
+                            with gr.Row():
+                                user_personal_wildcards_content = gr.Textbox(label="Content (one per line)", lines=12)
+                            with gr.Row():
+                                user_personal_wildcards_save_btn = gr.Button(value="💾 Save", interactive=False)
+                                user_personal_wildcards_delete_btn = gr.Button(value="🗑️ Delete", variant="secondary", interactive=False)
+                            with gr.Accordion(label="📦 Upload .txt", open=False):
+                                user_personal_wildcards_upload_file = gr.File(label="Choose a .txt file", file_types=[".txt"], type="file")
+                                user_personal_wildcards_upload_name = gr.Textbox(label="Save as (optional)", placeholder="Leave blank to use original filename", lines=1)
+                                user_personal_wildcards_upload_btn = gr.Button(value="Upload/Overwrite")
+
+                    wc_manage_personal_btn_outputs = [user_personal_wildcards_modal, user_personal_wildcards_select, user_personal_wildcards_name, user_personal_wildcards_content, user_personal_wildcards_status, user_personal_wildcards_save_btn, user_personal_wildcards_delete_btn]
+                    wc_manage_personal_btn.click(fn=wildcards.personal_wildcards_open, inputs=[state_topbar], outputs=wc_manage_personal_btn_outputs, show_progress=False, queue=False)
+                    user_personal_wildcards_close_btn.click(fn=wildcards.personal_wildcards_close, outputs=[user_personal_wildcards_modal], show_progress=False, queue=False)
+                    user_personal_wildcards_refresh_btn.click(fn=wildcards.personal_wildcards_refresh, inputs=[state_topbar, user_personal_wildcards_select], outputs=[user_personal_wildcards_select, user_personal_wildcards_name, user_personal_wildcards_content, user_personal_wildcards_status, user_personal_wildcards_save_btn, user_personal_wildcards_delete_btn], show_progress=False, queue=False)
+                    user_personal_wildcards_select.change(fn=wildcards.personal_wildcards_load, inputs=[state_topbar, user_personal_wildcards_select], outputs=[user_personal_wildcards_name, user_personal_wildcards_content, user_personal_wildcards_status, user_personal_wildcards_save_btn, user_personal_wildcards_delete_btn], show_progress=False, queue=False)
+                    user_personal_wildcards_name.change(fn=wildcards.personal_wildcards_update_actions, inputs=[user_personal_wildcards_name], outputs=[user_personal_wildcards_save_btn, user_personal_wildcards_delete_btn], show_progress=False, queue=False)
+                    user_personal_wildcards_save_btn.click(fn=wildcards.personal_wildcards_save, inputs=[state_topbar, user_personal_wildcards_name, user_personal_wildcards_content], outputs=[user_personal_wildcards_status, user_personal_wildcards_select, user_personal_wildcards_name, user_personal_wildcards_content, user_personal_wildcards_save_btn, user_personal_wildcards_delete_btn, wildcards_list, wc_name, wildcard_tag_name_selection], show_progress=False, queue=False)
+                    user_personal_wildcards_delete_btn.click(fn=wildcards.personal_wildcards_delete, inputs=[state_topbar, user_personal_wildcards_name], outputs=[user_personal_wildcards_status, user_personal_wildcards_select, user_personal_wildcards_name, user_personal_wildcards_content, user_personal_wildcards_save_btn, user_personal_wildcards_delete_btn, wildcards_list, wc_name, wildcard_tag_name_selection], show_progress=False, queue=False)
+                    user_personal_wildcards_upload_btn.click(fn=wildcards.personal_wildcards_upload, inputs=[state_topbar, user_personal_wildcards_upload_file, user_personal_wildcards_upload_name], outputs=[user_personal_wildcards_select, user_personal_wildcards_name, user_personal_wildcards_content, user_personal_wildcards_status, user_personal_wildcards_save_btn, user_personal_wildcards_delete_btn, wildcards_list, wc_name, wildcard_tag_name_selection], show_progress=False, queue=False)
             
             with gr.Row(elem_classes='advanced_check_row'):
                 input_image_checkbox = gr.Checkbox(label='Input Image', value=modules.config.default_image_prompt_checkbox, container=False, elem_classes='min_check')

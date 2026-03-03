@@ -628,3 +628,364 @@ def refresh_wildcards_components(state_params):
         gr.Dataset.update(samples=words),
     )
 
+def _sanitize_personal_wildcard_name(name):
+    s = "" if name is None else str(name)
+    s = s.strip().replace("\\", "/")
+    if "/" in s:
+        s = s.split("/")[-1]
+    s = s.strip(" .")
+    s = re.sub(r"[\\/:*?\"<>|\r\n\t]+", "_", s)
+    s = re.sub(r"\s+", "_", s)
+    s = re.sub(r"_+", "_", s).strip("_")
+    return s[:80]
+
+def _normalize_newlines(text):
+    s = "" if text is None else str(text)
+    s = s.replace("\r\n", "\n").replace("\r", "\n")
+    return s
+
+def _personal_wildcards_action_updates(name, can_delete):
+    can_save = bool(("" if name is None else str(name)).strip())
+    return gr.update(interactive=can_save), gr.update(interactive=bool(can_delete))
+
+def personal_wildcards_update_actions(name):
+    return _personal_wildcards_action_updates(name, False)
+
+def _get_personal_wildcards_dir_from_state(state_params):
+    user_did = _get_user_did_from_state(state_params)
+    if user_did is None:
+        return None, None, "Please sign in to manage personal wildcards."
+    if _is_guest_user(user_did):
+        return None, None, "Guest users cannot manage personal wildcards."
+    user_dir = _get_user_wildcards_dir(user_did)
+    if user_dir is None:
+        return None, None, "Personal wildcards directory is unavailable."
+    return user_did, user_dir, ""
+
+def _list_personal_wildcard_keys(user_dir):
+    keys = []
+    try:
+        files = get_files_from_folder(user_dir, ['.txt'], None, variation=False)
+    except Exception:
+        files = []
+    for rel in files:
+        key = _to_wildcard_key(rel)
+        if key:
+            keys.append(key)
+    keys = sorted(set(keys), key=lambda s: s.casefold())
+    return keys
+
+def _personal_wildcard_file_path(user_dir, key):
+    try:
+        key = "" if key is None else str(key).strip().replace("\\", "/").strip("/")
+        if key.lower().endswith(".txt"):
+            key = key[:-4]
+        key = _sanitize_personal_wildcard_name(key)
+        if key == "":
+            return None, ""
+        user_dir_abs = os.path.abspath(user_dir)
+        full_path = os.path.abspath(os.path.join(user_dir_abs, f"{key}.txt"))
+        if os.path.commonpath([user_dir_abs, full_path]) != user_dir_abs:
+            return None, ""
+        return full_path, key
+    except Exception:
+        return None, ""
+
+def personal_wildcards_open(state_params):
+    user_did, user_dir, err = _get_personal_wildcards_dir_from_state(state_params)
+    if err:
+        return (
+            gr.update(visible=True),
+            gr.update(choices=[], value=None),
+            "",
+            "",
+            f"**Note**: {err}",
+            *(_personal_wildcards_action_updates("", False)),
+        )
+    keys = _list_personal_wildcard_keys(user_dir)
+    selected = keys[0] if keys else None
+    content = ""
+    can_delete = False
+    if selected:
+        try:
+            file_path, _ = _personal_wildcard_file_path(user_dir, selected)
+            if file_path and os.path.isfile(file_path):
+                with open(file_path, "rb") as f:
+                    content = _normalize_newlines(f.read().decode("utf-8", errors="ignore"))
+                can_delete = True
+        except Exception:
+            content = ""
+    return (
+        gr.update(visible=True),
+        gr.update(choices=keys, value=selected),
+        selected or "",
+        content,
+        f"**User**: {user_did}",
+        *(_personal_wildcards_action_updates(selected or "", can_delete)),
+    )
+
+def personal_wildcards_close():
+    return gr.update(visible=False)
+
+def personal_wildcards_refresh(state_params, current_value=None):
+    user_did, user_dir, err = _get_personal_wildcards_dir_from_state(state_params)
+    if err:
+        return (gr.update(choices=[], value=None), "", "", f"**Note**: {err}", *(_personal_wildcards_action_updates("", False)))
+    keys = _list_personal_wildcard_keys(user_dir)
+    value = current_value if current_value in keys else (keys[0] if keys else None)
+    content = ""
+    can_delete = False
+    if value:
+        try:
+            file_path, _ = _personal_wildcard_file_path(user_dir, value)
+            if file_path and os.path.isfile(file_path):
+                with open(file_path, "rb") as f:
+                    content = _normalize_newlines(f.read().decode("utf-8", errors="ignore"))
+                can_delete = True
+        except Exception:
+            content = ""
+    return (gr.update(choices=keys, value=value), value or "", content, f"**User**: {user_did}", *(_personal_wildcards_action_updates(value or "", can_delete)))
+
+def personal_wildcards_load(state_params, key):
+    user_did, user_dir, err = _get_personal_wildcards_dir_from_state(state_params)
+    if err:
+        return ("", "", f"**Note**: {err}", *(_personal_wildcards_action_updates("", False)))
+    file_path, safe_key = _personal_wildcard_file_path(user_dir, key)
+    if not file_path:
+        return ("", "", "**Note**: Invalid filename.", *(_personal_wildcards_action_updates("", False)))
+    if not os.path.isfile(file_path):
+        return (safe_key, "", f"**Note**: File not found: {safe_key}.txt", *(_personal_wildcards_action_updates(safe_key, False)))
+    try:
+        with open(file_path, "rb") as f:
+            content = _normalize_newlines(f.read().decode("utf-8", errors="ignore"))
+        return (safe_key, content, f"**User**: {user_did}", *(_personal_wildcards_action_updates(safe_key, True)))
+    except Exception as e:
+        return (safe_key, "", f"**Note**: Failed to read: {e}", *(_personal_wildcards_action_updates(safe_key, False)))
+
+def personal_wildcards_save(state_params, name, content):
+    user_did, user_dir, err = _get_personal_wildcards_dir_from_state(state_params)
+    if err:
+        return (
+            f"**Note**: {err}",
+            gr.update(),
+            "" if name is None else str(name),
+            "" if content is None else str(content),
+            *(_personal_wildcards_action_updates("" if name is None else str(name), False)),
+            gr.Dataset.update(),
+            gr.update(),
+            gr.Dataset.update(),
+        )
+    try:
+        file_path, safe_key = _personal_wildcard_file_path(user_dir, name)
+    except Exception as e:
+        return (
+            f"**Note**: Failed to parse filename: {e}",
+            gr.update(),
+            "" if name is None else str(name),
+            "" if content is None else str(content),
+            *(_personal_wildcards_action_updates("" if name is None else str(name), False)),
+            gr.Dataset.update(),
+            gr.update(),
+            gr.Dataset.update(),
+        )
+    if not file_path:
+        return (
+            "**Note**: Invalid filename (avoid path separators and special characters).",
+            gr.update(),
+            "" if name is None else str(name),
+            "" if content is None else str(content),
+            *(_personal_wildcards_action_updates("" if name is None else str(name), False)),
+            gr.Dataset.update(),
+            gr.update(),
+            gr.Dataset.update(),
+        )
+    try:
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        final_content = _normalize_newlines(content)
+        with open(file_path, "w", encoding="utf-8", newline="\n") as f:
+            f.write(final_content)
+        ensure_wildcards_loaded(user_did, reload_flag=True)
+        return (
+            f"**Saved**: {safe_key}.txt",
+            gr.update(choices=_list_personal_wildcard_keys(user_dir), value=safe_key),
+            safe_key,
+            final_content,
+            *(_personal_wildcards_action_updates(safe_key, True)),
+            *refresh_wildcards_components(state_params),
+        )
+    except Exception as e:
+        return (
+            f"**Note**: Failed to save: {e}",
+            gr.update(),
+            "" if name is None else str(name),
+            "" if content is None else str(content),
+            *(_personal_wildcards_action_updates("" if name is None else str(name), False)),
+            gr.Dataset.update(),
+            gr.update(),
+            gr.Dataset.update(),
+        )
+
+def personal_wildcards_delete(state_params, name):
+    user_did, user_dir, err = _get_personal_wildcards_dir_from_state(state_params)
+    if err:
+        return (
+            f"**Note**: {err}",
+            gr.update(),
+            "",
+            "",
+            *(_personal_wildcards_action_updates("" if name is None else str(name), False)),
+            gr.Dataset.update(),
+            gr.update(),
+            gr.Dataset.update(),
+        )
+    file_path, safe_key = _personal_wildcard_file_path(user_dir, name)
+    if not file_path:
+        return (
+            "**Note**: Invalid filename.",
+            gr.update(),
+            "",
+            "",
+            *(_personal_wildcards_action_updates("" if name is None else str(name), False)),
+            gr.Dataset.update(),
+            gr.update(),
+            gr.Dataset.update(),
+        )
+    if not os.path.isfile(file_path):
+        return (
+            f"**Note**: File not found: {safe_key}.txt",
+            gr.update(),
+            safe_key,
+            "",
+            *(_personal_wildcards_action_updates(safe_key, False)),
+            gr.Dataset.update(),
+            gr.update(),
+            gr.Dataset.update(),
+        )
+    try:
+        os.remove(file_path)
+        ensure_wildcards_loaded(user_did, reload_flag=True)
+        keys = _list_personal_wildcard_keys(user_dir)
+        selected = keys[0] if keys else None
+        content = ""
+        can_delete = False
+        if selected:
+            try:
+                selected_path, _ = _personal_wildcard_file_path(user_dir, selected)
+                if selected_path and os.path.isfile(selected_path):
+                    with open(selected_path, "rb") as f:
+                        content = _normalize_newlines(f.read().decode("utf-8", errors="ignore"))
+                    can_delete = True
+            except Exception:
+                content = ""
+        return (
+            f"**Deleted**: {safe_key}.txt",
+            gr.update(choices=keys, value=selected),
+            selected or "",
+            content,
+            *(_personal_wildcards_action_updates(selected or "", can_delete)),
+            *refresh_wildcards_components(state_params),
+        )
+    except Exception as e:
+        return (
+            f"**Note**: Failed to delete: {e}",
+            gr.update(),
+            safe_key,
+            "",
+            *(_personal_wildcards_action_updates(safe_key, False)),
+            gr.Dataset.update(),
+            gr.update(),
+            gr.Dataset.update(),
+        )
+
+def _get_uploaded_file_path(upload_file):
+    if upload_file is None:
+        return None
+    if isinstance(upload_file, str):
+        return upload_file
+    try:
+        if isinstance(upload_file, dict) and upload_file.get("name"):
+            return upload_file.get("name")
+    except Exception:
+        pass
+    try:
+        if hasattr(upload_file, "name"):
+            return upload_file.name
+    except Exception:
+        pass
+    return None
+
+def personal_wildcards_upload(state_params, upload_file, save_as):
+    user_did, user_dir, err = _get_personal_wildcards_dir_from_state(state_params)
+    if err:
+        return (
+            gr.update(),
+            "",
+            "",
+            f"**Note**: {err}",
+            *(_personal_wildcards_action_updates("", False)),
+            gr.update(),
+            gr.update(),
+            gr.update(),
+        )
+    upload_file_path = _get_uploaded_file_path(upload_file)
+    if not upload_file_path:
+        return (
+            gr.update(),
+            "",
+            "",
+            "**Note**: Please choose a .txt file to upload.",
+            *(_personal_wildcards_action_updates("", False)),
+            gr.update(),
+            gr.update(),
+            gr.update(),
+        )
+    raw_name = save_as
+    if not raw_name:
+        try:
+            raw_name = os.path.splitext(os.path.basename(str(upload_file_path)))[0]
+        except Exception:
+            raw_name = ""
+    file_path, safe_key = _personal_wildcard_file_path(user_dir, raw_name)
+    if not file_path:
+        return (
+            gr.update(),
+            "",
+            "",
+            "**Note**: Invalid filename.",
+            *(_personal_wildcards_action_updates("" if save_as is None else str(save_as), False)),
+            gr.update(),
+            gr.update(),
+            gr.update(),
+        )
+    try:
+        if not os.path.isfile(upload_file_path):
+            raise ValueError("Invalid upload file path.")
+        with open(upload_file_path, "rb") as f:
+            raw = f.read()
+        content = _normalize_newlines(raw.decode("utf-8", errors="ignore"))
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        with open(file_path, "w", encoding="utf-8", newline="\n") as f:
+            f.write(content)
+        ensure_wildcards_loaded(user_did, reload_flag=True)
+        keys = _list_personal_wildcard_keys(user_dir)
+        dropdown_update = gr.update(choices=keys, value=safe_key)
+        return (
+            dropdown_update,
+            safe_key,
+            content,
+            f"**Uploaded**: {safe_key}.txt",
+            *(_personal_wildcards_action_updates(safe_key, True)),
+            *refresh_wildcards_components(state_params),
+        )
+    except Exception as e:
+        return (
+            gr.update(),
+            safe_key,
+            "",
+            f"**Note**: Failed to upload: {e}",
+            *(_personal_wildcards_action_updates(safe_key, False)),
+            gr.update(),
+            gr.update(),
+            gr.update(),
+        )
+
