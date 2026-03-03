@@ -481,10 +481,28 @@ class SDPoseKeypointExtractor(io.ComfyNode):
         pbar = comfy.utils.ProgressBar(total_images)
 
         if bboxes is not None:
-            if not isinstance(bboxes, list):
+            if isinstance(bboxes, dict):
                 bboxes = [[bboxes]]
-            elif len(bboxes) == 0:
-                bboxes = [None] * total_images
+            elif isinstance(bboxes, list):
+                if len(bboxes) == 0:
+                    bboxes = [None] * total_images
+                elif all(isinstance(x, dict) for x in bboxes):
+                    bboxes = [bboxes]
+                else:
+                    normalized = []
+                    for x in bboxes:
+                        if x is None:
+                            normalized.append(None)
+                        elif isinstance(x, dict):
+                            normalized.append([x])
+                        elif isinstance(x, list):
+                            normalized.append(x)
+                    if normalized:
+                        bboxes = normalized
+                    else:
+                        bboxes = [None] * total_images
+            else:
+                bboxes = [[bboxes]]
             # --- bbox-crop mode: one forward pass per crop -------------------------
             for img_idx in tqdm(range(total_images), desc="Extracting keypoints from crops"):
                 img = image[img_idx:img_idx + 1]  # (1, H, W, C)
@@ -599,7 +617,7 @@ class SDPoseFaceBBoxes(io.ComfyNode):
             search_aliases=["face bbox", "face bounding box", "pose", "keypoints"],
             inputs=[
                 io.Custom("POSE_KEYPOINT").Input("keypoints"),
-                io.Float.Input("scale", default=1.5, min=1.0, max=10.0, step=0.1, tooltip="Multiplier for the bounding box area around each detected face."),
+                io.Float.Input("scale", default=1.5, min=1.0, max=100.0, step=0.1, tooltip="Multiplier for the bounding box area around each detected face."),
                 io.Boolean.Input("force_square", default=True, tooltip="Expand the shorter bbox axis so the crop region is always square."),
             ],
             outputs=[
@@ -645,6 +663,207 @@ class SDPoseFaceBBoxes(io.ComfyNode):
             all_bboxes.append(frame_bboxes)
 
         return io.NodeOutput(all_bboxes)
+
+
+class SDPoseBodyBBoxes(io.ComfyNode):
+    @classmethod
+    def define_schema(cls):
+        return io.Schema(
+            node_id="SDPoseBodyBBoxes",
+            category="image/preprocessors",
+            search_aliases=["body bbox", "body bounding box", "pose", "keypoints"],
+            inputs=[
+                io.Custom("POSE_KEYPOINT").Input("keypoints"),
+                io.Float.Input("scale", default=1.2, min=1.0, max=10.0, step=0.1, tooltip="Multiplier for the bounding box area around each detected body."),
+                io.Boolean.Input("force_square", default=True, tooltip="Expand the shorter bbox axis so the crop region is always square."),
+            ],
+            outputs=[
+                io.BoundingBox.Output("bboxes", tooltip="Body bounding boxes per frame, compatible with SDPoseKeypointExtractor bboxes input."),
+            ],
+        )
+
+    @classmethod
+    def execute(cls, keypoints, scale, force_square) -> io.NodeOutput:
+        def _points_from_flat(flat):
+            if not flat:
+                return None
+            arr = np.array(flat, dtype=np.float32).reshape(-1, 3)
+            keep = arr[:, 2] > 0
+            if not np.any(keep):
+                return None
+            return arr[keep][:, :2]
+
+        all_bboxes = []
+        for frame in keypoints:
+            h = frame["canvas_height"]
+            w = frame["canvas_width"]
+            frame_bboxes = []
+
+            for person in frame["people"]:
+                parts = [
+                    _points_from_flat(person.get("pose_keypoints_2d", [])),
+                    _points_from_flat(person.get("foot_keypoints_2d", [])),
+                    _points_from_flat(person.get("hand_right_keypoints_2d", [])),
+                    _points_from_flat(person.get("hand_left_keypoints_2d", [])),
+                ]
+                parts = [p for p in parts if p is not None]
+                if not parts:
+                    continue
+
+                pts = np.concatenate(parts, axis=0)
+                if float(np.max(pts[:, 0])) <= 2.0 and float(np.max(pts[:, 1])) <= 2.0:
+                    pts = pts * np.array([w, h], dtype=np.float32)
+                min_x, min_y = np.min(pts, axis=0)
+                max_x, max_y = np.max(pts, axis=0)
+
+                bw = float(max_x - min_x)
+                bh = float(max_y - min_y)
+                if bw <= 0 or bh <= 0:
+                    continue
+
+                factor = float(np.sqrt(scale))
+                new_w = bw * factor
+                new_h = bh * factor
+
+                cx = float(min_x + max_x) / 2.0
+                cy = float(min_y + max_y) / 2.0
+
+                x1 = int(max(0, math.floor(cx - new_w / 2.0)))
+                x2 = int(min(w, math.ceil(cx + new_w / 2.0)))
+                y1 = int(max(0, math.floor(cy - new_h / 2.0)))
+                y2 = int(min(h, math.ceil(cy + new_h / 2.0)))
+
+                if x2 <= x1 or y2 <= y1:
+                    continue
+
+                if force_square:
+                    bw2, bh2 = x2 - x1, y2 - y1
+                    if bw2 != bh2:
+                        side = max(bw2, bh2)
+                        cx2, cy2 = (x1 + x2) // 2, (y1 + y2) // 2
+                        half = side // 2
+                        x1 = max(0, cx2 - half)
+                        y1 = max(0, cy2 - half)
+                        x2 = min(w, x1 + side)
+                        y2 = min(h, y1 + side)
+                        x1 = max(0, x2 - side)
+                        y1 = max(0, y2 - side)
+
+                frame_bboxes.append({"x": x1, "y": y1, "width": x2 - x1, "height": y2 - y1})
+
+            all_bboxes.append(frame_bboxes)
+
+        return io.NodeOutput(all_bboxes)
+
+
+class SDPoseMultiPersonKeypoints(io.ComfyNode):
+    @classmethod
+    def define_schema(cls):
+        return io.Schema(
+            node_id="SDPoseMultiPersonKeypoints",
+            category="image/preprocessors",
+            search_aliases=["sdpose multiperson", "auto bboxes", "pose refine", "dwpose"],
+            inputs=[
+                io.Model.Input("model"),
+                io.Vae.Input("vae"),
+                io.Image.Input("image"),
+                io.Custom("POSE_KEYPOINT").Input("keypoints"),
+                io.Int.Input("batch_size", default=16, min=1, max=10000, step=1),
+                io.Float.Input("scale", default=1.2, min=1.0, max=10.0, step=0.1, tooltip="Multiplier for the bounding box area around each detected body."),
+                io.Boolean.Input("force_square", default=True, tooltip="Expand the shorter bbox axis so the crop region is always square."),
+                io.Int.Input("max_people", default=20, min=1, max=200, step=1),
+                io.Int.Input("min_box_size", default=32, min=0, max=4096, step=1),
+            ],
+            outputs=[
+                io.Custom("POSE_KEYPOINT").Output("keypoints", tooltip="Refined keypoints in OpenPose frame format (canvas_width, canvas_height, people)"),
+            ],
+        )
+
+    @classmethod
+    def execute(cls, model, vae, image, keypoints, batch_size, scale, force_square, max_people, min_box_size) -> io.NodeOutput:
+        def _points_from_flat(flat):
+            if not flat:
+                return None
+            arr = np.array(flat, dtype=np.float32).reshape(-1, 3)
+            keep = arr[:, 2] > 0
+            if not np.any(keep):
+                return None
+            return arr[keep][:, :2]
+
+        img_h = int(image.shape[-3])
+        img_w = int(image.shape[-2])
+
+        all_bboxes = []
+        for frame in keypoints:
+            kp_h = int(frame.get("canvas_height", img_h))
+            kp_w = int(frame.get("canvas_width", img_w))
+            frame_bboxes = []
+
+            for person in frame.get("people", []):
+                parts = [
+                    _points_from_flat(person.get("pose_keypoints_2d", [])),
+                    _points_from_flat(person.get("foot_keypoints_2d", [])),
+                    _points_from_flat(person.get("hand_right_keypoints_2d", [])),
+                    _points_from_flat(person.get("hand_left_keypoints_2d", [])),
+                ]
+                parts = [p for p in parts if p is not None]
+                if not parts:
+                    continue
+
+                pts = np.concatenate(parts, axis=0)
+                if float(np.max(pts[:, 0])) <= 2.0 and float(np.max(pts[:, 1])) <= 2.0:
+                    pts = pts * np.array([kp_w, kp_h], dtype=np.float32)
+
+                if kp_w > 0 and kp_h > 0 and (kp_w != img_w or kp_h != img_h):
+                    pts = pts * np.array([img_w / kp_w, img_h / kp_h], dtype=np.float32)
+
+                min_x, min_y = np.min(pts, axis=0)
+                max_x, max_y = np.max(pts, axis=0)
+
+                bw = float(max_x - min_x)
+                bh = float(max_y - min_y)
+                if bw <= 0 or bh <= 0:
+                    continue
+
+                factor = float(np.sqrt(scale))
+                new_w = bw * factor
+                new_h = bh * factor
+
+                cx = float(min_x + max_x) / 2.0
+                cy = float(min_y + max_y) / 2.0
+
+                x1 = int(max(0, math.floor(cx - new_w / 2.0)))
+                x2 = int(min(img_w, math.ceil(cx + new_w / 2.0)))
+                y1 = int(max(0, math.floor(cy - new_h / 2.0)))
+                y2 = int(min(img_h, math.ceil(cy + new_h / 2.0)))
+
+                if x2 <= x1 or y2 <= y1:
+                    continue
+
+                if force_square:
+                    bw2, bh2 = x2 - x1, y2 - y1
+                    if bw2 != bh2:
+                        side = max(bw2, bh2)
+                        cx2, cy2 = (x1 + x2) // 2, (y1 + y2) // 2
+                        half = side // 2
+                        x1 = max(0, cx2 - half)
+                        y1 = max(0, cy2 - half)
+                        x2 = min(img_w, x1 + side)
+                        y2 = min(img_h, y1 + side)
+                        x1 = max(0, x2 - side)
+                        y1 = max(0, y2 - side)
+
+                if (x2 - x1) < min_box_size or (y2 - y1) < min_box_size:
+                    continue
+
+                frame_bboxes.append({"x": x1, "y": y1, "width": x2 - x1, "height": y2 - y1})
+
+            frame_bboxes.sort(key=lambda b: b["width"] * b["height"], reverse=True)
+            if max_people > 0:
+                frame_bboxes = frame_bboxes[:max_people]
+            all_bboxes.append(frame_bboxes)
+
+        return SDPoseKeypointExtractor.execute(model=model, vae=vae, image=image, batch_size=batch_size, bboxes=all_bboxes)
 
 
 class CropByBBoxes(io.ComfyNode):
@@ -731,8 +950,10 @@ class SDPoseExtension(ComfyExtension):
     async def get_node_list(self) -> list[type[io.ComfyNode]]:
         return [
             SDPoseKeypointExtractor,
+            SDPoseMultiPersonKeypoints,
             SDPoseDrawKeypoints,
             SDPoseFaceBBoxes,
+            SDPoseBodyBBoxes,
             CropByBBoxes,
         ]
 

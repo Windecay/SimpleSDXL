@@ -8,9 +8,8 @@
                 "version": "m1.1",
                 "theme": ["SDPose-OOD","DWPose"],
                 "theme_title": "快速转换Pose骨骼图",
-                "disvisible": ["scene_canvas_image", "scene_input_image2","scene_var_number","scene_additional_prompt","scene_additional_prompt_2","scene_aspect_ratio", "scene_image_number", "scene_use_lora", "scene_video", "scene_audio",
-                    "scene_var_number2","scene_var_number3","scene_var_number4","scene_switch_option1","scene_switch_option2","scene_steps", "scene_base_model", "scene_refiner_model", "scene_var_number5", "scene_var_number6", "scene_var_number7", "scene_var_number8", "scene_var_number9", "scene_var_number10"
-                    ,"scene_switch_option3","scene_switch_option4"],
+                "disvisible": ["scene_canvas_image", "scene_input_image2","scene_additional_prompt","scene_additional_prompt_2","scene_aspect_ratio", "scene_image_number", "scene_use_lora", "scene_video", "scene_audio",
+                    "scene_var_number2","scene_var_number4", "scene_steps", "scene_base_model", "scene_refiner_model", "scene_var_number5", "scene_var_number6", "scene_var_number7", "scene_var_number8", "scene_var_number9", "scene_var_number10"],
                 "task_method": {
                     "SDPose-OOD": "sdpose",
                     "DWPose": "dw_pose"
@@ -21,9 +20,39 @@
                 },
                 "aspect_ratio" : ["9:16", "4:5", "4:3", "3:2", "16:9"],
                 "image_preprocessor_method": {
-                    "DWPose": [["-normalization"]]},
+                    "DWPose": [["-normalization"]]
+                },
+                "var_number_title": "最大人数（仅SDPose生效）",
+                "var_number_min": 0,
+                "var_number_max": 10,
+                "var_number": {
+                    "SDPose-OOD": 3,
+                    "DWPose": 3
+                },
+                "var_number3_title": "识别阈值（仅SDPose生效）",
+                "var_number3_min": 0,
+                "var_number3_max": 1.0,
+                "var_number3": {
+                    "SDPose-OOD": 0.3,
+                    "DWPose": 0.3
+                },
                 "switch_option1_title": "加粗骨骼",
                 "switch_option1": {
+                    "SDPose-OOD": true,
+                    "DWPose": true
+                },
+                "switch_option2_title": "绘制手部",
+                "switch_option2": {
+                    "SDPose-OOD": true,
+                    "DWPose": true
+                },
+                "switch_option3_title": "绘制面部",
+                "switch_option3": {
+                    "SDPose-OOD": true,
+                    "DWPose": true
+                },
+                "switch_option4_title": "绘制足部（仅SDPose）",
+                "switch_option4": {
                     "SDPose-OOD": true,
                     "DWPose": true
                 }
@@ -72,18 +101,7 @@
     "model_list": [
         "controlnet/hr16/DWPose-TorchScript-BatchSize5,dw-ll_ucoco_384_bs5.torchscript.pt,135059124,0,https://www.modelscope.cn/models/svjack/DWPose-TorchScript-BatchSize5/resolve/master/dw-ll_ucoco_384_bs5.torchscript.pt",
         "controlnet/yzd-v/DWPose,yolox_l.onnx,216746733,0,https://www.modelscope.cn/models/zhangjin/DWPose/resolve/master/yolox_l.onnx",
-        "SDPose_OOD/SDPose-Wholebody/vae,config.json,611,0,https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/vae/config.json",
-        "SDPose_OOD/SDPose-Wholebody/vae,diffusion_pytorch_model.safetensors,334643276,0,https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/vae/diffusion_pytorch_model.safetensors",
-        "SDPose_OOD/SDPose-Wholebody/unet,config.json,1859,0,https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/unet/config.json",
-        "SDPose_OOD/SDPose-Wholebody/unet,diffusion_pytorch_model.safetensors,3470311272,0,https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/unet/diffusion_pytorch_model.safetensors",
-        "SDPose_OOD/SDPose-Wholebody/tokenizer,merges.txt,524619,0,https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/tokenizer/merges.txt",
-        "SDPose_OOD/SDPose-Wholebody/tokenizer,special_tokens_map.json,460,0,https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/tokenizer/special_tokens_map.json",
-        "SDPose_OOD/SDPose-Wholebody/tokenizer,tokenizer_config.json,824,0,https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/tokenizer/tokenizer_config.json",
-        "SDPose_OOD/SDPose-Wholebody/tokenizer,vocab.json,1059962,0,https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/tokenizer/vocab.json",
-        "SDPose_OOD/SDPose-Wholebody/decoder,decoder.safetensors,28196828,0,https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/decoder/decoder.safetensors",
-        "SDPose_OOD/SDPose-Wholebody/scheduler,scheduler_config.json,344,0,https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/scheduler/scheduler_config.json",
-        "SDPose_OOD/SDPose-Wholebody/text_encoder,model.safetensors,1361597018,0,https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/text_encoder/model.safetensors",
-        "SDPose_OOD/SDPose-Wholebody/text_encoder,config.json,633,0,https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/text_encoder/config.json",
+        "checkpoints,sdpose_wholebody_fp16.safetensors,1916645792,0,https://modelscope.cn/models/Comfy-Org/SDPose/resolve/master/checkpoints/sdpose_wholebody_fp16.safetensors",
         "yolo,yolo11x.pt,114636239,0,https://modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/yolo11x.pt"
     ]
 }

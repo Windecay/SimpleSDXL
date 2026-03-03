@@ -1,47 +1,4 @@
 {
-  "20": {
-    "inputs": {
-      "model_type": "WholeBody",
-      "unet_precision": "fp16",
-      "device": "auto",
-      "unload_on_finish": true
-    },
-    "class_type": "SDPoseOODLoader",
-    "_meta": {
-      "title": "Load SDPose Model"
-    }
-  },
-  "21": {
-    "inputs": {
-      "score_threshold": 0.3,
-      "overlay_alpha": 1,
-      "batch_size": 1,
-      "prompt": "person .",
-      "gd_threshold": 0.3,
-      "save_for_editor": false,
-      "filename_prefix_edit": "poses/pose_edit",
-      "keep_face": true,
-      "keep_hands": true,
-      "keep_feet": true,
-      "scale_for_xinsr": true,
-      "sdpose_model": [
-        "20",
-        0
-      ],
-      "images": [
-        "59",
-        0
-      ],
-      "yolo_model": [
-        "26",
-        0
-      ]
-    },
-    "class_type": "SDPoseOODProcessor",
-    "_meta": {
-      "title": "Run SDPose Estimation"
-    }
-  },
   "23": {
     "inputs": {
       "image": "welcome.png"
@@ -51,31 +8,216 @@
       "title": "i2i_ip_image1"
     }
   },
-  "26": {
+  "72": {
     "inputs": {
-      "model_name": "yolo11x.pt"
+      "boolean": [
+        "74",
+        0
+      ],
+      "on_true": [
+        "75",
+        0
+      ],
+      "on_false": [
+        "78",
+        0
+      ]
     },
-    "class_type": "YOLOModelLoader",
+    "class_type": "easy ifElse",
     "_meta": {
-      "title": "Load YOLO Model"
+      "title": "If else"
     }
   },
-  "59": {
+  "74": {
     "inputs": {
-      "generation_width": 1024,
-      "generation_height": 1024,
-      "aspect_ratio_preservation": "keep_input",
+      "value": true
+    },
+    "class_type": "easy boolean",
+    "_meta": {
+      "title": "switch_option1"
+    }
+  },
+  "75": {
+    "inputs": {
+      "draw_body": true,
+      "draw_hands": [
+        "79",
+        0
+      ],
+      "draw_face": [
+        "80",
+        0
+      ],
+      "draw_feet": [
+        "81",
+        0
+      ],
+      "stick_width": 9,
+      "face_point_size": 3,
+      "score_threshold": [
+        "82",
+        0
+      ],
+      "keypoints": [
+        "94",
+        0
+      ]
+    },
+    "class_type": "SDPoseDrawKeypoints",
+    "_meta": {
+      "title": "SDPoseDrawKeypoints"
+    }
+  },
+  "77": {
+    "inputs": {
+      "ckpt_name": "sdpose_wholebody_fp16.safetensors"
+    },
+    "class_type": "CheckpointLoaderSimple",
+    "_meta": {
+      "title": "Load Checkpoint"
+    }
+  },
+  "78": {
+    "inputs": {
+      "draw_body": true,
+      "draw_hands": [
+        "79",
+        0
+      ],
+      "draw_face": [
+        "80",
+        0
+      ],
+      "draw_feet": [
+        "81",
+        0
+      ],
+      "stick_width": 4,
+      "face_point_size": 3,
+      "score_threshold": [
+        "82",
+        0
+      ],
+      "keypoints": [
+        "94",
+        0
+      ]
+    },
+    "class_type": "SDPoseDrawKeypoints",
+    "_meta": {
+      "title": "SDPoseDrawKeypoints"
+    }
+  },
+  "79": {
+    "inputs": {
+      "value": true
+    },
+    "class_type": "easy boolean",
+    "_meta": {
+      "title": "switch_option2"
+    }
+  },
+  "80": {
+    "inputs": {
+      "value": true
+    },
+    "class_type": "easy boolean",
+    "_meta": {
+      "title": "switch_option3"
+    }
+  },
+  "81": {
+    "inputs": {
+      "value": true
+    },
+    "class_type": "easy boolean",
+    "_meta": {
+      "title": "switch_option4"
+    }
+  },
+  "82": {
+    "inputs": {
+      "value": 0.3
+    },
+    "class_type": "easy float",
+    "_meta": {
+      "title": "var_number3"
+    }
+  },
+  "85": {
+    "inputs": {
+      "detect_hand": "enable",
+      "detect_body": "enable",
+      "detect_face": "enable",
+      "resolution": 1024,
+      "bbox_detector": "yolox_l.onnx",
+      "pose_estimator": "dw-ll_ucoco_384_bs5.torchscript.pt",
+      "scale_stick_for_xinsr_cn": "disable",
       "image": [
+        "97",
+        0
+      ]
+    },
+    "class_type": "DWPreprocessor",
+    "_meta": {
+      "title": "DWPose Estimator"
+    }
+  },
+  "94": {
+    "inputs": {
+      "batch_size": 1,
+      "scale": 1.2,
+      "force_square": false,
+      "max_people": [
+        "99",
+        0
+      ],
+      "min_box_size": 64,
+      "model": [
+        "77",
+        0
+      ],
+      "vae": [
+        "77",
+        2
+      ],
+      "image": [
+        "97",
+        0
+      ],
+      "keypoints": [
+        "85",
+        1
+      ]
+    },
+    "class_type": "SDPoseMultiPersonKeypoints",
+    "_meta": {
+      "title": "SDPoseMultiPersonKeypoints"
+    }
+  },
+  "97": {
+    "inputs": {
+      "shorter_edge": 1024,
+      "images": [
         "23",
         0
       ]
     },
-    "class_type": "WanVideoImageResizeToClosest",
+    "class_type": "ResizeImagesByShorterEdge",
     "_meta": {
-      "title": "WanVideo Image Resize To Closest"
+      "title": "Resize Images by Shorter Edge"
     }
   },
-  "68": {
+  "99": {
+    "inputs": {
+      "value": 3
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "var_number1"
+    }
+  },
+  "100": {
     "inputs": {
       "images": [
         "72",
@@ -85,66 +227,6 @@
     "class_type": "SaveImageWebsocket",
     "_meta": {
       "title": "SaveImageWebsocket"
-    }
-  },
-  "72": {
-    "inputs": {
-      "boolean": [
-        "74",
-        0
-      ],
-      "on_true": [
-        "21",
-        0
-      ],
-      "on_false": [
-        "73",
-        0
-      ]
-    },
-    "class_type": "easy ifElse",
-    "_meta": {
-      "title": "If else"
-    }
-  },
-  "73": {
-    "inputs": {
-      "score_threshold": 0.3,
-      "overlay_alpha": 1,
-      "batch_size": 1,
-      "prompt": "person .",
-      "gd_threshold": 0.3,
-      "save_for_editor": false,
-      "filename_prefix_edit": "poses/pose_edit",
-      "keep_face": true,
-      "keep_hands": true,
-      "keep_feet": true,
-      "scale_for_xinsr": false,
-      "sdpose_model": [
-        "20",
-        0
-      ],
-      "images": [
-        "59",
-        0
-      ],
-      "yolo_model": [
-        "26",
-        0
-      ]
-    },
-    "class_type": "SDPoseOODProcessor",
-    "_meta": {
-      "title": "Run SDPose Estimation"
-    }
-  },
-  "74": {
-    "inputs": {
-      "value": false
-    },
-    "class_type": "easy boolean",
-    "_meta": {
-      "title": "switch_option1"
     }
   }
 }

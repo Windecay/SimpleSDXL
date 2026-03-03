@@ -52,9 +52,15 @@
   },
   "19": {
     "inputs": {
-      "detect_hand": "enable",
+      "detect_hand": [
+        "36",
+        0
+      ],
       "detect_body": "enable",
-      "detect_face": "enable",
+      "detect_face": [
+        "38",
+        0
+      ],
       "resolution": 1024,
       "bbox_detector": "yolox_l.onnx",
       "pose_estimator": "dw-ll_ucoco_384_bs5.torchscript.pt",
@@ -123,9 +129,15 @@
   },
   "29": {
     "inputs": {
-      "detect_hand": "enable",
+      "detect_hand": [
+        "36",
+        0
+      ],
       "detect_body": "enable",
-      "detect_face": "enable",
+      "detect_face": [
+        "38",
+        0
+      ],
       "resolution": 1024,
       "bbox_detector": "yolox_l.onnx",
       "pose_estimator": "dw-ll_ucoco_384_bs5.torchscript.pt",
@@ -147,6 +159,82 @@
     "class_type": "easy boolean",
     "_meta": {
       "title": "switch_option1"
+    }
+  },
+  "31": {
+    "inputs": {
+      "value": true
+    },
+    "class_type": "easy boolean",
+    "_meta": {
+      "title": "switch_option2"
+    }
+  },
+  "32": {
+    "inputs": {
+      "value": true
+    },
+    "class_type": "easy boolean",
+    "_meta": {
+      "title": "switch_option3"
+    }
+  },
+  "33": {
+    "inputs": {
+      "value": "enable"
+    },
+    "class_type": "PrimitiveString",
+    "_meta": {
+      "title": "String"
+    }
+  },
+  "35": {
+    "inputs": {
+      "value": "disable"
+    },
+    "class_type": "PrimitiveString",
+    "_meta": {
+      "title": "String"
+    }
+  },
+  "36": {
+    "inputs": {
+      "boolean": [
+        "31",
+        0
+      ],
+      "on_true": [
+        "33",
+        0
+      ],
+      "on_false": [
+        "35",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "38": {
+    "inputs": {
+      "boolean": [
+        "32",
+        0
+      ],
+      "on_true": [
+        "33",
+        0
+      ],
+      "on_false": [
+        "35",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
     }
   }
 }

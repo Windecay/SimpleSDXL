@@ -373,6 +373,8 @@ def _infer_arch_family_from_keys(keys: List[str], metadata: Dict[str, Any]) -> s
             s = str(v).lower()
         except Exception:
             continue
+        if "sdpose" in s:
+            return "sdpose"
         if "qwen" in s:
             return "qwen"
         if "z-image" in s or "z_image" in s or "zimage" in s:
@@ -437,6 +439,8 @@ def _infer_arch_family_from_keys(keys: List[str], metadata: Dict[str, Any]) -> s
             return "qwen"
         if "wan" in mc:
             return "wan"
+        if "sdpose" in mc:
+            return "sdpose"
 
     md_base = str(metadata.get("ss_base_model_version", "") or "")
     if md_base:
@@ -578,19 +582,21 @@ def _infer_arch_family_from_filename(path: str) -> str:
     parent = os.path.basename(os.path.dirname(p)).lower()
     s = f"{parent} {base}"
 
+    if "sdpose" in s:
+        return "sdpose"
     if "ltx2" in s or ("ltx" in s and "2" in s):
         return "ltx2"
     if "newbie" in s:
         return "newbie"
-    if "z_image" in s or "z-image" in s or "zimage" in s:
+    if "z_image" in s or "z-image" in s or "zimage" in s or "zit" in s or "zib" in s:
         return "z_image"
     if "qwen" in s:
         return "qwen"
-    if "wan2" in s or re.search(r"(^|[^a-z0-9])wan([^a-z0-9]|$)", s):
+    if "wan" in s or re.search(r"(^|[^a-z0-9])wan([^a-z0-9]|$)", s):
         return "wan"
-    if "flux" in s:
+    if "flux" in s or "f.1" in s or "flux2" in s or "f.2" in s or "klein" in s:
         return "flux"
-    if "sdxl" in s or "sd-xl" in s or re.search(r"(^|[^a-z0-9])xl([^a-z0-9]|$)", s):
+    if "sdxl" in s or "sd-xl" in s or "xl" in s or re.search(r"(^|[^a-z0-9])xl([^a-z0-9]|$)", s):
         return "sdxl"
     if "sd15" in s or "sd1.5" in s or "sd_1.5" in s or "v1-5" in s or "sd-v1-5" in s:
         return "sdxl"

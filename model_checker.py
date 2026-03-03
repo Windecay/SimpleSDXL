@@ -428,7 +428,7 @@ def print_instructions():
     time.sleep(0.1)
     print(f"{Fore.GREEN}★{Style.RESET_ALL}打开默认浏览器设置，关闭GPU加速、或图形加速的选项。{Fore.GREEN}★{Style.RESET_ALL}大内存(64+)与固态硬盘存放模型有助于减少模型加载时间。{Fore.GREEN}★{Style.RESET_ALL}")
     time.sleep(0.1)
-    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：1005085136{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:26.02.12{Fore.GREEN}★{Style.RESET_ALL}")
+    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：1005085136{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:26.03.03{Fore.GREEN}★{Style.RESET_ALL}")
     print()
     time.sleep(0.1)
 
@@ -2025,19 +2025,7 @@ packages = {'base_package': {'id': 1,
                           'note': '使用SDPose、DWpose进行预处理姿势|显存需求：★★ 速度：★★★★★',
                           'files': ['controlnet,hr16/DWPose-TorchScript-BatchSize5/dw-ll_ucoco_384_bs5.torchscript.pt,135059124,0,https://www.modelscope.cn/models/svjack/DWPose-TorchScript-BatchSize5/resolve/master/dw-ll_ucoco_384_bs5.torchscript.pt,https://huggingface.co/hr16/DWPose-TorchScript-BatchSize5/resolve/main/dw-ll_ucoco_384_bs5.torchscript.pt',
                                     'controlnet,yzd-v/DWPose/yolox_l.onnx,216746733,0,https://www.modelscope.cn/models/zhangjin/DWPose/resolve/master/yolox_l.onnx,https://huggingface.co/yzd-v/DWPose/blob/main/yolox_l.onnx',
-                                    'SDPose_OOD,SDPose-Wholebody/vae/config.json,611,0,https://www.modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/vae/config.json,https://huggingface.co/teemosliang/SDPose-Wholebody/resolve/main/vae/config.json',
-                                    'SDPose_OOD,SDPose-Wholebody/vae/diffusion_pytorch_model.safetensors,334643276,0,https://www.modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/vae/diffusion_pytorch_model.safetensors,https://huggingface.co/teemosliang/SDPose-Wholebody/resolve/main/vae/diffusion_pytorch_model.safetensors',
-                                    'SDPose_OOD,SDPose-Wholebody/unet/config.json,1859,0,https://www.modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/unet/config.json,https://huggingface.co/teemosliang/SDPose-Wholebody/resolve/main/unet/config.json',
-                                    'SDPose_OOD,SDPose-Wholebody/unet/diffusion_pytorch_model.safetensors,3470311272,0,https://www.modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/unet/diffusion_pytorch_model.safetensors,https://huggingface.co/teemosliang/SDPose-Wholebody/resolve/main/unet/diffusion_pytorch_model.safetensors',
-                                    'SDPose_OOD,SDPose-Wholebody/tokenizer/merges.txt,524619,0,https://www.modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/tokenizer/merges.txt,https://huggingface.co/teemosliang/SDPose-Wholebody/resolve/main/tokenizer/merges.txt',
-                                    'SDPose_OOD,SDPose-Wholebody/tokenizer/special_tokens_map.json,460,0,https://www.modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/tokenizer/special_tokens_map.json,https://huggingface.co/teemosliang/SDPose-Wholebody/resolve/main/tokenizer/special_tokens_map.json',
-                                    'SDPose_OOD,SDPose-Wholebody/tokenizer/tokenizer_config.json,824,0,https://www.modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/tokenizer/tokenizer_config.json,https://huggingface.co/teemosliang/SDPose-Wholebody/resolve/main/tokenizer/tokenizer_config.json',
-                                    'SDPose_OOD,SDPose-Wholebody/tokenizer/vocab.json,1059962,0,https://www.modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/tokenizer/vocab.json,https://huggingface.co/teemosliang/SDPose-Wholebody/resolve/main/tokenizer/vocab.json',
-                                    'SDPose_OOD,SDPose-Wholebody/decoder/decoder.safetensors,28196828,0,https://www.modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/decoder/decoder.safetensors,https://huggingface.co/teemosliang/SDPose-Wholebody/resolve/main/decoder/decoder.safetensors',
-                                    'SDPose_OOD,SDPose-Wholebody/scheduler/scheduler_config.json,344,0,https://www.modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/scheduler/scheduler_config.json,https://huggingface.co/teemosliang/SDPose-Wholebody/resolve/main/scheduler/scheduler_config.json',
-                                    'SDPose_OOD,SDPose-Wholebody/text_encoder/model.safetensors,1361597018,0,https://www.modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/text_encoder/model.safetensors,https://huggingface.co/teemosliang/SDPose-Wholebody/resolve/main/text_encoder/model.safetensors',
-                                    'SDPose_OOD,SDPose-Wholebody/text_encoder/config.json,633,0,https://www.modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/text_encoder/config.json,https://huggingface.co/teemosliang/SDPose-Wholebody/resolve/main/text_encoder/config.json',
-                                    'yolo,yolo11x.pt,114636239,0,https://www.modelscope.cn/models/Sunjian520/SDPose-Wholebody/resolve/master/yolo11x.pt,https://huggingface.co/teemosliang/SDPose-Wholebody/resolve/main/yolo11x.pt'],
+                                    'checkpoints,sdpose_wholebody_fp16.safetensors,1916645792,0,https://modelscope.cn/models/Comfy-Org/SDPose/resolve/master/checkpoints/sdpose_wholebody_fp16.safetensors,https://huggingface.co/Comfy-Org/SDPose/resolve/main/checkpoints/sdpose_wholebody_fp16.safetensors'],
                           'info_links': ['https://modelscope.cn/models/Sunjian520/SDPose-Wholebody'],
                           'preset_sample': []},
  'Qwen3_package': {'id': 6,
