@@ -632,9 +632,52 @@ class mathStringOperation:
 try:
     from comfy_execution.graph_utils import GraphBuilder, is_link
     from comfy_execution.graph import ExecutionBlocker
+    from comfy_execution.utils import get_executing_context
 except:
     GraphBuilder = None
     ExecutionBlocker = None
+    get_executing_context = None
+
+
+_EASYUSE_LOOP_CARRY = {}
+
+
+def _easyuse_get_prompt_id():
+    if get_executing_context is None:
+        return None
+    ctx = get_executing_context()
+    if ctx is None:
+        return None
+    return ctx.prompt_id
+
+
+def _easyuse_is_primitive(v):
+    return v is None or isinstance(v, (str, int, float, bool, list, tuple, dict))
+
+
+def _easyuse_loop_key(prompt_id, loop_id):
+    return (prompt_id, str(loop_id))
+
+
+def _easyuse_carry_set(prompt_id, loop_id, key, value):
+    k = _easyuse_loop_key(prompt_id, loop_id)
+    m = _EASYUSE_LOOP_CARRY.get(k)
+    if m is None:
+        m = {}
+        _EASYUSE_LOOP_CARRY[k] = m
+    m[key] = value
+
+
+def _easyuse_carry_get(prompt_id, loop_id, key):
+    m = _EASYUSE_LOOP_CARRY.get(_easyuse_loop_key(prompt_id, loop_id))
+    if m is None:
+        return None
+    return m.get(key, None)
+
+
+def _easyuse_carry_clear(prompt_id, loop_id):
+    _EASYUSE_LOOP_CARRY.pop(_easyuse_loop_key(prompt_id, loop_id), None)
+
 
 
 class whileLoopStart:
@@ -663,7 +706,16 @@ class whileLoopStart:
     def while_loop_open(self, condition, **kwargs):
         values = []
         for i in range(MAX_FLOW_NUM):
-            values.append(kwargs.get("initial_value%d" % i, None) if condition else ExecutionBlocker(None))
+            v = kwargs.get("initial_value%d" % i, None)
+            if condition and isinstance(v, dict) and "__easyuse_carry__" in v:
+                try:
+                    prompt_id = _easyuse_get_prompt_id()
+                    carry = v.get("__easyuse_carry__", None)
+                    if prompt_id is not None and isinstance(carry, list) and len(carry) == 2:
+                        v = _easyuse_carry_get(prompt_id, carry[0], carry[1])
+                except Exception:
+                    pass
+            values.append(v if condition else ExecutionBlocker(None))
         return tuple(["stub"] + values)
 
 
@@ -737,7 +789,18 @@ class whileLoopEnd:
                 self.collect_contained(child_id, upstream, contained)
 
     def while_loop_close(self, flow, condition, dynprompt=None, unique_id=None,**kwargs):
+        prompt_id = _easyuse_get_prompt_id()
+        open_node = flow[0]
+        open_node_display = open_node
+        try:
+            if dynprompt is not None:
+                open_node_display = dynprompt.get_display_node_id(open_node)
+        except Exception:
+            open_node_display = open_node
+        loop_id = open_node_display
         if not condition:
+            if prompt_id is not None:
+                _easyuse_carry_clear(prompt_id, loop_id)
             # We're done with the loop
             values = []
             for i in range(MAX_FLOW_NUM):
@@ -768,7 +831,6 @@ class whileLoopEnd:
         graph = GraphBuilder()
         self.explore_output_nodes(dynprompt, upstream, output_nodes, parent_ids)
         contained = {}
-        open_node = flow[0]
         self.collect_contained(open_node, upstream, contained)
         contained[unique_id] = True
         contained[open_node] = True
@@ -790,16 +852,24 @@ class whileLoopEnd:
         new_open = graph.lookup_node(open_node)
         open_node_inputs = {}
         try:
-            open_node_inputs = dynprompt.get_node(open_node).get("inputs", {})
+            open_node_inputs = dynprompt.get_original_prompt().get(open_node_display, {}).get("inputs", {})
         except Exception:
             open_node_inputs = {}
         for i in range(MAX_FLOW_NUM):
             key = "initial_value%d" % i
+            carry_v = kwargs.get(key, None)
+            if prompt_id is not None and carry_v is not None and not _easyuse_is_primitive(carry_v):
+                _easyuse_carry_set(prompt_id, loop_id, key, carry_v)
+                new_open.set_input(key, {"__easyuse_carry__": [str(loop_id), key]})
+                continue
+            if _easyuse_is_primitive(carry_v) and carry_v is not None:
+                new_open.set_input(key, carry_v)
+                continue
             raw_v = open_node_inputs.get(key, None)
             if is_link(raw_v) and raw_v[0] not in contained:
                 new_open.set_input(key, raw_v)
             else:
-                new_open.set_input(key, kwargs.get(key, None))
+                new_open.set_input(key, raw_v if _easyuse_is_primitive(raw_v) else None)
         my_clone = graph.lookup_node("Recurse")
         result = map(lambda x: my_clone.out(x), range(MAX_FLOW_NUM))
         return {

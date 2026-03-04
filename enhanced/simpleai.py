@@ -294,6 +294,8 @@ def start_fast_comfyd(fast, state):
 def set_cache_clear_on_finish(enabled, state):
     if args_manager.args.disable_backend or args_manager.args.disable_comfyd:
         return
+    if enabled == ads.get_admin_default('cache_clear_on_finish_checkbox'):
+        return
     ads.set_admin_default_value('cache_clear_on_finish_checkbox', enabled, state)
     if comfyd.is_running():
         comfyd.stop(force=True)

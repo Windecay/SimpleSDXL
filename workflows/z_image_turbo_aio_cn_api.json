@@ -2769,11 +2769,11 @@
         0
       ],
       "on_true": [
-        "805",
+        "767",
         0
       ],
       "on_false": [
-        "805",
+        "767",
         0
       ]
     },
@@ -3484,11 +3484,11 @@
         0
       ],
       "on_true": [
-        "805",
+        "767",
         0
       ],
       "on_false": [
-        "805",
+        "767",
         0
       ]
     },
@@ -3504,11 +3504,11 @@
         0
       ],
       "on_true": [
-        "805",
+        "767",
         0
       ],
       "on_false": [
-        "805",
+        "767",
         0
       ]
     },
@@ -4903,7 +4903,7 @@
   },
   "729": {
     "inputs": {
-      "unet_name": "z_image_turbo_bf16.safetensors",
+      "unet_name": "placeholder.safetensors",
       "weight_dtype": "default"
     },
     "class_type": "UNETLoader",
@@ -5150,26 +5150,6 @@
       "title": "VAE Encode"
     }
   },
-  "805": {
-    "inputs": {
-      "randomize_percent": 50,
-      "strength": 10,
-      "noise_insert": "noise on beginning steps",
-      "steps_switchover_percent": 20,
-      "seed": [
-        "417",
-        0
-      ],
-      "conditioning": [
-        "767",
-        0
-      ]
-    },
-    "class_type": "SeedVarianceEnhancer",
-    "_meta": {
-      "title": "SeedVarianceEnhancer"
-    }
-  },
   "806": {
     "inputs": {
       "seed": [
@@ -5202,7 +5182,7 @@
         0
       ],
       "positive": [
-        "805",
+        "767",
         0
       ],
       "negative": [
@@ -5269,7 +5249,7 @@
         0
       ],
       "positive": [
-        "805",
+        "767",
         0
       ],
       "negative": [
@@ -5333,7 +5313,7 @@
         0
       ],
       "positive": [
-        "805",
+        "767",
         0
       ],
       "negative": [
@@ -5350,51 +5330,6 @@
       "title": "KSampler (Advanced)"
     }
   },
-  "815": {
-    "inputs": {
-      "seed": [
-        "417",
-        0
-      ],
-      "steps": [
-        "728",
-        5
-      ],
-      "cfg": [
-        "728",
-        4
-      ],
-      "sampler_name": [
-        "728",
-        7
-      ],
-      "scheduler": [
-        "728",
-        8
-      ],
-      "denoise": 1,
-      "model": [
-        "798",
-        0
-      ],
-      "positive": [
-        "805",
-        0
-      ],
-      "negative": [
-        "1",
-        0
-      ],
-      "latent_image": [
-        "257",
-        0
-      ]
-    },
-    "class_type": "KSampler",
-    "_meta": {
-      "title": "KSampler"
-    }
-  },
   "816": {
     "inputs": {
       "boolean": [
@@ -5402,7 +5337,7 @@
         0
       ],
       "on_true": [
-        "815",
+        "841",
         0
       ],
       "on_false": [
@@ -5690,6 +5625,93 @@
     "class_type": "ZImageFunControlnet",
     "_meta": {
       "title": "ZImageFunControlnet"
+    }
+  },
+  "840": {
+    "inputs": {
+      "add_noise": "enable",
+      "noise_seed": [
+        "417",
+        0
+      ],
+      "steps": [
+        "728",
+        5
+      ],
+      "cfg": 1,
+      "sampler_name": "er_sde",
+      "scheduler": "ddim_uniform",
+      "start_at_step": 0,
+      "end_at_step": 1,
+      "return_with_leftover_noise": "disable",
+      "model": [
+        "526",
+        0
+      ],
+      "positive": [
+        "767",
+        0
+      ],
+      "negative": [
+        "1",
+        0
+      ],
+      "latent_image": [
+        "257",
+        0
+      ]
+    },
+    "class_type": "KSamplerAdvanced",
+    "_meta": {
+      "title": "KSampler (Advanced)"
+    }
+  },
+  "841": {
+    "inputs": {
+      "add_noise": "enable",
+      "noise_seed": [
+        "417",
+        0
+      ],
+      "steps": [
+        "728",
+        5
+      ],
+      "cfg": [
+        "728",
+        4
+      ],
+      "sampler_name": [
+        "728",
+        7
+      ],
+      "scheduler": [
+        "728",
+        8
+      ],
+      "start_at_step": 1,
+      "end_at_step": 10000,
+      "return_with_leftover_noise": "disable",
+      "model": [
+        "798",
+        0
+      ],
+      "positive": [
+        "767",
+        0
+      ],
+      "negative": [
+        "1",
+        0
+      ],
+      "latent_image": [
+        "840",
+        0
+      ]
+    },
+    "class_type": "KSamplerAdvanced",
+    "_meta": {
+      "title": "KSampler (Advanced)"
     }
   }
 }
