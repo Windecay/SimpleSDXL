@@ -44,23 +44,23 @@ def ensure_directory_exists(directory):
             return False
     return True
 
+def _dedupe_keep_order(items):
+    seen = set()
+    out = []
+    for x in items or []:
+        if not x:
+            continue
+        if x in seen:
+            continue
+        seen.add(x)
+        out.append(x)
+    return out
+
 def load_model_paths():
     global simplemodels_root
 
     config_path = os.path.normpath(os.path.join(root_dir, "users", "config.txt"))
     path_mapping = {}
-
-    def _dedupe_keep_order(items):
-        seen = set()
-        out = []
-        for x in items or []:
-            if not x:
-                continue
-            if x in seen:
-                continue
-            seen.add(x)
-            out.append(x)
-        return out
 
     try:
         with open(config_path, 'r', encoding='utf-8') as f:
@@ -226,23 +226,6 @@ def load_model_paths():
             "qwen-tts": [os.path.join(simplemodels_root, "qwen-tts")],
         }
 
-    checkpoints_dirs = path_mapping.get("checkpoints", [])
-    diffusion_models_dirs = path_mapping.get("diffusion_models", [])
-    unet_dirs = path_mapping.get("unet", [])
-    text_encoders_dirs = path_mapping.get("text_encoders", [])
-    clip_dirs = path_mapping.get("clip", [])
-    clip_vision_dirs = path_mapping.get("clip_vision", [])
-    ipadapter_dirs = path_mapping.get("ipadapter", [])
-    controlnet_dirs = path_mapping.get("controlnet", [])
-
-    path_mapping["checkpoints"] = _dedupe_keep_order(diffusion_models_dirs + checkpoints_dirs)
-    path_mapping["unet"] = _dedupe_keep_order(unet_dirs + diffusion_models_dirs + checkpoints_dirs)
-    path_mapping["diffusion_models"] = _dedupe_keep_order(unet_dirs + diffusion_models_dirs + checkpoints_dirs)
-    path_mapping["clip"] = _dedupe_keep_order(text_encoders_dirs + clip_dirs)
-    path_mapping["text_encoders"] = _dedupe_keep_order(text_encoders_dirs + clip_dirs)
-    path_mapping["clip_vision"] = _dedupe_keep_order(clip_vision_dirs + ipadapter_dirs)
-    path_mapping["ipadapter"] = _dedupe_keep_order(ipadapter_dirs + controlnet_dirs)
-
     for key in path_mapping:
         path_mapping[key] = [
             os.path.abspath(p) if not os.path.isabs(p) else p
@@ -255,6 +238,33 @@ def load_model_paths():
             ensure_directory_exists(path)
 
     return path_mapping
+
+def _get_search_dirs(path_mapping, path_type):
+    if not path_mapping or not path_type:
+        return []
+
+    base = path_mapping.get(path_type, []) or []
+    if path_type == "checkpoints":
+        diffusion_models_dirs = path_mapping.get("diffusion_models", []) or []
+        return _dedupe_keep_order(diffusion_models_dirs + base)
+    if path_type in ("unet", "diffusion_models"):
+        checkpoints_dirs = path_mapping.get("checkpoints", []) or []
+        diffusion_models_dirs = path_mapping.get("diffusion_models", []) or []
+        unet_dirs = path_mapping.get("unet", []) or []
+        return _dedupe_keep_order(unet_dirs + diffusion_models_dirs + checkpoints_dirs)
+    if path_type in ("clip", "text_encoders"):
+        text_encoders_dirs = path_mapping.get("text_encoders", []) or []
+        clip_dirs = path_mapping.get("clip", []) or []
+        return _dedupe_keep_order(text_encoders_dirs + clip_dirs)
+    if path_type == "clip_vision":
+        clip_vision_dirs = path_mapping.get("clip_vision", []) or []
+        ipadapter_dirs = path_mapping.get("ipadapter", []) or []
+        return _dedupe_keep_order(clip_vision_dirs + ipadapter_dirs)
+    if path_type == "ipadapter":
+        ipadapter_dirs = path_mapping.get("ipadapter", []) or []
+        controlnet_dirs = path_mapping.get("controlnet", []) or []
+        return _dedupe_keep_order(ipadapter_dirs + controlnet_dirs)
+    return base
 
 def cleanup():
     if os.path.exists("downloadlist.txt"):
@@ -428,7 +438,7 @@ def print_instructions():
     time.sleep(0.1)
     print(f"{Fore.GREEN}★{Style.RESET_ALL}打开默认浏览器设置，关闭GPU加速、或图形加速的选项。{Fore.GREEN}★{Style.RESET_ALL}大内存(64+)与固态硬盘存放模型有助于减少模型加载时间。{Fore.GREEN}★{Style.RESET_ALL}")
     time.sleep(0.1)
-    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：1005085136{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:26.03.03{Fore.GREEN}★{Style.RESET_ALL}")
+    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：1005085136{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:26.03.04{Fore.GREEN}★{Style.RESET_ALL}")
     print()
     time.sleep(0.1)
 
@@ -647,7 +657,7 @@ def validate_files(packages):
             sub_path = '/'.join(path_parts[1:]) if len(path_parts) > 1 else ''
 
             search_dirs = sorted(
-                path_mapping.get(path_type, []),
+                _get_search_dirs(path_mapping, path_type),
                 key=lambda x: (
                     0 if "SimpleModels" in x else
                     1 if any(part == "models" for part in x.split(os.sep)) else
@@ -850,7 +860,7 @@ def get_package_status(packages, package_ids=None):
             path_type = path_parts[0] if len(path_parts) > 0 else ''
             sub_path = '/'.join(path_parts[1:]) if len(path_parts) > 1 else ''
             search_dirs = sorted(
-                path_mapping.get(path_type, []),
+                _get_search_dirs(path_mapping, path_type),
                 key=lambda x: (
                     0 if "SimpleModels" in x else
                     1 if any(part == "models" for part in x.split(os.sep)) else
@@ -2859,7 +2869,7 @@ def verify_package_strict(package_id, packages):
         rel_path = entry["relative_path"].replace("/", os.sep)
 
         search_dirs = sorted(
-            path_mapping.get(path_type, []),
+            _get_search_dirs(path_mapping, path_type),
             key=lambda x: (
                 0 if "SimpleModels" in x else
                 1 if any(part == "models" for part in x.split(os.sep)) else
