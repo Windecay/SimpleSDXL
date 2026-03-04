@@ -2233,7 +2233,7 @@ with shared.gradio_root:
                             for image_count in range(modules.config.default_controlnet_image_count):
                                 image_count += 1
                                 with gr.Column():
-                                    ip_image = grh.Image(label='Image', source='upload', type='numpy', show_label=False, height=300, value=modules.config.default_ip_images[image_count])
+                                    ip_image = grh.Image(label='Image', source='upload', type='numpy', image_mode='RGBA', show_label=False, height=300, value=modules.config.default_ip_images[image_count])
                                     ip_images.append(ip_image)
                                     ip_ctrls.append(ip_image)
                                     with gr.Column(visible=modules.config.default_image_prompt_advanced_checkbox) as ad_col:
@@ -2274,7 +2274,7 @@ with shared.gradio_root:
                     with gr.Tab(label='Upscale or Variation', id='uov_tab', elem_id='uov_tab') as uov_tab:
                         with gr.Row():
                             with gr.Column():
-                                uov_input_image = grh.Image(label='Image', source='upload', type='numpy', height=300, show_label=False)
+                                uov_input_image = grh.Image(label='Image', source='upload', type='numpy', image_mode='RGBA', height=300, show_label=False)
                                 with gr.Row():
                                     describe_uov_button = gr.Button(value='Describe Image', variant='secondary', size='sm', visible=False)
                             with gr.Column():
@@ -2307,7 +2307,7 @@ with shared.gradio_root:
                             invert_mask_checkbox = gr.Checkbox(label='Invert Mask When Generating', value=modules.config.default_invert_mask_checkbox, container=False)
                         with gr.Row():
                             with gr.Column():
-                                inpaint_input_image = grh.Image(label='Image', source='upload', type='numpy', tool='sketch', height=350, brush_color="#FFFFFF", elem_id='inpaint_canvas', show_label=False)
+                                inpaint_input_image = grh.Image(label='Image', source='upload', type='numpy', image_mode='RGBA', tool='sketch', height=350, brush_color="#FFFFFF", elem_id='inpaint_canvas', show_label=False)
                                 with gr.Row():
                                     describe_inpaint_button = gr.Button(value='Describe Image', variant='secondary', size='sm', visible=False)
                                 inpaint_mode = gr.Dropdown(choices=modules.flags.inpaint_options, value=modules.config.default_inpaint_method, label='Method')
@@ -2319,7 +2319,7 @@ with shared.gradio_root:
                                                                      visible=False)
                                 example_inpaint_prompts.click(lambda x: x[0], inputs=example_inpaint_prompts, outputs=inpaint_additional_prompt, show_progress=False, queue=False)
                             with gr.Column(visible=modules.config.default_inpaint_advanced_masking_checkbox) as inpaint_mask_generation_col:
-                                inpaint_mask_image = grh.Image(label='Mask Upload', show_label=True, source='upload', type='numpy', tool='sketch', height=350, brush_color="#FFFFFF", mask_opacity=1, elem_id='inpaint_mask_canvas')
+                                inpaint_mask_image = grh.Image(label='Mask Upload', show_label=True, source='upload', type='numpy', image_mode='RGBA', tool='sketch', height=350, brush_color="#FFFFFF", mask_opacity=1, elem_id='inpaint_mask_canvas')
                                 inpaint_mask_model = gr.Dropdown(label='Mask generation model',
                                                                  choices=flags.inpaint_mask_models,
                                                                  value=modules.config.default_inpaint_mask_model)
@@ -2398,7 +2398,7 @@ with shared.gradio_root:
                                 layer_method = gr.Radio(choices=comfy_task.default_method_names, value=comfy_task.default_method_names[0], interactive=False, container=False)
                             with gr.Row():
                                 with gr.Column():
-                                    layer_input_image = grh.Image(label='Drag given image to here', source='upload', type='numpy', visible=True, interactive=False)
+                                    layer_input_image = grh.Image(label='Drag given image to here', source='upload', type='numpy', image_mode='RGBA', visible=True, interactive=False)
                                 with gr.Column():
                                     with gr.Group():
                                         iclight_enable = gr.Checkbox(label='Enable IC-Light', value=True)
@@ -2415,7 +2415,7 @@ with shared.gradio_root:
                         with gr.Row():
                             with gr.Column():
                                 enhance_checkbox = gr.Checkbox(label='Enhance', value=modules.config.default_enhance_checkbox, container=False)
-                                enhance_input_image = grh.Image(label='Use with Enhance, skips image generation', source='upload', type='numpy')
+                                enhance_input_image = grh.Image(label='Use with Enhance, skips image generation', source='upload', type='numpy', image_mode='RGBA')
                                 with gr.Row():
                                     describe_enhance_button = gr.Button(value='Describe Image', variant='secondary', size='sm', visible=False)
                                 with gr.Group():
@@ -3791,7 +3791,7 @@ with shared.gradio_root:
                     pil_img = Image.fromarray(img)
                 
                 if pil_img.mode == 'RGBA':
-                    pil_img = pil_img.convert('RGB')
+                    pil_img = Image.alpha_composite(Image.new("RGBA", pil_img.size, (255, 255, 255, 255)), pil_img).convert("RGB")
                 
                 buffered = io.BytesIO()
                 pil_img.save(buffered, format="JPEG", quality=80)

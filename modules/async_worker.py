@@ -253,6 +253,86 @@ class EarlyReturnException(BaseException):
     pass
 
 
+import extras.control_hint as control_hint
+
+
+def _control_hint_features(image_np):
+    return control_hint.extract_features(image_np)
+
+
+def _control_hint_match_flags(image_np):
+    return control_hint.match_flags(image_np)
+
+
+def detect_control_hint_type(image_np):
+    return control_hint.detect_control_hint_type(image_np)
+
+
+def auto_cn_skip_and_type(*args):
+    if len(args) < 3:
+        return []
+    n = (len(args) - 1) // 2
+    images = args[:n]
+    types_in = list(args[n:2 * n])
+    skipping = bool(args[-1])
+
+    detected_types = []
+    all_nonempty_detected = True
+    any_detected = False
+
+    for img, cur_type in zip(images, types_in):
+        if img is None:
+            detected_types.append(cur_type)
+            continue
+        detected = detect_control_hint_type(img)
+        if detected is None:
+            all_nonempty_detected = False
+            detected_types.append(cur_type)
+        else:
+            any_detected = True
+            detected_types.append(detected)
+
+    new_skipping = skipping or (any_detected and all_nonempty_detected)
+    return [new_skipping] + detected_types
+
+
+def auto_cn_skip_preprocessors(*args):
+    if len(args) < 3:
+        return []
+    import modules.flags as flags
+    n = (len(args) - 1) // 2
+    images = args[:n]
+    types_in = list(args[n:2 * n])
+
+    all_nonempty_detected = True
+    any_detected = False
+
+    for img, selected_type in zip(images, types_in):
+        if img is None:
+            continue
+        flags_match = _control_hint_match_flags(img)
+        if flags_match is None:
+            all_nonempty_detected = False
+            continue
+        lineart_like, depth_like, pose_like = flags_match
+        if selected_type == flags.cn_canny:
+            ok = bool(lineart_like)
+        elif selected_type == flags.cn_cpds:
+            ok = bool(depth_like)
+        elif selected_type == flags.cn_pose:
+            ok = bool(pose_like)
+        else:
+            ok = False
+
+        if not ok:
+            all_nonempty_detected = False
+        else:
+            any_detected = True
+
+    new_skipping = any_detected and all_nonempty_detected
+    return [new_skipping]
+
+
 def worker():
     global async_tasks, worker_processing, pending_tasks
 
@@ -729,14 +809,41 @@ def worker():
         return
 
     def apply_control_nets(async_task, height, ip_adapter_face_path, ip_adapter_path, width, current_progress):
+        def auto_skip_for(cn_img, cn_flag):
+            f = _control_hint_features(cn_img)
+            if f is None:
+                return False, False
+            if cn_flag == flags.cn_canny:
+                auto_skip = bool(f["lineart_like"] or f["lineart_light_bg_like"])
+                invert_needed = bool(f["lineart_light_bg_like"])
+                if async_task.debugging_cn_preprocessor or auto_skip:
+                    logger.info(f'[Preprocessor AutoSkip] kind=canny auto_skip={auto_skip} invert={invert_needed} mean_y={f["mean_y"]:.3f} std_y={f["std_y"]:.3f} ratio_dark={f["ratio_dark"]:.3f} ratio_bright={f["ratio_bright"]:.3f} ratio_light={f["ratio_light"]:.3f} ratio_mid={f["ratio_mid"]:.3f} edge_density={f["edge_density"]:.4f} edge_ratio={f["edge_ratio"]:.4f}')
+                return auto_skip, invert_needed
+            if cn_flag == flags.cn_cpds:
+                auto_skip = bool(f["depth_like"])
+                if async_task.debugging_cn_preprocessor or auto_skip:
+                    logger.info(f'[Preprocessor AutoSkip] kind=depth auto_skip={auto_skip} mean_y={f["mean_y"]:.3f} std_y={f["std_y"]:.3f} ratio_dark={f["ratio_dark"]:.3f} ratio_bright={f["ratio_bright"]:.3f} ratio_mid={f["ratio_mid"]:.3f} edge_density={f["edge_density"]:.4f}')
+                return auto_skip, False
+            if cn_flag == flags.cn_pose:
+                auto_skip = bool(f["pose_like"])
+                if async_task.debugging_cn_preprocessor or auto_skip:
+                    logger.info(f'[Preprocessor AutoSkip] kind=pose auto_skip={auto_skip} mean_y={f["mean_y"]:.3f} std_y={f["std_y"]:.3f} ratio_dark={f["ratio_dark"]:.3f} ratio_bright={f["ratio_bright"]:.3f} ratio_mid={f["ratio_mid"]:.3f} sat_hi_ratio={f["sat_hi_ratio"]:.3f} sat_fg_mean={f["sat_fg_mean"]:.3f}')
+                return auto_skip, False
+            return False, False
+
         for task in async_task.cn_tasks[flags.cn_canny]:
             cn_img, cn_stop, cn_weight = task
             cn_img = HWC3(cn_img)
-            if not async_task.skipping_cn_preprocessor:
+            auto_skip, invert_needed = auto_skip_for(cn_img, flags.cn_canny)
+            skip_pre = async_task.skipping_cn_preprocessor or auto_skip
+            if not skip_pre:
                 cn_img = preprocessors.canny_pyramid(cn_img, async_task.canny_low_threshold,
                                                      async_task.canny_high_threshold)
             else:
-                cn_img = preprocessors.normalizedBG(cn_img)
+                if invert_needed:
+                    cn_img = (255 - cn_img) if cn_img.dtype == np.uint8 else (1.0 - cn_img)
+                else:
+                    cn_img = preprocessors.normalizedBG(cn_img)
             cn_img = resize_image(HWC3(cn_img), width=width, height=height)
             task[0] = core.numpy_to_pytorch(cn_img) if async_task.task_class in ['Fooocus'] else cn_img
             if async_task.debugging_cn_preprocessor:
@@ -744,7 +851,9 @@ def worker():
         for task in async_task.cn_tasks[flags.cn_pose]:
             cn_img, cn_stop, cn_weight = task
             cn_img = HWC3(cn_img)
-            if not async_task.skipping_cn_preprocessor:
+            auto_skip, _ = auto_skip_for(cn_img, flags.cn_pose)
+            skip_pre = async_task.skipping_cn_preprocessor or auto_skip
+            if not skip_pre:
                 cn_img = preprocessors.openpose(cn_img, stick_scaling=True)
             cn_img = resize_image(HWC3(cn_img), width=width, height=height)
             task[0] = core.numpy_to_pytorch(cn_img) if async_task.task_class in ['Fooocus'] else cn_img
@@ -753,7 +862,9 @@ def worker():
         for task in async_task.cn_tasks[flags.cn_cpds]:
             cn_img, cn_stop, cn_weight = task
             cn_img = HWC3(cn_img)
-            if not async_task.skipping_cn_preprocessor:
+            auto_skip, _ = auto_skip_for(cn_img, flags.cn_cpds)
+            skip_pre = async_task.skipping_cn_preprocessor or auto_skip
+            if not skip_pre:
                 cn_img = preprocessors.zoe_depth(cn_img)
             cn_img = resize_image(HWC3(cn_img), width=width, height=height)
             task[0] = core.numpy_to_pytorch(cn_img) if async_task.task_class in ['Fooocus'] else cn_img
@@ -1799,14 +1910,22 @@ def worker():
                 async_task.should_enhance = False
                 input_images = comfypipeline.ComfyInputImage([])
                 if async_task.scene_input_image1 is not None:
-                    input_images.set_image('i2i_ip_image1', async_task.scene_input_image1)
-                    if "happy_cn" in async_task.task_method and preprocessors.openpose_have(async_task.scene_input_image1, ['face']):
+                    scene_img1 = async_task.scene_input_image1
+                    if isinstance(scene_img1, np.ndarray):
+                        scene_img1 = HWC3(scene_img1)
+                    input_images.set_image('i2i_ip_image1', scene_img1)
+                    if "happy_cn" in async_task.task_method and preprocessors.openpose_have(scene_img1, ['face']):
                         async_task.params_backend['i2i_ip_fn1'] = 4
                     if async_task.scene_input_image2 is not None:
-                        input_images.set_image('i2i_ip_image2', async_task.scene_input_image2)
+                        scene_img2 = async_task.scene_input_image2
+                        if isinstance(scene_img2, np.ndarray):
+                            scene_img2 = HWC3(scene_img2)
+                        input_images.set_image('i2i_ip_image2', scene_img2)
                 if async_task.scene_canvas_image is not None:
                     canvas_image = async_task.scene_canvas_image['image']
                     canvas_mask = async_task.scene_canvas_image['mask']
+                    if isinstance(canvas_image, np.ndarray):
+                        canvas_image = HWC3(canvas_image)
                     input_images.set_image('i2i_inpaint_image', canvas_image)
                     input_images.set_image('i2i_inpaint_mask', canvas_mask)
                 if async_task.scene_steps is not None:
