@@ -1427,7 +1427,27 @@ with shared.gradio_root:
                                 user_personal_wildcards_upload_btn = gr.Button(value="Upload/Overwrite")
 
                     wc_manage_personal_btn_outputs = [user_personal_wildcards_modal, user_personal_wildcards_select, user_personal_wildcards_name, user_personal_wildcards_content, user_personal_wildcards_status, user_personal_wildcards_save_btn, user_personal_wildcards_delete_btn]
-                    wc_manage_personal_btn.click(fn=wildcards.personal_wildcards_open, inputs=[state_topbar], outputs=wc_manage_personal_btn_outputs, show_progress=False, queue=False)
+                    def _deny_personal_wildcards_open(msg=None):
+                        if msg:
+                            try:
+                                gr.Info(msg)
+                            except Exception:
+                                pass
+                        return (gr.update(visible=False),) + tuple(gr.update() for _ in range(6))
+
+                    def _open_personal_wildcards_guard(state_params):
+                        try:
+                            user = state_params.get("user", None) if isinstance(state_params, dict) else None
+                            user_did = user.get_did() if user is not None and hasattr(user, "get_did") else None
+                            if user_did is None or shared.token.is_guest(user_did):
+                                lang = state_params.get("__lang", "cn") if isinstance(state_params, dict) else "cn"
+                                msg = "请先登入身份。" if lang == "cn" else "Please sign in."
+                                return _deny_personal_wildcards_open(msg)
+                        except Exception:
+                            return _deny_personal_wildcards_open()
+                        return wildcards.personal_wildcards_open(state_params)
+
+                    wc_manage_personal_btn.click(fn=_open_personal_wildcards_guard, inputs=[state_topbar], outputs=wc_manage_personal_btn_outputs, show_progress=False, queue=True)
                     user_personal_wildcards_close_btn.click(fn=wildcards.personal_wildcards_close, outputs=[user_personal_wildcards_modal], show_progress=False, queue=False)
                     user_personal_wildcards_refresh_btn.click(fn=wildcards.personal_wildcards_refresh, inputs=[state_topbar, user_personal_wildcards_select], outputs=[user_personal_wildcards_select, user_personal_wildcards_name, user_personal_wildcards_content, user_personal_wildcards_status, user_personal_wildcards_save_btn, user_personal_wildcards_delete_btn], show_progress=False, queue=False)
                     user_personal_wildcards_select.change(fn=wildcards.personal_wildcards_load, inputs=[state_topbar, user_personal_wildcards_select], outputs=[user_personal_wildcards_name, user_personal_wildcards_content, user_personal_wildcards_status, user_personal_wildcards_save_btn, user_personal_wildcards_delete_btn], show_progress=False, queue=False)
