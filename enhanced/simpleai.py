@@ -284,11 +284,14 @@ def get_path_in_user_dir(filename, user_did=None, catalog=None):
 def start_fast_comfyd(fast, state):
     if args_manager.args.disable_backend or args_manager.args.disable_comfyd:
         return
-    if fast:
-        comfyd.start(args_patch=[["--fast"]], force=True)
-    else:
-        comfyd.start(args_patch=[[]], force=True)
+    if fast == ads.get_admin_default('fast_comfyd_checkbox'):
+        return
     ads.set_admin_default_value('fast_comfyd_checkbox', fast, state)
+    if comfyd.is_running():
+        comfyd.stop(force=True)
+    reset_simpleai_args()
+    if getattr(comfyd, "comfyd_active", False):
+        comfyd.start()
     return
 
 def set_cache_clear_on_finish(enabled, state):

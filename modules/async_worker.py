@@ -551,7 +551,7 @@ def worker():
             reserved_vram = ads.get_admin_default('reserved_vram')
             cache_ram = ads.get_admin_default('cache_ram')
             modify_vars = {}
-            if reserved_vram > 0:
+            if reserved_vram is not None:
                 modify_vars["reserved_vram"] = reserved_vram
             if cache_ram is not None:
                 modify_vars["cache_ram"] = cache_ram

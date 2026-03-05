@@ -1963,11 +1963,24 @@ def get_free_memory_by_nvml_for_nvidia(dev=None):
 def set_extra_reserved_vram(reserved):
     global EXTRA_RESERVED_VRAM, WINDOWS
 
-    reserved_vram = reserved * 1024 * 1024 * 1024
+    try:
+        reserved_gb = float(reserved)
+    except (TypeError, ValueError):
+        return
+
+    reserved_gb = max(0.0, reserved_gb)
+    reserved_vram = int(reserved_gb * 1024 * 1024 * 1024)
     default_reserved = (600 if WINDOWS else 400) * 1024 * 1024
-    if reserved_vram > default_reserved:
+
+    if reserved_vram <= default_reserved:
+        if EXTRA_RESERVED_VRAM != default_reserved:
+            logging.info(f'reset EXTRA_RESERVED_VRAM={default_reserved / (1024 * 1024)}MB')
+        EXTRA_RESERVED_VRAM = default_reserved
+        return
+
+    if EXTRA_RESERVED_VRAM != reserved_vram:
         logging.info(f'set EXTRA_RESERVED_VRAM={reserved_vram / (1024 * 1024)}MB')
-        EXTRA_RESERVED_VRAM = reserved_vram
+    EXTRA_RESERVED_VRAM = reserved_vram
 
 def get_compute_capability(device):
     if not is_nvidia():

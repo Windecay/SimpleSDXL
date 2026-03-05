@@ -3541,13 +3541,14 @@ with shared.gradio_root:
                                          inputs=[prompt_panel_checkbox, state_topbar],
                                          outputs=wildcards_array, queue=False, show_progress=False)
 
-            def toggle_comfyd_checked(x):
-                if not args_manager.args.disable_backend:
+            def toggle_comfyd_checked(x, state):
+                ads.set_admin_default_value('comfyd_active_checkbox', x, state)
+                if not args_manager.args.disable_backend and not args_manager.args.disable_comfyd:
                     comfyd.active(x)
                 return
 
             image_tools_checkbox.change(lambda x,y: gr.update(visible=x or 'scene_frontend' in y) if "gallery_state" in y and y["gallery_state"] == 'finished_index' else gr.update(visible=False), inputs=[image_tools_checkbox,state_topbar], outputs=image_toolbox, queue=False, show_progress=False)
-            comfyd_active_checkbox.change(lambda x: toggle_comfyd_checked(x), inputs=comfyd_active_checkbox, queue=False, show_progress=False)
+            comfyd_active_checkbox.change(toggle_comfyd_checked, inputs=[comfyd_active_checkbox, state_topbar], queue=False, show_progress=False)
             
             import enhanced.superprompter
             super_prompter.click(
