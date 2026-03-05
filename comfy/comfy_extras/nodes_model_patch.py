@@ -1,5 +1,7 @@
 import torch
 from torch import nn
+import comfy_execution.utils
+from comfy.cli_args import args as comfy_args
 import folder_paths
 import comfy.utils
 import comfy.ops
@@ -457,6 +459,13 @@ class QwenImageDiffsynthControlnet:
 
     CATEGORY = "advanced/loaders/qwen"
 
+    @classmethod
+    def IS_CHANGED(cls, **kwargs):
+        if not getattr(comfy_args, "cache_clear_on_finish", False):
+            return False
+        ctx = comfy_execution.utils.get_executing_context()
+        return ctx.prompt_id if ctx is not None else None
+
     def diffsynth_controlnet(self, model, model_patch, vae, image=None, strength=1.0, inpaint_image=None, mask=None):
         model_patched = model.clone()
         if image is not None:
@@ -525,6 +534,13 @@ class USOStyleReference:
     EXPERIMENTAL = True
 
     CATEGORY = "advanced/model_patches/flux"
+
+    @classmethod
+    def IS_CHANGED(cls, **kwargs):
+        if not getattr(comfy_args, "cache_clear_on_finish", False):
+            return False
+        ctx = comfy_execution.utils.get_executing_context()
+        return ctx.prompt_id if ctx is not None else None
 
     def apply_patch(self, model, model_patch, clip_vision_output):
         encoded_image = torch.stack((clip_vision_output.all_hidden_states[:, -20], clip_vision_output.all_hidden_states[:, -11], clip_vision_output.penultimate_hidden_states))
