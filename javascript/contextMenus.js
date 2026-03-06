@@ -132,42 +132,97 @@ var addContextMenuEventListener = initResponse[2];
 
 let cancelGenerateForever = function() {
     clearInterval(window.generateOnRepeatInterval);
+    window.generateOnRepeatLastTriggerAt = null;
 };
 
 (function() {
     //Start example Context Menu Items
     let generateOnRepeat = function(genbuttonid, interruptbuttonid) {
-        let shouldTrigger = function() {
+        const RELAXED_TRIGGER_AFTER_MS = 15000;
+        const FORCE_TRIGGER_AFTER_MS = 45000;
+
+        let getTriggerState = function() {
             let genbutton = gradioApp().querySelector(genbuttonid);
             let interruptbutton = gradioApp().querySelector(interruptbuttonid);
+            let interruptVisible = !!(interruptbutton && interruptbutton.offsetParent);
             if (!genbutton || !interruptbutton) {
-                return false;
+                return {
+                    strictReady: false,
+                    relaxedReady: false,
+                    forceReady: false,
+                    genbutton: genbutton,
+                    interruptbutton: interruptbutton,
+                    interruptVisible: interruptVisible
+                };
             }
             if (genbutton.disabled || genbutton.getAttribute("aria-disabled") === "true") {
-                return false;
+                return {
+                    strictReady: false,
+                    relaxedReady: !interruptVisible,
+                    forceReady: true,
+                    genbutton: genbutton,
+                    interruptbutton: interruptbutton,
+                    interruptVisible: interruptVisible
+                };
             }
-            if (interruptbutton.offsetParent) {
-                return false;
-            }
+
             let sceneVideoPlaceholder = gradioApp().querySelector("#scene_video_placeholder");
-            if (sceneVideoPlaceholder && sceneVideoPlaceholder.offsetParent) {
-                return false;
-            }
+            let sceneVideoBusy = !!(sceneVideoPlaceholder && sceneVideoPlaceholder.offsetParent);
             let sceneAudioPlaceholder = gradioApp().querySelector("#scene_audio_placeholder");
-            if (sceneAudioPlaceholder && sceneAudioPlaceholder.offsetParent) {
-                return false;
+            let sceneAudioBusy = !!(sceneAudioPlaceholder && sceneAudioPlaceholder.offsetParent);
+            if (interruptVisible) {
+                return {
+                    strictReady: false,
+                    relaxedReady: false,
+                    forceReady: false,
+                    genbutton: genbutton,
+                    interruptbutton: interruptbutton,
+                    interruptVisible: interruptVisible
+                };
             }
-            return true;
+
+            return {
+                strictReady: !sceneVideoBusy && !sceneAudioBusy,
+                relaxedReady: !sceneVideoBusy && !sceneAudioBusy,
+                forceReady: true,
+                genbutton: genbutton,
+                interruptbutton: interruptbutton,
+                interruptVisible: interruptVisible
+            };
         };
 
-        if (shouldTrigger()) {
-            gradioApp().querySelector(genbuttonid)?.click();
-        }
+        let tryTrigger = function() {
+            const now = Date.now();
+            if (window.generateOnRepeatLastTriggerAt == null) {
+                window.generateOnRepeatLastTriggerAt = now;
+            }
+
+            const state = getTriggerState();
+            if (state.strictReady && state.genbutton) {
+                state.genbutton.click();
+                window.generateOnRepeatLastTriggerAt = now;
+                return;
+            }
+
+            const blockedMs = now - window.generateOnRepeatLastTriggerAt;
+            if (state.relaxedReady && state.genbutton && blockedMs >= RELAXED_TRIGGER_AFTER_MS) {
+                state.genbutton.click();
+                window.generateOnRepeatLastTriggerAt = now;
+                return;
+            }
+
+            if (state.forceReady && state.genbutton && blockedMs >= FORCE_TRIGGER_AFTER_MS) {
+                state.genbutton.disabled = false;
+                state.genbutton.setAttribute("aria-disabled", "false");
+                state.genbutton.click();
+                window.generateOnRepeatLastTriggerAt = now;
+            }
+        };
+
+        tryTrigger();
         clearInterval(window.generateOnRepeatInterval);
         window.generateOnRepeatInterval = setInterval(function() {
-            if (shouldTrigger()) {
-                gradioApp().querySelector(genbuttonid)?.click();
-            }
+            tryTrigger();
         },
         500);
     };

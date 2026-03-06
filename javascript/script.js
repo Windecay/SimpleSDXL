@@ -119,6 +119,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
     mutationObserver.observe(gradioApp(), {childList: true, subtree: true});
+    initGeneratingStateRecovery();
     initStylePreviewOverlay();
 });
 
@@ -150,18 +151,23 @@ addObserverIfDesiredNodeAvailable(".toast-wrap", function(added) {
     added.forEach(function(element) {
          if (element.innerText.includes("Connection errored out.")) {
              window.setTimeout(function() {
-                const buttons = {
-                    "reset_button": "remove",
-                    "generate_button": "add",
-                    "skip_button": "add",
-                    "stop_button": "add"
-                };
-                for (const [id, action] of Object.entries(buttons)) {
-                    const btn = document.getElementById(id);
-                    if (btn) {
-                        btn.classList[action]("hidden");
-                    }
+                const generateButton = document.getElementById("generate_button");
+                const skipButton = document.getElementById("skip_button");
+                const stopButton = document.getElementById("stop_button");
+                const isGenerating = !!(stopButton && stopButton.offsetParent);
+
+                if (isGenerating) {
+                    return;
                 }
+
+                [generateButton, skipButton, stopButton].forEach(function(btn) {
+                    if (!btn) {
+                        return;
+                    }
+                    btn.classList.remove("hidden");
+                    btn.disabled = false;
+                    btn.setAttribute("aria-disabled", "false");
+                });
             });
          }
     });
@@ -190,6 +196,80 @@ document.addEventListener('keydown', function(e) {
         }
     }
 });
+
+function initGeneratingStateRecovery() {
+    const STUCK_UI_MS = 22000;
+    const NO_PROGRESS_MS = 12000;
+    let stopVisibleSince = null;
+    let lastProgressUpdateAt = Date.now();
+    let lastAutoStopAt = null;
+
+    const progressNode = gradioApp().querySelector('#progress-bar');
+    if (progressNode && window.MutationObserver) {
+        const progressObserver = new MutationObserver(function() {
+            lastProgressUpdateAt = Date.now();
+        });
+        progressObserver.observe(progressNode, { childList: true, subtree: true, characterData: true, attributes: true });
+    }
+
+    const unlockButtons = function(genbutton, stopbutton, skipbutton) {
+        [genbutton, stopbutton, skipbutton].forEach(function(btn) {
+            if (!btn) {
+                return;
+            }
+            btn.classList.remove("hidden");
+            btn.disabled = false;
+            btn.setAttribute("aria-disabled", "false");
+        });
+    };
+
+    window.setInterval(function() {
+        const now = Date.now();
+        const genbutton = gradioApp().querySelector('#generate_button');
+        const stopbutton = gradioApp().querySelector('#stop_button');
+        const skipbutton = gradioApp().querySelector('#skip_button');
+        const progressBar = gradioApp().querySelector('#progress-bar');
+        const sceneVideoPlaceholder = gradioApp().querySelector("#scene_video_placeholder");
+        const sceneAudioPlaceholder = gradioApp().querySelector("#scene_audio_placeholder");
+
+        if (!genbutton || !stopbutton) {
+            stopVisibleSince = null;
+            return;
+        }
+
+        const stopVisible = !!stopbutton.offsetParent;
+        const generateVisible = !!genbutton.offsetParent;
+        const progressVisible = !!(progressBar && progressBar.offsetParent);
+        const sceneBusy = !!((sceneVideoPlaceholder && sceneVideoPlaceholder.offsetParent) || (sceneAudioPlaceholder && sceneAudioPlaceholder.offsetParent));
+
+        if (!stopVisible || sceneBusy) {
+            stopVisibleSince = null;
+            return;
+        }
+
+        if (!generateVisible) {
+            stopVisibleSince = null;
+            return;
+        }
+
+        if (stopVisibleSince == null) {
+            stopVisibleSince = now;
+        }
+
+        const stopVisibleMs = now - stopVisibleSince;
+        const noProgressMs = now - lastProgressUpdateAt;
+
+        if (stopVisibleMs < STUCK_UI_MS || progressVisible || noProgressMs < NO_PROGRESS_MS) {
+            return;
+        }
+
+        if (lastAutoStopAt == null || (now - lastAutoStopAt) >= 10000) {
+            lastAutoStopAt = now;
+            unlockButtons(genbutton, stopbutton, skipbutton);
+            stopbutton.click();
+        }
+    }, 1000);
+}
 
 function initStylePreviewOverlay() {
     let overlayVisible = false;
