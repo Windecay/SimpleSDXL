@@ -1,5 +1,6 @@
 import os
 import sys
+import platform
 root = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(root)
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -102,11 +103,82 @@ def install_requirements_sequential():
 
     return None
 
+def install_llama_cpp_python():
+    import subprocess
+    import importlib.metadata
+
+    python_exe = sys.executable
+    timeout_seconds = int(os.environ.get("COMFY_LLAMA_INSTALL_TIMEOUT", "300"))
+
+    def build_pip_cmd():
+        cmd = [python_exe]
+        if sys.flags.no_user_site or ("python_embeded" in python_exe) or ("python_embedded" in python_exe):
+            cmd.append("-s")
+        cmd += ["-m", "pip", "install", "-U", "--force-reinstall", "--no-deps"]
+        return cmd
+
+    def version_matches(installed: str, target: str) -> bool:
+        if not installed:
+            return False
+        return installed == target or installed.split("+", 1)[0] == target
+
+    try:
+        torch_version = importlib.metadata.version("torch")
+    except Exception as e:
+        print(f"[Comfyd] Skip llama_cpp_python install (torch not ready): {e}")
+        return None
+
+    llama_url = None
+    target_llama_ver = "0.3.30"
+    if sys.version_info.major == 3 and sys.version_info.minor == 10:
+        if "2.9" in torch_version and "cu130" in torch_version:
+            if platform.system() == "Windows":
+                llama_url = "https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/llama/llama_cpp_python-0.3.30%2Bcu130.basic-cp310-cp310-win_amd64.whl"
+            elif platform.system() == "Linux":
+                llama_url = "https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/llama/llama_cpp_python-0.3.30%2Bcu130.basic-cp310-cp310-linux_x86_64.whl"
+        elif "2.9" in torch_version or "2.7" in torch_version:
+            if platform.system() == "Windows":
+                llama_url = "https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/llama/llama_cpp_python-0.3.30%2Bcu128.basic-cp310-cp310-win_amd64.whl"
+            elif platform.system() == "Linux":
+                llama_url = "https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/llama/llama_cpp_python-0.3.30%2Bcu128.basic-cp310-cp310-linux_x86_64.whl"
+
+    if not llama_url:
+        return None
+
+    installed_ver = None
+    try:
+        installed_ver = importlib.metadata.version("llama_cpp_python")
+    except Exception:
+        installed_ver = None
+
+    need_reinstall = not version_matches(installed_ver, target_llama_ver)
+    if not need_reinstall and platform.system() == "Linux":
+        try:
+            import llama_cpp
+        except Exception:
+            need_reinstall = True
+
+    if need_reinstall:
+        try:
+            print(f"[Comfyd] Installing llama_cpp_python from: {llama_url}")
+            cmd = build_pip_cmd() + [llama_url]
+            subprocess.run(cmd, check=False, timeout=timeout_seconds)
+        except subprocess.TimeoutExpired:
+            print("[Comfyd] llama_cpp_python install timed out")
+        except Exception as e:
+            print(f"[Comfyd] llama_cpp_python install failed: {e}")
+
+    return None
+
 if __name__ == "__main__":
     try:
         install_requirements_sequential()
     except Exception as e:
         print(f"[Comfyd] Requirements install step failed: {e}")
+    try:
+        install_llama_cpp_python()
+    except Exception as e:
+        print(f"[Comfyd] llama_cpp_python install step failed: {e}")
 
 import comfy.options
 comfy.options.enable_args_parsing()
