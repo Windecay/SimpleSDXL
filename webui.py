@@ -121,6 +121,64 @@ def get_task(*args):
     args = api_params.normalization(args, modules.config.default_max_lora_number, modules.config.default_controlnet_image_count, modules.config.default_enhance_tabs)
     return worker.AsyncTask(args=args)
 
+def get_task_with_resolution_multiplier(*args):
+    args = list(args)
+    args.pop(0)
+    resolution_quantize_step = args.pop() if len(args) > 0 else 8
+    resolution_multiplier = args.pop() if len(args) > 0 else 1.0
+    args = api_params.normalization(args, modules.config.default_max_lora_number, modules.config.default_controlnet_image_count, modules.config.default_enhance_tabs)
+
+    try:
+        m = float(resolution_multiplier)
+    except Exception:
+        m = 1.0
+
+    if m > 1.0:
+        try:
+            m = max(1.0, min(2.0, m))
+            try:
+                step = int(resolution_quantize_step)
+            except Exception:
+                step = 8
+            if step not in [8, 16, 32, 64]:
+                step = 8
+
+            aspect_ratios_index = api_params.all_args.index('aspect_ratios_selection')
+            overwrite_width_index = api_params.all_args.index('overwrite_width')
+            overwrite_height_index = api_params.all_args.index('overwrite_height')
+
+            overwrite_width = int(args[overwrite_width_index]) if args[overwrite_width_index] is not None else -1
+            overwrite_height = int(args[overwrite_height_index]) if args[overwrite_height_index] is not None else -1
+
+            base_w = overwrite_width
+            base_h = overwrite_height
+            if base_w <= 0 or base_h <= 0:
+                try:
+                    import re
+                    raw = str(args[aspect_ratios_index] or "")
+                    raw = raw.split(',', 1)[0]
+                    m2 = re.search(r'(\d+)\D+(\d+)', raw.replace('×', 'x'))
+                    if m2:
+                        base_w = int(m2.group(1))
+                        base_h = int(m2.group(2))
+                except Exception:
+                    base_w = -1
+                    base_h = -1
+
+            if base_w > 0 and base_h > 0:
+                def _quantize(v):
+                    v = int(round(float(v) / float(step)) * step)
+                    if v <= 0:
+                        v = step
+                    return v
+
+                args[overwrite_width_index] = _quantize(base_w * m)
+                args[overwrite_height_index] = _quantize(base_h * m)
+        except Exception:
+            pass
+
+    return worker.AsyncTask(args=args)
+
 def refresh_files_clicked(state_params, use_model_filter: bool = True, show_info: bool = True):
     engine = state_params.get('engine', 'Fooocus') if isinstance(state_params, dict) else 'Fooocus'
     task_method = state_params.get('task_method', None) if isinstance(state_params, dict) else None
@@ -574,6 +632,7 @@ with shared.gradio_root:
     inpaint_engine_state = gr.State('empty')
     state_is_generating = gr.State(False)
     comparison_state = gr.State(False)
+    random_aspect_ratio_state = gr.State(None)
     scene_video_backup = gr.State(None)
     scene_audio_backup = gr.State(None)
     scene_original_video_path = gr.State(None)
@@ -2624,7 +2683,7 @@ with shared.gradio_root:
                     with gr.Group():
                         image_number = gr.Slider(label='Image Number', minimum=1, maximum=modules.config.default_max_image_number, step=1, value=modules.config.default_image_number)
                         with gr.Accordion(label='Aspect Ratios', open=False, elem_id='aspect_ratios_accordion') as aspect_ratios_accordion:
-                            aspect_ratios_selection = gr.Textbox(value='', visible=False) 
+                            aspect_ratios_selection = gr.Textbox(value='', visible=False, elem_id='aspect_ratios_selection') 
                             with gr.Row():
                                 random_aspect_ratio_checkbox = gr.Checkbox(label='Random Aspect Ratio', value=False)
                                 use_resolution_override_checkbox = gr.Checkbox(label='Resolution Box', value=False)
@@ -2639,12 +2698,18 @@ with shared.gradio_root:
                                     <div style="display:flex; gap:10px; align-items:center; justify-content:flex-start; flex-wrap:wrap;">
                                       <label style="display:flex; gap:6px; align-items:center; font-size:12px; opacity:0.9;">
                                         W
-                                        <input data-role="winput" type="number" min="-1" max="2048" step="8" value="-1" style="width:96px; padding:6px 8px; border-radius:8px; border:1px solid var(--neutral-700); background:var(--neutral-900); color:inherit;" />
+                                        <input data-role="winput" title="图像宽" type="number" min="-1" max="2048" step="1" value="-1" style="width:80px; padding:6px 8px; border-radius:8px; border:1px solid var(--neutral-700); background:var(--neutral-900); color:inherit;" />
                                       </label>
                                       <label style="display:flex; gap:6px; align-items:center; font-size:12px; opacity:0.9;">
                                         H
-                                        <input data-role="hinput" type="number" min="-1" max="2048" step="8" value="-1" style="width:96px; padding:6px 8px; border-radius:8px; border:1px solid var(--neutral-700); background:var(--neutral-900); color:inherit;" />
+                                        <input data-role="hinput" title="图像高" type="number" min="-1" max="2048" step="1" value="-1" style="width:80px; padding:6px 8px; border-radius:8px; border:1px solid var(--neutral-700); background:var(--neutral-900); color:inherit;" />
                                       </label>
+                                      <select data-role="qstep" title="规格化步长" style="width:32px; padding:6px 6px; border-radius:8px; border:1px solid var(--neutral-700); background:var(--neutral-900); color:inherit; font-size:12px;">
+                                        <option value="8" selected>8</option>
+                                        <option value="16">16</option>
+                                        <option value="32">32</option>
+                                        <option value="64">64</option>
+                                      </select>
                                     </div>
                                     <div style="display:flex; gap:8px; align-items:center; justify-content:flex-end;">
                                       <button data-role="scale_down" type="button" title="缩小 10%" style="width:36px; height:30px; border-radius:8px; border:1px solid var(--neutral-700); background:var(--neutral-900); color:inherit; cursor:pointer; font-size:14px; line-height:1;">-</button>
@@ -2660,6 +2725,7 @@ with shared.gradio_root:
                                 """
                                 , visible=False
                             )
+                            resolution_quantize_step = gr.Number(value=8, visible=False, elem_id="resolution_quantize_step")
                             overwrite_width = gr.Slider(
                                 label='Forced Overwrite of Generating Width',
                                 minimum=-1, maximum=2048, step=1, value=-1,
@@ -2674,18 +2740,44 @@ with shared.gradio_root:
                                 elem_id="overwrite_height",
                             )
 
-                            def select_random_aspect_ratio(use_random, current_template='SDXL'):
-                                if use_random:
-                                    available_ratios = flags.available_aspect_ratios_list[current_template]
-                                    if available_ratios:
-                                        selected_ratio = random.choice(available_ratios)
-                                        width_height = selected_ratio.split('×')[0]
-                                        width = int(width_height.split('|')[0] if '|' in width_height else width_height)
-                                        for ratio in flags.available_aspect_ratios[flags.aspect_ratios_templates.index(current_template)]:
-                                            if str(width) in ratio.split('*')[0]:
-                                                height = int(ratio.split('*')[1])
-                                                return [width, height, selected_ratio]
-                                return [gr.update(), gr.update(), gr.update()]
+                            def select_random_aspect_ratio(use_random, cached_ratio, current_template='SDXL'):
+                                if not use_random:
+                                    return [gr.update(), gr.update(), gr.update(), None]
+
+                                if cached_ratio is not None and str(cached_ratio).strip():
+                                    try:
+                                        import re
+                                        raw = str(cached_ratio).split(',', 1)[0]
+                                        m2 = re.search(r'(\d+)\D+(\d+)', raw.replace('×', 'x'))
+                                        if m2:
+                                            width = int(m2.group(1))
+                                            height = int(m2.group(2))
+                                            return [width, height, cached_ratio, cached_ratio]
+                                    except Exception:
+                                        pass
+
+                                available_ratios = flags.available_aspect_ratios_list[current_template]
+                                if available_ratios:
+                                    selected_ratio = random.choice(available_ratios)
+                                    try:
+                                        import re
+                                        raw = str(selected_ratio).split(',', 1)[0]
+                                        m2 = re.search(r'(\d+)\D+(\d+)', raw.replace('×', 'x'))
+                                        if m2:
+                                            width = int(m2.group(1))
+                                            height = int(m2.group(2))
+                                            return [width, height, selected_ratio, selected_ratio]
+                                    except Exception:
+                                        pass
+
+                                    width_height = selected_ratio.split('×')[0]
+                                    width = int(width_height.split('|')[0] if '|' in width_height else width_height)
+                                    for ratio in flags.available_aspect_ratios[flags.aspect_ratios_templates.index(current_template)]:
+                                        if str(width) in ratio.split('*')[0]:
+                                            height = int(ratio.split('*')[1])
+                                            return [width, height, selected_ratio, selected_ratio]
+
+                                return [gr.update(), gr.update(), gr.update(), None]
                             last_preset_ratio = None
                             last_condition_met = False
 
@@ -2713,7 +2805,9 @@ with shared.gradio_root:
 
                             overwrite_width.change(overwrite_aspect_ratios, inputs=[overwrite_width, overwrite_height], outputs=aspect_ratios_selection, queue=False, show_progress=False).then(lambda x: x, inputs=aspect_ratios_selection, queue=False, show_progress=False, _js='(x)=>{refresh_aspect_ratios_label(x);}')
                             overwrite_height.change(overwrite_aspect_ratios, inputs=[overwrite_width, overwrite_height], outputs=aspect_ratios_selection, queue=False, show_progress=False).then(lambda x: x, inputs=aspect_ratios_selection, queue=False, show_progress=False, _js='(x)=>{refresh_aspect_ratios_label(x);}')
-                        quick_enhance = gr.Checkbox(label='Quick Enhance', value=False)
+                        with gr.Row():
+                            resolution_multiplier = gr.Slider(label='Resolution Multiply', minimum=1.0, maximum=2.0, step=0.1, value=1.0, elem_id='resolution_multiplier')
+                            quick_enhance = gr.Checkbox(label='Quick Enhance', value=False)
                         quick_enhance_uov_strength = gr.Slider(label='Denoising Strength of enhance',
                                          visible=False, minimum=0, maximum=1.0, step=0.01, value=0.2)
                         output_format = gr.Radio(label='Output Format',
@@ -4008,7 +4102,7 @@ with shared.gradio_root:
 
         compare_btn.click(toggle_comparison, inputs=[comparison_state, cached_input_image, progress_gallery, gallery], outputs=[comparison_state, comparison_box, progress_gallery, gallery, progress_window, progress_video], show_progress=False)
         protections = [random_button, super_prompter, background_theme, image_tools_checkbox] + nav_bars
-        generate_button.click(lambda v, a, v_orig, state: (v, a, v_orig, gr.update(value=None, visible=False), gr.update(value=None, visible=False), None, gr.update(visible=True if v and 'scene_video' not in state.get("scene_frontend", {}).get('disvisible', []) else False), gr.update(visible=True if a and 'scene_audio' not in state.get("scene_frontend", {}).get('disvisible', []) else False), gr.update(interactive=False), gr.update(interactive=False), gr.update(interactive=False)), inputs=[scene_video, scene_audio, scene_original_video_path, state_topbar], outputs=[scene_video_backup, scene_audio_backup, scene_original_video_backup, scene_video, scene_audio, scene_original_video_path, scene_video_placeholder, scene_audio_placeholder, generate_button, skip_button, stop_button], queue=False, show_progress=False) \
+        generate_button.click(lambda v, a, v_orig, state: (v, a, v_orig, gr.update(value=None, visible=False), gr.update(value=None, visible=False), None, gr.update(visible=True if v and 'scene_video' not in state.get("scene_frontend", {}).get('disvisible', []) else False), gr.update(visible=True if a and 'scene_audio' not in state.get("scene_frontend", {}).get('disvisible', []) else False), gr.update(interactive=False), gr.update(interactive=False), gr.update(interactive=False), None), inputs=[scene_video, scene_audio, scene_original_video_path, state_topbar], outputs=[scene_video_backup, scene_audio_backup, scene_original_video_backup, scene_video, scene_audio, scene_original_video_path, scene_video_placeholder, scene_audio_placeholder, generate_button, skip_button, stop_button, random_aspect_ratio_state], queue=False, show_progress=False) \
             .then(cache_input_image_func, inputs=[current_tab, uov_input_image, inpaint_input_image, layer_input_image, enhance_input_image, scene_input_image1, scene_canvas_image], outputs=[cached_input_image]) \
             .then(topbar.process_before_generation, inputs=[state_topbar, seed_random, image_seed, params_backend, scene_theme, scene_canvas_image, scene_input_image1, scene_input_image2, scene_additional_prompt, scene_additional_prompt_2, scene_var_number, scene_var_number2, scene_var_number3, scene_var_number4, scene_var_number5, scene_var_number6, scene_var_number7, scene_var_number8, scene_var_number9, scene_var_number10, scene_steps, scene_switch_option1, scene_switch_option2, scene_switch_option3, scene_switch_option4, scene_aspect_ratio, scene_image_number, scene_video_backup, scene_audio_backup, scene_original_video_backup, active_video_source, sam3_input_video, sam3_original_video_path, sam3_mask_video], outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating, index_radio, image_toolbox, prompt_info_box, image_seed] + protections + [preset_store, identity_dialog], show_progress=False) \
             .then(topbar.wait_for_minicpm_completion, outputs=[], show_progress=False) \
@@ -4017,8 +4111,8 @@ with shared.gradio_root:
                  "None" if "scene_frontend" in state_topbar_value and not use_loras else model1, "None" if "scene_frontend" in state_topbar_value and not use_loras else model2, "None" if "scene_frontend" in state_topbar_value and not use_loras else model3, "None" if "scene_frontend" in state_topbar_value and not use_loras else model4], \
             inputs=[state_topbar, scene_use_lora, scene_lora_model, scene_lora_model_2, scene_lora_model_3, scene_lora_model_4], \
             outputs=[scene_lora_model, scene_lora_model_2, scene_lora_model_3, scene_lora_model_4]) \
-            .then(lambda use_random: select_random_aspect_ratio(use_random), inputs=[random_aspect_ratio_checkbox], outputs=[overwrite_width, overwrite_height, aspect_ratios_selection]) \
-            .then(fn=get_task, inputs=ctrls, outputs=currentTask) \
+            .then(select_random_aspect_ratio, inputs=[random_aspect_ratio_checkbox, random_aspect_ratio_state], outputs=[overwrite_width, overwrite_height, aspect_ratios_selection, random_aspect_ratio_state]) \
+            .then(fn=get_task_with_resolution_multiplier, inputs=ctrls + [resolution_multiplier, resolution_quantize_step], outputs=currentTask) \
             .then(fn=generate_clicked, inputs=[currentTask, state_topbar], outputs=[progress_html, progress_window, progress_gallery, progress_video, gallery, comparison_state, comparison_box, compare_btn, stop_button, skip_button]) \
             .then(topbar.process_after_generation, inputs=state_topbar, outputs=[generate_button, stop_button, skip_button, state_is_generating, gallery_index, index_radio] + protections + [gallery_index_stat, history_link], show_progress=False) \
             .then(check_comparison_visibility, inputs=[cached_input_image, progress_gallery, state_topbar], outputs=[compare_btn]) \
@@ -4034,7 +4128,7 @@ with shared.gradio_root:
         preview_preprocessing.click(lambda v, a, v_orig: (v, a, v_orig, gr.update(value=None, visible=False), gr.update(value=None, visible=False), None, gr.update(visible=True if v else False), gr.update(visible=True if a else False)), inputs=[scene_video, scene_audio, scene_original_video_path], outputs=[scene_video_backup, scene_audio_backup, scene_original_video_backup, scene_video, scene_audio, scene_original_video_path, scene_video_placeholder, scene_audio_placeholder], queue=False, show_progress=False) \
             .then(lambda: (False, gr.update(visible=False), gr.update(visible=False), gr.update(visible=False), gr.update(value=None, visible=True), gr.update(visible=False, size='sm')), outputs=[comparison_state, comparison_box, progress_window, gallery, progress_gallery, compare_btn]) \
             .then(topbar.process_before_generation, inputs=[state_topbar, seed_random, image_seed, params_backend, scene_theme, scene_canvas_image, scene_input_image1, scene_input_image2, scene_additional_prompt, scene_additional_prompt_2, scene_var_number, scene_var_number2, scene_var_number3, scene_var_number4, scene_var_number5, scene_var_number6, scene_var_number7, scene_var_number8, scene_var_number9, scene_var_number10, scene_steps, scene_switch_option1, scene_switch_option2, scene_switch_option3, scene_switch_option4, scene_aspect_ratio, scene_image_number, scene_video_backup, scene_audio_backup, scene_original_video_backup, active_video_source, sam3_input_video, sam3_original_video_path, sam3_mask_video], outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating, index_radio, image_toolbox, prompt_info_box, image_seed] + protections + [preset_store, identity_dialog], show_progress=False) \
-            .then(fn=get_task, inputs=ctrls_preview, outputs=currentTask) \
+            .then(fn=get_task_with_resolution_multiplier, inputs=ctrls_preview + [resolution_multiplier, resolution_quantize_step], outputs=currentTask) \
             .then(fn=generate_clicked, inputs=[currentTask, state_topbar], outputs=[progress_html, progress_window, progress_gallery, progress_video, gallery, comparison_state, comparison_box, compare_btn, stop_button, skip_button]) \
             .then(topbar.process_after_generation, inputs=state_topbar, outputs=[generate_button, stop_button, skip_button, state_is_generating, gallery_index, index_radio] + protections + [gallery_index_stat, history_link], show_progress=False) \
             .then(check_comparison_visibility, inputs=[cached_input_image, progress_gallery, state_topbar], outputs=[compare_btn]) \

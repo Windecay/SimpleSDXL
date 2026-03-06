@@ -45,11 +45,11 @@ def get_audio_emb_window(audio_emb, frame_num, frame0_idx, audio_shift=2):
     return audio_emb_wind, ed - audio_shift
 
 
-class PainterHumoI2V(io.ComfyNode):
+class PainterHumoAI2V(io.ComfyNode):
     @classmethod
     def define_schema(cls):
         return io.Schema(
-            node_id="PainterHumoI2V",
+            node_id="PainterHumoAI2V",
             category="conditioning/video_models",
             inputs=[
                 io.Conditioning.Input("positive"),
@@ -60,7 +60,7 @@ class PainterHumoI2V(io.ComfyNode):
                 io.Int.Input("length", default=97, min=1, max=nodes.MAX_RESOLUTION, step=4),
                 io.Int.Input("batch_size", default=1, min=1, max=4096),
                 io.Float.Input("fps", default=25.0, min=1.0, max=120.0, step=0.1),
-                io.AudioEncoderOutput.Input("audio_encoder_output", optional=True),
+                io.AudioEncoderOutput.Input("audio_encoder", optional=True),
                 io.Image.Input("start_image", optional=True),
                 io.Image.Input("end_image", optional=True),
             ],
@@ -74,7 +74,7 @@ class PainterHumoI2V(io.ComfyNode):
         )
 
     @classmethod
-    def execute(cls, positive, negative, vae, width, height, length, batch_size, fps, start_image=None, end_image=None, audio_encoder_output=None):
+    def execute(cls, positive, negative, vae, width, height, length, batch_size, fps, start_image=None, end_image=None, audio_encoder=None):
         spacial_scale = vae.spacial_compression_encode()
         latent = torch.zeros([batch_size, vae.latent_channels, ((length - 1) // 4) + 1, height // spacial_scale, width // spacial_scale], device=comfy.model_management.intermediate_device())
         
@@ -130,9 +130,9 @@ class PainterHumoI2V(io.ComfyNode):
             low_positive = node_helpers.conditioning_set_values(positive, {"reference_latents": [zero_latent]}, append=True)
             low_negative = node_helpers.conditioning_set_values(negative, {"reference_latents": [zero_latent]}, append=True)
 
-        if audio_encoder_output is not None:
-            audio_emb = torch.stack(audio_encoder_output["encoded_audio_all_layers"], dim=2)
-            audio_len = audio_encoder_output["audio_samples"] // 640
+        if audio_encoder is not None:
+            audio_emb = torch.stack(audio_encoder["encoded_audio_all_layers"], dim=2)
+            audio_len = audio_encoder["audio_samples"] // 640
             audio_emb = audio_emb[:, :audio_len * 2]
 
             feat0 = linear_interpolation(audio_emb[:, :, 0: 8].mean(dim=2), 50, fps)
@@ -159,9 +159,9 @@ class PainterHumoI2V(io.ComfyNode):
 
 
 NODE_CLASS_MAPPINGS = {
-    "PainterHumoI2V": PainterHumoI2V,
+    "PainterHumoAI2V": PainterHumoAI2V,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "PainterHumoI2V": "Painter Humo I2V",
+    "PainterHumoAI2V": "Painter Humo AI2V",
 }

@@ -648,8 +648,116 @@ function refresh_aspect_ratios_label(value) {
     if (typeof translation == "undefined") {
         translation = "Aspect Ratios";
     }
-    value = value.split(",")[0]
-    label.textContent = translation + " - " + htmlDecode(value);
+    value = (value || "").split(",")[0];
+
+    var multiplier = 1.0;
+    try {
+        var mRoot = document.getElementById('resolution_multiplier');
+        var mNumberInput = mRoot ? mRoot.querySelector('input[type="number"]') : null;
+        var mRangeInput = mRoot ? mRoot.querySelector('input[type="range"]') : null;
+        var mRaw = (mNumberInput && mNumberInput.value) ? mNumberInput.value : (mRangeInput ? mRangeInput.value : null);
+        var m = parseFloat(mRaw);
+        if (Number.isFinite(m) && m > 0) {
+            multiplier = m;
+        }
+    } catch (e) {}
+
+    var baseW = null;
+    var baseH = null;
+    try {
+        var owRoot = document.getElementById('overwrite_width');
+        var ohRoot = document.getElementById('overwrite_height');
+        var owInput = owRoot ? owRoot.querySelector('input[type="number"]') : null;
+        var ohInput = ohRoot ? ohRoot.querySelector('input[type="number"]') : null;
+        var ow = owInput ? parseInt(owInput.value, 10) : NaN;
+        var oh = ohInput ? parseInt(ohInput.value, 10) : NaN;
+        if (Number.isFinite(ow) && Number.isFinite(oh) && ow > 0 && oh > 0) {
+            baseW = ow;
+            baseH = oh;
+        }
+    } catch (e) {}
+
+    if (baseW == null || baseH == null) {
+        try {
+            var m2 = String(value).replace('×', 'x').match(/(\d+)\D+(\d+)/);
+            if (m2) {
+                baseW = parseInt(m2[1], 10);
+                baseH = parseInt(m2[2], 10);
+            }
+        } catch (e) {}
+    }
+
+    var suffix = "";
+    if (baseW != null && baseH != null && multiplier > 1.0) {
+        var readQuantizeStep = function() {
+            try {
+                var sRoot = document.getElementById('resolution_quantize_step');
+                var sInput = sRoot ? sRoot.querySelector('input[type="number"]') : null;
+                var raw = sInput ? parseInt(sInput.value, 10) : NaN;
+                var step = Number.isFinite(raw) ? raw : 8;
+                return [8, 16, 32, 64].includes(step) ? step : 8;
+            } catch (e) {
+                return 8;
+            }
+        };
+        var quantizeByStep = function(v) {
+            var step = readQuantizeStep();
+            var q = Math.round(v / step) * step;
+            if (!(q > 0)) q = step;
+            return q;
+        };
+        var effW = quantizeByStep(baseW * multiplier);
+        var effH = quantizeByStep(baseH * multiplier);
+        if (Number.isFinite(effW) && Number.isFinite(effH) && effW > 0 && effH > 0) {
+            suffix = " \u2192 " + effW + "\u00d7" + effH;
+        }
+    }
+
+    label.textContent = translation + " - " + htmlDecode(value) + suffix;
+}
+
+function init_aspect_ratios_label_multiplier_binding() {
+    try {
+        var mRoot = document.getElementById('resolution_multiplier');
+        if (!mRoot) return;
+        if (mRoot.dataset.aspectRatiosBound === '1') return;
+        mRoot.dataset.aspectRatiosBound = '1';
+
+        var mNumberInput = mRoot.querySelector('input[type="number"]');
+        var mRangeInput = mRoot.querySelector('input[type="range"]');
+        var sRoot = document.getElementById('resolution_quantize_step');
+        var sNumberInput = sRoot ? sRoot.querySelector('input[type="number"]') : null;
+        var readAspectValue = function() {
+            var root = document.getElementById('aspect_ratios_selection');
+            if (!root) return "";
+            var input = root.querySelector('input, textarea');
+            return input ? (input.value || "") : "";
+        };
+        var refresh = function() {
+            refresh_aspect_ratios_label(readAspectValue());
+        };
+
+        if (mNumberInput) {
+            mNumberInput.addEventListener('input', refresh, { passive: true });
+            mNumberInput.addEventListener('change', refresh, { passive: true });
+        }
+        if (mRangeInput) {
+            mRangeInput.addEventListener('input', refresh, { passive: true });
+            mRangeInput.addEventListener('change', refresh, { passive: true });
+        }
+        if (sNumberInput) {
+            sNumberInput.addEventListener('input', refresh, { passive: true });
+            sNumberInput.addEventListener('change', refresh, { passive: true });
+        }
+        refresh();
+    } catch (e) {}
+}
+
+if (typeof onUiLoaded === 'function') {
+    onUiLoaded(init_aspect_ratios_label_multiplier_binding);
+}
+if (typeof onAfterUiUpdate === 'function') {
+    onAfterUiUpdate(init_aspect_ratios_label_multiplier_binding);
 }
 
 

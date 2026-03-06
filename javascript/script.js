@@ -954,9 +954,21 @@ function initResolutionOverrideWidget() {
     const rect = widget.querySelector('[data-role="rect"]');
     const wInput = widget.querySelector('[data-role="winput"]');
     const hInput = widget.querySelector('[data-role="hinput"]');
+    const qStepSelect = widget.querySelector('[data-role="qstep"]');
     const btnUp = widget.querySelector('[data-role="scale_up"]');
     const btnDown = widget.querySelector('[data-role="scale_down"]');
     if (!pad || !rect || !wInput || !hInput) return;
+
+    const readStep = () => {
+        const raw = qStepSelect ? parseInt(qStepSelect.value, 10) : NaN;
+        const v = Number.isFinite(raw) ? raw : 8;
+        return [8, 16, 32, 64].includes(v) ? v : 8;
+    };
+
+    const quantize = (v) => {
+        const step = readStep();
+        return Math.round(v / step) * step;
+    };
 
     const syncFromSliders = () => {
         const w = _ro_getSliderValue('overwrite_width');
@@ -987,13 +999,29 @@ function initResolutionOverrideWidget() {
         rect.style.top = '0px';
     };
 
+    if (qStepSelect) {
+        const initStep = readStep();
+        _ro_setSliderValue('resolution_quantize_step', initStep);
+        qStepSelect.addEventListener('change', () => {
+            const step = readStep();
+            _ro_setSliderValue('resolution_quantize_step', step);
+            const w = _ro_getSliderValue('overwrite_width');
+            const h = _ro_getSliderValue('overwrite_height');
+            if (w != null && h != null && w > 0 && h > 0) {
+                _ro_setSliderValue('overwrite_width', quantize(w));
+                _ro_setSliderValue('overwrite_height', quantize(h));
+            }
+            syncFromSliders();
+        }, { passive: true });
+    }
+
     const setFromPointer = (clientX, clientY) => {
         const r = pad.getBoundingClientRect();
         const x = Math.max(0, Math.min(r.width, clientX - r.left));
         const y = Math.max(0, Math.min(r.height, clientY - r.top));
         const maxSide = 2048;
         const minSide = 512;
-        const step = 8;
+        const step = readStep();
 
         let w = Math.round((x / Math.max(1, r.width)) * maxSide);
         let h = Math.round((y / Math.max(1, r.height)) * maxSide);
@@ -1018,12 +1046,13 @@ function initResolutionOverrideWidget() {
     const commitManualInput = () => {
         const w = parseInt(wInput.value, 10);
         const h = parseInt(hInput.value, 10);
+        const step = readStep();
         const clamp = (v) => {
             if (!Number.isFinite(v)) return -1;
             if (v <= 0) return -1;
             if (v < 512) return 512;
             if (v > 2048) return 2048;
-            return Math.round(v / 8) * 8;
+            return Math.round(v / step) * step;
         };
         const wv = clamp(w);
         const hv = clamp(h);
@@ -1036,7 +1065,7 @@ function initResolutionOverrideWidget() {
     hInput.addEventListener('change', commitManualInput);
 
     const scaleFromCurrent = (factor) => {
-        const step = 8;
+        const step = readStep();
         const minSide = 512;
         const maxSide = 2048;
         const clamp = (v) => {

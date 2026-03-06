@@ -63,7 +63,8 @@ class PainterHumoAV2V:
             },
             "optional": {
                 "audio_encoder_output": ("AUDIO_ENCODER_OUTPUT",),
-                "ref_image": ("IMAGE",),
+                "start_image": ("IMAGE",),
+                "end_image": ("IMAGE",),
             }
         }
 
@@ -72,7 +73,7 @@ class PainterHumoAV2V:
     FUNCTION = "execute"
     CATEGORY = "conditioning/video_models"
 
-    def execute(self, positive, negative, vae, video, width, height, length, fps, audio_encoder_output=None, ref_image=None):
+    def execute(self, positive, negative, vae, video, width, height, length, fps, audio_encoder_output=None, start_image=None, end_image=None):
         batch_size = 1
         
         # ImageScale functionality: resize video frames using nearest-exact, no crop
@@ -84,26 +85,69 @@ class PainterHumoAV2V:
             "disabled"
         ).movedim(1, -1)
         
-        # VAEEncode functionality: encode resized video to latent
-        video_latent = vae.encode(video_resized)
-        out_latent = {"samples": video_latent}
+        # Prepare reference latents list for conditioning
+        ref_latents_pos = []
+        ref_latents_neg = []
         
-        # PainterHuMoToVideo functionality: process conditioning independently
-        if ref_image is not None:
-            ref_image_proc = comfy.utils.common_upscale(
-                ref_image[:1].movedim(-1, 1),
+        # Process start_image: as reference and replace first frame
+        if start_image is not None:
+            start_resized = comfy.utils.common_upscale(
+                start_image[:1].movedim(-1, 1),
+                width,
+                height,
+                "nearest-exact",
+                "disabled"
+            ).movedim(1, -1)
+            # Replace first frame
+            video_resized[0:1] = start_resized
+            # Encode for reference_latents (bilinear for better quality as reference)
+            start_ref = comfy.utils.common_upscale(
+                start_image[:1].movedim(-1, 1),
                 width,
                 height,
                 "bilinear",
                 "center"
             ).movedim(1, -1)
-            ref_latent = vae.encode(ref_image_proc[:, :, :, :3])
-            positive = node_helpers.conditioning_set_values(positive, {"reference_latents": [ref_latent]}, append=True)
-            negative = node_helpers.conditioning_set_values(negative, {"reference_latents": [torch.zeros_like(ref_latent)]}, append=True)
-        else:
+            start_latent = vae.encode(start_ref[:, :, :, :3])
+            ref_latents_pos.append(start_latent)
+            ref_latents_neg.append(torch.zeros_like(start_latent))
+            
+        # Process end_image: as reference and replace last frame
+        if end_image is not None:
+            end_resized = comfy.utils.common_upscale(
+                end_image[:1].movedim(-1, 1),
+                width,
+                height,
+                "nearest-exact",
+                "disabled"
+            ).movedim(1, -1)
+            # Replace last frame
+            video_resized[-1:] = end_resized
+            # Encode for reference_latents
+            end_ref = comfy.utils.common_upscale(
+                end_image[:1].movedim(-1, 1),
+                width,
+                height,
+                "bilinear",
+                "center"
+            ).movedim(1, -1)
+            end_latent = vae.encode(end_ref[:, :, :, :3])
+            ref_latents_pos.append(end_latent)
+            ref_latents_neg.append(torch.zeros_like(end_latent))
+        
+        # Fallback if no images provided
+        if len(ref_latents_pos) == 0:
             zero_latent = torch.zeros([batch_size, 16, 1, height // 8, width // 8], device=comfy.model_management.intermediate_device())
-            positive = node_helpers.conditioning_set_values(positive, {"reference_latents": [zero_latent]}, append=True)
-            negative = node_helpers.conditioning_set_values(negative, {"reference_latents": [zero_latent]}, append=True)
+            ref_latents_pos = [zero_latent]
+            ref_latents_neg = [zero_latent]
+            
+        # Inject reference latents into conditioning
+        positive = node_helpers.conditioning_set_values(positive, {"reference_latents": ref_latents_pos}, append=True)
+        negative = node_helpers.conditioning_set_values(negative, {"reference_latents": ref_latents_neg}, append=True)
+        
+        # VAEEncode functionality: encode video (with replaced frames) to latent
+        video_latent = vae.encode(video_resized)
+        out_latent = {"samples": video_latent}
 
         if audio_encoder_output is not None:
             audio_emb = torch.stack(audio_encoder_output["encoded_audio_all_layers"], dim=2)
