@@ -1,5 +1,6 @@
 import os
 import torch
+import numpy as np
 import ldm_patched.modules.model_management as model_management
 
 from torchvision import transforms
@@ -9,6 +10,7 @@ from modules.config import paths_clip_vision
 from ldm_patched.modules.model_patcher import ModelPatcher
 from extras.BLIP.models.blip import blip_decoder
 from PIL import Image
+import modules.util as util
 
 
 blip_image_eval_size = 384
@@ -49,6 +51,20 @@ class Interrogator:
             self.blip_model = ModelPatcher(model, load_device=self.load_device, offload_device=self.offload_device)
 
         model_management.load_model_gpu(self.blip_model)
+
+        if isinstance(img_rgb, np.ndarray):
+            if img_rgb.dtype != np.uint8:
+                img_rgb = np.clip(img_rgb, 0, 255).astype(np.uint8)
+            if img_rgb.ndim == 2:
+                img_rgb = util.HWC3(img_rgb)
+            elif img_rgb.ndim == 3:
+                if img_rgb.shape[2] in (1, 3, 4):
+                    img_rgb = util.HWC3(img_rgb)
+                elif img_rgb.shape[2] > 3:
+                    img_rgb = img_rgb[:, :, :3]
+            img_rgb = Image.fromarray(img_rgb).convert("RGB")
+        elif isinstance(img_rgb, Image.Image):
+            img_rgb = img_rgb.convert("RGB")
 
         gpu_image = transforms.Compose([
             transforms.ToTensor(),

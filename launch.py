@@ -145,6 +145,36 @@ def check_base_environment():
                 success = install_package_with_retry(update_pkg_name, update_pkg_version)
                 if not success:
                     logger.error(f"无法安装{update_pkg_name}，请检查网络状态")
+        try:
+            target_llama_ver = '0.3.30'
+            is_llama_installed = is_installed_version('llama_cpp_python', target_llama_ver) or is_installed_version('llama_cpp_python', '0.3.30+cu130.basic')
+            need_reinstall = not is_llama_installed
+
+            if is_llama_installed and platform.system() == 'Linux':
+                try:
+                    import llama_cpp
+                except:
+                    print("llama_cpp_python detected but failed to import. Reinstalling for Linux...")
+                    need_reinstall = True
+
+            if need_reinstall:
+                llama_url = None
+                if platform.system() == 'Windows':
+                    llama_url = 'https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/llama/llama_cpp_python-0.3.30%2Bcu130.basic-cp310-cp310-win_amd64.whl'
+                    llama_path = os.path.abspath(os.path.join(root, 'llama_cpp_python-0.3.30+cu130.basic-cp310-cp310-win_amd64.whl'))
+                elif platform.system() == 'Linux' and sys.version_info.major == 3 and sys.version_info.minor == 10:
+                    llama_url = 'https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/llama/llama_cpp_python-0.3.30%2Bcu130.basic-cp310-cp310-linux_x86_64.whl'
+                    llama_path = os.path.abspath(os.path.join(root, 'llama_cpp_python-0.3.30+cu130.basic-cp310-cp310-linux_x86_64.whl'))
+
+                if llama_url:
+                    print('check llama_cpp_python...')
+                    has_update_llama = download_if_updated(llama_url, llama_path)
+                    if has_update_llama or not is_installed_version('llama_cpp_python', target_llama_ver) or need_reinstall:
+                        print(f'ready to install {llama_path}')
+                        run(f'"{python}" -m pip install -U --force-reinstall --no-deps {llama_path}', f'Install {llama_path}', live=True)
+        except Exception as e:
+            print(f'Error installing llama_cpp_python: {str(e)}')
+            print('Skipping llama_cpp_python installation and continuing...')
 
     elif is_installed("sageattention"):
         # logger.info(f'检测到旧版环境. 您可以更新到最新CUDA 13.0环境以获得更好的性能.')
@@ -170,10 +200,11 @@ def check_base_environment():
             logger.info("Installing facenet-pytorch==2.6.0 with --no-deps")
             run_pip(f"install -U facenet-pytorch==2.6.0 --no-deps", "facenet-pytorch==2.6.0")
         try:
+            is_torch29_cu130_nunchaku = is_installed_version('nunchaku', '1.2.1+cu13.0torch2.9')
             is_torch29_nunchaku = is_installed_version('nunchaku', '1.2.1+cu12.8torch2.9')
             is_torch27_nunchaku = is_installed_version('nunchaku', '1.0.2+torch2.7')
 
-            need_nunchaku_install = not is_torch29_nunchaku and not is_torch27_nunchaku
+            need_nunchaku_install = not is_torch29_cu130_nunchaku and not is_torch29_nunchaku and not is_torch27_nunchaku
 
             if not need_nunchaku_install and platform.system() == 'Linux':
                 try:
@@ -187,28 +218,37 @@ def check_base_environment():
                 print(f'Detected PyTorch version: {torch_version}')
 
                 pkg_url = None
+                target_ver = None
                 if platform.system() == 'Windows':
                     if '2.9' in torch_version:
-                        pkg_url = 'https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/nunchaku/nunchaku-1.2.1%2Bcu12.8torch2.9-cp310-cp310-win_amd64.whl'
-                        pkg_name = 'nunchaku-1.2.1+cu12.8torch2.9-cp310-cp310-win_amd64.whl'
+                        if 'cu130' in torch_version:
+                            pkg_url = 'https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/nunchaku/nunchaku-1.2.1%2Bcu13.0torch2.9-cp310-cp310-win_amd64.whl'
+                            pkg_name = 'nunchaku-1.2.1+cu13.0torch2.9-cp310-cp310-win_amd64.whl'
+                            target_ver = '1.2.1+cu13.0torch2.9'
+                        else:
+                            pkg_url = 'https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/nunchaku/nunchaku-1.2.1%2Bcu12.8torch2.9-cp310-cp310-win_amd64.whl'
+                            pkg_name = 'nunchaku-1.2.1+cu12.8torch2.9-cp310-cp310-win_amd64.whl'
+                            target_ver = '1.2.1+cu12.8torch2.9'
                     else:
                         pkg_url = 'https://www.modelscope.cn/models/nunchaku-tech/nunchaku/resolve/master/nunchaku-1.0.2%2Btorch2.7-cp310-cp310-win_amd64.whl'
                         pkg_name = 'nunchaku-1.0.2+torch2.7-cp310-cp310-win_amd64.whl'
+                        target_ver = '1.0.2+torch2.7'
                 elif platform.system() == 'Linux' and sys.version_info.major == 3 and sys.version_info.minor == 10:
                     if '2.9' in torch_version:
                         pkg_url = 'https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/nunchaku/nunchaku-1.2.1%2Bcu12.8torch2.9-cp310-cp310-linux_x86_64.whl'
                         pkg_name = 'nunchaku-1.2.1+cu12.8torch2.9-cp310-cp310-linux_x86_64.whl'
+                        target_ver = '1.2.1+cu12.8torch2.9'
                     elif '2.7' in torch_version:
                         pkg_url = 'https://www.modelscope.cn/models/nunchaku-tech/nunchaku/resolve/master/nunchaku-1.0.2%2Btorch2.7-cp310-cp310-linux_x86_64.whl'
                         pkg_name = 'nunchaku-1.0.2+torch2.7-cp310-cp310-linux_x86_64.whl'
+                        target_ver = '1.0.2+torch2.7'
 
                 if pkg_url:
                     pkg_path = os.path.abspath(os.path.join(root, pkg_name))
                     print(f'Preparing to install nunchaku, URL: {pkg_url}')
                     has_update_whl = download_if_updated(pkg_url, pkg_path)
                     # 再次检查是否已安装对应版本，防止重复安装
-                    target_ver = '1.2.1+cu12.8torch2.9' if '2.9' in torch_version else '1.0.2+torch2.7'
-                    if has_update_whl or not is_installed_version('nunchaku', target_ver) or (platform.system() == 'Linux' and need_nunchaku_install):
+                    if has_update_whl or (target_ver is not None and not is_installed_version('nunchaku', target_ver)) or (platform.system() == 'Linux' and need_nunchaku_install):
                         run(f'"{python}" -m pip install -U {pkg_path}', f'Install {pkg_path}', live=True)
         except Exception as e:
             print(f'Error installing nunchaku: {str(e)}')
@@ -270,7 +310,8 @@ def check_base_environment():
             print('Skipping sox installation and continuing...')
 
         try:
-            is_llama_installed = is_installed_version('llama_cpp_python', '0.3.16')
+            target_llama_ver = '0.3.30'
+            is_llama_installed = is_installed_version('llama_cpp_python', target_llama_ver) or is_installed_version('llama_cpp_python', '0.3.30+cu128.basic')
             need_reinstall = not is_llama_installed
 
             if is_llama_installed and platform.system() == 'Linux':
@@ -283,16 +324,16 @@ def check_base_environment():
             if need_reinstall:
                 llama_url = None
                 if platform.system() == 'Windows':
-                    llama_url = 'https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/llama/llama_cpp_python-0.3.16-cp310-cp310-win_amd64.whl'
-                    llama_path = os.path.abspath(os.path.join(root, 'llama_cpp_python-0.3.16-cp310-cp310-win_amd64.whl'))
+                    llama_url = 'https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/llama/llama_cpp_python-0.3.30%2Bcu128.basic-cp310-cp310-win_amd64.whl'
+                    llama_path = os.path.abspath(os.path.join(root, 'llama_cpp_python-0.3.30+cu128.basic-cp310-cp310-win_amd64.whl'))
                 elif platform.system() == 'Linux' and sys.version_info.major == 3 and sys.version_info.minor == 10:
-                    llama_url = 'https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/llama/llama_cpp_python-0.3.16-cp310-cp310-linux_x86_64.whl'
-                    llama_path = os.path.abspath(os.path.join(root, 'llama_cpp_python-0.3.16-cp310-cp310-linux_x86_64.whl'))
+                    llama_url = 'https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/llama/llama_cpp_python-0.3.30%2Bcu128.basic-cp310-cp310-linux_x86_64.whl'
+                    llama_path = os.path.abspath(os.path.join(root, 'llama_cpp_python-0.3.30+cu128.basic-cp310-cp310-linux_x86_64.whl'))
 
                 if llama_url:
                     print('check llama_cpp_python...')
                     has_update_llama = download_if_updated(llama_url, llama_path)
-                    if has_update_llama or not is_installed_version('llama_cpp_python', '0.3.16') or need_reinstall:
+                    if has_update_llama or not is_installed_version('llama_cpp_python', target_llama_ver) or need_reinstall:
                         print(f'ready to install {llama_path}')
                         run(f'"{python}" -m pip install -U --force-reinstall --no-deps {llama_path}', f'Install {llama_path}', live=True)
         except Exception as e:

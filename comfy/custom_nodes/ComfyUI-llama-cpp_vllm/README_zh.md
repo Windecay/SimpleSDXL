@@ -1,10 +1,6 @@
 # ComfyUI-llama-cpp
-在ComfyUI中基于llama.cpp原生运行LLM/VLM模型。  
-**[[📃English](./README.md)]**
-
-## 更新日志
-#### 2025-11-03
-- 首次上传, 支持Qwen3-VL      
+在 ComfyUI 中基于 llama.cpp 框架原生运行 LLM & VLM 模型。  
+**[[📃English](./README.md)]**   
 
 ## 预览
 ![](./img/preview.jpg) 
@@ -18,7 +14,10 @@ git clone https://github.com/lihaoyun6/ComfyUI-llama-cpp.git
 python -m pip install -r ComfyUI-llama-cpp/requirements.txt
 ```
 
-> 在使用VLM模型处理图像之前, 请确保已经下载并选择了对应的`mmproj`权重.
+### 模型路径:
+- 请将下载的 `.gguf` 模型放置在 `ComfyUI/models/LLM` 目录中.  
+
+	> 在使用VLM模型进行图像推理之前, 请确保已经下载并选择了主模型对应的`mmproj`权重文件.
 
 ## 致谢
 - [llama-cpp-python](https://github.com/JamePeng/llama-cpp-python) @JamePeng  

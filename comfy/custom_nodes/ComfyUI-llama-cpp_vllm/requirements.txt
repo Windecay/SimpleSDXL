@@ -3,15 +3,25 @@ scipy
 numpy
 pillow
 gguf
+tqdm
 
 # for Windows
-llama-cpp-python @ https://github.com/JamePeng/llama-cpp-python/releases/download/v0.3.18-cu126-AVX2-win-20251220/llama_cpp_python-0.3.18-cp310-cp310-win_amd64.whl; python_version == "3.10" and platform_system == "Windows"
-llama-cpp-python @ https://github.com/JamePeng/llama-cpp-python/releases/download/v0.3.18-cu126-AVX2-win-20251220/llama_cpp_python-0.3.18-cp311-cp311-win_amd64.whl; python_version == "3.11" and platform_system == "Windows"
-llama-cpp-python @ https://github.com/JamePeng/llama-cpp-python/releases/download/v0.3.18-cu126-AVX2-win-20251220/llama_cpp_python-0.3.18-cp312-cp312-win_amd64.whl; python_version == "3.12" and platform_system == "Windows"
-llama-cpp-python @ https://github.com/JamePeng/llama-cpp-python/releases/download/v0.3.18-cu126-AVX2-win-20251220/llama_cpp_python-0.3.18-cp313-cp313-win_amd64.whl; python_version == "3.13" and platform_system == "Windows"
+llama-cpp-python @ https://github.com/JamePeng/llama-cpp-python/releases/download/v0.3.30-cu128-Basic-win-20260302/llama_cpp_python-0.3.30+cu128.basic-cp310-cp310-win_amd64.whl; python_version == "3.10" and platform_system == "Windows"
+llama-cpp-python @ https://github.com/JamePeng/llama-cpp-python/releases/download/v0.3.30-cu128-Basic-win-20260302/llama_cpp_python-0.3.30+cu128.basic-cp311-cp311-win_amd64.whl; python_version == "3.11" and platform_system == "Windows"
+llama-cpp-python @ https://github.com/JamePeng/llama-cpp-python/releases/download/v0.3.30-cu128-Basic-win-20260302/llama_cpp_python-0.3.30+cu128.basic-cp312-cp312-win_amd64.whl; python_version == "3.12" and platform_system == "Windows"
+llama-cpp-python @ https://github.com/JamePeng/llama-cpp-python/releases/download/v0.3.30-cu128-Basic-win-20260302/llama_cpp_python-0.3.30+cu128.basic-cp313-cp313-win_amd64.whl; python_version == "3.13" and platform_system == "Windows"
+llama-cpp-python @ https://github.com/JamePeng/llama-cpp-python/releases/download/v0.3.30-cu128-Basic-win-20260302/llama_cpp_python-0.3.30+cu128.basic-cp314-cp314-win_amd64.whl; python_version == "3.14" and platform_system == "Windows"
 
 # for Linux
-llama-cpp-python @ https://github.com/JamePeng/llama-cpp-python/releases/download/v0.3.18-cu126-AVX2-win-20251220/llama_cpp_python-0.3.18-cp310-cp310-linux_amd64.whl; python_version == "3.10" and platform_system == "Linux"
-llama-cpp-python @ https://github.com/JamePeng/llama-cpp-python/releases/download/v0.3.18-cu126-AVX2-win-20251220/llama_cpp_python-0.3.18-cp311-cp311-linux_amd64.whl; python_version == "3.11" and platform_system == "Linux"
-llama-cpp-python @ https://github.com/JamePeng/llama-cpp-python/releases/download/v0.3.18-cu126-AVX2-win-20251220/llama_cpp_python-0.3.18-cp312-cp312-linux_amd64.whl; python_version == "3.12" and platform_system == "Linux"
-llama-cpp-python @ https://github.com/JamePeng/llama-cpp-python/releases/download/v0.3.18-cu126-AVX2-win-20251220/llama_cpp_python-0.3.18-cp313-cp313-linux_amd64.whl; python_version == "3.13" and platform_system == "Linux"
+llama-cpp-python @ https://github.com/JamePeng/llama-cpp-python/releases/download/v0.3.30-cu128-Basic-linux-20260302/llama_cpp_python-0.3.30+cu128.basic-cp310-cp310-linux_x86_64.whl; python_version == "3.10" and platform_system == "Linux"
+llama-cpp-python @ https://github.com/JamePeng/llama-cpp-python/releases/download/v0.3.30-cu128-Basic-linux-20260302/llama_cpp_python-0.3.30+cu128.basic-cp311-cp311-linux_x86_64.whl; python_version == "3.11" and platform_system == "Linux"
+llama-cpp-python @ https://github.com/JamePeng/llama-cpp-python/releases/download/v0.3.30-cu128-Basic-linux-20260302/llama_cpp_python-0.3.30+cu128.basic-cp312-cp312-linux_x86_64.whl; python_version == "3.12" and platform_system == "Linux"
+llama-cpp-python @ https://github.com/JamePeng/llama-cpp-python/releases/download/v0.3.30-cu128-Basic-linux-20260302/llama_cpp_python-0.3.30+cu128.basic-cp313-cp313-linux_x86_64.whl; python_version == "3.13" and platform_system == "Linux"
+llama-cpp-python @ https://github.com/JamePeng/llama-cpp-python/releases/download/v0.3.30-cu128-Basic-linux-20260302/llama_cpp_python-0.3.30+cu128.basic-cp314-cp314-linux_x86_64.whl; python_version == "3.14" and platform_system == "Linux"
+
+# for macOS
+llama-cpp-python @ https://github.com/JamePeng/llama-cpp-python/releases/download/v0.3.30-Metal-macos-20260302/llama_cpp_python-0.3.30-cp310-cp310-macosx_11_0_arm64.whl; python_version == "3.10" and platform_system == "Darwin"
+llama-cpp-python @ https://github.com/JamePeng/llama-cpp-python/releases/download/v0.3.30-Metal-macos-20260302/llama_cpp_python-0.3.30-cp311-cp311-macosx_11_0_arm64.whl; python_version == "3.11" and platform_system == "Darwin"
+llama-cpp-python @ https://github.com/JamePeng/llama-cpp-python/releases/download/v0.3.30-Metal-macos-20260302/llama_cpp_python-0.3.30-cp312-cp312-macosx_11_0_arm64.whl; python_version == "3.12" and platform_system == "Darwin"
+llama-cpp-python @ https://github.com/JamePeng/llama-cpp-python/releases/download/v0.3.30-Metal-macos-20260302/llama_cpp_python-0.3.30-cp313-cp313-macosx_11_0_arm64.whl; python_version == "3.13" and platform_system == "Darwin"
+llama-cpp-python @ https://github.com/JamePeng/llama-cpp-python/releases/download/v0.3.30-Metal-macos-20260302/llama_cpp_python-0.3.30-cp314-cp314-macosx_11_0_arm64.whl; python_version == "3.14" and platform_system == "Darwin"
