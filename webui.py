@@ -1080,6 +1080,7 @@ with shared.gradio_root:
 
                         model_filter_state = gr.State(True)
                         model_filter_sync_lock = gr.State(False)
+                        scene_to_main_sync_lock = gr.State(False)
 
                         with gr.Accordion("⚙️ Scene Model Selections", open=False, visible=True, elem_id="scene_model_selections") as scene_model_selections:
                             with gr.Row():
@@ -3321,8 +3322,8 @@ with shared.gradio_root:
                         (scene_lora_model_4, scene_lora_weight_4, 10, scene_lora_trigger_words[3].elem_id if len(scene_lora_trigger_words)>2 else '')
                     ]):
                         scene_model.change(
-                            fn=lambda model, weight, idx=i, cidx=ctrl_idx: (model, weight),
-                            inputs=[scene_model, scene_weight],
+                            fn=lambda model, weight, lock, idx=i, cidx=ctrl_idx: (gr.update(), gr.update()) if lock else (model, weight),
+                            inputs=[scene_model, scene_weight, scene_to_main_sync_lock],
                             outputs=[lora_ctrls[ctrl_idx], lora_ctrls[ctrl_idx+1]],
                             queue=False, show_progress=False
                         ).then(fn=update_trigger_word, inputs=[scene_model], outputs=[scene_lora_trigger_words[i] if scene_lora_trigger_words and i<len(scene_lora_trigger_words) else gr.Textbox()], queue=False, show_progress=False)
@@ -4532,9 +4533,11 @@ with shared.gradio_root:
 
     for i in range(shared.BUTTON_NUM):
         bar_buttons[i].click(topbar.reset_layout_ui, inputs=reset_preset_inputs + [bar_buttons[i]], outputs=reset_layout_ui_outputs + [state_topbar, comparison_state, comparison_box, progress_gallery, compare_btn, progress_window], show_progress=False) \
-               .then(topbar.reset_layout_values, inputs=reset_values_inputs, outputs=reset_layout_values_outputs, show_progress=False) \
                .then(lambda sp, umf: refresh_files_clicked(sp, umf, False), inputs=[state_topbar, model_filter_state], outputs=refresh_files_output + lora_ctrls, queue=True, show_progress=False) \
+               .then(topbar.reset_layout_values, inputs=reset_values_inputs, outputs=reset_layout_values_outputs, show_progress=False) \
+               .then(lambda: True, inputs=[], outputs=[scene_to_main_sync_lock], queue=False, show_progress=False) \
                .then(sync_scene_model_selections, inputs=[state_topbar, base_model, refiner_model] + lora_ctrls, outputs=[scene_base_model, scene_refiner_model, scene_use_lora, lora_group, scene_lora_model, scene_lora_weight, scene_lora_model_2, scene_lora_weight_2, scene_lora_model_3, scene_lora_weight_3, scene_lora_model_4, scene_lora_weight_4], queue=False, show_progress=False) \
+               .then(lambda: False, inputs=[], outputs=[scene_to_main_sync_lock], queue=False, show_progress=False) \
                .then(fn=lambda x: None, inputs=system_params, _js='(x)=>{refresh_topbar_status_js(x); refresh_style_localization(); refresh_scene_localization();}') \
                .then(update_describe_output_tags, inputs=engine_class_display, outputs=describe_output_tags, queue=False, show_progress=False) \
                .then(inpaint_mode_change, inputs=[inpaint_mode, inpaint_engine_state, outpaint_selections, state_topbar], outputs=[inpaint_additional_prompt, outpaint_selections, example_inpaint_prompts, inpaint_disable_initial_latent, inpaint_engine, inpaint_strength, inpaint_respective_field], show_progress=False, queue=False) \
@@ -4546,9 +4549,11 @@ with shared.gradio_root:
                       .then(topbar.init_nav_bars, inputs=[state_topbar] + admin_ctrls, outputs=[progress_window, language_ui, background_theme, preset_instruction] + user_app_ctrls + admin_ctrls, show_progress=False) \
                       .then(_qwen_refresh_style_preset_dropdowns, inputs=[state_topbar, qwen_design_style_preset_choices, qwen_custom_style_preset_choices], outputs=[qwen_design_style_preset_choices, qwen_custom_style_preset_choices], queue=False, show_progress=False) \
                       .then(topbar.reset_layout_ui, inputs=reset_preset_inputs, outputs=reset_layout_ui_outputs + [state_topbar, comparison_state, comparison_box, progress_gallery, compare_btn, progress_window], show_progress=False) \
-                      .then(topbar.reset_layout_values, inputs=reset_values_inputs, outputs=reset_layout_values_outputs, show_progress=False) \
                       .then(lambda sp, umf: refresh_files_clicked(sp, umf, False), inputs=[state_topbar, model_filter_state], outputs=refresh_files_output + lora_ctrls, queue=True, show_progress=False) \
+                      .then(topbar.reset_layout_values, inputs=reset_values_inputs, outputs=reset_layout_values_outputs, show_progress=False) \
+                      .then(lambda: True, inputs=[], outputs=[scene_to_main_sync_lock], queue=False, show_progress=False) \
                       .then(sync_scene_model_selections, inputs=[state_topbar, base_model, refiner_model] + lora_ctrls, outputs=[scene_base_model, scene_refiner_model, scene_use_lora, lora_group, scene_lora_model, scene_lora_weight, scene_lora_model_2, scene_lora_weight_2, scene_lora_model_3, scene_lora_weight_3, scene_lora_model_4, scene_lora_weight_4], queue=False, show_progress=False) \
+                      .then(lambda: False, inputs=[], outputs=[scene_to_main_sync_lock], queue=False, show_progress=False) \
                       .then(fn=lambda x: None, inputs=system_params, _js='(x)=>{refresh_topbar_status_js(x);}') \
                       .then(topbar.sync_message, inputs=state_topbar) \
                       .then(inpaint_mode_change, inputs=[inpaint_mode, inpaint_engine_state, outpaint_selections, state_topbar], outputs=[inpaint_additional_prompt, outpaint_selections, example_inpaint_prompts, inpaint_disable_initial_latent, inpaint_engine, inpaint_strength, inpaint_respective_field], show_progress=False, queue=False) \

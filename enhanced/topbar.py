@@ -1029,7 +1029,7 @@ def reset_layout_values(state_params, is_generating, inpaint_mode, use_resolutio
     results += update_after_identity_sub(state_params)
 
     reset_ui_results = [None, None, None] + \
-               ["None"]*4 + [False]*2 + \
+               ["None"]*4 + [True] + [False] + \
                [gr.update(visible=False),False,[],"base",gr.update(variant="secondary"),gr.update(variant="secondary")] + \
                [gr.update(visible=False) for _ in config.default_loras] + \
                [False for _ in config.default_loras] + \
