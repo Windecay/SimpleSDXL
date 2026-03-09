@@ -216,6 +216,7 @@ def _calc_cond_batch(model: BaseModel, conds: list[list[dict]], x_in: torch.Tens
     out_conds = []
     out_counts = []
     # separate conds by matching hooks
+    import torch
     hooked_to_run: dict[comfy.hooks.HookGroup,list[tuple[tuple,int]]] = {}
     default_conds = []
     has_default_conds = False
@@ -322,6 +323,11 @@ def _calc_cond_batch(model: BaseModel, conds: list[list[dict]], x_in: torch.Tens
             if 'model_function_wrapper' in model_options:
                 output = model_options['model_function_wrapper'](model.apply_model, {"input": input_x, "timestep": timestep_, "c": c, "cond_or_uncond": cond_or_uncond}).chunk(batch_chunks)
             else:
+                if 'c_crossattn' in c:
+                     v = c['c_crossattn']
+                     if isinstance(v, torch.Tensor) and (torch.isnan(v).any() or torch.isinf(v).any()):
+                          c['c_crossattn'] = torch.zeros_like(v)
+
                 output = model.apply_model(input_x, timestep_, **c).chunk(batch_chunks)
 
             for o in range(batch_chunks):
