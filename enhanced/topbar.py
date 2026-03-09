@@ -418,6 +418,23 @@ def get_preset_samples(user_did=None):
     return marked_list
 
 
+def refresh_preset_store_list(state):
+    user_did = None
+    try:
+        if isinstance(state, dict) and 'user' in state and state['user']:
+            user_did = state['user'].get_did()
+    except Exception:
+        user_did = None
+
+    cache_key = user_did if user_did else 'guest'
+    preset_samples.pop(cache_key, None)
+    preset_samples_user_mtime.pop(cache_key, None)
+    preset_samples_base_mtime.pop(cache_key, None)
+    preset_samples_complete_ts.pop(cache_key, None)
+
+    return gr.Dataset.update(samples=get_preset_samples(user_did))
+
+
 def get_system_message():
     global config_ext
 
@@ -970,6 +987,8 @@ def reset_layout_ui(prompt, negative_prompt, state_params, is_generating, inpain
         if 'scene_frontend' in state_params:
             del state_params["scene_frontend"]
         task_method = preset_prepared.get('engine', {}).get('backend_params', modules.flags.get_engine_default_backend_params(engine)).get('task_method', 'text2image')
+        if isinstance(task_method, str) and engine == 'Fooocus':
+            task_method = 'text2image'
     state_params.update({"task_method": task_method})
     preset_prepared.update({
         'preset': preset,
@@ -1019,7 +1038,13 @@ def reset_layout_values(state_params, is_generating, inpaint_mode, use_resolutio
         config_preset = config.try_get_preset_content(preset, user_did)
         preset_prepared = meta_parser.parse_meta_from_preset(config_preset)
 
-        task_method = state_params.get("task_method", "text2image")
+        engine = preset_prepared.get('engine', {}).get('backend_engine', 'Fooocus')
+        state_params.update({"engine": engine})
+        state_params.update({"backend_engine": engine})
+        task_method = preset_prepared.get('engine', {}).get('backend_params', modules.flags.get_engine_default_backend_params(engine)).get('task_method', 'text2image')
+        if isinstance(task_method, str) and engine == 'Fooocus' and task_method.startswith('z_image_'):
+            task_method = 'text2image'
+        state_params.update({"task_method": task_method})
         preset_prepared.update({
             'preset': preset,
             'task_method': task_method,

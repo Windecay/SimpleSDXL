@@ -367,7 +367,10 @@ def switch_layout_template(presetdata: dict | str, state_params, preset_url=''):
     scheduler_list = enginedata_dict.get('available_scheduler_name', default_params.get('available_scheduler_name', default_class_params['Fooocus']['available_scheduler_name']))
     uov_method_list = enginedata_dict.get('available_uov_method', default_params.get('available_uov_method', default_class_params['Fooocus']['available_uov_method']))
 
-    params_backend  = enginedata_dict.get('backend_params', modules.flags.get_engine_default_backend_params(template_engine))
+    if template_engine == 'Fooocus':
+        params_backend = modules.flags.get_engine_default_backend_params(template_engine)
+    else:
+        params_backend  = enginedata_dict.get('backend_params', modules.flags.get_engine_default_backend_params(template_engine))
     if ':' in engine_display_str:
         params_backend.update(dict(task_method=engine_display_str.split(':')[1]))
     params_backend.update(dict(
@@ -773,6 +776,8 @@ def get_seed(key: str, fallback: str | None, source_dict: dict, results: list, d
 def get_inpaint_engine_version(key: str, fallback: str | None, source_dict: dict, results: list, inpaint_mode: str, default=None) -> str | None:
     try:
         h = source_dict.get(key, source_dict.get(fallback, default))
+        if h is None:
+            h = source_dict.get('inpaint_engine', source_dict.get('Inpaint Engine', default))
         task_method = source_dict.get('task_method', source_dict.get(fallback, 'text2image'))
         inpaint_engine_versions = modules.flags.inpaint_engine_versions["SDXL"] if task_method not in modules.flags.inpaint_engine_versions else modules.flags.inpaint_engine_versions[task_method]
         #assert isinstance(h, str) and h in inpaint_engine_versions

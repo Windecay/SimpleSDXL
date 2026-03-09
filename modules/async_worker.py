@@ -183,7 +183,8 @@ class AsyncTask:
         if self.task_class == 'SDXL':
             self.task_class = 'Comfy'
         self.task_name = self.params_backend.pop('preset', 'default')
-        self.task_method = self.params_backend.pop('task_method', 'z_image_turbo_aio_cn')
+        default_task_method = 'text2image' if self.task_class == 'Fooocus' else 'z_image_turbo_aio_cn'
+        self.task_method = self.params_backend.pop('task_method', default_task_method)
         if 'layer' in self.current_tab and self.task_class == 'Fooocus' and self.input_image_checkbox:
             self.task_class = 'Comfy'
             self.task_name = 'default'

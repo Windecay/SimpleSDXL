@@ -400,8 +400,27 @@ def save_preset(*args):
 
     if name:
         preset = {}
-        if 'backend_engine' in backend_params:
-            preset["default_engine"] = backend_params
+        engine = {}
+
+        backend_engine = state_params.get("backend_engine", None) or state_params.get("engine", None) or config.backend_engine
+
+        task_method = state_params.get("task_method", None)
+        if not isinstance(task_method, str) or not task_method.strip():
+            task_method = None
+        else:
+            task_method = task_method.strip()
+
+        if backend_engine == "Fooocus" or backend_engine is None or backend_engine == "":
+            engine["backend_engine"] = "Fooocus"
+        else:
+            if isinstance(config.default_engine, dict):
+                engine.update(config.default_engine)
+            engine["backend_engine"] = backend_engine
+            if not task_method:
+                task_method = "z_image_turbo_aio_cn" if backend_engine == "Z-image" else "SDXL"
+            engine["backend_params"] = {"task_method": task_method}
+
+        preset["default_engine"] = engine
 
         preset["default_model"] = base_model
         preset["default_refiner"] = refiner_model
@@ -498,14 +517,27 @@ def save_preset(*args):
         with open(save_path, "w", encoding="utf-8") as json_file:
             json.dump(preset, json_file, indent=4)
 
-        state_params.update({"__preset": name})
-        logger.info(f'Saved the current params and reset to {save_path}.')
+        logger.info(f'Saved the current params to {save_path}.')
     state_params.update({"note_box_state": ['',0,0]})
+    cache_key = state_params['user'].get_did()
+    topbar.preset_samples.pop(cache_key, None)
+    topbar.preset_samples_user_mtime.pop(cache_key, None)
+    topbar.preset_samples_base_mtime.pop(cache_key, None)
+    topbar.preset_samples_complete_ts.pop(cache_key, None)
     results = [gr.update(visible=False)] * 3
-    results += [gr.Dataset.update(samples=topbar.get_preset_samples(state_params['user'].get_did()))]
+    results += [gr.Dataset.update(samples=topbar.get_preset_samples(cache_key))]
     results += topbar.refresh_nav_bars(state_params)
     results += topbar.update_topbar_js_params(state_params)
     return results
+
+
+def preset_store_unmount(state_params):
+    return gr.update(samples=[], visible=False)
+
+
+def preset_store_mount(state_params):
+    user_did = state_params['user'].get_did() if 'user' in state_params and state_params['user'] else None
+    return gr.update(samples=topbar.get_preset_samples(user_did), visible=True)
 
 
 def sync_model_info_click(*args):
