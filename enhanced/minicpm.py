@@ -68,6 +68,7 @@ class MiniCPM:
         "Qwen3-VL-2B-Instruct-abliterated": {
             "model": "Qwen3-VL-2B-Instruct-abliterated",
             "model_file": "Qwen3-VL-2B-Instruct-abliterated",
+            "chat_handler": "Qwen3-VL",
             "model_urls": {
                 "Huihui-Qwen3-VL-2B-Instruct-abliterated.Q8_0.gguf": "https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/LLM/Qwen3-VL-2B-Instruct-abliterated/Huihui-Qwen3-VL-2B-Instruct-abliterated.Q8_0.gguf",
                 "Huihui-Qwen3-VL-2B-Instruct-abliterated.mmproj-Q8_0.gguf": "https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/LLM/Qwen3-VL-2B-Instruct-abliterated/Huihui-Qwen3-VL-2B-Instruct-abliterated.mmproj-Q8_0.gguf"
@@ -77,6 +78,7 @@ class MiniCPM:
         "Qwen3-VL-4B-Instruct-abliterated": {
             "model": "Qwen3-VL-4B-Instruct-abliterated",
             "model_file": "Qwen3-VL-4B-Instruct-abliterated",
+            "chat_handler": "Qwen3-VL",
             "model_urls": {
                 "Qwen3-VL-4B-Instruct-abliterated-v1.Q8_0.gguf": "https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/LLM/Qwen3-VL-4B-Instruct-abliterated/Qwen3-VL-4B-Instruct-abliterated-v1.Q8_0.gguf",
                 "Qwen3-VL-4B-Instruct-abliterated-v1.mmproj-Q8_0.gguf": "https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/LLM/Qwen3-VL-4B-Instruct-abliterated/Qwen3-VL-4B-Instruct-abliterated-v1.mmproj-Q8_0.gguf"
@@ -86,9 +88,20 @@ class MiniCPM:
         "Qwen3-VL-8B-Instruct-abliterated": {
             "model": "Qwen3-VL-8B-Instruct-abliterated",
             "model_file": "Qwen3-VL-8B-Instruct-abliterated",
+            "chat_handler": "Qwen3-VL",
             "model_urls": {
                 "Qwen3-VL-8B-Instruct-abliterated-v2.0.Q8_0.gguf": "https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/LLM/Qwen3-VL-8B-Instruct-abliterated/Qwen3-VL-8B-Instruct-abliterated-v2.0.Q8_0.gguf",
                 "Qwen3-VL-8B-Instruct-abliterated-v2.0.mmproj-Q8_0.gguf": "https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/LLM/Qwen3-VL-8B-Instruct-abliterated/Qwen3-VL-8B-Instruct-abliterated-v2.0.mmproj-Q8_0.gguf"
+            },
+            "is_llamacpp": True
+        },
+        "Qwen3.5-9B-ultra-heretic": {
+            "model": "Qwen3.5-9B-ultra-heretic",
+            "chat_handler": "Qwen3.5",
+            "gguf_file": "Qwen3.5-9B-ultra-heretic-Q6_K.gguf",
+            "model_urls": {
+                "Qwen3.5-9B-mmproj-BF16.gguf": "https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/LLM/Qwen3.5-9B-ultra-heretic/Qwen3.5-9B-mmproj-BF16.gguf",
+                "Qwen3.5-9B-ultra-heretic-Q6_K.gguf": "https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/LLM/Qwen3.5-9B-ultra-heretic/Qwen3.5-9B-ultra-heretic-Q6_K.gguf"
             },
             "is_llamacpp": True
         }
@@ -100,6 +113,8 @@ class MiniCPM:
     model_url = None
     model_urls = {}
     is_llamacpp = False
+    chat_handler = ""
+    gguf_file = ""
     current_version = ""
 
     remove_prefixs = [
@@ -132,9 +147,15 @@ class MiniCPM:
             cls.current_version = version
             cls.model = config_data["model"]
             cls.is_llamacpp = config_data.get("is_llamacpp", False)
+            cls.chat_handler = config_data.get("chat_handler", "")
+            cls.gguf_file = config_data.get("gguf_file", "")
             cls.model_url = config_data.get("model_url")
             cls.model_urls = config_data.get("model_urls", {})
-            cls.model_file = os.path.join(cls.model, config_data["model_file"])
+            model_file_name = config_data.get("model_file")
+            if model_file_name:
+                cls.model_file = os.path.join(cls.model, model_file_name)
+            else:
+                cls.model_file = os.path.join(cls.model, cls.model)
 
             logger.info(f"设置 VLM 模型: 版本={version}, 模型路径={cls.model}, is_llamacpp={cls.is_llamacpp}")
 
@@ -197,9 +218,20 @@ class MiniCPM:
             if not gguf_files:
                 logger.error(f"No .gguf file found in {model_dir}")
                 return
+            selected_gguf = None
+            if MiniCPM.gguf_file:
+                candidate = os.path.join(model_dir, MiniCPM.gguf_file)
+                if os.path.exists(candidate):
+                    selected_gguf = MiniCPM.gguf_file
+                else:
+                    logger.warning(f"Configured gguf file not found: {candidate}. Falling back to auto-detect.")
 
-            model_file = os.path.join(MiniCPM.model, gguf_files[0])
-            chat_handler_name = "Qwen3-VL"
+            if not selected_gguf:
+                gguf_files = sorted(gguf_files, key=lambda s: s.lower())
+                selected_gguf = gguf_files[0]
+
+            model_file = os.path.join(MiniCPM.model, selected_gguf)
+            chat_handler_name = MiniCPM.chat_handler or ("Qwen3-VL" if "Qwen3-VL" in MiniCPM.current_version else "Qwen3.5")
             llamacpp_vlm.load_model(model_file, chat_handler_name)
             return
 
@@ -272,13 +304,10 @@ class MiniCPM:
             ldm_patched.modules.model_management.print_vram_info_by_nvml("before minicpm inference")
 
             if MiniCPM.is_llamacpp:
-                chat_handler_name = "Qwen3-VL"
-                if llamacpp_vlm.llm is None:
-                    self.load_model(download=True)
+                self.load_model(download=True)
                 res = llamacpp_vlm.inference(
                     image=image,
                     prompt=prompt,
-                    chat_handler_override=chat_handler_name,
                     max_tokens=max_tokens,
                     temperature=temperature,
                     top_p=top_p,

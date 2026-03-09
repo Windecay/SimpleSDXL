@@ -438,7 +438,7 @@ def print_instructions():
     time.sleep(0.1)
     print(f"{Fore.GREEN}★{Style.RESET_ALL}打开默认浏览器设置，关闭GPU加速、或图形加速的选项。{Fore.GREEN}★{Style.RESET_ALL}大内存(64+)与固态硬盘存放模型有助于减少模型加载时间。{Fore.GREEN}★{Style.RESET_ALL}")
     time.sleep(0.1)
-    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：1005085136{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:26.03.04{Fore.GREEN}★{Style.RESET_ALL}")
+    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：1005085136{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:26.03.09{Fore.GREEN}★{Style.RESET_ALL}")
     print()
     time.sleep(0.1)
 
@@ -2648,8 +2648,13 @@ packages = {'base_package': {'id': 1,
                                 'audio_encoders,wav2vec2-chinese-base_fp16.safetensors,190115368,0,https://www.modelscope.cn/models/Kijai/wav2vec2_safetensors/resolve/master/wav2vec2-chinese-base_fp16.safetensors,https://huggingface.co/Kijai/wav2vec2_safetensors/resolve/main/wav2vec2-chinese-base_fp16.safetensors'],
                         'info_links': ['https://www.modelscope.cn/models/MeiGen-AI/InfiniteTalk'],
                         "preset_sample": []},
-                        }
-
+ 'Qwen3.5_package': {'id': 42,'name': '[42]Qwen3.5-9B反推扩展包',
+                    'note': 'Qwen3.5本地多模态大语言模型[反推、翻译、扩写]|显存需求：★★★ 速度：★★',
+                    'files': ['LLM,Qwen3.5-9B-ultra-heretic/Qwen3.5-9B-ultra-heretic-Q6_K.gguf,7359259040,0,https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/LLM/Qwen3.5-9B-ultra-heretic/Qwen3.5-9B-ultra-heretic-Q6_K.gguf,https://huggingface.co/llmfan46/Qwen3.5-9B-ultra-heretic-GGUF/resolve/main/Qwen3.5-9B-ultra-heretic-Q6_K.gguf',
+                             'LLM,Qwen3.5-9B-ultra-heretic/Qwen3.5-9B-mmproj-BF16.gguf,921704480,0,https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/LLM/Qwen3.5-9B-ultra-heretic/Qwen3.5-9B-mmproj-BF16.gguf,https://huggingface.co/llmfan46/Qwen3.5-9B-ultra-heretic-GGUF/resolve/main/Qwen3.5-9B-mmproj-BF16.gguf'],
+                    'info_links': ['https://modelscope.cn/models/Qwen/Qwen3.5-9B'],
+                    'preset_sample': []}
+                    }
 MANUAL_DOWNLOAD_MAP = {
     "checkpoints": [
         "animaPencilXL_v500.jpg",

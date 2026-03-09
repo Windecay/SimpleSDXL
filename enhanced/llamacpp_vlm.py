@@ -107,22 +107,48 @@ def setup_cuda_environment():
 
 setup_cuda_environment()
 
+Llama = None
+Llava15ChatHandler = None
+Llava16ChatHandler = None
+MoondreamChatHandler = None
+NanoLlavaChatHandler = None
+Llama3VisionAlphaChatHandler = None
+MiniCPMv26ChatHandler = None
+Qwen25VLChatHandler = None
+Qwen3VLChatHandler = None
+Qwen35ChatHandler = None
+
+LLAMA_CPP_AVAILABLE = False
 try:
     from llama_cpp import Llama
-    from llama_cpp.llama_chat_format import (
-        Llava15ChatHandler, Llava16ChatHandler, MoondreamChatHandler,
-        NanoLlavaChatHandler, Llama3VisionAlphaChatHandler, MiniCPMv26ChatHandler,
-        Qwen25VLChatHandler, Qwen3VLChatHandler
-    )
     LLAMA_CPP_AVAILABLE = True
 except Exception as e:
     logger.error(f"Failed to import llama_cpp: {e}")
     logger.error("Please ensure CUDA libraries are correctly installed and in your library path.")
-    Llama = None
-    Llava15ChatHandler = Llava16ChatHandler = MoondreamChatHandler = None
-    NanoLlavaChatHandler = Llama3VisionAlphaChatHandler = MiniCPMv26ChatHandler = None
-    Qwen25VLChatHandler = Qwen3VLChatHandler = None
-    LLAMA_CPP_AVAILABLE = False
+
+if LLAMA_CPP_AVAILABLE:
+    try:
+        from llama_cpp.llama_chat_format import (
+            Llava15ChatHandler, Llava16ChatHandler, MoondreamChatHandler,
+            NanoLlavaChatHandler, Llama3VisionAlphaChatHandler, MiniCPMv26ChatHandler
+        )
+    except Exception as e:
+        logger.error(f"Failed to import llama_cpp chat handlers: {e}")
+
+    try:
+        from llama_cpp.llama_chat_format import Qwen25VLChatHandler
+    except Exception:
+        Qwen25VLChatHandler = None
+
+    try:
+        from llama_cpp.llama_chat_format import Qwen3VLChatHandler
+    except Exception:
+        Qwen3VLChatHandler = None
+
+    try:
+        from llama_cpp.llama_chat_format import Qwen35ChatHandler
+    except Exception:
+        Qwen35ChatHandler = None
 
 import modules.config as config
 import ldm_patched.modules.model_management
@@ -138,7 +164,10 @@ class LlamaCppVLM:
     def get_chat_handler_class(self, name):
         handlers = {
             "Qwen3-VL": Qwen3VLChatHandler,
+            "Qwen3-VL-Thinking": Qwen3VLChatHandler,
             "Qwen2.5-VL": Qwen25VLChatHandler,
+            "Qwen3.5": Qwen35ChatHandler,
+            "Qwen3.5-Thinking": Qwen35ChatHandler,
             "LLaVA-1.5": Llava15ChatHandler,
             "LLaVA-1.6": Llava16ChatHandler,
             "Moondream2": MoondreamChatHandler,
@@ -148,6 +177,38 @@ class LlamaCppVLM:
             "MiniCPM-v4": MiniCPMv26ChatHandler,
         }
         return handlers.get(name)
+
+    def _create_chat_handler(self, handler_class, mmproj_path, chat_handler_name, image_min_tokens=0, image_max_tokens=0):
+        if handler_class is None:
+            return None
+
+        think_mode = "Thinking" in (chat_handler_name or "")
+        kwargs = {"verbose": False}
+        if mmproj_path:
+            kwargs["clip_model_path"] = mmproj_path
+
+        if chat_handler_name in ("Qwen3-VL", "Qwen3-VL-Thinking"):
+            kwargs["force_reasoning"] = think_mode
+            kwargs["image_max_tokens"] = int(image_max_tokens or 0)
+            kwargs["image_min_tokens"] = int(image_min_tokens or 0)
+        elif chat_handler_name in ("Qwen3.5", "Qwen3.5-Thinking"):
+            kwargs["enable_thinking"] = think_mode
+        elif think_mode and (chat_handler_name or "").startswith("MiniCPM-v4"):
+            kwargs["enable_thinking"] = True
+
+        try:
+            return handler_class(**kwargs)
+        except TypeError:
+            for key in ("enable_thinking", "force_reasoning", "image_max_tokens", "image_min_tokens", "clip_model_path"):
+                if key not in kwargs:
+                    continue
+                reduced = dict(kwargs)
+                reduced.pop(key, None)
+                try:
+                    return handler_class(**reduced)
+                except TypeError:
+                    continue
+            raise
 
     def _get_layer_count(self, path):
         import struct
@@ -216,7 +277,7 @@ class LlamaCppVLM:
                 logger.error(f"GGUFReader also failed: {e2}")
         return 32
 
-    def load_model(self, model_name, chat_handler_name, n_gpu_layers=-1, n_ctx=8192):
+    def load_model(self, model_name, chat_handler_name, n_gpu_layers=-1, n_ctx=8192, image_min_tokens=0, image_max_tokens=0):
         if not LLAMA_CPP_AVAILABLE:
             logger.error("llama-cpp-python is not correctly installed or CUDA libraries are missing.")
             return
@@ -243,12 +304,30 @@ class LlamaCppVLM:
                 if mmproj_path:
                     logger.info(f"Using mmproj: {mmproj_path}")
                     try:
-                        self.chat_handler = handler_class(clip_model_path=mmproj_path, verbose=False)
-                    except TypeError:
-                        self.chat_handler = handler_class(verbose=False)
+                        self.chat_handler = self._create_chat_handler(
+                            handler_class,
+                            mmproj_path=mmproj_path,
+                            chat_handler_name=chat_handler_name,
+                            image_min_tokens=image_min_tokens,
+                            image_max_tokens=image_max_tokens,
+                        )
+                    except Exception:
+                        self.chat_handler = self._create_chat_handler(
+                            handler_class,
+                            mmproj_path=None,
+                            chat_handler_name=chat_handler_name,
+                            image_min_tokens=image_min_tokens,
+                            image_max_tokens=image_max_tokens,
+                        )
                 else:
                     logger.warning(f"No mmproj file found in {model_dir}. Some models may fail to load.")
-                    self.chat_handler = handler_class(verbose=False)
+                    self.chat_handler = self._create_chat_handler(
+                        handler_class,
+                        mmproj_path=None,
+                        chat_handler_name=chat_handler_name,
+                        image_min_tokens=image_min_tokens,
+                        image_max_tokens=image_max_tokens,
+                    )
 
             # Auto calculate n_gpu_layers if it's -1
             if n_gpu_layers == -1:
@@ -384,5 +463,17 @@ class LlamaCppVLM:
             except Exception as e:
                 logger.error(f"LlamaCpp Inference Error: {str(e)}")
                 return f"Error during inference: {str(e)}"
+            finally:
+                if self.current_chat_handler_name in ("Qwen3.5", "Qwen3.5-Thinking"):
+                    try:
+                        if hasattr(self.llm, "n_tokens"):
+                            self.llm.n_tokens = 0
+                        ctx = getattr(self.llm, "_ctx", None)
+                        if ctx is not None and hasattr(ctx, "memory_clear"):
+                            ctx.memory_clear(True)
+                        if getattr(self.llm, "is_hybrid", False) and getattr(self.llm, "_hybrid_cache_mgr", None) is not None:
+                            self.llm._hybrid_cache_mgr.clear()
+                    except Exception:
+                        pass
 
 llamacpp_vlm = LlamaCppVLM()
