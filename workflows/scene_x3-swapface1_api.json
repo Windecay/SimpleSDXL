@@ -2,15 +2,15 @@
   "3": {
     "inputs": {
       "seed": [
-        "478",
-        6
+        "488",
+        0
       ],
       "steps": [
-        "478",
-        7
+        "487",
+        9
       ],
       "cfg": [
-        "478",
+        "487",
         8
       ],
       "sampler_name": "euler",
@@ -144,6 +144,7 @@
   },
   "39": {
     "inputs": {
+      "strength": 1,
       "model": [
         "479",
         0
@@ -199,8 +200,8 @@
     "inputs": {
       "invert_mask": false,
       "detect": "mask_area",
-      "top_reserve": 60,
-      "bottom_reserve": 180,
+      "top_reserve": 80,
+      "bottom_reserve": 160,
       "left_reserve": 120,
       "right_reserve": 120,
       "round_to_multiple": "8",
@@ -224,8 +225,8 @@
       "method": "lanczos",
       "scale_by": "longest",
       "scale_by_length": [
-        "478",
-        1
+        "487",
+        6
       ],
       "image": [
         "57",
@@ -321,7 +322,7 @@
   },
   "139": {
     "inputs": {
-      "positive": "closeup portrait , Ultra-realistic oil painting style face close-up, dreamy soft light, exquisite facial features, perfect skin, professional lighting (warm tone, three-dimensional), expressive look, high artistic appeal, blurred background."
+      "positive": "closeup portrait , Ultra-realistic face close-up, dreamy soft light, exquisite facial features, perfect skin, professional lighting (warm tone, three-dimensional), expressive look, high artistic appeal, blurred background."
     },
     "class_type": "easy positive",
     "_meta": {
@@ -350,62 +351,6 @@
       "title": "Convert Image to Mask"
     }
   },
-  "426": {
-    "inputs": {
-      "purge_cache": true,
-      "purge_models": true,
-      "anything": [
-        "65",
-        0
-      ]
-    },
-    "class_type": "LayerUtility: PurgeVRAM",
-    "_meta": {
-      "title": "LayerUtility: Purge VRAM"
-    }
-  },
-  "427": {
-    "inputs": {
-      "purge_cache": false,
-      "purge_models": true,
-      "anything": [
-        "8",
-        0
-      ]
-    },
-    "class_type": "LayerUtility: PurgeVRAM",
-    "_meta": {
-      "title": "LayerUtility: Purge VRAM"
-    }
-  },
-  "428": {
-    "inputs": {
-      "purge_cache": false,
-      "purge_models": true,
-      "anything": [
-        "403:2",
-        0
-      ]
-    },
-    "class_type": "LayerUtility: PurgeVRAM",
-    "_meta": {
-      "title": "LayerUtility: Purge VRAM"
-    }
-  },
-  "429": {
-    "inputs": {
-      "purge_cache": false,
-      "purge_models": true,
-      "anything": [
-        "475",
-        0
-      ]
-    },
-    "class_type": "LayerUtility: PurgeVRAM",
-    "_meta": {
-      "title": "LayerUtility: Purge VRAM"
-    }
-  },
   "453": {
     "inputs": {
       "width": [
@@ -416,7 +361,7 @@
         "68",
         1
       ],
-      "interpolation": "nearest",
+      "interpolation": "lanczos",
       "method": "pad",
       "condition": "always",
       "multiple_of": 0,
@@ -554,34 +499,6 @@
       "title": "Image Crop"
     }
   },
-  "466": {
-    "inputs": {
-      "purge_cache": false,
-      "purge_models": true,
-      "anything": [
-        "458",
-        0
-      ]
-    },
-    "class_type": "LayerUtility: PurgeVRAM",
-    "_meta": {
-      "title": "LayerUtility: Purge VRAM"
-    }
-  },
-  "467": {
-    "inputs": {
-      "purge_cache": false,
-      "purge_models": true,
-      "anything": [
-        "457",
-        0
-      ]
-    },
-    "class_type": "LayerUtility: PurgeVRAM",
-    "_meta": {
-      "title": "LayerUtility: Purge VRAM"
-    }
-  },
   "468": {
     "inputs": {
       "image": [
@@ -689,29 +606,13 @@
       "title": "LayerUtility: CropByMask V2"
     }
   },
-  "478": {
-    "inputs": {
-      "clip_skip": -1,
-      "width": 1024,
-      "height": 1024,
-      "swap": false,
-      "batch_size": 1,
-      "positive": "",
-      "negative": "logo,Backlight,nsfw,(worst quality,low resolution),distorted,twisted,watermark,,Noise, spots, cracks",
-      "seed": 898074628056779,
-      "steps": 9,
-      "cfg": 0.9,
-      "denoise": 1
-    },
-    "class_type": "Co_Input_Zho",
-    "_meta": {
-      "title": "i2i_overall_input"
-    }
-  },
   "479": {
     "inputs": {
       "lora_name": "comfyui_portrait_lora64.safetensors",
-      "strength_model": 1,
+      "strength_model": [
+        "487",
+        12
+      ],
       "model": [
         "48",
         0
@@ -725,6 +626,7 @@
   "480": {
     "inputs": {
       "sage_attention": "auto",
+      "allow_compile": false,
       "model": [
         "481",
         0
@@ -743,6 +645,49 @@
     "class_type": "UNETLoader",
     "_meta": {
       "title": "base_model"
+    }
+  },
+  "487": {
+    "inputs": {
+      "prompt": "",
+      "additional_prompt": "",
+      "ip_image": "None",
+      "ip_image1": "None",
+      "inpaint_image": "None",
+      "inpaint_mask": "None",
+      "width": 512,
+      "height": 512,
+      "cfg": 1,
+      "steps": 8,
+      "var_number": 0,
+      "var_number2": 0,
+      "var_number3": 1,
+      "var_number4": 1,
+      "var_number5": 0,
+      "var_number6": 0,
+      "var_number7": 0,
+      "var_number8": 0,
+      "var_number9": 0,
+      "var_number10": 0,
+      "switch_option1": false,
+      "switch_option2": false,
+      "switch_option3": false,
+      "switch_option4": false,
+      "model_type": 1,
+      "model_type2": 1
+    },
+    "class_type": "SceneInput",
+    "_meta": {
+      "title": "SceneInput"
+    }
+  },
+  "488": {
+    "inputs": {
+      "seed": 0
+    },
+    "class_type": "SeedInput",
+    "_meta": {
+      "title": "SeedInput"
     }
   },
   "403:0": {

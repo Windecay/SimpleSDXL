@@ -7,7 +7,7 @@
 	"scene_frontend": {
 	    "version": "m1.1",
 	    "disvisible": ["scene_additional_prompt", "scene_additional_prompt_2", "scene_var_number", "scene_input_image2", "scene_use_lora", "scene_video", "scene_audio",
-                    "scene_var_number2","scene_var_number3","scene_var_number4","scene_switch_option1","scene_switch_option2","scene_steps", "scene_refiner_model", "scene_var_number5", "scene_var_number6", "scene_var_number7", "scene_var_number8", "scene_var_number9", "scene_var_number10"
+                    "scene_var_number2","scene_switch_option1","scene_switch_option2","scene_steps", "scene_refiner_model", "scene_var_number5", "scene_var_number6", "scene_var_number7", "scene_var_number8", "scene_var_number9", "scene_var_number10"
                     ,"scene_switch_option3","scene_switch_option4"],
 	    "additional_prompt_title": "参考图检测目标",
 	    "additional_prompt": {
@@ -15,13 +15,31 @@
 	    "ACE+Pulid": "head, face"
             },
 	    "theme": ["ACE++", "ACE+Pulid"],
-	    "theme_title": "ACE++高效，Pulid慢速，尺寸越大越清晰越耗时",
+	    "theme_title": "ACE++高效，Pulid慢速，处理尺寸越大越清晰越耗时，输出为原图尺寸",
+        "image_preprocessor_method": {
+            "ACE++": [["-normalization"]],
+            "ACE+Pulid": [["-normalization"]]  
+        },
 	    "aspect_ratio" : ["768|1:1", "1024|1:1", "1536|1:1"],
 	    "aspect_ratio_select_mode": "",
 	    "task_method": {
 		"ACE++": "x3-swapface1",
 		"ACE+Pulid": "x3-swapface2"
-	    }
+	    },
+        "var_number3_title": "ACE++Lora权重",
+        "var_number3_min": 0,
+        "var_number3_max": 2.0,
+        "var_number3": {
+            "ACE++": 1.0,
+            "ACE+Pulid": 1.0
+        },
+        "var_number4_title": "PulidFlux权重",
+        "var_number4_min": 0,
+        "var_number4_max": 2.0,
+        "var_number4": {
+            "ACE++": 1.0,
+            "ACE+Pulid": 1.0
+        }
     	}
     },
     "default_model": "flux1-fill-dev-OneReward_fp8.safetensors",
