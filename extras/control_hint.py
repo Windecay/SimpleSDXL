@@ -27,7 +27,7 @@ AUTO_SKIP_CONTROL_HINT_THRESH = {
     "ratio_bright_depth_max": 0.40,
     "std_y_depth_min": 0.06,
     "std_y_depth_max": 0.45,
-    "sat_hi_ratio_pose_min": 0.05,
+    "sat_hi_ratio_pose_min": 0.015,
     "sat_fg_mean_pose_min": 0.20,
     "ratio_mid_pose_max": 0.40,
     "ratio_bright_pose_max": 0.25,

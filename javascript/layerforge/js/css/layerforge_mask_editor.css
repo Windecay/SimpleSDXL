@@ -39,9 +39,9 @@
     top: 20px;
     left: 50%;
     transform: translateX(-50%);
-    width: auto;
-    min-width: 800px;
-    height: 50px;
+    width: min(1100px, 96vw);
+    min-width: 0;
+    height: auto;
     background: #2a2a2a;
     display: flex;
     align-items: center;
@@ -59,6 +59,7 @@
     display: flex;
     gap: 10px;
     align-items: center;
+    flex-wrap: wrap;
 }
 
 .layerforge-mask-editor-button {
@@ -124,4 +125,30 @@
     border-radius: 50%;
     background: #eee;
     cursor: pointer;
+}
+
+@media (max-width: 700px) {
+    .layerforge-mask-editor-toolbar {
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        transform: none;
+        width: auto;
+        padding: 8px 10px;
+        gap: 8px;
+        justify-content: flex-start;
+        white-space: normal;
+    }
+    .layerforge-mask-editor-button {
+        padding: 6px 8px;
+        font-size: 12px;
+    }
+    .layerforge-mask-editor-slider-container {
+        font-size: 12px;
+        padding: 4px 6px;
+        gap: 6px;
+    }
+    .layerforge-mask-editor-slider {
+        width: 74px;
+    }
 }

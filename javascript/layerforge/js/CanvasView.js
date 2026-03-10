@@ -12,11 +12,13 @@ import { createModuleLogger } from "/file=javascript/layerforge/js/utils/LoggerU
 import { showErrorNotification, showSuccessNotification, showInfoNotification, showWarningNotification } from "/file=javascript/layerforge/js/utils/NotificationUtils.js?v=patch25";
 import { iconLoader, LAYERFORGE_TOOLS } from "/file=javascript/layerforge/js/utils/IconLoader.js?v=patch25";
 import { setupSAMDetectorHook } from "/file=javascript/layerforge/js/SAMDetectorIntegration.js?v=patch25";
+import { OpenPoseEditor } from "/file=javascript/layerforge/js/OpenPoseEditor.js?v=patch25";
 const log = createModuleLogger('Canvas_view');
 export async function createCanvasWidget(node, widget, app) {
     const canvas = new Canvas(node, widget, {
         onStateChange: () => updateOutput(node, canvas)
     });
+    const openPoseEditor = new OpenPoseEditor();
     const imageCache = new ImageCache();
     const updateSwitchIcon = (knobIconEl, isChecked, iconToolTrue, iconToolFalse, fallbackTrue, fallbackFalse) => {
         if (!knobIconEl)
@@ -421,14 +423,21 @@ export async function createCanvasWidget(node, widget, app) {
                             const mattedImage = new Image();
                             mattedImage.src = result.matted_image;
                             await mattedImage.decode();
-                            const newLayer = { ...selectedLayer, image: mattedImage, flipH: false, flipV: false };
-                            delete newLayer.imageId;
-                            canvas.layers[selectedLayerIndex] = newLayer;
-                            canvas.canvasSelection.updateSelection([newLayer]);
+                            const layerIndex = canvas.layers.findIndex((l) => l && l.id === selectedLayer.id);
+                            if (layerIndex === -1) {
+                                throw new Error("无法定位所选图层");
+                            }
+                            const targetLayer = canvas.layers[layerIndex];
+                            targetLayer.image = mattedImage;
+                            targetLayer.flipH = false;
+                            targetLayer.flipV = false;
+                            delete targetLayer.imageId;
+                            canvas.canvasSelection.updateSelection([targetLayer]);
                             // Invalidate processed image cache when layer image changes (matting)
-                            canvas.canvasLayers.invalidateProcessedImageCache(newLayer.id);
+                            canvas.canvasLayers.invalidateProcessedImageCache(targetLayer.id);
                             canvas.render();
                             canvas.saveState();
+                            canvas.canvasLayersPanel?.renderLayers?.();
                             showSuccessNotification("背景移除成功！");
                         }
                         catch (error) {
@@ -438,6 +447,234 @@ export async function createCanvasWidget(node, widget, app) {
                                 !errorMessage.includes("Dependency Not Found")) {
                                 showErrorNotification(`抠图失败: ${errorMessage}`);
                             }
+                        }
+                        finally {
+                            button.classList.remove('loading');
+                            const spinner = button.querySelector('.matting-spinner');
+                            if (spinner && button.contains(spinner)) {
+                                button.removeChild(spinner);
+                            }
+                        }
+                    }
+                }),
+                $el("button.painter-button.requires-selection.openpose-button", {
+                    textContent: "骨骼编辑",
+                    title: "对选定图层执行 OpenPose 检测并编辑骨骼",
+                    onclick: async (e) => {
+                        const button = e.target.closest('.openpose-button');
+                        if (button.classList.contains('loading'))
+                            return;
+                        try {
+                            const modelCheckResponse = await fetch("/openpose/check-model");
+                            if (!modelCheckResponse.ok) {
+                                throw new Error(`${modelCheckResponse.status} ${modelCheckResponse.statusText}`);
+                            }
+                            const modelStatus = await modelCheckResponse.json();
+                            let allowDownload = false;
+                            if (!modelStatus.available) {
+                                if (modelStatus.reason === 'not_downloaded') {
+                                    const expected = modelStatus.expected || {};
+                                    const msg = [
+                                        modelStatus.message || "缺少 OpenPose 模型文件",
+                                        expected.model_det ? `det: ${expected.model_det}` : '',
+                                        expected.model_pose ? `pose: ${expected.model_pose}` : ''
+                                    ].filter(Boolean).join('\n');
+                                    showWarningNotification(msg, 8000);
+                                    if (!confirm("未检测到所需的 ONNX 模型文件。是否允许自动下载？")) {
+                                        return;
+                                    }
+                                    allowDownload = true;
+                                }
+                                else {
+                                    showErrorNotification(modelStatus.message || "OpenPose 模型不可用", 8000);
+                                    return;
+                                }
+                            }
+                            if (canvas.canvasSelection.selectedLayers.length !== 1) {
+                                showWarningNotification("请选择且仅选择一个图像图层进行骨骼编辑");
+                                return;
+                            }
+                            const selectedLayer = canvas.canvasSelection.selectedLayers[0];
+                            const displayedLayersBefore = [...canvas.layers].sort((a, b) => b.zIndex - a.zIndex);
+                            const selectedDisplayIndex = displayedLayersBefore.indexOf(selectedLayer);
+                            if (selectedDisplayIndex === -1) {
+                                showErrorNotification("无法定位所选图层");
+                                return;
+                            }
+                            const isPoseBgLayer = !!(selectedLayer.pose_bg_for_source_id || (selectedLayer.name === 'Pose BG' && !selectedLayer.pose_json && !selectedLayer.poseJson));
+                            if (isPoseBgLayer) {
+                                showWarningNotification("请选择主图层或 Pose 图层进行骨骼编辑");
+                                return;
+                            }
+                            const isPoseLayer = !!(selectedLayer.pose_json || selectedLayer.poseJson);
+                            const existingPoseJson = isPoseLayer ? (selectedLayer.pose_json || selectedLayer.poseJson) : null;
+                            const spinner = $el("div.matting-spinner");
+                            button.appendChild(spinner);
+                            button.classList.add('loading');
+                            const imageData = await canvas.canvasLayers.getLayerImageData(selectedLayer);
+                            let poseJson = existingPoseJson;
+                            if (!poseJson) {
+                                showInfoNotification("正在进行 OpenPose 检测...", 2000);
+                                const response = await fetch("/openpose/detect", {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({ image: imageData, allow_download: allowDownload })
+                                });
+                                const result = await response.json();
+                                if (!response.ok) {
+                                    const errorMsg = (result && (result.details || result.error || result.message)) || `${response.status} ${response.statusText}`;
+                                    throw new Error(errorMsg);
+                                }
+                                poseJson = result.pose_json || result.poseJson;
+                            }
+                            if (!poseJson) {
+                                throw new Error("未获取到有效的 pose_json");
+                            }
+                            const editorResult = await openPoseEditor.open({
+                                backgroundImageSrc: imageData,
+                                poseJson
+                            });
+                            if (!editorResult) {
+                                showInfoNotification("已取消骨骼编辑", 2000);
+                                return;
+                            }
+                            const { poseJson: editedPoseJson, skeletonDataUrl } = editorResult;
+                            const skeletonImage = new Image();
+                            skeletonImage.crossOrigin = 'anonymous';
+                            skeletonImage.src = skeletonDataUrl;
+                            await skeletonImage.decode();
+                            const createBlackImage = async (width, height) => {
+                                const { canvas: tmp, ctx: tmpCtx } = createCanvas(width, height, '2d', { willReadFrequently: false });
+                                if (!tmpCtx) {
+                                    throw new Error("无法创建背景画布");
+                                }
+                                tmpCtx.fillStyle = '#000';
+                                tmpCtx.fillRect(0, 0, width, height);
+                                const bg = new Image();
+                                bg.crossOrigin = 'anonymous';
+                                bg.src = tmp.toDataURL('image/png');
+                                await bg.decode();
+                                return bg;
+                            };
+                            const displayedNow = [...canvas.layers].sort((a, b) => b.zIndex - a.zIndex);
+                            const selectedIndexNow = displayedNow.indexOf(selectedLayer);
+                            const poseGroupDisplayIndex = selectedIndexNow === -1 ? 0 : selectedIndexNow;
+                            const getSourceLayer = () => {
+                                if (!isPoseLayer) {
+                                    return selectedLayer;
+                                }
+                                const sourceId = selectedLayer.pose_source_layer_id;
+                                return sourceId ? canvas.layers.find((l) => l && l.id === sourceId) : null;
+                            };
+                            const ensureSourcePoseBgLayer = async (sourceLayer, insertIndex) => {
+                                if (!sourceLayer) {
+                                    return null;
+                                }
+                                const bgId = sourceLayer.pose_bg_layer_id;
+                                let bgLayer = bgId ? canvas.layers.find((l) => l && l.id === bgId) : null;
+                                if (!bgLayer) {
+                                    bgLayer = canvas.layers.find((l) => l && l.pose_bg_for_source_id === sourceLayer.id);
+                                }
+                                if (!bgLayer) {
+                                    bgLayer = canvas.layers.find((l) => l && l.name === 'Pose BG' && !l.pose_json && !l.poseJson && l.pose_source_layer_id === sourceLayer.id);
+                                }
+                                if (!bgLayer) {
+                                    const bgImage = await createBlackImage(skeletonImage.width, skeletonImage.height);
+                                    bgLayer = await canvas.canvasLayers.addLayerWithImage(bgImage, {
+                                        name: 'Pose BG',
+                                        x: sourceLayer.x,
+                                        y: sourceLayer.y,
+                                        width: sourceLayer.width,
+                                        height: sourceLayer.height,
+                                        rotation: sourceLayer.rotation,
+                                        flipH: false,
+                                        flipV: false,
+                                        blendMode: 'normal',
+                                        opacity: 1,
+                                        pose_bg_for_source_id: sourceLayer.id,
+                                        pose_source_layer_id: sourceLayer.id
+                                    }, 'default');
+                                }
+                                bgLayer.x = sourceLayer.x;
+                                bgLayer.y = sourceLayer.y;
+                                bgLayer.width = sourceLayer.width;
+                                bgLayer.height = sourceLayer.height;
+                                bgLayer.rotation = sourceLayer.rotation;
+                                bgLayer.flipH = false;
+                                bgLayer.flipV = false;
+                                bgLayer.blendMode = 'normal';
+                                bgLayer.opacity = 1;
+                                bgLayer.visible = true;
+                                sourceLayer.pose_bg_layer_id = bgLayer.id;
+                                const sourceLayerIndex = canvas.layers.findIndex((l) => l && l.id === sourceLayer.id);
+                                if (sourceLayerIndex !== -1) {
+                                    const stored = canvas.layers[sourceLayerIndex];
+                                    stored.pose_bg_layer_id = bgLayer.id;
+                                }
+                                canvas.canvasLayers.moveLayers([bgLayer], { toIndex: insertIndex });
+                                return bgLayer;
+                            };
+
+                            const sourceLayer = getSourceLayer();
+                            const sourceDisplayIndex = sourceLayer ? displayedNow.indexOf(sourceLayer) : poseGroupDisplayIndex;
+                            const safeSourceIndex = sourceDisplayIndex === -1 ? poseGroupDisplayIndex : sourceDisplayIndex;
+                            const bgLayer = await ensureSourcePoseBgLayer(sourceLayer, safeSourceIndex);
+
+                            if (isPoseLayer) {
+                                const poseLayerIndex = canvas.layers.findIndex((l) => l && l.id === selectedLayer.id);
+                                if (poseLayerIndex === -1) {
+                                    throw new Error("无法定位骨骼图层");
+                                }
+                                const targetLayer = canvas.layers[poseLayerIndex];
+                                targetLayer.image = skeletonImage;
+                                targetLayer.flipH = false;
+                                targetLayer.flipV = false;
+                                targetLayer.blendMode = 'normal';
+                                targetLayer.pose_json = editedPoseJson;
+                                if (bgLayer) {
+                                    targetLayer.pose_bg_layer_id = bgLayer.id;
+                                }
+                                delete targetLayer.imageId;
+                                canvas.canvasSelection.updateSelection([targetLayer]);
+                                canvas.canvasLayers.invalidateProcessedImageCache(targetLayer.id);
+                                canvas.render();
+                                canvas.saveState();
+                                canvas.canvasLayersPanel?.renderLayers?.();
+                                showSuccessNotification("骨骼图层已更新");
+                            }
+                            else {
+                                const newLayer = await canvas.canvasLayers.addLayerWithImage(skeletonImage, {
+                                    name: 'Pose',
+                                    x: selectedLayer.x,
+                                    y: selectedLayer.y,
+                                    width: selectedLayer.width,
+                                    height: selectedLayer.height,
+                                    rotation: selectedLayer.rotation,
+                                    flipH: false,
+                                    flipV: false,
+                                    blendMode: 'normal',
+                                    pose_json: editedPoseJson,
+                                    pose_source_layer_id: selectedLayer.id,
+                                    pose_bg_layer_id: bgLayer ? bgLayer.id : null
+                                }, 'default');
+                                if (bgLayer) {
+                                    const displayedAfter = [...canvas.layers].sort((a, b) => b.zIndex - a.zIndex);
+                                    const existingPoseLayers = displayedAfter.filter((l) => l && l.pose_source_layer_id === selectedLayer.id && (l.pose_json || l.poseJson) && l.id !== newLayer.id);
+                                    const existingIndices = existingPoseLayers.map((l) => displayedAfter.indexOf(l)).filter((n) => n >= 0);
+                                    const bgIndex = displayedAfter.indexOf(bgLayer);
+                                    const insertIndex = existingIndices.length > 0 ? Math.min(...existingIndices) : (bgIndex === -1 ? safeSourceIndex : bgIndex);
+                                    canvas.canvasLayers.moveLayers([newLayer], { toIndex: insertIndex });
+                                }
+                                canvas.canvasSelection.updateSelection([newLayer]);
+                                canvas.render();
+                                canvas.saveState();
+                                canvas.canvasLayersPanel?.renderLayers?.();
+                                showSuccessNotification("骨骼图层已创建");
+                            }
+                        }
+                        catch (error) {
+                            const errorMessage = error?.message || "发生未知错误";
+                            showErrorNotification(`骨骼编辑失败: ${errorMessage}`);
                         }
                         finally {
                             button.classList.remove('loading');
@@ -767,6 +1004,10 @@ export async function createCanvasWidget(node, widget, app) {
         const mattingBtn = controlPanel.querySelector('.matting-button');
         if (mattingBtn && !mattingBtn.classList.contains('loading')) {
             mattingBtn.disabled = selectionCount !== 1;
+        }
+        const openposeBtn = controlPanel.querySelector('.openpose-button');
+        if (openposeBtn && !openposeBtn.classList.contains('loading')) {
+            openposeBtn.disabled = selectionCount !== 1;
         }
         // --- Handle Crop/Transform Switch ---
         const switchEl = controlPanel.querySelector(`#crop-transform-switch-${node.id}`);

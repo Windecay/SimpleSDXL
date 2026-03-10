@@ -130,7 +130,7 @@
     <div id="editor-container"></div>
 
     <script type="module">
-        import { createCanvasWidget } from '/file=javascript/layerforge/js/CanvasView.js?v=patch25';
+        import { createCanvasWidget } from '/file=javascript/layerforge/js/CanvasView.js?v=patch47';
         import { app } from '/file=javascript/layerforge/js/comfy_shim.js?v=patch25';
         import { createEmptyImage } from '/file=javascript/layerforge/js/utils/ImageUtils.js?v=patch25';
         import { saveImage } from '/file=javascript/layerforge/js/db.js?v=patch25';
@@ -280,6 +280,72 @@
                         overlay.height = h;
                     }
                 };
+
+                let pendingViewportRerender = null;
+                let lastViewportKey = '';
+                const scheduleViewportRerender = () => {
+                    if (!canvasInstance)
+                        return;
+                    if (pendingViewportRerender !== null)
+                        return;
+                    pendingViewportRerender = requestAnimationFrame(() => {
+                        pendingViewportRerender = null;
+                        const rect = overlayHost.getBoundingClientRect();
+                        const dpr = window.devicePixelRatio || 1;
+                        const key = `${Math.round(rect.width)}x${Math.round(rect.height)}@${dpr}`;
+                        if (key !== lastViewportKey) {
+                            lastViewportKey = key;
+                            try {
+                                updateOverlaySize();
+                                clearOverlay();
+                            }
+                            catch {
+                            }
+                        }
+                        try {
+                            canvasInstance.render();
+                        }
+                        catch {
+                        }
+                    });
+                };
+                window.addEventListener('resize', scheduleViewportRerender, { passive: true });
+                if (window.visualViewport) {
+                    window.visualViewport.addEventListener('resize', scheduleViewportRerender, { passive: true });
+                    window.visualViewport.addEventListener('scroll', scheduleViewportRerender, { passive: true });
+                }
+                let dprQuery = null;
+                const setupDprListener = () => {
+                    try {
+                        const dpr = window.devicePixelRatio || 1;
+                        const mql = window.matchMedia?.(`(resolution: ${dpr}dppx)`);
+                        if (!mql)
+                            return;
+                        if (dprQuery && typeof dprQuery.removeEventListener === 'function') {
+                            dprQuery.removeEventListener('change', scheduleViewportRerender);
+                        }
+                        else if (dprQuery && typeof dprQuery.removeListener === 'function') {
+                            dprQuery.removeListener(scheduleViewportRerender);
+                        }
+                        dprQuery = mql;
+                        if (typeof dprQuery.addEventListener === 'function') {
+                            dprQuery.addEventListener('change', () => {
+                                setupDprListener();
+                                scheduleViewportRerender();
+                            });
+                        }
+                        else if (typeof dprQuery.addListener === 'function') {
+                            dprQuery.addListener(() => {
+                                setupDprListener();
+                                scheduleViewportRerender();
+                            });
+                        }
+                    }
+                    catch {
+                    }
+                };
+                setupDprListener();
+                scheduleViewportRerender();
 
                 const overlayCtx = overlay.getContext('2d');
                 const clearOverlay = () => {

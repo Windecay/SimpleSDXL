@@ -35,7 +35,7 @@ export class LayerForgeMaskEditor {
         const link = document.createElement('link');
         link.rel = 'stylesheet';
         link.type = 'text/css';
-        link.href = new URL('./css/layerforge_mask_editor.css', import.meta.url).href;
+        link.href = new URL('./css/layerforge_mask_editor.css?v=patch1', import.meta.url).href;
         document.head.appendChild(link);
     }
 
