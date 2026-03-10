@@ -118,13 +118,15 @@ function initializeTagAssistantLogic() {
         console.log("init() started.");
         appRootInstance = document.createElement('div');
         appRootInstance.id = 'app-root';
-        appRootInstance.className = 'w-[970px] flex flex-col p-4 space-y-2 overflow-hidden min-h-[500px]';
+        appRootInstance.className = 'fixed top-0 left-0 w-0 h-0 p-0 m-0 overflow-visible pointer-events-none';
+        appRootInstance.style.zIndex = '9999';
         draggableContainer = document.createElement('div');
         draggableContainer.id = 'draggable-container';
         draggableContainer.className = 'absolute flex flex-col space-y-2 p-4 bg-neutral-100 dark:bg-neutral-800 rounded-2xl shadow-lg';
         draggableContainer.style.display = 'none';
         draggableContainer.style.width = '970px';
         draggableContainer.style.minHeight = '500px';
+        draggableContainer.style.pointerEvents = 'auto';
 
         const headerContainer = document.createElement('div');
         headerContainer.className = 'flex justify-between items-center w-full flex-shrink-0';
