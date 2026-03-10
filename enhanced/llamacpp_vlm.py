@@ -277,6 +277,32 @@ class LlamaCppVLM:
                 logger.error(f"GGUFReader also failed: {e2}")
         return 32
 
+    def _get_gguf_hparams(self, path):
+        try:
+            from gguf import GGUFReader
+            reader = GGUFReader(path)
+
+            embedding_length = None
+            head_count = None
+            head_count_kv = None
+
+            for key in reader.fields.keys():
+                k = key.lower()
+                if k.endswith(".embedding_length") or k == "embedding_length":
+                    embedding_length = int(reader.get_field(key).parts[-1][0])
+                elif k.endswith(".head_count") or k == "head_count":
+                    head_count = int(reader.get_field(key).parts[-1][0])
+                elif k.endswith(".head_count_kv") or k == "head_count_kv":
+                    head_count_kv = int(reader.get_field(key).parts[-1][0])
+
+            return {
+                "embedding_length": embedding_length,
+                "head_count": head_count,
+                "head_count_kv": head_count_kv,
+            }
+        except Exception:
+            return {}
+
     def load_model(self, model_name, chat_handler_name, n_gpu_layers=-1, n_ctx=8192, image_min_tokens=0, image_max_tokens=0):
         if not LLAMA_CPP_AVAILABLE:
             logger.error("llama-cpp-python is not correctly installed or CUDA libraries are missing.")
@@ -338,19 +364,31 @@ class LlamaCppVLM:
 
                     # Buffer to prevent OOM (0.6GB)
                     vram_buffer = 0.6
-                    available_vram_gb = vram_limit_gb - vram_buffer
+                    total_layers = self._get_layer_count(model_path)
+
+                    kv_cache_gb = 0.0
+                    hparams = self._get_gguf_hparams(model_path)
+                    n_embd = hparams.get("embedding_length")
+                    n_head = hparams.get("head_count")
+                    n_kv_head = hparams.get("head_count_kv") or n_head
+                    if n_embd and n_head and n_kv_head:
+                        head_dim = n_embd // n_head
+                        kv_bytes = int(n_ctx) * int(total_layers) * int(n_kv_head) * int(head_dim) * 2 * 2
+                        kv_cache_gb = (kv_bytes / (1024 ** 3)) * 1.2
+
+                    available_vram_gb = vram_limit_gb - vram_buffer - kv_cache_gb
+                    logger.debug(f"Auto n_gpu_layers: free={vram_limit_gb:.2f}GB, kv_cache≈{kv_cache_gb:.2f}GB, avail={available_vram_gb:.2f}GB")
 
                     if available_vram_gb > 0:
-                        total_layers = self._get_layer_count(model_path)
-                        # GGUF size estimation with 1.55 overhead factor
-                        gguf_size_gb = os.path.getsize(model_path) * 1.55 / (1024 ** 3)
+                        weight_overhead = 1.15
+                        gguf_size_gb = os.path.getsize(model_path) * weight_overhead / (1024 ** 3)
                         layer_size_gb = gguf_size_gb / total_layers
 
                         if mmproj_path:
-                            mmproj_size_gb = os.path.getsize(mmproj_path) * 1.55 / (1024 ** 3)
-                            n_gpu_layers = max(1, int((available_vram_gb - mmproj_size_gb) / layer_size_gb))
+                            mmproj_size_gb = os.path.getsize(mmproj_path) * weight_overhead / (1024 ** 3)
+                            n_gpu_layers = max(0, int((available_vram_gb - mmproj_size_gb) / layer_size_gb))
                         else:
-                            n_gpu_layers = max(1, int(available_vram_gb / layer_size_gb))
+                            n_gpu_layers = max(0, int(available_vram_gb / layer_size_gb))
 
                         n_gpu_layers = min(n_gpu_layers, total_layers)
 
