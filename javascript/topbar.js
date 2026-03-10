@@ -400,8 +400,17 @@ function updatePresetStore(nav_name_list, role, expand_flag, theme) {
     if (!div) return
 	const originalText = div.getAttribute("data-original-text");
         let text = div.textContent.trim();
-        let item_name = originalText || text;
+        let item_name = text;
         item_name = item_name.trim();
+        if (!item_name) {
+            div.removeAttribute("data-original-text");
+            div.removeAttribute("data-complete");
+            div.removeAttribute("data-missing");
+            button.classList.remove('preset-complete');
+            button.classList.remove('preset-missing');
+            button.style.background = '';
+            return;
+        }
         let base_name = item_name;
         let is_complete = div.getAttribute("data-complete") === "1";
         const had_missing_marker = div.getAttribute("data-missing") === "1";

@@ -155,7 +155,6 @@ PRESET_STORE_ORDER = [
     "FluxAIOplus",
     "FluxKontext",
     "ClothingSwapplus",
-
     "NunClothingSwap_fp4",
     "NunClothingSwap_int4",
     "NunFlux_fp4",
@@ -190,6 +189,7 @@ PRESET_STORE_ORDER = [
     "x2-okimagerepair+",
     "OneKeyKontext",
     "OneKeyPose",
+    "OneKey-Outpaint",
     "x3-swapface",
     "x4-okdepthstatue",
     "Tile",

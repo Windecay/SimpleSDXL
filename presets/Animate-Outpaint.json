@@ -77,7 +77,7 @@
                 },
                 "switch_option1_title": "使用分块VAE解码",
                 "switch_option1": {
-                    "SCAIL": true
+                    "Animate Outpaint": true
                 },
                 "switch_option2_title": "SageAttention加速",
                 "switch_option2": {

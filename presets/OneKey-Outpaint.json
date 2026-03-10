@@ -1,0 +1,99 @@
+{ 
+    "default_engine": {
+            "backend_engine": "Flux",
+            "disvisible": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
+            "disinteractive": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
+            "available_aspect_ratios_selection": "Flux",
+            "scene_frontend": {
+                "version": "m1.1",
+                "theme": ["Flux_OneKey-Outpaint"],
+                "theme_title": "Flux.1一键扩图【点击右下角画笔，按住Shift键确定范围】",
+                "disvisible": ["scene_additional_prompt", "scene_additional_prompt_2", "scene_input_image1", "scene_input_image2", "scene_video", "scene_audio", "scene_refiner_model", "scene_switch_option1","scene_switch_option2", "scene_switch_option3","scene_switch_option4",
+            "scene_var_number", "scene_var_number2", "scene_var_number3", "scene_var_number4", "scene_var_number5", "scene_var_number6", "scene_steps", "scene_aspect_ratio"],
+                "task_method": {
+                    "Flux_OneKey-Outpaint": "ok_outpaint"
+                },
+                "prompt": {
+                    "Flux_OneKey-Outpaint": "ultra-detailed, best quality"
+                },
+                "scene_steps": {
+                    "Animate Outpaint": 16
+                },
+                "image_preprocessor_method": {
+                    "Flux_OneKey-Outpaint": [["-normalization"]]
+                },
+                "var_number7_min": 0,
+                "var_number7_max": 100,
+                "var_number7_title": "上扩百分比",
+                "var_number7": {
+                    "Flux_OneKey-Outpaint": 0
+                },
+                "var_number8_title": "下扩百分比",
+                "var_number8_min": 0,
+                "var_number8_max": 100,
+                "var_number8": {
+                    "Flux_OneKey-Outpaint": 0
+                },
+                "var_number9_title": "左扩百分比",
+                "var_number9_min": 0,
+                "var_number9_max": 100,
+                "var_number9": {
+                    "Flux_OneKey-Outpaint": 0
+                },
+                "var_number10_title": "右扩百分比",
+                "var_number10_min": 0,
+                "var_number10_max": 100,
+                "var_number10": {
+                    "Flux_OneKey-Outpaint": 0
+                },
+                "aspect_ratio": ["9:16", "4:5", "4:3", "3:2", "16:9", "21:9"]
+            }
+    },
+    "default_model": "flux1-fill-dev-OneReward_fp8.safetensors",
+    "default_refiner": "None",
+    "default_refiner_switch": 0.5,
+    "default_loras": [
+        [
+            "None",
+            1.0
+        ],
+        [
+            "None",
+            1.0
+        ],
+        [
+            "None",
+            1.0
+        ],
+        [
+            "None",
+            1.0
+        ],
+        [
+            "None",
+            1.0
+        ]
+    ],
+    "default_cfg_scale": 1,
+    "default_sample_sharpness": 2,
+    "default_sampler": "euler",
+    "default_scheduler": "simple",
+    "default_performance": "Speed",
+    "default_styles": [],
+    "default_aspect_ratio": "1024*1024",
+    "default_image_number": 1,
+    "default_overwrite_step":30,
+    "default_prompt": "ultra-detailed, best quality",
+    "default_prompt_negative": "",
+    "checkpoint_downloads": {},
+    "embeddings_downloads": {},
+    "lora_downloads": {},
+    "vae_downloads": {},
+    "model_list": [
+        "checkpoints,flux1-fill-dev-OneReward_fp8.safetensors,11902532704,0,",
+        "clip,clip_l.safetensors,246144152,0,",
+        "clip,t5xxl_fp8_e4m3fn.safetensors,4893934904,0,",
+        "vae,ae.safetensors,335304388,0,",
+        "loras,flux1-turbo.safetensors,694082424,0,"
+    ]
+}
