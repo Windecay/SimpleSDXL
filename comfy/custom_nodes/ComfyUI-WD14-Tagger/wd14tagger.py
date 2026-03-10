@@ -148,7 +148,12 @@ async def get_tags(request):
     if type not in ["output", "input", "temp"]:
         return web.Response(status=400)
 
-    target_dir = get_comfy_dir(type)
+    if type == "input":
+        target_dir = folder_paths.get_input_directory()
+    elif type == "temp":
+        target_dir = folder_paths.get_temp_directory()
+    else:
+        target_dir = folder_paths.get_output_directory()
     image_path = os.path.abspath(os.path.join(
         target_dir, request.query.get("subfolder", ""), request.query["filename"]))
     c = os.path.commonpath((image_path, target_dir))
