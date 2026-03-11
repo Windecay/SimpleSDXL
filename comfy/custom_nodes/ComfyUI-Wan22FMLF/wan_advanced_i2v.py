@@ -6,6 +6,7 @@ import node_helpers
 import comfy
 import comfy.utils
 import comfy.clip_vision
+import comfy.latent_formats
 from typing import Optional, Tuple, Any
 
 
@@ -38,8 +39,9 @@ class WanAdvancedI2V(io.ComfyNode):
                 io.Float.Input("middle_frame_ratio", default=0.5, min=0.0, max=1.0, step=0.01, round=0.01, display_mode=io.NumberDisplay.slider, optional=True),
                 io.Image.Input("motion_frames", optional=True),
                 io.Int.Input("video_frame_offset", default=0, min=0, max=1000000, step=1, display_mode=io.NumberDisplay.number, optional=True),
-                io.Combo.Input("long_video_mode", ["DISABLED", "AUTO_CONTINUE", "SVI_SHOT"], default="DISABLED", optional=True),
+                io.Combo.Input("long_video_mode", ["DISABLED", "AUTO_CONTINUE", "SVI", "LATENT_CONTINUE"], default="DISABLED", optional=True),
                 io.Int.Input("continue_frames_count", default=5, min=0, max=20, step=1, display_mode=io.NumberDisplay.number, optional=True),
+                io.Float.Input("high_noise_start_strength", default=1.0, min=0.0, max=1.0, step=0.05, round=0.01, display_mode=io.NumberDisplay.slider, optional=True),
                 io.Float.Input("high_noise_mid_strength", default=0.8, min=0.0, max=1.0, step=0.05, round=0.01, display_mode=io.NumberDisplay.slider, optional=True),
                 io.Float.Input("low_noise_start_strength", default=1.0, min=0.0, max=1.0, step=0.05, round=0.01, display_mode=io.NumberDisplay.slider, optional=True),
                 io.Float.Input("low_noise_mid_strength", default=0.2, min=0.0, max=1.0, step=0.05, round=0.01, display_mode=io.NumberDisplay.slider, optional=True),
@@ -48,7 +50,11 @@ class WanAdvancedI2V(io.ComfyNode):
                 io.ClipVisionOutput.Input("clip_vision_start_image", optional=True),
                 io.ClipVisionOutput.Input("clip_vision_middle_image", optional=True),
                 io.ClipVisionOutput.Input("clip_vision_end_image", optional=True),
+                io.Boolean.Input("enable_start_frame", default=True, optional=True),
                 io.Boolean.Input("enable_middle_frame", default=True, optional=True),
+                io.Boolean.Input("enable_end_frame", default=True, optional=True),
+                io.Float.Input("svi_motion_strength", default=1.0, min=0.0, max=2.0, step=0.05, round=0.01, display_mode=io.NumberDisplay.slider, optional=True, tooltip="SVI mode motion intensity. <1.0 = more stable, >1.0 = more dynamic"),
+                io.Latent.Input("prev_latent", optional=True),
             ],
             outputs=[
                 io.Conditioning.Output(display_name="positive_high"),
@@ -66,11 +72,13 @@ class WanAdvancedI2V(io.ComfyNode):
                 mode="NORMAL", start_image=None, middle_image=None, end_image=None,
                 middle_frame_ratio=0.5, motion_frames=None, video_frame_offset=0,
                 long_video_mode="DISABLED", continue_frames_count=5,
-                high_noise_mid_strength=0.8, low_noise_start_strength=1.0,
-                low_noise_mid_strength=0.2, low_noise_end_strength=1.0,
+                high_noise_start_strength=1.0, high_noise_mid_strength=0.8, 
+                low_noise_start_strength=1.0, low_noise_mid_strength=0.2, low_noise_end_strength=1.0,
                 structural_repulsion_boost=1.0,
                 clip_vision_start_image=None, clip_vision_middle_image=None,
-                clip_vision_end_image=None, enable_middle_frame=True):
+                clip_vision_end_image=None, enable_start_frame=True, enable_middle_frame=True,
+                enable_end_frame=True, svi_motion_strength=1.0,
+                prev_latent=None):
         
         spacial_scale = vae.spacial_compression_encode()
         latent_channels = vae.latent_channels
@@ -90,7 +98,7 @@ class WanAdvancedI2V(io.ComfyNode):
         is_pure_triple_mode = (not has_motion_frames and long_video_mode == "DISABLED")
         
         if video_frame_offset >= 0:
-            if (long_video_mode == "AUTO_CONTINUE" or long_video_mode == "SVI_SHOT") and has_motion_frames and continue_frames_count > 0:
+            if (long_video_mode == "AUTO_CONTINUE" or long_video_mode == "SVI") and has_motion_frames and continue_frames_count > 0:
                 actual_count = min(continue_frames_count, motion_frames.shape[0])
                 motion_frames = motion_frames[-actual_count:]
                 video_frame_offset = max(0, video_frame_offset - motion_frames.shape[0])
@@ -147,24 +155,252 @@ class WanAdvancedI2V(io.ComfyNode):
         mask_high_noise = mask_base.clone()
         mask_low_noise = mask_base.clone()
         
-        svi_shot_second_pass = False
-        
-        if long_video_mode == "SVI_SHOT" and start_image is not None:
-            if has_motion_frames:
-                svi_shot_second_pass = True
-            else:
-                image[:start_image.shape[0]] = start_image[:, :, :, :3]
-                start_latent_frames = ((start_image.shape[0] - 1) // 4) + 1
-                mask_high_noise[:, :, :start_latent_frames * 4] = 0.0
-                mask_low_noise[:, :, :start_latent_frames * 4] = max(0.0, 1.0 - low_noise_start_strength)
-        
-        if has_motion_frames and not (long_video_mode == "SVI_SHOT" and not svi_shot_second_pass):
+        svi_continue_mode = False
+
+        # --- Latent Continue Mode Logic ---
+        latent_continue_mode = False
+        prev_latent_for_concat = None
+        if long_video_mode == 'LATENT_CONTINUE':
+            has_prev_latent = (prev_latent is not None and prev_latent.get("samples") is not None)
+            if has_prev_latent and continue_frames_count > 0 and start_image is None:
+                latent_continue_mode = True
+                prev_samples = prev_latent["samples"]
+                
+                if prev_samples.shape[2] > 0:
+                    for b in range(batch_size):
+                        latent[b:b+1, :, 0:1, :, :] = prev_samples[:, :, -1:].clone()
+                    
+                    mask_high_noise[:, :, :4] = 0.0
+                    mask_low_noise[:, :, :4] = 0.0
+                    
+                    prev_latent_for_concat = prev_samples[:, :, -1:].clone()
+        # --- End of Latent Continue Mode Logic ---
+
+        # --- SVI Mode Logic ---
+        if long_video_mode == 'SVI':
+            # SVI mode uses latent-space conditioning similar to WanImageToVideoSVIPro
+            spacial_scale = vae.spacial_compression_encode()
+            latent_channels = vae.latent_channels
+            total_latents = ((length - 1) // 4) + 1
+            H = height // spacial_scale
+            W = width // spacial_scale
+            
+            # Calculate middle and end positions
+            middle_latent_idx = middle_idx // 4
+            end_latent_idx = total_latents - 1
+            
+            # Check if we have prev_latent for continuation
+            has_prev_latent = (prev_latent is not None and prev_latent.get("samples") is not None)
+            
+            if has_prev_latent and continue_frames_count > 0:
+                # SVI Continue: Use prev_latent as continuation reference
+                svi_continue_mode = True
+                
+                # Encode start_image as anchor latent
+                if start_image is not None:
+                    anchor_latent = vae.encode(start_image[:1, :, :, :3])
+                else:
+                    # If no start_image, create empty anchor
+                    anchor_latent = torch.zeros([1, latent_channels, 1, H, W], 
+                                               device=device, dtype=latent.dtype)
+                
+                # Use prev_latent directly (already encoded)
+                prev_samples = prev_latent["samples"]
+                # Convert continue_frames_count (image frames) to latent frames
+                # 1 latent frame = 4 image frames
+                motion_latent_count = min(prev_samples.shape[2], ((continue_frames_count - 1) // 4) + 1)
+                motion_latent = prev_samples[:, :, -motion_latent_count:].clone()
+                
+                # Apply svi_motion_strength to scale motion influence
+                if svi_motion_strength != 1.0:
+                    motion_latent = motion_latent * svi_motion_strength
+                
+                # Build image_cond_latent by inserting latents at correct positions
+                # Start with padding, then insert anchor, motion, middle, end at their positions
+                image_cond_latent = torch.zeros(1, latent_channels, total_latents, H, W, 
+                                               dtype=anchor_latent.dtype, device=anchor_latent.device)
+                image_cond_latent = comfy.latent_formats.Wan21().process_out(image_cond_latent)
+                
+                # Insert anchor at position 0 (if start frame enabled)
+                if enable_start_frame:
+                    image_cond_latent[:, :, :1] = anchor_latent
+                
+                # Insert motion_latent right after anchor (for continuity)
+                motion_start = 1
+                motion_end = motion_start + motion_latent.shape[2]
+                if motion_end <= total_latents:
+                    image_cond_latent[:, :, motion_start:motion_end] = motion_latent
+                
+                # Insert middle_image at middle_latent_idx if provided
+                if middle_image is not None and enable_middle_frame:
+                    middle_latent = vae.encode(middle_image[:1, :, :, :3])
+                    if middle_latent_idx < total_latents:
+                        image_cond_latent[:, :, middle_latent_idx:middle_latent_idx+1] = middle_latent
+                
+                # Insert end_image at end_latent_idx if provided
+                if end_image is not None and enable_end_frame:
+                    end_latent = vae.encode(end_image[:1, :, :, :3])
+                    image_cond_latent[:, :, end_latent_idx:end_latent_idx+1] = end_latent
+                
+                # Create masks with strength parameters
+                # Fixed: mask shape should be (1, 4, T, H, W) to match non-SVI mode format
+                mask_svi_high = torch.ones((1, 4, total_latents, H, W), 
+                                          device=device, dtype=anchor_latent.dtype)
+                mask_svi_low = torch.ones((1, 4, total_latents, H, W), 
+                                         device=device, dtype=anchor_latent.dtype)
+                
+                # Start frame: apply strength (only if enabled)
+                if enable_start_frame:
+                    mask_svi_high[:, :, :1] = max(0.0, 1.0 - high_noise_start_strength)
+                    mask_svi_low[:, :, :1] = max(0.0, 1.0 - low_noise_start_strength)
+                
+                # Middle frame: apply strength
+                if middle_image is not None and enable_middle_frame:
+                    start_range = max(0, middle_latent_idx)
+                    end_range = min(total_latents, middle_latent_idx + 1)
+                    mask_svi_high[:, :, start_range:end_range] = max(0.0, 1.0 - high_noise_mid_strength)
+                    mask_svi_low[:, :, start_range:end_range] = max(0.0, 1.0 - low_noise_mid_strength)
+                
+                # End frame: apply strength (only if enabled)
+                if end_image is not None and enable_end_frame:
+                    mask_svi_high[:, :, end_latent_idx:end_latent_idx+1] = 0.0
+                    mask_svi_low[:, :, end_latent_idx:end_latent_idx+1] = max(0.0, 1.0 - low_noise_end_strength)
+                
+                positive_high_noise = node_helpers.conditioning_set_values(positive, {
+                    "concat_latent_image": image_cond_latent,
+                    "concat_mask": mask_svi_high
+                })
+                
+                positive_low_noise = node_helpers.conditioning_set_values(positive, {
+                    "concat_latent_image": image_cond_latent,
+                    "concat_mask": mask_svi_low
+                })
+                
+                negative_out = node_helpers.conditioning_set_values(negative, {
+                    "concat_latent_image": image_cond_latent,
+                    "concat_mask": mask_svi_high
+                })
+                
+                # Handle clip vision
+                clip_vision_output = cls._merge_clip_vision_outputs(
+                    clip_vision_start_image if enable_start_frame else None, 
+                    clip_vision_middle_image if enable_middle_frame else None, 
+                    clip_vision_end_image if enable_end_frame else None
+                )
+                
+                if clip_vision_output is not None:
+                    positive_low_noise = node_helpers.conditioning_set_values(
+                        positive_low_noise, 
+                        {"clip_vision_output": clip_vision_output}
+                    )
+                    negative_out = node_helpers.conditioning_set_values(
+                        negative_out,
+                        {"clip_vision_output": clip_vision_output}
+                    )
+                
+                out_latent = {"samples": latent}
+                
+                return io.NodeOutput(positive_high_noise, positive_low_noise, negative_out, out_latent,
+                        trim_latent, trim_image, next_offset)
+            
+            elif start_image is not None:
+                # SVI First: Use start_image as the only anchor
+                svi_continue_mode = False
+                
+                # Encode start_image as anchor latent
+                anchor_latent = vae.encode(start_image[:1, :, :, :3])
+                
+                # Build image_cond_latent by inserting latents at correct positions
+                # Start with padding, then insert anchor, middle, end at their positions
+                image_cond_latent = torch.zeros(1, latent_channels, total_latents, H, W, 
+                                               dtype=anchor_latent.dtype, device=anchor_latent.device)
+                image_cond_latent = comfy.latent_formats.Wan21().process_out(image_cond_latent)
+                
+                # Insert anchor at position 0 (if start frame enabled)
+                if enable_start_frame:
+                    image_cond_latent[:, :, :1] = anchor_latent
+                
+                # Insert middle_image at middle_latent_idx if provided
+                if middle_image is not None and enable_middle_frame:
+                    middle_latent = vae.encode(middle_image[:1, :, :, :3])
+                    if middle_latent_idx < total_latents:
+                        image_cond_latent[:, :, middle_latent_idx:middle_latent_idx+1] = middle_latent
+                
+                # Insert end_image at end_latent_idx if provided
+                if end_image is not None and enable_end_frame:
+                    end_latent = vae.encode(end_image[:1, :, :, :3])
+                    image_cond_latent[:, :, end_latent_idx:end_latent_idx+1] = end_latent
+                
+                # Create masks with strength parameters
+                # Fixed: mask shape should be (1, 4, T, H, W) to match non-SVI mode format
+                mask_svi_high = torch.ones((1, 4, total_latents, H, W), 
+                                          device=device, dtype=anchor_latent.dtype)
+                mask_svi_low = torch.ones((1, 4, total_latents, H, W), 
+                                         device=device, dtype=anchor_latent.dtype)
+                
+                # Start frame: apply strength (only if enabled)
+                if enable_start_frame:
+                    mask_svi_high[:, :, :1] = max(0.0, 1.0 - high_noise_start_strength)
+                    mask_svi_low[:, :, :1] = max(0.0, 1.0 - low_noise_start_strength)
+                
+                # Middle frame: apply strength
+                if middle_image is not None and enable_middle_frame:
+                    start_range = max(0, middle_latent_idx)
+                    end_range = min(total_latents, middle_latent_idx + 1)
+                    mask_svi_high[:, :, start_range:end_range] = max(0.0, 1.0 - high_noise_mid_strength)
+                    mask_svi_low[:, :, start_range:end_range] = max(0.0, 1.0 - low_noise_mid_strength)
+                
+                # End frame: apply strength (only if enabled)
+                if end_image is not None and enable_end_frame:
+                    mask_svi_high[:, :, end_latent_idx:end_latent_idx+1] = 0.0
+                    mask_svi_low[:, :, end_latent_idx:end_latent_idx+1] = max(0.0, 1.0 - low_noise_end_strength)
+                
+                positive_high_noise = node_helpers.conditioning_set_values(positive, {
+                    "concat_latent_image": image_cond_latent,
+                    "concat_mask": mask_svi_high
+                })
+                
+                positive_low_noise = node_helpers.conditioning_set_values(positive, {
+                    "concat_latent_image": image_cond_latent,
+                    "concat_mask": mask_svi_low
+                })
+                
+                negative_out = node_helpers.conditioning_set_values(negative, {
+                    "concat_latent_image": image_cond_latent,
+                    "concat_mask": mask_svi_high
+                })
+                
+                # Handle clip vision
+                clip_vision_output = cls._merge_clip_vision_outputs(
+                    clip_vision_start_image if enable_start_frame else None, 
+                    clip_vision_middle_image if enable_middle_frame else None, 
+                    clip_vision_end_image if enable_end_frame else None
+                )
+                
+                if clip_vision_output is not None:
+                    positive_low_noise = node_helpers.conditioning_set_values(
+                        positive_low_noise, 
+                        {"clip_vision_output": clip_vision_output}
+                    )
+                    negative_out = node_helpers.conditioning_set_values(
+                        negative_out,
+                        {"clip_vision_output": clip_vision_output}
+                    )
+                
+                out_latent = {"samples": latent}
+                
+                return io.NodeOutput(positive_high_noise, positive_low_noise, negative_out, out_latent,
+                        trim_latent, trim_image, next_offset)
+        # --- End of SVI Mode Logic ---
+
+        # Original logic for other modes (AUTO_CONTINUE, NORMAL)
+        if has_motion_frames and long_video_mode != 'SVI' and long_video_mode != 'LATENT_CONTINUE':
             image[:motion_frames.shape[0]] = motion_frames[:, :, :, :3]
             
             motion_latent_frames = ((motion_frames.shape[0] - 1) // 4) + 1
             mask_high_noise[:, :, :motion_latent_frames * 4] = 0.0
             
-            if not svi_shot_second_pass:
+            if not svi_continue_mode:
                 mask_low_noise[:, :, :motion_latent_frames * 4] = 0.0
             
             if middle_image is not None and enable_middle_frame:
@@ -176,21 +412,21 @@ class WanAdvancedI2V(io.ComfyNode):
                 mask_high_noise[:, :, start_range:end_range] = max(0.0, 1.0 - high_noise_mid_strength)
                 mask_low_noise[:, :, start_range:end_range] = max(0.0, 1.0 - low_noise_mid_strength)
             
-            if end_image is not None:
+            if end_image is not None and enable_end_frame:
                 image[-1:] = end_image[:, :, :, :3]
                 mask_high_noise[:, :, -1:] = 0.0
                 mask_low_noise[:, :, -1:] = max(0.0, 1.0 - low_noise_end_strength)
         else:
-            if start_image is not None:
+            if start_image is not None and long_video_mode != 'LATENT_CONTINUE' and enable_start_frame:
                 image[:start_image.shape[0]] = start_image[:, :, :, :3]
                 
                 if is_pure_triple_mode:
                     mask_range = min(start_image.shape[0] + 3, length)
-                    mask_high_noise[:, :, :mask_range] = 0.0
+                    mask_high_noise[:, :, :mask_range] = max(0.0, 1.0 - high_noise_start_strength)
                     mask_low_noise[:, :, :mask_range] = max(0.0, 1.0 - low_noise_start_strength)
                 else:
                     start_latent_frames = ((start_image.shape[0] - 1) // 4) + 1
-                    mask_high_noise[:, :, :start_latent_frames * 4] = 0.0
+                    mask_high_noise[:, :, :start_latent_frames * 4] = max(0.0, 1.0 - high_noise_start_strength)
                     mask_low_noise[:, :, :start_latent_frames * 4] = max(0.0, 1.0 - low_noise_start_strength)
             
             if middle_image is not None and enable_middle_frame:
@@ -202,7 +438,7 @@ class WanAdvancedI2V(io.ComfyNode):
                 mask_high_noise[:, :, start_range:end_range] = max(0.0, 1.0 - high_noise_mid_strength)
                 mask_low_noise[:, :, start_range:end_range] = max(0.0, 1.0 - low_noise_mid_strength)
             
-            if end_image is not None:
+            if end_image is not None and enable_end_frame:
                 image[-end_image.shape[0]:] = end_image[:, :, :, :3]
                 
                 if is_pure_triple_mode:
@@ -212,7 +448,11 @@ class WanAdvancedI2V(io.ComfyNode):
                     mask_high_noise[:, :, -1:] = 0.0
                     mask_low_noise[:, :, -1:] = max(0.0, 1.0 - low_noise_end_strength)
         
-        concat_latent_image = vae.encode(image[:, :, :, :3])
+        if latent_continue_mode and prev_latent_for_concat is not None:
+            concat_latent_image = vae.encode(image[:, :, :, :3])
+            concat_latent_image[:, :, 0:1, :, :] = prev_latent_for_concat
+        else:
+            concat_latent_image = vae.encode(image[:, :, :, :3])
         
         if structural_repulsion_boost > 1.001 and length > 4:
             mask_h, mask_w = mask_high_noise.shape[-2], mask_high_noise.shape[-1]
@@ -282,19 +522,21 @@ class WanAdvancedI2V(io.ComfyNode):
                         current_mask = mask_high_noise[:, :, frame_idx, :, :]
                         mask_high_noise[:, :, frame_idx, :, :] = current_mask * spatial_gradient
         
-        if svi_shot_second_pass:
+        if svi_continue_mode:
+            # Second pass: motion_frames is injected into latent first frame
+            # start_image used for low noise conditioning as concat image
             image_low = torch.ones((length, height, width, 3), device=device) * 0.5
             
-            if mode == "SINGLE_PERSON":
-                if start_image is not None:
-                    image_low[0] = start_image[0, :, :, :3]
-                    mask_low_noise[:, :, 0:4] = 0.0
-            else:
-                if motion_frames is not None:
-                    image_low[0] = motion_frames[0, :, :, :3]
-                    mask_low_noise[:, :, 0:1] = 0.0
+            if start_image is not None:
+                image_low[:start_image.shape[0]] = start_image[:, :, :, :3]
+                start_latent_frames = ((start_image.shape[0] - 1) // 4) + 1
+                mask_low_noise[:, :, :start_latent_frames * 4] = 0.0
             
             concat_latent_image_low = vae.encode(image_low[:, :, :, :3])
+        elif latent_continue_mode:
+            # LATENT_CONTINUE mode: concat image and concat latent should be the same
+            # Use the same image for both high and low noise conditioning
+            concat_latent_image_low = concat_latent_image
         elif mode == "SINGLE_PERSON":
             image_low_only = torch.ones((length, height, width, 3), device=device) * 0.5
             
@@ -309,13 +551,13 @@ class WanAdvancedI2V(io.ComfyNode):
             
             if motion_frames is not None and low_noise_start_strength > 0.0:
                 image_low_only[:motion_frames.shape[0]] = motion_frames[:, :, :, :3]
-            elif start_image is not None and low_noise_start_strength > 0.0:
+            elif start_image is not None and low_noise_start_strength > 0.0 and enable_start_frame:
                 image_low_only[:start_image.shape[0]] = start_image[:, :, :, :3]
             
             if middle_image is not None and low_noise_mid_strength > 0.0 and enable_middle_frame:
                 image_low_only[middle_idx:middle_idx + 1] = middle_image
             
-            if end_image is not None and low_noise_end_strength > 0.0:
+            if end_image is not None and low_noise_end_strength > 0.0 and enable_end_frame:
                 if is_pure_triple_mode:
                     image_low_only[-end_image.shape[0]:] = end_image[:, :, :, :3]
                 else:
@@ -351,9 +593,9 @@ class WanAdvancedI2V(io.ComfyNode):
         })
         
         clip_vision_output = cls._merge_clip_vision_outputs(
-            clip_vision_start_image, 
-            clip_vision_middle_image, 
-            clip_vision_end_image
+            clip_vision_start_image if enable_start_frame else None, 
+            clip_vision_middle_image if enable_middle_frame else None, 
+            clip_vision_end_image if enable_end_frame else None
         )
         
         if clip_vision_output is not None:

@@ -19,7 +19,78 @@
 
 ## 📝 更新日志
 
-### 最新更新 - 运动增强功能
+### 2025-01-27 SVI 模式增强
+
+- ✅ **修复 SVI 模式 mask 维度问题**
+  - 修复 `concat_mask` 维度从 `(1, 1, T, H, W)` 到 `(1, 4, T, H, W)`
+  - 与 non-SVI 模式格式保持一致，解决拼接方向错误
+
+- ✅ **新增 `svi_motion_strength` 参数**
+  - 控制 SVI 模式下的动态传递强度
+  - 参数范围：0.0-2.0，默认 1.0
+  - `<1.0` = 更稳定的效果，`>1.0` = 更夸张的动态效果
+
+- ✅ **新增三个参考帧开关**
+  - `enable_start_frame`：控制是否启用起始帧参考
+  - `enable_middle_frame`：控制是否启用中间帧参考（已有）
+  - `enable_end_frame`：控制是否启用结束帧参考
+
+**感谢**：[@a1010580415-commits](https://github.com/a1010580415-commits) 在 [PR #29](https://github.com/wallen0322/ComfyUI-Wan22FMLF/pull/29) 中的贡献和建议
+
+---
+
+### SVI PRO - 连续性优化
+
+**SVI 项目地址**：https://github.com/vita-epfl/Stable-Video-Infinity
+
+**SVI 模式第二次采样逻辑优化**
+- ✅ `motion_frames`（上一次采样的最后一帧）现在直接注入到 latent 的第一帧，确保帧间连续性
+- ✅ `start_image` 作为 concat image 注入条件，提供视觉引导
+- ✅ 优化了低噪声阶段的处理逻辑
+
+**技术变更**：
+- 第二次采样时：`motion_frames` 的第一帧编码后注入 `latent` 的第一帧（不注入条件）
+- `start_image` 作为 concat image 注入条件
+- 优化了 `image_low` 的处理，确保低噪声阶段一致性
+
+**修复问题**：
+- 修复多次采样时帧间不连续的问题
+- 优化 latent 和条件注入的时机
+
+---
+
+### SVI Pro Advanced 节点 (NEW)
+
+**专为高分辨率无缝衔接优化的节点**
+
+- ✅ 高分辨率（如1920x1080）下 SVI 动态削弱问题
+- ✅ 视频段拼接处跳帧问题
+- ✅ 简化用户界面
+
+| 参数 | 默认值 | 说明 |
+|------|--------|------|
+| `motion_influence` | 1.0 | 动态传递权重 |
+| `overlap_frames` | 4 | 重叠帧数 |
+| `motion_boost` | 1.0 | 动作幅度放大 |
+| `detail_boost` | 1.0 | 动态速度增强 |
+
+**感谢**：[@a1010580415-commits](https://github.com/a1010580415-commits) 在 [PR #30](https://github.com/wallen0322/ComfyUI-Wan22FMLF/pull/30) 中的贡献
+
+---
+
+### 最新更新 - 高性能图片选择节点
+
+- ✅ **重大性能优化**：改用服务器文件存储，不再在前端存储 base64 数据
+  - 避免 LocalStorage 配额限制（QuotaExceededError）
+  - 大幅减少工作流文件大小
+  - 提升节点加载和响应速度
+- ✅ 使用 ComfyUI 标准 `/upload/image` 和 `/view` 接口
+- ✅ 修复图片排序功能，支持手动排序
+- ✅ 优化代码结构，提升稳定性
+
+---
+
+### 运动增强功能
 
 - ✅ **新增 `structural_repulsion_boost` 参数**
   - 通过空间梯度条件注入增强运动效果
