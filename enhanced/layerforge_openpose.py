@@ -14,6 +14,8 @@ _detector_lock = threading.Lock()
 _detector_cache = None
 _torch_backend_lock = threading.Lock()
 _torch_backend_cache = None
+_hybrid_backend_lock = threading.Lock()
+_hybrid_backend_cache = None
 
 
 def _get_detector():
@@ -106,6 +108,54 @@ def _get_torch_dwpose_backend():
         return _torch_backend_cache
 
 
+def _get_hybrid_dwpose_backend(onnx_det_path: str, torch_pose_path: str):
+    global _hybrid_backend_cache
+    with _hybrid_backend_lock:
+        if _hybrid_backend_cache is not None:
+            cached = _hybrid_backend_cache
+            if cached.get("onnx_det_path") == onnx_det_path and cached.get("torch_pose_path") == torch_pose_path:
+                return cached
+
+        import torch
+        import onnxruntime
+
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        pose = torch.jit.load(torch_pose_path, map_location=device).eval()
+
+        providers = ["CPUExecutionProvider"]
+        provider_options = None
+        if device.type == "cuda":
+            providers = ["CUDAExecutionProvider"]
+            provider_options = [{"device_id": int(device.index) if device.index is not None else 0}]
+
+        det_session = onnxruntime.InferenceSession(
+            path_or_bytes=onnx_det_path,
+            providers=providers,
+            provider_options=provider_options,
+        )
+
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "dwpose_torchscript"))
+        pose_py = os.path.join(base_dir, "jit_pose.py")
+        spec_pose = importlib.util.spec_from_file_location("layerforge_dwpose_jit_pose_hybrid", pose_py)
+        if not spec_pose or not spec_pose.loader:
+            raise RuntimeError("无法加载 TorchScript DWPose 推理模块")
+        mod_pose = importlib.util.module_from_spec(spec_pose)
+        spec_pose.loader.exec_module(mod_pose)
+
+        from extras.easy_dwpose.body_estimation.detector import inference_detector
+
+        _hybrid_backend_cache = {
+            "onnx_det_path": onnx_det_path,
+            "torch_pose_path": torch_pose_path,
+            "device": device,
+            "det_session": det_session,
+            "pose": pose,
+            "inference_detector": inference_detector,
+            "inference_pose": getattr(mod_pose, "inference_pose"),
+        }
+        return _hybrid_backend_cache
+
+
 def check_model_availability():
     try:
         ts_det, ts_pose = _get_expected_torchscript_paths()
@@ -125,6 +175,20 @@ def check_model_availability():
         model_root, model_det, model_pose = _get_expected_onnx_paths()
         has_det = os.path.exists(model_det) and os.path.getsize(model_det) > 0
         has_pose = os.path.exists(model_pose) and os.path.getsize(model_pose) > 0
+        if has_det and has_ts_pose:
+            return {
+                "available": True,
+                "reason": "ready",
+                "backend": "hybrid",
+                "message": "OpenPose/DWPose engine is ready (Hybrid: ONNX det + TorchScript pose).",
+                "expected": {
+                    "model_root": os.path.abspath(model_root),
+                    "onnx_det": os.path.abspath(model_det),
+                    "torchscript_pose": os.path.abspath(ts_pose),
+                    "onnx_pose": os.path.abspath(model_pose),
+                    "torchscript_det": os.path.abspath(ts_det),
+                },
+            }
         if not (has_det and has_pose):
             return {
                 "available": False,
@@ -284,6 +348,20 @@ def process_openpose(image_data_url: str, detect_resolution: int = 512, allow_do
     ts_det, ts_pose = _get_expected_torchscript_paths()
     has_ts_det = os.path.exists(ts_det) and os.path.getsize(ts_det) > 0
     has_ts_pose = os.path.exists(ts_pose) and os.path.getsize(ts_pose) > 0
+    if allow_download and not has_ts_pose:
+        try:
+            from modules.model_loader import load_file_from_url
+            ts_pose_dir = os.path.dirname(ts_pose)
+            os.makedirs(ts_pose_dir, exist_ok=True)
+            load_file_from_url(
+                url="https://huggingface.co/hr16/DWPose-TorchScript-BatchSize5/resolve/main/dw-ll_ucoco_384_bs5.torchscript.pt",
+                model_dir=ts_pose_dir,
+                file_name=os.path.basename(ts_pose),
+            )
+        except Exception:
+            pass
+        has_ts_det = os.path.exists(ts_det) and os.path.getsize(ts_det) > 0
+        has_ts_pose = os.path.exists(ts_pose) and os.path.getsize(ts_pose) > 0
 
     if has_ts_det and has_ts_pose:
         backend = _get_torch_dwpose_backend()
@@ -317,10 +395,61 @@ def process_openpose(image_data_url: str, detect_resolution: int = 512, allow_do
     model_root, model_det, model_pose = _get_expected_onnx_paths()
     has_det = os.path.exists(model_det) and os.path.getsize(model_det) > 0
     has_pose = os.path.exists(model_pose) and os.path.getsize(model_pose) > 0
-    if not (has_det and has_pose) and not allow_download:
+    if allow_download and not has_det:
+        try:
+            from modules.model_loader import load_file_from_url
+            os.makedirs(model_root, exist_ok=True)
+            load_file_from_url(
+                url="https://huggingface.co/yzd-v/DWPose/resolve/main/yolox_l.onnx",
+                model_dir=model_root,
+                file_name=os.path.basename(model_det),
+            )
+        except Exception:
+            pass
+        has_det = os.path.exists(model_det) and os.path.getsize(model_det) > 0
+
+    if has_det and has_ts_pose:
+        backend = _get_hybrid_dwpose_backend(model_det, ts_pose)
+        image_np = np.array(image).copy()
+        height, width, _ = image_np.shape
+        out_bbox = backend["inference_detector"](backend["det_session"], image_np)
+        if out_bbox is None:
+            out_bbox = []
+        keypoints, scores = backend["inference_pose"](backend["pose"], out_bbox, image_np)
+        if keypoints is None or scores is None:
+            pose_json_obj = {"width": int(original_width), "height": int(original_height), "people": []}
+            return {"pose_json": pose_json_obj, "pose_image": _pil_to_png_data_url(Image.new("RGB", (original_width, original_height)))}
+        keypoints_info = np.concatenate((keypoints, scores[..., None]), axis=-1)
+        neck = np.mean(keypoints_info[:, [5, 6]], axis=1)
+        neck[:, 2:4] = np.logical_and(keypoints_info[:, 5, 2:4] > 0.3, keypoints_info[:, 6, 2:4] > 0.3).astype(int)
+        keypoints_info = np.insert(keypoints_info, 17, neck, axis=1)
+        mmpose_idx = [17, 6, 8, 10, 7, 9, 12, 14, 16, 13, 15, 2, 1, 4, 3]
+        openpose_idx = [1, 2, 3, 4, 6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17]
+        keypoints_info[:, openpose_idx] = keypoints_info[:, mmpose_idx]
+        candidates, scores = keypoints_info[..., :2], keypoints_info[..., 2]
+        pose = _format_pose(candidates, scores, width, height)
+        from extras.easy_dwpose.draw import draw_openpose
+        pose_json_obj = _dwpose_to_openpose_json(pose, original_width, original_height)
+        pose_image_np = draw_openpose(pose, height=height, width=width)
+        pose_image_pil = Image.fromarray(np.asarray(pose_image_np)).resize((original_width, original_height), Image.LANCZOS)
+        return {
+            "pose_json": pose_json_obj,
+            "pose_image": _pil_to_png_data_url(pose_image_pil),
+        }
+    if allow_download and not (has_det and has_pose):
+        try:
+            from modules.config import downloading_controlnet_dwpose
+            downloading_controlnet_dwpose()
+        except Exception:
+            pass
+        has_det = os.path.exists(model_det) and os.path.getsize(model_det) > 0
+        has_pose = os.path.exists(model_pose) and os.path.getsize(model_pose) > 0
+
+    if not (has_det and has_pose):
         raise RuntimeError(
-            "缺少 ONNX 模型文件，且当前请求未允许自动下载。"
-            f" 需要文件: {os.path.abspath(model_det)} ; {os.path.abspath(model_pose)}"
+            "未找到 LayerForge OpenPose 所需的模型文件"
+            f" torchscript_det: {os.path.abspath(ts_det)} ; torchscript_pose: {os.path.abspath(ts_pose)} ;"
+            f" onnx_det: {os.path.abspath(model_det)} ; onnx_pose: {os.path.abspath(model_pose)}"
         )
 
     detector = _get_detector()
