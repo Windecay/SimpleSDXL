@@ -597,7 +597,7 @@
   "Enable Comfyd always active": "启用Comfyd服务常驻",
   "Enabling will improve execution speed.": "服务常驻会提高执行速度",
   "Enable optimizations for Comfyd": "启用Comfyd激进加速",
-  "Effective for some Nvidia cards.": "英伟达30系以上显卡有效[需驱动支持]",
+  "Effective for some Nvidia cards.": "英伟达30系以上有效",
   "Reserved VRAM(GB)": "预留显存(GB)",
   "Enable VLM": "启用VLM",
   "VLM Version": "VLM版本选择（高版本需要更高显存）",

@@ -1,4 +1,5 @@
 import os
+import sys
 import logging
 import torch
 import importlib
@@ -9,7 +10,7 @@ from tqdm import tqdm
 import folder_paths
 import comfy.model_management as mm
 from comfy.cli_args import args
-from comfy.ldm.modules.attention import wrap_attn, optimized_attention
+from comfy.ldm.modules.attention import wrap_attn, optimized_attention, attention_pytorch
 import comfy.utils
 import comfy.sd
 
@@ -56,6 +57,8 @@ def get_sage_func(sage_attention, allow_compile=False):
 
     @wrap_attn
     def attention_sage(q, k, v, heads, mask=None, attn_precision=None, skip_reshape=False, skip_output_reshape=False, **kwargs):
+        if kwargs.get("low_precision_attention", True) is False:
+            return attention_pytorch(q, k, v, heads, mask=mask, skip_reshape=skip_reshape, skip_output_reshape=skip_output_reshape, **kwargs)
         in_dtype = v.dtype
         if q.dtype == torch.float32 or k.dtype == torch.float32 or v.dtype == torch.float32:
             q, k, v = q.to(torch.float16), k.to(torch.float16), v.to(torch.float16)
@@ -1189,7 +1192,16 @@ def ltxv_feta_forward(self, x, context=None, mask=None, pe=None, k_pe=None, tran
         out = comfy.ldm.modules.attention.optimized_attention(q, k, v, self.heads, attn_precision=self.attn_precision, transformer_options=transformer_options)
     else:
         out = comfy.ldm.modules.attention.optimized_attention_masked(q, k, v, self.heads, mask, attn_precision=self.attn_precision, transformer_options=transformer_options)
-    return self.to_out(out * feta_scores)
+
+    if self.to_gate_logits is not None:
+        gate_logits = self.to_gate_logits(x)  # (B, T, H)
+        b, t, _ = out.shape
+        out = out.view(b, t, self.heads, self.dim_head)
+        gates = 2.0 * torch.sigmoid(gate_logits)  # zero-init -> identity
+        out = out * gates.unsqueeze(-1)
+        out = out.view(b, t, self.heads * self.dim_head)
+
+    return self.to_out(out) * feta_scores
 
 
 class LTXCrossAttentionPatch:
@@ -1212,7 +1224,7 @@ class LTXVEnhanceAVideoKJ:
             "required": {
                 "model": ("MODEL",),
                 "latent": ("LATENT", {"tooltip": "Only used to get the latent count"}),
-                "weight": ("FLOAT", {"default": 2.0, "min": 0.0, "max": 10.0, "step": 0.001, "tooltip": "Strength of the enhance effect"}),
+                "weight": ("FLOAT", {"default": 4.0, "min": 0.0, "max": 100.0, "step": 0.001, "tooltip": "Strength of the enhance effect"}),
            }
         }
 
@@ -1613,8 +1625,13 @@ class GGUFLoaderKJ(io.ComfyNode):
 
     @classmethod
     def _get_gguf_module(cls):
-        gguf_path = os.path.join(folder_paths.folder_names_and_paths["custom_nodes"][0][0], "ComfyUI-GGUF")
         """Import GGUF module with version validation"""
+        for key, mod in sys.modules.items():
+            if key.endswith("ComfyUI-GGUF") or key.endswith("comfyui-gguf"):
+                if hasattr(mod, "ops") and hasattr(mod, "nodes"):
+                    return mod
+
+        gguf_path = os.path.join(folder_paths.folder_names_and_paths["custom_nodes"][0][0], "ComfyUI-GGUF")
         for module_name in ["ComfyUI-GGUF", "custom_nodes.ComfyUI-GGUF", "comfyui-gguf", "custom_nodes.comfyui-gguf", gguf_path, gguf_path.lower()]:
             try:
                 module = importlib.import_module(module_name)

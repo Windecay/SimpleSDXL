@@ -5113,7 +5113,7 @@
     "inputs": {
       "enable_fp16_accumulation": true,
       "model": [
-        "587",
+        "846",
         0
       ]
     },
@@ -5712,6 +5712,47 @@
     "class_type": "KSamplerAdvanced",
     "_meta": {
       "title": "KSampler (Advanced)"
+    }
+  },
+  "843": {
+    "inputs": {},
+    "class_type": "GetGPUInfo",
+    "_meta": {
+      "title": "Get GPU Info (Compute Capability)"
+    }
+  },
+  "845": {
+    "inputs": {
+      "sage_attention": "disabled",
+      "allow_compile": false,
+      "model": [
+        "494",
+        0
+      ]
+    },
+    "class_type": "PathchSageAttentionKJ",
+    "_meta": {
+      "title": "Patch Sage Attention KJ"
+    }
+  },
+  "846": {
+    "inputs": {
+      "boolean": [
+        "843",
+        6
+      ],
+      "on_true": [
+        "587",
+        0
+      ],
+      "on_false": [
+        "845",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
     }
   }
 }
