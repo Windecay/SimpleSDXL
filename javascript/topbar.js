@@ -412,6 +412,7 @@ function updatePresetStore(nav_name_list, role, expand_flag, theme) {
             return;
         }
         let base_name = item_name;
+        let identity_name = (originalText || base_name).trim();
         let is_complete = div.getAttribute("data-complete") === "1";
         const had_missing_marker = div.getAttribute("data-missing") === "1";
         const has_download_marker = had_missing_marker || text.includes('\u2B07') || item_name.includes('\u2B07');
@@ -423,8 +424,11 @@ function updatePresetStore(nav_name_list, role, expand_flag, theme) {
         if (base_name.endsWith('\u2B07')) {
             base_name = base_name.slice(0, -1).trim();
         }
-        if (originalText !== base_name) {
-            div.setAttribute("data-original-text", base_name);
+        if (identity_name.indexOf(presetCompleteMarker) >= 0) {
+            identity_name = identity_name.split(presetCompleteMarker, 1)[0].trim();
+        }
+        if (identity_name.endsWith('\u2B07')) {
+            identity_name = identity_name.slice(0, -1).trim();
         }
         if (div.textContent.trim() !== base_name) {
             div.textContent = base_name;
@@ -443,7 +447,7 @@ function updatePresetStore(nav_name_list, role, expand_flag, theme) {
         button.classList.toggle('preset-missing', has_download_marker);
 	// console.log("updatePresetStore: otext="+originalText+", text="+text+", name="+item_name);
 	if (base_name) {
-            if (nav_name_list.includes(base_name)) {
+            if (nav_name_list.includes(identity_name) || nav_name_list.includes(base_name)) {
                 if (theme === 'light') {
 		    button.style.background= 'var(--neutral-50)';
                 } else {
