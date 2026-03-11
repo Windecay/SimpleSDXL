@@ -2,7 +2,7 @@
   "301": {
     "inputs": {
       "samples": [
-        "359",
+        "436",
         0
       ],
       "vae": [
@@ -45,7 +45,7 @@
       "lora_name": "removal_timestep_alpha-2-1740.safetensors",
       "strength_model": 1,
       "model": [
-        "433",
+        "427",
         0
       ]
     },
@@ -220,7 +220,7 @@
   },
   "357": {
     "inputs": {
-      "value": 0
+      "value": 0.12
     },
     "class_type": "easy float",
     "_meta": {
@@ -242,13 +242,10 @@
       "sampler_name": "euler",
       "scheduler": "simple",
       "start_at_step": 0,
-      "end_at_step": [
-        "425",
-        5
-      ],
+      "end_at_step": 5,
       "return_with_leftover_noise": "disable",
       "model": [
-        "428",
+        "309",
         0
       ],
       "positive": [
@@ -531,7 +528,7 @@
   },
   "425": {
     "inputs": {
-      "prompt": "",
+      "prompt": "Remove the selected objects from the image,   ",
       "negative_prompt": "",
       "width": 1280,
       "height": 1280,
@@ -573,7 +570,7 @@
       "end_percent": 0.8,
       "verbose": false,
       "model": [
-        "309",
+        "439",
         0
       ]
     },
@@ -587,7 +584,7 @@
       "sage_attention": "auto",
       "allow_compile": false,
       "model": [
-        "427",
+        "433",
         0
       ]
     },
@@ -658,6 +655,61 @@
     "class_type": "easy ifElse",
     "_meta": {
       "title": "If else"
+    }
+  },
+  "436": {
+    "inputs": {
+      "add_noise": "enable",
+      "noise_seed": [
+        "369",
+        0
+      ],
+      "steps": [
+        "425",
+        5
+      ],
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "start_at_step": 5,
+      "end_at_step": [
+        "425",
+        5
+      ],
+      "return_with_leftover_noise": "disable",
+      "model": [
+        "427",
+        0
+      ],
+      "positive": [
+        "314",
+        0
+      ],
+      "negative": [
+        "314",
+        1
+      ],
+      "latent_image": [
+        "359",
+        0
+      ]
+    },
+    "class_type": "KSamplerAdvanced",
+    "_meta": {
+      "title": "KSampler (Advanced)"
+    }
+  },
+  "439": {
+    "inputs": {
+      "strength": 1,
+      "model": [
+        "428",
+        0
+      ]
+    },
+    "class_type": "DifferentialDiffusion",
+    "_meta": {
+      "title": "Differential Diffusion"
     }
   }
 }

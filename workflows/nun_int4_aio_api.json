@@ -394,46 +394,6 @@
       "title": "i2i_uov_hires_fix_blurred"
     }
   },
-  "102": {
-    "inputs": {
-      "boolean": [
-        "493",
-        0
-      ],
-      "on_true": [
-        "14",
-        0
-      ],
-      "on_false": [
-        "103",
-        0
-      ]
-    },
-    "class_type": "easy ifElse",
-    "_meta": {
-      "title": "If else"
-    }
-  },
-  "103": {
-    "inputs": {
-      "boolean": [
-        "514",
-        0
-      ],
-      "on_true": [
-        "15",
-        0
-      ],
-      "on_false": [
-        "515",
-        0
-      ]
-    },
-    "class_type": "easy ifElse",
-    "_meta": {
-      "title": "If else"
-    }
-  },
   "106": {
     "inputs": {
       "upscale_method": "lanczos",
@@ -3378,26 +3338,6 @@
       "title": "If else"
     }
   },
-  "430": {
-    "inputs": {
-      "boolean": [
-        "490",
-        0
-      ],
-      "on_true": [
-        "175",
-        0
-      ],
-      "on_false": [
-        "102",
-        0
-      ]
-    },
-    "class_type": "easy ifElse",
-    "_meta": {
-      "title": "If else"
-    }
-  },
   "431": {
     "inputs": {
       "comparison": "a == b",
@@ -3608,7 +3548,7 @@
     "inputs": {
       "total": 4,
       "initial_value1": [
-        "771",
+        "796",
         0
       ]
     },
@@ -3719,40 +3659,6 @@
       "title": "图像功能"
     }
   },
-  "490": {
-    "inputs": {
-      "comparison": "a == b",
-      "a": [
-        "586",
-        0
-      ],
-      "b": [
-        "552",
-        0
-      ]
-    },
-    "class_type": "easy compare",
-    "_meta": {
-      "title": "Compare"
-    }
-  },
-  "493": {
-    "inputs": {
-      "comparison": "a == b",
-      "a": [
-        "525",
-        0
-      ],
-      "b": [
-        "552",
-        0
-      ]
-    },
-    "class_type": "easy compare",
-    "_meta": {
-      "title": "Compare"
-    }
-  },
   "494": {
     "inputs": {
       "boolean": [
@@ -3819,52 +3725,6 @@
     "class_type": "easy anythingIndexSwitch",
     "_meta": {
       "title": "图像"
-    }
-  },
-  "507": {
-    "inputs": {
-      "value": 0
-    },
-    "class_type": "easy float",
-    "_meta": {
-      "title": "Float"
-    }
-  },
-  "514": {
-    "inputs": {
-      "comparison": "a == b",
-      "a": [
-        "556",
-        0
-      ],
-      "b": [
-        "552",
-        0
-      ]
-    },
-    "class_type": "easy compare",
-    "_meta": {
-      "title": "Compare"
-    }
-  },
-  "515": {
-    "inputs": {
-      "boolean": [
-        "514",
-        0
-      ],
-      "on_true": [
-        "15",
-        0
-      ],
-      "on_false": [
-        "507",
-        0
-      ]
-    },
-    "class_type": "easy ifElse",
-    "_meta": {
-      "title": "If else"
     }
   },
   "521": {
@@ -4003,6 +3863,10 @@
         0
       ],
       "value2": [
+        "801",
+        0
+      ],
+      "value3": [
         "529",
         0
       ]
@@ -4112,7 +3976,10 @@
   },
   "540": {
     "inputs": {
-      "strength": 1,
+      "strength": [
+        "800",
+        1
+      ],
       "start_percent": 0,
       "end_percent": [
         "537",
@@ -4223,77 +4090,6 @@
       "title": "图像处理"
     }
   },
-  "545": {
-    "inputs": {
-      "positive": [
-        "541",
-        2
-      ],
-      "negative": [
-        "1",
-        0
-      ],
-      "vae": [
-        "336",
-        0
-      ],
-      "pixels": [
-        "542",
-        0
-      ]
-    },
-    "class_type": "InstructPixToPixConditioning",
-    "_meta": {
-      "title": "InstructPixToPixConditioning"
-    }
-  },
-  "546": {
-    "inputs": {
-      "boolean": [
-        "555",
-        0
-      ],
-      "on_true": [
-        "545",
-        0
-      ],
-      "on_false": [
-        "540",
-        0
-      ]
-    },
-    "class_type": "easy ifElse",
-    "_meta": {
-      "title": "If else"
-    }
-  },
-  "547": {
-    "inputs": {
-      "value": 0
-    },
-    "class_type": "easy float",
-    "_meta": {
-      "title": "Float"
-    }
-  },
-  "548": {
-    "inputs": {
-      "value": true
-    },
-    "class_type": "easy boolean",
-    "_meta": {
-      "title": "Boolean"
-    }
-  },
-  "549": {
-    "inputs": {
-      "value": false
-    },
-    "class_type": "easy boolean",
-    "_meta": {
-      "title": "Boolean"
-    }
-  },
   "550": {
     "inputs": {
       "value": 1
@@ -4301,69 +4097,6 @@
     "class_type": "easy int",
     "_meta": {
       "title": "Int"
-    }
-  },
-  "552": {
-    "inputs": {
-      "value": 3
-    },
-    "class_type": "easy int",
-    "_meta": {
-      "title": "Int"
-    }
-  },
-  "553": {
-    "inputs": {
-      "comparison": "a != b",
-      "a": [
-        "586",
-        0
-      ],
-      "b": [
-        "581",
-        0
-      ]
-    },
-    "class_type": "easy compare",
-    "_meta": {
-      "title": "Compare"
-    }
-  },
-  "554": {
-    "inputs": {
-      "comparison": "a != b",
-      "a": [
-        "556",
-        0
-      ],
-      "b": [
-        "581",
-        0
-      ]
-    },
-    "class_type": "easy compare",
-    "_meta": {
-      "title": "Compare"
-    }
-  },
-  "555": {
-    "inputs": {
-      "boolean": [
-        "565",
-        0
-      ],
-      "on_true": [
-        "548",
-        0
-      ],
-      "on_false": [
-        "549",
-        0
-      ]
-    },
-    "class_type": "easy ifElse",
-    "_meta": {
-      "title": "If else"
     }
   },
   "556": {
@@ -4375,253 +4108,6 @@
       "title": "i2i_ip_fn4"
     }
   },
-  "557": {
-    "inputs": {
-      "boolean": [
-        "554",
-        0
-      ],
-      "on_true": [
-        "579",
-        0
-      ],
-      "on_false": [
-        "554",
-        0
-      ]
-    },
-    "class_type": "easy ifElse",
-    "_meta": {
-      "title": "If else"
-    }
-  },
-  "558": {
-    "inputs": {
-      "boolean": [
-        "565",
-        0
-      ],
-      "on_true": [
-        "559",
-        0
-      ],
-      "on_false": [
-        "547",
-        0
-      ]
-    },
-    "class_type": "easy ifElse",
-    "_meta": {
-      "title": "If else"
-    }
-  },
-  "559": {
-    "inputs": {
-      "boolean": [
-        "567",
-        0
-      ],
-      "on_true": [
-        "584",
-        0
-      ],
-      "on_false": [
-        "430",
-        0
-      ]
-    },
-    "class_type": "easy ifElse",
-    "_meta": {
-      "title": "If else"
-    }
-  },
-  "563": {
-    "inputs": {
-      "total": 2,
-      "initial_value1": [
-        "566",
-        0
-      ]
-    },
-    "class_type": "easy forLoopStart",
-    "_meta": {
-      "title": "For Loop Start"
-    }
-  },
-  "565": {
-    "inputs": {
-      "flow": [
-        "563",
-        0
-      ],
-      "initial_value1": [
-        "557",
-        0
-      ]
-    },
-    "class_type": "easy forLoopEnd",
-    "_meta": {
-      "title": "For Loop End"
-    }
-  },
-  "566": {
-    "inputs": {
-      "value": true
-    },
-    "class_type": "easy boolean",
-    "_meta": {
-      "title": "Boolean"
-    }
-  },
-  "567": {
-    "inputs": {
-      "comparison": "a == b",
-      "a": [
-        "585",
-        0
-      ],
-      "b": [
-        "552",
-        0
-      ]
-    },
-    "class_type": "easy compare",
-    "_meta": {
-      "title": "Compare"
-    }
-  },
-  "573": {
-    "inputs": {
-      "value": 5
-    },
-    "class_type": "easy int",
-    "_meta": {
-      "title": "Int"
-    }
-  },
-  "574": {
-    "inputs": {
-      "value": 2
-    },
-    "class_type": "easy int",
-    "_meta": {
-      "title": "Int"
-    }
-  },
-  "576": {
-    "inputs": {
-      "comparison": "a != b",
-      "a": [
-        "525",
-        0
-      ],
-      "b": [
-        "581",
-        0
-      ]
-    },
-    "class_type": "easy compare",
-    "_meta": {
-      "title": "Compare"
-    }
-  },
-  "577": {
-    "inputs": {
-      "boolean": [
-        "553",
-        0
-      ],
-      "on_true": [
-        "578",
-        0
-      ],
-      "on_false": [
-        "553",
-        0
-      ]
-    },
-    "class_type": "easy ifElse",
-    "_meta": {
-      "title": "If else"
-    }
-  },
-  "578": {
-    "inputs": {
-      "boolean": [
-        "580",
-        0
-      ],
-      "on_true": [
-        "563",
-        2
-      ],
-      "on_false": [
-        "580",
-        0
-      ]
-    },
-    "class_type": "easy ifElse",
-    "_meta": {
-      "title": "If else"
-    }
-  },
-  "579": {
-    "inputs": {
-      "boolean": [
-        "576",
-        0
-      ],
-      "on_true": [
-        "577",
-        0
-      ],
-      "on_false": [
-        "576",
-        0
-      ]
-    },
-    "class_type": "easy ifElse",
-    "_meta": {
-      "title": "If else"
-    }
-  },
-  "580": {
-    "inputs": {
-      "comparison": "a != b",
-      "a": [
-        "585",
-        0
-      ],
-      "b": [
-        "581",
-        0
-      ]
-    },
-    "class_type": "easy compare",
-    "_meta": {
-      "title": "Compare"
-    }
-  },
-  "581": {
-    "inputs": {
-      "index": [
-        "563",
-        1
-      ],
-      "value0": [
-        "574",
-        0
-      ],
-      "value1": [
-        "573",
-        0
-      ]
-    },
-    "class_type": "easy anythingIndexSwitch",
-    "_meta": {
-      "title": "Any Index Switch"
-    }
-  },
   "582": {
     "inputs": {
       "boolean": [
@@ -4629,7 +4115,7 @@
         0
       ],
       "on_true": [
-        "546",
+        "540",
         0
       ],
       "on_false": [
@@ -4644,7 +4130,7 @@
   },
   "583": {
     "inputs": {
-      "total": 3,
+      "total": 4,
       "initial_value1": [
         "439",
         0
@@ -4990,7 +4476,7 @@
         0
       ],
       "on_false": [
-        "771",
+        "796",
         0
       ]
     },
@@ -5010,7 +4496,7 @@
         0
       ],
       "on_false": [
-        "771",
+        "796",
         0
       ]
     },
@@ -6477,7 +5963,7 @@
     "inputs": {
       "find1": "none",
       "replace1": "0",
-      "find2": "Nun_int4",
+      "find2": "Nun_fp4",
       "replace2": "1",
       "find3": "",
       "replace3": "",
@@ -6782,23 +6268,6 @@
       "title": "NunchakuFluxLoraLoader5"
     }
   },
-  "771": {
-    "inputs": {
-      "lora_name": "flux1-depth-dev-lora.safetensors",
-      "lora_strength": [
-        "558",
-        0
-      ],
-      "model": [
-        "796",
-        0
-      ]
-    },
-    "class_type": "NunchakuFluxLoraLoader",
-    "_meta": {
-      "title": "Flux_depth"
-    }
-  },
   "776": {
     "inputs": {
       "model_type": "flux.1",
@@ -6901,7 +6370,7 @@
   },
   "786": {
     "inputs": {
-      "model_path": "svdq-int4_r32-flux.1-dev.safetensors",
+      "model_path": "svdq-fp4_r32-flux.1-dev.safetensors",
       "cache_threshold": [
         "728",
         12
@@ -7113,6 +6582,28 @@
     "class_type": "NunchakuFluxLoraLoader",
     "_meta": {
       "title": "NunchakuFluxLoraLoader6"
+    }
+  },
+  "800": {
+    "inputs": {
+      "value": "a*0.7",
+      "a": [
+        "521",
+        0
+      ]
+    },
+    "class_type": "SimpleMath+",
+    "_meta": {
+      "title": "🔧 Simple Math"
+    }
+  },
+  "801": {
+    "inputs": {
+      "value": 4
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "Int"
     }
   }
 }
