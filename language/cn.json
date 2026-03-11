@@ -267,6 +267,7 @@
   "CPDS": "结构深度",
   "FaceSwap": "脸部迁移",
   "OpenPose": "身体姿态",
+  "Auto Detect Control Image Type": "传入线稿/深度/姿势控制图时自动识别并选择类型\nTips:边框高亮时自动跳过预处理",
   "Presets▼": "预置包▼",
   "MyPresets▼": "我的预置▼",
   "MyPresets▶": "我的预置▶",

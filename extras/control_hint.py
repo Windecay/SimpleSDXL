@@ -169,6 +169,40 @@ def detect_control_hint_type(image_np):
     return None
 
 
+def control_hint_highlight_style(elem_id: str, outline_color: str = "#F97316"):
+    return (
+        f"<style>"
+        f"#{elem_id}{{outline:4px solid {outline_color} !important; outline-offset:2px !important; border-radius:12px !important; box-shadow:0 0 0 3px rgba(255,212,0,.35), 0 0 18px rgba(255,212,0,.35) !important;}}"
+        f"#{elem_id} img{{border-radius:10px !important;}}"
+        f"</style>"
+    )
+
+
+def control_hint_default_stop_weight(control_hint_type):
+    import modules.flags as flags
+
+    stop, weight = flags.default_parameters.get(control_hint_type, flags.default_parameters[flags.cn_canny])
+    return float(stop), float(weight)
+
+
+def detect_control_hint_type_and_default_params(image_np):
+    detected = detect_control_hint_type(image_np)
+    if detected is None:
+        return None, None, None
+    stop, weight = control_hint_default_stop_weight(detected)
+    return detected, stop, weight
+
+
+def control_hint_auto_skip_for_selected_type(image_np, selected_type):
+    import modules.flags as flags
+
+    cn_flag = flags.cn_name_map.get(selected_type, None)
+    if cn_flag is None:
+        return False, False
+    features = extract_features(image_np)
+    return auto_skip_decision(features, cn_flag)
+
+
 def auto_skip_decision(features, cn_flag):
     if features is None:
         return False, False

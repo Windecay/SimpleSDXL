@@ -376,7 +376,7 @@ export class OpenPoseEditor {
         toolbar.style.gap = '8px';
         toolbar.style.alignItems = 'center';
         toolbar.style.justifyContent = 'space-between';
-        toolbar.style.width = 'min(1100px, 96vw)';
+        toolbar.style.width = 'min(1400px, 98vw)';
         toolbar.style.padding = '10px 12px';
         toolbar.style.background = 'rgba(30,30,30,0.92)';
         toolbar.style.border = '1px solid rgba(255,255,255,0.12)';
@@ -527,6 +527,39 @@ export class OpenPoseEditor {
 
         rightGroup.append(cancelBtn, confirmBtn);
 
+        const applyToolbarLayout = () => {
+            const isNarrow = (window?.innerWidth || 0) <= 520;
+            toolbar.style.flexWrap = isNarrow ? 'wrap' : 'nowrap';
+            toolbar.style.justifyContent = isNarrow ? 'flex-start' : 'space-between';
+            leftGroup.style.flexWrap = isNarrow ? 'wrap' : 'nowrap';
+            leftGroup.style.maxWidth = '100%';
+            leftGroup.style.columnGap = isNarrow ? '8px' : '10px';
+            leftGroup.style.rowGap = isNarrow ? '6px' : '0px';
+            rightGroup.style.width = isNarrow ? '100%' : 'auto';
+            rightGroup.style.justifyContent = isNarrow ? 'flex-end' : 'flex-end';
+            rightGroup.style.marginLeft = isNarrow ? '0' : 'auto';
+            hint.style.display = isNarrow ? 'none' : 'block';
+            const smallBtnPadding = '4px 8px';
+            const smallBtnPaddingWide = '4px 10px';
+            const smallFont = '12px';
+            const normalBtnPadding = '6px 10px';
+            const normalBtnPaddingWide = '6px 12px';
+            const normalFont = '';
+            const setBtn = (btn, isWide) => {
+                if (!btn)
+                    return;
+                btn.style.padding = isNarrow ? (isWide ? smallBtnPaddingWide : smallBtnPadding) : (isWide ? normalBtnPaddingWide : normalBtnPadding);
+                btn.style.fontSize = isNarrow ? smallFont : normalFont;
+            };
+            setBtn(fillBtn, false);
+            setBtn(deleteBtn, false);
+            setBtn(undoBtn, false);
+            setBtn(redoBtn, false);
+            setBtn(cancelBtn, true);
+            setBtn(confirmBtn, true);
+        };
+        applyToolbarLayout();
+
         toolbar.append(leftGroup, rightGroup);
 
         const container = document.createElement('div');
@@ -565,6 +598,7 @@ export class OpenPoseEditor {
         this.canvas = canvas;
         this.ctx = ctx;
         this.personSelectEl = personSelect;
+        this.applyToolbarLayout = applyToolbarLayout;
     }
 
     async open({ backgroundImageSrc, poseJson }) {
@@ -613,6 +647,9 @@ export class OpenPoseEditor {
         this.resizeHandler = () => {
             if (!this.overlay || this.overlay.style.display === 'none') {
                 return;
+            }
+            if (typeof this.applyToolbarLayout === 'function') {
+                this.applyToolbarLayout();
             }
             this.layoutCanvas();
             this.redraw();
@@ -1136,8 +1173,8 @@ export class OpenPoseEditor {
         const bold = !!this.boldSkeleton;
         const radiusFactor = bold ? 1.4 : 1;
         const stickFactor = bold ? 1.9 : 1;
-        const radius = Math.max(2, Math.round((this.keypointRadius * radiusFactor) / (this.scale || 1)));
-        const stick = Math.max(2, Math.round((this.stickWidth * stickFactor) / (this.scale || 1)));
+        const radius = Math.max(2, Math.round(this.keypointRadius * radiusFactor));
+        const stick = Math.max(2, Math.round(this.stickWidth * stickFactor));
         if (this.renderAllPeople) {
             for (const kp of this.peopleKeypoints) {
                 drawSkeleton(ctx, kp, {
@@ -1161,9 +1198,9 @@ export class OpenPoseEditor {
             });
         }
 
-        const faceRadius = Math.max(1, Math.round(2 / (this.scale || 1)));
-        const handPoint = Math.max(1, Math.round(2 / (this.scale || 1)));
-        const handLine = Math.max(1, Math.round(2 / (this.scale || 1)));
+        const faceRadius = 2;
+        const handPoint = 2;
+        const handLine = 2;
         if (this.renderAllPeople) {
             const people = Array.isArray(this.poseRaw?.people) ? this.poseRaw.people : [];
             for (let i = 0; i < people.length; i++) {
@@ -1177,7 +1214,7 @@ export class OpenPoseEditor {
                 drawFace(ctx, face, { radius: faceRadius, opacity: 0.8 });
                 drawHand(ctx, leftHand, { pointRadius: handPoint, lineWidth: handLine, opacity: 0.9 });
                 drawHand(ctx, rightHand, { pointRadius: handPoint, lineWidth: handLine, opacity: 0.9 });
-                const linkW = Math.max(1, Math.round(2 / (this.scale || 1)));
+                const linkW = 2;
                 drawWristHandLinks(ctx, kp, [leftHand, rightHand], { lineWidth: linkW, opacity: 0.65 });
             }
         }
@@ -1190,7 +1227,7 @@ export class OpenPoseEditor {
                 drawFace(ctx, face, { radius: faceRadius, opacity: 0.8 });
                 drawHand(ctx, leftHand, { pointRadius: handPoint, lineWidth: handLine, opacity: 0.9 });
                 drawHand(ctx, rightHand, { pointRadius: handPoint, lineWidth: handLine, opacity: 0.9 });
-                const linkW = Math.max(1, Math.round(2 / (this.scale || 1)));
+                const linkW = 2;
                 drawWristHandLinks(ctx, this.keypoints, [leftHand, rightHand], { lineWidth: linkW, opacity: 0.65 });
             }
         }

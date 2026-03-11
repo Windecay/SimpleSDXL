@@ -134,6 +134,14 @@ div:has(> #positive_prompt) {
   box-shadow: none !important;
 }
 
+.ip_detect_style {
+  display: none !important;
+}
+
+#ip_auto_detect label span {
+  white-space: pre-line !important;
+}
+
 .advanced_check_row{
   width: 450px !important;
 }

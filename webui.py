@@ -2301,7 +2301,8 @@ with shared.gradio_root:
                 with gr.Tabs(selected=modules.config.default_selected_image_input_tab_id, elem_id='image_input_tabs'):
                     with gr.Tab(label='Image Prompt', id='ip_tab', elem_id='ip_tab') as ip_tab:
                         with gr.Row():
-                            ip_advanced = gr.Checkbox(label='Advanced Control', value=modules.config.default_image_prompt_advanced_checkbox, container=False, scale=5)
+                            ip_advanced = gr.Checkbox(label='Advanced Control', value=modules.config.default_image_prompt_advanced_checkbox, container=False, scale=5, visible=False)
+                            ip_auto_detect = gr.Checkbox(label='Auto Detect Control Image Type', value=True, container=False, scale=5, elem_id='ip_auto_detect')
                             preview_preprocessing = gr.Button(value='💥Preview Preprocessor', scale=1)
                         with gr.Row():
                             ip_images = []
@@ -2310,10 +2311,141 @@ with shared.gradio_root:
                             ip_weights = []
                             ip_ctrls = []
                             ip_ad_cols = []
+                            ip_detect_style_nodes = []
+                            ip_image_elem_ids = []
+
+                            def _ip_make_auto_detect_fn(elem_id: str):
+                                def _fn(image_np, selected_type, enabled):
+                                    if image_np is None:
+                                        return '', gr.update(), gr.update(), gr.update()
+                                    type_for_highlight = selected_type
+                                    type_update = gr.update()
+                                    stop_update = gr.update()
+                                    weight_update = gr.update()
+
+                                    try:
+                                        from extras.control_hint import (
+                                            control_hint_auto_skip_for_selected_type,
+                                            control_hint_highlight_style,
+                                            detect_control_hint_type_and_default_params,
+                                        )
+                                    except Exception:
+                                        control_hint_auto_skip_for_selected_type = None
+                                        control_hint_highlight_style = None
+                                        detect_control_hint_type_and_default_params = None
+
+                                    if enabled and detect_control_hint_type_and_default_params is not None:
+                                        try:
+                                            detected, stop, weight = detect_control_hint_type_and_default_params(image_np)
+                                        except Exception:
+                                            detected, stop, weight = None, None, None
+                                        if detected is not None and stop is not None and weight is not None:
+                                            type_for_highlight = detected
+                                            type_update = detected
+                                            stop_update = float(stop)
+                                            weight_update = float(weight)
+
+                                    auto_skip = False
+                                    if (
+                                        control_hint_auto_skip_for_selected_type is not None
+                                        and type_for_highlight is not None
+                                    ):
+                                        try:
+                                            auto_skip, _ = control_hint_auto_skip_for_selected_type(image_np, type_for_highlight)
+                                        except Exception:
+                                            auto_skip = False
+
+                                    style = ''
+                                    if auto_skip and control_hint_highlight_style is not None:
+                                        style = control_hint_highlight_style(elem_id)
+
+                                    return style, type_update, stop_update, weight_update
+                                return _fn
+
+                            def _ip_make_highlight_fn(elem_id: str):
+                                def _fn(image_np, selected_type):
+                                    if image_np is None or selected_type is None:
+                                        return ''
+                                    try:
+                                        from extras.control_hint import control_hint_auto_skip_for_selected_type, control_hint_highlight_style
+                                        auto_skip, _ = control_hint_auto_skip_for_selected_type(image_np, selected_type)
+                                    except Exception:
+                                        auto_skip = False
+                                        control_hint_highlight_style = None
+                                    if auto_skip and control_hint_highlight_style is not None:
+                                        return control_hint_highlight_style(elem_id)
+                                    return ''
+                                return _fn
+
+                            def _ip_auto_detect_all(*args):
+                                enabled = args[-1]
+                                n = (len(args) - 1) // 2
+                                images = args[:n]
+                                types_in = args[n:2 * n]
+                                styles = []
+                                type_updates = []
+                                stop_updates = []
+                                weight_updates = []
+
+                                try:
+                                    from extras.control_hint import (
+                                        control_hint_auto_skip_for_selected_type,
+                                        control_hint_highlight_style,
+                                        detect_control_hint_type_and_default_params,
+                                    )
+                                except Exception:
+                                    control_hint_auto_skip_for_selected_type = None
+                                    control_hint_highlight_style = None
+                                    detect_control_hint_type_and_default_params = None
+
+                                for idx, (image_np, selected_type) in enumerate(zip(images, types_in)):
+                                    elem_id = ip_image_elem_ids[idx] if idx < len(ip_image_elem_ids) else None
+                                    type_for_highlight = selected_type
+                                    type_update = gr.update()
+                                    stop_update = gr.update()
+                                    weight_update = gr.update()
+
+                                    if enabled and image_np is not None and detect_control_hint_type_and_default_params is not None:
+                                        try:
+                                            detected, stop, weight = detect_control_hint_type_and_default_params(image_np)
+                                        except Exception:
+                                            detected, stop, weight = None, None, None
+                                        if detected is not None and stop is not None and weight is not None:
+                                            type_for_highlight = detected
+                                            type_update = detected
+                                            stop_update = float(stop)
+                                            weight_update = float(weight)
+
+                                    auto_skip = False
+                                    if (
+                                        image_np is not None
+                                        and control_hint_auto_skip_for_selected_type is not None
+                                        and type_for_highlight is not None
+                                    ):
+                                        try:
+                                            auto_skip, _ = control_hint_auto_skip_for_selected_type(image_np, type_for_highlight)
+                                        except Exception:
+                                            auto_skip = False
+
+                                    style = ''
+                                    if auto_skip and control_hint_highlight_style is not None and elem_id is not None:
+                                        style = control_hint_highlight_style(elem_id)
+
+                                    styles.append(style)
+                                    type_updates.append(type_update)
+                                    stop_updates.append(stop_update)
+                                    weight_updates.append(weight_update)
+
+                                return styles + type_updates + stop_updates + weight_updates
+
                             for image_count in range(modules.config.default_controlnet_image_count):
                                 image_count += 1
                                 with gr.Column():
-                                    ip_image = grh.Image(label='Image', source='upload', type='numpy', image_mode='RGBA', show_label=False, height=300, value=modules.config.default_ip_images[image_count])
+                                    ip_image_elem_id = f'ip_image_{image_count}'
+                                    ip_image_elem_ids.append(ip_image_elem_id)
+                                    ip_image = grh.Image(label='Image', source='upload', type='numpy', image_mode='RGBA', show_label=False, height=300, value=modules.config.default_ip_images[image_count], elem_id=ip_image_elem_id)
+                                    ip_detect_style = gr.HTML(value='', elem_classes=['ip_detect_style'])
+                                    ip_detect_style_nodes.append(ip_detect_style)
                                     ip_images.append(ip_image)
                                     ip_ctrls.append(ip_image)
                                     with gr.Column(visible=modules.config.default_image_prompt_advanced_checkbox) as ad_col:
@@ -2331,9 +2463,26 @@ with shared.gradio_root:
                                         ip_type = gr.Radio(label='Type', choices=filtered_ip_list, value=default_ip_type, container=False)
                                         ip_types.append(ip_type)
                                         ip_ctrls.append(ip_type)
-                                        ip_type.change(lambda x: flags.default_parameters[x] if x in filtered_ip_list else flags.default_parameters[filtered_ip_list[0]],
-                                                     inputs=[ip_type], outputs=[ip_stop, ip_weight], queue=False, show_progress=False)
+                                    ip_type.change(lambda x: flags.default_parameters[x] if x in filtered_ip_list else flags.default_parameters[filtered_ip_list[0]],
+                                                 inputs=[ip_type], outputs=[ip_stop, ip_weight], queue=False, show_progress=False) \
+                                           .then(fn=_ip_make_highlight_fn(ip_image_elem_id), inputs=[ip_image, ip_type], outputs=[ip_detect_style], queue=False, show_progress=False)
                                     ip_ad_cols.append(ad_col)
+
+                                    ip_image.change(
+                                        fn=_ip_make_auto_detect_fn(ip_image_elem_id),
+                                        inputs=[ip_image, ip_type, ip_auto_detect],
+                                        outputs=[ip_detect_style, ip_type, ip_stop, ip_weight],
+                                        queue=False,
+                                        show_progress=False
+                                    )
+
+                            ip_auto_detect.change(
+                                fn=_ip_auto_detect_all,
+                                inputs=ip_images + ip_types + [ip_auto_detect],
+                                outputs=ip_detect_style_nodes + ip_types + ip_stops + ip_weights,
+                                queue=False,
+                                show_progress=False
+                            )
 
 
                         gr.HTML('* Powered by Fooocus Image Mixture Engine (v1.0.1), <a href="https://github.com/lllyasviel/Fooocus/discussions/557" target="_blank">\U0001F4D4 Documentation</a>, and Comfyd workflow engine from ComfyUI.')
@@ -4496,20 +4645,28 @@ with shared.gradio_root:
         .then(toolbox.close_note_box, inputs=state_topbar, outputs=note_box_outputs, show_progress=False) \
         .then(fn=lambda x: None, inputs=system_params, _js='(x)=>{refresh_topbar_status_js(x);}')
 
+    def _sanitize_ip_types(*values):
+        allowed = [flags.cn_canny, flags.cn_cpds, flags.cn_pose]
+        fallback = allowed[0]
+        return [v if v in allowed else fallback for v in values]
+
     
     after_identity = [gallery_index, index_radio, gallery_index_stat, layer_method, layer_input_image, preset_store, preset_store_list, history_link, identity_introduce, configure_panel, local_system_tab, admin_panel, p2p_panel, admin_link, system_params] + ip_types
     identity_phrases_confirm_button.click(lambda a, b, c: simpleai.set_phrases(a,b,c,'confirm'), inputs=identity_input_info + [identity_phrase_input], outputs=identity_ctrls + [current_id_info, current_upstream_status, identity_export_btn], show_progress=False) \
         .then(topbar.update_after_identity_all, inputs=state_topbar, outputs=nav_bars + after_identity + user_app_ctrls, show_progress=False) \
+        .then(_sanitize_ip_types, inputs=ip_types, outputs=ip_types, queue=False, show_progress=False) \
         .then(wildcards.refresh_wildcards_components, inputs=state_topbar, outputs=[wildcards_list, wc_name, wildcard_tag_name_selection], show_progress=False, queue=False) \
         .then(_qwen_refresh_style_preset_dropdowns, inputs=[state_topbar, qwen_design_style_preset_choices, qwen_custom_style_preset_choices], outputs=[qwen_design_style_preset_choices, qwen_custom_style_preset_choices], queue=False, show_progress=False) \
         .then(fn=lambda x: None, inputs=system_params, _js='(x)=>{refresh_topbar_status_js(x);}')
     identity_confirm_button.click(simpleai.confirm_identity, inputs=identity_input_info + [identity_phrase_input], outputs=identity_ctrls + [current_id_info, current_upstream_status, identity_export_btn], show_progress=False) \
         .then(topbar.update_after_identity_all, inputs=state_topbar, outputs=nav_bars + after_identity + user_app_ctrls, show_progress=False) \
+        .then(_sanitize_ip_types, inputs=ip_types, outputs=ip_types, queue=False, show_progress=False) \
         .then(wildcards.refresh_wildcards_components, inputs=state_topbar, outputs=[wildcards_list, wc_name, wildcard_tag_name_selection], show_progress=False, queue=False) \
         .then(_qwen_refresh_style_preset_dropdowns, inputs=[state_topbar, qwen_design_style_preset_choices, qwen_custom_style_preset_choices], outputs=[qwen_design_style_preset_choices, qwen_custom_style_preset_choices], queue=False, show_progress=False) \
         .then(fn=lambda x: None, inputs=system_params, _js='(x)=>{refresh_topbar_status_js(x);}')
     identity_unbind_button.click(simpleai.unbind_identity, inputs=identity_input_info + [identity_phrase_input], outputs=identity_ctrls + identity_input + [current_id_info, current_upstream_status, identity_export_btn], show_progress=False) \
         .then(topbar.update_after_identity_all, inputs=state_topbar, outputs=nav_bars + after_identity + user_app_ctrls, show_progress=False) \
+        .then(_sanitize_ip_types, inputs=ip_types, outputs=ip_types, queue=False, show_progress=False) \
         .then(wildcards.refresh_wildcards_components, inputs=state_topbar, outputs=[wildcards_list, wc_name, wildcard_tag_name_selection], show_progress=False, queue=False) \
         .then(_qwen_refresh_style_preset_dropdowns, inputs=[state_topbar, qwen_design_style_preset_choices, qwen_custom_style_preset_choices], outputs=[qwen_design_style_preset_choices, qwen_custom_style_preset_choices], queue=False, show_progress=False) \
         .then(fn=lambda x: None, inputs=system_params, _js='(x)=>{refresh_topbar_status_js(x);}')
@@ -4517,6 +4674,7 @@ with shared.gradio_root:
 
     p2p_active_checkbox.change(simpleai.toggle_p2p, inputs=[p2p_active_checkbox, state_topbar], outputs=[p2p_active_checkbox, p2p_remote_process, p2p_ping_btn]) \
                         .then(topbar.update_after_identity, inputs=state_topbar, outputs=nav_bars + after_identity, show_progress=False) \
+                        .then(_sanitize_ip_types, inputs=ip_types, outputs=ip_types, queue=False, show_progress=False) \
                         .then(fn=lambda x: None, inputs=system_params, _js='(x)=>{refresh_topbar_status_js(x);}')
 
     reset_layout_params = nav_bars + reset_preset_layout + reset_preset_func + scene_frontend_ctrls + load_data_outputs + after_identity
@@ -4534,6 +4692,7 @@ with shared.gradio_root:
         bar_buttons[i].click(topbar.reset_layout_ui, inputs=reset_preset_inputs + [bar_buttons[i]], outputs=reset_layout_ui_outputs + [state_topbar, comparison_state, comparison_box, progress_gallery, compare_btn, progress_window], show_progress=False) \
                .then(lambda sp, umf: refresh_files_clicked(sp, umf, False), inputs=[state_topbar, model_filter_state], outputs=refresh_files_output + lora_ctrls, queue=True, show_progress=False) \
                .then(topbar.reset_layout_values, inputs=reset_values_inputs, outputs=reset_layout_values_outputs, show_progress=False) \
+               .then(_sanitize_ip_types, inputs=ip_types, outputs=ip_types, queue=False, show_progress=False) \
                .then(lambda: True, inputs=[], outputs=[scene_to_main_sync_lock], queue=False, show_progress=False) \
                .then(sync_scene_model_selections, inputs=[state_topbar, base_model, refiner_model] + lora_ctrls, outputs=[scene_base_model, scene_refiner_model, scene_use_lora, lora_group, scene_lora_model, scene_lora_weight, scene_lora_model_2, scene_lora_weight_2, scene_lora_model_3, scene_lora_weight_3, scene_lora_model_4, scene_lora_weight_4], queue=False, show_progress=False) \
                .then(lambda: False, inputs=[], outputs=[scene_to_main_sync_lock], queue=False, show_progress=False) \
@@ -4551,6 +4710,7 @@ with shared.gradio_root:
                       .then(lambda sp, umf: refresh_files_clicked(sp, umf, False), inputs=[state_topbar, model_filter_state], outputs=refresh_files_output + lora_ctrls, queue=True, show_progress=False) \
                       .then(topbar.refresh_preset_store_list, inputs=state_topbar, outputs=preset_store_list, show_progress=False, queue=False) \
                       .then(topbar.reset_layout_values, inputs=reset_values_inputs, outputs=reset_layout_values_outputs, show_progress=False) \
+                      .then(_sanitize_ip_types, inputs=ip_types, outputs=ip_types, queue=False, show_progress=False) \
                       .then(lambda: True, inputs=[], outputs=[scene_to_main_sync_lock], queue=False, show_progress=False) \
                       .then(sync_scene_model_selections, inputs=[state_topbar, base_model, refiner_model] + lora_ctrls, outputs=[scene_base_model, scene_refiner_model, scene_use_lora, lora_group, scene_lora_model, scene_lora_weight, scene_lora_model_2, scene_lora_weight_2, scene_lora_model_3, scene_lora_weight_3, scene_lora_model_4, scene_lora_weight_4], queue=False, show_progress=False) \
                       .then(lambda: False, inputs=[], outputs=[scene_to_main_sync_lock], queue=False, show_progress=False) \
