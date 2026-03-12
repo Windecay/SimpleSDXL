@@ -1536,7 +1536,7 @@ with shared.gradio_root:
                     qwen_send_target_choices = list(qwen_send_target_options.keys())
                     with gr.Tabs():
                         with gr.Tab("Voice Design"):
-                            qwen_design_text = gr.Textbox(label="Text to Speech", lines=3, placeholder="Enter text here...")
+                            qwen_design_text = gr.Textbox(label="Text to Speech", lines=3, placeholder="Enter text here...[pause=800ms] or [pause=0.8s] can add pause between sentences.")
                             qwen_tts_style_presets = {
                                 "Catgirl (Neko)": "Cute catgirl voice: high-pitched, bright and sweet, youthful and playful. Add occasional short interjections like 'nya', 'meow', 'na', 'ne', 'ya' (not every sentence). Expressive with subtle emotional shifts: shy -> softer, breathy, slightly shaky; tsundere -> quick pitch rise and a small 'hmph'; teary -> light sob or choked tone. Optionally add close-mic ASMR details (soft breathing, whispery delivery) while keeping articulation clear.",
                                 "Warm Female": "Female, mid-20s, warm and friendly, medium pace, clear articulation, slight smile in voice, natural breath and gentle intonation.",
@@ -1646,7 +1646,7 @@ with shared.gradio_root:
                         with gr.Tab("Voice Clone"):
                             qwen_clone_ref_audio = gr.Audio(label="Reference Audio", source="upload", type="numpy")
                             qwen_clone_ref_text = gr.Textbox(label="Reference Audio Text", lines=3, placeholder="Recommended: the spoken content in reference audio")
-                            qwen_clone_target_text = gr.Textbox(label="Target Text to Speech", lines=3)
+                            qwen_clone_target_text = gr.Textbox(label="Target Text to Speech", lines=3, placeholder="Enter text here...[pause=800ms] or [pause=0.8s] can add pause between sentences.")
                             qwen_clone_batch_size = gr.Slider(label="Batch size", minimum=1, maximum=16, step=1, value=4)
                             with gr.Row():
                                 qwen_clone_btn = gr.Button("Clone & Generate", elem_classes="type_row_half")
@@ -1660,7 +1660,7 @@ with shared.gradio_root:
                             qwen_clone_info = gr.Markdown(value="")
 
                         with gr.Tab("Custom Voice"):
-                            qwen_custom_text = gr.Textbox(label="Text to Speech", lines=5)
+                            qwen_custom_text = gr.Textbox(label="Text to Speech", lines=5, placeholder="Enter text here...[pause=800ms] or [pause=0.8s] can add pause between sentences.")
                             _qwen_speaker_notes = {"Serena": ("苏瑶", "中文", "其实我真的有发现，我是一个特别善于观察别人情绪的人。"), "Uncle_fu": ("福伯", "中文", "叶师傅，切他的中路"), "Vivian": ("十三", "中文", "这事情看上去很复杂，其实一点都不简单。"), "Aiden": ("艾登", "英文", "Then by the end of the movie, I got a little bit teary."), "Ryan": ("甜茶", "英文", "Then by the end of the movie, I got a little bit teary."), "Ono_anna": ("小野杏", "日语", "やばい、明日のプレゼン資料まだ完成してない… 助けて！"), "Sohee": ("素熙", "韩语", "야, 오늘 점심에 뭐 먹을지 생각해 봤어? 근처에 새로 생긴 분식집 어때?"), "Dylan": ("晓东", "中文方言-北京话", "我们就在山上啊，就是其实也没什么，就是在土坡上跑来跑去。"), "Eric": ("程川", "中文方言-四川话", "你龟儿太过分了，把我的东西都搞坏了，还晓不晓得认错。")}
                             _qwen_speaker_display_to_key = {"艾登 Aiden": "Aiden", "晓东 Dylan": "Dylan", "程川 Eric": "Eric", "小野杏 Ono Anna": "Ono_anna", "甜茶 Ryan": "Ryan", "苏瑶 Serena": "Serena", "素熙 Sohee": "Sohee", "福伯 Uncle Fu": "Uncle_fu", "十三 Vivian": "Vivian"}
                             _qwen_default_speaker_display = "甜茶 Ryan"
@@ -4447,6 +4447,8 @@ with shared.gradio_root:
             img = resize_image(img, max_side=1280, resize_mode=4)
             aspect_ratios = modules.flags.get_value_by_scene_theme(state, scene_theme, 'aspect_ratio', [])
             aspect_ratio_select_mode = state['scene_frontend'].get('aspect_ratio_select_mode', '')
+            if not aspect_ratio_select_mode:
+                return gr.update()
             aspect_ratios_new, aspect_ratio = get_auto_candidate(img, aspect_ratios, aspect_ratio_select_mode)
             if aspect_ratio_select_mode:
                 aspect_ratios = aspect_ratios_new

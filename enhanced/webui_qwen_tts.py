@@ -179,6 +179,160 @@ class QwenTTSWrapper:
         self.loaded_model = None
         self.model_config = {}
 
+    def _parse_pause_markup(self, text: str) -> List[Tuple[str, Any]]:
+        if text is None:
+            return []
+        s = str(text)
+        if not s:
+            return []
+
+        pause_re = re.compile(r"\[\s*pause\s*=\s*(\d+(?:\.\d+)?)\s*(ms|s)?\s*\]", re.IGNORECASE)
+        out: List[Tuple[str, Any]] = []
+        last = 0
+        for m in pause_re.finditer(s):
+            start, end = m.span()
+            if start > last:
+                chunk = s[last:start]
+                if chunk:
+                    out.append(("text", chunk))
+            num = m.group(1)
+            unit = (m.group(2) or "ms").lower()
+            try:
+                v = float(num)
+            except Exception:
+                v = 0.0
+            if unit == "s":
+                seconds = v
+            else:
+                seconds = v / 1000.0
+            seconds = float(max(0.0, min(seconds, 120.0)))
+            out.append(("pause", seconds))
+            last = end
+        if last < len(s):
+            tail = s[last:]
+            if tail:
+                out.append(("text", tail))
+        return out
+
+    def _expand_pause_plan(
+        self,
+        text: str,
+        default_gap_seconds: float,
+        max_chars: int = 200,
+        hard_max_chars: int = 260,
+    ) -> Tuple[List[Tuple[str, Any]], bool]:
+        parts = self._parse_pause_markup(text)
+        saw_pause = any(k == "pause" for (k, _) in parts)
+
+        def _clamp_pause(v: float) -> float:
+            try:
+                fv = float(v)
+            except Exception:
+                fv = 0.0
+            return float(max(0.0, min(fv, 120.0)))
+
+        try:
+            default_gap = float(default_gap_seconds)
+        except Exception:
+            default_gap = 0.0
+        default_gap = float(max(0.0, min(default_gap, 10.0)))
+
+        if not saw_pause:
+            segs = self._split_long_text(str(text), max_chars=max_chars, hard_max_chars=hard_max_chars)
+            plan: List[Tuple[str, Any]] = []
+            kept = [s for s in segs if s and str(s).strip()]
+            for i, seg in enumerate(kept):
+                plan.append(("text", seg))
+                if default_gap > 0.0 and i != len(kept) - 1:
+                    plan.append(("pause", default_gap))
+            return plan, False
+
+        plan2: List[Tuple[str, Any]] = []
+        pending_pause = 0.0
+        emitted_any_text = False
+
+        for kind, payload in parts:
+            if kind == "pause":
+                pending_pause = _clamp_pause(pending_pause + _clamp_pause(float(payload)))
+                continue
+
+            raw = "" if payload is None else str(payload)
+            segs = self._split_long_text(raw, max_chars=max_chars, hard_max_chars=hard_max_chars)
+            kept = [s for s in segs if s and str(s).strip()]
+            if not kept:
+                continue
+
+            if pending_pause > 0.0:
+                plan2.append(("pause", pending_pause))
+                pending_pause = 0.0
+            elif emitted_any_text and default_gap > 0.0:
+                plan2.append(("pause", default_gap))
+
+            for i, seg in enumerate(kept):
+                plan2.append(("text", seg))
+                emitted_any_text = True
+                if default_gap > 0.0 and i != len(kept) - 1:
+                    plan2.append(("pause", default_gap))
+
+        if pending_pause > 0.0:
+            plan2.append(("pause", pending_pause))
+
+        return plan2, True
+
+    def _split_text_with_pause_markup(self, text: str, max_chars: int = 200, hard_max_chars: int = 260) -> List[Tuple[str, Any]]:
+        parts = self._parse_pause_markup(text)
+        if not parts:
+            return [("text", x) for x in self._split_long_text(text, max_chars=max_chars, hard_max_chars=hard_max_chars)]
+        out: List[Tuple[str, Any]] = []
+        for kind, payload in parts:
+            if kind == "pause":
+                out.append((kind, payload))
+                continue
+            for seg in self._split_long_text(str(payload), max_chars=max_chars, hard_max_chars=hard_max_chars):
+                if seg and str(seg).strip():
+                    out.append(("text", seg))
+        merged: List[Tuple[str, Any]] = []
+        pending_pause = 0.0
+        for kind, payload in out:
+            if kind == "pause":
+                try:
+                    pending_pause += float(payload)
+                except Exception:
+                    pending_pause += 0.0
+                continue
+            if pending_pause > 0.0:
+                merged.append(("pause", pending_pause))
+                pending_pause = 0.0
+            merged.append(("text", payload))
+        if pending_pause > 0.0:
+            merged.append(("pause", pending_pause))
+        return merged
+
+    def _make_silence_audio_dict(self, sr: int, seconds: float, target_audio: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        sample_rate = int(max(1, int(sr)))
+        dur = float(max(0.0, min(float(seconds), 120.0)))
+        n = int(round(dur * float(sample_rate)))
+        channels = 1
+        dtype = torch.float32
+        if isinstance(target_audio, dict):
+            w = target_audio.get("waveform")
+            if hasattr(w, "detach"):
+                w = w.detach()
+            if hasattr(w, "cpu"):
+                w = w.cpu()
+            if isinstance(w, np.ndarray):
+                w = torch.from_numpy(w)
+            if hasattr(w, "ndim") and int(getattr(w, "ndim", 0)) >= 2:
+                try:
+                    channels = int(w.shape[1])
+                except Exception:
+                    channels = 1
+            if hasattr(w, "dtype"):
+                dtype = w.dtype
+        if n <= 0:
+            n = 0
+        return {"waveform": torch.zeros((1, channels, n), dtype=dtype), "sample_rate": sample_rate}
+
     def _split_long_text(self, text: str, max_chars: int = 200, hard_max_chars: int = 260) -> List[str]:
         if text is None:
             return []
@@ -456,7 +610,8 @@ class QwenTTSWrapper:
         progress_callback=None,
     ):
         t0 = time.perf_counter()
-        segments = self._split_long_text(str(text), max_chars=200, hard_max_chars=260)
+        plan, saw_pause_markup = self._expand_pause_plan(str(text), default_gap_seconds=0.4, max_chars=200, hard_max_chars=260)
+        segments = [p[1] for p in plan if p and p[0] == "text"]
         per_seg_tokens = int(max(1, int(max_new_tokens)))
         try:
             bs = int(clone_batch_size)
@@ -478,47 +633,99 @@ class QwenTTSWrapper:
             model = load_qwen_model("VoiceDesign", model_choice, device, precision, attention, False, None, "")
             mapped_lang = LANGUAGE_MAP.get(language, "auto")
             done_count = 0
-            start_index = 0
-            while start_index < len(segments):
-                batch_texts = segments[start_index:start_index + bs]
-                if callable(progress_callback):
-                    try:
-                        pct = int(done_count * 100 / max(len(segments), 1))
-                        progress_callback(pct, f"生成音频：{done_count + 1}-{min(done_count + len(batch_texts), len(segments))}/{len(segments)}")
-                    except Exception:
-                        pass
+            leading_pause_s = 0.0
+            i = 0
+            while i < len(plan) and plan[i][0] == "pause":
                 try:
-                    wavs, sr = model.generate_voice_design(
-                        text=batch_texts,
-                        instruct=instruct,
-                        language=[mapped_lang] * len(batch_texts),
-                        max_new_tokens=per_seg_tokens,
-                        top_p=top_p,
-                        top_k=top_k,
-                        temperature=temperature,
-                        repetition_penalty=repetition_penalty,
-                    )
-                except RuntimeError as e:
-                    msg = str(e).lower()
-                    if ("out of memory" in msg or "cuda" in msg) and bs > 1:
-                        bs = max(1, bs // 2)
-                        continue
-                    raise
-                for w in wavs:
-                    waveform = torch.from_numpy(w).float()
-                    if waveform.ndim == 1:
-                        waveform = waveform.unsqueeze(0).unsqueeze(0)
-                    elif waveform.ndim == 2:
-                        waveform = waveform.unsqueeze(0)
-                    audios.append({"waveform": waveform, "sample_rate": sr})
-                    done_count += 1
-                start_index += len(batch_texts)
+                    leading_pause_s += float(plan[i][1])
+                except Exception:
+                    leading_pause_s += 0.0
+                i += 1
+            if leading_pause_s > 120.0:
+                leading_pause_s = 120.0
+
+            sr_known = None
+            actions = plan[i:]
+            cursor = 0
+            while cursor < len(actions):
+                texts: List[str] = []
+                pauses_after: List[float] = []
+                while cursor < len(actions) and actions[cursor][0] == "text":
+                    texts.append(str(actions[cursor][1]))
+                    if cursor + 1 < len(actions) and actions[cursor + 1][0] == "pause":
+                        try:
+                            pauses_after.append(float(actions[cursor + 1][1]))
+                        except Exception:
+                            pauses_after.append(0.0)
+                        cursor += 2
+                    else:
+                        pauses_after.append(0.0)
+                        cursor += 1
+
+                if not texts:
+                    cursor += 1
+                    continue
+
+                start_index = 0
+                while start_index < len(texts):
+                    batch_texts = texts[start_index:start_index + bs]
+                    batch_pauses = pauses_after[start_index:start_index + len(batch_texts)]
+                    if callable(progress_callback):
+                        try:
+                            pct = int(done_count * 100 / max(len(segments), 1))
+                            progress_callback(pct, f"生成音频：{done_count + 1}-{min(done_count + len(batch_texts), len(segments))}/{len(segments)}")
+                        except Exception:
+                            pass
+                    try:
+                        wavs, sr = model.generate_voice_design(
+                            text=batch_texts,
+                            instruct=instruct,
+                            language=[mapped_lang] * len(batch_texts),
+                            max_new_tokens=per_seg_tokens,
+                            top_p=top_p,
+                            top_k=top_k,
+                            temperature=temperature,
+                            repetition_penalty=repetition_penalty,
+                        )
+                    except RuntimeError as e:
+                        msg = str(e).lower()
+                        if ("out of memory" in msg or "cuda" in msg) and bs > 1:
+                            bs = max(1, bs // 2)
+                            continue
+                        raise
+                    for w, pause_s in zip(wavs, batch_pauses):
+                        waveform = torch.from_numpy(w).float()
+                        if waveform.ndim == 1:
+                            waveform = waveform.unsqueeze(0).unsqueeze(0)
+                        elif waveform.ndim == 2:
+                            waveform = waveform.unsqueeze(0)
+                        seg_audio = {"waveform": waveform, "sample_rate": sr}
+                        if sr_known is None:
+                            sr_known = int(sr)
+                        if not audios and leading_pause_s > 0.0:
+                            audios.append(self._make_silence_audio_dict(int(sr_known), leading_pause_s, seg_audio))
+                            leading_pause_s = 0.0
+                        audios.append(seg_audio)
+                        if pause_s and float(pause_s) > 0.0:
+                            audios.append(self._make_silence_audio_dict(int(sr_known), float(pause_s), seg_audio))
+                        done_count += 1
+                    start_index += len(batch_texts)
         else:
             if callable(progress_callback):
                 try:
                     progress_callback(0, "生成首段（用于锁定音色）")
                 except Exception:
                     pass
+            leading_pause_s = 0.0
+            j = 0
+            while j < len(plan) and plan[j][0] == "pause":
+                try:
+                    leading_pause_s += float(plan[j][1])
+                except Exception:
+                    leading_pause_s += 0.0
+                j += 1
+            if leading_pause_s > 120.0:
+                leading_pause_s = 120.0
             first_text = segments[0]
             first_result = node.generate(
                 text=first_text,
@@ -537,7 +744,29 @@ class QwenTTSWrapper:
                 unload_model_after_generate=False,
             )
             first_audio = self._extract_audio_dict(first_result)
+            if leading_pause_s > 0.0:
+                audios.append(self._make_silence_audio_dict(int(first_audio.get("sample_rate", 24000)), leading_pause_s, first_audio))
             audios.append(first_audio)
+
+            first_text_index = None
+            for idx in range(j, len(plan)):
+                if plan[idx][0] == "text":
+                    first_text_index = idx
+                    break
+            pause_after_first_s = 0.0
+            if first_text_index is not None:
+                k = first_text_index + 1
+                while k < len(plan) and plan[k][0] == "pause":
+                    try:
+                        pause_after_first_s += float(plan[k][1])
+                    except Exception:
+                        pause_after_first_s += 0.0
+                    k += 1
+                if pause_after_first_s > 120.0:
+                    pause_after_first_s = 120.0
+                if pause_after_first_s > 0.0:
+                    sr0 = int(first_audio.get("sample_rate", 24000))
+                    audios.append(self._make_silence_audio_dict(sr0, pause_after_first_s, first_audio))
 
             if callable(progress_callback):
                 try:
@@ -559,49 +788,82 @@ class QwenTTSWrapper:
             model = load_qwen_model("Base", model_choice, device, precision, attention, False, None, "")
             mapped_lang = LANGUAGE_MAP.get(language, "auto")
 
-            tail = segments[1:]
-
             done_count = 1
-            start_index = 0
-            while start_index < len(tail):
-                batch_texts = tail[start_index:start_index + bs]
-                if callable(progress_callback):
+            sr_known = int(first_audio.get("sample_rate", 24000))
+            if first_text_index is None:
+                actions = []
+            else:
+                k = first_text_index + 1
+                while k < len(plan) and plan[k][0] == "pause":
+                    k += 1
+                actions = plan[k:]
+
+            cursor = 0
+            while cursor < len(actions):
+                texts: List[str] = []
+                pauses_after: List[float] = []
+                while cursor < len(actions) and actions[cursor][0] == "text":
+                    texts.append(str(actions[cursor][1]))
+                    if cursor + 1 < len(actions) and actions[cursor + 1][0] == "pause":
+                        try:
+                            pauses_after.append(float(actions[cursor + 1][1]))
+                        except Exception:
+                            pauses_after.append(0.0)
+                        cursor += 2
+                    else:
+                        pauses_after.append(0.0)
+                        cursor += 1
+
+                if not texts:
+                    cursor += 1
+                    continue
+
+                start_index = 0
+                while start_index < len(texts):
+                    batch_texts = texts[start_index:start_index + bs]
+                    batch_pauses = pauses_after[start_index:start_index + len(batch_texts)]
+                    if callable(progress_callback):
+                        try:
+                            pct = 20 + int(done_count * 80 / max(len(segments), 1))
+                            progress_callback(pct, f"锁定音色生成：{done_count + 1}-{min(done_count + len(batch_texts), len(segments))}/{len(segments)}")
+                        except Exception:
+                            pass
                     try:
-                        pct = 20 + int(done_count * 80 / max(len(segments), 1))
-                        progress_callback(pct, f"锁定音色生成：{done_count + 1}-{min(done_count + len(batch_texts), len(segments))}/{len(segments)}")
-                    except Exception:
-                        pass
-                try:
-                    wavs, sr = model.generate_voice_clone(
-                        text=batch_texts,
-                        language=[mapped_lang] * len(batch_texts),
-                        voice_clone_prompt=voice_clone_prompt,
-                        ref_text=first_text,
-                        x_vector_only_mode=False,
-                        max_new_tokens=per_seg_tokens,
-                        top_p=top_p,
-                        top_k=top_k,
-                        temperature=temperature,
-                        repetition_penalty=repetition_penalty,
-                    )
-                except RuntimeError as e:
-                    msg = str(e).lower()
-                    if ("out of memory" in msg or "cuda" in msg) and bs > 1:
-                        bs = 1
-                        continue
-                    raise
+                        wavs, sr = model.generate_voice_clone(
+                            text=batch_texts,
+                            language=[mapped_lang] * len(batch_texts),
+                            voice_clone_prompt=voice_clone_prompt,
+                            ref_text=first_text,
+                            x_vector_only_mode=False,
+                            max_new_tokens=per_seg_tokens,
+                            top_p=top_p,
+                            top_k=top_k,
+                            temperature=temperature,
+                            repetition_penalty=repetition_penalty,
+                        )
+                    except RuntimeError as e:
+                        msg = str(e).lower()
+                        if ("out of memory" in msg or "cuda" in msg) and bs > 1:
+                            bs = 1
+                            continue
+                        raise
 
-                for w in wavs:
-                    waveform = torch.from_numpy(w).float()
-                    if waveform.ndim == 1:
-                        waveform = waveform.unsqueeze(0).unsqueeze(0)
-                    elif waveform.ndim == 2:
-                        waveform = waveform.unsqueeze(0)
-                    audios.append({"waveform": waveform, "sample_rate": sr})
-                    done_count += 1
+                    for w, pause_s in zip(wavs, batch_pauses):
+                        waveform = torch.from_numpy(w).float()
+                        if waveform.ndim == 1:
+                            waveform = waveform.unsqueeze(0).unsqueeze(0)
+                        elif waveform.ndim == 2:
+                            waveform = waveform.unsqueeze(0)
+                        seg_audio = {"waveform": waveform, "sample_rate": sr}
+                        sr_known = int(sr)
+                        audios.append(seg_audio)
+                        if pause_s and float(pause_s) > 0.0:
+                            audios.append(self._make_silence_audio_dict(int(sr_known), float(pause_s), seg_audio))
+                        done_count += 1
+                    start_index += len(batch_texts)
 
-                start_index += len(batch_texts)
-        merged = self._merge_audio_dicts(audios, gap_seconds=0.4) if len(audios) > 1 else audios[0]
+        merge_gap = 0.0 if saw_pause_markup else 0.4
+        merged = self._merge_audio_dicts(audios, gap_seconds=merge_gap) if len(audios) > 1 else audios[0]
         if unload_model_after_generate:
             try:
                 unload_qwen_tts_models()
@@ -663,7 +925,8 @@ class QwenTTSWrapper:
         progress_callback=None,
     ):
         t0 = time.perf_counter()
-        segments = self._split_long_text(str(target_text), max_chars=200, hard_max_chars=260)
+        plan, saw_pause_markup = self._expand_pause_plan(str(target_text), default_gap_seconds=0.14, max_chars=200, hard_max_chars=260)
+        segments = [p[1] for p in plan if p and p[0] == "text"]
         per_seg_tokens = int(max(1, int(max_new_tokens)))
         prompt_node = VoiceClonePromptNode()
         audio_dict = self._audio_input_to_comfy_audio(ref_audio)
@@ -701,44 +964,88 @@ class QwenTTSWrapper:
 
         audios = []
         done_count = 0
-        start_index = 0
-        while start_index < len(segments):
-            batch_texts = segments[start_index:start_index + bs]
-            if callable(progress_callback):
-                try:
-                    pct = 5 + int(done_count * 95 / max(len(segments), 1))
-                    progress_callback(pct, f"生成音频：{done_count + 1}-{min(done_count + len(batch_texts), len(segments))}/{len(segments)}")
-                except Exception:
-                    pass
+        sr_known = None
+        leading_pause_s = 0.0
+        i = 0
+        while i < len(plan) and plan[i][0] == "pause":
             try:
-                wavs, sr = model.generate_voice_clone(
-                    text=batch_texts,
-                    language=[mapped_lang] * len(batch_texts),
-                    voice_clone_prompt=voice_clone_prompt,
-                    ref_text=(ref_text.strip() if isinstance(ref_text, str) and ref_text.strip() else None),
-                    x_vector_only_mode=bool(x_vector_only),
-                    max_new_tokens=per_seg_tokens,
-                    top_p=top_p,
-                    top_k=top_k,
-                    temperature=temperature,
-                    repetition_penalty=repetition_penalty,
-                )
-            except RuntimeError as e:
-                msg = str(e).lower()
-                if ("out of memory" in msg or "cuda" in msg) and bs > 1:
-                    bs = max(1, bs // 2)
-                    continue
-                raise
-            for w in wavs:
-                waveform = torch.from_numpy(w).float()
-                if waveform.ndim == 1:
-                    waveform = waveform.unsqueeze(0).unsqueeze(0)
-                elif waveform.ndim == 2:
-                    waveform = waveform.unsqueeze(0)
-                audios.append({"waveform": waveform, "sample_rate": sr})
-                done_count += 1
-            start_index += len(batch_texts)
-        merged = self._merge_audio_dicts(audios, gap_seconds=0.14) if len(audios) > 1 else audios[0]
+                leading_pause_s += float(plan[i][1])
+            except Exception:
+                leading_pause_s += 0.0
+            i += 1
+        if leading_pause_s > 120.0:
+            leading_pause_s = 120.0
+
+        actions = plan[i:]
+        cursor = 0
+        while cursor < len(actions):
+            texts: List[str] = []
+            pauses_after: List[float] = []
+            while cursor < len(actions) and actions[cursor][0] == "text":
+                texts.append(str(actions[cursor][1]))
+                if cursor + 1 < len(actions) and actions[cursor + 1][0] == "pause":
+                    try:
+                        pauses_after.append(float(actions[cursor + 1][1]))
+                    except Exception:
+                        pauses_after.append(0.0)
+                    cursor += 2
+                else:
+                    pauses_after.append(0.0)
+                    cursor += 1
+
+            if not texts:
+                cursor += 1
+                continue
+
+            start_index = 0
+            while start_index < len(texts):
+                batch_texts = texts[start_index:start_index + bs]
+                batch_pauses = pauses_after[start_index:start_index + len(batch_texts)]
+                if callable(progress_callback):
+                    try:
+                        pct = 5 + int(done_count * 95 / max(len(segments), 1))
+                        progress_callback(pct, f"生成音频：{done_count + 1}-{min(done_count + len(batch_texts), len(segments))}/{len(segments)}")
+                    except Exception:
+                        pass
+                try:
+                    wavs, sr = model.generate_voice_clone(
+                        text=batch_texts,
+                        language=[mapped_lang] * len(batch_texts),
+                        voice_clone_prompt=voice_clone_prompt,
+                        ref_text=(ref_text.strip() if isinstance(ref_text, str) and ref_text.strip() else None),
+                        x_vector_only_mode=bool(x_vector_only),
+                        max_new_tokens=per_seg_tokens,
+                        top_p=top_p,
+                        top_k=top_k,
+                        temperature=temperature,
+                        repetition_penalty=repetition_penalty,
+                    )
+                except RuntimeError as e:
+                    msg = str(e).lower()
+                    if ("out of memory" in msg or "cuda" in msg) and bs > 1:
+                        bs = max(1, bs // 2)
+                        continue
+                    raise
+                for w, pause_s in zip(wavs, batch_pauses):
+                    waveform = torch.from_numpy(w).float()
+                    if waveform.ndim == 1:
+                        waveform = waveform.unsqueeze(0).unsqueeze(0)
+                    elif waveform.ndim == 2:
+                        waveform = waveform.unsqueeze(0)
+                    seg_audio = {"waveform": waveform, "sample_rate": sr}
+                    if sr_known is None:
+                        sr_known = int(sr)
+                    if not audios and leading_pause_s > 0.0:
+                        audios.append(self._make_silence_audio_dict(int(sr_known), leading_pause_s, seg_audio))
+                        leading_pause_s = 0.0
+                    audios.append(seg_audio)
+                    if pause_s and float(pause_s) > 0.0:
+                        audios.append(self._make_silence_audio_dict(int(sr_known), float(pause_s), seg_audio))
+                    done_count += 1
+                start_index += len(batch_texts)
+
+        merge_gap = 0.0 if saw_pause_markup else 0.14
+        merged = self._merge_audio_dicts(audios, gap_seconds=merge_gap) if len(audios) > 1 else audios[0]
         if unload_model_after_generate:
             try:
                 unload_qwen_tts_models()
@@ -800,7 +1107,8 @@ class QwenTTSWrapper:
         progress_callback=None,
     ):
         t0 = time.perf_counter()
-        segments = self._split_long_text(str(text), max_chars=200, hard_max_chars=260)
+        plan, saw_pause_markup = self._expand_pause_plan(str(text), default_gap_seconds=0.14, max_chars=200, hard_max_chars=260)
+        segments = [p[1] for p in plan if p and p[0] == "text"]
         per_seg_tokens = int(max(1, int(max_new_tokens)))
         model = load_qwen_model("CustomVoice", model_choice, device, precision, attention, False, None, custom_model_path or "")
         mapped_lang = LANGUAGE_MAP.get(language, "auto")
@@ -825,43 +1133,87 @@ class QwenTTSWrapper:
             except Exception:
                 pass
         done_count = 0
-        start_index = 0
-        while start_index < len(segments):
-            batch_texts = segments[start_index:start_index + bs]
-            if callable(progress_callback):
-                try:
-                    pct = int(done_count * 100 / max(len(segments), 1))
-                    progress_callback(pct, f"生成音频：{done_count + 1}-{min(done_count + len(batch_texts), len(segments))}/{len(segments)}")
-                except Exception:
-                    pass
+        sr_known = None
+        leading_pause_s = 0.0
+        i = 0
+        while i < len(plan) and plan[i][0] == "pause":
             try:
-                wavs, sr = model.generate_custom_voice(
-                    text=batch_texts,
-                    speaker=[target_speaker] * len(batch_texts),
-                    language=[mapped_lang] * len(batch_texts),
-                    instruct=(instruct if isinstance(instruct, str) and instruct.strip() else None),
-                    max_new_tokens=per_seg_tokens,
-                    top_p=top_p,
-                    top_k=top_k,
-                    temperature=temperature,
-                    repetition_penalty=repetition_penalty,
-                )
-            except RuntimeError as e:
-                msg = str(e).lower()
-                if ("out of memory" in msg or "cuda" in msg) and bs > 1:
-                    bs = max(1, bs // 2)
-                    continue
-                raise
-            for w in wavs:
-                waveform = torch.from_numpy(w).float()
-                if waveform.ndim == 1:
-                    waveform = waveform.unsqueeze(0).unsqueeze(0)
-                elif waveform.ndim == 2:
-                    waveform = waveform.unsqueeze(0)
-                audios.append({"waveform": waveform, "sample_rate": sr})
-                done_count += 1
-            start_index += len(batch_texts)
-        merged = self._merge_audio_dicts(audios, gap_seconds=0.14) if len(audios) > 1 else audios[0]
+                leading_pause_s += float(plan[i][1])
+            except Exception:
+                leading_pause_s += 0.0
+            i += 1
+        if leading_pause_s > 120.0:
+            leading_pause_s = 120.0
+
+        actions = plan[i:]
+        cursor = 0
+        while cursor < len(actions):
+            texts: List[str] = []
+            pauses_after: List[float] = []
+            while cursor < len(actions) and actions[cursor][0] == "text":
+                texts.append(str(actions[cursor][1]))
+                if cursor + 1 < len(actions) and actions[cursor + 1][0] == "pause":
+                    try:
+                        pauses_after.append(float(actions[cursor + 1][1]))
+                    except Exception:
+                        pauses_after.append(0.0)
+                    cursor += 2
+                else:
+                    pauses_after.append(0.0)
+                    cursor += 1
+
+            if not texts:
+                cursor += 1
+                continue
+
+            start_index = 0
+            while start_index < len(texts):
+                batch_texts = texts[start_index:start_index + bs]
+                batch_pauses = pauses_after[start_index:start_index + len(batch_texts)]
+                if callable(progress_callback):
+                    try:
+                        pct = int(done_count * 100 / max(len(segments), 1))
+                        progress_callback(pct, f"生成音频：{done_count + 1}-{min(done_count + len(batch_texts), len(segments))}/{len(segments)}")
+                    except Exception:
+                        pass
+                try:
+                    wavs, sr = model.generate_custom_voice(
+                        text=batch_texts,
+                        speaker=[target_speaker] * len(batch_texts),
+                        language=[mapped_lang] * len(batch_texts),
+                        instruct=(instruct if isinstance(instruct, str) and instruct.strip() else None),
+                        max_new_tokens=per_seg_tokens,
+                        top_p=top_p,
+                        top_k=top_k,
+                        temperature=temperature,
+                        repetition_penalty=repetition_penalty,
+                    )
+                except RuntimeError as e:
+                    msg = str(e).lower()
+                    if ("out of memory" in msg or "cuda" in msg) and bs > 1:
+                        bs = max(1, bs // 2)
+                        continue
+                    raise
+                for w, pause_s in zip(wavs, batch_pauses):
+                    waveform = torch.from_numpy(w).float()
+                    if waveform.ndim == 1:
+                        waveform = waveform.unsqueeze(0).unsqueeze(0)
+                    elif waveform.ndim == 2:
+                        waveform = waveform.unsqueeze(0)
+                    seg_audio = {"waveform": waveform, "sample_rate": sr}
+                    if sr_known is None:
+                        sr_known = int(sr)
+                    if not audios and leading_pause_s > 0.0:
+                        audios.append(self._make_silence_audio_dict(int(sr_known), leading_pause_s, seg_audio))
+                        leading_pause_s = 0.0
+                    audios.append(seg_audio)
+                    if pause_s and float(pause_s) > 0.0:
+                        audios.append(self._make_silence_audio_dict(int(sr_known), float(pause_s), seg_audio))
+                    done_count += 1
+                start_index += len(batch_texts)
+
+        merge_gap = 0.0 if saw_pause_markup else 0.14
+        merged = self._merge_audio_dicts(audios, gap_seconds=merge_gap) if len(audios) > 1 else audios[0]
         if unload_model_after_generate:
             try:
                 unload_qwen_tts_models()
@@ -1002,29 +1354,106 @@ class QwenTTSWrapper:
                 progress_callback(40, "生成对话音频")
             except Exception:
                 pass
-        result = dialogue_node.generate_dialogue(
-            script=script,
-            role_bank=role_bank,
-            model_choice=model_choice,
-            device=device,
-            precision=precision,
-            language=language,
-            pause_linebreak=pause_linebreak,
-            period_pause=period_pause,
-            comma_pause=comma_pause,
-            question_pause=question_pause,
-            hyphen_pause=hyphen_pause,
-            merge_outputs=merge_outputs,
-            batch_size=bs,
-            seed=seed,
-            max_new_tokens_per_line=max_new_tokens_per_line,
-            top_p=top_p,
-            top_k=top_k,
-            temperature=temperature,
-            repetition_penalty=repetition_penalty,
-            attention=attention,
-            unload_model_after_generate=unload_model_after_generate,
-        )
+        parts = self._parse_pause_markup(script)
+        saw_pause_markup = any(k == "pause" for (k, _) in parts)
+        if not saw_pause_markup:
+            result = dialogue_node.generate_dialogue(
+                script=script,
+                role_bank=role_bank,
+                model_choice=model_choice,
+                device=device,
+                precision=precision,
+                language=language,
+                pause_linebreak=pause_linebreak,
+                period_pause=period_pause,
+                comma_pause=comma_pause,
+                question_pause=question_pause,
+                hyphen_pause=hyphen_pause,
+                merge_outputs=merge_outputs,
+                batch_size=bs,
+                seed=seed,
+                max_new_tokens_per_line=max_new_tokens_per_line,
+                top_p=top_p,
+                top_k=top_k,
+                temperature=temperature,
+                repetition_penalty=repetition_penalty,
+                attention=attention,
+                unload_model_after_generate=unload_model_after_generate,
+            )
+        else:
+            leading_pause_s = 0.0
+            idx = 0
+            while idx < len(parts) and parts[idx][0] == "pause":
+                try:
+                    leading_pause_s += float(parts[idx][1])
+                except Exception:
+                    leading_pause_s += 0.0
+                idx += 1
+            if leading_pause_s > 120.0:
+                leading_pause_s = 120.0
+            audios: List[Dict[str, Any]] = []
+            sr_known = None
+            cursor = idx
+            while cursor < len(parts):
+                kind, payload = parts[cursor]
+                if kind == "pause":
+                    cursor += 1
+                    continue
+                seg_script = "" if payload is None else str(payload)
+                if not seg_script.strip():
+                    cursor += 1
+                    continue
+                if callable(progress_callback):
+                    try:
+                        progress_callback(40, "生成对话音频（分段）")
+                    except Exception:
+                        pass
+                seg_result = dialogue_node.generate_dialogue(
+                    script=seg_script,
+                    role_bank=role_bank,
+                    model_choice=model_choice,
+                    device=device,
+                    precision=precision,
+                    language=language,
+                    pause_linebreak=pause_linebreak,
+                    period_pause=period_pause,
+                    comma_pause=comma_pause,
+                    question_pause=question_pause,
+                    hyphen_pause=hyphen_pause,
+                    merge_outputs=True,
+                    batch_size=bs,
+                    seed=seed,
+                    max_new_tokens_per_line=max_new_tokens_per_line,
+                    top_p=top_p,
+                    top_k=top_k,
+                    temperature=temperature,
+                    repetition_penalty=repetition_penalty,
+                    attention=attention,
+                    unload_model_after_generate=False,
+                )
+                seg_audio = self._extract_audio_dict(seg_result)
+                sr_known = int(seg_audio.get("sample_rate", 24000))
+                if not audios and leading_pause_s > 0.0:
+                    audios.append(self._make_silence_audio_dict(int(sr_known), leading_pause_s, seg_audio))
+                    leading_pause_s = 0.0
+                audios.append(seg_audio)
+                cursor += 1
+                pause_total = 0.0
+                while cursor < len(parts) and parts[cursor][0] == "pause":
+                    try:
+                        pause_total += float(parts[cursor][1])
+                    except Exception:
+                        pause_total += 0.0
+                    cursor += 1
+                if pause_total > 0.0 and sr_known is not None:
+                    audios.append(self._make_silence_audio_dict(int(sr_known), float(min(pause_total, 120.0)), seg_audio))
+            merged_dialogue = self._merge_audio_dicts(audios, gap_seconds=0.0) if len(audios) > 1 else audios[0]
+            result = (merged_dialogue,)
+            if unload_model_after_generate:
+                try:
+                    unload_qwen_tts_models()
+                except Exception:
+                    pass
         if callable(progress_callback):
             try:
                 progress_callback(90, "合并输出")
