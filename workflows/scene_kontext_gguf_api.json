@@ -141,11 +141,11 @@
       "spacing_width": 0,
       "spacing_color": "white",
       "image1": [
-        "53",
+        "22",
         0
       ],
       "image2": [
-        "56",
+        "12",
         0
       ]
     },
@@ -157,11 +157,11 @@
   "10": {
     "inputs": {
       "width": [
-        "37",
+        "62",
         0
       ],
       "height": [
-        "33",
+        "63",
         0
       ],
       "batch_size": 1
@@ -175,7 +175,7 @@
     "inputs": {
       "channel": "red",
       "image": [
-        "56",
+        "12",
         0
       ]
     },
@@ -195,7 +195,7 @@
   },
   "13": {
     "inputs": {
-      "seed": 0
+      "seed": 85390214998453
     },
     "class_type": "SeedInput",
     "_meta": {
@@ -221,7 +221,7 @@
         0
       ],
       "on_true": [
-        "53",
+        "22",
         0
       ],
       "on_false": [
@@ -354,34 +354,6 @@
       "title": "var_number"
     }
   },
-  "33": {
-    "inputs": {
-      "index": [
-        "32",
-        0
-      ],
-      "value1": [
-        "34",
-        1
-      ],
-      "value2": [
-        "36",
-        1
-      ],
-      "value3": [
-        "3",
-        1
-      ],
-      "value4": [
-        "35",
-        1
-      ]
-    },
-    "class_type": "easy anythingIndexSwitch",
-    "_meta": {
-      "title": "Any Index Switch"
-    }
-  },
   "34": {
     "inputs": {
       "image": [
@@ -418,34 +390,6 @@
       "title": "🔧 Get Image Size"
     }
   },
-  "37": {
-    "inputs": {
-      "index": [
-        "32",
-        0
-      ],
-      "value1": [
-        "34",
-        0
-      ],
-      "value2": [
-        "36",
-        0
-      ],
-      "value3": [
-        "3",
-        0
-      ],
-      "value4": [
-        "35",
-        0
-      ]
-    },
-    "class_type": "easy anythingIndexSwitch",
-    "_meta": {
-      "title": "Any Index Switch"
-    }
-  },
   "39": {
     "inputs": {
       "width": [
@@ -479,7 +423,7 @@
   "41": {
     "inputs": {
       "image": [
-        "56",
+        "12",
         0
       ]
     },
@@ -503,7 +447,7 @@
   "43": {
     "inputs": {
       "image": [
-        "53",
+        "22",
         0
       ]
     },
@@ -568,98 +512,6 @@
       "title": "lora_4"
     }
   },
-  "51": {
-    "inputs": {
-      "mask": [
-        "12",
-        1
-      ]
-    },
-    "class_type": "InvertMask",
-    "_meta": {
-      "title": "InvertMask"
-    }
-  },
-  "52": {
-    "inputs": {
-      "fill_background": true,
-      "background_color": "#FFFFFF",
-      "RGBA_image": [
-        "12",
-        0
-      ],
-      "mask": [
-        "51",
-        0
-      ]
-    },
-    "class_type": "LayerUtility: ImageRemoveAlpha",
-    "_meta": {
-      "title": "LayerUtility: ImageRemoveAlpha"
-    }
-  },
-  "53": {
-    "inputs": {
-      "fill_background": true,
-      "background_color": "#FFFFFF",
-      "RGBA_image": [
-        "22",
-        0
-      ],
-      "mask": [
-        "54",
-        0
-      ]
-    },
-    "class_type": "LayerUtility: ImageRemoveAlpha",
-    "_meta": {
-      "title": "LayerUtility: ImageRemoveAlpha"
-    }
-  },
-  "54": {
-    "inputs": {
-      "mask": [
-        "22",
-        1
-      ]
-    },
-    "class_type": "InvertMask",
-    "_meta": {
-      "title": "InvertMask"
-    }
-  },
-  "55": {
-    "inputs": {
-      "mask": [
-        "12",
-        1
-      ]
-    },
-    "class_type": "easy isMaskEmpty",
-    "_meta": {
-      "title": "Is Mask Empty"
-    }
-  },
-  "56": {
-    "inputs": {
-      "boolean": [
-        "55",
-        0
-      ],
-      "on_true": [
-        "12",
-        0
-      ],
-      "on_false": [
-        "52",
-        0
-      ]
-    },
-    "class_type": "easy ifElse",
-    "_meta": {
-      "title": "If else"
-    }
-  },
   "57": {
     "inputs": {
       "value": 1
@@ -722,6 +574,70 @@
     "class_type": "easy ifElse",
     "_meta": {
       "title": "If else"
+    }
+  },
+  "62": {
+    "inputs": {
+      "index": [
+        "32",
+        0
+      ],
+      "value0": [
+        "35",
+        0
+      ],
+      "value1": [
+        "34",
+        0
+      ],
+      "value2": [
+        "36",
+        0
+      ],
+      "value3": [
+        "3",
+        0
+      ],
+      "value4": [
+        "35",
+        0
+      ]
+    },
+    "class_type": "easy anythingIndexSwitch",
+    "_meta": {
+      "title": "Any Index Switch"
+    }
+  },
+  "63": {
+    "inputs": {
+      "index": [
+        "32",
+        0
+      ],
+      "value0": [
+        "35",
+        1
+      ],
+      "value1": [
+        "34",
+        1
+      ],
+      "value2": [
+        "36",
+        1
+      ],
+      "value3": [
+        "3",
+        1
+      ],
+      "value4": [
+        "35",
+        1
+      ]
+    },
+    "class_type": "easy anythingIndexSwitch",
+    "_meta": {
+      "title": "Any Index Switch"
     }
   }
 }

@@ -72,8 +72,8 @@
       "fill": "navier-stokes",
       "falloff": 0,
       "image": [
-        "132",
-        1
+        "169",
+        0
       ],
       "mask": [
         "89",
@@ -239,8 +239,8 @@
       "decay_factor": 1,
       "fill_holes": false,
       "mask": [
-        "132",
-        2
+        "170",
+        0
       ]
     },
     "class_type": "GrowMaskWithBlur",
@@ -365,8 +365,8 @@
       "decay_factor": 1,
       "fill_holes": false,
       "mask": [
-        "132",
-        2
+        "170",
+        0
       ]
     },
     "class_type": "GrowMaskWithBlur",
@@ -388,8 +388,8 @@
       "decay_factor": 1,
       "fill_holes": false,
       "mask": [
-        "132",
-        2
+        "170",
+        0
       ]
     },
     "class_type": "GrowMaskWithBlur",
@@ -403,8 +403,8 @@
       "y": 0,
       "resize_source": false,
       "destination": [
-        "132",
-        1
+        "169",
+        0
       ],
       "source": [
         "96",
@@ -454,8 +454,8 @@
   "118": {
     "inputs": {
       "image": [
-        "132",
-        1
+        "169",
+        0
       ]
     },
     "class_type": "GetImageSize",
@@ -558,7 +558,7 @@
         "129",
         1
       ],
-      "context_from_mask_extend_factor": 1.2,
+      "context_from_mask_extend_factor": 50,
       "output_resize_to_target_size": false,
       "output_target_width": 512,
       "output_target_height": 512,
@@ -653,45 +653,6 @@
     "class_type": "ImageToMask",
     "_meta": {
       "title": "Convert Image to Mask"
-    }
-  },
-  "132": {
-    "inputs": {
-      "downscale_algorithm": "lanczos",
-      "upscale_algorithm": "lanczos",
-      "preresize": true,
-      "preresize_mode": "ensure minimum and maximum resolution",
-      "preresize_min_width": 1024,
-      "preresize_min_height": 1024,
-      "preresize_max_width": 2048,
-      "preresize_max_height": 2048,
-      "mask_fill_holes": false,
-      "mask_expand_pixels": 0,
-      "mask_invert": false,
-      "mask_blend_pixels": 0,
-      "mask_hipass_filter": 0.1,
-      "extend_for_outpainting": false,
-      "extend_up_factor": 1,
-      "extend_down_factor": 1,
-      "extend_left_factor": 1,
-      "extend_right_factor": 1,
-      "context_from_mask_extend_factor": 1,
-      "output_resize_to_target_size": false,
-      "output_target_width": 512,
-      "output_target_height": 512,
-      "output_padding": "0",
-      "image": [
-        "124",
-        1
-      ],
-      "mask": [
-        "124",
-        2
-      ]
-    },
-    "class_type": "InpaintCropImproved",
-    "_meta": {
-      "title": "✂️ Inpaint Crop (Improved)"
     }
   },
   "136": {
@@ -924,6 +885,238 @@
     "class_type": "LoraLoaderModelOnly",
     "_meta": {
       "title": "lora_4"
+    }
+  },
+  "167": {
+    "inputs": {
+      "width": 1024,
+      "height": 1024,
+      "upscale_method": "lanczos",
+      "keep_proportion": "total_pixels",
+      "pad_color": "0, 0, 0",
+      "crop_position": "center",
+      "divisible_by": 16,
+      "device": "cpu",
+      "image": [
+        "124",
+        1
+      ],
+      "mask": [
+        "124",
+        2
+      ]
+    },
+    "class_type": "ImageResizeKJv2",
+    "_meta": {
+      "title": "Resize Image v2"
+    }
+  },
+  "168": {
+    "inputs": {
+      "width": 1536,
+      "height": 1536,
+      "upscale_method": "lanczos",
+      "keep_proportion": "total_pixels",
+      "pad_color": "0, 0, 0",
+      "crop_position": "center",
+      "divisible_by": 16,
+      "device": "cpu",
+      "image": [
+        "124",
+        1
+      ],
+      "mask": [
+        "124",
+        2
+      ]
+    },
+    "class_type": "ImageResizeKJv2",
+    "_meta": {
+      "title": "Resize Image v2"
+    }
+  },
+  "169": {
+    "inputs": {
+      "index": [
+        "179",
+        0
+      ],
+      "value0": [
+        "124",
+        1
+      ],
+      "value1": [
+        "167",
+        0
+      ],
+      "value2": [
+        "168",
+        0
+      ]
+    },
+    "class_type": "easy anythingIndexSwitch",
+    "_meta": {
+      "title": "Any Index Switch"
+    }
+  },
+  "170": {
+    "inputs": {
+      "index": [
+        "179",
+        0
+      ],
+      "value0": [
+        "124",
+        2
+      ],
+      "value1": [
+        "167",
+        3
+      ],
+      "value2": [
+        "168",
+        3
+      ]
+    },
+    "class_type": "easy anythingIndexSwitch",
+    "_meta": {
+      "title": "Any Index Switch"
+    }
+  },
+  "171": {
+    "inputs": {
+      "comparison": "a > b",
+      "a": [
+        "174",
+        0
+      ],
+      "b": [
+        "172",
+        0
+      ]
+    },
+    "class_type": "easy compare",
+    "_meta": {
+      "title": "Compare"
+    }
+  },
+  "172": {
+    "inputs": {
+      "value": 1048576
+    },
+    "class_type": "PrimitiveInt",
+    "_meta": {
+      "title": "Int"
+    }
+  },
+  "173": {
+    "inputs": {
+      "value": 2359296
+    },
+    "class_type": "PrimitiveInt",
+    "_meta": {
+      "title": "Int"
+    }
+  },
+  "174": {
+    "inputs": {
+      "value": "a*b",
+      "a": [
+        "142",
+        0
+      ],
+      "b": [
+        "142",
+        1
+      ]
+    },
+    "class_type": "SimpleMath+",
+    "_meta": {
+      "title": "🔧 Simple Math"
+    }
+  },
+  "175": {
+    "inputs": {
+      "boolean": [
+        "171",
+        0
+      ],
+      "on_true": [
+        "176",
+        0
+      ],
+      "on_false": [
+        "177",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "176": {
+    "inputs": {
+      "value": 0
+    },
+    "class_type": "PrimitiveInt",
+    "_meta": {
+      "title": "Int"
+    }
+  },
+  "177": {
+    "inputs": {
+      "value": 1
+    },
+    "class_type": "PrimitiveInt",
+    "_meta": {
+      "title": "Int"
+    }
+  },
+  "178": {
+    "inputs": {
+      "value": 2
+    },
+    "class_type": "PrimitiveInt",
+    "_meta": {
+      "title": "Int"
+    }
+  },
+  "179": {
+    "inputs": {
+      "boolean": [
+        "180",
+        0
+      ],
+      "on_true": [
+        "178",
+        0
+      ],
+      "on_false": [
+        "175",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "180": {
+    "inputs": {
+      "comparison": "a > b",
+      "a": [
+        "174",
+        0
+      ],
+      "b": [
+        "173",
+        0
+      ]
+    },
+    "class_type": "easy compare",
+    "_meta": {
+      "title": "Compare"
     }
   }
 }
