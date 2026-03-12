@@ -298,7 +298,7 @@ def generate_clicked(task: worker.AsyncTask, state):
     last_preview_title = ""
     last_preview_percentage = 0
     last_preview_frame_time = local_start_time
-    last_preview_ui_time = local_start_time
+    next_preview_ui_time = local_start_time
     last_preview_shown_title = ""
     last_preview_shown_percentage = 0
     waiting_for_new_step_frame = False
@@ -348,7 +348,7 @@ def generate_clicked(task: worker.AsyncTask, state):
                 logged_backend_ready_wait = True
                 logger.warning(f"[Generate] backend_ready_delayed: waited={current_time - local_start_time:.2f}s, yields_len={len(task.yields)}, processing={getattr(task, 'processing', None)}, {task_meta}")
 
-            if len(preview_cache) > 1 and (current_time - last_preview_ui_time) >= preview_interval:
+            if len(preview_cache) > 1 and current_time >= next_preview_ui_time:
                 head_flag = task.yields[0][0] if len(task.yields) > 0 else None
                 head_preview_image_none = False
                 if head_flag == 'preview':
@@ -362,7 +362,9 @@ def generate_clicked(task: worker.AsyncTask, state):
                     preview_cache_index = (preview_cache_index + 1) % len(preview_cache)
                     cached_image = preview_cache[preview_cache_index]
                     last_preview_frame_time = current_time
-                    last_preview_ui_time = current_time
+                    next_preview_ui_time += preview_interval
+                    if next_preview_ui_time <= current_time:
+                        next_preview_ui_time = current_time + preview_interval
                     yield gr.update(visible=True, value=modules.html.make_progress_html(last_preview_percentage, last_preview_title)), \
                         gr.update(visible=True, value=cached_image), \
                         gr.update(), \
@@ -430,17 +432,22 @@ def generate_clicked(task: worker.AsyncTask, state):
                     if title_changed:
                         should_yield_preview = True
                     elif image_to_show is not None:
-                        should_yield_preview = (current_time - last_preview_ui_time) >= preview_interval
+                        should_yield_preview = current_time >= next_preview_ui_time
                     else:
                         should_yield_preview = (
                             (percentage != last_preview_shown_percentage or title != last_preview_shown_title)
-                            and (current_time - last_preview_ui_time) >= preview_interval
+                            and current_time >= next_preview_ui_time
                         )
 
                     if not should_yield_preview:
                         continue
 
-                    last_preview_ui_time = current_time
+                    if title_changed:
+                        next_preview_ui_time = current_time + preview_interval
+                    else:
+                        next_preview_ui_time += preview_interval
+                        if next_preview_ui_time <= current_time:
+                            next_preview_ui_time = current_time + preview_interval
                     last_preview_shown_percentage = percentage
                     last_preview_shown_title = title
                     yield gr.update(visible=True, value=modules.html.make_progress_html(percentage, title)), \
@@ -498,11 +505,13 @@ def generate_clicked(task: worker.AsyncTask, state):
                             if isinstance(filepath, str) and os.path.exists(filepath):
                                 os.remove(filepath)
 
-            elif len(preview_cache) > 1 and (current_time - last_preview_ui_time) >= preview_interval:
+            elif len(preview_cache) > 1 and current_time >= next_preview_ui_time:
                 preview_cache_index = (preview_cache_index + 1) % len(preview_cache)
                 cached_image = preview_cache[preview_cache_index]
                 last_preview_frame_time = current_time
-                last_preview_ui_time = current_time
+                next_preview_ui_time += preview_interval
+                if next_preview_ui_time <= current_time:
+                    next_preview_ui_time = current_time + preview_interval
 
                 yield gr.update(visible=True, value=modules.html.make_progress_html(last_preview_percentage, last_preview_title)), \
                     gr.update(visible=True, value=cached_image), \
