@@ -1,5 +1,4 @@
 import json
-import importlib.util
 import logging
 import os
 import sys
@@ -60,6 +59,88 @@ def _env_flag(name: str, default: bool) -> bool:
     return bool(default)
 
 
+def _env_int(name: str, default: int) -> int:
+    v = os.environ.get(name, None)
+    if v is None:
+        return int(default)
+    try:
+        return int(float(str(v).strip()))
+    except Exception:
+        return int(default)
+
+
+def _auto_choose_sam3_image_size(image_size: int, *, device_index: int) -> int:
+    requested = int(image_size or 0)
+    if not _env_flag("SIMPLEAI_SAM3_AUTO_IMAGE_SIZE", True):
+        return requested if requested > 0 else 1008
+
+    min_size = int(_env_int("SIMPLEAI_SAM3_AUTO_IMAGE_SIZE_MIN", 640))
+    max_size = int(_env_int("SIMPLEAI_SAM3_AUTO_IMAGE_SIZE_MAX", 1008))
+    if requested > 0:
+        max_size = min(int(max_size), int(requested))
+    if min_size > max_size:
+        min_size, max_size = max_size, min_size
+
+    candidates = [s for s in (1008, 896, 768, 640) if int(min_size) <= int(s) <= int(max_size)]
+    if not candidates:
+        return requested if requested > 0 else 1008
+
+    cap_gb = None
+    if torch.cuda.is_available():
+        try:
+            cap = _apply_elastic_vram_limit_for_sam3(device_index=int(device_index))
+            if isinstance(cap, dict) and cap.get("cap_gb_effective", None) is not None:
+                cap_gb = float(cap["cap_gb_effective"])
+        except Exception:
+            cap_gb = None
+
+    if cap_gb is None and torch.cuda.is_available():
+        try:
+            free_bytes, total_bytes = torch.cuda.mem_get_info(int(device_index))
+            total_gb = float(total_bytes) / (1024.0**3)
+            free_gb = float(free_bytes) / (1024.0**3)
+            cap_gb = min(total_gb, free_gb + float(torch.cuda.memory_reserved(int(device_index))) / (1024.0**3))
+        except Exception:
+            cap_gb = None
+
+    if cap_gb is not None:
+        if float(cap_gb) < 3.5:
+            desired = 640
+        elif float(cap_gb) < 5.0:
+            desired = 768
+        elif float(cap_gb) < 7.0:
+            desired = 896
+        else:
+            desired = 1008
+    else:
+        desired = 1008
+
+    for s in sorted(candidates, reverse=True):
+        if int(s) <= int(desired):
+            return int(s)
+    return int(min(candidates))
+
+
+def _get_session_num_frames(predictor, session_id: str) -> int | None:
+    try:
+        states = getattr(predictor, "_ALL_INFERENCE_STATES", None)
+        if not isinstance(states, dict):
+            return None
+        session = states.get(session_id, None)
+        if not isinstance(session, dict):
+            return None
+        state = session.get("state", None)
+        if not isinstance(state, dict):
+            return None
+        n = state.get("num_frames", None)
+        if n is None:
+            return None
+        n = int(n)
+        return n if n > 0 else None
+    except Exception:
+        return None
+
+
 def _apply_elastic_vram_limit_for_sam3(*, device_index: int) -> dict | None:
     if not torch.cuda.is_available():
         return None
@@ -71,7 +152,7 @@ def _apply_elastic_vram_limit_for_sam3(*, device_index: int) -> dict | None:
     except Exception:
         pass
 
-    headroom_gb = _env_float("SIMPLEAI_SAM3_NVML_HEADROOM_GB", 1.0)
+    headroom_gb = _env_float("SIMPLEAI_SAM3_NVML_HEADROOM_GB", 0.2)
     limit_gb = _env_float("SIMPLEAI_SAM3_LIMIT_GB", 0.0)
 
     try:
@@ -866,12 +947,15 @@ def run_sam3_video_mask(
     session_id = None
     tmp_frames_dir = None
     resource_path = video_path
+    session_num_frames = None
     masks_by_frame: dict[int, np.ndarray] = {}
     try:
         checkpoint_path = _resolve_sam3_checkpoint(None)
         predictor = _load_video_predictor(checkpoint_path)
         model = getattr(predictor, "model", None)
         dtype = _precision_to_dtype(precision)
+        device_index = int(torch.cuda.current_device()) if torch.cuda.is_available() else 0
+        effective_image_size = _auto_choose_sam3_image_size(int(image_size), device_index=device_index)
         _apply_video_model_defaults(
             model,
             score_threshold_detection=score_threshold_detection,
@@ -891,7 +975,7 @@ def run_sam3_video_mask(
             recondition_every_nth_frame=recondition_every_nth_frame,
             masklet_confirmation_enable=False,
             decrease_trk_keep_alive_for_empty_masklets=False,
-            image_size=image_size,
+            image_size=effective_image_size,
         )
         _sync_bias_dtype_with_weight(model)
 
@@ -903,13 +987,14 @@ def run_sam3_video_mask(
         offload_cached_masks_to_cpu = _env_flag("SIMPLEAI_SAM3_OFFLOAD_CACHED_MASKS_TO_CPU", True)
         if debug_print:
             logger.info(
-                "SAM3(webui) video=%s size_bytes=%s fps=%s frames=%s w=%s h=%s precision=%s dtype=%s model_params=%s offload_video_to_cpu=%s async_loading_frames=%s offload_state_to_cpu=%s offload_cached_masks_to_cpu=%s elastic_vram=%s",
+                "SAM3(webui) video=%s size_bytes=%s fps=%s frames=%s w=%s h=%s image_size=%s precision=%s dtype=%s model_params=%s offload_video_to_cpu=%s async_loading_frames=%s offload_state_to_cpu=%s offload_cached_masks_to_cpu=%s elastic_vram=%s",
                 str(video_path),
                 str(_safe_get_video_file_size(video_path)),
                 float(fps),
                 int(frame_count),
                 int(width),
                 int(height),
+                int(effective_image_size),
                 str(precision),
                 str(dtype),
                 str(_collect_model_params(model)),
@@ -920,16 +1005,30 @@ def run_sam3_video_mask(
                 str(_apply_elastic_vram_limit_for_sam3(device_index=int(torch.cuda.current_device()))),
             )
 
-        frame_time = float(payload.get("frame_time", 0.0) or 0.0)
-        frame_index = int(round(frame_time * fps)) if fps > 0 else int(payload.get("frame_index", 0) or 0)
+        payload_frame_index = None
+        if payload.get("frame_index", None) is not None:
+            try:
+                payload_frame_index = int(payload.get("frame_index"))
+            except Exception:
+                payload_frame_index = None
+        if payload_frame_index is None and payload.get("frame_time", None) is not None:
+            try:
+                payload_frame_index = int(round(float(payload.get("frame_time", 0.0) or 0.0) * float(fps or 0.0)))
+            except Exception:
+                payload_frame_index = None
+        frame_index = int(payload_frame_index or 0)
         frame_index = max(0, min(frame_count - 1, frame_index)) if frame_count > 0 else max(0, frame_index)
 
         pos_points = _normalize_points(payload.get("positive_coords", []), width, height)
         neg_points = _normalize_points(payload.get("negative_coords", []), width, height)
         bbox_xywh = _normalize_bbox(payload.get("bbox", None), width, height)
         points, point_labels = [], []
-        if pos_points: points.extend(pos_points); point_labels.extend([1] * len(pos_points))
-        if neg_points: points.extend(neg_points); point_labels.extend([0] * len(neg_points))
+        if pos_points:
+            points.extend(pos_points)
+            point_labels.extend([1] * len(pos_points))
+        if neg_points:
+            points.extend(neg_points)
+            point_labels.extend([0] * len(neg_points))
 
         prompt_text = str(payload.get("prompt", "") or "").strip()
         if not bbox_xywh and not points and not prompt_text:
@@ -980,6 +1079,10 @@ def run_sam3_video_mask(
             session_id = response.get("session_id", None)
             if not session_id:
                 raise RuntimeError("Failed to start SAM3 session")
+
+            session_num_frames = _get_session_num_frames(predictor, session_id)
+            if session_num_frames is not None:
+                frame_index = max(0, min(int(session_num_frames) - 1, int(frame_index)))
 
             predictor.handle_request(
                 request=dict(
@@ -1073,7 +1176,11 @@ def run_sam3_video_mask(
         if not writer.isOpened():
             raise RuntimeError("Failed to open VideoWriter for mask output.")
 
-        total = frame_count if frame_count > 0 else (max(masks_by_frame.keys()) + 1 if masks_by_frame else 0)
+        total = (
+            frame_count
+            if frame_count > 0
+            else (int(session_num_frames) if session_num_frames is not None else (max(masks_by_frame.keys()) + 1 if masks_by_frame else 0))
+        )
         for i in range(int(total)):
             mask = masks_by_frame.get(i, None)
             if mask is None:
@@ -1155,12 +1262,15 @@ def run_sam3_video_mask_by_prompt(
     session_id = None
     tmp_frames_dir = None
     resource_path = video_path
+    session_num_frames = None
     masks_by_frame: dict[int, np.ndarray] = {}
     try:
         checkpoint_path = _resolve_sam3_checkpoint(None)
         predictor = _load_video_predictor(checkpoint_path)
         model = getattr(predictor, "model", None)
         dtype = _precision_to_dtype(precision)
+        device_index = int(torch.cuda.current_device()) if torch.cuda.is_available() else 0
+        effective_image_size = _auto_choose_sam3_image_size(int(image_size), device_index=device_index)
         _apply_video_model_defaults(
             model,
             score_threshold_detection=score_threshold_detection,
@@ -1180,7 +1290,7 @@ def run_sam3_video_mask_by_prompt(
             recondition_every_nth_frame=recondition_every_nth_frame,
             masklet_confirmation_enable=False,
             decrease_trk_keep_alive_for_empty_masklets=False,
-            image_size=image_size,
+            image_size=effective_image_size,
         )
         _sync_bias_dtype_with_weight(model)
 
@@ -1193,13 +1303,14 @@ def run_sam3_video_mask_by_prompt(
         frame_index = max(0, min(frame_count - 1, frame_index)) if frame_count > 0 else max(0, frame_index)
         if debug_print:
             logger.info(
-                "SAM3(webui) video=%s size_bytes=%s fps=%s frames=%s w=%s h=%s precision=%s dtype=%s model_params=%s offload_video_to_cpu=%s async_loading_frames=%s offload_state_to_cpu=%s offload_cached_masks_to_cpu=%s elastic_vram=%s prompt=%s",
+                "SAM3(webui) video=%s size_bytes=%s fps=%s frames=%s w=%s h=%s image_size=%s precision=%s dtype=%s model_params=%s offload_video_to_cpu=%s async_loading_frames=%s offload_state_to_cpu=%s offload_cached_masks_to_cpu=%s elastic_vram=%s prompt=%s",
                 str(video_path),
                 str(_safe_get_video_file_size(video_path)),
                 float(fps),
                 int(frame_count),
                 int(width),
                 int(height),
+                int(effective_image_size),
                 str(precision),
                 str(dtype),
                 str(_collect_model_params(model)),
@@ -1254,6 +1365,10 @@ def run_sam3_video_mask_by_prompt(
             session_id = response.get("session_id", None)
             if not session_id:
                 raise RuntimeError("Failed to start SAM3 session")
+
+            session_num_frames = _get_session_num_frames(predictor, session_id)
+            if session_num_frames is not None:
+                frame_index = max(0, min(int(session_num_frames) - 1, int(frame_index)))
 
             predictor.handle_request(
                 request=dict(
@@ -1353,7 +1468,11 @@ def run_sam3_video_mask_by_prompt(
         if not writer.isOpened():
             raise RuntimeError("Failed to open VideoWriter for mask output.")
 
-        total = frame_count if frame_count > 0 else (max(masks_by_frame.keys()) + 1 if masks_by_frame else 0)
+        total = (
+            frame_count
+            if frame_count > 0
+            else (int(session_num_frames) if session_num_frames is not None else (max(masks_by_frame.keys()) + 1 if masks_by_frame else 0))
+        )
         for i in range(int(total)):
             mask = masks_by_frame.get(i, None)
             if mask is None:
