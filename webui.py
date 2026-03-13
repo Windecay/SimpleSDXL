@@ -1088,10 +1088,10 @@ with shared.gradio_root:
                         sam3_generate_btn.click(sam3_generate_mask_by_prompt, inputs=[sam3_original_video_path, sam3_input_video, sam3_prompt_text, sam3_mask_video, sam3_score_threshold_detection, sam3_new_det_thresh, sam3_fill_hole_area, sam3_recondition_every_nth_frame, sam3_postprocess_strength, sam3_invert_mask], outputs=[sam3_mask_video], show_progress=True)
                         with gr.Accordion("🔧 Advanced Parameters", open=False, visible=True):
                             scene_var_number2 = gr.Slider(label='Int Value 2', minimum=0, maximum=60, step=1, value=1, visible=False)
-                            scene_var_number3 = gr.Slider(label='Float Value 1', minimum=0.0, maximum=1.0, step=0.01, value=0.0, visible=False)
-                            scene_var_number4 = gr.Slider(label='Float Value 2', minimum=0.0, maximum=1.0, step=0.01, value=0.0, visible=False)
-                            scene_var_number5 = gr.Slider(label='Float Value 3', minimum=0.0, maximum=1.0, step=0.01, value=0.0, visible=False)
-                            scene_var_number6 = gr.Slider(label='Float Value 4', minimum=0.0, maximum=1.0, step=0.01, value=0.0, visible=False)
+                            scene_var_number3 = gr.Slider(label='Float Value 1', minimum=0.0, maximum=1.0, step=0.05, value=0.0, visible=False)
+                            scene_var_number4 = gr.Slider(label='Float Value 2', minimum=0.0, maximum=1.0, step=0.05, value=0.0, visible=False)
+                            scene_var_number5 = gr.Slider(label='Float Value 3', minimum=0.0, maximum=1.0, step=0.05, value=0.0, visible=False)
+                            scene_var_number6 = gr.Slider(label='Float Value 4', minimum=0.0, maximum=1.0, step=0.05, value=0.0, visible=False)
                             with gr.Row():
                                 scene_var_number7 = gr.Slider(label='Int Value 3', minimum=0, maximum=60, step=1, value=0, visible=False, scale=1)
                                 scene_var_number8 = gr.Slider(label='Int Value 4', minimum=0, maximum=60, step=1, value=0, visible=False, scale=1)
@@ -2483,10 +2483,10 @@ with shared.gradio_root:
                                     ip_ctrls.append(ip_image)
                                     with gr.Column(visible=modules.config.default_image_prompt_advanced_checkbox) as ad_col:
                                         with gr.Row():
-                                            ip_stop = gr.Slider(label='Stop At', minimum=0.0, maximum=1.0, step=0.01, value=modules.config.default_ip_stop_ats[image_count])
+                                            ip_stop = gr.Slider(label='Stop At', minimum=0.0, maximum=1.0, step=0.05, value=modules.config.default_ip_stop_ats[image_count])
                                             ip_stops.append(ip_stop)
                                             ip_ctrls.append(ip_stop)
-                                            ip_weight = gr.Slider(label='Weight', minimum=0.0, maximum=2.0, step=0.01, value=modules.config.default_ip_weights[image_count])
+                                            ip_weight = gr.Slider(label='Weight', minimum=0.0, maximum=2.0, step=0.05, value=modules.config.default_ip_weights[image_count])
                                             ip_weights.append(ip_weight)
                                             ip_ctrls.append(ip_weight)
                                             filtered_ip_list = [flags.cn_canny, flags.cn_cpds, flags.cn_pose]
@@ -2546,15 +2546,15 @@ with shared.gradio_root:
                                     with gr.Row():
                                         uov_image_size = gr.Textbox(label='OriginalSize | FinalSize', elem_classes='uov_image_size')
                                         overwrite_upscale_strength = gr.Slider(label='Forced Overwrite of Denoising Strength of "Upscale"',
-                                                               visible=False, minimum=0, maximum=1.0, step=0.01,
+                                                               visible=False, minimum=0, maximum=1.0, step=0.05,
                                                                value=modules.config.default_overwrite_upscale)
                                         overwrite_vary_strength = gr.Slider(label='Forced Overwrite of Denoising Strength of "Vary"',
-                                                            visible=False, minimum=0, maximum=1.0, step=0.01, value=-1)
+                                                            visible=False, minimum=0, maximum=1.0, step=0.05, value=-1)
 
                                     with gr.Row(visible=False) as uov_hires_fix:
-                                        hires_fix_stop = gr.Slider(label='Stop At', minimum=0.0, maximum=1.0, step=0.01, value=0.8, min_width=20)
-                                        hires_fix_weight = gr.Slider(label='Weight', minimum=0.0, maximum=2.0, step=0.01, value=0.5, min_width=20)
-                                        hires_fix_blurred = gr.Slider(label='Blurred', minimum=0.0, maximum=1.0, step=0.01, value=0.0, min_width=20)
+                                        hires_fix_stop = gr.Slider(label='Stop At', minimum=0.0, maximum=1.0, step=0.05, value=0.8, min_width=20)
+                                        hires_fix_weight = gr.Slider(label='Weight', minimum=0.0, maximum=2.0, step=0.05, value=0.5, min_width=20)
+                                        hires_fix_blurred = gr.Slider(label='Blurred', minimum=0.0, maximum=1.0, step=0.05, value=0.0, min_width=20)
                         uov_input_image.upload(topbar.update_upscale_size_of_image, inputs=[uov_input_image, uov_method], outputs=uov_image_size, show_progress=False, queue=False)
                         uov_method.change(topbar.update_size_and_hires_fix, inputs=[uov_input_image, uov_method, params_backend, hires_fix_stop, hires_fix_weight, hires_fix_blurred], outputs=[uov_image_size, uov_hires_fix, overwrite_vary_strength, overwrite_upscale_strength], show_progress=False, queue=False)
                         hires_fix_stop.change(lambda x,y,z: sync_backend_params('hires_fix_s',x,y,z), inputs=[hires_fix_stop, params_backend, state_topbar])

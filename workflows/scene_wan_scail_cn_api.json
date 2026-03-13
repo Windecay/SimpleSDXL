@@ -70,10 +70,10 @@
         "689",
         0
       ],
-      "tile_x": 272,
-      "tile_y": 272,
-      "tile_stride_x": 144,
-      "tile_stride_y": 128,
+      "tile_x": 512,
+      "tile_y": 512,
+      "tile_stride_x": 256,
+      "tile_stride_y": 256,
       "normalization": "default",
       "vae": [
         "38",
