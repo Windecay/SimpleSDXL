@@ -190,7 +190,6 @@ import folder_paths
 import time
 from comfy.cli_args import args, enables_dynamic_vram
 from app.logger import setup_logger
-from app.assets.scanner import seed_assets
 import itertools
 import utils.extra_config
 from utils.mime_types import init_mime_types
