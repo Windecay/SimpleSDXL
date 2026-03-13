@@ -380,7 +380,7 @@ def get_missing_model_list(preset_name, user_did=None):
                 human_size = format_size(size)
                 if not url:
                     url = f'{default_download_url_prefix}/{cata}/{path_file}'
-                missing_models_with_details.append((cata, path_file, human_size, url))
+                missing_models_with_details.append((cata, path_file, human_size, url, size))
 
     return missing_models_with_details
 

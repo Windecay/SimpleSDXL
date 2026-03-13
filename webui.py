@@ -699,7 +699,12 @@ with shared.gradio_root:
                         min_width=800
                     )
                     with modal_content:
-                        missing_model_title = gr.Markdown("### 以下模型文件缺失，请点击下载按钮获取：")
+                        with gr.Row(elem_id="missing_model_modal_header"):
+                            missing_model_title = gr.Markdown("### 以下模型文件缺失，请点击下载按钮获取：", elem_id="missing_model_modal_handle")
+                            missing_model_minimize_btn = gr.Button(value="▁", size="sm", min_width=40, elem_id="missing_model_modal_minimize_btn")
+                            close_missing_model_btn = gr.Button(value="✕", size="sm", min_width=40, elem_id="missing_model_modal_close_btn")
+
+                        missing_model_total_progress = gr.HTML(value="", visible=False, elem_id="missing_model_total_progress")
 
                         dataframe_container = gr.Box(elem_id="missing_model_dataframe_container")
                         with dataframe_container:
@@ -714,39 +719,59 @@ with shared.gradio_root:
                                 max_rows=200,
                                 overflow_row_behaviour="scroll")
 
-                        with gr.Row():
-                            close_missing_model_btn = gr.Button("关闭")
+                        with gr.Row(elem_id="missing_model_modal_actions"):
                             missing_model_btn = gr.Button("补全所选预置包", visible=False)
+
+                def _make_missing_model_progress_html(percent):
+                    try:
+                        p = float(percent)
+                    except Exception:
+                        p = 0.0
+                    p = max(0.0, min(100.0, p))
+                    p_int = int(round(p))
+                    p_txt = f"{p:.1f}%"
+                    return f'<div class="mm-progress"><progress value="{p_int}" max="100"></progress><span class="mm-progress-label">总下载</span><span class="mm-progress-percent">{p_txt}</span></div>'
 
                 def check_and_show_missing_models(button_value, state_params):
                     """检查模型是否缺失并显示提示窗口"""
 
                     if ads.get_user_default("no_model_modal_checkbox", state_params, False):
-                        return [gr.update(visible=False), gr.update(value=[]), gr.update(visible=False)]
+                        return [gr.update(visible=False), gr.update(value=[]), gr.update(visible=False, value=""), gr.update(visible=False)]
 
                     preset_name = button_value.replace('⬇', '').strip()
                     if not preset_name:
-                        return [gr.update(visible=False), gr.update(value=[]), gr.update(visible=False)]
+                        return [gr.update(visible=False), gr.update(value=[]), gr.update(visible=False, value=""), gr.update(visible=False)]
                     missing_models = model_loader.get_missing_model_list(preset_name)
 
                     if missing_models:
+                        total_size = 0
                         display_data = []
-                        for cata, path_file, human_size, url in missing_models:
+                        for cata, path_file, human_size, url, size in missing_models:
                             model_name = os.path.basename(path_file)
                             display_data.append([model_name, human_size, f"下载 {model_name}"])
+                            try:
+                                total_size += int(size or 0)
+                            except Exception:
+                                pass
 
+                        progress_value = ""
+                        progress_visible = False
+                        if total_size > 0:
+                            progress_value = _make_missing_model_progress_html(0)
+                            progress_visible = True
                         return [gr.update(visible=True),
                                 gr.update(value=display_data),
+                                gr.update(visible=progress_visible, value=progress_value),
                                 gr.update(visible=True)]
                     else:
-                        return [gr.update(visible=False), gr.update(value=[]), gr.update(visible=False)]
+                        return [gr.update(visible=False), gr.update(value=[]), gr.update(visible=False, value=""), gr.update(visible=False)]
 
                 def download_models(state_params):
                     preset_name = state_params.get('__preset', '')
                     empty_buttons_update = [gr.update() for _ in range(len(bar_buttons))]
 
                     if not preset_name:
-                        yield [gr.update(visible=True), gr.update()] + empty_buttons_update
+                        yield [gr.update(visible=True), gr.update(), gr.update(visible=False, value="")] + empty_buttons_update
                         return
 
                     user_session = state_params.get('__session', '')
@@ -757,7 +782,7 @@ with shared.gradio_root:
 
                     if is_guest:
                         gr.Info("游客模式下无法下载模型，请使用外置的模型管理器补全")
-                        yield [gr.update(visible=False), gr.update()] + empty_buttons_update
+                        yield [gr.update(visible=False), gr.update(), gr.update(visible=False, value="")] + empty_buttons_update
                         return
 
                     gr.Info(f"开始下载预置包的模型: {preset_name}，请耐心等待...可于控制台查看下载进度")
@@ -768,8 +793,10 @@ with shared.gradio_root:
                         if not missing_models:
                             break
 
+                        total_current = 0
+                        total_size = 0
                         display_data = []
-                        for cata, path_file, human_size, url in missing_models:
+                        for cata, path_file, human_size, url, preset_size in missing_models:
                             model_name = os.path.basename(path_file)
                             status = model_loader.get_download_status(model_name)
                             if status:
@@ -778,22 +805,62 @@ with shared.gradio_root:
                                 else:
                                     percent = status['percent']
                                     action_text = f"Downloading: {percent:.1f}%"
+                                    try:
+                                        total_current += int(status.get("current", 0) or 0)
+                                        total_size += int(status.get("total", 0) or 0)
+                                    except Exception:
+                                        pass
                             else:
                                 action_text = f"下载 {model_name}"
+                                try:
+                                    total_size += int(preset_size or 0)
+                                except Exception:
+                                    pass
                             display_data.append([model_name, human_size, action_text])
 
-                        yield [gr.update(visible=True), gr.update(value=display_data)] + empty_buttons_update
+                        percent_total = 0.0 if total_size <= 0 else max(0.0, min(100.0, (total_current / total_size) * 100.0))
+                        progress_html = _make_missing_model_progress_html(percent_total)
+                        yield [gr.update(visible=True), gr.update(value=display_data), gr.update(visible=True, value=progress_html)] + empty_buttons_update
                         time.sleep(1)
 
                     nav_updates = topbar.refresh_nav_bars(state_params)
                     button_updates = nav_updates[1 : 1 + len(bar_buttons)]
-                    yield [gr.update(visible=False), gr.update(value=[])] + button_updates
+                    yield [gr.update(visible=False), gr.update(value=[]), gr.update(visible=False, value="")] + button_updates
 
                 def close_missing_model_modal():
                     return gr.update(visible=False)
 
                 close_missing_model_btn.click(close_missing_model_modal, outputs=missing_model_modal)
-                missing_model_btn.click(download_models, inputs=[state_topbar], outputs=[missing_model_modal, missing_model_list] + bar_buttons, api_name="download_models")
+                missing_model_minimize_btn.click(
+                    fn=None,
+                    _js="""() => {
+                        const app = (typeof gradioApp === 'function') ? gradioApp() : document;
+                        const content = app.getElementById('missing_model_modal_content');
+                        if (!content) return;
+                        const isMin = content.classList.contains('minimized');
+                        if (!isMin) {
+                            const rect = content.getBoundingClientRect();
+                            content.dataset.prevLeft = content.style.left || `${rect.left}px`;
+                            content.dataset.prevTop = content.style.top || `${rect.top}px`;
+                            content.classList.add('minimized');
+                            requestAnimationFrame(() => {
+                                const r = content.getBoundingClientRect();
+                                const margin = 12;
+                                content.style.left = `${Math.max(margin, window.innerWidth - margin - r.width)}px`;
+                                content.style.top = `${Math.max(margin, window.innerHeight - margin - r.height)}px`;
+                            });
+                        } else {
+                            content.classList.remove('minimized');
+                            const prevLeft = content.dataset.prevLeft || '';
+                            const prevTop = content.dataset.prevTop || '';
+                            if (prevLeft) content.style.left = prevLeft;
+                            if (prevTop) content.style.top = prevTop;
+                        }
+                    }""",
+                    show_progress=False,
+                    queue=False
+                )
+                missing_model_btn.click(download_models, inputs=[state_topbar], outputs=[missing_model_modal, missing_model_list, missing_model_total_progress] + bar_buttons, api_name="download_models", show_progress=False)
 
                 with gr.Row(elem_id='main_layout_row'):
                     with gr.Column(scale=2, visible=True, elem_classes='preview_column'):
@@ -4740,7 +4807,7 @@ with shared.gradio_root:
                .then(inpaint_mode_change, inputs=[inpaint_mode, inpaint_engine_state, outpaint_selections, state_topbar], outputs=[inpaint_additional_prompt, outpaint_selections, example_inpaint_prompts, inpaint_disable_initial_latent, inpaint_engine, inpaint_strength, inpaint_respective_field], show_progress=False, queue=False) \
                .then(check_camera_control_visibility, inputs=[scene_theme, state_topbar], outputs=[camera_control_accordion, anglelight_control_accordion, style_transfer_accordion, sam3_video_mask_accordion], queue=False, show_progress=False) \
                .then(inpaint_engine_state_change, inputs=[inpaint_engine_state, state_topbar] + enhance_inpaint_mode_ctrls, outputs=enhance_inpaint_engine_ctrls, queue=False, show_progress=False)  \
-               .then(check_and_show_missing_models, inputs=[bar_buttons[i], state_topbar], outputs=[missing_model_modal, missing_model_list, missing_model_btn]) \
+               .then(check_and_show_missing_models, inputs=[bar_buttons[i], state_topbar], outputs=[missing_model_modal, missing_model_list, missing_model_total_progress, missing_model_btn]) \
                .then(topbar.stop_comfyd_background, inputs=[comfyd_active_checkbox], queue=False)
     shared.gradio_root.load(fn=lambda x: x, inputs=system_params, outputs=state_topbar, _js=topbar.get_system_params_js, queue=False, show_progress=False) \
                       .then(topbar.init_nav_bars, inputs=[state_topbar] + admin_ctrls, outputs=[progress_window, language_ui, background_theme, preset_instruction] + user_app_ctrls + admin_ctrls, show_progress=False) \

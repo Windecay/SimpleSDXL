@@ -1232,6 +1232,103 @@ function initPersonalWildcardsPopup() {
 onUiLoaded(initPersonalWildcardsPopup);
 onAfterUiUpdate(initPersonalWildcardsPopup);
 
+function initMissingModelPopup() {
+    const app = (typeof gradioApp === 'function') ? gradioApp() : null;
+    if (!app) return;
+
+    const modal = app.getElementById('missing_model_modal');
+    const content = app.getElementById('missing_model_modal_content');
+    const handle = app.getElementById('missing_model_modal_handle');
+    if (!modal || !content || !handle) return;
+    if (content.dataset.mm_inited === '1') return;
+    content.dataset.mm_inited = '1';
+
+    const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
+
+    const placeDefault = () => {
+        const w = content.getBoundingClientRect().width || 970;
+        const h = content.getBoundingClientRect().height || 520;
+        const margin = 12;
+        let top = 160;
+        let left = window.innerWidth - margin - w;
+        top = clamp(top, margin, window.innerHeight - margin - h);
+        left = clamp(left, margin, window.innerWidth - margin - w);
+        content.style.top = `${top}px`;
+        content.style.left = `${left}px`;
+        content.style.right = 'auto';
+        content.style.bottom = 'auto';
+    };
+
+    const onStyle = () => {
+        const hidden = (getComputedStyle(modal).display === 'none');
+        if (hidden) {
+            content.classList.remove('minimized');
+            delete content.dataset.prevLeft;
+            delete content.dataset.prevTop;
+            return;
+        }
+        if (!content.style.left && !content.style.top) {
+            placeDefault();
+        }
+    };
+
+    const observer = new MutationObserver(onStyle);
+    observer.observe(modal, { attributes: true, attributeFilter: ['style'] });
+    onStyle();
+
+    let dragging = false;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    const onMove = (e) => {
+        if (!dragging) return;
+        const x = e.clientX ?? 0;
+        const y = e.clientY ?? 0;
+        const rect = content.getBoundingClientRect();
+        const margin = 12;
+        const nextLeft = clamp(x - offsetX, margin, window.innerWidth - margin - rect.width);
+        const nextTop = clamp(y - offsetY, margin, window.innerHeight - margin - rect.height);
+        content.style.left = `${nextLeft}px`;
+        content.style.top = `${nextTop}px`;
+    };
+
+    const onUp = () => {
+        dragging = false;
+        window.removeEventListener('pointermove', onMove, true);
+        window.removeEventListener('pointerup', onUp, true);
+    };
+
+    const isOnButtons = (target) => {
+        try {
+            return !!target?.closest?.('#missing_model_modal_minimize_btn, #missing_model_modal_close_btn');
+        } catch (e) {
+            return false;
+        }
+    };
+
+    const onDown = (e) => {
+        if (e.button !== 0) return;
+        if (getComputedStyle(modal).display === 'none') return;
+        const rect = content.getBoundingClientRect();
+        dragging = true;
+        offsetX = e.clientX - rect.left;
+        offsetY = e.clientY - rect.top;
+        window.addEventListener('pointermove', onMove, true);
+        window.addEventListener('pointerup', onUp, true);
+        e.preventDefault();
+    };
+
+    handle.addEventListener('pointerdown', onDown, { passive: false });
+    content.addEventListener('pointerdown', (e) => {
+        if (!content.classList.contains('minimized')) return;
+        if (isOnButtons(e.target)) return;
+        onDown(e);
+    }, { passive: false });
+}
+
+onUiLoaded(initMissingModelPopup);
+onAfterUiUpdate(initMissingModelPopup);
+
 function initPersonalWildcardsContentLineOverlay() {
     const modal = gradioApp().getElementById('user_personal_wildcards_modal');
     if (modal && getComputedStyle(modal).display === 'none') return;

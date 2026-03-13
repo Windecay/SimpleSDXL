@@ -1297,15 +1297,183 @@ button.gallery-item {
   box-sizing: border-box;
 }
 
-.missing-model-modal {
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
-  display: flex;
-  justify-content: center;
+.missing-model-modal.modal {
+  background-color: transparent;
+  pointer-events: none;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.missing-model-modal .modal-content {
+  position: fixed;
+  pointer-events: auto;
+  width: 970px;
+  max-width: calc(100vw - 40px);
+  max-height: calc(100vh - 160px);
+  overflow: auto;
+  border-radius: 16px;
+}
+
+#missing_model_modal_header {
+  display: flex !important;
   align-items: center;
-  z-index: 10;
+  flex-wrap: nowrap !important;
+  gap: 10px;
+}
+
+#missing_model_modal_handle {
+  margin: 0 !important;
+  padding: 0 !important;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+#missing_model_modal_handle h1,
+#missing_model_modal_handle h2,
+#missing_model_modal_handle h3,
+#missing_model_modal_handle p {
+  margin: 0 !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#missing_model_modal_minimize_btn,
+#missing_model_modal_close_btn {
+  min-width: 28px !important;
+  width: 28px !important;
+  height: 28px !important;
+  padding: 0 !important;
+  font-size: 16px !important;
+  line-height: 1 !important;
+  border-radius: 5px !important;
+  flex: 0 0 auto !important;
+}
+
+#missing_model_total_progress {
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+
+#missing_model_total_progress .loader-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+#missing_model_total_progress .loader-container .progress-container {
+  flex: 1 1 auto;
+  width: auto;
+  margin: 0;
+}
+
+#missing_model_total_progress .loader-container progress {
+  width: 100%;
+  height: 12px;
+}
+
+#missing_model_total_progress progress {
+  background-color: var(--background-fill-secondary) !important;
+  border-radius: 999px !important;
+}
+
+#missing_model_total_progress progress::after {
+  content: none !important;
+}
+
+#missing_model_total_progress progress::-webkit-progress-bar {
+  background-color: var(--background-fill-secondary);
+  border-radius: 999px;
+}
+
+#missing_model_total_progress progress::-webkit-progress-value {
+  background-color: #3498db;
+  border-radius: 999px;
+}
+
+#missing_model_total_progress progress::-moz-progress-bar {
+  background-color: #3498db;
+  border-radius: 999px;
+}
+
+#missing_model_total_progress .loader-container span {
+  font-size: 12px;
+  white-space: nowrap;
+  margin-left: 0;
+}
+
+#missing_model_modal_handle {
+  cursor: grab;
+  user-select: none;
+}
+
+#missing_model_modal_handle:active {
+  cursor: grabbing;
+}
+
+#missing_model_modal_content.minimized {
+  width: 220px !important;
+  min-width: 0 !important;
+  max-width: calc(100vw - 24px) !important;
+  max-height: none;
+  overflow: hidden;
+  padding: 6px 8px;
+  gap: 8px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+#missing_model_modal_content.minimized #missing_model_modal_handle {
+  display: none;
+}
+
+#missing_model_modal_content.minimized #missing_model_modal_header {
+  width: auto !important;
+  min-width: fit-content !important;
+  margin: 0;
+  padding: 0;
+  gap: 4px;
+  flex: 0 0 auto !important;
+  flex-shrink: 0 !important;
+  order: 2; /* Move buttons to the right */
+  display: flex;
+  flex-wrap: nowrap;
+}
+
+#missing_model_modal_content.minimized #missing_model_total_progress {
+  display: block !important;
+  flex: 1 1 auto;
+  min-width: 0;
+  order: 1; /* Move progress to the left */
+}
+
+#missing_model_modal_content.minimized #missing_model_total_progress .loader-container .loader {
+  display: none; /* Hide spinner in minimized mode */
+}
+
+#missing_model_modal_content.minimized #missing_model_total_progress .loader-container {
+  gap: 6px;
+}
+
+#missing_model_modal_content.minimized #missing_model_total_progress .loader-container span {
+  /* Only show percentage, hide text prefix via js logic or accept it shows full text but clipped */
+  /* Since we can't easily change text content via CSS, we rely on layout to handle it gracefully */
+  font-size: 11px;
+}
+
+#missing_model_modal_content.minimized #missing_model_total_progress .loader-container progress {
+  height: 8px;
+}
+
+#missing_model_modal_content.minimized #missing_model_dataframe_container,
+#missing_model_modal_content.minimized #missing_model_modal_actions {
+  display: none;
 }
 
 .user-wildcards-modal.modal {
