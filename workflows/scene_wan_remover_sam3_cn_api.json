@@ -517,7 +517,10 @@
     "inputs": {
       "format": "MP4",
       "codec": "h264",
-      "fps": 24,
+      "fps": [
+        "226",
+        1
+      ],
       "crf": 19,
       "images": [
         "223",
