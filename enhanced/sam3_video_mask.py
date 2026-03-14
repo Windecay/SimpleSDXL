@@ -74,14 +74,18 @@ def _auto_choose_sam3_image_size(image_size: int, *, device_index: int) -> int:
     if not _env_flag("SIMPLEAI_SAM3_AUTO_IMAGE_SIZE", True):
         return requested if requested > 0 else 1008
 
-    min_size = int(_env_int("SIMPLEAI_SAM3_AUTO_IMAGE_SIZE_MIN", 640))
+    patch = 14
+    min_size = int(_env_int("SIMPLEAI_SAM3_AUTO_IMAGE_SIZE_MIN", 560))
     max_size = int(_env_int("SIMPLEAI_SAM3_AUTO_IMAGE_SIZE_MAX", 1008))
+    min_size = max(patch, (int(min_size) // patch) * patch)
+    max_size = max(patch, (int(max_size) // patch) * patch)
     if requested > 0:
+        requested = max(patch, (int(requested) // patch) * patch)
         max_size = min(int(max_size), int(requested))
     if min_size > max_size:
         min_size, max_size = max_size, min_size
 
-    candidates = [s for s in (1008, 896, 768, 640) if int(min_size) <= int(s) <= int(max_size)]
+    candidates = [s for s in (1008, 896, 784, 672, 560) if int(min_size) <= int(s) <= int(max_size)]
     if not candidates:
         return requested if requested > 0 else 1008
 
@@ -105,9 +109,9 @@ def _auto_choose_sam3_image_size(image_size: int, *, device_index: int) -> int:
 
     if cap_gb is not None:
         if float(cap_gb) < 3.5:
-            desired = 640
+            desired = 672
         elif float(cap_gb) < 5.0:
-            desired = 768
+            desired = 784
         elif float(cap_gb) < 7.0:
             desired = 896
         else:

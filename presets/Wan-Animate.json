@@ -113,7 +113,7 @@
                     "Wan-Animate-Sam3物体替换": true,
                     "Wan-Animate-Sam3人物替换": true,
                     "Wan-Animate-动作迁移（无需sam3遮罩）": true,
-                    "Wan-Remover-sam3视频消除（无需参考图）": false
+                    "Wan-Remover-sam3视频消除（无需参考图）": true
                 },
                 "switch_option2_title": "SageAttention加速",
                 "switch_option2": {

@@ -66,10 +66,10 @@ def _create_position_encoding(precompute_resolution=None):
     )
 
 
-def _create_vit_backbone(compile_mode=None):
+def _create_vit_backbone(*, image_size: int = 1008, compile_mode=None):
     """Create ViT backbone for visual feature extraction."""
     return ViT(
-        img_size=1008,
+        img_size=int(image_size),
         pretrain_img_size=336,
         patch_size=14,
         embed_dim=1024,
@@ -150,7 +150,7 @@ def _create_transformer_encoder() -> TransformerEncoderFusion:
     return encoder
 
 
-def _create_transformer_decoder() -> TransformerDecoder:
+def _create_transformer_decoder(*, resolution: int = 1008) -> TransformerDecoder:
     """Create transformer decoder with its layer."""
     decoder_layer = TransformerDecoderLayer(
         activation="relu",
@@ -179,7 +179,7 @@ def _create_transformer_decoder() -> TransformerDecoder:
         frozen=False,
         interaction_layer=None,
         dac_use_selfatt_ln=True,
-        resolution=1008,
+        resolution=int(resolution),
         stride=14,
         use_act_checkpoint=True,
         presence_token=True,
@@ -307,7 +307,7 @@ def _create_sam3_model(
     return model
 
 
-def _create_tracker_maskmem_backbone():
+def _create_tracker_maskmem_backbone(*, image_size: int = 1008):
     """Create the SAM3 Tracker memory encoder."""
     # Position encoding for mask memory backbone
     position_encoding = PositionEmbeddingSine(
@@ -315,12 +315,13 @@ def _create_tracker_maskmem_backbone():
         normalize=True,
         scale=None,
         temperature=10000,
-        precompute_resolution=1008,
+        precompute_resolution=int(image_size),
     )
 
     # Mask processing components
+    interpol = int(round(float(image_size) * (16.0 / 14.0)))
     mask_downsampler = SimpleMaskDownSampler(
-        kernel_size=3, stride=2, padding=1, interpol_size=[1152, 1152]
+        kernel_size=3, stride=2, padding=1, interpol_size=[interpol, interpol]
     )
 
     cx_block_layer = CXBlock(
@@ -343,8 +344,9 @@ def _create_tracker_maskmem_backbone():
     return maskmem_backbone
 
 
-def _create_tracker_transformer():
+def _create_tracker_transformer(*, image_size: int = 1008):
     """Create the SAM3 Tracker transformer components."""
+    feat = int(int(image_size) // 14)
     # Self attention
     self_attention = RoPEAttention(
         embedding_dim=256,
@@ -352,7 +354,7 @@ def _create_tracker_transformer():
         downsample_rate=1,
         dropout=0.1,
         rope_theta=10000.0,
-        feat_sizes=[72, 72],
+        feat_sizes=[feat, feat],
         use_fa3=False,
         use_rope_real=False,
     )
@@ -365,7 +367,7 @@ def _create_tracker_transformer():
         dropout=0.1,
         kv_in_dim=64,
         rope_theta=10000.0,
-        feat_sizes=[72, 72],
+        feat_sizes=[feat, feat],
         rope_k_repeat=True,
         use_fa3=False,
         use_rope_real=False,
@@ -409,7 +411,10 @@ def _create_tracker_transformer():
 
 
 def build_tracker(
-    apply_temporal_disambiguation: bool, with_backbone: bool = False, compile_mode=None
+    apply_temporal_disambiguation: bool,
+    with_backbone: bool = False,
+    compile_mode=None,
+    image_size: int = 1008,
 ) -> Sam3TrackerPredictor:
     """
     Build the SAM3 Tracker module for video tracking.
@@ -419,15 +424,15 @@ def build_tracker(
     """
 
     # Create model components
-    maskmem_backbone = _create_tracker_maskmem_backbone()
-    transformer = _create_tracker_transformer()
+    maskmem_backbone = _create_tracker_maskmem_backbone(image_size=int(image_size))
+    transformer = _create_tracker_transformer(image_size=int(image_size))
     backbone = None
     if with_backbone:
-        vision_backbone = _create_vision_backbone(compile_mode=compile_mode)
+        vision_backbone = _create_vision_backbone(compile_mode=compile_mode, image_size=int(image_size))
         backbone = SAM3VLBackbone(scalp=1, visual=vision_backbone, text=None)
     # Create the Tracker module
     model = Sam3TrackerPredictor(
-        image_size=1008,
+        image_size=int(image_size),
         num_maskmem=7,
         backbone=backbone,
         backbone_stride=14,
@@ -476,13 +481,13 @@ def _create_text_encoder(bpe_path: str) -> VETextEncoder:
 
 
 def _create_vision_backbone(
-    compile_mode=None, enable_inst_interactivity=True
+    compile_mode=None, enable_inst_interactivity=True, image_size: int = 1008
 ) -> Sam3DualViTDetNeck:
     """Create SAM3 visual backbone with ViT and neck."""
     # Position encoding
-    position_encoding = _create_position_encoding(precompute_resolution=1008)
+    position_encoding = _create_position_encoding(precompute_resolution=int(image_size))
     # ViT backbone
-    vit_backbone: ViT = _create_vit_backbone(compile_mode=compile_mode)
+    vit_backbone: ViT = _create_vit_backbone(image_size=int(image_size), compile_mode=compile_mode)
     vit_neck: Sam3DualViTDetNeck = _create_vit_neck(
         position_encoding,
         vit_backbone,
@@ -492,10 +497,10 @@ def _create_vision_backbone(
     return vit_neck
 
 
-def _create_sam3_transformer(has_presence_token: bool = True) -> TransformerWrapper:
+def _create_sam3_transformer(has_presence_token: bool = True, image_size: int = 1008) -> TransformerWrapper:
     """Create SAM3 transformer encoder and decoder."""
     encoder: TransformerEncoderFusion = _create_transformer_encoder()
-    decoder: TransformerDecoder = _create_transformer_decoder()
+    decoder: TransformerDecoder = _create_transformer_decoder(resolution=int(image_size))
 
     return TransformerWrapper(encoder=encoder, decoder=decoder, d_model=256)
 
@@ -659,13 +664,16 @@ def build_sam3_video_model(
         )
 
     # Build Tracker module
-    tracker = build_tracker(apply_temporal_disambiguation=apply_temporal_disambiguation)
+    tracker = build_tracker(
+        apply_temporal_disambiguation=apply_temporal_disambiguation,
+        image_size=int(image_size),
+    )
 
     # Build Detector components
-    visual_neck = _create_vision_backbone()
+    visual_neck = _create_vision_backbone(image_size=int(image_size))
     text_encoder = _create_text_encoder(bpe_path)
     backbone = SAM3VLBackbone(scalp=1, visual=visual_neck, text=text_encoder)
-    transformer = _create_sam3_transformer(has_presence_token=has_presence_token)
+    transformer = _create_sam3_transformer(has_presence_token=has_presence_token, image_size=int(image_size))
     segmentation_head: UniversalSegmentationHead = _create_segmentation_head()
     input_geometry_encoder = _create_geometry_encoder()
 
@@ -746,7 +754,7 @@ def build_sam3_video_model(
             recondition_every_nth_frame=0,
             masklet_confirmation_enable=False,
             decrease_trk_keep_alive_for_empty_masklets=False,
-            image_size=1008,
+            image_size=int(image_size),
             image_mean=(0.5, 0.5, 0.5),
             image_std=(0.5, 0.5, 0.5),
             compile_model=compile,
@@ -765,9 +773,19 @@ def build_sam3_video_model(
         if "model" in ckpt and isinstance(ckpt["model"], dict):
             ckpt = ckpt["model"]
 
-        missing_keys, unexpected_keys = model.load_state_dict(
-            ckpt, strict=False
-        )
+        model_sd = model.state_dict()
+        filtered = {}
+        for k, v in ckpt.items():
+            if k not in model_sd:
+                continue
+            try:
+                if hasattr(v, "shape") and hasattr(model_sd[k], "shape"):
+                    if tuple(v.shape) != tuple(model_sd[k].shape):
+                        continue
+            except Exception:
+                continue
+            filtered[k] = v
+        missing_keys, unexpected_keys = model.load_state_dict(filtered, strict=False)
 
     model.to(device=device)
     return model
