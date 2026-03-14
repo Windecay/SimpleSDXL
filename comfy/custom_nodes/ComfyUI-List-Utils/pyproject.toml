@@ -1,0 +1,14 @@
+[project]
+name = "comfyui-list-utils"
+description = "LIST and BATCH utilities which support: create, convert, get or slice items"
+version = "1.5.0"
+license = { file = "LICENSE" }
+
+[project.urls]
+Repository = "https://github.com/godmt/ComfyUI-List-Utils"
+#  Used by Comfy Registry https://comfyregistry.org
+
+[tool.comfy]
+PublisherId = "godmt"
+DisplayName = "ComfyUI-List-Utils"
+Icon = ""

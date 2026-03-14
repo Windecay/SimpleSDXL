@@ -416,7 +416,16 @@ class disable_weight_init:
             if autopad == "causal_zero":
                 weight = weight[:, :, -input.shape[2]:, :, :]
             if NVIDIA_MEMORY_CONV_BUG_WORKAROUND and weight.dtype in (torch.float16, torch.bfloat16):
-                out = torch.cudnn_convolution(input, weight, self.padding, self.stride, self.dilation, self.groups, benchmark=False, deterministic=False, allow_tf32=True)
+                try:
+                    out = torch.cudnn_convolution(input, weight, self.padding, self.stride, self.dilation, self.groups, benchmark=False, deterministic=False, allow_tf32=True)
+                except RuntimeError as e:
+                    if "GET was unable to find an engine" in str(e) or "cuDNN" in str(e):
+                        out = super()._conv_forward(input, weight, bias, *args, **kwargs)
+                        if bias is not None:
+                            return out
+                        return out
+                    else:
+                        raise e
                 if bias is not None:
                     out += bias.reshape((1, -1) + (1,) * (out.ndim - 2))
                 return out

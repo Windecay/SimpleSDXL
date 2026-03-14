@@ -1795,10 +1795,14 @@ class WanVideoModelLoader:
             )
 
         if merge_loras and lora is not None:
-            log.info(f"Moving diffusion model from {patcher.model.diffusion_model.device} to {offload_device}")
-            patcher.model.diffusion_model.to(offload_device)
-            gc.collect()
-            mm.soft_empty_cache()
+            # Skip offloading if load_device is main_device (for unified memory systems like AMD Strix Halo)
+            if load_device != "main_device":
+                log.info(f"Moving diffusion model from {patcher.model.diffusion_model.device} to {offload_device}")
+                patcher.model.diffusion_model.to(offload_device)
+                gc.collect()
+                mm.soft_empty_cache()
+            else:
+                log.info(f"Skipping offload (load_device=main_device, keeping model on {patcher.model.diffusion_model.device})")
 
         patcher.model["base_dtype"] = base_dtype
         patcher.model["weight_dtype"] = weight_dtype

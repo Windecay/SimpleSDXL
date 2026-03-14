@@ -2206,7 +2206,11 @@ class WanVideoSampler:
                         bg_images = image_embeds.get("bg_images", None)
                         pose_images = image_embeds.get("pose_images", None)
 
-                        current_ref_images = face_images = face_images_in = None
+                        current_ref_images = image_embeds.get("start_ref_image", None)
+                        if current_ref_images is not None:
+                            log.info(
+                                "WanAnimate: Detected manual start reference image, enabling continuous generation across windows.")
+                        face_images = face_images_in = None
 
                         if wananim_face_pixels is not None:
                             face_images = tensor_pingpong_pad(wananim_face_pixels, target_len)
@@ -2245,7 +2249,10 @@ class WanVideoSampler:
 
                             mm.soft_empty_cache()
 
-                            mask_reft_len = 0 if start == 0 else refert_num
+                            if current_ref_images is not None:
+                                mask_reft_len = refert_num
+                            else:
+                                mask_reft_len = 0 if start == 0 else refert_num
 
                             self.cache_state = [None, None]
 
@@ -2424,7 +2431,7 @@ class WanVideoSampler:
                             videos = vae.decode(latent[:, 1:].unsqueeze(0).to(device, vae.dtype), device=device, tiled=tiled_vae, pbar=False)[0].cpu()
                             del latent
 
-                            if start != 0:
+                            if start != 0 or current_ref_images is not None:
                                 videos = videos[:, refert_num:]
 
                             sampling_pbar.close()

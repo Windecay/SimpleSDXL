@@ -7,8 +7,13 @@ from pathlib import Path
 import gc
 import types, collections
 from comfy.utils import ProgressBar, copy_to_param, set_attr_param
-from comfy.model_patcher import get_key_weight, string_to_seed
+from comfy.model_patcher import get_key_weight
 from comfy.lora import calculate_weight
+
+try:
+    from comfy.utils import string_to_seed
+except:
+    from comfy.model_patcher import string_to_seed
 
 from comfy.float import stochastic_rounding
 from .custom_linear import remove_lora_from_module

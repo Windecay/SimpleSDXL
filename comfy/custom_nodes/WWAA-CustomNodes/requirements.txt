@@ -1,0 +1,7 @@
+# No additional requirements needed
+# The following packages are already installed with ComfyUI:
+# - numpy
+# - Pillow
+# - torch
+# 
+# Other imports (math, string, re, os) are part of Python's standard library
