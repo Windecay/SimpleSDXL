@@ -31,6 +31,7 @@ class Sam3VideoPredictor:
         has_presence_token=True,
         geo_encoder_use_img_cross_attn=True,
         strict_state_dict_loading=True,
+        image_size: int = 1008,
         async_loading_frames=False,
         video_loader_type="cv2",
         apply_temporal_disambiguation: bool = True,
@@ -47,6 +48,7 @@ class Sam3VideoPredictor:
                 geo_encoder_use_img_cross_attn=geo_encoder_use_img_cross_attn,
                 strict_state_dict_loading=strict_state_dict_loading,
                 apply_temporal_disambiguation=apply_temporal_disambiguation,
+                image_size=int(image_size),
             )
             .cuda()
             .eval()

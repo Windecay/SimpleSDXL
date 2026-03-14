@@ -233,14 +233,6 @@ def _create_geometry_encoder():
     """Create geometry encoder with all its components."""
     # Create position encoding for geometry encoder
     geo_pos_enc = _create_position_encoding()
-    # Create CX block for fuser
-    cx_block = CXBlock(
-        dim=256,
-        kernel_size=7,
-        padding=3,
-        layer_scale_init_value=1.0e-06,
-        use_dwconv=True,
-    )
     # Create geometry encoder layer
     geo_layer = TransformerEncoderLayer(
         activation="relu",
@@ -649,6 +641,7 @@ def build_sam3_video_model(
     apply_temporal_disambiguation: bool = True,
     device="cuda" if torch.cuda.is_available() else "cpu",
     compile=False,
+    image_size: int = 1008,
 ) -> Sam3VideoInferenceWithInstanceInteractivity:
     """
     Build SAM3 dense tracking model.
@@ -726,7 +719,7 @@ def build_sam3_video_model(
             recondition_every_nth_frame=16,
             masklet_confirmation_enable=False,
             decrease_trk_keep_alive_for_empty_masklets=False,
-            image_size=1008,
+            image_size=int(image_size),
             image_mean=(0.5, 0.5, 0.5),
             image_std=(0.5, 0.5, 0.5),
             compile_model=compile,
@@ -775,10 +768,6 @@ def build_sam3_video_model(
         missing_keys, unexpected_keys = model.load_state_dict(
             ckpt, strict=False
         )
-        # if missing_keys:
-        #     print(f"Missing keys: {missing_keys}")
-        if unexpected_keys:
-            print(f"Unexpected keys: {unexpected_keys}")
 
     model.to(device=device)
     return model

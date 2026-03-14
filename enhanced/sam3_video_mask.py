@@ -168,9 +168,15 @@ def _apply_elastic_vram_limit_for_sam3(*, device_index: int) -> dict | None:
 
     free_bytes = None
     try:
-        free_bytes = get_free_memory_by_nvml_for_nvidia(dev)
+        free_bytes, _total_cuda = torch.cuda.mem_get_info(int(device_index))
+        free_bytes = int(free_bytes)
     except Exception:
         free_bytes = None
+    if free_bytes is None:
+        try:
+            free_bytes = get_free_memory_by_nvml_for_nvidia(dev)
+        except Exception:
+            free_bytes = None
     if free_bytes is None:
         return None
 
@@ -401,10 +407,11 @@ def _select_binary_mask_from_outputs(
     return np.any(mask, axis=0)
 
 
-def _load_video_predictor(checkpoint_path: str):
+def _load_video_predictor(checkpoint_path: str, *, image_size: int):
     global _VIDEO_PREDICTOR, _VIDEO_PREDICTOR_CKPT
+    key = (str(checkpoint_path), int(image_size))
 
-    if _VIDEO_PREDICTOR is not None and _VIDEO_PREDICTOR_CKPT == checkpoint_path:
+    if _VIDEO_PREDICTOR is not None and _VIDEO_PREDICTOR_CKPT == key:
         try:
             _apply_elastic_vram_limit_for_sam3(device_index=int(torch.cuda.current_device()))
         except Exception:
@@ -422,9 +429,9 @@ def _load_video_predictor(checkpoint_path: str):
         _apply_elastic_vram_limit_for_sam3(device_index=int(torch.cuda.current_device()))
     except Exception:
         pass
-    _VIDEO_PREDICTOR = build_sam3_video_predictor(checkpoint_path=checkpoint_path)
+    _VIDEO_PREDICTOR = build_sam3_video_predictor(checkpoint_path=checkpoint_path, image_size=int(image_size))
     _patch_predictor_for_webui(_VIDEO_PREDICTOR)
-    _VIDEO_PREDICTOR_CKPT = checkpoint_path
+    _VIDEO_PREDICTOR_CKPT = key
     return _VIDEO_PREDICTOR
 
 
@@ -951,11 +958,11 @@ def run_sam3_video_mask(
     masks_by_frame: dict[int, np.ndarray] = {}
     try:
         checkpoint_path = _resolve_sam3_checkpoint(None)
-        predictor = _load_video_predictor(checkpoint_path)
-        model = getattr(predictor, "model", None)
-        dtype = _precision_to_dtype(precision)
         device_index = int(torch.cuda.current_device()) if torch.cuda.is_available() else 0
         effective_image_size = _auto_choose_sam3_image_size(int(image_size), device_index=device_index)
+        predictor = _load_video_predictor(checkpoint_path, image_size=effective_image_size)
+        model = getattr(predictor, "model", None)
+        dtype = _precision_to_dtype(precision)
         _apply_video_model_defaults(
             model,
             score_threshold_detection=score_threshold_detection,
@@ -1266,11 +1273,11 @@ def run_sam3_video_mask_by_prompt(
     masks_by_frame: dict[int, np.ndarray] = {}
     try:
         checkpoint_path = _resolve_sam3_checkpoint(None)
-        predictor = _load_video_predictor(checkpoint_path)
-        model = getattr(predictor, "model", None)
-        dtype = _precision_to_dtype(precision)
         device_index = int(torch.cuda.current_device()) if torch.cuda.is_available() else 0
         effective_image_size = _auto_choose_sam3_image_size(int(image_size), device_index=device_index)
+        predictor = _load_video_predictor(checkpoint_path, image_size=effective_image_size)
+        model = getattr(predictor, "model", None)
+        dtype = _precision_to_dtype(precision)
         _apply_video_model_defaults(
             model,
             score_threshold_detection=score_threshold_detection,

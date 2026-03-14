@@ -1107,6 +1107,7 @@ with shared.gradio_root:
                                 except Exception as e:
                                     logger.exception("SAM3 points mask generation failed")
                                     gr.Warning(f"SAM3 failed: {e}")
+                                    unload_models_clicked(False)
                                     return uploaded_mask_path
 
                         def sam3_generate_mask_by_prompt(
@@ -1148,6 +1149,7 @@ with shared.gradio_root:
                                 except Exception as e:
                                     logger.exception("SAM3 semantic prompt mask generation failed")
                                     gr.Warning(f"SAM3 failed: {e}")
+                                    unload_models_clicked(False)
                                     return uploaded_mask_path
 
                         sam3_input_video.upload(sam3_on_video_upload_with_preview, inputs=[sam3_input_video], outputs=[sam3_input_video, sam3_original_video_path, active_video_source], show_progress=True)
