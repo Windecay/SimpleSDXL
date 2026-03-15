@@ -2,6 +2,36 @@ let webpath = 'file';
 let nickname = 'guest';
 let task_class_name = 'Fooocus';
 const presetCompleteMarker = "||complete";
+let presetStoreUiState = {
+    nav_name_list: [],
+    role: "guest",
+    expand_flag: false,
+    theme: "dark",
+};
+let presetStoreObserver = null;
+let presetStoreUpdateQueued = false;
+let presetStoreUpdating = false;
+
+function schedulePresetStoreUpdate() {
+    if (presetStoreUpdateQueued) return;
+    presetStoreUpdateQueued = true;
+    requestAnimationFrame(() => {
+        presetStoreUpdateQueued = false;
+        if (presetStoreUpdating) return;
+        presetStoreUpdating = true;
+        try {
+            updatePresetStore(
+                presetStoreUiState.nav_name_list,
+                presetStoreUiState.role,
+                presetStoreUiState.expand_flag,
+                presetStoreUiState.theme
+            );
+            syncPresetStorePosition();
+        } finally {
+            presetStoreUpdating = false;
+        }
+    });
+}
 
 async function set_language_by_ui(newLanguage) {
     if (newLanguage === "En") {
@@ -293,6 +323,10 @@ function refresh_topbar_status_js(system_params) {
     task_class_name = system_params["task_class_name"];
     let nav_name_list = new Array();
     if (nav_name_list_str) { nav_name_list = nav_name_list_str.split(","); }
+    presetStoreUiState.nav_name_list = nav_name_list;
+    presetStoreUiState.role = system_params["user_role"];
+    presetStoreUiState.expand_flag = !!system_params["preset_store"];
+    presetStoreUiState.theme = theme;
     for (let i=0;i<nav_name_list.length;i++) {
         let item_id = "bar"+i;
         let item_name = nav_name_list[i];
@@ -420,6 +454,8 @@ function updatePresetStore(nav_name_list, role, expand_flag, theme) {
         if (markerIndex >= 0) {
             base_name = item_name.slice(0, markerIndex).trim();
             is_complete = true;
+        } else if (!has_download_marker) {
+            is_complete = true;
         }
         if (base_name.endsWith('\u2B07')) {
             base_name = base_name.slice(0, -1).trim();
@@ -512,6 +548,22 @@ document.addEventListener("DOMContentLoaded", function() {
         syncPresetStorePosition();
     };
     tryBindTopbarLayoutSync();
+
+    const tryBindPresetStoreObserver = () => {
+        const preset_store = gradioApp().querySelector('.preset_store');
+        if (!preset_store) {
+            setTimeout(tryBindPresetStoreObserver, 200);
+            return;
+        }
+        if (presetStoreObserver) return;
+        presetStoreObserver = new MutationObserver(() => {
+            if (presetStoreUpdating) return;
+            schedulePresetStoreUpdate();
+        });
+        presetStoreObserver.observe(preset_store, { childList: true, subtree: true, characterData: true });
+        schedulePresetStoreUpdate();
+    };
+    tryBindPresetStoreObserver();
 
     const sysmsg = document.createElement('div');
     sysmsg.id = "sys_msg";

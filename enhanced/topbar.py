@@ -225,7 +225,7 @@ def _append_status_marker(preset_name, user_did=None):
     base_name = _strip_preset_marker(preset_name).strip()
     if is_models_file_absent(base_name, user_did):
         return f"{base_name}{PRESET_MISSING_MARKER}"
-    return f"{base_name}{PRESET_COMPLETE_MARKER}"
+    return base_name
 
 def _apply_complete_markers(preset_list, user_did=None):
     marked_list = []
