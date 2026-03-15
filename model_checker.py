@@ -438,7 +438,7 @@ def print_instructions():
     time.sleep(0.1)
     print(f"{Fore.GREEN}★{Style.RESET_ALL}打开默认浏览器设置，关闭GPU加速、或图形加速的选项。{Fore.GREEN}★{Style.RESET_ALL}大内存(64+)与固态硬盘存放模型有助于减少模型加载时间。{Fore.GREEN}★{Style.RESET_ALL}")
     time.sleep(0.1)
-    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：1005085136{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:26.03.09{Fore.GREEN}★{Style.RESET_ALL}")
+    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：1005085136{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:26.03.15{Fore.GREEN}★{Style.RESET_ALL}")
     print()
     time.sleep(0.1)
 
@@ -2154,18 +2154,13 @@ packages = {'base_package': {'id': 1,
                          'files': ['checkpoints,miaomiaoHarem_v15b.safetensors,6938043202,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/checkpoints/miaomiaoHarem_v15b.safetensors,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/checkpoints/miaomiaoHarem_v15b.safetensors'],
                          'info_links': ['https://civitai.com/models/934764?modelVersionId=1346747'],
                          'preset_sample': []},
- 'Illustrious_aio_package': {'id': 13,
-                             'name': '[13]光辉AIO扩展包',
-                             'note': 'NoobAI/光辉全功能-默认模型[miaomiaoV1.5b]|显存需求：★★★ 速度：★★★',
-                             'files': ['checkpoints,miaomiaoHarem_v15b.safetensors,6938043202,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/checkpoints/miaomiaoHarem_v15b.safetensors,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/checkpoints/miaomiaoHarem_v15b.safetensors',
-                                       'ipadapter,noob_ip_adapter.bin,1396798350,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/ipadapter/noob_ip_adapter.bin,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/ipadapter/noob_ip_adapter.bin',
-                                       'upscale_models,RealESRGAN_x4plus_anime_6B.pth,17938799,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/upscale_models/RealESRGAN_x4plus_anime_6B.pth,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/upscale_models/RealESRGAN_x4plus_anime_6B.pth',
-                                       'upscale_models,4x-UltraSharp.pth,66961958,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/upscale_models/4x-UltraSharp.pth,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/upscale_models/4x-UltraSharp.pth',
-                                       'controlnet,lllyasviel/Annotators/ZoeD_M12_N.pt,1443406099,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/controlnet/lllyasviel/Annotators/ZoeD_M12_N.pt,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/controlnet/lllyasviel/Annotators/ZoeD_M12_N.pt',
-                                       'controlnet,noob_sdxl_controlnet_inpainting.safetensors,5004167832,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/controlnet/noob_sdxl_controlnet_inpainting.safetensors,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/controlnet/noob_sdxl_controlnet_inpainting.safetensors',
-                                       'vae,ponyDiffusionV6XL_vae.safetensors,334641162,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/vae/ponyDiffusionV6XL_vae.safetensors,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/vae/ponyDiffusionV6XL_vae.safetensors',
-                                       'controlnet,xinsir_cn_union_sdxl_1.0_promax.safetensors,2513342408,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/controlnet/xinsir_cn_union_sdxl_1.0_promax.safetensors,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/controlnet/xinsir_cn_union_sdxl_1.0_promax.safetensors'],
-                             'info_links': ['https://civitai.com/models/934764?modelVersionId=1346747'],
+ 'anima_package': {'id': 13,
+                             'name': '[13]Anima动漫Preview2预置包',
+                             'note': 'Anima动漫Preview2-默认模型[anima-preview2.safetensors]|显存需求：★★★ 速度：★★',
+                             'files': ['diffusion_models,anima-preview2.safetensors,4182218360,0,https://www.modelscope.cn/models/circlestone-labs/Anima/resolve/master/split_files/diffusion_models/anima-preview2.safetensors,https://huggingface.co/circlestone-labs/Anima/resolve/main/split_files/diffusion_models/anima-preview2.safetensors',
+                                        'text_encoders,qwen_3_06b_base.safetensors,1192135096,0,https://www.modelscope.cn/models/circlestone-labs/Anima/resolve/master/split_files/text_encoders/qwen_3_06b_base.safetensors,https://huggingface.co/circlestone-labs/Anima/resolve/main/split_files/text_encoders/qwen_3_06b_base.safetensors',
+                                        'vae,qwen_image_vae.safetensors,253806246,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/vae/qwen_image_vae.safetensors,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/vae/qwen_image_vae.safetensors',],
+                             'info_links': ['https://www.modelscope.cn/models/circlestone-labs/Anima/summary'],
                              'preset_sample': []},
  'StyleTransfer_package': {'id': 14,
                            'name': '[14]风格转绘扩展包',
@@ -2495,19 +2490,20 @@ packages = {'base_package': {'id': 1,
                                     'https://modelscope.cn/models/numz/SeedVR2_comfyUI'],
                      'preset_sample': []},
  'flux2-klein-9b-fp8': {'id': 34,
-                        'name': '[34]Flux2-Klein-9B-FP8图像编辑&多角度打光&一键修复+',
+                        'name': '[34]Flux2-Klein-9B-FP8图像编辑&多打光&修复&漫转真',
                         'note': 'Flux2-Klein-9B图像编辑&多角度打光，高效快速|显存需求：★★★ 速度：★★★',
                         'files': ['diffusion_models,flux-2-klein-9b-fp8.safetensors,9433061528,0,https://www.modelscope.cn/models/black-forest-labs/FLUX.2-klein-9b-fp8/resolve/master/flux-2-klein-9b-fp8.safetensors,https://www.modelscope.cn/models/black-forest-labs/FLUX.2-klein-9b-fp8/resolve/master/flux-2-klein-9b-fp8.safetensors',
                                   'text_encoders,qwen3_8b_abliterated_v2-fp8mixed.safetensors,8191194604,0,https://www.modelscope.cn/models/silveroxides/FLUX.2-dev-fp8_scaled/resolve/master/qwen3_8b_abliterated_v2-fp8mixed.safetensors,https://huggingface.co/silveroxides/FLUX.2-dev-fp8_scaled/resolve/main/qwen3_8b_abliterated_v2-fp8mixed.safetensors',
                                   'vae,flux2-vae.safetensors,336211292,0,https://www.modelscope.cn/models/Comfy-Org/flux2-klein-4B/resolve/master/split_files/vae/flux2-vae.safetensors,https://huggingface.co/windecay/SimpleSDXL2/resolve/main/SimpleModels/vae/flux2-vae.safetensors',
+                                  'loras,Flux2 Klein动漫转写实真人 AnythingtoRealCharacters.safetensors,165704392,0,https://www.modelscope.cn/models/zhouwenbin1994/Klein9BAnythingtoRealC/resolve/20260128232821/Flux2%20Klein%E5%8A%A8%E6%BC%AB%E8%BD%AC%E5%86%99%E5%AE%9E%E7%9C%9F%E4%BA%BA%20AnythingtoRealCharacters.safetensors,https://huggingface.co/windecay/SimpleSDXL2/resolve/main/SimpleModels/loras/Flux2%20Klein%E5%8A%A8%E6%BC%AB%E8%BD%AC%E5%86%99%E5%AE%9E%E7%9C%9F%E4%BA%BA%20AnythingtoRealCharacters.safetensors',
                                   'controlnet,hr16/DWPose-TorchScript-BatchSize5/dw-ll_ucoco_384_bs5.torchscript.pt,135059124,0,https://www.modelscope.cn/models/svjack/DWPose-TorchScript-BatchSize5/resolve/master/dw-ll_ucoco_384_bs5.torchscript.pt,https://huggingface.co/hr16/DWPose-TorchScript-BatchSize5/resolve/main/dw-ll_ucoco_384_bs5.torchscript.pt',
                                   'controlnet,yzd-v/DWPose/yolox_l.onnx,216746733,0,https://www.modelscope.cn/models/zhangjin/DWPose/resolve/master/yolox_l.onnx,https://huggingface.co/yzd-v/DWPose/blob/main/yolox_l.onnx'],
                         'info_links': ['https://modelscope.cn/models/black-forest-labs/FLUX.2-klein-9B'],
                         'preset_sample': []},
  'qwen-rapid-aio-nsfw': {'id': 35,
                          'name': '[35]Qwen-Rapid-AIO-NSFW',
-                         'note': 'QwenNSFW图像编辑，解锁限制的版本|显存需求：★★★★★ 速度：★★',
-                         'files': ['checkpoints,Qwen-Rapid-AIO-NSFW-v20.safetensors,28431840903,0,https://modelscope.cn/models/Phr00t/Qwen-Rapid-AIO/resolve/master/v20/Qwen-Rapid-AIO-NSFW-v20.safetensors,https://huggingface.co/Phr00t/Qwen-Image-Edit-Rapid-AIO/resolve/main/v20/Qwen-Rapid-AIO-NSFW-v20.safetensors',
+                         'note': 'QwenNSFW图像编辑，解锁限制的版本最终版V23|显存需求：★★★★★ 速度：★★',
+                         'files': ['checkpoints,Qwen-Rapid-AIO-NSFW-v23.safetensors,28431840023,0,https://modelscope.cn/models/Phr00t/Qwen-Rapid-AIO/resolve/master/v23/Qwen-Rapid-AIO-NSFW-v23.safetensors,https://huggingface.co/Phr00t/Qwen-Image-Edit-Rapid-AIO/resolve/main/v23/Qwen-Rapid-AIO-NSFW-v23.safetensors',
                                    'controlnet,hr16/DWPose-TorchScript-BatchSize5/dw-ll_ucoco_384_bs5.torchscript.pt,135059124,0,https://www.modelscope.cn/models/svjack/DWPose-TorchScript-BatchSize5/resolve/master/dw-ll_ucoco_384_bs5.torchscript.pt,https://huggingface.co/hr16/DWPose-TorchScript-BatchSize5/resolve/main/dw-ll_ucoco_384_bs5.torchscript.pt',
                                    'controlnet,yzd-v/DWPose/yolox_l.onnx,216746733,0,https://www.modelscope.cn/models/zhangjin/DWPose/resolve/master/yolox_l.onnx,https://huggingface.co/yzd-v/DWPose/blob/main/yolox_l.onnx'],
                          'info_links': ['https://modelscope.cn/models/Phr00t/Qwen-Rapid-AIO'],
@@ -2772,7 +2768,8 @@ OBSOLETE_MODELS = [
     "gemma3/model-00002-of-00002.safetensors",
     "svdq-int4_r128-qwen-image-edit-2509-lightningv2.0-4steps.safetensors",
     "svdq-fp4_r128-qwen-image-edit-2509-lightningv2.0-4steps.safetensors",
-    "flux1-depth-dev-lora.safetensors"
+    "flux1-depth-dev-lora.safetensors",
+    "Qwen-Rapid-AIO-NSFW-v20.safetensors"
 ]
 
 MODELSCOPE_FILE_CACHE = {}

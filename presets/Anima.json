@@ -1,0 +1,58 @@
+
+{
+    "default_engine": {
+        "backend_engine": "Comfy",
+        "disvisible": ["backend_selection", "performance_selection", "refiner_model"],
+        "disinteractive": ["performance_selection", "refiner_model", "FaceSwap", "input_image_checkbox"],
+        "available_aspect_ratios_selection": "SDXL",
+        "backend_params": {
+                "task_method": "anima_aio"
+                }
+        },
+    "default_model": "anima-preview2.safetensors",
+    "default_refiner": "None",
+    "default_refiner_switch": 0.5,
+    "default_loras": [
+        [
+            "None",
+            1.0
+        ],
+        [
+            "None",
+            0.8
+        ],
+	    [
+            "None",
+            0.8
+        ],
+	    [
+            "None",
+            0.8
+        ],
+	    [
+            "None",
+            0.8
+        ]
+    ],
+    "default_cfg_scale": 4.0,
+    "default_sample_sharpness": 2.0,
+    "default_sampler": "er_sde",
+    "default_scheduler": "simple",
+    "default_performance": "Speed",
+    "default_prompt_negative": "worst quality, low quality, blurry, jpeg artifacts, sepia",
+    "default_styles": [
+        "Fooocus Pony"
+    ],
+    "default_aspect_ratio": "832*1216",
+    "default_overwrite_step": 30,
+    "default_vae": "qwen_image_vae.safetensors",
+    "embeddings_downloads": {},
+    "lora_downloads": {},
+    "model_list": [
+        "diffusion_models,anima-preview2.safetensors,4182218360,0,https://www.modelscope.cn/models/circlestone-labs/Anima/resolve/master/split_files/diffusion_models/anima-preview2.safetensors",
+        "text_encoders,qwen_3_06b_base.safetensors,1192135096,0,https://www.modelscope.cn/models/circlestone-labs/Anima/resolve/master/split_files/text_encoders/qwen_3_06b_base.safetensors",
+        "vae,qwen_image_vae.safetensors,253806246,0,",
+        "upscale_models,4x-AnimeSharp.pth,67010245,0,https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/upscale_models/4x-AnimeSharp.pth"
+    ]
+}
+

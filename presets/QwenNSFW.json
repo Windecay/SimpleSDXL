@@ -104,7 +104,7 @@
     "lora_downloads": {},
     "vae_downloads": {},
     "model_list": [
-        "checkpoints,Qwen-Rapid-AIO-NSFW-v20.safetensors,28431840903,0,https://modelscope.cn/models/Phr00t/Qwen-Rapid-AIO/resolve/master/v20/Qwen-Rapid-AIO-NSFW-v20.safetensors",
+        "checkpoints,Qwen-Rapid-AIO-NSFW-v23.safetensors,28431840023,0,https://modelscope.cn/models/Phr00t/Qwen-Rapid-AIO/resolve/master/v23/Qwen-Rapid-AIO-NSFW-v23.safetensors",
         "controlnet/hr16/DWPose-TorchScript-BatchSize5,dw-ll_ucoco_384_bs5.torchscript.pt,135059124,0,https://www.modelscope.cn/models/svjack/DWPose-TorchScript-BatchSize5/resolve/master/dw-ll_ucoco_384_bs5.torchscript.pt",
         "controlnet/yzd-v/DWPose,yolox_l.onnx,216746733,0,https://www.modelscope.cn/models/zhangjin/DWPose/resolve/master/yolox_l.onnx"
         ]

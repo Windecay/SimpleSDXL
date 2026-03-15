@@ -370,7 +370,7 @@ def worker():
     from modules.sdxl_styles import apply_style, get_random_style, fooocus_expansion, apply_arrays, random_style_name
     from modules.private_logger import log, p2p_log
     from extras.expansion import safe_str
-    from modules.util import (remove_empty_str, HWC3, resize_image, get_image_shape_ceil, set_image_shape_ceil,
+    from modules.util import (remove_empty_str, join_prompts, HWC3, resize_image, get_image_shape_ceil, set_image_shape_ceil,
                               get_shape_ceil, resample_image, erode_or_dilate, parse_lora_references_from_prompt,
                               apply_wildcards)
     from modules.upscaler import perform_upscale
@@ -533,9 +533,11 @@ def worker():
             interrupt_processing()
         
         if async_task.task_class in flags.comfy_classes:
+            merged_positive_prompt = join_prompts(*task.get("positive", []))
+            merged_negative_prompt = join_prompts(*task.get("negative", []))
             default_params = dict(
-                prompt=task["positive"][0],
-                negative_prompt=task["negative"][0],
+                prompt=merged_positive_prompt,
+                negative_prompt=merged_negative_prompt,
                 width=width,
                 height=height,
                 base_model=async_task.base_model_name,
