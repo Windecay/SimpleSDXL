@@ -607,10 +607,31 @@ class QwenTTSWrapper:
         unload_model_after_generate=False,
         lock_timbre_with_first_segment=False,
         clone_batch_size=4,
+        max_chars=200,
+        hard_max_chars=260,
         progress_callback=None,
     ):
         t0 = time.perf_counter()
-        plan, saw_pause_markup = self._expand_pause_plan(str(text), default_gap_seconds=0.4, max_chars=200, hard_max_chars=260)
+        try:
+            split_max_chars = int(max_chars)
+        except Exception:
+            split_max_chars = 200
+        try:
+            split_hard_max_chars = int(hard_max_chars)
+        except Exception:
+            split_hard_max_chars = 260
+        if split_max_chars < 20:
+            split_max_chars = 20
+        if split_hard_max_chars < split_max_chars:
+            split_hard_max_chars = split_max_chars
+        if split_hard_max_chars > 4096:
+            split_hard_max_chars = 4096
+        plan, saw_pause_markup = self._expand_pause_plan(
+            str(text),
+            default_gap_seconds=0.4,
+            max_chars=split_max_chars,
+            hard_max_chars=split_hard_max_chars,
+        )
         segments = [p[1] for p in plan if p and p[0] == "text"]
         per_seg_tokens = int(max(1, int(max_new_tokens)))
         try:
@@ -687,6 +708,12 @@ class QwenTTSWrapper:
                             temperature=temperature,
                             repetition_penalty=repetition_penalty,
                         )
+                        try:
+                            if torch.cuda.is_available():
+                                torch.cuda.empty_cache()
+                                torch.cuda.ipc_collect()
+                        except Exception:
+                            pass
                     except RuntimeError as e:
                         msg = str(e).lower()
                         if ("out of memory" in msg or "cuda" in msg) and bs > 1:
@@ -841,6 +868,12 @@ class QwenTTSWrapper:
                             temperature=temperature,
                             repetition_penalty=repetition_penalty,
                         )
+                        try:
+                            if torch.cuda.is_available():
+                                torch.cuda.empty_cache()
+                                torch.cuda.ipc_collect()
+                        except Exception:
+                            pass
                     except RuntimeError as e:
                         msg = str(e).lower()
                         if ("out of memory" in msg or "cuda" in msg) and bs > 1:
@@ -922,10 +955,31 @@ class QwenTTSWrapper:
         unload_model_after_generate=False,
         custom_model_path="",
         batch_size=4,
+        max_chars=200,
+        hard_max_chars=260,
         progress_callback=None,
     ):
         t0 = time.perf_counter()
-        plan, saw_pause_markup = self._expand_pause_plan(str(target_text), default_gap_seconds=0.14, max_chars=200, hard_max_chars=260)
+        try:
+            split_max_chars = int(max_chars)
+        except Exception:
+            split_max_chars = 200
+        try:
+            split_hard_max_chars = int(hard_max_chars)
+        except Exception:
+            split_hard_max_chars = 260
+        if split_max_chars < 20:
+            split_max_chars = 20
+        if split_hard_max_chars < split_max_chars:
+            split_hard_max_chars = split_max_chars
+        if split_hard_max_chars > 4096:
+            split_hard_max_chars = 4096
+        plan, saw_pause_markup = self._expand_pause_plan(
+            str(target_text),
+            default_gap_seconds=0.14,
+            max_chars=split_max_chars,
+            hard_max_chars=split_hard_max_chars,
+        )
         segments = [p[1] for p in plan if p and p[0] == "text"]
         per_seg_tokens = int(max(1, int(max_new_tokens)))
         prompt_node = VoiceClonePromptNode()
@@ -1020,6 +1074,12 @@ class QwenTTSWrapper:
                         temperature=temperature,
                         repetition_penalty=repetition_penalty,
                     )
+                    try:
+                        if torch.cuda.is_available():
+                            torch.cuda.empty_cache()
+                            torch.cuda.ipc_collect()
+                    except Exception:
+                        pass
                 except RuntimeError as e:
                     msg = str(e).lower()
                     if ("out of memory" in msg or "cuda" in msg) and bs > 1:
@@ -1104,10 +1164,31 @@ class QwenTTSWrapper:
         custom_model_path="",
         custom_speaker_name="",
         batch_size=4,
+        max_chars=200,
+        hard_max_chars=260,
         progress_callback=None,
     ):
         t0 = time.perf_counter()
-        plan, saw_pause_markup = self._expand_pause_plan(str(text), default_gap_seconds=0.14, max_chars=200, hard_max_chars=260)
+        try:
+            split_max_chars = int(max_chars)
+        except Exception:
+            split_max_chars = 200
+        try:
+            split_hard_max_chars = int(hard_max_chars)
+        except Exception:
+            split_hard_max_chars = 260
+        if split_max_chars < 20:
+            split_max_chars = 20
+        if split_hard_max_chars < split_max_chars:
+            split_hard_max_chars = split_max_chars
+        if split_hard_max_chars > 4096:
+            split_hard_max_chars = 4096
+        plan, saw_pause_markup = self._expand_pause_plan(
+            str(text),
+            default_gap_seconds=0.14,
+            max_chars=split_max_chars,
+            hard_max_chars=split_hard_max_chars,
+        )
         segments = [p[1] for p in plan if p and p[0] == "text"]
         per_seg_tokens = int(max(1, int(max_new_tokens)))
         model = load_qwen_model("CustomVoice", model_choice, device, precision, attention, False, None, custom_model_path or "")
@@ -1188,6 +1269,12 @@ class QwenTTSWrapper:
                         temperature=temperature,
                         repetition_penalty=repetition_penalty,
                     )
+                    try:
+                        if torch.cuda.is_available():
+                            torch.cuda.empty_cache()
+                            torch.cuda.ipc_collect()
+                    except Exception:
+                        pass
                 except RuntimeError as e:
                     msg = str(e).lower()
                     if ("out of memory" in msg or "cuda" in msg) and bs > 1:

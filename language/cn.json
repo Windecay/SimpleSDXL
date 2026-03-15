@@ -117,6 +117,8 @@
   "Attention": "注意力实现",
   "Unload model after generate": "生成后卸载模型",
   "Max new tokens": "最大新token数",
+  "Split max chars": "分段字符数",
+  "Split hard max chars": "分段最大字符数",
   "Top-p": "Top-p",
   "Top-k": "Top-k",
   "Temperature": "温度",

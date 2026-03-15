@@ -14,7 +14,7 @@
                 "task_method": {
                     "Flux2_9B_A2R_1024px": "flux2_9b_edit_1024px_cn",
                     "Flux2_9B_A2R_1536px": "flux2_9b_edit_1536px_cn",
-                    "Flux2_9B_A2R2048px": "flux2_9b_edit_2048px_cn"
+                    "Flux2_9B_A2R_2048px": "flux2_9b_edit_2048px_cn"
                 },
                 "prompt": {
                     "Flux2_9B_A2R_1024px": "转成亚洲写实风格",

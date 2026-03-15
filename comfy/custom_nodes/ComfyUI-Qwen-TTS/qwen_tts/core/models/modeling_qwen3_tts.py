@@ -1190,7 +1190,7 @@ class Qwen3TTSTalkerCodePredictorModelForConditionalGeneration(Qwen3TTSPreTraine
             inputs_embeds=inputs_embeds,
             use_cache=use_cache,
             output_attentions=output_attentions,
-            output_hidden_states=output_hidden_states,
+            output_hidden_states=False,
             cache_position=cache_position,
             **kwargs,
         )
@@ -1700,7 +1700,7 @@ class Qwen3TTSTalkerForConditionalGeneration(Qwen3TTSTalkerTextPreTrainedModel, 
             loss=loss,
             logits=logits,
             past_key_values=outputs.past_key_values,
-            hidden_states=(outputs.hidden_states, codec_ids),
+            hidden_states=codec_ids,
             attentions=outputs.attentions,
             past_hidden=hidden_states[:, -1:, :],
             generation_step=generation_step + 1,
@@ -2289,8 +2289,7 @@ class Qwen3TTSForConditionalGeneration(Qwen3TTSPreTrainedModel, GenerationMixin)
             **talker_kwargs,
         )
 
-        talker_codes = torch.stack([hid[-1] for hid in talker_result.hidden_states if hid[-1] is not None], dim=1)
-        talker_hidden_states = torch.cat([hid[0][-1][:, -1:] for hid in talker_result.hidden_states], dim=1)[:, :-1]
+        talker_codes = torch.stack([hid for hid in talker_result.hidden_states if hid is not None], dim=1)
         
         first_codebook = talker_codes[:, :, 0]
         eos_id = talker_kwargs.get("eos_token_id", self.config.talker_config.codec_eos_token_id)
@@ -2300,7 +2299,7 @@ class Qwen3TTSForConditionalGeneration(Qwen3TTSPreTrainedModel, GenerationMixin)
         effective_lengths = torch.where(has_stop_token, stop_indices, talker_codes.shape[1])
         
         talker_codes_list = [talker_codes[i, :length, ] for i, length in enumerate(effective_lengths)]
-        talker_hidden_states_list = [talker_hidden_states[i, :length, :] for i, length in enumerate(effective_lengths)]
+        talker_hidden_states_list = [None for _ in range(len(talker_codes_list))]
 
         try:
             tail_pad_frames = int(kwargs.get("tail_pad_frames", 8))

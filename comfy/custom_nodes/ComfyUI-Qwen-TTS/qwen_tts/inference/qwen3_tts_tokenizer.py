@@ -396,8 +396,8 @@ class Qwen3TTSTokenizer:
             if not np.isfinite(rms_max) or rms_max <= 0.0:
                 return a
 
-            speech_thr = max(0.02 * rms_max, 0.0025)
-            gate_thr = max(0.20 * speech_thr, 0.00035)
+            speech_thr = max(0.01 * rms_max, 0.0025)
+            gate_thr = max(0.10 * speech_thr, 0.00035)
             speech = rms > speech_thr
             if not bool(np.any(speech)):
                 return a
