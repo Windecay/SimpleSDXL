@@ -402,9 +402,13 @@ def save_preset(*args):
         preset = {}
         engine = {}
 
-        backend_engine = state_params.get("backend_engine", None) or state_params.get("engine", None) or config.backend_engine
+        backend_engine = backend_params.get("backend_engine", None) or state_params.get("backend_engine", None) or state_params.get("engine", None) or config.backend_engine
+        if isinstance(backend_engine, str):
+            backend_engine = backend_engine.strip()
+        if not backend_engine:
+            backend_engine = config.backend_engine
 
-        task_method = state_params.get("task_method", None)
+        task_method = backend_params.get("task_method", None) or state_params.get("task_method", None)
         if not isinstance(task_method, str) or not task_method.strip():
             task_method = None
         else:
