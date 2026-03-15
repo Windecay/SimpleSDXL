@@ -1,9 +1,6 @@
 import os
 import torch
-import torchaudio
 import numpy as np
-import threading
-import queue
 from typing import Optional, List, Dict, Any, Tuple
 import time
 import logging
@@ -32,21 +29,20 @@ try:
 except ImportError:
     # Fallback import strategy if direct import fails (e.g., path issues)
     import sys
-    import importlib.util
-    
+
     # Assuming this file is in modules/enhanced/ or enhanced/
     # And webui.py is in root
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    
+
     # Try to find root dir (where comfy folder is)
     # If in enhanced/, root is one level up
     root_dir = os.path.dirname(current_dir)
     if os.path.basename(current_dir) == "enhanced" and os.path.basename(os.path.dirname(current_dir)) == "modules":
-         root_dir = os.path.dirname(os.path.dirname(current_dir))
-    
+        root_dir = os.path.dirname(os.path.dirname(current_dir))
+
     if root_dir not in sys.path:
         sys.path.insert(0, root_dir)
-        
+
     comfy_dir = os.path.join(root_dir, "comfy")
     if comfy_dir not in sys.path:
         sys.path.insert(0, comfy_dir)
@@ -54,7 +50,7 @@ except ImportError:
     qwen_node_path = os.path.join(comfy_dir, "custom_nodes", "ComfyUI-Qwen-TTS")
     if qwen_node_path not in sys.path:
         sys.path.insert(0, qwen_node_path)
-        
+
     # Mock folder_paths if missing (WebUI context vs ComfyUI context)
     try:
         import folder_paths
@@ -454,7 +450,7 @@ class QwenTTSWrapper:
                     w = w.mean(dim=1, keepdim=True)
             fixed.append(w)
 
-        def _edge_silence_seconds(w: torch.Tensor, at_start: bool) -> float:
+        def _edge_silence_seconds(w: torch.Tensor, at_start: bool, thr: float = 0.0035) -> float:
             try:
                 x = w
                 if getattr(x, "ndim", 0) == 3:
@@ -469,7 +465,6 @@ class QwenTTSWrapper:
                 if edge <= 0:
                     return 0.0
                 seg = x[:edge] if at_start else x[-edge:]
-                thr = 0.0035
                 mask = seg.abs() > thr
                 if not bool(mask.any().item()):
                     return float(edge) / float(sr)
@@ -483,19 +478,92 @@ class QwenTTSWrapper:
                 return 0.0
 
         min_pause_s = float(max(0.0, float(gap_seconds)))
-        if len(fixed) == 1 or min_pause_s <= 0.0:
-            merged_waveform = torch.cat(fixed, dim=-1)
+        if len(fixed) == 1:
+            merged_waveform = fixed[0]
         else:
-            leading = [_edge_silence_seconds(w, at_start=True) for w in fixed]
-            trailing = [_edge_silence_seconds(w, at_start=False) for w in fixed]
+            leading = [_edge_silence_seconds(w, at_start=True, thr=0.0035) for w in fixed]
+            trailing = [_edge_silence_seconds(w, at_start=False, thr=0.0035) for w in fixed]
+            quiet_leading = [_edge_silence_seconds(w, at_start=True, thr=0.0012) for w in fixed]
+            quiet_trailing = [_edge_silence_seconds(w, at_start=False, thr=0.0012) for w in fixed]
+            declick_n = int(max(1, int(float(sr) * 0.0015)))
+            tail_fade_cap_n = int(max(1, int(float(sr) * 0.03)))
             merged_parts = [fixed[0]]
             for i in range(len(fixed) - 1):
                 pause_present = float(trailing[i]) + float(leading[i + 1])
                 need = max(0.0, min_pause_s - pause_present)
                 need_samples = int(need * float(sr))
+                prev_w = merged_parts[-1]
+                next_w = fixed[i + 1]
+                try:
+                    quiet_tail_n = int(max(0, int(float(quiet_trailing[i]) * float(sr))))
+                    fade_n = int(min(tail_fade_cap_n, quiet_tail_n, int(prev_w.shape[-1])))
+                    if fade_n > 1:
+                        ramp = torch.linspace(1.0, 0.0, fade_n, dtype=prev_w.dtype)
+                        prev_w[..., -fade_n:] = prev_w[..., -fade_n:] * ramp
+                except Exception:
+                    pass
+
+                try:
+                    dn = int(min(declick_n, int(prev_w.shape[-1])))
+                    if dn > 1:
+                        ramp = torch.linspace(1.0, 0.0, dn, dtype=prev_w.dtype)
+                        prev_w[..., -dn:] = prev_w[..., -dn:] * ramp
+                except Exception:
+                    pass
+
+                try:
+                    into_silence = (need_samples > 0) or (float(leading[i + 1]) >= 0.02) or (float(quiet_leading[i + 1]) >= 0.02)
+                    if into_silence:
+                        extra_n = int(min(int(float(sr) * 0.008), int(prev_w.shape[-1])))
+                        if extra_n > 1:
+                            ramp = torch.cos(torch.linspace(0.0, float(torch.pi) / 2.0, extra_n, dtype=prev_w.dtype))
+                            prev_w[..., -extra_n:] = prev_w[..., -extra_n:] * ramp
+
+                        x = prev_w
+                        if getattr(x, "ndim", 0) == 3:
+                            x = x[0]
+                        if getattr(x, "ndim", 0) == 2:
+                            x = x.mean(dim=0)
+                        x = x.to(torch.float32)
+                        n = int(x.shape[-1])
+                        lookback_n = int(min(n, int(float(sr) * 1.2)))
+                        win = int(max(4, int(float(sr) * 0.02)))
+                        hop = int(max(1, int(float(sr) * 0.005)))
+                        if lookback_n >= win:
+                            start = n - lookback_n
+                            tail = x[start:]
+                            frames = tail.unfold(0, win, hop)
+                            rms = frames.pow(2.0).mean(dim=1).sqrt()
+                            max_rms = float(rms.max().item()) if int(rms.numel()) > 0 else 0.0
+                            speech_thr = float(max(0.007, 0.06 * max_rms))
+                            idx = torch.nonzero(rms > speech_thr, as_tuple=False)
+                            if int(idx.numel()) > 0:
+                                last = int(idx[-1].item())
+                                cut = int(min(n, start + last * hop + win))
+                            else:
+                                cut = int(max(0, n - int(float(sr) * 0.25)))
+                            fade_n = int(max(1, int(float(sr) * 0.02)))
+                            fade_end = int(min(n, cut + fade_n))
+                            if fade_end > cut + 1:
+                                ramp = torch.linspace(1.0, 0.0, fade_end - cut, dtype=prev_w.dtype)
+                                prev_w[..., cut:fade_end] = prev_w[..., cut:fade_end] * ramp
+                            if fade_end < n:
+                                prev_w[..., fade_end:] = 0
+                except Exception:
+                    pass
+
+                try:
+                    dn = int(min(declick_n, int(next_w.shape[-1])))
+                    allow_in = (need_samples > 0) or (float(quiet_leading[i + 1]) >= (float(declick_n) / float(sr)))
+                    if allow_in and dn > 1:
+                        ramp = torch.linspace(0.0, 1.0, dn, dtype=next_w.dtype)
+                        next_w[..., :dn] = next_w[..., :dn] * ramp
+                except Exception:
+                    pass
+
                 if need_samples > 0:
                     merged_parts.append(torch.zeros((1, target_channels, need_samples), dtype=fixed[i].dtype))
-                merged_parts.append(fixed[i + 1])
+                merged_parts.append(next_w)
             merged_waveform = torch.cat(merged_parts, dim=-1)
         tail_samples = int(max(0.0, float(tail_seconds)) * float(sr))
         if tail_samples > 0:
@@ -1617,18 +1685,18 @@ class QwenTTSWrapper:
         # ComfyUI audio format: {"waveform": tensor/np [1, T] or [1, C, T], "sample_rate": int}
         if not result or not isinstance(result, tuple):
             raise ValueError("Invalid output from node")
-        
+
         audio_dict = result[0]
         if "waveform" in audio_dict and "sample_rate" in audio_dict:
             sr = audio_dict["sample_rate"]
             wav = audio_dict["waveform"]
-            
+
             # Convert tensor to numpy if needed
             if hasattr(wav, "cpu"):
                 wav = wav.squeeze().cpu().numpy()
             elif isinstance(wav, np.ndarray):
                 wav = wav.squeeze()
-                
+
             if isinstance(wav, np.ndarray) and np.issubdtype(wav.dtype, np.floating):
                 wav = np.clip(wav.astype(np.float32, copy=False), -1.0, 1.0)
             return (sr, wav)
