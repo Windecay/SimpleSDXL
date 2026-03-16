@@ -143,6 +143,11 @@ def load_file_from_url(
                 if file_name in download_tasks:
                     print(f"下载任务:{file_name} 已经在任务队列中.")
                     return
+                try:
+                    if file_name in download_progress and isinstance(download_progress.get(file_name), dict) and "error" in download_progress.get(file_name, {}):
+                        del download_progress[file_name]
+                except Exception:
+                    pass
                 download_tasks.add(file_name)
                 print(f"启动新的下载任务:{file_name}.")
             thread_pool.submit(_download_task)

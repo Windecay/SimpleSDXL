@@ -685,7 +685,7 @@ with shared.gradio_root:
                     shared.gradio_root.load(get_start_timestamp, outputs=start_timestamp, queue=False)
                     shared.gradio_root.load(get_wildcards_list, outputs=start_timestamp, queue=False)
                 with gr.Row(visible=False, elem_classes='preset_store') as preset_store:
-                    preset_store_list = gr.Dataset(label="My preset store: Click on the preset in store to append it to the navigation. If it is already on, it will be automatically removed.", components=[gallery_index_stat], samples=topbar.get_preset_samples(), visible=True, samples_per_page=48, type='index')
+                    preset_store_list = gr.Dataset(label="My preset store: Click on the preset in store to append it to the navigation. If it is already on, it will be automatically removed.", components=[gallery_index_stat], samples=topbar.get_preset_samples(), visible=True, samples_per_page=10000, type='index')
 
                 missing_model_modal = gr.Box(
                     visible=False,
@@ -795,14 +795,27 @@ with shared.gradio_root:
 
                         total_current = 0
                         total_size = 0
+                        has_error = False
+                        has_in_progress = False
                         display_data = []
                         for cata, path_file, human_size, url, preset_size in missing_models:
                             model_name = os.path.basename(path_file)
                             status = model_loader.get_download_status(model_name)
+                            try:
+                                total_size += int(preset_size or 0)
+                            except Exception:
+                                pass
                             if status:
                                 if "error" in status:
-                                    action_text = f"Error: {status['error']}"
+                                    has_error = True
+                                    err_msg = status.get("error", "")
+                                    action_text = f"Error: {err_msg}" if err_msg else "Error"
+                                    try:
+                                        total_current += int(status.get("current", 0) or 0)
+                                    except Exception:
+                                        pass
                                 else:
+                                    has_in_progress = True
                                     percent = status['percent']
                                     action_text = f"Downloading: {percent:.1f}%"
                                     try:
@@ -812,15 +825,13 @@ with shared.gradio_root:
                                         pass
                             else:
                                 action_text = f"下载 {model_name}"
-                                try:
-                                    total_size += int(preset_size or 0)
-                                except Exception:
-                                    pass
                             display_data.append([model_name, human_size, action_text])
 
                         percent_total = 0.0 if total_size <= 0 else max(0.0, min(100.0, (total_current / total_size) * 100.0))
                         progress_html = _make_missing_model_progress_html(percent_total)
                         yield [gr.update(visible=True), gr.update(value=display_data), gr.update(visible=True, value=progress_html)] + empty_buttons_update
+                        if has_error and (not has_in_progress):
+                            return
                         time.sleep(1)
 
                     nav_updates = topbar.refresh_nav_bars(state_params)
@@ -1176,6 +1187,8 @@ with shared.gradio_root:
                                 scene_switch_option4 = gr.Checkbox(label='Switch Option 4', value=False, visible=False)
                             with gr.Row():
                                 scene_aspect_ratio = gr.Radio(choices=modules.flags.scene_aspect_ratios[:3], label="Aspect Ratios", value=modules.flags.scene_aspect_ratios[0], elem_classes=['scene_aspect_ratio_selections'])
+                            with gr.Row():
+                                scene_prompt_preset_button = gr.Button(value='Save the current parameters as a preset package')
                         with gr.Row():
                             scene_image_number = gr.Slider(label='Image Number', minimum=1, maximum=5, step=1, value=1)
                             scene_mask_color = gr.ColorPicker(label="Scene brush color", value="#70FF81", elem_id="scene_brush_color")
@@ -3932,6 +3945,7 @@ with shared.gradio_root:
                 show_progress=True
             )
             scene_params = [scene_theme, scene_canvas_image, scene_input_image1, scene_input_image2, scene_additional_prompt, scene_additional_prompt_2, scene_var_number, scene_var_number2, scene_var_number3, scene_var_number4, scene_var_number5, scene_var_number6, scene_var_number7, scene_var_number8, scene_var_number9, scene_var_number10, scene_steps, scene_switch_option1, scene_switch_option2, scene_switch_option3, scene_switch_option4, scene_aspect_ratio, scene_image_number, scene_mask_color, scene_use_lora, scene_video, scene_audio]       
+            scene_preset_save_ctrls = [scene_theme, scene_additional_prompt, scene_additional_prompt_2, scene_var_number, scene_var_number2, scene_var_number3, scene_var_number4, scene_var_number5, scene_var_number6, scene_var_number7, scene_var_number8, scene_var_number9, scene_var_number10, scene_steps, scene_switch_option1, scene_switch_option2, scene_switch_option3, scene_switch_option4, scene_aspect_ratio, scene_image_number, scene_mask_color, scene_use_lora]
 
             language_ui.select(lambda x,y: sync_state_params('__lang', modules.config.language_radio_revert(x), y), inputs=[language_ui, state_topbar]).then(None, inputs=language_ui, _js="(x) => set_language_by_ui(x)")
             background_theme.select(lambda x,y: sync_state_params('__theme', x, y), inputs=[background_theme, state_topbar]).then(None, inputs=background_theme, _js="(x) => set_theme_by_ui(x)")
@@ -4751,8 +4765,9 @@ with shared.gradio_root:
     params_note_regen_button.click(toolbox.reset_image_params, inputs=[state_topbar, state_is_generating, inpaint_mode], outputs=reset_preset_layout + reset_preset_func + scene_frontend_ctrls + load_data_outputs + [params_note_regen_button, params_note_box], show_progress=False) \
             .then(toolbox.close_note_box, inputs=state_topbar, outputs=note_box_outputs, show_progress=False)
     prompt_preset_button.click(toolbox.toggle_note_box_preset, inputs=model_check + [state_topbar], outputs=note_box_outputs, show_progress=False)
+    scene_prompt_preset_button.click(toolbox.toggle_note_box_preset, inputs=model_check + [state_topbar], outputs=note_box_outputs, show_progress=False)
     params_note_close_button.click(toolbox.close_note_box, inputs=state_topbar, outputs=note_box_outputs, show_progress=False)
-    params_note_preset_button.click(toolbox.save_preset, inputs=[params_note_input_name, params_backend, state_topbar] + reset_preset_func + load_data_outputs, outputs=[params_note_input_name, params_note_preset_button, params_note_box, preset_store_list] + nav_bars + [system_params], show_progress=False) \
+    params_note_preset_button.click(toolbox.save_preset, inputs=[params_note_input_name, params_backend, state_topbar] + reset_preset_func + load_data_outputs + scene_preset_save_ctrls, outputs=[params_note_input_name, params_note_preset_button, params_note_box, preset_store_list] + nav_bars + [system_params], show_progress=False) \
         .then(toolbox.preset_store_unmount, inputs=state_topbar, outputs=preset_store_list, show_progress=False, queue=False) \
         .then(toolbox.preset_store_mount, inputs=state_topbar, outputs=preset_store_list, show_progress=False, queue=False) \
         .then(toolbox.close_note_box, inputs=state_topbar, outputs=note_box_outputs, show_progress=False) \

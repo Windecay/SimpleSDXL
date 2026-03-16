@@ -398,31 +398,182 @@ def save_preset(*args):
     enhance_uov_method = args.pop()
     enhance_uov_strength = args.pop()
 
+    scene_theme = None
+    scene_additional_prompt = None
+    scene_additional_prompt_2 = None
+    scene_var_number = None
+    scene_var_number2 = None
+    scene_var_number3 = None
+    scene_var_number4 = None
+    scene_var_number5 = None
+    scene_var_number6 = None
+    scene_var_number7 = None
+    scene_var_number8 = None
+    scene_var_number9 = None
+    scene_var_number10 = None
+    scene_steps = None
+    scene_switch_option1 = None
+    scene_switch_option2 = None
+    scene_switch_option3 = None
+    scene_switch_option4 = None
+    scene_aspect_ratio = None
+    scene_image_number = None
+    scene_mask_color = None
+    scene_use_lora = None
+
+    if args:
+        scene_theme = args.pop()
+        scene_additional_prompt = args.pop()
+        scene_additional_prompt_2 = args.pop()
+        scene_var_number = args.pop()
+        scene_var_number2 = args.pop()
+        scene_var_number3 = args.pop()
+        scene_var_number4 = args.pop()
+        scene_var_number5 = args.pop()
+        scene_var_number6 = args.pop()
+        scene_var_number7 = args.pop()
+        scene_var_number8 = args.pop()
+        scene_var_number9 = args.pop()
+        scene_var_number10 = args.pop()
+        scene_steps = args.pop()
+        scene_switch_option1 = args.pop()
+        scene_switch_option2 = args.pop()
+        scene_switch_option3 = args.pop()
+        scene_switch_option4 = args.pop()
+        scene_aspect_ratio = args.pop()
+        scene_image_number = args.pop()
+        scene_mask_color = args.pop()
+        scene_use_lora = args.pop()
+
     if name:
         preset = {}
-        engine = {}
+        prepared_engine = None
+        try:
+            prepared = state_params.get("__preset_prepared", None)
+            if isinstance(prepared, dict):
+                prepared_engine = prepared.get("engine", None)
+        except Exception:
+            prepared_engine = None
 
-        backend_engine = backend_params.get("backend_engine", None) or state_params.get("backend_engine", None) or state_params.get("engine", None) or config.backend_engine
+        if isinstance(prepared_engine, dict):
+            engine = copy.deepcopy(prepared_engine)
+        else:
+            engine = copy.deepcopy(config.default_engine) if isinstance(config.default_engine, dict) else {}
+
+        backend_engine = backend_params.get("backend_engine", None) or state_params.get("backend_engine", None) or state_params.get("engine", None) or engine.get("backend_engine", None) or config.backend_engine
         if isinstance(backend_engine, str):
             backend_engine = backend_engine.strip()
         if not backend_engine:
             backend_engine = config.backend_engine
+        engine["backend_engine"] = backend_engine
 
         task_method = backend_params.get("task_method", None) or state_params.get("task_method", None)
-        if not isinstance(task_method, str) or not task_method.strip():
-            task_method = None
-        else:
+        if isinstance(task_method, str):
             task_method = task_method.strip()
-
-        if backend_engine == "Fooocus" or backend_engine is None or backend_engine == "":
-            engine["backend_engine"] = "Fooocus"
         else:
-            if isinstance(config.default_engine, dict):
-                engine.update(config.default_engine)
-            engine["backend_engine"] = backend_engine
-            if not task_method:
-                task_method = "z_image_turbo_aio_cn" if backend_engine == "Z-image" else "SDXL"
-            engine["backend_params"] = {"task_method": task_method}
+            task_method = None
+
+        if task_method:
+            if isinstance(engine.get("backend_params", None), dict):
+                engine["backend_params"]["task_method"] = task_method
+            else:
+                engine["backend_params"] = {"task_method": task_method}
+
+        engine_type = state_params.get("engine_type", None)
+        if isinstance(engine_type, str) and engine_type:
+            engine["engine_type"] = engine_type
+
+        if scene_theme is not None and isinstance(state_params.get("scene_frontend", None), dict):
+            scene_frontend = copy.deepcopy(state_params.get("scene_frontend", {}))
+            old_themes = scene_frontend.get("theme", [])
+            if not isinstance(old_themes, list):
+                old_themes = []
+
+            scene_frontend["theme"] = [scene_theme]
+
+            for key, value in list(scene_frontend.items()):
+                if not isinstance(value, dict):
+                    continue
+                if not any(t in value for t in old_themes):
+                    continue
+                chosen = value.get(scene_theme, next(iter(value.values()), None))
+                if chosen is not None:
+                    scene_frontend[key] = {scene_theme: chosen}
+
+            task_method_map = scene_frontend.get("task_method", None)
+            if isinstance(task_method_map, dict):
+                chosen_task = task_method_map.get(scene_theme, next(iter(task_method_map.values()), None))
+            else:
+                chosen_task = None
+            if not isinstance(chosen_task, str) or not chosen_task.strip():
+                chosen_task = task_method
+                if isinstance(chosen_task, str) and chosen_task.startswith("scene_"):
+                    chosen_task = chosen_task[6:]
+            if isinstance(chosen_task, str) and chosen_task.strip():
+                scene_frontend["task_method"] = {scene_theme: chosen_task.strip()}
+
+            def _set_theme_value(k, v):
+                if v is None:
+                    return
+                scene_frontend[k] = {scene_theme: v}
+
+            _set_theme_value("additional_prompt", scene_additional_prompt)
+            _set_theme_value("additional_prompt_2", scene_additional_prompt_2)
+            _set_theme_value("var_number", scene_var_number)
+            _set_theme_value("var_number2", scene_var_number2)
+            _set_theme_value("var_number3", scene_var_number3)
+            _set_theme_value("var_number4", scene_var_number4)
+            _set_theme_value("var_number5", scene_var_number5)
+            _set_theme_value("var_number6", scene_var_number6)
+            _set_theme_value("var_number7", scene_var_number7)
+            _set_theme_value("var_number8", scene_var_number8)
+            _set_theme_value("var_number9", scene_var_number9)
+            _set_theme_value("var_number10", scene_var_number10)
+            _set_theme_value("scene_steps", scene_steps)
+            _set_theme_value("switch_option1", scene_switch_option1)
+            _set_theme_value("switch_option2", scene_switch_option2)
+            _set_theme_value("switch_option3", scene_switch_option3)
+            _set_theme_value("switch_option4", scene_switch_option4)
+            _set_theme_value("image_number", scene_image_number)
+            _set_theme_value("mask_color", scene_mask_color)
+            _set_theme_value("use_lora", scene_use_lora)
+
+            def _normalize_aspect_ratio_to_raw(ar):
+                if not isinstance(ar, str):
+                    return None
+                if "|" not in ar:
+                    return ar
+                left, ratio = ar.split("|", 1)
+                if "×" in left:
+                    width = left.split("×", 1)[0]
+                    return f"{width}|{ratio}"
+                return ar
+
+            if scene_aspect_ratio is not None:
+                selected_raw = _normalize_aspect_ratio_to_raw(scene_aspect_ratio)
+                if selected_raw:
+                    base_ar = scene_frontend.get("aspect_ratio", [])
+                    if isinstance(base_ar, dict):
+                        base_ar = base_ar.get(scene_theme, next(iter(base_ar.values()), []))
+                    if not isinstance(base_ar, list):
+                        base_ar = []
+                    scene_frontend["aspect_ratio"] = [selected_raw] + [x for x in base_ar if x != selected_raw]
+
+            engine["scene_frontend"] = scene_frontend
+
+        backend_params_sanitized = engine.get("backend_params", None)
+        if isinstance(backend_params_sanitized, dict):
+            for k in [
+                "nickname",
+                "user_did",
+                "translation_methods",
+                "backfill_prompt",
+                "comfyd_active_checkbox",
+                "backend_engine",
+            ]:
+                backend_params_sanitized.pop(k, None)
+            if not backend_params_sanitized:
+                engine.pop("backend_params", None)
 
         preset["default_engine"] = engine
 

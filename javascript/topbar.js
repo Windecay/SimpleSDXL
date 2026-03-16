@@ -1,7 +1,6 @@
 let webpath = 'file';
 let nickname = 'guest';
 let task_class_name = 'Fooocus';
-const presetCompleteMarker = "||complete";
 let presetStoreUiState = {
     nav_name_list: [],
     role: "guest",
@@ -352,8 +351,7 @@ function refresh_topbar_status_js(system_params) {
             }
         }
     }
-    updatePresetStore(nav_name_list, system_params["user_role"], system_params["preset_store"], theme);
-    syncPresetStorePosition();
+    schedulePresetStoreUpdate();
     
     const message=system_params["__message"];
     if (message!=null && message.length>60) {
@@ -447,21 +445,11 @@ function updatePresetStore(nav_name_list, role, expand_flag, theme) {
         }
         let base_name = item_name;
         let identity_name = (originalText || base_name).trim();
-        let is_complete = div.getAttribute("data-complete") === "1";
         const had_missing_marker = div.getAttribute("data-missing") === "1";
         const has_download_marker = had_missing_marker || text.includes('\u2B07') || item_name.includes('\u2B07');
-        const markerIndex = item_name.indexOf(presetCompleteMarker);
-        if (markerIndex >= 0) {
-            base_name = item_name.slice(0, markerIndex).trim();
-            is_complete = true;
-        } else if (!has_download_marker) {
-            is_complete = true;
-        }
+        const is_complete = !has_download_marker;
         if (base_name.endsWith('\u2B07')) {
             base_name = base_name.slice(0, -1).trim();
-        }
-        if (identity_name.indexOf(presetCompleteMarker) >= 0) {
-            identity_name = identity_name.split(presetCompleteMarker, 1)[0].trim();
         }
         if (identity_name.endsWith('\u2B07')) {
             identity_name = identity_name.slice(0, -1).trim();

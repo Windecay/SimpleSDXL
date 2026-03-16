@@ -476,85 +476,74 @@ def switch_layout_template(presetdata: dict | str, state_params, preset_url=''):
 
         var_number_title = scenes.get('var_number_title', 'Duration(s)')
         var_number_max = scenes.get('var_number_max', 10)
-        var_number_default = modules.flags.get_value_by_scene_theme(state_params, theme_default, 'var_number', 3)
-        results.append(gr.update(label=var_number_title, value=var_number_default, maximum=var_number_max, visible='scene_var_number' not in visible, interactive='scene_var_number' not in inter))
+        results.append(gr.update(label=var_number_title, value=modules.flags.get_value_by_scene_theme(state_params, theme_default, 'var_number', 3), maximum=var_number_max, visible='scene_var_number' not in visible, interactive='scene_var_number' not in inter))
 
         var_number2_title = scenes.get('var_number2_title', 'Int Value 2')
         var_number2_max = scenes.get('var_number2_max', 10)
-        var_number2_default = modules.flags.get_value_by_scene_theme(state_params, theme_default, 'var_number2', 1)
-        results.append(gr.update(label=var_number2_title, value=var_number2_default, maximum=var_number2_max, visible='scene_var_number2' not in visible, interactive='scene_var_number2' not in inter))
+        results.append(gr.update(label=var_number2_title, value=modules.flags.get_value_by_scene_theme(state_params, theme_default, 'var_number2', 1), maximum=var_number2_max, visible='scene_var_number2' not in visible, interactive='scene_var_number2' not in inter))
 
         var_number3_title = scenes.get('var_number3_title', 'Float Value 1')
         var_number3_max = scenes.get('var_number3_max', 1.0)
-        var_number3_default = modules.flags.get_value_by_scene_theme(state_params, theme_default, 'var_number3', 0.0)
-        results.append(gr.update(label=var_number3_title, value=var_number3_default, maximum=var_number3_max, visible='scene_var_number3' not in visible, interactive='scene_var_number3' not in inter))
+        results.append(gr.update(label=var_number3_title, value=modules.flags.get_value_by_scene_theme(state_params, theme_default, 'var_number3', 0.0), maximum=var_number3_max, visible='scene_var_number3' not in visible, interactive='scene_var_number3' not in inter))
 
         var_number4_title = scenes.get('var_number4_title', 'Float Value 2')
         var_number4_max = scenes.get('var_number4_max', 1.0)
-        var_number4_default = modules.flags.get_value_by_scene_theme(state_params, theme_default, 'var_number4', 0.0)
-        results.append(gr.update(label=var_number4_title, value=var_number4_default, maximum=var_number4_max, visible='scene_var_number4' not in visible, interactive='scene_var_number4' not in inter))
+        results.append(gr.update(label=var_number4_title, value=modules.flags.get_value_by_scene_theme(state_params, theme_default, 'var_number4', 0.0), maximum=var_number4_max, visible='scene_var_number4' not in visible, interactive='scene_var_number4' not in inter))
 
         var_number5_title = scenes.get('var_number5_title', 'Float Value 3')
         var_number5_max = scenes.get('var_number5_max', 1.0)
-        var_number5_default = modules.flags.get_value_by_scene_theme(state_params, theme_default, 'var_number5', 0.0)
-        results.append(gr.update(label=var_number5_title, value=var_number5_default, maximum=var_number5_max, visible='scene_var_number5' not in visible, interactive='scene_var_number5' not in inter))
+        results.append(gr.update(label=var_number5_title, value=modules.flags.get_value_by_scene_theme(state_params, theme_default, 'var_number5', 0.0), maximum=var_number5_max, visible='scene_var_number5' not in visible, interactive='scene_var_number5' not in inter))
 
         var_number6_title = scenes.get('var_number6_title', 'Float Value 4')
         var_number6_max = scenes.get('var_number6_max', 1.0)
-        var_number6_default = modules.flags.get_value_by_scene_theme(state_params, theme_default, 'var_number6', 0.0)
-        results.append(gr.update(label=var_number6_title, value=var_number6_default, maximum=var_number6_max, visible='scene_var_number6' not in visible, interactive='scene_var_number6' not in inter))
+        results.append(gr.update(label=var_number6_title, value=modules.flags.get_value_by_scene_theme(state_params, theme_default, 'var_number6', 0.0), maximum=var_number6_max, visible='scene_var_number6' not in visible, interactive='scene_var_number6' not in inter))
 
         var_number7_title = scenes.get('var_number7_title', 'Int Value 3')
         var_number7_max = scenes.get('var_number7_max', 10)
-        var_number7_default = modules.flags.get_value_by_scene_theme(state_params, theme_default, 'var_number7', 0)
-        results.append(gr.update(label=var_number7_title, value=var_number7_default, maximum=var_number7_max, visible='scene_var_number7' not in visible, interactive='scene_var_number7' not in inter))
+        results.append(gr.update(label=var_number7_title, value=modules.flags.get_value_by_scene_theme(state_params, theme_default, 'var_number7', 0), maximum=var_number7_max, visible='scene_var_number7' not in visible, interactive='scene_var_number7' not in inter))
 
         var_number8_title = scenes.get('var_number8_title', 'Int Value 4')
         var_number8_max = scenes.get('var_number8_max', 10)
-        var_number8_default = modules.flags.get_value_by_scene_theme(state_params, theme_default, 'var_number8', 0)
-        results.append(gr.update(label=var_number8_title, value=var_number8_default, maximum=var_number8_max, visible='scene_var_number8' not in visible, interactive='scene_var_number8' not in inter))
+        results.append(gr.update(label=var_number8_title, value=modules.flags.get_value_by_scene_theme(state_params, theme_default, 'var_number8', 0), maximum=var_number8_max, visible='scene_var_number8' not in visible, interactive='scene_var_number8' not in inter))
 
         var_number9_title = scenes.get('var_number9_title', 'Int Value 5')
         var_number9_max = scenes.get('var_number9_max', 10)
-        var_number9_default = modules.flags.get_value_by_scene_theme(state_params, theme_default, 'var_number9', 0)
-        results.append(gr.update(label=var_number9_title, value=var_number9_default, maximum=var_number9_max, visible='scene_var_number9' not in visible, interactive='scene_var_number9' not in inter))
+        results.append(gr.update(label=var_number9_title, value=modules.flags.get_value_by_scene_theme(state_params, theme_default, 'var_number9', 0), maximum=var_number9_max, visible='scene_var_number9' not in visible, interactive='scene_var_number9' not in inter))
 
         var_number10_title = scenes.get('var_number10_title', 'Int Value 6')
         var_number10_max = scenes.get('var_number10_max', 10)
-        var_number10_default = modules.flags.get_value_by_scene_theme(state_params, theme_default, 'var_number10', 0)
-        results.append(gr.update(label=var_number10_title, value=var_number10_default, maximum=var_number10_max, visible='scene_var_number10' not in visible, interactive='scene_var_number10' not in inter))
+        results.append(gr.update(label=var_number10_title, value=modules.flags.get_value_by_scene_theme(state_params, theme_default, 'var_number10', 0), maximum=var_number10_max, visible='scene_var_number10' not in visible, interactive='scene_var_number10' not in inter))
 
         scene_steps_title = scenes.get('scene_steps_title', 'Scene Steps')
         scene_steps_min = scenes.get('scene_steps_min', 1)
         scene_steps_max = scenes.get('scene_steps_max', 100)
-        scene_steps_default = modules.flags.get_value_by_scene_theme(state_params, theme_default, 'scene_steps', 30)
-        results.append(gr.update(label=scene_steps_title, value=scene_steps_default, minimum=scene_steps_min, maximum=scene_steps_max, step=1, visible='scene_steps' not in visible, interactive='scene_steps' not in inter))
+        results.append(gr.update(label=scene_steps_title, value=modules.flags.get_value_by_scene_theme(state_params, theme_default, 'scene_steps', 30), minimum=scene_steps_min, maximum=scene_steps_max, step=1, visible='scene_steps' not in visible, interactive='scene_steps' not in inter))
 
         switch_option1_title = scenes.get('switch_option1_title', 'Switch Option 1')
-        switch_option1_default = modules.flags.get_value_by_scene_theme(state_params, theme_default, 'switch_option1', False)
-        results.append(gr.update(label=switch_option1_title, value=switch_option1_default, visible='scene_switch_option1' not in visible, interactive='scene_switch_option1' not in inter))
+        results.append(gr.update(label=switch_option1_title, value=modules.flags.get_value_by_scene_theme(state_params, theme_default, 'switch_option1', False), visible='scene_switch_option1' not in visible, interactive='scene_switch_option1' not in inter))
 
         switch_option2_title = scenes.get('switch_option2_title', 'Switch Option 2')
-        switch_option2_default = modules.flags.get_value_by_scene_theme(state_params, theme_default, 'switch_option2', False)
-        results.append(gr.update(label=switch_option2_title, value=switch_option2_default, visible='scene_switch_option2' not in visible, interactive='scene_switch_option2' not in inter))
+        results.append(gr.update(label=switch_option2_title, value=modules.flags.get_value_by_scene_theme(state_params, theme_default, 'switch_option2', False), visible='scene_switch_option2' not in visible, interactive='scene_switch_option2' not in inter))
 
         switch_option3_title = scenes.get('switch_option3_title', 'Switch Option 3')
-        switch_option3_default = modules.flags.get_value_by_scene_theme(state_params, theme_default, 'switch_option3', False)
-        results.append(gr.update(label=switch_option3_title, value=switch_option3_default, visible='scene_switch_option3' not in visible, interactive='scene_switch_option3' not in inter))
+        results.append(gr.update(label=switch_option3_title, value=modules.flags.get_value_by_scene_theme(state_params, theme_default, 'switch_option3', False), visible='scene_switch_option3' not in visible, interactive='scene_switch_option3' not in inter))
 
         switch_option4_title = scenes.get('switch_option4_title', 'Switch Option 4')
-        switch_option4_default = modules.flags.get_value_by_scene_theme(state_params, theme_default, 'switch_option4', False)
-        results.append(gr.update(label=switch_option4_title, value=switch_option4_default, visible='scene_switch_option4' not in visible, interactive='scene_switch_option4' not in inter))
+        results.append(gr.update(label=switch_option4_title, value=modules.flags.get_value_by_scene_theme(state_params, theme_default, 'switch_option4', False), visible='scene_switch_option4' not in visible, interactive='scene_switch_option4' not in inter))
 
         aspect_ratios = modules.flags.get_value_by_scene_theme(state_params, theme_default, 'aspect_ratio', [])
         aspect_ratios = modules.flags.scene_aspect_ratios_mapping_list(aspect_ratios)
-        aspect_ratio = '' if len(aspect_ratios)==0 else aspect_ratios[0]
+        aspect_ratio = '' if len(aspect_ratios) == 0 else aspect_ratios[0]
         results.append(get_layout_setting_choices_visible_inter(aspect_ratios, aspect_ratio, 'scene_aspect_ratio', visible, inter))
 
-        results.append(get_layout_update_and_visible_inter(1, 'scene_image_number', visible, inter))
+        scene_image_number_default = modules.flags.get_value_by_scene_theme(state_params, theme_default, 'image_number', 1)
+        results.append(get_layout_update_and_visible_inter(scene_image_number_default, 'scene_image_number', visible, inter))
 
-        results.append(gr.update(visible='scene_mask_color' not in visible and 'scene_canvas_image' not in visible))
-        results.append(get_layout_visible('scene_use_lora', visible))
+        scene_mask_color_visible = 'scene_mask_color' not in visible and 'scene_canvas_image' not in visible
+        scene_mask_color_default = modules.flags.get_value_by_scene_theme(state_params, theme_default, 'mask_color', "#70FF81")
+        results.append(gr.update(visible=scene_mask_color_visible, value=scene_mask_color_default))
+        scene_use_lora_default = modules.flags.get_value_by_scene_theme(state_params, theme_default, 'use_lora', True)
+        results.append(gr.update(visible='scene_use_lora' not in visible, value=scene_use_lora_default, interactive='scene_use_lora' not in inter))
 
         results.append(get_layout_visible('scene_video', visible))
         results.append(get_layout_visible('scene_audio', visible))

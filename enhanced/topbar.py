@@ -143,7 +143,6 @@ def is_preset_file_allowed(p):
         return False
     return True
 
-PRESET_COMPLETE_MARKER = "||complete"
 PRESET_MISSING_MARKER = "\u2B07"
 PRESET_STORE_ORDER = [
     "Z-imageT",
@@ -201,8 +200,6 @@ def _strip_preset_marker(name):
     if not isinstance(name, str):
         return name
     base = name
-    if PRESET_COMPLETE_MARKER in base:
-        base = base.split(PRESET_COMPLETE_MARKER, 1)[0].strip()
     if base.endswith(PRESET_MISSING_MARKER):
         base = base[:-len(PRESET_MISSING_MARKER)].strip()
     return base

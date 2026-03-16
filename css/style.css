@@ -733,6 +733,8 @@ div.block.tagHelper.active {
 
 .preset_store {
     height: auto;
+    max-height: 40vh;
+    overflow-y: auto;
     position: absolute;
     top: 62px;
     left: 0px;
@@ -825,11 +827,11 @@ body[data-theme="dark"] .preset_store button.preset-missing {
 .toolbox_note {
     height: auto;
     position: absolute;
-    top: 20%;
+    top: 40%;
     left: 50%;
     transform: translate(-50%, -50%);
     width: 300px !important;
-    z-index: 101;
+    z-index: 1001;
     text-align: left;
     opacity: 1;
     background: var(--block-background-fill);
