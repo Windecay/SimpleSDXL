@@ -162,12 +162,12 @@ def restore_scene_media_after_generation(state, v_bak, a_bak, v_orig_bak, video_
     )
 
 
-def stash_preview_image(img, max_side=1280):
+def stash_preview_image(img, max_side=1280, trigger_side=2048):
     if img is None:
         return None, None
     if isinstance(img, np.ndarray):
         h, w = img.shape[:2]
-        if max(h, w) <= max_side:
+        if max(h, w) <= trigger_side:
             return img, img
         scale = float(max_side) / float(max(h, w))
         new_w = max(1, int(round(w * scale)))
@@ -178,8 +178,8 @@ def stash_preview_image(img, max_side=1280):
     return img, img
 
 
-def stash_preview_image_only(img, max_side=1280):
-    preview, _full = stash_preview_image(img, max_side=max_side)
+def stash_preview_image_only(img, max_side=1280, trigger_side=2048):
+    preview, _full = stash_preview_image(img, max_side=max_side, trigger_side=trigger_side)
     return preview
 
 
@@ -193,17 +193,17 @@ def _resize_np(img, new_w, new_h, resample):
     return np.array(pil_img)
 
 
-def stash_preview_sketch(sketch, max_side=1280):
+def stash_preview_sketch(sketch, max_side=1280, trigger_side=2048):
     if sketch is None:
         return None, None
     if not isinstance(sketch, dict):
-        preview, full = stash_preview_image(sketch, max_side=max_side)
+        preview, full = stash_preview_image(sketch, max_side=max_side, trigger_side=trigger_side)
         return preview, full
     img = sketch.get("image", None)
     if not isinstance(img, np.ndarray):
         return None, None
     h, w = img.shape[:2]
-    if max(h, w) <= max_side:
+    if max(h, w) <= trigger_side:
         return img, img
     scale = float(max_side) / float(max(h, w))
     new_w = max(1, int(round(w * scale)))
