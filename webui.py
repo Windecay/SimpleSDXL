@@ -645,6 +645,8 @@ def check_generating_state(state_is_generating=None, pending_tasks=None, worker_
         worker_processing = modules.async_worker.worker_processing is not None
     return state_is_generating or pending_tasks > 0 or worker_processing
 
+from extras.media_normalize import stash_preview_image, stash_preview_image_only, stash_preview_sketch, compose_full_sketch, compose_full_mask
+
 reload_javascript()
 
 title = f'{version.branch}-让创作如此轻松! Make creation a breeze!'
@@ -1005,9 +1007,13 @@ with shared.gradio_root:
                         )
                             
                         scene_canvas_image = grh.Image(label='Upload and canvas(1)', show_label=True, source='upload', type='numpy', tool='sketch', height=250, brush_color="#70FF81", mask_color=True, image_mode='RGBA', elem_id='scene_canvas')
+                        scene_canvas_image_full = gr.State(None)
+                        scene_canvas_image_backend = gr.State(None)
                         with gr.Row() as scene_input_images:
                             scene_input_image1 = grh.Image(label='Upload prompt image(2)', value=None, source='upload', type='numpy', image_mode='RGBA', show_label=True, height=300, show_download_button=False)
                             scene_input_image2 = grh.Image(label='Upload prompt image(3)', value=None, source='upload', type='numpy', image_mode='RGBA', show_label=True, height=300, show_download_button=False)
+                            scene_input_image1_full = gr.State(None)
+                            scene_input_image2_full = gr.State(None)
                         
                         def update_qwen_image(image):
                             if image is None:
@@ -2633,6 +2639,7 @@ with shared.gradio_root:
                         with gr.Row():
                             with gr.Column():
                                 uov_input_image = grh.Image(label='Image', source='upload', type='numpy', image_mode='RGBA', height=300, show_label=False)
+                                uov_input_image_full = gr.State(None)
                                 with gr.Row():
                                     describe_uov_button = gr.Button(value='Describe Image', variant='secondary', size='sm', visible=False)
                             with gr.Column():
@@ -2651,8 +2658,9 @@ with shared.gradio_root:
                                         hires_fix_stop = gr.Slider(label='Stop At', minimum=0.0, maximum=1.0, step=0.05, value=0.8, min_width=20)
                                         hires_fix_weight = gr.Slider(label='Weight', minimum=0.0, maximum=2.0, step=0.05, value=0.5, min_width=20)
                                         hires_fix_blurred = gr.Slider(label='Blurred', minimum=0.0, maximum=1.0, step=0.05, value=0.0, min_width=20)
-                        uov_input_image.upload(topbar.update_upscale_size_of_image, inputs=[uov_input_image, uov_method], outputs=uov_image_size, show_progress=False, queue=False)
-                        uov_method.change(topbar.update_size_and_hires_fix, inputs=[uov_input_image, uov_method, params_backend, hires_fix_stop, hires_fix_weight, hires_fix_blurred], outputs=[uov_image_size, uov_hires_fix, overwrite_vary_strength, overwrite_upscale_strength], show_progress=False, queue=False)
+                        uov_input_image.upload(stash_preview_image, inputs=[uov_input_image], outputs=[uov_input_image, uov_input_image_full], show_progress=False, queue=False) \
+                            .then(topbar.update_upscale_size_of_image, inputs=[uov_input_image_full, uov_method], outputs=uov_image_size, show_progress=False, queue=False)
+                        uov_method.change(topbar.update_size_and_hires_fix, inputs=[uov_input_image_full, uov_method, params_backend, hires_fix_stop, hires_fix_weight, hires_fix_blurred], outputs=[uov_image_size, uov_hires_fix, overwrite_vary_strength, overwrite_upscale_strength], show_progress=False, queue=False)
                         hires_fix_stop.change(lambda x,y,z: sync_backend_params('hires_fix_s',x,y,z), inputs=[hires_fix_stop, params_backend, state_topbar])
                         hires_fix_weight.change(lambda x,y,z: sync_backend_params('hires_fix_w',x,y,z), inputs=[hires_fix_weight, params_backend, state_topbar])
                         hires_fix_blurred.change(lambda x,y,z: sync_backend_params('hires_fix_blurred',x,y,z), inputs=[hires_fix_blurred, params_backend, state_topbar])
@@ -2666,6 +2674,8 @@ with shared.gradio_root:
                         with gr.Row():
                             with gr.Column():
                                 inpaint_input_image = grh.Image(label='Image', source='upload', type='numpy', image_mode='RGBA', tool='sketch', height=350, brush_color="#FFFFFF", elem_id='inpaint_canvas', show_label=False)
+                                inpaint_input_image_full = gr.State(None)
+                                inpaint_input_image_backend = gr.State(None)
                                 with gr.Row():
                                     describe_inpaint_button = gr.Button(value='Describe Image', variant='secondary', size='sm', visible=False)
                                 inpaint_mode = gr.Dropdown(choices=modules.flags.inpaint_options, value=modules.config.default_inpaint_method, label='Method')
@@ -2678,6 +2688,8 @@ with shared.gradio_root:
                                 example_inpaint_prompts.click(lambda x: x[0], inputs=example_inpaint_prompts, outputs=inpaint_additional_prompt, show_progress=False, queue=False)
                             with gr.Column(visible=modules.config.default_inpaint_advanced_masking_checkbox) as inpaint_mask_generation_col:
                                 inpaint_mask_image = grh.Image(label='Mask Upload', show_label=True, source='upload', type='numpy', tool='sketch', height=350, brush_color="#FFFFFF", mask_opacity=1, elem_id='inpaint_mask_canvas')
+                                inpaint_mask_image_full = gr.State(None)
+                                inpaint_mask_image_backend = gr.State(None)
                                 inpaint_mask_model = gr.Dropdown(label='Mask generation model',
                                                                  choices=flags.inpaint_mask_models,
                                                                  value=modules.config.default_inpaint_mask_model)
@@ -2702,6 +2714,9 @@ with shared.gradio_root:
                                     inpaint_mask_text_threshold = gr.Slider(label="Text Threshold", minimum=0.0, maximum=1.0, value=0.25, step=0.05)
                                     inpaint_mask_sam_max_detections = gr.Slider(label="Maximum number of detections", info="Set to 0 to detect all", minimum=0, maximum=10, value=modules.config.default_sam_max_detections, step=1, interactive=True)
                                 generate_mask_button = gr.Button(value='Generate mask from image')
+                        inpaint_input_image.upload(stash_preview_sketch, inputs=[inpaint_input_image], outputs=[inpaint_input_image, inpaint_input_image_full], show_progress=False, queue=False)
+                        inpaint_input_image.clear(lambda: (None, None, None), outputs=[inpaint_input_image_full, inpaint_input_image_backend, inpaint_mask_image_backend], show_progress=False, queue=False)
+                        inpaint_mask_image.clear(lambda: None, outputs=[inpaint_mask_image_backend], show_progress=False, queue=False)
                         with gr.Row():
                             inpaint_strength = gr.Slider(label='Inpaint Denoising Strength',
                                                      minimum=0.0, maximum=1.0, step=0.01, value=1.0,
@@ -2757,6 +2772,7 @@ with shared.gradio_root:
                             with gr.Row():
                                 with gr.Column():
                                     layer_input_image = grh.Image(label='Drag given image to here', source='upload', type='numpy', image_mode='RGBA', visible=True, interactive=False)
+                                    layer_input_image_full = gr.State(None)
                                 with gr.Column():
                                     with gr.Group():
                                         iclight_enable = gr.Checkbox(label='Enable IC-Light', value=True)
@@ -2768,12 +2784,15 @@ with shared.gradio_root:
                                 example_quick_prompts = gr.Dataset(samples=comfy_task.quick_prompts, label='Lighting Quick List', samples_per_page=1000, components=[prompt])
                         example_quick_prompts.click(lambda x, y: ', '.join(y.split(', ')[:2] + [x[0]]), inputs=[example_quick_prompts, prompt], outputs=prompt, show_progress=False, queue=False)
                         example_quick_subjects.click(lambda x: x[0], inputs=example_quick_subjects, outputs=prompt, show_progress=False, queue=False)
+                        layer_input_image.upload(stash_preview_image, inputs=[layer_input_image], outputs=[layer_input_image, layer_input_image_full], show_progress=False, queue=False)
+                        layer_input_image.change(lambda img, full: None if img is None else full, inputs=[layer_input_image, layer_input_image_full], outputs=[layer_input_image_full], show_progress=False, queue=False)
 
                     with gr.Tab(label='Enhance+', id='enhance_tab') as enhance_tab:
                         with gr.Row():
                             with gr.Column():
                                 enhance_checkbox = gr.Checkbox(label='Enhance', value=modules.config.default_enhance_checkbox, container=False)
                                 enhance_input_image = grh.Image(label='Use with Enhance, skips image generation', source='upload', type='numpy', image_mode='RGBA')
+                                enhance_input_image_full = gr.State(None)
                                 with gr.Row():
                                     describe_enhance_button = gr.Button(value='Describe Image', variant='secondary', size='sm', visible=False)
                                 with gr.Group():
@@ -4087,7 +4106,7 @@ with shared.gradio_root:
             ], show_progress=False, queue=False)
 
         generate_mask_button.click(fn=generate_mask,
-                                   inputs=[inpaint_input_image, inpaint_mask_model, inpaint_mask_cloth_category,
+                                   inputs=[inpaint_input_image_full, inpaint_mask_model, inpaint_mask_cloth_category,
                                            inpaint_mask_dino_prompt_text, inpaint_mask_sam_model,
                                            inpaint_mask_box_threshold, inpaint_mask_text_threshold,
                                            inpaint_mask_sam_max_detections, dino_erode_or_dilate, debugging_dino],
@@ -4102,9 +4121,9 @@ with shared.gradio_root:
 
         ctrls += [base_model, refiner_model, refiner_switch] + lora_ctrls
         ctrls += [input_image_checkbox, current_tab]
-        ctrls += [uov_method, uov_input_image]
-        ctrls += [outpaint_selections, inpaint_input_image, inpaint_additional_prompt, inpaint_mask_image]
-        ctrls += [layer_method, layer_input_image, iclight_enable, iclight_source_radio]
+        ctrls += [uov_method, uov_input_image_full]
+        ctrls += [outpaint_selections, inpaint_input_image_backend, inpaint_additional_prompt, inpaint_mask_image_backend]
+        ctrls += [layer_method, layer_input_image_full, iclight_enable, iclight_source_radio]
         ctrls += [disable_preview, disable_intermediate_results, disable_seed_increment, black_out_nsfw]
         ctrls += [adm_scaler_positive, adm_scaler_negative, adm_scaler_end, adaptive_cfg, clip_skip]
         ctrls += [sampler_name, scheduler_name, vae_name]
@@ -4120,7 +4139,7 @@ with shared.gradio_root:
         ctrls += [metadata_scheme if not args_manager.args.disable_metadata else None]
         ctrls += ip_ctrls
         ctrls += [debugging_dino, dino_erode_or_dilate, debugging_enhance_masks_checkbox,
-                  enhance_input_image, enhance_checkbox, enhance_uov_method, enhance_uov_strength, enhance_uov_processing_order,
+                  enhance_input_image_full, enhance_checkbox, enhance_uov_method, enhance_uov_strength, enhance_uov_processing_order,
                   enhance_uov_prompt_type]
         ctrls += enhance_ctrls
         # ctrls += [random_aspect_ratio_checkbox]
@@ -4194,51 +4213,33 @@ with shared.gradio_root:
                 return f"data:image/jpeg;base64,{img_str}"
             return None
 
-        def cache_input_image_func(tab, uov, inpaint, layer, enhance, scene1, scene_canvas):
+        def cache_input_image_func(state_params, tab, uov, inpaint, layer, enhance, scene1, scene_canvas):
             img = None
-            if tab == 'uov_tab': img = uov
-            elif tab == 'inpaint_tab':
+            is_scene = isinstance(state_params, dict) and ("scene_frontend" in state_params)
+
+            if is_scene:
+                if scene_canvas is not None:
+                    if isinstance(scene_canvas, dict):
+                        img = scene_canvas.get('image')
+                    else:
+                        img = scene_canvas
+                if img is None and scene1 is not None:
+                    img = scene1
+                return process_image_for_html(img)
+
+            if tab == 'uov' or tab == 'uov_tab':
+                img = uov
+            elif tab == 'inpaint' or tab == 'inpaint_tab':
                 if isinstance(inpaint, dict):
                     img = inpaint.get('image')
                 else:
                     img = inpaint
-            elif tab == 'layer_tab': img = layer
-            elif tab == 'enhance_tab': img = enhance
-            elif tab == 'scene' or (tab and 'scene' in tab): 
-                if scene_canvas is not None:
-                     if isinstance(scene_canvas, dict):
-                         img = scene_canvas.get('image')
-                     else:
-                         img = scene_canvas
-
-                if img is None and scene1 is not None:
-                    img = scene1
-
-            if img is None:
-                 # Fallback logic if tab doesn't match or image is missing in current tab
-                 if scene_canvas is not None:
-                     if isinstance(scene_canvas, dict):
-                         img = scene_canvas.get('image')
-                     else:
-                         img = scene_canvas
-
-                 if img is None and scene1 is not None:
-                     img = scene1
-
-                 if img is None and uov is not None:
-                     img = uov
-
-                 if img is None and inpaint is not None:
-                     if isinstance(inpaint, dict):
-                        img = inpaint.get('image')
-                     else:
-                        img = inpaint
-
-                 if img is None and layer is not None: 
-                     img = layer
-
-                 if img is None and enhance is not None: 
-                     img = enhance
+            elif tab == 'layer' or tab == 'layer_tab':
+                img = layer
+            elif tab == 'enhance' or tab == 'enhance_tab':
+                img = enhance
+            else:
+                img = None
 
             return process_image_for_html(img)
 
@@ -4387,10 +4388,13 @@ with shared.gradio_root:
         from extras.media_normalize import restore_scene_media_after_generation as _restore_scene_media_after_generation
 
         generate_button.click(_stash_scene_media_before_generation, inputs=[scene_video, scene_audio, scene_original_video_path, state_topbar], outputs=[scene_video_backup, scene_audio_backup, scene_original_video_backup, scene_video, scene_audio, scene_original_video_path, scene_video_placeholder, scene_audio_placeholder, generate_button, skip_button, stop_button, random_aspect_ratio_state], queue=False, show_progress=False) \
-            .then(cache_input_image_func, inputs=[current_tab, uov_input_image, inpaint_input_image, layer_input_image, enhance_input_image, scene_input_image1, scene_canvas_image], outputs=[cached_input_image]) \
-            .then(topbar.process_before_generation, inputs=[state_topbar, seed_random, image_seed, params_backend, scene_theme, scene_canvas_image, scene_input_image1, scene_input_image2, scene_additional_prompt, scene_additional_prompt_2, scene_var_number, scene_var_number2, scene_var_number3, scene_var_number4, scene_var_number5, scene_var_number6, scene_var_number7, scene_var_number8, scene_var_number9, scene_var_number10, scene_steps, scene_switch_option1, scene_switch_option2, scene_switch_option3, scene_switch_option4, scene_aspect_ratio, scene_image_number, scene_video_backup, scene_audio_backup, scene_original_video_backup, active_video_source, sam3_input_video, sam3_original_video_path, sam3_mask_video], outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating, index_radio, image_toolbox, prompt_info_box, image_seed] + protections + [preset_store, identity_dialog], show_progress=False) \
+            .then(compose_full_sketch, inputs=[inpaint_input_image, inpaint_input_image_full], outputs=[inpaint_input_image_backend], queue=False, show_progress=False) \
+            .then(compose_full_mask, inputs=[inpaint_mask_image, inpaint_input_image_full], outputs=[inpaint_mask_image_backend], queue=False, show_progress=False) \
+            .then(compose_full_sketch, inputs=[scene_canvas_image, scene_canvas_image_full], outputs=[scene_canvas_image_backend], queue=False, show_progress=False) \
+            .then(cache_input_image_func, inputs=[state_topbar, current_tab, uov_input_image_full, inpaint_input_image_backend, layer_input_image_full, enhance_input_image_full, scene_input_image1_full, scene_canvas_image_backend], outputs=[cached_input_image]) \
+            .then(topbar.process_before_generation, inputs=[state_topbar, seed_random, image_seed, params_backend, scene_theme, scene_canvas_image_backend, scene_input_image1_full, scene_input_image2_full, scene_additional_prompt, scene_additional_prompt_2, scene_var_number, scene_var_number2, scene_var_number3, scene_var_number4, scene_var_number5, scene_var_number6, scene_var_number7, scene_var_number8, scene_var_number9, scene_var_number10, scene_steps, scene_switch_option1, scene_switch_option2, scene_switch_option3, scene_switch_option4, scene_aspect_ratio, scene_image_number, scene_video_backup, scene_audio_backup, scene_original_video_backup, active_video_source, sam3_input_video, sam3_original_video_path, sam3_mask_video], outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating, index_radio, image_toolbox, prompt_info_box, image_seed] + protections + [preset_store, identity_dialog], show_progress=False) \
             .then(topbar.wait_for_minicpm_completion, outputs=[], show_progress=False) \
-            .then(topbar.avoid_empty_prompt_for_scene, inputs=[prompt, state_topbar, scene_canvas_image, scene_input_image1, scene_theme, scene_additional_prompt, scene_additional_prompt_2], outputs=prompt, show_progress=True) \
+            .then(topbar.avoid_empty_prompt_for_scene, inputs=[prompt, state_topbar, scene_canvas_image_backend, scene_input_image1_full, scene_theme, scene_additional_prompt, scene_additional_prompt_2], outputs=prompt, show_progress=True) \
             .then(lambda state_topbar_value, use_loras, model1, model2, model3, model4: [ \
                  "None" if "scene_frontend" in state_topbar_value and not use_loras else model1, "None" if "scene_frontend" in state_topbar_value and not use_loras else model2, "None" if "scene_frontend" in state_topbar_value and not use_loras else model3, "None" if "scene_frontend" in state_topbar_value and not use_loras else model4], \
             inputs=[state_topbar, scene_use_lora, scene_lora_model, scene_lora_model_2, scene_lora_model_3, scene_lora_model_4], \
@@ -4411,7 +4415,10 @@ with shared.gradio_root:
 
         preview_preprocessing.click(_stash_scene_media_preview, inputs=[scene_video, scene_audio, scene_original_video_path], outputs=[scene_video_backup, scene_audio_backup, scene_original_video_backup, scene_video, scene_audio, scene_original_video_path, scene_video_placeholder, scene_audio_placeholder], queue=False, show_progress=False) \
             .then(lambda: (False, gr.update(visible=False), gr.update(visible=False), gr.update(visible=False), gr.update(value=None, visible=True), gr.update(visible=False, size='sm')), outputs=[comparison_state, comparison_box, progress_window, gallery, progress_gallery, compare_btn]) \
-            .then(topbar.process_before_generation, inputs=[state_topbar, seed_random, image_seed, params_backend, scene_theme, scene_canvas_image, scene_input_image1, scene_input_image2, scene_additional_prompt, scene_additional_prompt_2, scene_var_number, scene_var_number2, scene_var_number3, scene_var_number4, scene_var_number5, scene_var_number6, scene_var_number7, scene_var_number8, scene_var_number9, scene_var_number10, scene_steps, scene_switch_option1, scene_switch_option2, scene_switch_option3, scene_switch_option4, scene_aspect_ratio, scene_image_number, scene_video_backup, scene_audio_backup, scene_original_video_backup, active_video_source, sam3_input_video, sam3_original_video_path, sam3_mask_video], outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating, index_radio, image_toolbox, prompt_info_box, image_seed] + protections + [preset_store, identity_dialog], show_progress=False) \
+            .then(compose_full_sketch, inputs=[inpaint_input_image, inpaint_input_image_full], outputs=[inpaint_input_image_backend], queue=False, show_progress=False) \
+            .then(compose_full_mask, inputs=[inpaint_mask_image, inpaint_input_image_full], outputs=[inpaint_mask_image_backend], queue=False, show_progress=False) \
+            .then(compose_full_sketch, inputs=[scene_canvas_image, scene_canvas_image_full], outputs=[scene_canvas_image_backend], queue=False, show_progress=False) \
+            .then(topbar.process_before_generation, inputs=[state_topbar, seed_random, image_seed, params_backend, scene_theme, scene_canvas_image_backend, scene_input_image1_full, scene_input_image2_full, scene_additional_prompt, scene_additional_prompt_2, scene_var_number, scene_var_number2, scene_var_number3, scene_var_number4, scene_var_number5, scene_var_number6, scene_var_number7, scene_var_number8, scene_var_number9, scene_var_number10, scene_steps, scene_switch_option1, scene_switch_option2, scene_switch_option3, scene_switch_option4, scene_aspect_ratio, scene_image_number, scene_video_backup, scene_audio_backup, scene_original_video_backup, active_video_source, sam3_input_video, sam3_original_video_path, sam3_mask_video], outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating, index_radio, image_toolbox, prompt_info_box, image_seed] + protections + [preset_store, identity_dialog], show_progress=False) \
             .then(fn=get_task_with_resolution_multiplier, inputs=ctrls_preview + [resolution_multiplier, resolution_quantize_step], outputs=currentTask) \
             .then(fn=generate_clicked, inputs=[currentTask, state_topbar], outputs=[progress_html, progress_window, progress_gallery, progress_video, gallery, comparison_state, comparison_box, compare_btn, stop_button, skip_button]) \
             .then(topbar.process_after_generation, inputs=state_topbar, outputs=[generate_button, stop_button, skip_button, state_is_generating, gallery_index, index_radio] + protections + [gallery_index_stat, history_link], show_progress=False) \
@@ -4545,7 +4552,12 @@ with shared.gradio_root:
             return describe_prompt if describe_prompt else gr.update(), list(styles), gr.update(interactive=ready_to_gen and img_is_ok)
 
         def trigger_auto_aspect_ratio_for_scene_from_canvas_image(state, canvas_image, input_image1, scene_theme, video=None, audio=None):
-            results = [trigger_auto_aspect_ratio_for_scene(state, canvas_image['image'], scene_theme)]
+            img = None
+            if isinstance(canvas_image, dict):
+                img = canvas_image.get('image', None)
+            elif isinstance(canvas_image, np.ndarray):
+                img = canvas_image
+            results = [trigger_auto_aspect_ratio_for_scene(state, img, scene_theme)]
             need_canvas_image = 'scene_canvas_image' not in state["scene_frontend"].get('disvisible', [])
             need_input_image1 = 'scene_input_image1' not in state["scene_frontend"].get('disvisible', [])
             need_input_image2 = 'scene_input_image2' not in state["scene_frontend"].get('disvisible', [])
@@ -4690,16 +4702,23 @@ with shared.gradio_root:
                 gr.update(value=parsed_loras[3][1]),
             ]
 
-        scene_canvas_image.upload(trigger_auto_aspect_ratio_for_scene_from_canvas_image, inputs=[state_topbar, scene_canvas_image, scene_input_image1, scene_theme, scene_video, scene_audio], outputs=[scene_aspect_ratio, generate_button], show_progress=False, queue=False).then(lambda: None, _js='()=>{refresh_scene_localization();}')
+        scene_canvas_image.upload(stash_preview_sketch, inputs=[scene_canvas_image], outputs=[scene_canvas_image, scene_canvas_image_full], show_progress=False, queue=False) \
+                        .then(trigger_auto_aspect_ratio_for_scene_from_canvas_image, inputs=[state_topbar, scene_canvas_image, scene_input_image1, scene_theme, scene_video, scene_audio], outputs=[scene_aspect_ratio, generate_button], show_progress=False, queue=False) \
+                        .then(lambda: None, _js='()=>{refresh_scene_localization();}')
+        scene_canvas_image.clear(lambda: (None, None), outputs=[scene_canvas_image_full, scene_canvas_image_backend], show_progress=False, queue=False)
         #scene_canvas_image.change(scene_canvas_image_clear, inputs=[state_topbar, scene_canvas_image, scene_input_image1], outputs=[generate_button], show_progress=False, queue=False)
-        scene_input_image1.upload(trigger_auto_describe_for_scene, inputs=[state_topbar, scene_canvas_image, scene_input_image1, scene_theme, scene_additional_prompt, scene_additional_prompt_2, state_is_generating], outputs=[prompt, style_selections, generate_button], show_progress=True, queue=True) \
-                        .then(trigger_auto_aspect_ratio_for_scene_from_input_image, inputs=[state_topbar, scene_input_image1, scene_theme],
+        scene_input_image1.upload(stash_preview_image, inputs=[scene_input_image1], outputs=[scene_input_image1, scene_input_image1_full], show_progress=False, queue=False) \
+                        .then(trigger_auto_describe_for_scene, inputs=[state_topbar, scene_canvas_image, scene_input_image1_full, scene_theme, scene_additional_prompt, scene_additional_prompt_2, state_is_generating], outputs=[prompt, style_selections, generate_button], show_progress=True, queue=True) \
+                        .then(trigger_auto_aspect_ratio_for_scene_from_input_image, inputs=[state_topbar, scene_input_image1_full, scene_theme],
                                 outputs=scene_aspect_ratio, show_progress=False, queue=False) \
                         .then(lambda: None, _js='()=>{refresh_scene_localization();}')
         #scene_input_image1.clear(lambda: ['', gr.update(interactive=False)], outputs=[prompt, generate_button], show_progress=False, queue=False)
         scene_input_image1.change(scene_input_image1_clear, inputs=[state_topbar, scene_input_image1, scene_video, scene_audio], outputs=[prompt, generate_button, load_parameter_button], show_progress=False, queue=False) 
-        load_parameter_button.click(trigger_auto_describe_for_scene, inputs=[state_topbar, scene_canvas_image, scene_input_image1, scene_theme, scene_additional_prompt, scene_additional_prompt_2, state_is_generating], outputs=[prompt, style_selections, generate_button], show_progress=True, queue=False) \
-                        .then(trigger_auto_aspect_ratio_for_scene, inputs=[state_topbar, scene_input_image1, scene_theme],
+        scene_input_image1.change(lambda img, full: None if img is None else full, inputs=[scene_input_image1, scene_input_image1_full], outputs=[scene_input_image1_full], show_progress=False, queue=False)
+        scene_input_image2.upload(stash_preview_image, inputs=[scene_input_image2], outputs=[scene_input_image2, scene_input_image2_full], show_progress=False, queue=False)
+        scene_input_image2.change(lambda img, full: None if img is None else full, inputs=[scene_input_image2, scene_input_image2_full], outputs=[scene_input_image2_full], show_progress=False, queue=False)
+        load_parameter_button.click(trigger_auto_describe_for_scene, inputs=[state_topbar, scene_canvas_image, scene_input_image1_full, scene_theme, scene_additional_prompt, scene_additional_prompt_2, state_is_generating], outputs=[prompt, style_selections, generate_button], show_progress=True, queue=False) \
+                        .then(trigger_auto_aspect_ratio_for_scene, inputs=[state_topbar, scene_input_image1_full, scene_theme],
                                 outputs=scene_aspect_ratio, show_progress=False, queue=False) \
                         .then(lambda: None, _js='()=>{refresh_scene_localization();}')
 
@@ -4739,8 +4758,9 @@ with shared.gradio_root:
                 .then(lambda: None, _js='()=>{refresh_style_localization();}')
 
             uov_input_image.change(lambda img: gr.update(visible=img is not None), inputs=uov_input_image, outputs=describe_uov_button, show_progress=False, queue=False)
+            uov_input_image.change(lambda img, full: None if img is None else full, inputs=[uov_input_image, uov_input_image_full], outputs=[uov_input_image_full], show_progress=False, queue=False)
 
-            describe_uov_button.click(trigger_auto_describe, inputs=[describe_methods, uov_input_image, prompt, describe_apply_styles, describe_output_tags, describe_output_chinese, describe_output_artist], outputs=[prompt, style_selections], show_progress=True, queue=True) \
+            describe_uov_button.click(trigger_auto_describe, inputs=[describe_methods, uov_input_image_full, prompt, describe_apply_styles, describe_output_tags, describe_output_chinese, describe_output_artist], outputs=[prompt, style_selections], show_progress=True, queue=True) \
                 .then(fn=style_sorter.sort_styles, inputs=style_selections, outputs=style_selections, queue=False, show_progress=False) \
                 .then(lambda: None, _js='()=>{refresh_style_localization();}')
 
@@ -4753,13 +4773,15 @@ with shared.gradio_root:
                 .then(fn=style_sorter.sort_styles, inputs=style_selections, outputs=style_selections, queue=False, show_progress=False) \
                 .then(lambda: None, _js='()=>{refresh_style_localization();}')
 
-            enhance_input_image.upload(lambda: gr.update(value=True), outputs=enhance_checkbox, queue=False, show_progress=False) \
+            enhance_input_image.upload(stash_preview_image, inputs=[enhance_input_image], outputs=[enhance_input_image, enhance_input_image_full], queue=False, show_progress=False) \
+                .then(lambda: gr.update(value=True), outputs=enhance_checkbox, queue=False, show_progress=False) \
                 .then(lambda: (gr.update(), gr.update()), inputs=[], outputs=[prompt, style_selections], show_progress=False, queue=False) \
                 .then(fn=style_sorter.sort_styles, inputs=style_selections, outputs=style_selections, queue=False, show_progress=False) \
                 .then(lambda: None, _js='()=>{refresh_style_localization();}')
             enhance_input_image.change(lambda img: gr.update(visible=img is not None), inputs=enhance_input_image, outputs=describe_enhance_button, show_progress=False, queue=False)
+            enhance_input_image.change(lambda img, full: None if img is None else full, inputs=[enhance_input_image, enhance_input_image_full], outputs=[enhance_input_image_full], show_progress=False, queue=False)
 
-            describe_enhance_button.click(trigger_auto_describe, inputs=[describe_methods, enhance_input_image, prompt, describe_apply_styles, describe_output_tags, describe_output_chinese, describe_output_artist], outputs=[prompt, style_selections], show_progress=True, queue=True) \
+            describe_enhance_button.click(trigger_auto_describe, inputs=[describe_methods, enhance_input_image_full, prompt, describe_apply_styles, describe_output_tags, describe_output_chinese, describe_output_artist], outputs=[prompt, style_selections], show_progress=True, queue=True) \
                 .then(fn=style_sorter.sort_styles, inputs=style_selections, outputs=style_selections, queue=False, show_progress=False) \
                 .then(lambda: None, _js='()=>{refresh_style_localization();}')
 

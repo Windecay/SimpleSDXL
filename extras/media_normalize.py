@@ -4,6 +4,7 @@ import tempfile
 import wave
 import numpy as np
 import gradio as gr
+from PIL import Image
 
 
 def normalize_gradio_file_value(v):
@@ -159,3 +160,84 @@ def restore_scene_media_after_generation(state, v_bak, a_bak, v_orig_bak, video_
         gr.update(visible=False),
         gr.update(visible=False),
     )
+
+
+def stash_preview_image(img, max_side=1280):
+    if img is None:
+        return None, None
+    if isinstance(img, np.ndarray):
+        h, w = img.shape[:2]
+        if max(h, w) <= max_side:
+            return img, img
+        scale = float(max_side) / float(max(h, w))
+        new_w = max(1, int(round(w * scale)))
+        new_h = max(1, int(round(h * scale)))
+        pil_img = Image.fromarray(img).resize((new_w, new_h), Image.Resampling.BILINEAR)
+        preview = np.array(pil_img)
+        return preview, img
+    return img, img
+
+
+def stash_preview_image_only(img, max_side=1280):
+    preview, _full = stash_preview_image(img, max_side=max_side)
+    return preview
+
+
+def _resize_np(img, new_w, new_h, resample):
+    if img is None:
+        return None
+    if not isinstance(img, np.ndarray):
+        return img
+    pil_img = Image.fromarray(img)
+    pil_img = pil_img.resize((int(new_w), int(new_h)), resample=resample)
+    return np.array(pil_img)
+
+
+def stash_preview_sketch(sketch, max_side=1280):
+    if sketch is None:
+        return None, None
+    if not isinstance(sketch, dict):
+        preview, full = stash_preview_image(sketch, max_side=max_side)
+        return preview, full
+    img = sketch.get("image", None)
+    if not isinstance(img, np.ndarray):
+        return None, None
+    h, w = img.shape[:2]
+    if max(h, w) <= max_side:
+        return img, img
+    scale = float(max_side) / float(max(h, w))
+    new_w = max(1, int(round(w * scale)))
+    new_h = max(1, int(round(h * scale)))
+    preview_img = _resize_np(img, new_w, new_h, Image.Resampling.BILINEAR)
+    return preview_img, img
+
+
+def compose_full_sketch(preview_sketch, full_image):
+    if full_image is None and isinstance(preview_sketch, dict):
+        full_image = preview_sketch.get("image", None)
+    if full_image is None and isinstance(preview_sketch, np.ndarray):
+        full_image = preview_sketch
+    if not isinstance(full_image, np.ndarray):
+        return None
+
+    mask = None
+    if isinstance(preview_sketch, dict):
+        mask = preview_sketch.get("mask", None)
+    if isinstance(mask, np.ndarray):
+        h, w = full_image.shape[:2]
+        mask = _resize_np(mask, w, h, Image.Resampling.NEAREST)
+
+    return {"image": full_image, "mask": mask}
+
+
+def compose_full_mask(mask_preview, full_image):
+    if mask_preview is None:
+        return None
+    if isinstance(mask_preview, dict):
+        mask_preview = mask_preview.get("image", None) or mask_preview.get("mask", None)
+    if not isinstance(mask_preview, np.ndarray):
+        return None
+    if isinstance(full_image, np.ndarray):
+        h, w = full_image.shape[:2]
+        return _resize_np(mask_preview, w, h, Image.Resampling.NEAREST)
+    return mask_preview
