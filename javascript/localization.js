@@ -878,10 +878,29 @@ document.addEventListener("DOMContentLoaded", function() {
             mutation.addedNodes.forEach(function(node) {
                 processNode(node);
             });
+            if (mutation.target) {
+                processNode(mutation.target);
+            }
         });
     });
 
     localizeWholePage();
+
+    function bind_dynamic_localization_observers() {
+        const btn = gradioApp().getElementById('super_prompter_button');
+        if (btn && btn.dataset.localizationObserverBound !== '1') {
+            btn.dataset.localizationObserverBound = '1';
+            (new MutationObserver(() => {
+                processNode(btn);
+            })).observe(btn, { childList: true, subtree: true, characterData: true });
+            processNode(btn);
+        }
+    }
+
+    bind_dynamic_localization_observers();
+    if (typeof onAfterUiUpdate === 'function') {
+        onAfterUiUpdate(bind_dynamic_localization_observers);
+    }
 
     if (localization.rtl) { // if the language is from right to left,
         (new MutationObserver((mutations, observer) => { // wait for the style to load
