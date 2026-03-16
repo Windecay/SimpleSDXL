@@ -1959,8 +1959,11 @@ with shared.gradio_root:
                             except Exception:
                                 pass
 
+                        qwen_tts_force_unload = {"flag": False}
+
                         def _qwen_tts_begin():
                             _qwen_tts_set_interrupt(False)
+                            qwen_tts_force_unload["flag"] = False
                             return gr.update(visible=False), gr.update(visible=True), "生成中…"
 
                         def _qwen_tts_end():
@@ -1969,6 +1972,7 @@ with shared.gradio_root:
 
                         def _qwen_tts_stop():
                             _qwen_tts_set_interrupt(True)
+                            qwen_tts_force_unload["flag"] = True
                             return "正在停止…"
 
                         def _qwen_is_interrupt_exception(e: Exception) -> bool:
@@ -2226,6 +2230,13 @@ with shared.gradio_root:
                             except Exception:
                                 pass
 
+                        def _qwen_tts_cleanup(unload):
+                            should_unload = bool(unload) or bool(qwen_tts_force_unload.get("flag"))
+                            qwen_tts_force_unload["flag"] = False
+                            if not should_unload:
+                                return
+                            _qwen_after_unload(True)
+
                         def _qwen_call_progress(handler_fn, seed_random, seed, unload, state_params, **kwargs):
                             import queue as _queue
                             import threading as _threading
@@ -2336,13 +2347,11 @@ with shared.gradio_root:
 
                             err = out.get("error")
                             if err is None:
-                                _qwen_after_unload(unload)
                                 yield out.get("audio_path"), used_seed, gr.update()
                                 return
 
                             interrupted = _qwen_is_interrupt_exception(err)
                             if interrupted:
-                                _qwen_after_unload(unload)
                                 yield gr.update(value=None), seed_int, "已中断。"
                                 return
                             yield gr.update(value=None), seed_int, f"生成失败：{type(err).__name__}: {err}"
@@ -2358,7 +2367,7 @@ with shared.gradio_root:
                                 return
                             yield from _qwen_call_progress(webui_qwen_tts.qwen_tts_handler.voice_design, seed_random, seed, unload, state_params, text=text, instruct=instruct, model_choice=model_choice, device=device, precision=precision, language=language, max_new_tokens=int(max_new_tokens), max_chars=int(split_max_chars), hard_max_chars=int(split_hard_max_chars), top_p=float(top_p), top_k=int(top_k), temperature=float(temperature), repetition_penalty=float(repetition_penalty), attention=attention, unload_model_after_generate=bool(unload), lock_timbre_with_first_segment=bool(lock_timbre), clone_batch_size=int(clone_batch_size))
 
-                        qwen_design_btn.click(fn=_qwen_tts_begin, inputs=[], outputs=[qwen_design_btn, qwen_design_stop_btn, qwen_design_info], queue=False, show_progress=False).then(fn=qwen_voice_design_fn, inputs=[qwen_design_text, qwen_design_instruct, qwen_tts_model_size, qwen_tts_precision, qwen_tts_device, qwen_tts_language, qwen_tts_seed_random, qwen_tts_seed, qwen_tts_max_new_tokens, qwen_tts_split_max_chars, qwen_tts_split_hard_max_chars, qwen_tts_top_p, qwen_tts_top_k, qwen_tts_temperature, qwen_tts_repetition_penalty, qwen_tts_attention, qwen_tts_unload, qwen_design_lock_timbre, qwen_design_clone_batch_size, state_topbar], outputs=[qwen_design_output, qwen_tts_seed, qwen_design_info], queue=True, show_progress=False).then(fn=_qwen_tts_end, inputs=[], outputs=[qwen_design_btn, qwen_design_stop_btn], queue=False, show_progress=False)
+                        qwen_design_btn.click(fn=_qwen_tts_begin, inputs=[], outputs=[qwen_design_btn, qwen_design_stop_btn, qwen_design_info], queue=False, show_progress=False).then(fn=qwen_voice_design_fn, inputs=[qwen_design_text, qwen_design_instruct, qwen_tts_model_size, qwen_tts_precision, qwen_tts_device, qwen_tts_language, qwen_tts_seed_random, qwen_tts_seed, qwen_tts_max_new_tokens, qwen_tts_split_max_chars, qwen_tts_split_hard_max_chars, qwen_tts_top_p, qwen_tts_top_k, qwen_tts_temperature, qwen_tts_repetition_penalty, qwen_tts_attention, qwen_tts_unload, qwen_design_lock_timbre, qwen_design_clone_batch_size, state_topbar], outputs=[qwen_design_output, qwen_tts_seed, qwen_design_info], queue=True, show_progress=False).then(fn=_qwen_tts_end, inputs=[], outputs=[qwen_design_btn, qwen_design_stop_btn], queue=False, show_progress=False).then(fn=_qwen_tts_cleanup, inputs=[qwen_tts_unload], queue=False, show_progress=False)
                         qwen_design_stop_btn.click(fn=_qwen_tts_stop, inputs=[], outputs=[qwen_design_info], queue=False, show_progress=False)
 
                         def qwen_voice_clone_fn(ref_audio, ref_text, target_text, model_choice, precision, device, language, seed_random, seed, max_new_tokens, split_max_chars, split_hard_max_chars, top_p, top_k, temperature, repetition_penalty, attention, unload, batch_size, state_params):
@@ -2374,7 +2383,7 @@ with shared.gradio_root:
                                 return
                             yield from _qwen_call_progress(webui_qwen_tts.qwen_tts_handler.voice_clone, seed_random, seed, unload, state_params, ref_audio=ref_audio, ref_text=ref_text, target_text=target_text, model_choice=model_choice, device=device, precision=precision, language=language, max_new_tokens=int(max_new_tokens), max_chars=int(split_max_chars), hard_max_chars=int(split_hard_max_chars), top_p=float(top_p), top_k=int(top_k), temperature=float(temperature), repetition_penalty=float(repetition_penalty), x_vector_only=False, attention=attention, unload_model_after_generate=bool(unload), batch_size=int(batch_size))
 
-                        qwen_clone_btn.click(fn=_qwen_tts_begin, inputs=[], outputs=[qwen_clone_btn, qwen_clone_stop_btn, qwen_clone_info], queue=False, show_progress=False).then(fn=qwen_voice_clone_fn, inputs=[qwen_clone_ref_audio, qwen_clone_ref_text, qwen_clone_target_text, qwen_tts_model_size, qwen_tts_precision, qwen_tts_device, qwen_tts_language, qwen_tts_seed_random, qwen_tts_seed, qwen_tts_max_new_tokens, qwen_tts_split_max_chars, qwen_tts_split_hard_max_chars, qwen_tts_top_p, qwen_tts_top_k, qwen_tts_temperature, qwen_tts_repetition_penalty, qwen_tts_attention, qwen_tts_unload, qwen_clone_batch_size, state_topbar], outputs=[qwen_clone_output, qwen_tts_seed, qwen_clone_info], queue=True, show_progress=False).then(fn=_qwen_tts_end, inputs=[], outputs=[qwen_clone_btn, qwen_clone_stop_btn], queue=False, show_progress=False)
+                        qwen_clone_btn.click(fn=_qwen_tts_begin, inputs=[], outputs=[qwen_clone_btn, qwen_clone_stop_btn, qwen_clone_info], queue=False, show_progress=False).then(fn=qwen_voice_clone_fn, inputs=[qwen_clone_ref_audio, qwen_clone_ref_text, qwen_clone_target_text, qwen_tts_model_size, qwen_tts_precision, qwen_tts_device, qwen_tts_language, qwen_tts_seed_random, qwen_tts_seed, qwen_tts_max_new_tokens, qwen_tts_split_max_chars, qwen_tts_split_hard_max_chars, qwen_tts_top_p, qwen_tts_top_k, qwen_tts_temperature, qwen_tts_repetition_penalty, qwen_tts_attention, qwen_tts_unload, qwen_clone_batch_size, state_topbar], outputs=[qwen_clone_output, qwen_tts_seed, qwen_clone_info], queue=True, show_progress=False).then(fn=_qwen_tts_end, inputs=[], outputs=[qwen_clone_btn, qwen_clone_stop_btn], queue=False, show_progress=False).then(fn=_qwen_tts_cleanup, inputs=[qwen_tts_unload], queue=False, show_progress=False)
                         qwen_clone_stop_btn.click(fn=_qwen_tts_stop, inputs=[], outputs=[qwen_clone_info], queue=False, show_progress=False)
 
                         def qwen_custom_voice_fn(text, speaker, instruct, model_choice, precision, device, language, seed_random, seed, max_new_tokens, split_max_chars, split_hard_max_chars, top_p, top_k, temperature, repetition_penalty, attention, unload, batch_size, state_params):
@@ -2393,7 +2402,7 @@ with shared.gradio_root:
                                 speaker_key = _qwen_speaker_display_to_key[speaker_key]
                             yield from _qwen_call_progress(webui_qwen_tts.qwen_tts_handler.custom_voice, seed_random, seed, unload, state_params, text=text, speaker=speaker_key, instruct=instruct, model_choice=model_choice, device=device, precision=precision, language=language, max_new_tokens=int(max_new_tokens), max_chars=int(split_max_chars), hard_max_chars=int(split_hard_max_chars), top_p=float(top_p), top_k=int(top_k), temperature=float(temperature), repetition_penalty=float(repetition_penalty), attention=attention, unload_model_after_generate=bool(unload), custom_model_path="", custom_speaker_name="", batch_size=int(batch_size))
 
-                        qwen_custom_btn.click(fn=_qwen_tts_begin, inputs=[], outputs=[qwen_custom_btn, qwen_custom_stop_btn, qwen_custom_info], queue=False, show_progress=False).then(fn=qwen_custom_voice_fn, inputs=[qwen_custom_text, qwen_custom_speaker, qwen_custom_instruct, qwen_tts_model_size, qwen_tts_precision, qwen_tts_device, qwen_tts_language, qwen_tts_seed_random, qwen_tts_seed, qwen_tts_max_new_tokens, qwen_tts_split_max_chars, qwen_tts_split_hard_max_chars, qwen_tts_top_p, qwen_tts_top_k, qwen_tts_temperature, qwen_tts_repetition_penalty, qwen_tts_attention, qwen_tts_unload, qwen_custom_batch_size, state_topbar], outputs=[qwen_custom_output, qwen_tts_seed, qwen_custom_info], queue=True, show_progress=False).then(fn=_qwen_tts_end, inputs=[], outputs=[qwen_custom_btn, qwen_custom_stop_btn], queue=False, show_progress=False)
+                        qwen_custom_btn.click(fn=_qwen_tts_begin, inputs=[], outputs=[qwen_custom_btn, qwen_custom_stop_btn, qwen_custom_info], queue=False, show_progress=False).then(fn=qwen_custom_voice_fn, inputs=[qwen_custom_text, qwen_custom_speaker, qwen_custom_instruct, qwen_tts_model_size, qwen_tts_precision, qwen_tts_device, qwen_tts_language, qwen_tts_seed_random, qwen_tts_seed, qwen_tts_max_new_tokens, qwen_tts_split_max_chars, qwen_tts_split_hard_max_chars, qwen_tts_top_p, qwen_tts_top_k, qwen_tts_temperature, qwen_tts_repetition_penalty, qwen_tts_attention, qwen_tts_unload, qwen_custom_batch_size, state_topbar], outputs=[qwen_custom_output, qwen_tts_seed, qwen_custom_info], queue=True, show_progress=False).then(fn=_qwen_tts_end, inputs=[], outputs=[qwen_custom_btn, qwen_custom_stop_btn], queue=False, show_progress=False).then(fn=_qwen_tts_cleanup, inputs=[qwen_tts_unload], queue=False, show_progress=False)
                         qwen_custom_stop_btn.click(fn=_qwen_tts_stop, inputs=[], outputs=[qwen_custom_info], queue=False, show_progress=False)
 
                         def qwen_dialogue_fn(script, r1n, r1a, r1t, r2n, r2a, r2t, r3n, r3a, r3t, r4n, r4a, r4t, model_choice, precision, device, language, seed_random, seed, top_p, top_k, temperature, repetition_penalty, attention, unload, pause_linebreak, period_pause, comma_pause, question_pause, hyphen_pause, merge_outputs, batch_size, max_tokens_per_line, state_params):
@@ -2406,7 +2415,7 @@ with shared.gradio_root:
                                 return
                             yield from _qwen_call_progress(webui_qwen_tts.qwen_tts_handler.dialogue, seed_random, seed, unload, state_params, script=script, role_1_name=r1n, role_1_audio=r1a, role_1_ref_text=r1t, role_2_name=r2n, role_2_audio=r2a, role_2_ref_text=r2t, role_3_name=r3n, role_3_audio=r3a, role_3_ref_text=r3t, role_4_name=r4n, role_4_audio=r4a, role_4_ref_text=r4t, model_choice=model_choice, device=device, precision=precision, language=language, pause_linebreak=float(pause_linebreak), period_pause=float(period_pause), comma_pause=float(comma_pause), question_pause=float(question_pause), hyphen_pause=float(hyphen_pause), merge_outputs=bool(merge_outputs), batch_size=int(batch_size), max_new_tokens_per_line=int(max_tokens_per_line), top_p=float(top_p), top_k=int(top_k), temperature=float(temperature), repetition_penalty=float(repetition_penalty), attention=attention, unload_model_after_generate=bool(unload))
 
-                        qwen_dialogue_btn.click(fn=_qwen_tts_begin, inputs=[], outputs=[qwen_dialogue_btn, qwen_dialogue_stop_btn, qwen_dialogue_info], queue=False, show_progress=False).then(fn=qwen_dialogue_fn, inputs=[qwen_dialogue_script, qwen_role_1_name, qwen_role_1_audio, qwen_role_1_ref_text, qwen_role_2_name, qwen_role_2_audio, qwen_role_2_ref_text, qwen_role_3_name, qwen_role_3_audio, qwen_role_3_ref_text, qwen_role_4_name, qwen_role_4_audio, qwen_role_4_ref_text, qwen_tts_model_size, qwen_tts_precision, qwen_tts_device, qwen_tts_language, qwen_tts_seed_random, qwen_tts_seed, qwen_tts_top_p, qwen_tts_top_k, qwen_tts_temperature, qwen_tts_repetition_penalty, qwen_tts_attention, qwen_tts_unload, qwen_pause_linebreak, qwen_period_pause, qwen_comma_pause, qwen_question_pause, qwen_hyphen_pause, qwen_dialogue_merge, qwen_dialogue_batch, qwen_dialogue_max_tokens, state_topbar], outputs=[qwen_dialogue_output, qwen_tts_seed, qwen_dialogue_info], queue=True, show_progress=False).then(fn=_qwen_tts_end, inputs=[], outputs=[qwen_dialogue_btn, qwen_dialogue_stop_btn], queue=False, show_progress=False)
+                        qwen_dialogue_btn.click(fn=_qwen_tts_begin, inputs=[], outputs=[qwen_dialogue_btn, qwen_dialogue_stop_btn, qwen_dialogue_info], queue=False, show_progress=False).then(fn=qwen_dialogue_fn, inputs=[qwen_dialogue_script, qwen_role_1_name, qwen_role_1_audio, qwen_role_1_ref_text, qwen_role_2_name, qwen_role_2_audio, qwen_role_2_ref_text, qwen_role_3_name, qwen_role_3_audio, qwen_role_3_ref_text, qwen_role_4_name, qwen_role_4_audio, qwen_role_4_ref_text, qwen_tts_model_size, qwen_tts_precision, qwen_tts_device, qwen_tts_language, qwen_tts_seed_random, qwen_tts_seed, qwen_tts_top_p, qwen_tts_top_k, qwen_tts_temperature, qwen_tts_repetition_penalty, qwen_tts_attention, qwen_tts_unload, qwen_pause_linebreak, qwen_period_pause, qwen_comma_pause, qwen_question_pause, qwen_hyphen_pause, qwen_dialogue_merge, qwen_dialogue_batch, qwen_dialogue_max_tokens, state_topbar], outputs=[qwen_dialogue_output, qwen_tts_seed, qwen_dialogue_info], queue=True, show_progress=False).then(fn=_qwen_tts_end, inputs=[], outputs=[qwen_dialogue_btn, qwen_dialogue_stop_btn], queue=False, show_progress=False).then(fn=_qwen_tts_cleanup, inputs=[qwen_tts_unload], queue=False, show_progress=False)
                         qwen_dialogue_stop_btn.click(fn=_qwen_tts_stop, inputs=[], outputs=[qwen_dialogue_info], queue=False, show_progress=False)
 
                         qwen_send_outputs = [qwen_clone_ref_audio, qwen_role_1_audio, qwen_role_2_audio, qwen_role_3_audio, qwen_role_4_audio, scene_audio]
