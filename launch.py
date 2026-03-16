@@ -139,7 +139,8 @@ def check_base_environment():
 
     if torch.__version__ == '2.9.1+cu130':
         logger.info(f'当前环境：PyTorch 2.9.1+CUDA 13.0. 50系以上显卡支持Nvfp4模型加速推理.')
-        update_pkgs = [('comfyui_frontend_package', '1.41.18'), ('comfyui_workflow_templates', '0.9.21'), ('comfyui-embedded-docs', '0.4.3'), ('comfy-kitchen', '0.2.8'), ('comfy-aimdo', '0.2.10'), ('transformers', '4.57.6'), ('PyOpenGL', '3.1.10'), ('glfw', '2.10.0'), ('blake3', '1.0.8'), ('aiohttp', '3.13.3')]
+        update_pkgs = [('comfyui_frontend_package', '1.41.18'), ('comfyui_workflow_templates', '0.9.21'), ('comfyui-embedded-docs', '0.4.3'), ('comfy-kitchen', '0.2.8'), ('comfy-aimdo', '0.2.10'), ('transformers', '4.57.6'), ('PyOpenGL', '3.1.10'), ('glfw', '2.10.0'), ('blake3', '1.0.8'), ('aiohttp', '3.13.3'),
+        ('ninja', '1.11.1.4')]
         for (update_pkg_name, update_pkg_version) in update_pkgs:
             if not is_installed_version(update_pkg_name, update_pkg_version):
                 success = install_package_with_retry(update_pkg_name, update_pkg_version)
@@ -191,7 +192,7 @@ def check_base_environment():
                        ('sentencepiece', '0.2.0'), ('diffusers', '0.36.0'), ('huggingface_hub', '0.35.1'), ('peft', '0.17.1'), ('tokenizers', '0.22.1'), ('tiktoken', '0.11.0'), ('librosa', '0.11.0'), ('moviepy', '2.2.1'), ('piexif', '1.1.3'), ('deepdiff', '8.6.0'), ('pydantic', '2.12.2'),
                        ('GitPython', '3.1.45'), ('PyGithub', '2.8.1'), ('matrix-nio', '0.24.0'), ('toml', '0.10.2'), ('uv', '0.9.3'), ('clip-interrogator', '0.6.0'), ('simpleeval', '1.0.3'), ('compel', '2.3.0'), ('rotary-embedding-torch', '0.8.9'), ('hydra-core', '1.3.2'), ('uuid7', '0.1.0'), ('aiosqlite', '0.21.0'), ('configs','3.0.3'),
                        ('mmdet', '3.3.0'), ('mmengine', '0.10.7'), ('munkres', '1.1.4'), ('terminaltables', '3.1.10'), ('color-matcher', '0.6.0'), ('natsort', '8.4.0'), ('olefile', '0.47'), ('taichi', '1.7.4'), ('torchdiffeq', '0.2.5'), ('lark', '1.3.1'), ('comfy-kitchen', '0.2.8'), ('comfy-aimdo', '0.2.10'), ('PyOpenGL', '3.1.10'), ('glfw', '2.10.0'), ('blake3', '1.0.8'),
-                       ('aiohttp', '3.13.3')]
+                       ('aiohttp', '3.13.3'), ('ninja', '1.11.1.4')]
         for (update_pkg_name, update_pkg_version) in update_pkgs:
             if not is_installed_version(update_pkg_name, update_pkg_version):
                 success = install_package_with_retry(update_pkg_name, update_pkg_version)

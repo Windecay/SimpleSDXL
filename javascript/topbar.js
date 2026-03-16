@@ -10,6 +10,13 @@ let presetStoreUiState = {
 let presetStoreObserver = null;
 let presetStoreUpdateQueued = false;
 let presetStoreUpdating = false;
+let topbarLocalizationHookInstalled = false;
+let topbarLocalizationAppliedLocale = null;
+let topbarOptimisticInstalled = false;
+let topbarLastPreset = null;
+let topbarLastTheme = 'dark';
+let topbarLastNavNameList = [];
+let topbarOptimisticTimer = null;
 
 function schedulePresetStoreUpdate() {
     if (presetStoreUpdateQueued) return;
@@ -42,20 +49,31 @@ async function set_language_by_ui(newLanguage) {
 }
 
 async function set_language(newLocale) {
-    if (newLocale !== locale_lang) { 
+    const hadLocalization = window.localization && Object.keys(window.localization).length > 0;
+    const shouldReloadTranslations = (newLocale !== locale_lang) || !hadLocalization;
+
+    if (shouldReloadTranslations) {
         const newTranslations = await fetchTranslationsFor(newLocale);
         locale_lang = newLocale;
         localization = newTranslations;
+        window.localization = newTranslations;
     }
-    console.log("localization[Preview]:"+localization["Preview"])
-    onUiUpdate(function(m) {
-        m.forEach(function(mutation) {
-            mutation.addedNodes.forEach(function(node) {
-                processNode(node);
+
+    if (!topbarLocalizationHookInstalled) {
+        topbarLocalizationHookInstalled = true;
+        onUiUpdate(function(m) {
+            m.forEach(function(mutation) {
+                mutation.addedNodes.forEach(function(node) {
+                    processNode(node);
+                });
             });
         });
-    });
-    localizeWholePage();
+    }
+
+    if (topbarLocalizationAppliedLocale !== locale_lang || shouldReloadTranslations) {
+        topbarLocalizationAppliedLocale = locale_lang;
+        localizeWholePage();
+    }
 }
 
 async function fetchTranslationsFor(newLocale) {
@@ -86,8 +104,6 @@ function set_iframe_src(theme = 'default', lang = 'cn', url) {
     const urlParams = new URLSearchParams(window.location.search);
     const themeParam = urlParams.get('__theme') || theme;
     const langParam = urlParams.get('__lang') || lang;
-
-    console.log("langParam:"+langParam)
     const newIframeUrl = `${url}${url.includes('?') ? '&' : '?'}__theme=${themeParam}&__lang=${langParam}`;
     const iframe = gradioApp().getElementById('instruction');
     if (iframe) {
@@ -272,9 +288,93 @@ function setLinkColor(theme) {
     }
 }
 
+function applyTopbarNavStyles(preset, theme, nav_name_list) {
+    if (!nav_name_list || !nav_name_list.length) return;
+    for (let i = 0; i < nav_name_list.length; i++) {
+        const item_id = "bar" + i;
+        const item_name = nav_name_list[i];
+        const nav_item = gradioApp().getElementById(item_id);
+        if (nav_item != null) {
+            nav_item.setAttribute('data-original-text', item_name);
+            const isActive = item_name === preset;
+            if (!isActive) {
+                if (theme === "light") {
+                    nav_item.style.color = 'var(--neutral-400)';
+                    nav_item.style.background = 'var(--neutral-100)';
+                } else {
+                    nav_item.style.color = 'var(--neutral-400)';
+                    nav_item.style.background = 'var(--neutral-700)';
+                }
+            } else {
+                if (theme === 'light') {
+                    nav_item.style.color = 'var(--neutral-800)';
+                    nav_item.style.background = 'var(--secondary-200)';
+                } else {
+                    nav_item.style.color = 'white';
+                    nav_item.style.background = 'var(--secondary-400)';
+                }
+            }
+        }
+    }
+}
+
+function applyTopbarNavStylesOptimistic(preset, theme, nav_name_list) {
+    if (!nav_name_list || !nav_name_list.length) return;
+    for (let i = 0; i < nav_name_list.length; i++) {
+        const item_id = "bar" + i;
+        const item_name = nav_name_list[i];
+        const nav_item = gradioApp().getElementById(item_id);
+        if (nav_item != null) {
+            const isActive = item_name === preset;
+            if (!isActive) {
+                if (theme === "light") {
+                    nav_item.style.color = 'var(--neutral-400)';
+                    nav_item.style.background = 'var(--neutral-100)';
+                } else {
+                    nav_item.style.color = 'var(--neutral-400)';
+                    nav_item.style.background = 'var(--neutral-700)';
+                }
+            } else {
+                if (theme === 'light') {
+                    nav_item.style.color = 'var(--neutral-800)';
+                    nav_item.style.background = 'var(--secondary-300)';
+                } else {
+                    nav_item.style.color = 'var(--neutral-100)';
+                    nav_item.style.background = 'var(--secondary-400)';
+                }
+            }
+        }
+    }
+}
+
+function getPresetNameForBarButton(barButtonEl) {
+    if (!barButtonEl || !barButtonEl.id) return null;
+    const m = String(barButtonEl.id).match(/^bar(\d+)$/);
+    if (!m) return null;
+    const idx = parseInt(m[1], 10);
+    if (!Number.isFinite(idx)) return null;
+    if (!topbarLastNavNameList || idx < 0 || idx >= topbarLastNavNameList.length) return null;
+    return topbarLastNavNameList[idx] || null;
+}
+
+function applyOptimisticBarHighlight(barButtonEl) {
+    const nextPreset = getPresetNameForBarButton(barButtonEl);
+    if (!nextPreset) return;
+    if (topbarLastPreset && nextPreset === topbarLastPreset) return;
+
+    applyTopbarNavStylesOptimistic(nextPreset, topbarLastTheme || presetStoreUiState.theme || 'dark', topbarLastNavNameList);
+
+    clearTimeout(topbarOptimisticTimer);
+    topbarOptimisticTimer = setTimeout(() => {
+        if (topbarLastPreset && topbarLastNavNameList && topbarLastNavNameList.length) {
+            applyTopbarNavStyles(topbarLastPreset, topbarLastTheme || presetStoreUiState.theme || 'dark', topbarLastNavNameList);
+        }
+    }, 15000);
+}
+
 
 async function refresh_identity_qrcode(nickname, did, memo, user_qrcode) {
-    let Canvg;
+    if (!user_qrcode) return;
 
     if (window.canvg && window.canvg.Canvg) {
       Canvg = window.canvg.Canvg;
@@ -294,7 +394,7 @@ async function refresh_identity_qrcode(nickname, did, memo, user_qrcode) {
 	    user_qrcode = svg;
 	    memo = "admin";
 	}
-	didstr = did.substr(0, 10);
+	const didstr = did.substr(0, 10);
         const svg = document.getElementById('qrcode');
 	var svgText = `<text x="40" y="20" font-family="Arial, sans-serif" font-size="16" fill="blue">`;
         svgText = svgText + nickname + "(" + didstr + ")-" + memo + "  SimpAI.cn</text>";
@@ -326,31 +426,10 @@ function refresh_topbar_status_js(system_params) {
     presetStoreUiState.role = system_params["user_role"];
     presetStoreUiState.expand_flag = !!system_params["preset_store"];
     presetStoreUiState.theme = theme;
-    for (let i=0;i<nav_name_list.length;i++) {
-        let item_id = "bar"+i;
-        let item_name = nav_name_list[i];
-        let nav_item = gradioApp().getElementById(item_id);
-        if (nav_item!=null) {
-	    nav_item.setAttribute('data-original-text', item_name);
-            if (item_name != preset) {
-                if (theme == "light") {
-                    nav_item.style.color = 'var(--neutral-400)';
-                    nav_item.style.background= 'var(--neutral-100)';
-                } else {
-                    nav_item.style.color = 'var(--neutral-400)';
-                    nav_item.style.background= 'var(--neutral-700)';
-                }
-            } else {
-                if (theme == 'light') {
-                    nav_item.style.color = 'var(--neutral-800)';
-                    nav_item.style.background= 'var(--secondary-200)';
-                } else {
-                    nav_item.style.color = 'white';
-                    nav_item.style.background= 'var(--secondary-400)';
-                }
-            }
-        }
-    }
+    topbarLastPreset = preset;
+    topbarLastTheme = theme;
+    topbarLastNavNameList = nav_name_list;
+    applyTopbarNavStyles(preset, theme, nav_name_list);
     schedulePresetStoreUpdate();
     
     const message=system_params["__message"];
@@ -378,15 +457,16 @@ function refresh_topbar_status_js(system_params) {
 	refresh_finished_images_catalog_label(image_num_pages, gen_type);
     }
     refresh_identity_center_label(system_params["user_role"], system_params["upstream"]);
-    (async () => {
-        try {
-	    await Promise.all([
-            	refresh_identity_qrcode(nickname, system_params["user_did"], system_params["user_role"], system_params["user_qr"]),
-            ]);
-        } catch (error) {
-            console.error('Error refreshing QR code:', error);
-        }
-    })();
+    const user_qr = system_params["user_qr"];
+    if (user_qr) {
+        (async () => {
+            try {
+                await refresh_identity_qrcode(nickname, system_params["user_did"], system_params["user_role"], user_qr);
+            } catch (error) {
+                console.error('Error refreshing QR code:', error);
+            }
+        })();
+    }
     return
 }
 
@@ -552,6 +632,35 @@ document.addEventListener("DOMContentLoaded", function() {
         schedulePresetStoreUpdate();
     };
     tryBindPresetStoreObserver();
+
+    if (!topbarOptimisticInstalled) {
+        topbarOptimisticInstalled = true;
+        const bindOptimistic = () => {
+            const app = gradioApp();
+            if (!app || !app.addEventListener) {
+                setTimeout(bindOptimistic, 200);
+                return;
+            }
+            app.addEventListener('click', (e) => {
+                const t = e && e.target ? e.target : null;
+                const btn = t && t.closest ? t.closest('.bar_button') : null;
+                if (!btn) return;
+                const clickedPreset = getPresetNameForBarButton(btn);
+                if (!clickedPreset || !topbarLastPreset) return;
+                if (clickedPreset !== topbarLastPreset) return;
+                e.stopImmediatePropagation();
+                e.stopPropagation();
+                e.preventDefault();
+            }, true);
+            app.addEventListener('pointerdown', (e) => {
+                const t = e && e.target ? e.target : null;
+                const btn = t && t.closest ? t.closest('.bar_button') : null;
+                if (!btn) return;
+                applyOptimisticBarHighlight(btn);
+            }, true);
+        };
+        bindOptimistic();
+    }
 
     const sysmsg = document.createElement('div');
     sysmsg.id = "sys_msg";

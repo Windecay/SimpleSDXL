@@ -823,16 +823,23 @@ function refresh_input_image_tab_label() {
                 translation = itemText;
             }
 	    let class_name = task_class_name !== "Fooocus" ? "." + task_class_name : "";
-	    button.textContent = translation + class_name;
-	    button.addEventListener('click', function() {
-                button.textContent = translation + class_name;
-            });
+	    const localizedText = translation + class_name;
+	    button.textContent = localizedText;
+	    button.dataset.localizedLabel = localizedText;
+	    if (button.dataset.localizedLabelBound !== '1') {
+	        button.dataset.localizedLabelBound = '1';
+	        button.addEventListener('click', function() {
+                    const nextText = button.dataset.localizedLabel;
+                    if (nextText && button.textContent !== nextText) {
+                        button.textContent = nextText;
+                    }
+                });
+	    }
 	}
     });
 }
 
 function localizeWholePage() {
-    console.log("in localize")
     processNode(gradioApp());
 
     function elem(comp) {

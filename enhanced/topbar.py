@@ -1050,7 +1050,7 @@ def reset_layout_values(state_params, is_generating, inpaint_mode, use_resolutio
     results = meta_parser.load_parameter_button_click(preset_prepared, is_generating, inpaint_mode, use_resolution_override, no_welcome=ads.get_admin_default("no_welcome_checkbox"))
     results += update_after_identity_sub(state_params)
 
-    reset_ui_results = [None, None, None] + \
+    reset_ui_results = [gr.update(), gr.update(), gr.update()] + \
                ["None"]*4 + [True] + [False] + \
                [gr.update(visible=False),False,[],"base",gr.update(variant="secondary"),gr.update(variant="secondary")] + \
                [gr.update(visible=False) for _ in config.default_loras] + \
