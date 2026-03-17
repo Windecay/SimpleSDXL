@@ -4194,51 +4194,36 @@ with shared.gradio_root:
                 return f"data:image/jpeg;base64,{img_str}"
             return None
 
-        def cache_input_image_func(tab, uov, inpaint, layer, enhance, scene1, scene_canvas):
-            img = None
-            if tab == 'uov_tab': img = uov
-            elif tab == 'inpaint_tab':
-                if isinstance(inpaint, dict):
-                    img = inpaint.get('image')
-                else:
-                    img = inpaint
-            elif tab == 'layer_tab': img = layer
-            elif tab == 'enhance_tab': img = enhance
-            elif tab == 'scene' or (tab and 'scene' in tab): 
-                if scene_canvas is not None:
-                     if isinstance(scene_canvas, dict):
-                         img = scene_canvas.get('image')
-                     else:
-                         img = scene_canvas
+        def cache_input_image_func(state_params, enhance_enabled, tab, uov, inpaint, layer, enhance, scene1, scene_canvas):
+            tab_str = tab if isinstance(tab, str) else None
+            is_scene = isinstance(state_params, dict) and ("scene_frontend" in state_params)
+            enhance_enabled_bool = bool(enhance_enabled)
 
+            img = None
+
+            if is_scene:
+                if scene_canvas is not None:
+                    if isinstance(scene_canvas, dict):
+                        img = scene_canvas.get('image')
+                    else:
+                        img = scene_canvas
                 if img is None and scene1 is not None:
                     img = scene1
+            else:
+                if (not enhance_enabled_bool) and tab_str in ('enhance', 'enhance_tab'):
+                    return None
 
-            if img is None:
-                 # Fallback logic if tab doesn't match or image is missing in current tab
-                 if scene_canvas is not None:
-                     if isinstance(scene_canvas, dict):
-                         img = scene_canvas.get('image')
-                     else:
-                         img = scene_canvas
-
-                 if img is None and scene1 is not None:
-                     img = scene1
-
-                 if img is None and uov is not None:
-                     img = uov
-
-                 if img is None and inpaint is not None:
-                     if isinstance(inpaint, dict):
+                if tab_str in ('uov', 'uov_tab'):
+                    img = uov
+                elif tab_str in ('inpaint', 'inpaint_tab'):
+                    if isinstance(inpaint, dict):
                         img = inpaint.get('image')
-                     else:
+                    else:
                         img = inpaint
-
-                 if img is None and layer is not None: 
-                     img = layer
-
-                 if img is None and enhance is not None: 
-                     img = enhance
+                elif tab_str in ('layer', 'layer_tab'):
+                    img = layer
+                elif tab_str in ('enhance', 'enhance_tab'):
+                    img = enhance
 
             return process_image_for_html(img)
 
@@ -4387,7 +4372,7 @@ with shared.gradio_root:
         from extras.media_normalize import restore_scene_media_after_generation as _restore_scene_media_after_generation
 
         generate_button.click(_stash_scene_media_before_generation, inputs=[scene_video, scene_audio, scene_original_video_path, state_topbar], outputs=[scene_video_backup, scene_audio_backup, scene_original_video_backup, scene_video, scene_audio, scene_original_video_path, scene_video_placeholder, scene_audio_placeholder, generate_button, skip_button, stop_button, random_aspect_ratio_state], queue=False, show_progress=False) \
-            .then(cache_input_image_func, inputs=[current_tab, uov_input_image, inpaint_input_image, layer_input_image, enhance_input_image, scene_input_image1, scene_canvas_image], outputs=[cached_input_image]) \
+            .then(cache_input_image_func, inputs=[state_topbar, enhance_checkbox, current_tab, uov_input_image, inpaint_input_image, layer_input_image, enhance_input_image, scene_input_image1, scene_canvas_image], outputs=[cached_input_image]) \
             .then(topbar.process_before_generation, inputs=[state_topbar, seed_random, image_seed, params_backend, scene_theme, scene_canvas_image, scene_input_image1, scene_input_image2, scene_additional_prompt, scene_additional_prompt_2, scene_var_number, scene_var_number2, scene_var_number3, scene_var_number4, scene_var_number5, scene_var_number6, scene_var_number7, scene_var_number8, scene_var_number9, scene_var_number10, scene_steps, scene_switch_option1, scene_switch_option2, scene_switch_option3, scene_switch_option4, scene_aspect_ratio, scene_image_number, scene_video_backup, scene_audio_backup, scene_original_video_backup, active_video_source, sam3_input_video, sam3_original_video_path, sam3_mask_video], outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating, index_radio, image_toolbox, prompt_info_box, image_seed] + protections + [preset_store, identity_dialog], show_progress=False) \
             .then(topbar.wait_for_minicpm_completion, outputs=[], show_progress=False) \
             .then(topbar.avoid_empty_prompt_for_scene, inputs=[prompt, state_topbar, scene_canvas_image, scene_input_image1, scene_theme, scene_additional_prompt, scene_additional_prompt_2], outputs=prompt, show_progress=True) \

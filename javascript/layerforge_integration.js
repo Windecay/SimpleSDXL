@@ -316,7 +316,7 @@
         } catch {
         }
         try {
-            const overlays = imgContainer.querySelectorAll('canvas[data-layerforge-overlay="1"]');
+            const overlays = imgContainer.querySelectorAll('canvas[data-layerforge-overlay="1"], canvas[data-layerforge-overlay-display="1"]');
             overlays.forEach((c) => {
                 try {
                     c.remove();
@@ -539,20 +539,36 @@
                                         return null;
 
                                     const normalizedKey = (c) => String(getCanvasKey(c) || '').toLowerCase();
-                                    const preferKeys = ['mask', 'drawing'];
-                                    for (const k of preferKeys) {
-                                        const hit = keyed.find((c) => normalizedKey(c) === k);
-                                        if (hit)
-                                            return hit;
-                                    }
-
-                                    const fallbackHit = keyed.find((c) => /mask|draw|drawing|sketch/.test(normalizedKey(c)));
-                                    return fallbackHit || null;
+                                    const hit = keyed.find((c) => normalizedKey(c) === 'mask');
+                                    return hit || null;
                                 };
 
                                 const domPicked = selectMaskCanvasByDom();
                                 if (!domPicked)
                                     return false;
+
+                                const getBrushColorForContainer = () => {
+                                    const findColorInput = (root) => {
+                                        try {
+                                            const input = root && root.querySelector ? root.querySelector('input[type="color"]') : null;
+                                            if (input && typeof input.value === 'string' && input.value)
+                                                return input.value;
+                                        } catch {
+                                        }
+                                        return null;
+                                    };
+                                    try {
+                                        let n = imgContainer;
+                                        for (let i = 0; i < 6 && n; i++) {
+                                            const v = findColorInput(n);
+                                            if (v)
+                                                return v;
+                                            n = n.parentElement;
+                                        }
+                                    } catch {
+                                    }
+                                    return null;
+                                };
 
                                 try {
                                     const parent = domPicked.parentNode;
@@ -567,11 +583,18 @@
                                     if (!parent)
                                         return null;
 
-                                    let overlay = parent.querySelector('canvas[data-layerforge-overlay="1"]');
-                                    if (!overlay) {
-                                        overlay = document.createElement('canvas');
-                                        overlay.setAttribute('data-layerforge-overlay', '1');
-                                        parent.appendChild(overlay);
+                                    let overlayRaw = parent.querySelector('canvas[data-layerforge-overlay="1"]');
+                                    if (!overlayRaw) {
+                                        overlayRaw = document.createElement('canvas');
+                                        overlayRaw.setAttribute('data-layerforge-overlay', '1');
+                                        parent.appendChild(overlayRaw);
+                                    }
+
+                                    let overlayDisplay = parent.querySelector('canvas[data-layerforge-overlay-display="1"]');
+                                    if (!overlayDisplay) {
+                                        overlayDisplay = document.createElement('canvas');
+                                        overlayDisplay.setAttribute('data-layerforge-overlay-display', '1');
+                                        parent.appendChild(overlayDisplay);
                                     }
 
                                     try {
@@ -583,21 +606,32 @@
                                     }
 
                                     try {
-                                        const siblingParent = overlay.parentNode;
+                                        const siblingParent = overlayDisplay.parentNode;
                                         if (siblingParent && interactionCanvas && interactionCanvas.parentNode === siblingParent) {
-                                            siblingParent.insertBefore(overlay, interactionCanvas);
+                                            siblingParent.insertBefore(overlayDisplay, interactionCanvas);
                                         }
                                     } catch {
                                     }
 
                                     try {
-                                        overlay.style.position = 'absolute';
-                                        overlay.style.top = '0';
-                                        overlay.style.left = '0';
-                                        overlay.style.width = '100%';
-                                        overlay.style.height = '100%';
-                                        overlay.style.pointerEvents = 'none';
-                                        overlay.style.opacity = '0.7';
+                                        overlayRaw.style.position = 'absolute';
+                                        overlayRaw.style.top = '0';
+                                        overlayRaw.style.left = '0';
+                                        overlayRaw.style.width = '100%';
+                                        overlayRaw.style.height = '100%';
+                                        overlayRaw.style.pointerEvents = 'none';
+                                        overlayRaw.style.opacity = '0';
+                                    } catch {
+                                    }
+
+                                    try {
+                                        overlayDisplay.style.position = 'absolute';
+                                        overlayDisplay.style.top = '0';
+                                        overlayDisplay.style.left = '0';
+                                        overlayDisplay.style.width = '100%';
+                                        overlayDisplay.style.height = '100%';
+                                        overlayDisplay.style.pointerEvents = 'none';
+                                        overlayDisplay.style.opacity = '0.7';
                                     } catch {
                                     }
 
@@ -605,9 +639,15 @@
                                         const baseImg = imgContainer.querySelector('img');
                                         const targetW = baseImg?.naturalWidth || baseImg?.width || maskImg?.width || domPicked.width || 0;
                                         const targetH = baseImg?.naturalHeight || baseImg?.height || maskImg?.height || domPicked.height || 0;
-                                        if (targetW > 0 && targetH > 0 && (overlay.width !== targetW || overlay.height !== targetH)) {
-                                            overlay.width = targetW;
-                                            overlay.height = targetH;
+                                        if (targetW > 0 && targetH > 0) {
+                                            if (overlayRaw.width !== targetW || overlayRaw.height !== targetH) {
+                                                overlayRaw.width = targetW;
+                                                overlayRaw.height = targetH;
+                                            }
+                                            if (overlayDisplay.width !== targetW || overlayDisplay.height !== targetH) {
+                                                overlayDisplay.width = targetW;
+                                                overlayDisplay.height = targetH;
+                                            }
                                         }
                                     } catch {
                                     }
@@ -641,26 +681,39 @@
                                                 maskZ = candidateZ;
                                             }
                                         }
-                                        overlay.style.zIndex = String(maskZ);
+                                        overlayRaw.style.zIndex = String(maskZ);
+                                        overlayDisplay.style.zIndex = String(maskZ);
                                     } catch {
                                     }
 
-                                    return overlay;
+                                    return { raw: overlayRaw, display: overlayDisplay };
                                 };
 
-                                const overlayCanvas = ensureOverlayCanvas();
-                                if (!overlayCanvas)
+                                const overlays = ensureOverlayCanvas();
+                                if (!overlays || !overlays.raw || !overlays.display)
                                     return false;
 
-                                const ctx = overlayCanvas.getContext('2d');
-                                if (!ctx)
+                                const rawCtx = overlays.raw.getContext('2d');
+                                const displayCtx = overlays.display.getContext('2d');
+                                if (!rawCtx || !displayCtx)
+                                    return false;
+                                if (!overlays.raw.width || !overlays.raw.height || !overlays.display.width || !overlays.display.height)
                                     return false;
 
-                                if (!overlayCanvas.width || !overlayCanvas.height)
-                                    return false;
+                                rawCtx.clearRect(0, 0, overlays.raw.width, overlays.raw.height);
+                                rawCtx.drawImage(maskImg, 0, 0, overlays.raw.width, overlays.raw.height);
 
-                                ctx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
-                                ctx.drawImage(maskImg, 0, 0, overlayCanvas.width, overlayCanvas.height);
+                                displayCtx.clearRect(0, 0, overlays.display.width, overlays.display.height);
+                                displayCtx.drawImage(maskImg, 0, 0, overlays.display.width, overlays.display.height);
+                                const brushColor = getBrushColorForContainer() || '#ffffff';
+                                try {
+                                    const prev = displayCtx.globalCompositeOperation;
+                                    displayCtx.globalCompositeOperation = 'source-in';
+                                    displayCtx.fillStyle = brushColor;
+                                    displayCtx.fillRect(0, 0, overlays.display.width, overlays.display.height);
+                                    displayCtx.globalCompositeOperation = prev;
+                                } catch {
+                                }
 
                                 if (interactionCanvas) {
                                     try {
@@ -867,7 +920,7 @@
                 return false;
 
             const grayscaleRatio = grayscaleOpaqueCount / Math.max(1, opaquePixelCount);
-            if (grayscaleRatio < 0.85)
+            if (grayscaleRatio < 0.9)
                 return false;
 
             const binaryRatio = binaryOpaqueCount / Math.max(1, opaquePixelCount);
@@ -879,15 +932,23 @@
                 return false;
             }
 
-            if (transparentPixelCount > 0 && opaquePixelCount > 0) {
+            const transparentRatio = transparentPixelCount / Math.max(1, totalSamples);
+            if (transparentRatio > 0.02 && binaryRatio > 0.4) {
                 return true;
             }
 
-            if (binaryRatio > 0.75) {
+            if (transparentRatio <= 0.02) {
+                if (binaryRatio > 0.92 && midtoneRatio < 0.2) {
+                    return true;
+                }
+                return false;
+            }
+
+            if (binaryRatio > 0.85) {
                 return true;
             }
 
-            if (binaryRatio > 0.55 && lumaRange > 64) {
+            if (binaryRatio > 0.65 && lumaRange > 96) {
                 return true;
             }
 
@@ -1243,114 +1304,180 @@
 
     function selectMaskCanvasElement(imgContainer) {
         try {
-            const img = imgContainer.querySelector('img');
-            if (!img)
-                return null;
+            try {
+                const maskEl = imgContainer.querySelector('.mask');
+                if (maskEl instanceof HTMLCanvasElement) {
+                    return maskEl;
+                }
+            } catch {
+            }
 
             const canvases = imgContainer.querySelectorAll('canvas');
-            const candidates = Array.from(canvases).filter((c) => {
+            for (const c of canvases) {
                 try {
                     if (c && c.getAttribute && c.getAttribute('data-layerforge-overlay') === '1')
-                        return false;
+                        continue;
                 } catch {
                 }
                 try {
-                    if (c && c.getAttribute && c.getAttribute('data-layerforge-grid') === '1')
-                        return false;
-                } catch {
-                }
-                try {
-                    if (c && c.getAttribute && c.getAttribute('data-layerforge-color-layer') === '1')
-                        return false;
-                } catch {
-                }
-                return true;
-            });
-
-            if (!candidates.length)
-                return null;
-
-            const getCanvasKey = (c) => {
-                try {
-                    return String(c.getAttribute('key') || c.getAttribute('data-key') || '');
-                } catch {
-                    return '';
-                }
-            };
-
-            const keyedCandidates = candidates.filter((c) => getCanvasKey(c));
-            if (keyedCandidates.length > 0) {
-                const normalizedKey = (c) => String(getCanvasKey(c) || '').toLowerCase();
-                const preferKeys = ['mask', 'drawing'];
-
-                let selectedCanvas = null;
-                for (const k of preferKeys) {
-                    const hit = keyedCandidates.find((c) => normalizedKey(c) === k);
-                    if (hit) {
-                        selectedCanvas = hit;
-                        break;
+                    const key = String(c.getAttribute('key') || c.getAttribute('data-key') || '').toLowerCase();
+                    if (key === 'mask') {
+                        return c;
                     }
-                }
-
-                if (!selectedCanvas) {
-                    const hit = keyedCandidates.find((c) => /mask|draw|drawing|sketch/.test(normalizedKey(c)));
-                    if (hit && isCanvasLikelyMask(hit)) {
-                        selectedCanvas = hit;
-                    }
-                }
-
-                return selectedCanvas || null;
-            }
-
-            const eligibleByStyle = candidates.filter((c) => {
-                try {
-                    const style = window.getComputedStyle(c);
-                    if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0')
-                        return false;
-                    if (style.pointerEvents !== 'none')
-                        return false;
                 } catch {
-                }
-                return true;
-            });
-
-            let bestCandidate = null;
-            let fallbackCandidate = null;
-
-            for (let i = eligibleByStyle.length - 1; i >= 0; i--) {
-                const canvas = eligibleByStyle[i];
-                let dataUrl = '';
-                try {
-                    dataUrl = canvas.toDataURL();
-                } catch {
-                    continue;
-                }
-                if (!dataUrl || dataUrl.length < 1000)
-                    continue;
-
-                if (isCanvasLikelyMask(canvas)) {
-                    if (img.naturalWidth > 0 && canvas.width === img.naturalWidth && canvas.height === img.naturalHeight) {
-                        bestCandidate = canvas;
-                        break;
-                    } else {
-                        if (!fallbackCandidate)
-                            fallbackCandidate = canvas;
-                    }
                 }
             }
 
-            return bestCandidate || fallbackCandidate || null;
+            return null;
         } catch {
             return null;
+        }
+    }
+
+    function computeMaskFromContainerDom(imgContainer) {
+        if (!containerSupportsMask(imgContainer))
+            return null;
+        const overlayCanvas = (() => {
+            try {
+                return imgContainer.querySelector('canvas[data-layerforge-overlay="1"]');
+            } catch {
+                return null;
+            }
+        })();
+
+        const maskCanvas = selectMaskCanvasElement(imgContainer);
+        if (overlayCanvas && overlayCanvas.width > 0 && overlayCanvas.height > 0 && maskCanvas && maskCanvas.width > 0 && maskCanvas.height > 0) {
+            try {
+                const baseImg = imgContainer.querySelector('img');
+                const targetW = baseImg?.naturalWidth || baseImg?.width || overlayCanvas.width || maskCanvas.width || 0;
+                const targetH = baseImg?.naturalHeight || baseImg?.height || overlayCanvas.height || maskCanvas.height || 0;
+                if (targetW > 0 && targetH > 0) {
+                    const tempCanvas = document.createElement('canvas');
+                    tempCanvas.width = targetW;
+                    tempCanvas.height = targetH;
+                    const ctx = tempCanvas.getContext('2d');
+                    if (ctx) {
+                        ctx.clearRect(0, 0, targetW, targetH);
+                        try {
+                            ctx.drawImage(overlayCanvas, 0, 0, overlayCanvas.width, overlayCanvas.height, 0, 0, targetW, targetH);
+                        } catch {
+                        }
+                        try {
+                            ctx.drawImage(maskCanvas, 0, 0, maskCanvas.width, maskCanvas.height, 0, 0, targetW, targetH);
+                        } catch {
+                        }
+                        const out = tempCanvas.toDataURL('image/png');
+                        if (out && typeof out === 'string' && out.startsWith('data:image') && out.length > 1000) {
+                            return out;
+                        }
+                    }
+                }
+            } catch {
+            }
+        }
+
+        if (maskCanvas) {
+            try {
+                const out = maskCanvas.toDataURL('image/png');
+                if (out && typeof out === 'string' && out.startsWith('data:image') && out.length > 1000)
+                    return out;
+            } catch {
+            }
+        }
+
+        if (overlayCanvas && overlayCanvas.width > 0 && overlayCanvas.height > 0) {
+            try {
+                const out = overlayCanvas.toDataURL('image/png');
+                if (out && typeof out === 'string' && out.startsWith('data:image') && out.length > 1000)
+                    return out;
+            } catch {
+            }
+        }
+
+        try {
+            const maskEl = imgContainer.querySelector('.mask');
+            if (maskEl instanceof HTMLImageElement) {
+                const src = String(maskEl.getAttribute('src') || maskEl.src || '');
+                if (src && src.startsWith('data:image') && src.length > 1000) {
+                    return src;
+                }
+            }
+        } catch {
+        }
+
+        return null;
+    }
+
+    function refreshStoredMaskFromDom(imgContainer) {
+        try {
+            const maskUrl = computeMaskFromContainerDom(imgContainer);
+            if (!maskUrl || typeof maskUrl !== 'string')
+                return null;
+            if (!maskUrl.startsWith('data:image') || maskUrl.length < 1000)
+                return maskUrl;
+
+            try {
+                imgContainer.dataset.layerforgeLatestMask = maskUrl;
+                imgContainer.dataset.layerforgeLatestMaskAt = String(Date.now());
+            } catch {
+            }
+            try {
+                const fp = imgContainer.dataset.layerforgeImageFingerprint || getPreferredFingerprintForContainer(imgContainer);
+                if (fp) {
+                    storeMaskForFingerprint(fp, maskUrl);
+                }
+            } catch {
+            }
+            return maskUrl;
+        } catch {
+            return null;
+        }
+    }
+
+    function installMaskInteractionListener(imgContainer) {
+        try {
+            if (!imgContainer)
+                return;
+            if (imgContainer.dataset.layerforgeMaskListenerInstalled === '1')
+                return;
+            imgContainer.dataset.layerforgeMaskListenerInstalled = '1';
+        } catch {
+            return;
+        }
+
+        const schedule = () => {
+            try {
+                if (!containerSupportsMask(imgContainer))
+                    return;
+            } catch {
+                return;
+            }
+            setTimeout(() => {
+                try {
+                    refreshStoredMaskFromDom(imgContainer);
+                } catch {
+                }
+            }, 60);
+        };
+
+        try {
+            imgContainer.addEventListener('pointerup', schedule, true);
+            imgContainer.addEventListener('pointercancel', schedule, true);
+            imgContainer.addEventListener('mouseup', schedule, true);
+            imgContainer.addEventListener('touchend', schedule, true);
+        } catch {
         }
     }
 
     function getMaskFromContainer(imgContainer) {
         if (!containerSupportsMask(imgContainer))
             return null;
-        let maskUrl = null;
-        const img = imgContainer.querySelector('img');
-        if (!img) return null;
+        try {
+            const domMask = refreshStoredMaskFromDom(imgContainer);
+            if (domMask)
+                return domMask;
+        } catch {
+        }
         const storedMask = getStoredMaskForContainer(imgContainer);
         if (storedMask) {
             try {
@@ -1362,256 +1489,7 @@
             }
             return storedMask;
         }
-
-        const naturalW = img.naturalWidth;
-        const naturalH = img.naturalHeight;
-        const canvases = imgContainer.querySelectorAll('canvas');
-        const overlayCanvas = (() => {
-            try {
-                return imgContainer.querySelector('canvas[data-layerforge-overlay="1"]');
-            } catch {
-                return null;
-            }
-        })();
-        
-        let bestCandidate = null;
-        let fallbackCandidate = null;
-        
-        const candidates = Array.from(canvases);
-
-        const getCanvasKey = (c) => {
-            try {
-                return String(c.getAttribute('key') || c.getAttribute('data-key') || '');
-            } catch {
-                return '';
-            }
-        };
-
-        const keyedCandidates = candidates.filter((c) => getCanvasKey(c));
-        if (keyedCandidates.length > 0) {
-            const normalizedKey = (c) => String(getCanvasKey(c) || '').toLowerCase();
-            const preferKeys = ['mask', 'drawing'];
-
-            let selectedCanvas = null;
-            for (const k of preferKeys) {
-                const hit = keyedCandidates.find((c) => normalizedKey(c) === k);
-                if (hit) {
-                    selectedCanvas = hit;
-                    break;
-                }
-            }
-
-            if (!selectedCanvas) {
-                const hit = keyedCandidates.find((c) => /mask|draw|drawing|sketch/.test(normalizedKey(c)));
-                if (hit && isCanvasLikelyMask(hit)) {
-                    selectedCanvas = hit;
-                }
-            }
-
-            if (!selectedCanvas) {
-                return null;
-            }
-
-            const shouldBinarizeSelected = normalizedKey(selectedCanvas) === 'drawing';
-
-            if (overlayCanvas && overlayCanvas.width > 0 && overlayCanvas.height > 0) {
-                try {
-                    const targetW = naturalW > 0 ? naturalW : (selectedCanvas.width || overlayCanvas.width || 0);
-                    const targetH = naturalH > 0 ? naturalH : (selectedCanvas.height || overlayCanvas.height || 0);
-                    if (targetW > 0 && targetH > 0) {
-                        const tempCanvas = document.createElement('canvas');
-                        tempCanvas.width = targetW;
-                        tempCanvas.height = targetH;
-                        const ctx = tempCanvas.getContext('2d');
-                        if (ctx) {
-                            ctx.clearRect(0, 0, targetW, targetH);
-                            try {
-                                ctx.drawImage(overlayCanvas, 0, 0, overlayCanvas.width, overlayCanvas.height, 0, 0, targetW, targetH);
-                            } catch {
-                            }
-                            try {
-                                if (shouldBinarizeSelected) {
-                                    const bin = createBinaryMaskCanvasFromCanvas(selectedCanvas, targetW, targetH);
-                                    if (bin) {
-                                        ctx.drawImage(bin, 0, 0);
-                                    } else {
-                                        ctx.drawImage(selectedCanvas, 0, 0, selectedCanvas.width, selectedCanvas.height, 0, 0, targetW, targetH);
-                                    }
-                                } else {
-                                    ctx.drawImage(selectedCanvas, 0, 0, selectedCanvas.width, selectedCanvas.height, 0, 0, targetW, targetH);
-                                }
-                            } catch {
-                            }
-                            maskUrl = tempCanvas.toDataURL('image/png');
-                        }
-                    }
-                } catch {
-                }
-
-                if (maskUrl && maskUrl.length > 1000) {
-                    return maskUrl;
-                }
-            }
-
-            if (naturalW > 0 && (selectedCanvas.width !== naturalW || selectedCanvas.height !== naturalH)) {
-                if (shouldBinarizeSelected) {
-                    const bin = createBinaryMaskCanvasFromCanvas(selectedCanvas, naturalW, naturalH);
-                    if (bin) {
-                        maskUrl = bin.toDataURL('image/png');
-                    } else {
-                        const tempCanvas = document.createElement('canvas');
-                        tempCanvas.width = naturalW;
-                        tempCanvas.height = naturalH;
-                        const ctx = tempCanvas.getContext('2d');
-                        ctx.drawImage(selectedCanvas, 0, 0, selectedCanvas.width, selectedCanvas.height, 0, 0, naturalW, naturalH);
-                        maskUrl = tempCanvas.toDataURL();
-                    }
-                } else {
-                    const tempCanvas = document.createElement('canvas');
-                    tempCanvas.width = naturalW;
-                    tempCanvas.height = naturalH;
-                    const ctx = tempCanvas.getContext('2d');
-                    ctx.drawImage(selectedCanvas, 0, 0, selectedCanvas.width, selectedCanvas.height, 0, 0, naturalW, naturalH);
-                    maskUrl = tempCanvas.toDataURL();
-                }
-            } else {
-                if (shouldBinarizeSelected) {
-                    const bin = createBinaryMaskCanvasFromCanvas(selectedCanvas, selectedCanvas.width, selectedCanvas.height);
-                    maskUrl = bin ? bin.toDataURL('image/png') : selectedCanvas.toDataURL();
-                } else {
-                    maskUrl = selectedCanvas.toDataURL();
-                }
-            }
-
-            if (maskUrl && maskUrl.length > 1000) {
-                return maskUrl;
-            }
-            return null;
-        }
-
-        const eligibleByStyle = candidates.filter((c) => {
-            try {
-                if (c && c.getAttribute && c.getAttribute('data-layerforge-overlay') === '1')
-                    return false;
-            } catch {
-            }
-            try {
-                const style = window.getComputedStyle(c);
-                if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0')
-                    return false;
-                if (style.pointerEvents !== 'none')
-                    return false;
-            } catch {
-            }
-            return true;
-        });
-
-        for (let i = eligibleByStyle.length - 1; i >= 0; i--) {
-            const canvas = eligibleByStyle[i];
-            const dataUrl = canvas.toDataURL();
-            if (dataUrl.length < 1000) continue; 
-
-            if (isCanvasLikelyMask(canvas)) {
-                 if (naturalW > 0 && canvas.width === naturalW && canvas.height === naturalH) {
-                     bestCandidate = canvas;
-                     break; 
-                 } else {
-                     if (!fallbackCandidate) fallbackCandidate = canvas;
-                 }
-            }
-        }
-        
-        const selectedCanvas = bestCandidate || fallbackCandidate;
-
-        if (selectedCanvas) {
-            if (overlayCanvas && overlayCanvas.width > 0 && overlayCanvas.height > 0) {
-                try {
-                    const targetW = naturalW > 0 ? naturalW : (selectedCanvas.width || overlayCanvas.width || 0);
-                    const targetH = naturalH > 0 ? naturalH : (selectedCanvas.height || overlayCanvas.height || 0);
-                    if (targetW > 0 && targetH > 0) {
-                        const tempCanvas = document.createElement('canvas');
-                        tempCanvas.width = targetW;
-                        tempCanvas.height = targetH;
-                        const ctx = tempCanvas.getContext('2d');
-                        if (ctx) {
-                            ctx.clearRect(0, 0, targetW, targetH);
-                            try {
-                                ctx.drawImage(overlayCanvas, 0, 0, overlayCanvas.width, overlayCanvas.height, 0, 0, targetW, targetH);
-                            } catch {
-                            }
-                            try {
-                                ctx.drawImage(selectedCanvas, 0, 0, selectedCanvas.width, selectedCanvas.height, 0, 0, targetW, targetH);
-                            } catch {
-                            }
-                            maskUrl = tempCanvas.toDataURL('image/png');
-                        }
-                    }
-                } catch {
-                }
-                if (maskUrl && maskUrl.length > 1000) {
-                    return maskUrl;
-                }
-            }
-   
-            if (naturalW > 0 && (selectedCanvas.width !== naturalW || selectedCanvas.height !== naturalH)) {
-                const tempCanvas = document.createElement('canvas');
-                tempCanvas.width = naturalW;
-                tempCanvas.height = naturalH;
-                const ctx = tempCanvas.getContext('2d');
-                ctx.drawImage(selectedCanvas, 0, 0, selectedCanvas.width, selectedCanvas.height, 0, 0, naturalW, naturalH);
-                maskUrl = tempCanvas.toDataURL();
-            } else {
-                maskUrl = selectedCanvas.toDataURL();
-            }
-        }
-        
-        if (!maskUrl) {
-            if (overlayCanvas && overlayCanvas.width > 0 && overlayCanvas.height > 0) {
-                try {
-                    const targetW = naturalW > 0 ? naturalW : overlayCanvas.width;
-                    const targetH = naturalH > 0 ? naturalH : overlayCanvas.height;
-                    if (targetW > 0 && targetH > 0) {
-                        if (overlayCanvas.width === targetW && overlayCanvas.height === targetH) {
-                            maskUrl = overlayCanvas.toDataURL('image/png');
-                        } else {
-                            const tempCanvas = document.createElement('canvas');
-                            tempCanvas.width = targetW;
-                            tempCanvas.height = targetH;
-                            const ctx = tempCanvas.getContext('2d');
-                            if (ctx) {
-                                ctx.clearRect(0, 0, targetW, targetH);
-                                ctx.drawImage(overlayCanvas, 0, 0, overlayCanvas.width, overlayCanvas.height, 0, 0, targetW, targetH);
-                                maskUrl = tempCanvas.toDataURL('image/png');
-                            }
-                        }
-                    }
-                } catch {
-                }
-            }
-
-            const maskEl = imgContainer.querySelector('.mask');
-            if (maskEl) {
-                if (maskEl instanceof HTMLImageElement) {
-                    if (maskEl !== img && maskEl.src && maskEl.src !== img.src) {
-                        maskUrl = maskEl.src;
-                    }
-                }
-                else if (maskEl instanceof HTMLCanvasElement) {
-                    if (isCanvasLikelyMask(maskEl)) {
-                        const targetW = naturalW > 0 ? naturalW : (maskEl.width || 0);
-                        const targetH = naturalH > 0 ? naturalH : (maskEl.height || 0);
-                        const key = getCanvasKey(maskEl);
-                        if (String(key || '').toLowerCase() === 'drawing') {
-                            const bin = createBinaryMaskCanvasFromCanvas(maskEl, targetW, targetH);
-                            maskUrl = bin ? bin.toDataURL('image/png') : maskEl.toDataURL();
-                        } else {
-                            maskUrl = maskEl.toDataURL();
-                        }
-                    }
-                }
-            }
-        }
-        return maskUrl;
+        return null;
     }
 
     function getFileInput(container) {
@@ -1816,6 +1694,13 @@
             } catch {
             }
 
+            try {
+                if (containerSupportsMask(container)) {
+                    installMaskInteractionListener(container);
+                }
+            } catch {
+            }
+
             if (existingBtn)
                 return;
 
@@ -1843,6 +1728,10 @@
             const imgContainer = btn.parentElement;
             if (!imgContainer)
                 return;
+            try {
+                refreshStoredMaskFromDom(imgContainer);
+            } catch {
+            }
             
             let stored = (() => {
                 try {
@@ -2740,11 +2629,12 @@
                         } catch {
                         }
                         if (parsed && looksLikeSubmissionPayload(parsed)) {
-                            const replacementMask = selectReplacementMaskFromParsedSubmission(parsed);
-                            if (!replacementMask) {
-                                return originalSend.call(this, data);
+                            try {
+                                syncAllLayerForgeMasks(true);
+                            } catch {
                             }
-                            const patched = patchBodyIfPossible(data, replacementMask);
+                            const replacementMask = selectReplacementMaskFromParsedSubmission(parsed);
+                            const patched = replacementMask ? patchBodyIfPossible(data, replacementMask) : patchBodyIfPossible(data);
                             if (patched.changed) {
                                 return originalSend.call(this, patched.body);
                             }
@@ -2762,11 +2652,12 @@
                                 } catch {
                                 }
                                 if (parsed && looksLikeSubmissionPayload(parsed)) {
-                                    const replacementMask = selectReplacementMaskFromParsedSubmission(parsed);
-                                    if (!replacementMask) {
-                                        return originalSend.call(this, data);
+                                    try {
+                                        syncAllLayerForgeMasks(true);
+                                    } catch {
                                     }
-                                    const patched = patchBodyIfPossible(text, replacementMask);
+                                    const replacementMask = selectReplacementMaskFromParsedSubmission(parsed);
+                                    const patched = replacementMask ? patchBodyIfPossible(text, replacementMask) : patchBodyIfPossible(text);
                                     if (patched.changed) {
                                         const enc = typeof TextEncoder !== 'undefined' ? new TextEncoder() : null;
                                         if (enc) {
