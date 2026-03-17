@@ -296,6 +296,9 @@ function applyTopbarNavStyles(preset, theme, nav_name_list) {
         const nav_item = gradioApp().getElementById(item_id);
         if (nav_item != null) {
             nav_item.setAttribute('data-original-text', item_name);
+            if (typeof processNode === 'function') {
+                processNode(nav_item);
+            }
             const isActive = item_name === preset;
             if (!isActive) {
                 if (theme === "light") {
@@ -497,6 +500,9 @@ function updatePresetStore(nav_name_list, role, expand_flag, theme) {
     } else {
         nav_store.innerHTML = mypresets_text;
     }
+    if (typeof processNode === 'function') {
+        processNode(nav_store);
+    }
     const preset_store = gradioApp().querySelector('.preset_store');
     if (!preset_store) return;    
     
@@ -536,6 +542,9 @@ function updatePresetStore(nav_name_list, role, expand_flag, theme) {
         }
         if (div.textContent.trim() !== base_name) {
             div.textContent = base_name;
+        }
+        if (typeof processNode === 'function') {
+            processNode(div);
         }
         if (is_complete) {
             div.setAttribute("data-complete", "1");

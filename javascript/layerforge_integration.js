@@ -420,81 +420,46 @@
             if (event.data.type === 'READY') {
 
                 let src = null;
-                try {
-                    const fi = getFileInput(imgContainer);
-                    if (fi && fi.files && fi.files[0]) {
-                        try {
-                            if (imgContainer.dataset.layerforgeObjectUrl) {
-                                URL.revokeObjectURL(imgContainer.dataset.layerforgeObjectUrl);
-                            }
-                        } catch {
-                        }
-                        src = URL.createObjectURL(fi.files[0]);
-                        imgContainer.dataset.layerforgeObjectUrl = src;
-                    }
-                } catch {
-                }
-                if (!src) {
-                    if (img && img.src && img.src.length > 500 && !img.src.endsWith('.svg')) {
-                        src = img.src;
-                    } else {
-                        const canvases = imgContainer.querySelectorAll('canvas');
-                        if (canvases.length > 0) {
-                            try {
-                                const baseCanvas = canvases[0];
-                                if (baseCanvas.width > 50 && baseCanvas.height > 50) {
-                                    src = baseCanvas.toDataURL('image/png');
-                                }
-                            } catch (e) {
-                                console.warn("[LayerForge Parent] Failed to extract base image from canvas:", e);
-                            }
-                        }
-                    }
+                if (img && img.src && img.src.length > 500 && !img.src.endsWith('.svg')) {
+                     src = img.src;
+                } else {
+                     const canvases = imgContainer.querySelectorAll('canvas');
+                     if (canvases.length > 0) {
+                         try {
+                             const baseCanvas = canvases[0]; 
+                             if (baseCanvas.width > 50 && baseCanvas.height > 50) {
+                                 src = baseCanvas.toDataURL('image/png');
+                             }
+                         } catch (e) {
+                             console.warn("[LayerForge Parent] Failed to extract base image from canvas:", e);
+                         }
+                     }
                 }
                 
                 if (!src) {
                      src = img ? img.src : '';
                 }
 
-                const srcWithTime = (src.startsWith('data:') || src.startsWith('blob:')) ? src : (src + (src.includes('?') ? '&' : '?') + 't=' + new Date().getTime());
-                (async () => {
-                    const maskUrl = await getMaskFromContainerScaledToBase(imgContainer, src);
-                    iframe.contentWindow.postMessage({
-                        type: 'LOAD_IMAGE',
-                        url: srcWithTime,
-                        maskUrl: maskUrl,
-                        timestamp: new Date().getTime() // Force fresh load
-                    }, '*');
-                })();
+                const srcWithTime = src.startsWith('data:') ? src : (src + (src.includes('?') ? '&' : '?') + 't=' + new Date().getTime());
+                let maskUrl = getMaskFromContainer(imgContainer);
+                
+                iframe.contentWindow.postMessage({
+                    type: 'LOAD_IMAGE',
+                    url: srcWithTime,
+                    maskUrl: maskUrl,
+                    timestamp: new Date().getTime() // Force fresh load
+                }, '*');
             } else if (event.data.type === 'REQUEST_INPUT') {
-                let src = null;
-                try {
-                    const fi = getFileInput(imgContainer);
-                    if (fi && fi.files && fi.files[0]) {
-                        try {
-                            if (imgContainer.dataset.layerforgeObjectUrl) {
-                                URL.revokeObjectURL(imgContainer.dataset.layerforgeObjectUrl);
-                            }
-                        } catch {
-                        }
-                        src = URL.createObjectURL(fi.files[0]);
-                        imgContainer.dataset.layerforgeObjectUrl = src;
-                    }
-                } catch {
-                }
-                if (!src) {
-                    src = img ? img.src : '';
-                }
-                const srcWithTime = (src.startsWith('data:') || src.startsWith('blob:')) ? src : (src + (src.includes('?') ? '&' : '?') + 't=' + new Date().getTime());
-                (async () => {
-                    const maskUrl = await getMaskFromContainerScaledToBase(imgContainer, src);
-                    iframe.contentWindow.postMessage({
-                        type: 'ADD_LAYER',
-                        url: srcWithTime,
-                        maskUrl: maskUrl,
-                        timestamp: new Date().getTime()
-                    }, '*');
-                })();
+                const src = img.src;
+                const srcWithTime = src.startsWith('data:') ? src : (src + (src.includes('?') ? '&' : '?') + 't=' + new Date().getTime());
+                
+                let maskUrl = getMaskFromContainer(imgContainer);
+                iframe.contentWindow.postMessage({
+                    type: 'ADD_LAYER',
+                    url: srcWithTime,
+                    maskUrl: maskUrl,
+                    timestamp: new Date().getTime()
+                }, '*');
             } else if (event.data.type === 'SAVE_IMAGE') {
                 const data = event.data.data;
                 let imageBase64, maskBase64;
@@ -811,14 +776,6 @@
         function closeModal() {
             window.removeEventListener('message', messageHandler);
             document.body.removeChild(modal);
-            try {
-                const ou = imgContainer && imgContainer.dataset ? imgContainer.dataset.layerforgeObjectUrl : null;
-                if (ou) {
-                    URL.revokeObjectURL(ou);
-                    delete imgContainer.dataset.layerforgeObjectUrl;
-                }
-            } catch {
-            }
         }
 
         iframe.onload = () => {
@@ -1657,49 +1614,6 @@
         return maskUrl;
     }
 
-    async function getMaskFromContainerScaledToBase(imgContainer, baseUrl) {
-        const maskUrl = getMaskFromContainer(imgContainer);
-        if (!maskUrl) return null;
-        if (!baseUrl) return maskUrl;
-
-        const loadImage = (url) => new Promise((resolve) => {
-            try {
-                const im = new Image();
-                im.onload = () => resolve(im);
-                im.onerror = () => resolve(null);
-                im.src = url;
-                if (im.decode) {
-                    im.decode().then(() => resolve(im)).catch(() => {});
-                }
-            } catch {
-                resolve(null);
-            }
-        });
-
-        const baseImg = await loadImage(baseUrl);
-        if (!baseImg || !baseImg.naturalWidth || !baseImg.naturalHeight) return maskUrl;
-        const maskImg = await loadImage(maskUrl);
-        if (!maskImg || !maskImg.naturalWidth || !maskImg.naturalHeight) return maskUrl;
-
-        const targetW = baseImg.naturalWidth;
-        const targetH = baseImg.naturalHeight;
-        if (maskImg.naturalWidth === targetW && maskImg.naturalHeight === targetH) return maskUrl;
-
-        try {
-            const c = document.createElement('canvas');
-            c.width = targetW;
-            c.height = targetH;
-            const ctx = c.getContext('2d');
-            if (!ctx) return maskUrl;
-            ctx.clearRect(0, 0, targetW, targetH);
-            ctx.drawImage(maskImg, 0, 0, maskImg.naturalWidth, maskImg.naturalHeight, 0, 0, targetW, targetH);
-            const scaled = c.toDataURL('image/png');
-            return scaled && scaled.length > 1000 ? scaled : maskUrl;
-        } catch {
-            return maskUrl;
-        }
-    }
-
     function getFileInput(container) {
         let input = container.querySelector('input[type="file"]');
         if (!input) {
@@ -2381,14 +2295,23 @@
             try {
                 if (!parsed || typeof parsed !== 'object')
                     return false;
-                if ('fn_index' in parsed)
-                    return true;
-                if (Array.isArray(parsed.data))
-                    return true;
-                if ('data' in parsed && parsed.data)
-                    return true;
-                if ('inputs' in parsed)
-                    return true;
+                const hasNonEmptyArray = (v) => Array.isArray(v) && v.length > 0;
+                const hasNonEmptyObject = (v) => v && typeof v === 'object' && !Array.isArray(v) && Object.keys(v).length > 0;
+                if ('inputs' in parsed) {
+                    const v = parsed.inputs;
+                    if (hasNonEmptyArray(v) || hasNonEmptyObject(v))
+                        return true;
+                }
+                if ('data' in parsed) {
+                    const v = parsed.data;
+                    if (hasNonEmptyArray(v) || hasNonEmptyObject(v))
+                        return true;
+                }
+                if ('fn_index' in parsed) {
+                    const v = parsed.data;
+                    if (hasNonEmptyArray(v) || hasNonEmptyObject(v))
+                        return true;
+                }
             } catch {
             }
             return false;
@@ -2661,7 +2584,16 @@
                     const method = initMethod || requestMethod || 'GET';
 
                     if (url && /\/queue\/join|\/api\/predict|\/run\/predict/i.test(url) && method === 'POST') {
-                        syncAllLayerForgeMasks(true);
+                        const hasAnyMask = (() => {
+                            try {
+                                return !!document.querySelector('[data-layerforge-latest-mask]');
+                            } catch {
+                                return true;
+                            }
+                        })();
+                        if (!hasAnyMask) {
+                            return originalFetch.apply(this, args);
+                        }
                         if (init && typeof init === 'object' && 'body' in init) {
                             try {
                                 if (typeof init.body === 'string') {
@@ -2671,8 +2603,10 @@
                                     }
                                 }
                             } catch {
+                                return originalFetch.apply(this, args);
                             }
                             try {
+                                syncAllLayerForgeMasks(true);
                                 const patched = patchBodyIfPossible(init.body);
                                 if (patched.changed) {
                                     args[1] = { ...init, body: patched.body };
@@ -2706,6 +2640,7 @@
                                         }
                                     }
 
+                                    syncAllLayerForgeMasks(true);
                                     const patched = patchBodyIfPossible(body);
                                     if (patched.changed) {
                                         const headers = new Headers(req.headers);
@@ -2748,16 +2683,35 @@
                     const url = this.__layerforgeUrl;
                     const method = this.__layerforgeMethod || 'GET';
                     if (url && /\/queue\/join|\/api\/predict|\/run\/predict/i.test(url) && method === 'POST') {
-                        syncAllLayerForgeMasks(true);
+                        const hasAnyMask = (() => {
+                            try {
+                                return !!document.querySelector('[data-layerforge-latest-mask]');
+                            } catch {
+                                return true;
+                            }
+                        })();
+                        if (!hasAnyMask) {
+                            return originalSend.call(this, body);
+                        }
                         let replacementMask = null;
+                        let shouldSync = false;
                         try {
                             if (typeof body === 'string') {
                                 const parsed = JSON.parse(body);
                                 if (looksLikeSubmissionPayload(parsed)) {
+                                    shouldSync = true;
                                     replacementMask = selectReplacementMaskFromParsedSubmission(parsed);
+                                } else {
+                                    return originalSend.call(this, body);
                                 }
                             }
                         } catch {
+                        }
+                        if (shouldSync) {
+                            try {
+                                syncAllLayerForgeMasks(true);
+                            } catch {
+                            }
                         }
                         if (replacementMask) {
                             const patched = patchBodyIfPossible(body, replacementMask);
