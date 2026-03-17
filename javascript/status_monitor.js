@@ -139,6 +139,15 @@
         }
     }
 
+    function setTransferExpanded(expanded, sync) {
+        transferState.expanded = !!expanded;
+        statusIndicator.classList.toggle('transfer-expanded', transferState.expanded);
+        transferToggleBtn.textContent = transferState.expanded ? '图片中转站 ▴' : '图片中转站 ▾';
+        if (!transferState.expanded) closeTransferPasteOverlay();
+        requestAnimationFrame(updateTransferPanelLayout);
+        if (sync) postTransferSyncMessage({ kind: 'transfer_expand', expanded: transferState.expanded });
+    }
+
     async function createTransferPreviewUrl(blob) {
         const thumbBlob = await createThumbnailBlobFromBlob(blob, 160);
         const previewBlob = thumbBlob || blob;
@@ -155,10 +164,7 @@
         try {
             const wasEmpty = !transferState.items.length;
             if (wasEmpty) {
-                transferState.expanded = remoteExpanded;
-                statusIndicator.classList.toggle('transfer-expanded', transferState.expanded);
-                transferToggleBtn.textContent = transferState.expanded ? '图片中转站 ▴' : '图片中转站 ▾';
-                if (transferState.expanded) requestAnimationFrame(updateTransferPanelLayout);
+                setTransferExpanded(remoteExpanded, false);
             }
 
             for (const remote of remoteItems) {
@@ -253,11 +259,7 @@
         const expanded = !!expandedRaw;
         transferSync.suppress = true;
         try {
-            transferState.expanded = expanded;
-            statusIndicator.classList.toggle('transfer-expanded', transferState.expanded);
-            transferToggleBtn.textContent = transferState.expanded ? '图片中转站 ▴' : '图片中转站 ▾';
-            if (!transferState.expanded) closeTransferPasteOverlay();
-            requestAnimationFrame(updateTransferPanelLayout);
+            setTransferExpanded(expanded, false);
         } finally {
             transferSync.suppress = false;
         }
@@ -1594,6 +1596,43 @@
         }
     }
 
+    function hasTransferExternalDropPayload(dataTransfer) {
+        try {
+            if (!dataTransfer) return false;
+            const types = dataTransfer.types ? Array.from(dataTransfer.types) : [];
+            if (types.includes('application/x-simpleai-transfer-id') || types.includes('application/x-simpleai-image-dataurl')) return false;
+            if (types.includes('Files')) return true;
+            if (types.includes('text/uri-list') || types.includes('text/plain')) return true;
+            const files = dataTransfer.files ? Array.from(dataTransfer.files) : [];
+            return files.length > 0;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    async function handleTransferDropDataTransfer(dataTransfer) {
+        const transferId = dataTransfer ? (dataTransfer.getData('application/x-simpleai-transfer-id') || '') : '';
+        if (transferId) return;
+
+        const files = (dataTransfer && dataTransfer.files) ? Array.from(dataTransfer.files) : [];
+        if (files.length) {
+            for (const f of files) {
+                await addTransferFile(f);
+            }
+            return;
+        }
+
+        const uri = dataTransfer ? (dataTransfer.getData('text/uri-list') || '') : '';
+        const text = dataTransfer ? (dataTransfer.getData('text/plain') || '') : '';
+        const payload = (uri || text).trim();
+        if (payload) {
+            try {
+                await addTransferUrl(payload);
+            } catch (err) {
+            }
+        }
+    }
+
     function initTransferDropZone() {
         const prevent = (e) => {
             e.preventDefault();
@@ -1613,29 +1652,7 @@
         transferPanel.addEventListener('drop', async (e) => {
             prevent(e);
             transferPanel.classList.remove('dragover');
-
-            const transferId = e.dataTransfer ? (e.dataTransfer.getData('application/x-simpleai-transfer-id') || '') : '';
-            if (transferId) {
-                return;
-            }
-
-            const files = (e.dataTransfer && e.dataTransfer.files) ? Array.from(e.dataTransfer.files) : [];
-            if (files.length) {
-                for (const f of files) {
-                    await addTransferFile(f);
-                }
-                return;
-            }
-
-            const uri = e.dataTransfer ? (e.dataTransfer.getData('text/uri-list') || '') : '';
-            const text = e.dataTransfer ? (e.dataTransfer.getData('text/plain') || '') : '';
-            const payload = (uri || text).trim();
-            if (payload) {
-                try {
-                    await addTransferUrl(payload);
-                } catch (err) {
-                }
-            }
+            await handleTransferDropDataTransfer(e.dataTransfer);
         });
     }
 
@@ -1671,12 +1688,54 @@
     function initTransferActions() {
         transferToggleBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            transferState.expanded = !transferState.expanded;
-            statusIndicator.classList.toggle('transfer-expanded', transferState.expanded);
-            transferToggleBtn.textContent = transferState.expanded ? '图片中转站 ▴' : '图片中转站 ▾';
-            if (!transferState.expanded) closeTransferPasteOverlay();
-            requestAnimationFrame(updateTransferPanelLayout);
-            postTransferSyncMessage({ kind: 'transfer_expand', expanded: transferState.expanded });
+            setTransferExpanded(!transferState.expanded, true);
+        });
+
+        const prevent = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+        };
+
+        transferToggleBtn.addEventListener('dragenter', (e) => {
+            try {
+                const types = e.dataTransfer && e.dataTransfer.types ? Array.from(e.dataTransfer.types) : [];
+                const hasAny = types.includes('Files') || types.includes('text/uri-list') || types.includes('text/plain') || types.includes('application/x-simpleai-transfer-id') || types.includes('application/x-simpleai-image-dataurl');
+                if (!hasAny) return;
+            } catch (e0) {
+            }
+            prevent(e);
+            if (hasTransferExternalDropPayload(e.dataTransfer)) {
+                if (!transferState.expanded) setTransferExpanded(true, true);
+                transferPanel.classList.add('dragover');
+            }
+        });
+
+        transferToggleBtn.addEventListener('dragover', (e) => {
+            try {
+                const types = e.dataTransfer && e.dataTransfer.types ? Array.from(e.dataTransfer.types) : [];
+                const hasAny = types.includes('Files') || types.includes('text/uri-list') || types.includes('text/plain') || types.includes('application/x-simpleai-transfer-id') || types.includes('application/x-simpleai-image-dataurl');
+                if (!hasAny) return;
+            } catch (e0) {
+            }
+            prevent(e);
+            if (hasTransferExternalDropPayload(e.dataTransfer)) {
+                if (!transferState.expanded) setTransferExpanded(true, true);
+                transferPanel.classList.add('dragover');
+            }
+        });
+
+        transferToggleBtn.addEventListener('drop', async (e) => {
+            try {
+                const types = e.dataTransfer && e.dataTransfer.types ? Array.from(e.dataTransfer.types) : [];
+                const hasAny = types.includes('Files') || types.includes('text/uri-list') || types.includes('text/plain') || types.includes('application/x-simpleai-transfer-id') || types.includes('application/x-simpleai-image-dataurl');
+                if (!hasAny) return;
+            } catch (e0) {
+            }
+            prevent(e);
+            if (!hasTransferExternalDropPayload(e.dataTransfer)) return;
+            if (!transferState.expanded) setTransferExpanded(true, true);
+            transferPanel.classList.remove('dragover');
+            await handleTransferDropDataTransfer(e.dataTransfer);
         });
 
         transferClearBtn.addEventListener('click', (e) => {
