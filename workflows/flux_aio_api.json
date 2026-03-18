@@ -1385,7 +1385,7 @@
     },
     "class_type": "ImageBlur",
     "_meta": {
-      "title": "ImageBlur"
+      "title": "Image Blur"
     }
   },
   "306": {
@@ -3655,10 +3655,6 @@
         0
       ],
       "value2": [
-        "778",
-        0
-      ],
-      "value3": [
         "529",
         0
       ]
@@ -3978,7 +3974,7 @@
   },
   "583": {
     "inputs": {
-      "total": 4,
+      "total": 3,
       "initial_value1": [
         "439",
         0
