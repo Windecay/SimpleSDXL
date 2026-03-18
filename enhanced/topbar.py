@@ -694,6 +694,13 @@ def process_before_generation(state_params, seed_random, image_seed, backend_par
         engine_type=state_params.get("engine_type", "image"),
         ))
 
+    if scene_audio is not None and not (isinstance(scene_audio, str) and os.path.exists(scene_audio)):
+        try:
+            from extras.media_normalize import normalize_gradio_audio_value
+            scene_audio = normalize_gradio_audio_value(scene_audio)
+        except Exception:
+            pass
+
     user_did = state_params["user"].get_did()
     if shared.token.is_admin(user_did):
         admin_outputs = os.path.abspath(os.path.join(shared.token.get_path_in_user_dir(user_did, "outputs"), 'ComfyUI'))

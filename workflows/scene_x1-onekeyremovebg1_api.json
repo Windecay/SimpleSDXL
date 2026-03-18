@@ -91,6 +91,7 @@
       "process_detail": true,
       "device": "cuda",
       "max_megapixels": 2,
+      "cache_model": false,
       "image": [
         "65",
         0

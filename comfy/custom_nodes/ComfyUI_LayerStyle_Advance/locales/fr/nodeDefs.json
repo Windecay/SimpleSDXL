@@ -1,0 +1,2399 @@
+{
+  "LayerMask: LoadBenModel": {
+    "display_name": "LayerMask : Charger le modèle Ben (Avancé)",
+    "inputs": {
+      "model": {
+        "name": "modèle"
+      },
+      "device": {
+        "name": "périphérique"
+      }
+    },
+    "outputs": {
+      "ben_model": {
+        "name": "modèle Ben"
+      }
+    }
+  },
+  "LayerMask: BenUltra": {
+    "display_name": "LayerMask : Ben Ultra (Avancé)",
+    "inputs": {
+      "ben_model": {
+        "name": "modèle Ben"
+      },
+      "image": {
+        "name": "image"
+      },
+      "detail_method": {
+        "name": "méthode de détail"
+      },
+      "detail_erode": {
+        "name": "érosion de détail"
+      },
+      "detail_dilate": {
+        "name": "dilatation de détail"
+      },
+      "black_point": {
+        "name": "point noir"
+      },
+      "white_point": {
+        "name": "point blanc"
+      },
+      "max_megapixels": {
+        "name": "mégapixels max"
+      },
+      "process_detail": {
+        "name": "traiter le détail"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      },
+      "mask": {
+        "name": "masque"
+      }
+    }
+  },
+  "LayerMask: BiRefNetUltra": {
+    "display_name": "LayerMask : BiRefNet Ultra (Avancé)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "detail_method": {
+        "name": "méthode de détail"
+      },
+      "detail_erode": {
+        "name": "érosion de détail"
+      },
+      "detail_dilate": {
+        "name": "dilatation de détail"
+      },
+      "black_point": {
+        "name": "point noir"
+      },
+      "white_point": {
+        "name": "point blanc"
+      },
+      "process_detail": {
+        "name": "traiter le détail"
+      },
+      "device": {
+        "name": "périphérique"
+      },
+      "max_megapixels": {
+        "name": "mégapixels max"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      },
+      "mask": {
+        "name": "masque"
+      }
+    }
+  },
+  "LayerMask: LoadBiRefNetModel": {
+    "display_name": "LayerMask : Charger le modèle BiRefNet (Avancé)",
+    "inputs": {
+      "model": {
+        "name": "modèle"
+      }
+    },
+    "outputs": {
+      "birefnet_model": {
+        "name": "modèle BiRefNet"
+      }
+    }
+  },
+  "LayerMask: LoadBiRefNetModelV2": {
+    "display_name": "LayerMask : Charger le modèle BiRefNet V2 (Avancé)",
+    "inputs": {
+      "version": {
+        "name": "version"
+      }
+    },
+    "outputs": {
+      "birefnet_model": {
+        "name": "modèle BiRefNet"
+      }
+    }
+  },
+  "LayerMask: BiRefNetUltraV2": {
+    "display_name": "LayerMask : BiRefNet Ultra V2 (Avancé)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "birefnet_model": {
+        "name": "modèle BiRefNet"
+      },
+      "detail_method": {
+        "name": "méthode de détail"
+      },
+      "detail_erode": {
+        "name": "érosion de détail"
+      },
+      "detail_dilate": {
+        "name": "dilatation de détail"
+      },
+      "black_point": {
+        "name": "point noir"
+      },
+      "white_point": {
+        "name": "point blanc"
+      },
+      "process_detail": {
+        "name": "traiter le détail"
+      },
+      "device": {
+        "name": "périphérique"
+      },
+      "max_megapixels": {
+        "name": "mégapixels max"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      },
+      "mask": {
+        "name": "masque"
+      }
+    }
+  },
+  "LayerUtility: Collage": {
+    "display_name": "LayerUtility : Collage (Avancé)",
+    "inputs": {
+      "images": {
+        "name": "images"
+      },
+      "canvas_width": {
+        "name": "largeur de toile"
+      },
+      "canvas_height": {
+        "name": "hauteur de toile"
+      },
+      "border_width": {
+        "name": "largeur de bordure"
+      },
+      "rounded_rect_radius": {
+        "name": "rayon de rectangle arrondi"
+      },
+      "uniformity": {
+        "name": "uniformité"
+      },
+      "background_color": {
+        "name": "couleur de fond"
+      },
+      "seed": {
+        "name": "graine"
+      },
+      "florence2_model": {
+        "name": "modèle Florence2"
+      },
+      "object_prompt": {
+        "name": "prompt d'objet"
+      },
+      "image": {
+        "name": "image"
+      },
+      "bboxes": {
+        "name": "boîtes englobantes"
+      },
+      "grow_top": {
+        "name": "agrandir haut"
+      },
+      "grow_bottom": {
+        "name": "agrandir bas"
+      },
+      "grow_left": {
+        "name": "agrandir gauche"
+      },
+      "grow_right": {
+        "name": "agrandir droite"
+      },
+      "proportional_width": {
+        "name": "largeur proportionnelle"
+      },
+      "proportional_height": {
+        "name": "hauteur proportionnelle"
+      },
+      "mask": {
+        "name": "masque"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      },
+      "mask": {
+        "name": "masque"
+      }
+    }
+  },
+  "LayerUtility: DeepSeekAPI": {
+    "display_name": "LayerUtility : API DeepSeek",
+    "inputs": {
+      "model": {
+        "name": "modèle"
+      },
+      "max_tokens": {
+        "name": "tokens max"
+      },
+      "temperature": {
+        "name": "température"
+      },
+      "top_p": {
+        "name": "top_p"
+      },
+      "presence_penalty": {
+        "name": "pénalité de présence"
+      },
+      "frequency_penalty": {
+        "name": "pénalité de fréquence"
+      },
+      "history_length": {
+        "name": "longueur d'historique"
+      },
+      "system_prompt": {
+        "name": "prompt système"
+      },
+      "user_prompt": {
+        "name": "prompt utilisateur"
+      },
+      "history": {
+        "name": "historique"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "chaîne"
+      },
+      "deepseek_history": {
+        "name": "historique DeepSeek"
+      }
+    }
+  },
+  "LayerUtility: DeepSeekAPIV2": {
+    "display_name": "LayerUtility : API DeepSeek V2",
+    "inputs": {
+      "model": {
+        "name": "modèle"
+      },
+      "time_out": {
+        "name": "délai d'attente"
+      },
+      "max_tokens": {
+        "name": "tokens max"
+      },
+      "temperature": {
+        "name": "température"
+      },
+      "top_p": {
+        "name": "top_p"
+      },
+      "presence_penalty": {
+        "name": "pénalité de présence"
+      },
+      "frequency_penalty": {
+        "name": "pénalité de fréquence"
+      },
+      "history_length": {
+        "name": "longueur d'historique"
+      },
+      "system_prompt": {
+        "name": "prompt système"
+      },
+      "user_prompt": {
+        "name": "prompt utilisateur"
+      },
+      "history": {
+        "name": "historique"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "chaîne"
+      },
+      "deepseek_history": {
+        "name": "historique DeepSeek"
+      }
+    }
+  },
+  "LayerMask: EVFSAMUltra": {
+    "display_name": "LayerMask : EVF-SAM Ultra (Avancé)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "model": {
+        "name": "modèle"
+      },
+      "precision": {
+        "name": "précision"
+      },
+      "load_in_bit": {
+        "name": "charger en bit"
+      },
+      "prompt": {
+        "name": "prompt"
+      },
+      "detail_method": {
+        "name": "méthode de détail"
+      },
+      "detail_erode": {
+        "name": "érosion de détail"
+      },
+      "detail_dilate": {
+        "name": "dilatation de détail"
+      },
+      "black_point": {
+        "name": "point noir"
+      },
+      "white_point": {
+        "name": "point blanc"
+      },
+      "process_detail": {
+        "name": "traiter le détail"
+      },
+      "device": {
+        "name": "périphérique"
+      },
+      "max_megapixels": {
+        "name": "mégapixels max"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      },
+      "mask": {
+        "name": "masque"
+      }
+    }
+  },
+  "LayerMask: LoadFlorence2Model": {
+    "display_name": "LayerMask : Charger le modèle Florence2 (Avancé)",
+    "inputs": {
+      "version": {
+        "name": "version"
+      }
+    },
+    "outputs": {
+      "florence2": {
+        "name": "Florence2"
+      }
+    }
+  },
+  "LayerMask: Florence2Ultra": {
+    "display_name": "LayerMask : Florence2 Ultra (Avancé)",
+    "inputs": {
+      "florence2_model": {
+        "name": "modèle Florence2"
+      },
+      "image": {
+        "name": "image"
+      },
+      "task": {
+        "name": "tâche"
+      },
+      "text_input": {
+        "name": "entrée texte"
+      },
+      "detail_method": {
+        "name": "méthode de détail"
+      },
+      "detail_erode": {
+        "name": "érosion de détail"
+      },
+      "detail_dilate": {
+        "name": "dilatation de détail"
+      },
+      "black_point": {
+        "name": "point noir"
+      },
+      "white_point": {
+        "name": "point blanc"
+      },
+      "process_detail": {
+        "name": "traiter le détail"
+      },
+      "device": {
+        "name": "périphérique"
+      },
+      "max_megapixels": {
+        "name": "mégapixels max"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      },
+      "mask": {
+        "name": "masque"
+      }
+    }
+  },
+  "LayerUtility: Florence2Image2Prompt": {
+    "display_name": "LayerUtility : Florence2 Image2Prompt (Avancé)",
+    "inputs": {
+      "florence2_model": {
+        "name": "modèle Florence2"
+      },
+      "image": {
+        "name": "image"
+      },
+      "task": {
+        "name": "tâche"
+      },
+      "text_input": {
+        "name": "entrée texte"
+      },
+      "max_new_tokens": {
+        "name": "nouveaux tokens max"
+      },
+      "num_beams": {
+        "name": "nombre de faisceaux"
+      },
+      "do_sample": {
+        "name": "échantillonner"
+      },
+      "fill_mask": {
+        "name": "remplir le masque"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "chaîne"
+      },
+      "image": {
+        "name": "image"
+      }
+    }
+  },
+  "LayerUtility: Gemini": {
+    "display_name": "LayerUtility : Gemini (Avancé)",
+    "inputs": {
+      "model": {
+        "name": "modèle"
+      },
+      "max_output_tokens": {
+        "name": "tokens de sortie max"
+      },
+      "temperature": {
+        "name": "température"
+      },
+      "words_limit": {
+        "name": "limite de mots"
+      },
+      "response_language": {
+        "name": "langue de réponse"
+      },
+      "system_prompt": {
+        "name": "prompt système"
+      },
+      "user_prompt": {
+        "name": "prompt utilisateur"
+      },
+      "image_1": {
+        "name": "image_1"
+      },
+      "image_2": {
+        "name": "image_2"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "chaîne"
+      }
+    }
+  },
+  "LayerUtility: GeminiV2": {
+    "display_name": "LayerUtility : Gemini V2 (Avancé)",
+    "inputs": {
+      "model": {
+        "name": "modèle"
+      },
+      "max_output_tokens": {
+        "name": "tokens de sortie max"
+      },
+      "temperature": {
+        "name": "température"
+      },
+      "words_limit": {
+        "name": "limite de mots"
+      },
+      "response_language": {
+        "name": "langue de réponse"
+      },
+      "seed": {
+        "name": "graine"
+      },
+      "system_prompt": {
+        "name": "prompt système"
+      },
+      "user_prompt": {
+        "name": "prompt utilisateur"
+      },
+      "image_1": {
+        "name": "image_1"
+      },
+      "image_2": {
+        "name": "image_2"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "chaîne"
+      }
+    }
+  },
+  "LayerMask: ObjectDetectorGemini": {
+    "display_name": "LayerMask : Détecteur d'objets Gemini (Avancé)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "model": {
+        "name": "modèle"
+      },
+      "prompt": {
+        "name": "prompt"
+      }
+    },
+    "outputs": {
+      "bboxes": {
+        "name": "boîtes englobantes"
+      },
+      "image": {
+        "name": "image"
+      }
+    }
+  },
+  "LayerMask: ObjectDetectorGeminiV2": {
+    "display_name": "LayerMask : Détecteur d'objets Gemini V2 (Avancé)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "model": {
+        "name": "modèle"
+      },
+      "prompt": {
+        "name": "prompt"
+      }
+    },
+    "outputs": {
+      "bboxes": {
+        "name": "boîtes englobantes"
+      },
+      "image": {
+        "name": "image"
+      }
+    }
+  },
+  "LayerUtility: GeminiImageEdit": {
+    "display_name": "LayerUtility : Édition d'image Gemini (Avancé)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "model": {
+        "name": "modèle"
+      },
+      "temperature": {
+        "name": "température"
+      },
+      "seed": {
+        "name": "graine"
+      },
+      "user_prompt": {
+        "name": "prompt utilisateur"
+      },
+      "image_2": {
+        "name": "image_2"
+      },
+      "image_3": {
+        "name": "image_3"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      }
+    }
+  },
+  "LayerUtility: GetColorTone": {
+    "display_name": "LayerUtility : Acquisition de teinte (Avancé)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "mode": {
+        "name": "mode"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "chaîne"
+      },
+      "list": {
+        "name": "liste"
+      }
+    }
+  },
+  "LayerUtility: GetColorToneV2": {
+    "display_name": "LayerUtility : Acquisition de teinte V2 (Avancé)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "mode": {
+        "name": "mode"
+      },
+      "color_of": {
+        "name": "couleur de"
+      },
+      "remove_bkgd_method": {
+        "name": "méthode de suppression de fond"
+      },
+      "invert_mask": {
+        "name": "inverser le masque"
+      },
+      "mask_grow": {
+        "name": "agrandir le masque"
+      },
+      "mask": {
+        "name": "masque"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      },
+      "string": {
+        "name": "chaîne"
+      },
+      "list": {
+        "name": "liste"
+      },
+      "mask": {
+        "name": "masque"
+      }
+    }
+  },
+  "LayerMask: HumanPartsUltra": {
+    "display_name": "LayerMask : Parties humaines Ultra (Avancé)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "face": {
+        "name": "visage"
+      },
+      "hair": {
+        "name": "cheveux"
+      },
+      "glasses": {
+        "name": "lunettes"
+      },
+      "top_clothes": {
+        "name": "vêtements du haut"
+      },
+      "bottom_clothes": {
+        "name": "vêtements du bas"
+      },
+      "torso_skin": {
+        "name": "peau du torse"
+      },
+      "left_arm": {
+        "name": "bras gauche"
+      },
+      "right_arm": {
+        "name": "bras droit"
+      },
+      "left_leg": {
+        "name": "jambe gauche"
+      },
+      "right_leg": {
+        "name": "jambe droite"
+      },
+      "left_foot": {
+        "name": "pied gauche"
+      },
+      "right_foot": {
+        "name": "pied droit"
+      },
+      "detail_method": {
+        "name": "méthode de détail"
+      },
+      "detail_erode": {
+        "name": "érosion de détail"
+      },
+      "detail_dilate": {
+        "name": "dilatation de détail"
+      },
+      "black_point": {
+        "name": "point noir"
+      },
+      "white_point": {
+        "name": "point blanc"
+      },
+      "process_detail": {
+        "name": "traiter le détail"
+      },
+      "device": {
+        "name": "périphérique"
+      },
+      "max_megapixels": {
+        "name": "mégapixels max"
+      },
+      "pil_image": {
+        "name": "image PIL"
+      },
+      "model": {
+        "name": "modèle"
+      },
+      "rotation": {
+        "name": "rotation"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      },
+      "mask": {
+        "name": "masque"
+      }
+    }
+  },
+  "LayerUtility: ImageAutoCrop": {
+    "display_name": "LayerUtility : Recadrage auto (Avancé)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "background_color": {
+        "name": "couleur de fond"
+      },
+      "aspect_ratio": {
+        "name": "ratio d'aspect"
+      },
+      "proportional_width": {
+        "name": "largeur proportionnelle"
+      },
+      "proportional_height": {
+        "name": "hauteur proportionnelle"
+      },
+      "scale_to_longest_side": {
+        "name": "mise à l'échelle côté le plus long"
+      },
+      "longest_side": {
+        "name": "côté le plus long"
+      },
+      "detect": {
+        "name": "détecter"
+      },
+      "border_reserve": {
+        "name": "réserve de bordure"
+      },
+      "ultra_detail_range": {
+        "name": "plage de détail ultra"
+      },
+      "matting_method": {
+        "name": "méthode de matting"
+      },
+      "sam_model": {
+        "name": "modèle SAM"
+      },
+      "grounding_dino_model": {
+        "name": "modèle Grounding DINO"
+      },
+      "sam_threshold": {
+        "name": "seuil SAM"
+      },
+      "sam_prompt": {
+        "name": "prompt SAM"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      },
+      "mask": {
+        "name": "masque"
+      }
+    }
+  },
+  "LayerUtility: ImageAutoCrop V2": {
+    "display_name": "LayerUtility : Recadrage auto V2 (Avancé)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "fill_background": {
+        "name": "remplir le fond"
+      },
+      "background_color": {
+        "name": "couleur de fond"
+      },
+      "aspect_ratio": {
+        "name": "ratio d'aspect"
+      },
+      "proportional_width": {
+        "name": "largeur proportionnelle"
+      },
+      "proportional_height": {
+        "name": "hauteur proportionnelle"
+      },
+      "scale_to_side": {
+        "name": "mise à l'échelle côté"
+      },
+      "scale_to_length": {
+        "name": "mise à l'échelle longueur"
+      },
+      "detect": {
+        "name": "détecter"
+      },
+      "border_reserve": {
+        "name": "réserve de bordure"
+      },
+      "ultra_detail_range": {
+        "name": "plage de détail ultra"
+      },
+      "matting_method": {
+        "name": "méthode de matting"
+      },
+      "sam_model": {
+        "name": "modèle SAM"
+      },
+      "grounding_dino_model": {
+        "name": "modèle Grounding DINO"
+      },
+      "sam_threshold": {
+        "name": "seuil SAM"
+      },
+      "sam_prompt": {
+        "name": "prompt SAM"
+      },
+      "mask": {
+        "name": "masque"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      },
+      "mask": {
+        "name": "masque"
+      }
+    }
+  },
+  "LayerUtility: ImageAutoCrop V3": {
+    "display_name": "LayerUtility : Recadrage auto V3 (Avancé)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "aspect_ratio": {
+        "name": "ratio d'aspect"
+      },
+      "proportional_width": {
+        "name": "largeur proportionnelle"
+      },
+      "proportional_height": {
+        "name": "hauteur proportionnelle"
+      },
+      "method": {
+        "name": "méthode"
+      },
+      "scale_to_side": {
+        "name": "mise à l'échelle côté"
+      },
+      "scale_to_length": {
+        "name": "mise à l'échelle longueur"
+      },
+      "round_to_multiple": {
+        "name": "arrondir au multiple"
+      },
+      "mask": {
+        "name": "masque"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      }
+    }
+  },
+  "LayerUtility: ImageRewardFilter": {
+    "display_name": "LayerUtility : Filtre esthétique (Avancé)",
+    "inputs": {
+      "images": {
+        "name": "images"
+      },
+      "prompt": {
+        "name": "prompt"
+      },
+      "output_num": {
+        "name": "nombre de sortie"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      }
+    }
+  },
+  "LayerUtility: JoyCaption2ExtraOptions": {
+    "display_name": "LayerUtility : Options supplémentaires JoyCaption2 (Avancé)",
+    "inputs": {
+      "refer_character_name": {
+        "name": "nom de personnage de référence"
+      },
+      "exclude_people_info": {
+        "name": "exclure les infos personnelles"
+      },
+      "include_lighting": {
+        "name": "inclure l'éclairage"
+      },
+      "include_camera_angle": {
+        "name": "inclure l'angle de caméra"
+      },
+      "include_watermark": {
+        "name": "inclure le filigrane"
+      },
+      "include_JPEG_artifacts": {
+        "name": "inclure les artefacts JPEG"
+      },
+      "include_exif": {
+        "name": "inclure les EXIF"
+      },
+      "exclude_sexual": {
+        "name": "exclure le contenu sexuel"
+      },
+      "exclude_image_resolution": {
+        "name": "exclure la résolution d'image"
+      },
+      "include_aesthetic_quality": {
+        "name": "inclure la qualité esthétique"
+      },
+      "include_composition_style": {
+        "name": "inclure le style de composition"
+      },
+      "exclude_text": {
+        "name": "exclure le texte"
+      },
+      "specify_depth_field": {
+        "name": "spécifier le champ de profondeur"
+      },
+      "specify_lighting_sources": {
+        "name": "spécifier les sources lumineuses"
+      },
+      "do_not_use_ambiguous_language": {
+        "name": "ne pas utiliser de langage ambigu"
+      },
+      "include_nsfw": {
+        "name": "inclure NSFW"
+      },
+      "only_describe_most_important_elements": {
+        "name": "décrire uniquement les éléments les plus importants"
+      },
+      "character_name": {
+        "name": "nom de personnage"
+      }
+    },
+    "outputs": {
+      "joycaption2extraoption": {
+        "name": "option supplémentaire JoyCaption2"
+      }
+    }
+  },
+  "LayerUtility: JoyCaption2": {
+    "display_name": "LayerUtility : JoyCaption2 (Avancé)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "llm_model": {
+        "name": "modèle LLM"
+      },
+      "device": {
+        "name": "périphérique"
+      },
+      "dtype": {
+        "name": "dtype"
+      },
+      "vlm_lora": {
+        "name": "LoRA VLM"
+      },
+      "caption_type": {
+        "name": "type de légende"
+      },
+      "caption_length": {
+        "name": "longueur de légende"
+      },
+      "user_prompt": {
+        "name": "prompt utilisateur"
+      },
+      "max_new_tokens": {
+        "name": "nouveaux tokens max"
+      },
+      "top_p": {
+        "name": "top_p"
+      },
+      "temperature": {
+        "name": "température"
+      },
+      "cache_model": {
+        "name": "modèle en cache"
+      },
+      "use_global_model": {
+        "name": "utiliser le modèle global"
+      },
+      "extra_options": {
+        "name": "options supplémentaires"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "chaîne"
+      }
+    }
+  },
+  "LayerUtility: LoadJoyCaption2Model": {
+    "display_name": "LayerUtility : Charger le modèle JoyCaption2 (Avancé)",
+    "inputs": {
+      "llm_model": {
+        "name": "modèle LLM"
+      },
+      "device": {
+        "name": "périphérique"
+      },
+      "dtype": {
+        "name": "dtype"
+      },
+      "vlm_lora": {
+        "name": "LoRA VLM"
+      }
+    },
+    "outputs": {
+      "joycaption2_model": {
+        "name": "modèle JoyCaption2"
+      }
+    }
+  },
+  "LayerUtility: JoyCaption2Split": {
+    "display_name": "LayerUtility : JoyCaption2 Split (Avancé)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "joy2_model": {
+        "name": "modèle Joy2"
+      },
+      "caption_type": {
+        "name": "type de légende"
+      },
+      "caption_length": {
+        "name": "longueur de légende"
+      },
+      "user_prompt": {
+        "name": "prompt utilisateur"
+      },
+      "max_new_tokens": {
+        "name": "nouveaux tokens max"
+      },
+      "top_p": {
+        "name": "top_p"
+      },
+      "temperature": {
+        "name": "température"
+      },
+      "extra_options": {
+        "name": "options supplémentaires"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "chaîne"
+      }
+    }
+  },
+  "LayerUtility: LaMa": {
+    "display_name": "LayerUtility : LaMa (Avancé)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "mask": {
+        "name": "masque"
+      },
+      "lama_model": {
+        "name": "modèle LaMa"
+      },
+      "device": {
+        "name": "périphérique"
+      },
+      "invert_mask": {
+        "name": "inverser le masque"
+      },
+      "mask_grow": {
+        "name": "agrandir le masque"
+      },
+      "mask_blur": {
+        "name": "flou de masque"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      }
+    }
+  },
+  "LayerUtility: LlamaVision": {
+    "display_name": "LayerUtility : Llama Vision (Avancé)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "model": {
+        "name": "modèle"
+      },
+      "system_prompt": {
+        "name": "prompt système"
+      },
+      "user_prompt": {
+        "name": "prompt utilisateur"
+      },
+      "max_new_tokens": {
+        "name": "nouveaux tokens max"
+      },
+      "do_sample": {
+        "name": "échantillonner"
+      },
+      "temperature": {
+        "name": "température"
+      },
+      "top_p": {
+        "name": "top_p"
+      },
+      "top_k": {
+        "name": "top_k"
+      },
+      "stop_strings": {
+        "name": "chaînes d'arrêt"
+      },
+      "seed": {
+        "name": "graine"
+      },
+      "include_prompt_in_output": {
+        "name": "inclure le prompt en sortie"
+      },
+      "cache_model": {
+        "name": "modèle en cache"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "chaîne"
+      }
+    }
+  },
+  "LayerUtility: LoadPSD": {
+    "display_name": "LayerUtility : Charger PSD (Avancé)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "file_path": {
+        "name": "chemin du fichier"
+      },
+      "include_hidden_layer": {
+        "name": "inclure les couches cachées"
+      },
+      "find_layer_by": {
+        "name": "trouver la couche par"
+      },
+      "layer_index": {
+        "name": "index de couche"
+      },
+      "layer_name": {
+        "name": "nom de couche"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      }
+    }
+  },
+  "LayerMask: MaskByDifferent": {
+    "display_name": "LayerMask : Masque par différence (Avancé)",
+    "inputs": {
+      "image_1": {
+        "name": "image_1"
+      },
+      "image_2": {
+        "name": "image_2"
+      },
+      "gain": {
+        "name": "gain"
+      },
+      "fix_gap": {
+        "name": "corriger l'écart"
+      },
+      "fix_threshold": {
+        "name": "seuil de correction"
+      },
+      "main_subject_detect": {
+        "name": "détection du sujet principal"
+      }
+    },
+    "outputs": {
+      "mask": {
+        "name": "masque"
+      }
+    }
+  },
+  "LayerMask: MediapipeFacialSegment": {
+    "display_name": "LayerMask : Segmentation faciale Mediapipe (Avancé)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "left_eye": {
+        "name": "œil gauche"
+      },
+      "left_eyebrow": {
+        "name": "sourcil gauche"
+      },
+      "right_eye": {
+        "name": "œil droit"
+      },
+      "right_eyebrow": {
+        "name": "sourcil droit"
+      },
+      "lips": {
+        "name": "lèvres"
+      },
+      "tooth": {
+        "name": "dent"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      },
+      "mask": {
+        "name": "masque"
+      }
+    }
+  },
+  "LayerMask: BBoxJoin": {
+    "display_name": "LayerMask : Jointure de boîtes englobantes (Avancé)",
+    "inputs": {
+      "bboxes_1": {
+        "name": "boîtes englobantes_1"
+      },
+      "bboxes_2": {
+        "name": "boîtes englobantes_2"
+      },
+      "bboxes_3": {
+        "name": "boîtes englobantes_3"
+      },
+      "bboxes_4": {
+        "name": "boîtes englobantes_4"
+      }
+    },
+    "outputs": {
+      "bboxes": {
+        "name": "boîtes englobantes"
+      }
+    }
+  },
+  "LayerMask: ObjectDetectorFL2": {
+    "display_name": "LayerMask : Détecteur d'objets Florence2 (Avancé)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "prompt": {
+        "name": "prompt"
+      },
+      "florence2_model": {
+        "name": "modèle Florence2"
+      },
+      "sort_method": {
+        "name": "méthode de tri"
+      },
+      "bbox_select": {
+        "name": "sélection de boîte englobante"
+      },
+      "select_index": {
+        "name": "index de sélection"
+      },
+      "F_BBOXES": {
+        "name": "F_BBOXES"
+      }
+    },
+    "outputs": {
+      "bboxes": {
+        "name": "boîtes englobantes"
+      },
+      "image": {
+        "name": "image"
+      }
+    }
+  },
+  "LayerMask: ObjectDetectorMask": {
+    "display_name": "LayerMask : Masque de détecteur d'objets (Avancé)",
+    "inputs": {
+      "object_mask": {
+        "name": "masque d'objet"
+      },
+      "sort_method": {
+        "name": "méthode de tri"
+      },
+      "bbox_select": {
+        "name": "sélection de boîte englobante"
+      },
+      "select_index": {
+        "name": "index de sélection"
+      }
+    },
+    "outputs": {
+      "bboxes": {
+        "name": "boîtes englobantes"
+      },
+      "image": {
+        "name": "image"
+      }
+    }
+  },
+  "LayerMask: ObjectDetectorYOLO8": {
+    "display_name": "LayerMask : Détecteur d'objets YOLO8 (Avancé)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "yolo_model": {
+        "name": "modèle YOLO"
+      },
+      "sort_method": {
+        "name": "méthode de tri"
+      },
+      "bbox_select": {
+        "name": "sélection de boîte englobante"
+      },
+      "select_index": {
+        "name": "index de sélection"
+      }
+    },
+    "outputs": {
+      "bboxes": {
+        "name": "boîtes englobantes"
+      },
+      "image": {
+        "name": "image"
+      }
+    }
+  },
+  "LayerMask: ObjectDetectorYOLOWorld": {
+    "display_name": "LayerMask : Détecteur d'objets YOLO World (Obsolète)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "yolo_world_model": {
+        "name": "modèle YOLO World"
+      },
+      "confidence_threshold": {
+        "name": "seuil de confiance"
+      },
+      "nms_iou_threshold": {
+        "name": "seuil IoU NMS"
+      },
+      "prompt": {
+        "name": "prompt"
+      },
+      "sort_method": {
+        "name": "méthode de tri"
+      },
+      "bbox_select": {
+        "name": "sélection de boîte englobante"
+      },
+      "select_index": {
+        "name": "index de sélection"
+      },
+      "categories": {
+        "name": "catégories"
+      },
+      "model_id": {
+        "name": "ID de modèle"
+      }
+    },
+    "outputs": {
+      "bboxes": {
+        "name": "boîtes englobantes"
+      },
+      "image": {
+        "name": "image"
+      }
+    }
+  },
+  "LayerMask: DrawBBoxMask": {
+    "display_name": "LayerMask : Dessiner un masque de boîte englobante (Avancé)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "bboxes": {
+        "name": "boîtes englobantes"
+      },
+      "grow_top": {
+        "name": "agrandir haut"
+      },
+      "grow_bottom": {
+        "name": "agrandir bas"
+      },
+      "grow_left": {
+        "name": "agrandir gauche"
+      },
+      "grow_right": {
+        "name": "agrandir droite"
+      }
+    },
+    "outputs": {
+      "mask": {
+        "name": "masque"
+      }
+    }
+  },
+  "LayerMask: DrawBBoxMaskV2": {
+    "display_name": "LayerMask : Dessiner un masque de boîte englobante V2 (Avancé)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "bboxes": {
+        "name": "boîtes englobantes"
+      },
+      "grow_top": {
+        "name": "agrandir haut"
+      },
+      "grow_bottom": {
+        "name": "agrandir bas"
+      },
+      "grow_left": {
+        "name": "agrandir gauche"
+      },
+      "grow_right": {
+        "name": "agrandir droite"
+      },
+      "rounded_rect_radius": {
+        "name": "rayon de rectangle arrondi"
+      },
+      "anti_aliasing": {
+        "name": "anti-crénelage"
+      }
+    },
+    "outputs": {
+      "mask": {
+        "name": "masque"
+      }
+    }
+  },
+  "LayerMask: PersonMaskUltra": {
+    "display_name": "LayerMask : Masque de personne Ultra (Avancé)",
+    "inputs": {
+      "images": {
+        "name": "images"
+      },
+      "face": {
+        "name": "visage"
+      },
+      "hair": {
+        "name": "cheveux"
+      },
+      "body": {
+        "name": "corps"
+      },
+      "clothes": {
+        "name": "vêtements"
+      },
+      "accessories": {
+        "name": "accessoires"
+      },
+      "background": {
+        "name": "fond"
+      },
+      "confidence": {
+        "name": "confiance"
+      },
+      "detail_range": {
+        "name": "plage de détail"
+      },
+      "black_point": {
+        "name": "point noir"
+      },
+      "white_point": {
+        "name": "point blanc"
+      },
+      "process_detail": {
+        "name": "traiter le détail"
+      },
+      "image": {
+        "name": "image"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      },
+      "mask": {
+        "name": "masque"
+      }
+    }
+  },
+  "LayerMask: PersonMaskUltra V2": {
+    "display_name": "LayerMask : Masque de personne Ultra V2 (Avancé)",
+    "inputs": {
+      "images": {
+        "name": "images"
+      },
+      "face": {
+        "name": "visage"
+      },
+      "hair": {
+        "name": "cheveux"
+      },
+      "body": {
+        "name": "corps"
+      },
+      "clothes": {
+        "name": "vêtements"
+      },
+      "accessories": {
+        "name": "accessoires"
+      },
+      "background": {
+        "name": "fond"
+      },
+      "confidence": {
+        "name": "confiance"
+      },
+      "detail_method": {
+        "name": "méthode de détail"
+      },
+      "detail_erode": {
+        "name": "érosion de détail"
+      },
+      "detail_dilate": {
+        "name": "dilatation de détail"
+      },
+      "black_point": {
+        "name": "point noir"
+      },
+      "white_point": {
+        "name": "point blanc"
+      },
+      "process_detail": {
+        "name": "traiter le détail"
+      },
+      "device": {
+        "name": "périphérique"
+      },
+      "max_megapixels": {
+        "name": "mégapixels max"
+      },
+      "image": {
+        "name": "image"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      },
+      "mask": {
+        "name": "masque"
+      }
+    }
+  },
+  "LayerUtility: PhiPrompt": {
+    "display_name": "LayerUtility : Prompt Phi (Avancé)",
+    "inputs": {
+      "model": {
+        "name": "modèle"
+      },
+      "device": {
+        "name": "périphérique"
+      },
+      "dtype": {
+        "name": "dtype"
+      },
+      "cache_model": {
+        "name": "modèle en cache"
+      },
+      "system_prompt": {
+        "name": "prompt système"
+      },
+      "user_prompt": {
+        "name": "prompt utilisateur"
+      },
+      "do_sample": {
+        "name": "échantillonner"
+      },
+      "temperature": {
+        "name": "température"
+      },
+      "max_new_tokens": {
+        "name": "nouveaux tokens max"
+      },
+      "image": {
+        "name": "image"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "chaîne"
+      }
+    }
+  },
+  "LayerUtility: PromptEmbellish": {
+    "display_name": "LayerUtility : Enrichissement de prompt (Avancé)",
+    "inputs": {
+      "api": {
+        "name": "api"
+      },
+      "token_limit": {
+        "name": "limite de tokens"
+      },
+      "describe": {
+        "name": "décrire"
+      },
+      "image": {
+        "name": "image"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "chaîne"
+      }
+    }
+  },
+  "LayerUtility: PromptTagger": {
+    "display_name": "LayerUtility : Rétro-ingénierie de prompt (Avancé)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "api": {
+        "name": "api"
+      },
+      "token_limit": {
+        "name": "limite de tokens"
+      },
+      "exclude_word": {
+        "name": "exclure le mot"
+      },
+      "replace_with_word": {
+        "name": "remplacer par le mot"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "chaîne"
+      }
+    }
+  },
+  "LayerUtility: CreateQRCode": {
+    "display_name": "LayerUtility : Créer un QRCode (Avancé)",
+    "inputs": {
+      "size": {
+        "name": "taille"
+      },
+      "border": {
+        "name": "bordure"
+      },
+      "text": {
+        "name": "texte"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      }
+    }
+  },
+  "LayerUtility: DecodeQRCode": {
+    "display_name": "LayerUtility : Décoder un QRCode (Avancé)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "pre_blur": {
+        "name": "pré-flou"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "chaîne"
+      }
+    }
+  },
+  "LayerUtility: QWenImage2Prompt": {
+    "display_name": "LayerUtility : QWenImage2Prompt (Avancé)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "question": {
+        "name": "question"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "chaîne"
+      }
+    }
+  },
+  "LayerMask: SAM2Ultra": {
+    "display_name": "LayerMask : SAM2 Ultra",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "bboxes": {
+        "name": "boîtes englobantes"
+      },
+      "sam2_model": {
+        "name": "modèle SAM2"
+      },
+      "precision": {
+        "name": "précision"
+      },
+      "bbox_select": {
+        "name": "sélection de boîte englobante"
+      },
+      "select_index": {
+        "name": "index de sélection"
+      },
+      "cache_model": {
+        "name": "modèle en cache"
+      },
+      "detail_method": {
+        "name": "méthode de détail"
+      },
+      "detail_erode": {
+        "name": "érosion de détail"
+      },
+      "detail_dilate": {
+        "name": "dilatation de détail"
+      },
+      "black_point": {
+        "name": "point noir"
+      },
+      "white_point": {
+        "name": "point blanc"
+      },
+      "process_detail": {
+        "name": "traiter le détail"
+      },
+      "device": {
+        "name": "périphérique"
+      },
+      "max_megapixels": {
+        "name": "mégapixels max"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      },
+      "mask": {
+        "name": "masque"
+      }
+    }
+  },
+  "LayerMask: SAM2VideoUltra": {
+    "display_name": "LayerMask : SAM2 Video Ultra (Avancé)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "sam2_model": {
+        "name": "modèle SAM2"
+      },
+      "precision": {
+        "name": "précision"
+      },
+      "cache_model": {
+        "name": "modèle en cache"
+      },
+      "individual_objects": {
+        "name": "objets individuels"
+      },
+      "mask_preview_color": {
+        "name": "couleur de prévisualisation du masque"
+      },
+      "detail_method": {
+        "name": "méthode de détail"
+      },
+      "detail_erode": {
+        "name": "érosion de détail"
+      },
+      "detail_dilate": {
+        "name": "dilatation de détail"
+      },
+      "black_point": {
+        "name": "point noir"
+      },
+      "white_point": {
+        "name": "point blanc"
+      },
+      "process_detail": {
+        "name": "traiter le détail"
+      },
+      "device": {
+        "name": "périphérique"
+      },
+      "max_megapixels": {
+        "name": "mégapixels max"
+      },
+      "bboxes": {
+        "name": "boîtes englobantes"
+      },
+      "first_frame_mask": {
+        "name": "masque de première frame"
+      },
+      "pre_mask": {
+        "name": "pré-masque"
+      }
+    },
+    "outputs": {
+      "mask": {
+        "name": "masque"
+      },
+      "image": {
+        "name": "image"
+      }
+    }
+  },
+  "LayerUtility: SaveImagePlus": {
+    "display_name": "LayerUtility : Sauvegarder l'image Plus (Avancé)",
+    "inputs": {
+      "images": {
+        "name": "images"
+      },
+      "custom_path": {
+        "name": "chemin personnalisé"
+      },
+      "filename_prefix": {
+        "name": "préfixe de nom de fichier"
+      },
+      "timestamp": {
+        "name": "horodatage"
+      },
+      "format": {
+        "name": "format"
+      },
+      "quality": {
+        "name": "qualité"
+      },
+      "meta_data": {
+        "name": "métadonnées"
+      },
+      "blind_watermark": {
+        "name": "filigrane invisible"
+      },
+      "save_workflow_as_json": {
+        "name": "sauvegarder le workflow en JSON"
+      },
+      "preview": {
+        "name": "prévisualisation"
+      },
+      "prompt": {
+        "name": "prompt"
+      },
+      "extra_pnginfo": {
+        "name": "infos PNG supplémentaires"
+      }
+    },
+    "outputs": {}
+  },
+  "LayerUtility: SD3NegativeConditioning": {
+    "display_name": "LayerUtility : Conditionnement négatif SD3 (Avancé)",
+    "inputs": {
+      "conditioning": {
+        "name": "conditionnement"
+      },
+      "zero_out_start": {
+        "name": "zéro au début"
+      }
+    },
+    "outputs": {
+      "conditioning": {
+        "name": "conditionnement"
+      }
+    }
+  },
+  "LayerMask: SegmentAnythingUltra": {
+    "display_name": "LayerMask : SegmentAnything Ultra (Avancé)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "sam_model": {
+        "name": "modèle SAM"
+      },
+      "grounding_dino_model": {
+        "name": "modèle Grounding DINO"
+      },
+      "threshold": {
+        "name": "seuil"
+      },
+      "detail_range": {
+        "name": "plage de détail"
+      },
+      "black_point": {
+        "name": "point noir"
+      },
+      "white_point": {
+        "name": "point blanc"
+      },
+      "process_detail": {
+        "name": "traiter le détail"
+      },
+      "prompt": {
+        "name": "prompt"
+      },
+      "cache_model": {
+        "name": "modèle en cache"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      },
+      "mask": {
+        "name": "masque"
+      }
+    }
+  },
+  "LayerMask: SegmentAnythingUltra V2": {
+    "display_name": "LayerMask : SegmentAnything Ultra V2 (Avancé)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "sam_model": {
+        "name": "modèle SAM"
+      },
+      "grounding_dino_model": {
+        "name": "modèle Grounding DINO"
+      },
+      "threshold": {
+        "name": "seuil"
+      },
+      "detail_method": {
+        "name": "méthode de détail"
+      },
+      "detail_erode": {
+        "name": "érosion de détail"
+      },
+      "detail_dilate": {
+        "name": "dilatation de détail"
+      },
+      "black_point": {
+        "name": "point noir"
+      },
+      "white_point": {
+        "name": "point blanc"
+      },
+      "process_detail": {
+        "name": "traiter le détail"
+      },
+      "prompt": {
+        "name": "prompt"
+      },
+      "device": {
+        "name": "périphérique"
+      },
+      "max_megapixels": {
+        "name": "mégapixels max"
+      },
+      "cache_model": {
+        "name": "modèle en cache"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      },
+      "mask": {
+        "name": "masque"
+      }
+    }
+  },
+  "LayerMask: LoadSegmentAnythingModels": {
+    "display_name": "LayerMask : Charger les modèles SegmentAnything (Avancé)",
+    "inputs": {
+      "sam_model": {
+        "name": "modèle SAM"
+      },
+      "grounding_dino_model": {
+        "name": "modèle Grounding DINO"
+      }
+    },
+    "outputs": {
+      "ls_sam_models": {
+        "name": "modèles LS SAM"
+      }
+    }
+  },
+  "LayerMask: SegmentAnythingUltra V3": {
+    "display_name": "LayerMask : SegmentAnything Ultra V3 (Avancé)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "sam_models": {
+        "name": "modèles SAM"
+      },
+      "threshold": {
+        "name": "seuil"
+      },
+      "detail_method": {
+        "name": "méthode de détail"
+      },
+      "detail_erode": {
+        "name": "érosion de détail"
+      },
+      "detail_dilate": {
+        "name": "dilatation de détail"
+      },
+      "black_point": {
+        "name": "point noir"
+      },
+      "white_point": {
+        "name": "point blanc"
+      },
+      "process_detail": {
+        "name": "traiter le détail"
+      },
+      "prompt": {
+        "name": "prompt"
+      },
+      "device": {
+        "name": "périphérique"
+      },
+      "max_megapixels": {
+        "name": "mégapixels max"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      },
+      "mask": {
+        "name": "masque"
+      }
+    }
+  },
+  "LayerUtility: LoadSmolLM2Model": {
+    "display_name": "LayerUtility : Charger le modèle SmolLM2 (Avancé)",
+    "inputs": {
+      "model": {
+        "name": "modèle"
+      },
+      "dtype": {
+        "name": "dtype"
+      },
+      "device": {
+        "name": "périphérique"
+      }
+    },
+    "outputs": {
+      "smollm2_model": {
+        "name": "modèle SmolLM2"
+      }
+    }
+  },
+  "LayerUtility: LoadSmolVLMModel": {
+    "display_name": "LayerUtility : Charger le modèle SmolVLM (Avancé)",
+    "inputs": {
+      "model": {
+        "name": "modèle"
+      },
+      "dtype": {
+        "name": "dtype"
+      },
+      "device": {
+        "name": "périphérique"
+      }
+    },
+    "outputs": {
+      "smolvlm_model": {
+        "name": "modèle SmolVLM"
+      }
+    }
+  },
+  "LayerUtility: SmolLM2": {
+    "display_name": "LayerUtility : SmolLM2 (Avancé)",
+    "inputs": {
+      "smolLM2_model": {
+        "name": "modèle SmolLM2"
+      },
+      "max_new_tokens": {
+        "name": "nouveaux tokens max"
+      },
+      "do_sample": {
+        "name": "échantillonner"
+      },
+      "temperature": {
+        "name": "température"
+      },
+      "top_p": {
+        "name": "top_p"
+      },
+      "system_prompt": {
+        "name": "prompt système"
+      },
+      "user_prompt": {
+        "name": "prompt utilisateur"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "chaîne"
+      }
+    }
+  },
+  "LayerUtility: SmolVLM": {
+    "display_name": "LayerUtility : SmolVLM (Avancé)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "smolVLM_model": {
+        "name": "modèle SmolVLM"
+      },
+      "max_new_tokens": {
+        "name": "nouveaux tokens max"
+      },
+      "user_prompt": {
+        "name": "prompt utilisateur"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "chaîne"
+      }
+    }
+  },
+  "LayerMask: TransparentBackgroundUltra": {
+    "display_name": "LayerMask : Fond transparent Ultra (Avancé)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "model": {
+        "name": "modèle"
+      },
+      "detail_method": {
+        "name": "méthode de détail"
+      },
+      "detail_erode": {
+        "name": "érosion de détail"
+      },
+      "detail_dilate": {
+        "name": "dilatation de détail"
+      },
+      "black_point": {
+        "name": "point noir"
+      },
+      "white_point": {
+        "name": "point blanc"
+      },
+      "process_detail": {
+        "name": "traiter le détail"
+      },
+      "device": {
+        "name": "périphérique"
+      },
+      "max_megapixels": {
+        "name": "mégapixels max"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      },
+      "mask": {
+        "name": "masque"
+      }
+    }
+  },
+  "LayerUtility: UserPromptGeneratorTxt2ImgPromptWithReference": {
+    "display_name": "LayerUtility : Générateur de prompt utilisateur Txt2Img avec référence (Avancé)",
+    "inputs": {
+      "template": {
+        "name": "modèle"
+      },
+      "reference_text": {
+        "name": "texte de référence"
+      },
+      "describe": {
+        "name": "décrire"
+      },
+      "limit_words": {
+        "name": "limiter les mots"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "chaîne"
+      }
+    }
+  },
+  "LayerUtility: UserPromptGeneratorTxt2ImgPrompt": {
+    "display_name": "LayerUtility : Générateur de prompt utilisateur Txt2Img (Avancé)",
+    "inputs": {
+      "template": {
+        "name": "modèle"
+      },
+      "describe": {
+        "name": "décrire"
+      },
+      "limit_words": {
+        "name": "limiter les mots"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "chaîne"
+      }
+    }
+  },
+  "LayerUtility: UserPromptGeneratorReplaceWord": {
+    "display_name": "LayerUtility : Générateur de prompt utilisateur Remplacer le mot (Avancé)",
+    "inputs": {
+      "orig_prompt": {
+        "name": "prompt d'origine"
+      },
+      "template": {
+        "name": "modèle"
+      },
+      "exclude_word": {
+        "name": "exclure le mot"
+      },
+      "replace_with_word": {
+        "name": "remplacer par le mot"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "chaîne"
+      }
+    }
+  },
+  "LayerUtility: AddBlindWaterMark": {
+    "display_name": "LayerUtility : Ajouter un filigrane invisible (Avancé)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "watermark_image": {
+        "name": "image de filigrane"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      }
+    }
+  },
+  "LayerUtility: ShowBlindWaterMark": {
+    "display_name": "LayerUtility : Afficher le filigrane invisible (Avancé)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      }
+    }
+  },
+  "LayerMask: YoloV8Detect": {
+    "display_name": "LayerMask : Détection YoloV8 (Avancé)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "yolo_model": {
+        "name": "modèle YOLO"
+      },
+      "mask_merge": {
+        "name": "fusion de masque"
+      }
+    },
+    "outputs": {
+      "mask": {
+        "name": "masque"
+      },
+      "image": {
+        "name": "image"
+      }
+    }
+  },
+  "LayerUtility: ZhipuGLM4V": {
+    "display_name": "LayerUtility : ZhipuGLM4V (Avancé)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "model": {
+        "name": "modèle"
+      },
+      "user_prompt": {
+        "name": "prompt utilisateur"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "chaîne"
+      }
+    }
+  },
+  "LayerUtility: ZhipuGLM4": {
+    "display_name": "LayerUtility : ZhipuGLM4 (Avancé)",
+    "inputs": {
+      "model": {
+        "name": "modèle"
+      },
+      "user_prompt": {
+        "name": "prompt utilisateur"
+      },
+      "history_length": {
+        "name": "longueur d'historique"
+      },
+      "history": {
+        "name": "historique"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "chaîne"
+      },
+      "glm4_history": {
+        "name": "historique GLM4"
+      }
+    }
+  }
+}

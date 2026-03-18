@@ -1,4 +1,6 @@
+import torch
 from .imagefunc import AnyType, log, extract_all_numbers_from_str
+
 
 any = AnyType("*")
 
@@ -8,7 +10,7 @@ class SeedNode:
     @classmethod
     def INPUT_TYPES(self):
         return {"required": {
-                "seed":("INT", {"default": 0, "min": 0, "max": 99999999999999999999, "step": 1}),
+                "seed":("INT", {"default": 0, "min": 0, "max": 1e18, "step": 1}),
             },}
 
     RETURN_TYPES = ("INT",)
@@ -267,7 +269,7 @@ class StringCondition:
         pass
     @classmethod
     def INPUT_TYPES(self):
-        string_condition_list = ["include", "exclude",]
+        string_condition_list = ["include", "exclude", "equal"]
         return {"required": {
                 "text": ("STRING", {"multiline": False}),
                 "condition": (string_condition_list,),
@@ -285,6 +287,8 @@ class StringCondition:
             ret = sub_string in text
         if condition == "exclude":
             ret = sub_string not in text
+        if condition == "equal":
+            ret = text == sub_string
         return (ret, str(ret))
 
 
@@ -328,7 +332,7 @@ class IntegerNode:
     @classmethod
     def INPUT_TYPES(self):
         return {"required": {
-                "int_value":("INT", {"default": 0, "min": -99999999999999999999, "max": 99999999999999999999, "step": 1}),
+                "int_value":("INT", {"default": 0, "min": -1e18, "max": 1e18, "step": 1}),
             },}
 
     RETURN_TYPES = ("INT", "STRING",)
@@ -337,7 +341,7 @@ class IntegerNode:
     CATEGORY = '😺dzNodes/LayerUtility/Data'
 
     def integer_node(self, int_value):
-        return (int_value, str(int_value))
+        return (int(int_value), str(int_value))
 
 class FloatNode:
     def __init__(self):
@@ -345,7 +349,7 @@ class FloatNode:
     @classmethod
     def INPUT_TYPES(self):
         return {"required": {
-                "float_value":  ("FLOAT", {"default": 0, "min": -99999999999999999999, "max": 99999999999999999999, "step": 0.00001}),
+                "float_value":  ("FLOAT", {"default": 0, "min": -1e18, "max": 1e18, "step": 0.00001}),
             },}
 
     RETURN_TYPES = ("FLOAT", "STRING",)
@@ -458,6 +462,110 @@ class QueueStopNode():
 
         return (any,)
 
+
+class LS_ImageBatchToMultiList:
+
+    def __init__(self):
+        self.NODE_NAME = 'ImageBatchToList'
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "image": ("IMAGE",),
+                "batch_size": ("INT", {
+                    "default": 6,
+                    "min": 1,
+                    "max": 64,
+                    "step": 1
+                }),
+            }
+        }
+
+    RETURN_TYPES = ("IMAGE",)
+    RETURN_NAMES = ("image", )
+    OUTPUT_IS_LIST = (True,)
+    FUNCTION = "image_batch_to_multi_list"
+    CATEGORY = '😺dzNodes/LayerUtility/Data'
+
+    def image_batch_to_multi_list(self, image, batch_size):
+        """
+        image: [B, H, W, C]
+        输出: list of IMAGE batch，每个 batch 大小 <= batch_size
+        """
+        B = image.shape[0]
+        out = []
+        sizes = []
+
+        for i in range(0, B, batch_size):
+            batch = image[i:i + batch_size]
+            out.append(batch)
+            sizes.append(batch.shape[0])
+
+        log(f"{self.NODE_NAME}: Convert a batch of {B} images to {sizes}.", message_type='finish')
+
+        return (out,)
+
+
+class LS_MultiImageListToBatch:
+
+    def __init__(self):
+        self.NODE_NAME = 'ImageListToBatch'
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "image": ("IMAGE",),
+            }
+        }
+
+    RETURN_TYPES = ("IMAGE",)
+    RETURN_NAMES = ("image", )
+    INPUT_IS_LIST = True
+    FUNCTION = "multi_image_list_to_batch"
+    CATEGORY = '😺dzNodes/LayerUtility/Data'
+
+    def multi_image_list_to_batch(self, image):
+        """
+        image: list of IMAGE batch
+               每个元素 shape 为 [Bi, Hi, Wi, C]
+        输出: 单一 IMAGE batch [sum(Bi), H, W, C]
+        """
+
+        # 以第一个 batch 的第一张图作为基准尺寸
+        base_h, base_w = image[0].shape[1:3]
+        out = []
+        sizes =  []
+
+        for batch in image:
+            # batch: [B, H, W, C]
+            if batch.shape[1:3] != (base_h, base_w):
+                # 转成 [B, C, H, W]
+                batch = batch.permute(0, 3, 1, 2)
+
+                batch = comfy.utils.common_upscale(
+                    batch,
+                    base_w,
+                    base_h,
+                    upscale_method="bicubic",
+                    crop="center"
+                )
+
+                # 转回 [B, H, W, C]
+                batch = batch.permute(0, 2, 3, 1)
+            
+            sizes.append(batch.shape[0])
+            out.append(batch)
+
+        # 沿 batch 维拼接
+        out = torch.cat(out, dim=0)
+        log(f"{self.NODE_NAME}: Convert {sizes} list(s) to a batch of {out.shape[0]} images.", message_type='finish')
+
+        return (out,)
+
+
+
 NODE_CLASS_MAPPINGS = {
     "LayerUtility: QueueStop": QueueStopNode,
     "LayerUtility: SwitchCase": SwitchCaseNode,
@@ -472,7 +580,10 @@ NODE_CLASS_MAPPINGS = {
     "LayerUtility: Integer": IntegerNode,
     "LayerUtility: Float": FloatNode,
     "LayerUtility: Boolean": BooleanNode,
-    "LayerUtility: Seed": SeedNode
+    "LayerUtility: Seed": SeedNode,
+    "LayerUtility: ImageBatchToList": LS_ImageBatchToMultiList,
+    "LayerUtility: ImageListToBatch": LS_MultiImageListToBatch,
+
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -489,5 +600,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "LayerUtility: Integer": "LayerUtility: Integer",
     "LayerUtility: Float": "LayerUtility: Float",
     "LayerUtility: Boolean": "LayerUtility: Boolean",
-    "LayerUtility: Seed": "LayerUtility: Seed"
+    "LayerUtility: Seed": "LayerUtility: Seed",
+    "LayerUtility: ImageBatchToList": "LayerUtility: Image Batch To List(Multi)",
+    "LayerUtility: ImageListToBatch": "LayerUtility: Image List To Batch(Multi)",
 }

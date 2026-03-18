@@ -1,15 +1,18 @@
-from .imagefunc import *
+import torch
+from PIL import Image
+from .imagefunc import log, tensor2pil, pil2tensor, image2mask, mask2image, RMBG, RGB2RGBA, mask_edge_detail
+from .imagefunc import guided_filter_alpha, histogram_remap, generate_VITMatte, generate_VITMatte_trimap
 
-NODE_NAME = 'RmBgUltra V2'
+
 
 class RmBgUltraV2:
     def __init__(self):
-        pass
+        self.NODE_NAME = 'RmBgUltra V2'
 
     @classmethod
     def INPUT_TYPES(cls):
 
-        method_list = ['VITMatte', 'VITMatte(local)', 'PyMatting', 'GuidedFilter', ]
+        method_list = ['VITMatte', 'VITMatte(local)', 'vitmatte-base-composition-1k', 'PyMatting', 'GuidedFilter', ]
         device_list = ['cuda','cpu']
         return {
             "required": {
@@ -58,7 +61,7 @@ class RmBgUltraV2:
                     _mask = tensor2pil(mask_edge_detail(i, _mask, detail_range // 8 + 1, black_point, white_point))
                 else:
                     _trimap = generate_VITMatte_trimap(_mask, detail_erode, detail_dilate)
-                    _mask = generate_VITMatte(orig_image, _trimap, local_files_only=local_files_only, device=device, max_megapixels=max_megapixels)
+                    _mask = generate_VITMatte(orig_image, _trimap, local_files_only=local_files_only, device=device, max_megapixels=max_megapixels, method=detail_method)
                     _mask = tensor2pil(histogram_remap(pil2tensor(_mask), black_point, white_point))
             else:
                 _mask = mask2image(_mask)
@@ -67,7 +70,7 @@ class RmBgUltraV2:
             ret_images.append(pil2tensor(ret_image))
             ret_masks.append(image2mask(_mask))
 
-        log(f"{NODE_NAME} Processed {len(ret_images)} image(s).", message_type='finish')
+        log(f"{self.NODE_NAME} Processed {len(ret_images)} image(s).", message_type='finish')
         return (torch.cat(ret_images, dim=0), torch.cat(ret_masks, dim=0),)
 
 NODE_CLASS_MAPPINGS = {

@@ -1,0 +1,275 @@
+{
+  "last_node_id": 14,
+  "last_link_id": 14,
+  "nodes": [
+    {
+      "id": 6,
+      "type": "LayerMask: LoadFlorence2Model",
+      "pos": [
+        702.1195068359375,
+        804.4620971679688
+      ],
+      "size": [
+        378.0740966796875,
+        62.4444580078125
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "florence2_model",
+          "type": "FLORENCE2",
+          "links": [
+            14
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LayerMask: LoadFlorence2Model"
+      },
+      "widgets_values": [
+        "base"
+      ],
+      "color": "rgba(27, 80, 119, 0.7)"
+    },
+    {
+      "id": 1,
+      "type": "LayerUtility: Collage",
+      "pos": [
+        699.5286254882812,
+        926.8685913085938
+      ],
+      "size": [
+        378,
+        270
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 12
+        },
+        {
+          "name": "florence2_model",
+          "type": "FLORENCE2",
+          "link": 14,
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            7
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "links": [
+            8
+          ],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LayerUtility: Collage"
+      },
+      "widgets_values": [
+        2048,
+        2048,
+        1,
+        20,
+        1,
+        "#FFFFFF",
+        1078302422640976,
+        "randomize",
+        "subject"
+      ],
+      "color": "rgba(38, 73, 116, 0.7)"
+    },
+    {
+      "id": 9,
+      "type": "PreviewImage",
+      "pos": [
+        1151.0084228515625,
+        604.7581787109375
+      ],
+      "size": [
+        598.259765625,
+        317.0512390136719
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 7
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 10,
+      "type": "LayerMask: MaskPreview",
+      "pos": [
+        1152.8602294921875,
+        972.933349609375
+      ],
+      "size": [
+        593.96630859375,
+        310.0398864746094
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 8
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "LayerMask: MaskPreview"
+      },
+      "widgets_values": [],
+      "color": "rgba(27, 80, 119, 0.7)"
+    },
+    {
+      "id": 13,
+      "type": "VHS_LoadImagesPath",
+      "pos": [
+        397.5517883300781,
+        821.9283447265625
+      ],
+      "size": [
+        242.24609375,
+        194
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "meta_batch",
+          "type": "VHS_BatchManager",
+          "link": null,
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            12
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        },
+        {
+          "name": "frame_count",
+          "type": "INT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VHS_LoadImagesPath"
+      },
+      "widgets_values": {
+        "directory": "c:\\images",
+        "image_load_cap": 0,
+        "skip_first_images": 0,
+        "select_every_nth": 1,
+        "choose folder to upload": "image",
+        "videopreview": {
+          "hidden": false,
+          "paused": false,
+          "params": {
+            "frame_load_cap": 0,
+            "skip_first_frames": 0,
+            "select_every_nth": 1,
+            "filename": "c:\\images",
+            "type": "path",
+            "format": "folder"
+          },
+          "muted": false
+        }
+      }
+    }
+  ],
+  "links": [
+    [
+      7,
+      1,
+      0,
+      9,
+      0,
+      "IMAGE"
+    ],
+    [
+      8,
+      1,
+      1,
+      10,
+      0,
+      "MASK"
+    ],
+    [
+      12,
+      13,
+      0,
+      1,
+      0,
+      "IMAGE"
+    ],
+    [
+      14,
+      6,
+      0,
+      1,
+      1,
+      "FLORENCE2"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 1.2100000000000002,
+      "offset": [
+        -33.25166101546846,
+        -396.5863340766634
+      ]
+    },
+    "node_versions": {
+      "ComfyUI_LayerStyle_Advance": "7fdcbce0727a541efcd3ff393a099b3f0fa52d33",
+      "comfy-core": "0.3.12",
+      "ComfyUI_LayerStyle": "3bf7244fa652322c3307609b928f7aed8c3b3707",
+      "ComfyUI-VideoHelperSuite": "c47b10ca1798b4925ff5a5f07d80c51ca80a837d"
+    },
+    "VHS_latentpreview": false,
+    "VHS_latentpreviewrate": 0
+  },
+  "version": 0.4
+}

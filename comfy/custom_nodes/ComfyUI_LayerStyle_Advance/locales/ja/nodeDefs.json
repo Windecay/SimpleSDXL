@@ -1,0 +1,2399 @@
+{
+  "LayerMask: LoadBenModel": {
+    "display_name": "LayerMask：Benモデルをロード（高度）",
+    "inputs": {
+      "model": {
+        "name": "モデル"
+      },
+      "device": {
+        "name": "デバイス"
+      }
+    },
+    "outputs": {
+      "ben_model": {
+        "name": "Benモデル"
+      }
+    }
+  },
+  "LayerMask: BenUltra": {
+    "display_name": "LayerMask：Ben Ultra（高度）",
+    "inputs": {
+      "ben_model": {
+        "name": "Benモデル"
+      },
+      "image": {
+        "name": "画像"
+      },
+      "detail_method": {
+        "name": "詳細方法"
+      },
+      "detail_erode": {
+        "name": "詳細エロード"
+      },
+      "detail_dilate": {
+        "name": "詳細ダイレート"
+      },
+      "black_point": {
+        "name": "黒点"
+      },
+      "white_point": {
+        "name": "白点"
+      },
+      "max_megapixels": {
+        "name": "最大メガピクセル"
+      },
+      "process_detail": {
+        "name": "詳細処理"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "画像"
+      },
+      "mask": {
+        "name": "マスク"
+      }
+    }
+  },
+  "LayerMask: BiRefNetUltra": {
+    "display_name": "LayerMask：BiRefNet Ultra（高度）",
+    "inputs": {
+      "image": {
+        "name": "画像"
+      },
+      "detail_method": {
+        "name": "詳細方法"
+      },
+      "detail_erode": {
+        "name": "詳細エロード"
+      },
+      "detail_dilate": {
+        "name": "詳細ダイレート"
+      },
+      "black_point": {
+        "name": "黒点"
+      },
+      "white_point": {
+        "name": "白点"
+      },
+      "process_detail": {
+        "name": "詳細処理"
+      },
+      "device": {
+        "name": "デバイス"
+      },
+      "max_megapixels": {
+        "name": "最大メガピクセル"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "画像"
+      },
+      "mask": {
+        "name": "マスク"
+      }
+    }
+  },
+  "LayerMask: LoadBiRefNetModel": {
+    "display_name": "LayerMask：BiRefNetモデルをロード（高度）",
+    "inputs": {
+      "model": {
+        "name": "モデル"
+      }
+    },
+    "outputs": {
+      "birefnet_model": {
+        "name": "BiRefNetモデル"
+      }
+    }
+  },
+  "LayerMask: LoadBiRefNetModelV2": {
+    "display_name": "LayerMask：BiRefNetモデルをロード V2（高度）",
+    "inputs": {
+      "version": {
+        "name": "バージョン"
+      }
+    },
+    "outputs": {
+      "birefnet_model": {
+        "name": "BiRefNetモデル"
+      }
+    }
+  },
+  "LayerMask: BiRefNetUltraV2": {
+    "display_name": "LayerMask：BiRefNet Ultra V2（高度）",
+    "inputs": {
+      "image": {
+        "name": "画像"
+      },
+      "birefnet_model": {
+        "name": "BiRefNetモデル"
+      },
+      "detail_method": {
+        "name": "詳細方法"
+      },
+      "detail_erode": {
+        "name": "詳細エロード"
+      },
+      "detail_dilate": {
+        "name": "詳細ダイレート"
+      },
+      "black_point": {
+        "name": "黒点"
+      },
+      "white_point": {
+        "name": "白点"
+      },
+      "process_detail": {
+        "name": "詳細処理"
+      },
+      "device": {
+        "name": "デバイス"
+      },
+      "max_megapixels": {
+        "name": "最大メガピクセル"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "画像"
+      },
+      "mask": {
+        "name": "マスク"
+      }
+    }
+  },
+  "LayerUtility: Collage": {
+    "display_name": "LayerUtility：コラージュ（高度）",
+    "inputs": {
+      "images": {
+        "name": "画像群"
+      },
+      "canvas_width": {
+        "name": "キャンバス幅"
+      },
+      "canvas_height": {
+        "name": "キャンバス高"
+      },
+      "border_width": {
+        "name": "ボーダー幅"
+      },
+      "rounded_rect_radius": {
+        "name": "角丸半径"
+      },
+      "uniformity": {
+        "name": "均一性"
+      },
+      "background_color": {
+        "name": "背景色"
+      },
+      "seed": {
+        "name": "シード"
+      },
+      "florence2_model": {
+        "name": "Florence2モデル"
+      },
+      "object_prompt": {
+        "name": "オブジェクトプロンプト"
+      },
+      "image": {
+        "name": "画像"
+      },
+      "bboxes": {
+        "name": "BBOX群"
+      },
+      "grow_top": {
+        "name": "上部拡張"
+      },
+      "grow_bottom": {
+        "name": "下部拡張"
+      },
+      "grow_left": {
+        "name": "左部拡張"
+      },
+      "grow_right": {
+        "name": "右部拡張"
+      },
+      "proportional_width": {
+        "name": "比例幅"
+      },
+      "proportional_height": {
+        "name": "比例高"
+      },
+      "mask": {
+        "name": "マスク"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "画像"
+      },
+      "mask": {
+        "name": "マスク"
+      }
+    }
+  },
+  "LayerUtility: DeepSeekAPI": {
+    "display_name": "LayerUtility：DeepSeek API",
+    "inputs": {
+      "model": {
+        "name": "モデル"
+      },
+      "max_tokens": {
+        "name": "最大トークン数"
+      },
+      "temperature": {
+        "name": "温度"
+      },
+      "top_p": {
+        "name": "トップP"
+      },
+      "presence_penalty": {
+        "name": "存在ペナルティ"
+      },
+      "frequency_penalty": {
+        "name": "頻度ペナルティ"
+      },
+      "history_length": {
+        "name": "履歴長"
+      },
+      "system_prompt": {
+        "name": "システムプロンプト"
+      },
+      "user_prompt": {
+        "name": "ユーザープロンプト"
+      },
+      "history": {
+        "name": "履歴"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "文字列"
+      },
+      "deepseek_history": {
+        "name": "DeepSeek履歴"
+      }
+    }
+  },
+  "LayerUtility: DeepSeekAPIV2": {
+    "display_name": "LayerUtility：DeepSeek API V2",
+    "inputs": {
+      "model": {
+        "name": "モデル"
+      },
+      "time_out": {
+        "name": "タイムアウト"
+      },
+      "max_tokens": {
+        "name": "最大トークン数"
+      },
+      "temperature": {
+        "name": "温度"
+      },
+      "top_p": {
+        "name": "トップP"
+      },
+      "presence_penalty": {
+        "name": "存在ペナルティ"
+      },
+      "frequency_penalty": {
+        "name": "頻度ペナルティ"
+      },
+      "history_length": {
+        "name": "履歴長"
+      },
+      "system_prompt": {
+        "name": "システムプロンプト"
+      },
+      "user_prompt": {
+        "name": "ユーザープロンプト"
+      },
+      "history": {
+        "name": "履歴"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "文字列"
+      },
+      "deepseek_history": {
+        "name": "DeepSeek履歴"
+      }
+    }
+  },
+  "LayerMask: EVFSAMUltra": {
+    "display_name": "LayerMask：EVF-SAM Ultra（高度）",
+    "inputs": {
+      "image": {
+        "name": "画像"
+      },
+      "model": {
+        "name": "モデル"
+      },
+      "precision": {
+        "name": "精度"
+      },
+      "load_in_bit": {
+        "name": "ビットロード"
+      },
+      "prompt": {
+        "name": "プロンプト"
+      },
+      "detail_method": {
+        "name": "詳細方法"
+      },
+      "detail_erode": {
+        "name": "詳細エロード"
+      },
+      "detail_dilate": {
+        "name": "詳細ダイレート"
+      },
+      "black_point": {
+        "name": "黒点"
+      },
+      "white_point": {
+        "name": "白点"
+      },
+      "process_detail": {
+        "name": "詳細処理"
+      },
+      "device": {
+        "name": "デバイス"
+      },
+      "max_megapixels": {
+        "name": "最大メガピクセル"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "画像"
+      },
+      "mask": {
+        "name": "マスク"
+      }
+    }
+  },
+  "LayerMask: LoadFlorence2Model": {
+    "display_name": "LayerMask：Florence2モデルをロード（高度）",
+    "inputs": {
+      "version": {
+        "name": "バージョン"
+      }
+    },
+    "outputs": {
+      "florence2": {
+        "name": "Florence2"
+      }
+    }
+  },
+  "LayerMask: Florence2Ultra": {
+    "display_name": "LayerMask：Florence2 Ultra（高度）",
+    "inputs": {
+      "florence2_model": {
+        "name": "Florence2モデル"
+      },
+      "image": {
+        "name": "画像"
+      },
+      "task": {
+        "name": "タスク"
+      },
+      "text_input": {
+        "name": "テキスト入力"
+      },
+      "detail_method": {
+        "name": "詳細方法"
+      },
+      "detail_erode": {
+        "name": "詳細エロード"
+      },
+      "detail_dilate": {
+        "name": "詳細ダイレート"
+      },
+      "black_point": {
+        "name": "黒点"
+      },
+      "white_point": {
+        "name": "白点"
+      },
+      "process_detail": {
+        "name": "詳細処理"
+      },
+      "device": {
+        "name": "デバイス"
+      },
+      "max_megapixels": {
+        "name": "最大メガピクセル"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "画像"
+      },
+      "mask": {
+        "name": "マスク"
+      }
+    }
+  },
+  "LayerUtility: Florence2Image2Prompt": {
+    "display_name": "LayerUtility：Florence2 画像からプロンプト（高度）",
+    "inputs": {
+      "florence2_model": {
+        "name": "Florence2モデル"
+      },
+      "image": {
+        "name": "画像"
+      },
+      "task": {
+        "name": "タスク"
+      },
+      "text_input": {
+        "name": "テキスト入力"
+      },
+      "max_new_tokens": {
+        "name": "最大新規トークン数"
+      },
+      "num_beams": {
+        "name": "ビーム数"
+      },
+      "do_sample": {
+        "name": "サンプリング"
+      },
+      "fill_mask": {
+        "name": "マスク埋め"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "文字列"
+      },
+      "image": {
+        "name": "画像"
+      }
+    }
+  },
+  "LayerUtility: Gemini": {
+    "display_name": "LayerUtility：Gemini（高度）",
+    "inputs": {
+      "model": {
+        "name": "モデル"
+      },
+      "max_output_tokens": {
+        "name": "最大出力トークン数"
+      },
+      "temperature": {
+        "name": "温度"
+      },
+      "words_limit": {
+        "name": "単語制限"
+      },
+      "response_language": {
+        "name": "応答言語"
+      },
+      "system_prompt": {
+        "name": "システムプロンプト"
+      },
+      "user_prompt": {
+        "name": "ユーザープロンプト"
+      },
+      "image_1": {
+        "name": "画像_1"
+      },
+      "image_2": {
+        "name": "画像_2"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "文字列"
+      }
+    }
+  },
+  "LayerUtility: GeminiV2": {
+    "display_name": "LayerUtility：Gemini V2（高度）",
+    "inputs": {
+      "model": {
+        "name": "モデル"
+      },
+      "max_output_tokens": {
+        "name": "最大出力トークン数"
+      },
+      "temperature": {
+        "name": "温度"
+      },
+      "words_limit": {
+        "name": "単語制限"
+      },
+      "response_language": {
+        "name": "応答言語"
+      },
+      "seed": {
+        "name": "シード"
+      },
+      "system_prompt": {
+        "name": "システムプロンプト"
+      },
+      "user_prompt": {
+        "name": "ユーザープロンプト"
+      },
+      "image_1": {
+        "name": "画像_1"
+      },
+      "image_2": {
+        "name": "画像_2"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "文字列"
+      }
+    }
+  },
+  "LayerMask: ObjectDetectorGemini": {
+    "display_name": "LayerMask：オブジェクト検出 Gemini（高度）",
+    "inputs": {
+      "image": {
+        "name": "画像"
+      },
+      "model": {
+        "name": "モデル"
+      },
+      "prompt": {
+        "name": "プロンプト"
+      }
+    },
+    "outputs": {
+      "bboxes": {
+        "name": "BBOX群"
+      },
+      "image": {
+        "name": "画像"
+      }
+    }
+  },
+  "LayerMask: ObjectDetectorGeminiV2": {
+    "display_name": "LayerMask：オブジェクト検出 Gemini V2（高度）",
+    "inputs": {
+      "image": {
+        "name": "画像"
+      },
+      "model": {
+        "name": "モデル"
+      },
+      "prompt": {
+        "name": "プロンプト"
+      }
+    },
+    "outputs": {
+      "bboxes": {
+        "name": "BBOX群"
+      },
+      "image": {
+        "name": "画像"
+      }
+    }
+  },
+  "LayerUtility: GeminiImageEdit": {
+    "display_name": "LayerUtility：Gemini 画像編集（高度）",
+    "inputs": {
+      "image": {
+        "name": "画像"
+      },
+      "model": {
+        "name": "モデル"
+      },
+      "temperature": {
+        "name": "温度"
+      },
+      "seed": {
+        "name": "シード"
+      },
+      "user_prompt": {
+        "name": "ユーザープロンプト"
+      },
+      "image_2": {
+        "name": "画像_2"
+      },
+      "image_3": {
+        "name": "画像_3"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "画像"
+      }
+    }
+  },
+  "LayerUtility: GetColorTone": {
+    "display_name": "LayerUtility：色調取得（高度）",
+    "inputs": {
+      "image": {
+        "name": "画像"
+      },
+      "mode": {
+        "name": "モード"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "文字列"
+      },
+      "list": {
+        "name": "リスト"
+      }
+    }
+  },
+  "LayerUtility: GetColorToneV2": {
+    "display_name": "LayerUtility：色調取得 V2（高度）",
+    "inputs": {
+      "image": {
+        "name": "画像"
+      },
+      "mode": {
+        "name": "モード"
+      },
+      "color_of": {
+        "name": "色の"
+      },
+      "remove_bkgd_method": {
+        "name": "背景除去方法"
+      },
+      "invert_mask": {
+        "name": "マスク反転"
+      },
+      "mask_grow": {
+        "name": "マスク拡張"
+      },
+      "mask": {
+        "name": "マスク"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "画像"
+      },
+      "string": {
+        "name": "文字列"
+      },
+      "list": {
+        "name": "リスト"
+      },
+      "mask": {
+        "name": "マスク"
+      }
+    }
+  },
+  "LayerMask: HumanPartsUltra": {
+    "display_name": "LayerMask：人体パーツ Ultra（高度）",
+    "inputs": {
+      "image": {
+        "name": "画像"
+      },
+      "face": {
+        "name": "顔"
+      },
+      "hair": {
+        "name": "髪"
+      },
+      "glasses": {
+        "name": "眼鏡"
+      },
+      "top_clothes": {
+        "name": "上着"
+      },
+      "bottom_clothes": {
+        "name": "下着"
+      },
+      "torso_skin": {
+        "name": "胴体の肌"
+      },
+      "left_arm": {
+        "name": "左腕"
+      },
+      "right_arm": {
+        "name": "右腕"
+      },
+      "left_leg": {
+        "name": "左足"
+      },
+      "right_leg": {
+        "name": "右足"
+      },
+      "left_foot": {
+        "name": "左足首"
+      },
+      "right_foot": {
+        "name": "右足首"
+      },
+      "detail_method": {
+        "name": "詳細方法"
+      },
+      "detail_erode": {
+        "name": "詳細エロード"
+      },
+      "detail_dilate": {
+        "name": "詳細ダイレート"
+      },
+      "black_point": {
+        "name": "黒点"
+      },
+      "white_point": {
+        "name": "白点"
+      },
+      "process_detail": {
+        "name": "詳細処理"
+      },
+      "device": {
+        "name": "デバイス"
+      },
+      "max_megapixels": {
+        "name": "最大メガピクセル"
+      },
+      "pil_image": {
+        "name": "PIL画像"
+      },
+      "model": {
+        "name": "モデル"
+      },
+      "rotation": {
+        "name": "回転"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "画像"
+      },
+      "mask": {
+        "name": "マスク"
+      }
+    }
+  },
+  "LayerUtility: ImageAutoCrop": {
+    "display_name": "LayerUtility：自動画像クロップ（高度）",
+    "inputs": {
+      "image": {
+        "name": "画像"
+      },
+      "background_color": {
+        "name": "背景色"
+      },
+      "aspect_ratio": {
+        "name": "アスペクト比"
+      },
+      "proportional_width": {
+        "name": "比例幅"
+      },
+      "proportional_height": {
+        "name": "比例高"
+      },
+      "scale_to_longest_side": {
+        "name": "最長辺にスケール"
+      },
+      "longest_side": {
+        "name": "最長辺"
+      },
+      "detect": {
+        "name": "検出"
+      },
+      "border_reserve": {
+        "name": "ボーダー予約"
+      },
+      "ultra_detail_range": {
+        "name": "Ultra詳細範囲"
+      },
+      "matting_method": {
+        "name": "マット方法"
+      },
+      "sam_model": {
+        "name": "SAMモデル"
+      },
+      "grounding_dino_model": {
+        "name": "GroundingDINOモデル"
+      },
+      "sam_threshold": {
+        "name": "SAM閾値"
+      },
+      "sam_prompt": {
+        "name": "SAMプロンプト"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "画像"
+      },
+      "mask": {
+        "name": "マスク"
+      }
+    }
+  },
+  "LayerUtility: ImageAutoCrop V2": {
+    "display_name": "LayerUtility：自動画像クロップ V2（高度）",
+    "inputs": {
+      "image": {
+        "name": "画像"
+      },
+      "fill_background": {
+        "name": "背景埋め"
+      },
+      "background_color": {
+        "name": "背景色"
+      },
+      "aspect_ratio": {
+        "name": "アスペクト比"
+      },
+      "proportional_width": {
+        "name": "比例幅"
+      },
+      "proportional_height": {
+        "name": "比例高"
+      },
+      "scale_to_side": {
+        "name": "辺にスケール"
+      },
+      "scale_to_length": {
+        "name": "長さにスケール"
+      },
+      "detect": {
+        "name": "検出"
+      },
+      "border_reserve": {
+        "name": "ボーダー予約"
+      },
+      "ultra_detail_range": {
+        "name": "Ultra詳細範囲"
+      },
+      "matting_method": {
+        "name": "マット方法"
+      },
+      "sam_model": {
+        "name": "SAMモデル"
+      },
+      "grounding_dino_model": {
+        "name": "GroundingDINOモデル"
+      },
+      "sam_threshold": {
+        "name": "SAM閾値"
+      },
+      "sam_prompt": {
+        "name": "SAMプロンプト"
+      },
+      "mask": {
+        "name": "マスク"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "画像"
+      },
+      "mask": {
+        "name": "マスク"
+      }
+    }
+  },
+  "LayerUtility: ImageAutoCrop V3": {
+    "display_name": "LayerUtility：自動画像クロップ V3（高度）",
+    "inputs": {
+      "image": {
+        "name": "画像"
+      },
+      "aspect_ratio": {
+        "name": "アスペクト比"
+      },
+      "proportional_width": {
+        "name": "比例幅"
+      },
+      "proportional_height": {
+        "name": "比例高"
+      },
+      "method": {
+        "name": "方法"
+      },
+      "scale_to_side": {
+        "name": "辺にスケール"
+      },
+      "scale_to_length": {
+        "name": "長さにスケール"
+      },
+      "round_to_multiple": {
+        "name": "倍数に丸める"
+      },
+      "mask": {
+        "name": "マスク"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "画像"
+      }
+    }
+  },
+  "LayerUtility: ImageRewardFilter": {
+    "display_name": "LayerUtility：画像美学フィルタ（高度）",
+    "inputs": {
+      "images": {
+        "name": "画像群"
+      },
+      "prompt": {
+        "name": "プロンプト"
+      },
+      "output_num": {
+        "name": "出力数"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "画像"
+      }
+    }
+  },
+  "LayerUtility: JoyCaption2ExtraOptions": {
+    "display_name": "LayerUtility：JoyCaption2 追加オプション（高度）",
+    "inputs": {
+      "refer_character_name": {
+        "name": "キャラクター名参照"
+      },
+      "exclude_people_info": {
+        "name": "人物情報除外"
+      },
+      "include_lighting": {
+        "name": "照明を含む"
+      },
+      "include_camera_angle": {
+        "name": "カメラ角度を含む"
+      },
+      "include_watermark": {
+        "name": "ウォーターマークを含む"
+      },
+      "include_JPEG_artifacts": {
+        "name": "JPEGアーティファクトを含む"
+      },
+      "include_exif": {
+        "name": "EXIFを含む"
+      },
+      "exclude_sexual": {
+        "name": "性的内容除外"
+      },
+      "exclude_image_resolution": {
+        "name": "画像解像度除外"
+      },
+      "include_aesthetic_quality": {
+        "name": "美的品質を含む"
+      },
+      "include_composition_style": {
+        "name": "構図スタイルを含む"
+      },
+      "exclude_text": {
+        "name": "テキスト除外"
+      },
+      "specify_depth_field": {
+        "name": "深度フィールド指定"
+      },
+      "specify_lighting_sources": {
+        "name": "光源指定"
+      },
+      "do_not_use_ambiguous_language": {
+        "name": "曖昧な言語を使用しない"
+      },
+      "include_nsfw": {
+        "name": "NSFWを含む"
+      },
+      "only_describe_most_important_elements": {
+        "name": "最も重要な要素のみ記述"
+      },
+      "character_name": {
+        "name": "キャラクター名"
+      }
+    },
+    "outputs": {
+      "joycaption2extraoption": {
+        "name": "JoyCaption2追加オプション"
+      }
+    }
+  },
+  "LayerUtility: JoyCaption2": {
+    "display_name": "LayerUtility：JoyCaption2（高度）",
+    "inputs": {
+      "image": {
+        "name": "画像"
+      },
+      "llm_model": {
+        "name": "LLMモデル"
+      },
+      "device": {
+        "name": "デバイス"
+      },
+      "dtype": {
+        "name": "データタイプ"
+      },
+      "vlm_lora": {
+        "name": "VLM LoRA"
+      },
+      "caption_type": {
+        "name": "キャプションタイプ"
+      },
+      "caption_length": {
+        "name": "キャプション長"
+      },
+      "user_prompt": {
+        "name": "ユーザープロンプト"
+      },
+      "max_new_tokens": {
+        "name": "最大新規トークン数"
+      },
+      "top_p": {
+        "name": "トップP"
+      },
+      "temperature": {
+        "name": "温度"
+      },
+      "cache_model": {
+        "name": "キャッシュモデル"
+      },
+      "use_global_model": {
+        "name": "グローバルモデル使用"
+      },
+      "extra_options": {
+        "name": "追加オプション"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "文字列"
+      }
+    }
+  },
+  "LayerUtility: LoadJoyCaption2Model": {
+    "display_name": "LayerUtility：JoyCaption2モデルをロード（高度）",
+    "inputs": {
+      "llm_model": {
+        "name": "LLMモデル"
+      },
+      "device": {
+        "name": "デバイス"
+      },
+      "dtype": {
+        "name": "データタイプ"
+      },
+      "vlm_lora": {
+        "name": "VLM LoRA"
+      }
+    },
+    "outputs": {
+      "joycaption2_model": {
+        "name": "JoyCaption2モデル"
+      }
+    }
+  },
+  "LayerUtility: JoyCaption2Split": {
+    "display_name": "LayerUtility：JoyCaption2 分割（高度）",
+    "inputs": {
+      "image": {
+        "name": "画像"
+      },
+      "joy2_model": {
+        "name": "Joy2モデル"
+      },
+      "caption_type": {
+        "name": "キャプションタイプ"
+      },
+      "caption_length": {
+        "name": "キャプション長"
+      },
+      "user_prompt": {
+        "name": "ユーザープロンプト"
+      },
+      "max_new_tokens": {
+        "name": "最大新規トークン数"
+      },
+      "top_p": {
+        "name": "トップP"
+      },
+      "temperature": {
+        "name": "温度"
+      },
+      "extra_options": {
+        "name": "追加オプション"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "文字列"
+      }
+    }
+  },
+  "LayerUtility: LaMa": {
+    "display_name": "LayerUtility：LaMa（高度）",
+    "inputs": {
+      "image": {
+        "name": "画像"
+      },
+      "mask": {
+        "name": "マスク"
+      },
+      "lama_model": {
+        "name": "LaMaモデル"
+      },
+      "device": {
+        "name": "デバイス"
+      },
+      "invert_mask": {
+        "name": "マスク反転"
+      },
+      "mask_grow": {
+        "name": "マスク拡張"
+      },
+      "mask_blur": {
+        "name": "マスクぼかし"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "画像"
+      }
+    }
+  },
+  "LayerUtility: LlamaVision": {
+    "display_name": "LayerUtility：Llama Vision（高度）",
+    "inputs": {
+      "image": {
+        "name": "画像"
+      },
+      "model": {
+        "name": "モデル"
+      },
+      "system_prompt": {
+        "name": "システムプロンプト"
+      },
+      "user_prompt": {
+        "name": "ユーザープロンプト"
+      },
+      "max_new_tokens": {
+        "name": "最大新規トークン数"
+      },
+      "do_sample": {
+        "name": "サンプリング"
+      },
+      "temperature": {
+        "name": "温度"
+      },
+      "top_p": {
+        "name": "トップP"
+      },
+      "top_k": {
+        "name": "トップK"
+      },
+      "stop_strings": {
+        "name": "停止文字列"
+      },
+      "seed": {
+        "name": "シード"
+      },
+      "include_prompt_in_output": {
+        "name": "出力にプロンプトを含む"
+      },
+      "cache_model": {
+        "name": "キャッシュモデル"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "文字列"
+      }
+    }
+  },
+  "LayerUtility: LoadPSD": {
+    "display_name": "LayerUtility：PSDをロード（高度）",
+    "inputs": {
+      "image": {
+        "name": "画像"
+      },
+      "file_path": {
+        "name": "ファイルパス"
+      },
+      "include_hidden_layer": {
+        "name": "隠しレイヤーを含む"
+      },
+      "find_layer_by": {
+        "name": "レイヤー検索方法"
+      },
+      "layer_index": {
+        "name": "レイヤーインデックス"
+      },
+      "layer_name": {
+        "name": "レイヤー名"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "画像"
+      }
+    }
+  },
+  "LayerMask: MaskByDifferent": {
+    "display_name": "LayerMask：差分によるマスク（高度）",
+    "inputs": {
+      "image_1": {
+        "name": "画像_1"
+      },
+      "image_2": {
+        "name": "画像_2"
+      },
+      "gain": {
+        "name": "ゲイン"
+      },
+      "fix_gap": {
+        "name": "ギャップ修正"
+      },
+      "fix_threshold": {
+        "name": "閾値修正"
+      },
+      "main_subject_detect": {
+        "name": "主被写体検出"
+      }
+    },
+    "outputs": {
+      "mask": {
+        "name": "マスク"
+      }
+    }
+  },
+  "LayerMask: MediapipeFacialSegment": {
+    "display_name": "LayerMask：Mediapipe 顔セグメント（高度）",
+    "inputs": {
+      "image": {
+        "name": "画像"
+      },
+      "left_eye": {
+        "name": "左目"
+      },
+      "left_eyebrow": {
+        "name": "左眉"
+      },
+      "right_eye": {
+        "name": "右目"
+      },
+      "right_eyebrow": {
+        "name": "右眉"
+      },
+      "lips": {
+        "name": "唇"
+      },
+      "tooth": {
+        "name": "歯"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "画像"
+      },
+      "mask": {
+        "name": "マスク"
+      }
+    }
+  },
+  "LayerMask: BBoxJoin": {
+    "display_name": "LayerMask：BBOX結合（高度）",
+    "inputs": {
+      "bboxes_1": {
+        "name": "BBOX_1"
+      },
+      "bboxes_2": {
+        "name": "BBOX_2"
+      },
+      "bboxes_3": {
+        "name": "BBOX_3"
+      },
+      "bboxes_4": {
+        "name": "BBOX_4"
+      }
+    },
+    "outputs": {
+      "bboxes": {
+        "name": "BBOX群"
+      }
+    }
+  },
+  "LayerMask: ObjectDetectorFL2": {
+    "display_name": "LayerMask：オブジェクト検出 Florence2（高度）",
+    "inputs": {
+      "image": {
+        "name": "画像"
+      },
+      "prompt": {
+        "name": "プロンプト"
+      },
+      "florence2_model": {
+        "name": "Florence2モデル"
+      },
+      "sort_method": {
+        "name": "ソート方法"
+      },
+      "bbox_select": {
+        "name": "BBOX選択"
+      },
+      "select_index": {
+        "name": "選択インデックス"
+      },
+      "F_BBOXES": {
+        "name": "F_BBOX群"
+      }
+    },
+    "outputs": {
+      "bboxes": {
+        "name": "BBOX群"
+      },
+      "image": {
+        "name": "画像"
+      }
+    }
+  },
+  "LayerMask: ObjectDetectorMask": {
+    "display_name": "LayerMask：オブジェクト検出マスク（高度）",
+    "inputs": {
+      "object_mask": {
+        "name": "オブジェクトマスク"
+      },
+      "sort_method": {
+        "name": "ソート方法"
+      },
+      "bbox_select": {
+        "name": "BBOX選択"
+      },
+      "select_index": {
+        "name": "選択インデックス"
+      }
+    },
+    "outputs": {
+      "bboxes": {
+        "name": "BBOX群"
+      },
+      "image": {
+        "name": "画像"
+      }
+    }
+  },
+  "LayerMask: ObjectDetectorYOLO8": {
+    "display_name": "LayerMask：オブジェクト検出 YOLO8（高度）",
+    "inputs": {
+      "image": {
+        "name": "画像"
+      },
+      "yolo_model": {
+        "name": "YOLOモデル"
+      },
+      "sort_method": {
+        "name": "ソート方法"
+      },
+      "bbox_select": {
+        "name": "BBOX選択"
+      },
+      "select_index": {
+        "name": "選択インデックス"
+      }
+    },
+    "outputs": {
+      "bboxes": {
+        "name": "BBOX群"
+      },
+      "image": {
+        "name": "画像"
+      }
+    }
+  },
+  "LayerMask: ObjectDetectorYOLOWorld": {
+    "display_name": "LayerMask：オブジェクト検出 YOLO World（廃止）",
+    "inputs": {
+      "image": {
+        "name": "画像"
+      },
+      "yolo_world_model": {
+        "name": "YOLO Worldモデル"
+      },
+      "confidence_threshold": {
+        "name": "信頼度閾値"
+      },
+      "nms_iou_threshold": {
+        "name": "NMS IoU閾値"
+      },
+      "prompt": {
+        "name": "プロンプト"
+      },
+      "sort_method": {
+        "name": "ソート方法"
+      },
+      "bbox_select": {
+        "name": "BBOX選択"
+      },
+      "select_index": {
+        "name": "選択インデックス"
+      },
+      "categories": {
+        "name": "カテゴリ"
+      },
+      "model_id": {
+        "name": "モデルID"
+      }
+    },
+    "outputs": {
+      "bboxes": {
+        "name": "BBOX群"
+      },
+      "image": {
+        "name": "画像"
+      }
+    }
+  },
+  "LayerMask: DrawBBoxMask": {
+    "display_name": "LayerMask：BBOXマスク描画（高度）",
+    "inputs": {
+      "image": {
+        "name": "画像"
+      },
+      "bboxes": {
+        "name": "BBOX群"
+      },
+      "grow_top": {
+        "name": "上部拡張"
+      },
+      "grow_bottom": {
+        "name": "下部拡張"
+      },
+      "grow_left": {
+        "name": "左部拡張"
+      },
+      "grow_right": {
+        "name": "右部拡張"
+      }
+    },
+    "outputs": {
+      "mask": {
+        "name": "マスク"
+      }
+    }
+  },
+  "LayerMask: DrawBBoxMaskV2": {
+    "display_name": "LayerMask：BBOXマスク描画 V2（高度）",
+    "inputs": {
+      "image": {
+        "name": "画像"
+      },
+      "bboxes": {
+        "name": "BBOX群"
+      },
+      "grow_top": {
+        "name": "上部拡張"
+      },
+      "grow_bottom": {
+        "name": "下部拡張"
+      },
+      "grow_left": {
+        "name": "左部拡張"
+      },
+      "grow_right": {
+        "name": "右部拡張"
+      },
+      "rounded_rect_radius": {
+        "name": "角丸半径"
+      },
+      "anti_aliasing": {
+        "name": "アンチエイリアス"
+      }
+    },
+    "outputs": {
+      "mask": {
+        "name": "マスク"
+      }
+    }
+  },
+  "LayerMask: PersonMaskUltra": {
+    "display_name": "LayerMask：人物マスク Ultra（高度）",
+    "inputs": {
+      "images": {
+        "name": "画像群"
+      },
+      "face": {
+        "name": "顔"
+      },
+      "hair": {
+        "name": "髪"
+      },
+      "body": {
+        "name": "体"
+      },
+      "clothes": {
+        "name": "衣服"
+      },
+      "accessories": {
+        "name": "アクセサリー"
+      },
+      "background": {
+        "name": "背景"
+      },
+      "confidence": {
+        "name": "信頼度"
+      },
+      "detail_range": {
+        "name": "詳細範囲"
+      },
+      "black_point": {
+        "name": "黒点"
+      },
+      "white_point": {
+        "name": "白点"
+      },
+      "process_detail": {
+        "name": "詳細処理"
+      },
+      "image": {
+        "name": "画像"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "画像"
+      },
+      "mask": {
+        "name": "マスク"
+      }
+    }
+  },
+  "LayerMask: PersonMaskUltra V2": {
+    "display_name": "LayerMask：人物マスク Ultra V2（高度）",
+    "inputs": {
+      "images": {
+        "name": "画像群"
+      },
+      "face": {
+        "name": "顔"
+      },
+      "hair": {
+        "name": "髪"
+      },
+      "body": {
+        "name": "体"
+      },
+      "clothes": {
+        "name": "衣服"
+      },
+      "accessories": {
+        "name": "アクセサリー"
+      },
+      "background": {
+        "name": "背景"
+      },
+      "confidence": {
+        "name": "信頼度"
+      },
+      "detail_method": {
+        "name": "詳細方法"
+      },
+      "detail_erode": {
+        "name": "詳細エロード"
+      },
+      "detail_dilate": {
+        "name": "詳細ダイレート"
+      },
+      "black_point": {
+        "name": "黒点"
+      },
+      "white_point": {
+        "name": "白点"
+      },
+      "process_detail": {
+        "name": "詳細処理"
+      },
+      "device": {
+        "name": "デバイス"
+      },
+      "max_megapixels": {
+        "name": "最大メガピクセル"
+      },
+      "image": {
+        "name": "画像"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "画像"
+      },
+      "mask": {
+        "name": "マスク"
+      }
+    }
+  },
+  "LayerUtility: PhiPrompt": {
+    "display_name": "LayerUtility：Phi プロンプト（高度）",
+    "inputs": {
+      "model": {
+        "name": "モデル"
+      },
+      "device": {
+        "name": "デバイス"
+      },
+      "dtype": {
+        "name": "データタイプ"
+      },
+      "cache_model": {
+        "name": "キャッシュモデル"
+      },
+      "system_prompt": {
+        "name": "システムプロンプト"
+      },
+      "user_prompt": {
+        "name": "ユーザープロンプト"
+      },
+      "do_sample": {
+        "name": "サンプリング"
+      },
+      "temperature": {
+        "name": "温度"
+      },
+      "max_new_tokens": {
+        "name": "最大新規トークン数"
+      },
+      "image": {
+        "name": "画像"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "文字列"
+      }
+    }
+  },
+  "LayerUtility: PromptEmbellish": {
+    "display_name": "LayerUtility：プロンプト装飾（高度）",
+    "inputs": {
+      "api": {
+        "name": "API"
+      },
+      "token_limit": {
+        "name": "トークン制限"
+      },
+      "describe": {
+        "name": "記述"
+      },
+      "image": {
+        "name": "画像"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "文字列"
+      }
+    }
+  },
+  "LayerUtility: PromptTagger": {
+    "display_name": "LayerUtility：プロンプト逆推論（高度）",
+    "inputs": {
+      "image": {
+        "name": "画像"
+      },
+      "api": {
+        "name": "API"
+      },
+      "token_limit": {
+        "name": "トークン制限"
+      },
+      "exclude_word": {
+        "name": "除外ワード"
+      },
+      "replace_with_word": {
+        "name": "置換ワード"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "文字列"
+      }
+    }
+  },
+  "LayerUtility: CreateQRCode": {
+    "display_name": "LayerUtility：QRコード作成（高度）",
+    "inputs": {
+      "size": {
+        "name": "サイズ"
+      },
+      "border": {
+        "name": "ボーダー"
+      },
+      "text": {
+        "name": "テキスト"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "画像"
+      }
+    }
+  },
+  "LayerUtility: DecodeQRCode": {
+    "display_name": "LayerUtility：QRコードデコード（高度）",
+    "inputs": {
+      "image": {
+        "name": "画像"
+      },
+      "pre_blur": {
+        "name": "事前ぼかし"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "文字列"
+      }
+    }
+  },
+  "LayerUtility: QWenImage2Prompt": {
+    "display_name": "LayerUtility：QWen 画像からプロンプト（高度）",
+    "inputs": {
+      "image": {
+        "name": "画像"
+      },
+      "question": {
+        "name": "質問"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "文字列"
+      }
+    }
+  },
+  "LayerMask: SAM2Ultra": {
+    "display_name": "LayerMask：SAM2 Ultra",
+    "inputs": {
+      "image": {
+        "name": "画像"
+      },
+      "bboxes": {
+        "name": "BBOX群"
+      },
+      "sam2_model": {
+        "name": "SAM2モデル"
+      },
+      "precision": {
+        "name": "精度"
+      },
+      "bbox_select": {
+        "name": "BBOX選択"
+      },
+      "select_index": {
+        "name": "選択インデックス"
+      },
+      "cache_model": {
+        "name": "キャッシュモデル"
+      },
+      "detail_method": {
+        "name": "詳細方法"
+      },
+      "detail_erode": {
+        "name": "詳細エロード"
+      },
+      "detail_dilate": {
+        "name": "詳細ダイレート"
+      },
+      "black_point": {
+        "name": "黒点"
+      },
+      "white_point": {
+        "name": "白点"
+      },
+      "process_detail": {
+        "name": "詳細処理"
+      },
+      "device": {
+        "name": "デバイス"
+      },
+      "max_megapixels": {
+        "name": "最大メガピクセル"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "画像"
+      },
+      "mask": {
+        "name": "マスク"
+      }
+    }
+  },
+  "LayerMask: SAM2VideoUltra": {
+    "display_name": "LayerMask：SAM2 ビデオ Ultra（高度）",
+    "inputs": {
+      "image": {
+        "name": "画像"
+      },
+      "sam2_model": {
+        "name": "SAM2モデル"
+      },
+      "precision": {
+        "name": "精度"
+      },
+      "cache_model": {
+        "name": "キャッシュモデル"
+      },
+      "individual_objects": {
+        "name": "個別オブジェクト"
+      },
+      "mask_preview_color": {
+        "name": "マスクプレビュー色"
+      },
+      "detail_method": {
+        "name": "詳細方法"
+      },
+      "detail_erode": {
+        "name": "詳細エロード"
+      },
+      "detail_dilate": {
+        "name": "詳細ダイレート"
+      },
+      "black_point": {
+        "name": "黒点"
+      },
+      "white_point": {
+        "name": "白点"
+      },
+      "process_detail": {
+        "name": "詳細処理"
+      },
+      "device": {
+        "name": "デバイス"
+      },
+      "max_megapixels": {
+        "name": "最大メガピクセル"
+      },
+      "bboxes": {
+        "name": "BBOX群"
+      },
+      "first_frame_mask": {
+        "name": "最初のフレームマスク"
+      },
+      "pre_mask": {
+        "name": "事前マスク"
+      }
+    },
+    "outputs": {
+      "mask": {
+        "name": "マスク"
+      },
+      "image": {
+        "name": "画像"
+      }
+    }
+  },
+  "LayerUtility: SaveImagePlus": {
+    "display_name": "LayerUtility：画像保存 Plus（高度）",
+    "inputs": {
+      "images": {
+        "name": "画像群"
+      },
+      "custom_path": {
+        "name": "カスタムパス"
+      },
+      "filename_prefix": {
+        "name": "ファイル名プレフィックス"
+      },
+      "timestamp": {
+        "name": "タイムスタンプ"
+      },
+      "format": {
+        "name": "フォーマット"
+      },
+      "quality": {
+        "name": "品質"
+      },
+      "meta_data": {
+        "name": "メタデータ"
+      },
+      "blind_watermark": {
+        "name": "ブラインドウォーターマーク"
+      },
+      "save_workflow_as_json": {
+        "name": "ワークフローをJSONとして保存"
+      },
+      "preview": {
+        "name": "プレビュー"
+      },
+      "prompt": {
+        "name": "プロンプト"
+      },
+      "extra_pnginfo": {
+        "name": "追加PNG情報"
+      }
+    },
+    "outputs": {}
+  },
+  "LayerUtility: SD3NegativeConditioning": {
+    "display_name": "LayerUtility：SD3 ネガティブ条件付け（高度）",
+    "inputs": {
+      "conditioning": {
+        "name": "条件付け"
+      },
+      "zero_out_start": {
+        "name": "ゼロアウト開始"
+      }
+    },
+    "outputs": {
+      "conditioning": {
+        "name": "条件付け"
+      }
+    }
+  },
+  "LayerMask: SegmentAnythingUltra": {
+    "display_name": "LayerMask：SegmentAnything Ultra（高度）",
+    "inputs": {
+      "image": {
+        "name": "画像"
+      },
+      "sam_model": {
+        "name": "SAMモデル"
+      },
+      "grounding_dino_model": {
+        "name": "GroundingDINOモデル"
+      },
+      "threshold": {
+        "name": "閾値"
+      },
+      "detail_range": {
+        "name": "詳細範囲"
+      },
+      "black_point": {
+        "name": "黒点"
+      },
+      "white_point": {
+        "name": "白点"
+      },
+      "process_detail": {
+        "name": "詳細処理"
+      },
+      "prompt": {
+        "name": "プロンプト"
+      },
+      "cache_model": {
+        "name": "キャッシュモデル"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "画像"
+      },
+      "mask": {
+        "name": "マスク"
+      }
+    }
+  },
+  "LayerMask: SegmentAnythingUltra V2": {
+    "display_name": "LayerMask：SegmentAnything Ultra V2（高度）",
+    "inputs": {
+      "image": {
+        "name": "画像"
+      },
+      "sam_model": {
+        "name": "SAMモデル"
+      },
+      "grounding_dino_model": {
+        "name": "GroundingDINOモデル"
+      },
+      "threshold": {
+        "name": "閾値"
+      },
+      "detail_method": {
+        "name": "詳細方法"
+      },
+      "detail_erode": {
+        "name": "詳細エロード"
+      },
+      "detail_dilate": {
+        "name": "詳細ダイレート"
+      },
+      "black_point": {
+        "name": "黒点"
+      },
+      "white_point": {
+        "name": "白点"
+      },
+      "process_detail": {
+        "name": "詳細処理"
+      },
+      "prompt": {
+        "name": "プロンプト"
+      },
+      "device": {
+        "name": "デバイス"
+      },
+      "max_megapixels": {
+        "name": "最大メガピクセル"
+      },
+      "cache_model": {
+        "name": "キャッシュモデル"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "画像"
+      },
+      "mask": {
+        "name": "マスク"
+      }
+    }
+  },
+  "LayerMask: LoadSegmentAnythingModels": {
+    "display_name": "LayerMask：SegmentAnythingモデルをロード（高度）",
+    "inputs": {
+      "sam_model": {
+        "name": "SAMモデル"
+      },
+      "grounding_dino_model": {
+        "name": "GroundingDINOモデル"
+      }
+    },
+    "outputs": {
+      "ls_sam_models": {
+        "name": "LS SAMモデル群"
+      }
+    }
+  },
+  "LayerMask: SegmentAnythingUltra V3": {
+    "display_name": "LayerMask：SegmentAnything Ultra V3（高度）",
+    "inputs": {
+      "image": {
+        "name": "画像"
+      },
+      "sam_models": {
+        "name": "SAMモデル群"
+      },
+      "threshold": {
+        "name": "閾値"
+      },
+      "detail_method": {
+        "name": "詳細方法"
+      },
+      "detail_erode": {
+        "name": "詳細エロード"
+      },
+      "detail_dilate": {
+        "name": "詳細ダイレート"
+      },
+      "black_point": {
+        "name": "黒点"
+      },
+      "white_point": {
+        "name": "白点"
+      },
+      "process_detail": {
+        "name": "詳細処理"
+      },
+      "prompt": {
+        "name": "プロンプト"
+      },
+      "device": {
+        "name": "デバイス"
+      },
+      "max_megapixels": {
+        "name": "最大メガピクセル"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "画像"
+      },
+      "mask": {
+        "name": "マスク"
+      }
+    }
+  },
+  "LayerUtility: LoadSmolLM2Model": {
+    "display_name": "LayerUtility：SmolLM2モデルをロード（高度）",
+    "inputs": {
+      "model": {
+        "name": "モデル"
+      },
+      "dtype": {
+        "name": "データタイプ"
+      },
+      "device": {
+        "name": "デバイス"
+      }
+    },
+    "outputs": {
+      "smollm2_model": {
+        "name": "SmolLM2モデル"
+      }
+    }
+  },
+  "LayerUtility: LoadSmolVLMModel": {
+    "display_name": "LayerUtility：SmolVLMモデルをロード（高度）",
+    "inputs": {
+      "model": {
+        "name": "モデル"
+      },
+      "dtype": {
+        "name": "データタイプ"
+      },
+      "device": {
+        "name": "デバイス"
+      }
+    },
+    "outputs": {
+      "smolvlm_model": {
+        "name": "SmolVLMモデル"
+      }
+    }
+  },
+  "LayerUtility: SmolLM2": {
+    "display_name": "LayerUtility：SmolLM2（高度）",
+    "inputs": {
+      "smolLM2_model": {
+        "name": "SmolLM2モデル"
+      },
+      "max_new_tokens": {
+        "name": "最大新規トークン数"
+      },
+      "do_sample": {
+        "name": "サンプリング"
+      },
+      "temperature": {
+        "name": "温度"
+      },
+      "top_p": {
+        "name": "トップP"
+      },
+      "system_prompt": {
+        "name": "システムプロンプト"
+      },
+      "user_prompt": {
+        "name": "ユーザープロンプト"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "文字列"
+      }
+    }
+  },
+  "LayerUtility: SmolVLM": {
+    "display_name": "LayerUtility：SmolVLM（高度）",
+    "inputs": {
+      "image": {
+        "name": "画像"
+      },
+      "smolVLM_model": {
+        "name": "SmolVLMモデル"
+      },
+      "max_new_tokens": {
+        "name": "最大新規トークン数"
+      },
+      "user_prompt": {
+        "name": "ユーザープロンプト"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "文字列"
+      }
+    }
+  },
+  "LayerMask: TransparentBackgroundUltra": {
+    "display_name": "LayerMask：透明背景 Ultra（高度）",
+    "inputs": {
+      "image": {
+        "name": "画像"
+      },
+      "model": {
+        "name": "モデル"
+      },
+      "detail_method": {
+        "name": "詳細方法"
+      },
+      "detail_erode": {
+        "name": "詳細エロード"
+      },
+      "detail_dilate": {
+        "name": "詳細ダイレート"
+      },
+      "black_point": {
+        "name": "黒点"
+      },
+      "white_point": {
+        "name": "白点"
+      },
+      "process_detail": {
+        "name": "詳細処理"
+      },
+      "device": {
+        "name": "デバイス"
+      },
+      "max_megapixels": {
+        "name": "最大メガピクセル"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "画像"
+      },
+      "mask": {
+        "name": "マスク"
+      }
+    }
+  },
+  "LayerUtility: UserPromptGeneratorTxt2ImgPromptWithReference": {
+    "display_name": "LayerUtility：ユーザープロンプト生成 Txt2Img 参照付き（高度）",
+    "inputs": {
+      "template": {
+        "name": "テンプレート"
+      },
+      "reference_text": {
+        "name": "参照テキスト"
+      },
+      "describe": {
+        "name": "記述"
+      },
+      "limit_words": {
+        "name": "単語制限"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "文字列"
+      }
+    }
+  },
+  "LayerUtility: UserPromptGeneratorTxt2ImgPrompt": {
+    "display_name": "LayerUtility：ユーザープロンプト生成 Txt2Img（高度）",
+    "inputs": {
+      "template": {
+        "name": "テンプレート"
+      },
+      "describe": {
+        "name": "記述"
+      },
+      "limit_words": {
+        "name": "単語制限"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "文字列"
+      }
+    }
+  },
+  "LayerUtility: UserPromptGeneratorReplaceWord": {
+    "display_name": "LayerUtility：ユーザープロンプト生成 ワード置換（高度）",
+    "inputs": {
+      "orig_prompt": {
+        "name": "元のプロンプト"
+      },
+      "template": {
+        "name": "テンプレート"
+      },
+      "exclude_word": {
+        "name": "除外ワード"
+      },
+      "replace_with_word": {
+        "name": "置換ワード"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "文字列"
+      }
+    }
+  },
+  "LayerUtility: AddBlindWaterMark": {
+    "display_name": "LayerUtility：ブラインドウォーターマーク追加（高度）",
+    "inputs": {
+      "image": {
+        "name": "画像"
+      },
+      "watermark_image": {
+        "name": "ウォーターマーク画像"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "画像"
+      }
+    }
+  },
+  "LayerUtility: ShowBlindWaterMark": {
+    "display_name": "LayerUtility：ブラインドウォーターマーク表示（高度）",
+    "inputs": {
+      "image": {
+        "name": "画像"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "画像"
+      }
+    }
+  },
+  "LayerMask: YoloV8Detect": {
+    "display_name": "LayerMask：YoloV8 検出（高度）",
+    "inputs": {
+      "image": {
+        "name": "画像"
+      },
+      "yolo_model": {
+        "name": "YOLOモデル"
+      },
+      "mask_merge": {
+        "name": "マスク結合"
+      }
+    },
+    "outputs": {
+      "mask": {
+        "name": "マスク"
+      },
+      "image": {
+        "name": "画像"
+      }
+    }
+  },
+  "LayerUtility: ZhipuGLM4V": {
+    "display_name": "LayerUtility：ZhipuGLM4V（高度）",
+    "inputs": {
+      "image": {
+        "name": "画像"
+      },
+      "model": {
+        "name": "モデル"
+      },
+      "user_prompt": {
+        "name": "ユーザープロンプト"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "文字列"
+      }
+    }
+  },
+  "LayerUtility: ZhipuGLM4": {
+    "display_name": "LayerUtility：ZhipuGLM4（高度）",
+    "inputs": {
+      "model": {
+        "name": "モデル"
+      },
+      "user_prompt": {
+        "name": "ユーザープロンプト"
+      },
+      "history_length": {
+        "name": "履歴長"
+      },
+      "history": {
+        "name": "履歴"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "文字列"
+      },
+      "glm4_history": {
+        "name": "GLM4履歴"
+      }
+    }
+  }
+}

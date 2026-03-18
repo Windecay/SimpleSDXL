@@ -1,5 +1,7 @@
-from .imagefunc import *
-
+import torch
+from PIL import Image, ImageChops
+from .imagefunc import log, tensor2pil, pil2tensor, image2mask
+from .imagefunc import get_gray_average, calculate_shadow_highlight_level, luminance_keyer
 
 
 def norm_value(value):
@@ -65,7 +67,6 @@ class ShadowAndHighlightMask:
             _image = input_images[i] if i < len(input_images) else input_images[-1]
             _image = tensor2pil(_image).convert('RGB')
             _mask = input_masks[i] if i < len(input_masks) else input_masks[-1]
-
 
             avg_gray = get_gray_average(_image, _mask)
             shadow_level, highlight_level = calculate_shadow_highlight_level(avg_gray)

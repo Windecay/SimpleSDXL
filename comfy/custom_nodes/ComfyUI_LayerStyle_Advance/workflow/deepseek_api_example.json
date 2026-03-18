@@ -1,0 +1,346 @@
+{
+  "last_node_id": 27,
+  "last_link_id": 31,
+  "nodes": [
+    {
+      "id": 21,
+      "type": "ShowText|pysssss",
+      "pos": [
+        1460,
+        -260
+      ],
+      "size": [
+        398.3951110839844,
+        166.44081115722656
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 30,
+          "widget": {
+            "name": "text"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": null,
+          "shape": 6
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ShowText|pysssss"
+      },
+      "widgets_values": [
+        "",
+        "Beijing is renowned for its rich culinary heritage, and its most famous dish is **Peking Duck** (北京烤鸭). This iconic dish features crispy, roasted duck skin and tender meat, traditionally served with thin pancakes, hoisin sauce, and sliced scallions or cucumbers. It has a history dating back to the imperial era and is considered a symbol of Chinese cuisine.\n\nOther notable Beijing dishes include:\n\n- **Zhajiangmian** (炸酱面): Noodles topped with a savory soybean paste and vegetables.\n- **Jiaozi** (饺子): Dumplings filled with meat or vegetables, often enjoyed during festivals.\n- **Beijing Hot Pot** (北京火锅): A communal meal where diners cook meat, vegetables, and other ingredients in a simmering broth.\n- **Douzhi** (豆汁): A fermented mung bean drink, a traditional and acquired taste.\n\nBeijing's cuisine reflects its historical and cultural significance, blending flavors from northern China and imperial traditions."
+      ]
+    },
+    {
+      "id": 20,
+      "type": "ShowText|pysssss",
+      "pos": [
+        990,
+        -270
+      ],
+      "size": [
+        395.52490234375,
+        171.13929748535156
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 29,
+          "widget": {
+            "name": "text"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": null,
+          "shape": 6
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ShowText|pysssss"
+      },
+      "widgets_values": [
+        "",
+        "The capital of China is Beijing. It is one of the most populous cities in the world and serves as the political, cultural, and educational center of the country. Beijing is home to many historical landmarks, including the Forbidden City, the Great Wall of China, and Tiananmen Square."
+      ]
+    },
+    {
+      "id": 25,
+      "type": "LayerUtility: DeepSeekAPI",
+      "pos": [
+        980,
+        -626.0712280273438
+      ],
+      "size": [
+        400,
+        288
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "history",
+          "type": "DEEPSEEK_HISTORY",
+          "link": null,
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "links": [
+            29
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "history",
+          "type": "DEEPSEEK_HISTORY",
+          "links": [
+            27
+          ],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LayerUtility: DeepSeekAPI"
+      },
+      "widgets_values": [
+        "deepseek-chat",
+        4096,
+        1,
+        1,
+        0,
+        0,
+        8,
+        "You are a helpful assistant.",
+        "Where is the capital of China?"
+      ],
+      "color": "rgba(38, 73, 116, 0.7)"
+    },
+    {
+      "id": 26,
+      "type": "LayerUtility: DeepSeekAPI",
+      "pos": [
+        1460,
+        -630
+      ],
+      "size": [
+        400,
+        288
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "history",
+          "type": "DEEPSEEK_HISTORY",
+          "link": 27,
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "links": [
+            30
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "history",
+          "type": "DEEPSEEK_HISTORY",
+          "links": [
+            28
+          ],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LayerUtility: DeepSeekAPI"
+      },
+      "widgets_values": [
+        "deepseek-chat",
+        4096,
+        1,
+        1,
+        0,
+        0,
+        8,
+        "You are a helpful assistant.",
+        "What is the most famous cuisine in this city?"
+      ],
+      "color": "rgba(38, 73, 116, 0.7)"
+    },
+    {
+      "id": 27,
+      "type": "LayerUtility: DeepSeekAPI",
+      "pos": [
+        1945.4642333984375,
+        -626.0711669921875
+      ],
+      "size": [
+        400,
+        288
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "history",
+          "type": "DEEPSEEK_HISTORY",
+          "link": 28,
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "links": [
+            31
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "history",
+          "type": "DEEPSEEK_HISTORY",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LayerUtility: DeepSeekAPI"
+      },
+      "widgets_values": [
+        "deepseek-chat",
+        4096,
+        1,
+        1,
+        0,
+        0,
+        8,
+        "You are a helpful assistant.",
+        "Recommend a restaurant and specify its location"
+      ],
+      "color": "rgba(38, 73, 116, 0.7)"
+    },
+    {
+      "id": 23,
+      "type": "ShowText|pysssss",
+      "pos": [
+        1943.642822265625,
+        -261.2142028808594
+      ],
+      "size": [
+        409.1788024902344,
+        166.62875366210938
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 31,
+          "widget": {
+            "name": "text"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": null,
+          "shape": 6
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ShowText|pysssss"
+      },
+      "widgets_values": [
+        "",
+        "One of the most famous and highly recommended restaurants in Beijing for **Peking Duck** is **Quanjude Roast Duck Restaurant** (全聚德烤鸭店). It has a long history dating back to 1864 and is considered one of the best places to enjoy this iconic dish.\n\n### Location:\n**Quanjude (Qianmen Branch)**  \nAddress: 32 Qianmen Street, Dongcheng District, Beijing, China  \nNearest Landmark: Near Tiananmen Square and the Qianmen Gate  \n\nThis branch is particularly popular due to its central location and historical significance. The restaurant offers an authentic dining experience, with skilled chefs preparing the duck in traditional wood-fired ovens.\n\nIf you're looking for a more modern twist on Peking Duck, you might also consider **Da Dong Roast Duck** (大董烤鸭店), known for its innovative presentation and lighter, healthier approach to the dish.\n\n### Da Dong (Nanxincang Branch)  \nAddress: 1-2/F, Nanxincang International Plaza, 22A Dongsishitiao, Dongcheng District, Beijing, China  \n\nBoth restaurants are excellent choices for experiencing Beijing's culinary heritage!"
+      ]
+    }
+  ],
+  "links": [
+    [
+      27,
+      25,
+      1,
+      26,
+      0,
+      "DEEPSEEK_HISTORY"
+    ],
+    [
+      28,
+      26,
+      1,
+      27,
+      0,
+      "DEEPSEEK_HISTORY"
+    ],
+    [
+      29,
+      25,
+      0,
+      20,
+      0,
+      "STRING"
+    ],
+    [
+      30,
+      26,
+      0,
+      21,
+      0,
+      "STRING"
+    ],
+    [
+      31,
+      27,
+      0,
+      23,
+      0,
+      "STRING"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 1.4641000000000013,
+      "offset": [
+        -885.2441087663999,
+        885.7805452879334
+      ]
+    },
+    "ue_links": []
+  },
+  "version": 0.4
+}

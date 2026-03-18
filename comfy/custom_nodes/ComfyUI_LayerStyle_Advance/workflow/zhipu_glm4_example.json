@@ -1,0 +1,329 @@
+{
+  "last_node_id": 24,
+  "last_link_id": 26,
+  "nodes": [
+    {
+      "id": 20,
+      "type": "ShowText|pysssss",
+      "pos": [
+        990,
+        -270
+      ],
+      "size": [
+        385.59014892578125,
+        123.67330932617188
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 21,
+          "widget": {
+            "name": "text"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": null,
+          "shape": 6
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ShowText|pysssss"
+      },
+      "widgets_values": [
+        "",
+        "The capital of France is Paris."
+      ]
+    },
+    {
+      "id": 21,
+      "type": "ShowText|pysssss",
+      "pos": [
+        1460,
+        -260
+      ],
+      "size": [
+        402.81060791015625,
+        121.18260192871094
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 22,
+          "widget": {
+            "name": "text"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": null,
+          "shape": 6
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ShowText|pysssss"
+      },
+      "widgets_values": [
+        "",
+        "The most famous building in Paris is the Eiffel Tower. It is an iconic symbol of the city and one of the most recognizable structures in the world."
+      ]
+    },
+    {
+      "id": 23,
+      "type": "ShowText|pysssss",
+      "pos": [
+        1940,
+        -260
+      ],
+      "size": [
+        399.7960205078125,
+        116.95503997802734
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 24,
+          "widget": {
+            "name": "text"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": null,
+          "shape": 6
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ShowText|pysssss"
+      },
+      "widgets_values": [
+        "",
+        "Once upon a time, in the heart of Paris, where the gentle whispers of the Seine River danced alongside the cobblestone streets, a magnificent structure was born from the dreams of a visionary engineer. It was the year 1889, and the city was preparing for the World's Fair to celebrate the 100th anniversary of the French Revolution.\n\nThe man behind this grand vision was Gustave Eiffel, a brilliant architect and engineer who had designed many bridges and buildings. However, it was his design for a monumental iron tower that would forever change the skyline of Paris.\n\nEiffel's tower was an audacious structure, soaring 300 meters into the sky, with its four legs spread far apart to ensure stability. Its iron lattice work, a novel construction technique at the time, was not only strong but also aesthetically pleasing. The design was inspired by a lighthouse and a Gothic cathedral, combining utility with beauty in a way that had never been seen before.\n\nAs the tower took shape, it was met with a mixed reception. Some were in awe of its grandeur and innovation, while others were appalled by its stark, industrial look, even going so far as to sign a petition to have it destroyed. However, as the years passed, the tower became a beloved symbol of France and a beacon of technological marvels.\n\nThe World's Fair was a resounding success, and the Eiffel Tower, despite its detractors, became a sensation. It attracted visitors from all over the world, who were mesmerized by its height and the panoramic views it offered from its platforms. Couples from around the globe came to propose to their loved ones under the tower's watchful gaze, and it soon became a romantic symbol of love and dreams.\n\nEven during times of war and political turmoil, the Eiffel Tower remained a symbol of hope and perseverance. During World War II, the Germans tried to dismantle it, but it was too strong. After the war, the tower was repainted and continued to stand as a testament to the resilience of the French spirit.\n\nThe Eiffel Tower has become more than just a building; it's a living, breathing part of Paris, a place where dreams come to life and where the past, present, and future meet. It has been a witness to countless stories, a backdrop to countless photos, and a source of inspiration for artists and dreamers alike.\n\nAnd so, the Eiffel Tower stands tall, an enduring testament to human ingenuity and the boundless potential of human spirit, watching over the city it calls home, and forever a symbol of Paris, the city of light."
+      ]
+    },
+    {
+      "id": 19,
+      "type": "LayerUtility: ZhipuGLM4",
+      "pos": [
+        1460,
+        -560
+      ],
+      "size": [
+        403.1999816894531,
+        200
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "history",
+          "type": "GLM4_HISTORY",
+          "link": 23,
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "links": [
+            22
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "history",
+          "type": "GLM4_HISTORY",
+          "links": [
+            25
+          ],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LayerUtility: ZhipuGLM4"
+      },
+      "widgets_values": [
+        "GLM-4-Flash",
+        "What is the most famous building in this place?",
+        8
+      ],
+      "color": "rgba(38, 73, 116, 0.7)"
+    },
+    {
+      "id": 22,
+      "type": "LayerUtility: ZhipuGLM4",
+      "pos": [
+        1930,
+        -560
+      ],
+      "size": [
+        403.1999816894531,
+        200
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "history",
+          "type": "GLM4_HISTORY",
+          "link": 25,
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "links": [
+            24
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "history",
+          "type": "GLM4_HISTORY",
+          "links": [],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LayerUtility: ZhipuGLM4"
+      },
+      "widgets_values": [
+        "GLM-4-Flash",
+        "Say a story about to this building.",
+        8
+      ],
+      "color": "rgba(38, 73, 116, 0.7)"
+    },
+    {
+      "id": 18,
+      "type": "LayerUtility: ZhipuGLM4",
+      "pos": [
+        980,
+        -560
+      ],
+      "size": [
+        403.1999816894531,
+        200
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "history",
+          "type": "GLM4_HISTORY",
+          "link": null,
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "links": [
+            21
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "history",
+          "type": "GLM4_HISTORY",
+          "links": [
+            23
+          ],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LayerUtility: ZhipuGLM4"
+      },
+      "widgets_values": [
+        "GLM-4-Flash",
+        "Where is the capital of France?",
+        8
+      ],
+      "color": "rgba(38, 73, 116, 0.7)"
+    }
+  ],
+  "links": [
+    [
+      21,
+      18,
+      0,
+      20,
+      0,
+      "STRING"
+    ],
+    [
+      22,
+      19,
+      0,
+      21,
+      0,
+      "STRING"
+    ],
+    [
+      23,
+      18,
+      1,
+      19,
+      0,
+      "GLM4_HISTORY"
+    ],
+    [
+      24,
+      22,
+      0,
+      23,
+      0,
+      "STRING"
+    ],
+    [
+      25,
+      19,
+      1,
+      22,
+      0,
+      "GLM4_HISTORY"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.8954302432552389,
+      "offset": [
+        -20.641519524984176,
+        1359.5174087321038
+      ]
+    },
+    "ue_links": []
+  },
+  "version": 0.4
+}

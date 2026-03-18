@@ -1,0 +1,6 @@
+image-reward
+torchscale
+onnxruntime
+huggingface_hub>=0.23.3
+transformers>=4.45.0
+opencv-contrib-python>=4.9.0.80

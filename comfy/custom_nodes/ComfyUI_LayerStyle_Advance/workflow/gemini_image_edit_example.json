@@ -1,0 +1,1723 @@
+{
+  "id": "0dd7e1d7-34fc-47cf-bf4d-c51029c4391f",
+  "revision": 0,
+  "last_node_id": 85,
+  "last_link_id": 141,
+  "nodes": [
+    {
+      "id": 24,
+      "type": "LayerUtility: GeminiV2",
+      "pos": [
+        269.0139465332031,
+        -16.73096466064453
+      ],
+      "size": [
+        403.1999816894531,
+        300
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "image_1",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 42
+        },
+        {
+          "name": "image_2",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 43
+        }
+      ],
+      "outputs": [
+        {
+          "name": "text",
+          "shape": 6,
+          "type": "STRING",
+          "links": [
+            41
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LayerUtility: GeminiV2"
+      },
+      "widgets_values": [
+        "gemini-2.0-flash",
+        4096,
+        0.5,
+        200,
+        "en",
+        0,
+        "fixed",
+        "You are creating a prompt for Stable Diffusion to generate an image.",
+        "Generate prompt: In image2, there is a girl riding on a dinosaur. Change this girl into the body shape and attire of image1. Only change the character's description, keeping everything else."
+      ],
+      "color": "rgba(38, 73, 116, 0.7)"
+    },
+    {
+      "id": 23,
+      "type": "ShowText|pysssss",
+      "pos": [
+        689.0137939453125,
+        -16.73096466064453
+      ],
+      "size": [
+        376.8567199707031,
+        299.45538330078125
+      ],
+      "flags": {},
+      "order": 16,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "widget": {
+            "name": "text"
+          },
+          "link": 41
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "shape": 6,
+          "type": "STRING",
+          "links": [
+            45
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ShowText|pysssss"
+      },
+      "widgets_values": [
+        "",
+        "A full shot of a woman riding a dinosaur through a lush jungle, sunlight filtering through the dense canopy, the woman is wearing a flowing, intricately embroidered light beige gown with delicate floral patterns and a sheer overlay, the dress has thin straps and a sweetheart neckline, emphasizing her elegant figure, her dark hair is styled in loose waves, cascading around her shoulders, she exudes confidence and grace, the dinosaur is vividly colored and realistically textured, blending seamlessly with the vibrant jungle backdrop, high resolution, photorealistic, cinematic lighting, depth of field, vibrant colors, intricate details, fantasy setting, magical realism.\n"
+      ]
+    },
+    {
+      "id": 6,
+      "type": "CLIPTextEncode",
+      "pos": [
+        1139.0142822265625,
+        -426.7309265136719
+      ],
+      "size": [
+        262.7925720214844,
+        58
+      ],
+      "flags": {},
+      "order": 19,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 3
+        },
+        {
+          "name": "text",
+          "type": "STRING",
+          "widget": {
+            "name": "text"
+          },
+          "link": 33
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "slot_index": 0,
+          "links": [
+            4
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "widgets_values": [
+        "beautiful scenery nature glass bottle landscape, , purple galaxy bottle,"
+      ]
+    },
+    {
+      "id": 25,
+      "type": "CLIPTextEncode",
+      "pos": [
+        1109.0142822265625,
+        23.26898765563965
+      ],
+      "size": [
+        282.1186218261719,
+        69.5741195678711
+      ],
+      "flags": {},
+      "order": 20,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 44
+        },
+        {
+          "name": "text",
+          "type": "STRING",
+          "widget": {
+            "name": "text"
+          },
+          "link": null
+        },
+        {
+          "name": "text",
+          "type": "STRING",
+          "widget": {
+            "name": "text"
+          },
+          "link": 45
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "slot_index": 0,
+          "links": [
+            46
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "widgets_values": [
+        "beautiful scenery nature glass bottle landscape, , purple galaxy bottle,"
+      ]
+    },
+    {
+      "id": 20,
+      "type": "KSampler",
+      "pos": [
+        1449.0142822265625,
+        23.26898765563965
+      ],
+      "size": [
+        315,
+        262
+      ],
+      "flags": {},
+      "order": 23,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 34
+        },
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 46
+        },
+        {
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 36
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 37
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "slot_index": 0,
+          "links": [
+            39
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "KSampler"
+      },
+      "widgets_values": [
+        0,
+        "fixed",
+        20,
+        1,
+        "euler",
+        "normal",
+        1
+      ]
+    },
+    {
+      "id": 8,
+      "type": "VAEDecode",
+      "pos": [
+        1819.0142822265625,
+        -486.73095703125
+      ],
+      "size": [
+        210,
+        46
+      ],
+      "flags": {},
+      "order": 25,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 7
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 8
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "slot_index": 0,
+          "links": [
+            9
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEDecode"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 9,
+      "type": "SaveImage",
+      "pos": [
+        2079.014404296875,
+        -496.73095703125
+      ],
+      "size": [
+        442.9010314941406,
+        293.555419921875
+      ],
+      "flags": {},
+      "order": 28,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 9
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "SaveImage"
+      },
+      "widgets_values": [
+        "ComfyUI"
+      ]
+    },
+    {
+      "id": 22,
+      "type": "VAEDecode",
+      "pos": [
+        1819.0142822265625,
+        43.26897430419922
+      ],
+      "size": [
+        210,
+        46
+      ],
+      "flags": {},
+      "order": 26,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 39
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 40
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "slot_index": 0,
+          "links": [
+            38
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEDecode"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 21,
+      "type": "SaveImage",
+      "pos": [
+        2099.013916015625,
+        -6.730996608734131
+      ],
+      "size": [
+        442.9010314941406,
+        293.555419921875
+      ],
+      "flags": {},
+      "order": 29,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 38
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "SaveImage"
+      },
+      "widgets_values": [
+        "ComfyUI"
+      ]
+    },
+    {
+      "id": 26,
+      "type": "SaveImage",
+      "pos": [
+        2099.013916015625,
+        413.2691650390625
+      ],
+      "size": [
+        442.9010314941406,
+        293.555419921875
+      ],
+      "flags": {},
+      "order": 30,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 47
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "SaveImage"
+      },
+      "widgets_values": [
+        "ComfyUI"
+      ]
+    },
+    {
+      "id": 28,
+      "type": "ShowText|pysssss",
+      "pos": [
+        689.0137939453125,
+        403.2691650390625
+      ],
+      "size": [
+        376.8567199707031,
+        299.45538330078125
+      ],
+      "flags": {},
+      "order": 17,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "widget": {
+            "name": "text"
+          },
+          "link": 50
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "shape": 6,
+          "type": "STRING",
+          "links": [
+            52
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ShowText|pysssss"
+      },
+      "widgets_values": [
+        "",
+        "Generate a photorealistic image capturing an unexpected scene: a graceful, slender adult woman with flowing long dark wavy hair confidently riding astride a large, friendly-looking green T-Rex-style dinosaur. She is dressed in a stunning, highly detailed, floor-length beige evening gown adorned with intricate gold embroidery and sparkling sequins. The gown features delicate spaghetti straps, a flattering sweetheart neckline, and a diaphanous sheer overlay skirt that billows slightly, contrasting sharply with the rugged environment. They traverse a narrow dirt path winding through an incredibly lush, vibrant jungle environment filled with dense tropical foliage, towering ancient trees, and exotic plants under a bright sky. Bright, warm sunlight dramatically filters through the thick canopy above, casting dynamic sunbeams and dappled light onto the path and subjects. Focus on the contrast between the woman's formal elegance and the prehistoric, wild setting. Maintain high detail in textures – the gown's delicate fabric, the dinosaur's detailed scales, the jungle leaves. Cinematic lighting, sharp focus, fantasy art style, adventure theme, 8k resolution."
+      ]
+    },
+    {
+      "id": 29,
+      "type": "CLIPTextEncode",
+      "pos": [
+        1109.0142822265625,
+        443.2691955566406
+      ],
+      "size": [
+        282.1186218261719,
+        69.5741195678711
+      ],
+      "flags": {},
+      "order": 21,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 51
+        },
+        {
+          "name": "text",
+          "type": "STRING",
+          "widget": {
+            "name": "text"
+          },
+          "link": null
+        },
+        {
+          "name": "text",
+          "type": "STRING",
+          "widget": {
+            "name": "text"
+          },
+          "link": 52
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "slot_index": 0,
+          "links": [
+            54
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "widgets_values": [
+        "beautiful scenery nature glass bottle landscape, , purple galaxy bottle,"
+      ]
+    },
+    {
+      "id": 30,
+      "type": "KSampler",
+      "pos": [
+        1449.0142822265625,
+        443.2691955566406
+      ],
+      "size": [
+        315,
+        262
+      ],
+      "flags": {},
+      "order": 24,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 53
+        },
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 54
+        },
+        {
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 55
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 56
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "slot_index": 0,
+          "links": [
+            57
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "KSampler"
+      },
+      "widgets_values": [
+        0,
+        "fixed",
+        20,
+        1,
+        "euler",
+        "normal",
+        1
+      ]
+    },
+    {
+      "id": 31,
+      "type": "VAEDecode",
+      "pos": [
+        1819.0142822265625,
+        463.2691650390625
+      ],
+      "size": [
+        210,
+        46
+      ],
+      "flags": {},
+      "order": 27,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 57
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 58
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "slot_index": 0,
+          "links": [
+            47
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEDecode"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 27,
+      "type": "LayerUtility: GeminiV2",
+      "pos": [
+        269.0139465332031,
+        403.2691650390625
+      ],
+      "size": [
+        403.1999816894531,
+        300
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "image_1",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 48
+        },
+        {
+          "name": "image_2",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 49
+        }
+      ],
+      "outputs": [
+        {
+          "name": "text",
+          "shape": 6,
+          "type": "STRING",
+          "links": [
+            50
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LayerUtility: GeminiV2"
+      },
+      "widgets_values": [
+        "gemini-2.5-pro-exp-03-25",
+        4096,
+        0.5,
+        200,
+        "en",
+        0,
+        "fixed",
+        "You are creating a prompt for Stable Diffusion to generate an image.",
+        "Generate prompt: In image2, there is a girl riding on a dinosaur. Change this girl into the body shape and attire of image1. Only change the character's description, keeping everything else."
+      ],
+      "color": "rgba(38, 73, 116, 0.7)"
+    },
+    {
+      "id": 7,
+      "type": "CLIPTextEncode",
+      "pos": [
+        -533.4188842773438,
+        -272.3014831542969
+      ],
+      "size": [
+        377.7937927246094,
+        88
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 5
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "slot_index": 0,
+          "links": [
+            6,
+            36,
+            55
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "widgets_values": [
+        "text, watermark"
+      ]
+    },
+    {
+      "id": 5,
+      "type": "EmptyLatentImage",
+      "pos": [
+        -514.9091186523438,
+        -124.45889282226562
+      ],
+      "size": [
+        315,
+        106
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 4,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "slot_index": 0,
+          "links": [
+            25,
+            37,
+            56
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "EmptyLatentImage"
+      },
+      "widgets_values": [
+        1280,
+        720,
+        1
+      ]
+    },
+    {
+      "id": 19,
+      "type": "LayerUtility: GeminiV2",
+      "pos": [
+        259.013916015625,
+        -486.73095703125
+      ],
+      "size": [
+        403.1999816894531,
+        300
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "image_1",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 30
+        },
+        {
+          "name": "image_2",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 31
+        }
+      ],
+      "outputs": [
+        {
+          "name": "text",
+          "shape": 6,
+          "type": "STRING",
+          "links": [
+            32
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LayerUtility: GeminiV2"
+      },
+      "widgets_values": [
+        "gemini-2.0-flash-lite",
+        4096,
+        0.5,
+        200,
+        "en",
+        0,
+        "fixed",
+        "You are creating a prompt for Stable Diffusion to generate an image.",
+        "Generate prompt: In image2, there is a girl riding on a dinosaur. Change this girl into the body shape and attire of image1. Only change the character's description, keeping everything else."
+      ],
+      "color": "rgba(38, 73, 116, 0.7)"
+    },
+    {
+      "id": 76,
+      "type": "PreviewImage",
+      "pos": [
+        673.2804565429688,
+        952.0642700195312
+      ],
+      "size": [
+        320.7438049316406,
+        258
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 127
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 45,
+      "type": "PreviewImage",
+      "pos": [
+        677.2026977539062,
+        1320.571533203125
+      ],
+      "size": [
+        315.5809326171875,
+        263.8492431640625
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 88
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 75,
+      "type": "LayerMask: ObjectDetectorGemini",
+      "pos": [
+        201.73040771484375,
+        1041.1883544921875
+      ],
+      "size": [
+        392.19921875,
+        104.36209106445312
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 126
+        }
+      ],
+      "outputs": [
+        {
+          "name": "bboxes",
+          "type": "BBOXES",
+          "links": null
+        },
+        {
+          "name": "preview",
+          "type": "IMAGE",
+          "links": [
+            127
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LayerMask: ObjectDetectorGemini"
+      },
+      "widgets_values": [
+        "gemini-1.5-pro",
+        "left arm of the fox"
+      ],
+      "color": "rgba(27, 80, 119, 0.7)"
+    },
+    {
+      "id": 44,
+      "type": "LayerMask: ObjectDetectorGeminiV2",
+      "pos": [
+        198.4856719970703,
+        1227.0968017578125
+      ],
+      "size": [
+        396.632080078125,
+        105.54935455322266
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 87
+        }
+      ],
+      "outputs": [
+        {
+          "name": "bboxes",
+          "type": "BBOXES",
+          "links": []
+        },
+        {
+          "name": "preview",
+          "type": "IMAGE",
+          "links": [
+            88
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LayerMask: ObjectDetectorGeminiV2"
+      },
+      "widgets_values": [
+        "gemini-2.5-pro-exp-03-25",
+        "left arm of the fox"
+      ],
+      "color": "rgba(27, 80, 119, 0.7)"
+    },
+    {
+      "id": 3,
+      "type": "KSampler",
+      "pos": [
+        1469.0142822265625,
+        -506.73095703125
+      ],
+      "size": [
+        315,
+        262
+      ],
+      "flags": {},
+      "order": 22,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 1
+        },
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 4
+        },
+        {
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 6
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 25
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "slot_index": 0,
+          "links": [
+            7
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "KSampler"
+      },
+      "widgets_values": [
+        39,
+        "fixed",
+        20,
+        1,
+        "euler",
+        "normal",
+        1
+      ]
+    },
+    {
+      "id": 13,
+      "type": "ShowText|pysssss",
+      "pos": [
+        699.0137939453125,
+        -486.73095703125
+      ],
+      "size": [
+        413.1211853027344,
+        285.5541076660156
+      ],
+      "flags": {},
+      "order": 15,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "widget": {
+            "name": "text"
+          },
+          "link": 32
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "shape": 6,
+          "type": "STRING",
+          "links": [
+            33
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ShowText|pysssss"
+      },
+      "widgets_values": [
+        "",
+        "A beautiful woman with long, flowing dark hair, wearing a stunning, elegant, and intricately designed beige gown with delicate floral embroidery. The dress features a low-cut neckline, a fitted bodice, and a flowing skirt with a sheer overlay, creating a graceful and ethereal look. She has a slender figure and is posed in a way that emphasizes the beauty of the dress, with her arms slightly outstretched. The background is a lush, vibrant jungle scene with sunlight filtering through the trees, and a dinosaur walking on the path. The woman is riding on the dinosaur, maintaining the original composition and background of the image, but with the character's appearance transformed. The overall style is photorealistic, with a focus on detail and a sense of fantasy.\n"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "CheckpointLoaderSimple",
+      "pos": [
+        -543.4984130859375,
+        -445.49652099609375
+      ],
+      "size": [
+        381.9781799316406,
+        98
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 4,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "slot_index": 0,
+          "links": [
+            1,
+            34,
+            53
+          ]
+        },
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "slot_index": 1,
+          "links": [
+            3,
+            5,
+            44,
+            51
+          ]
+        },
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "slot_index": 2,
+          "links": [
+            8,
+            40,
+            58
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CheckpointLoaderSimple"
+      },
+      "widgets_values": [
+        "FLUX\\flux1-dev-fp8.safetensors"
+      ]
+    },
+    {
+      "id": 11,
+      "type": "LoadImage",
+      "pos": [
+        -706.8624877929688,
+        372.4265441894531
+      ],
+      "size": [
+        315,
+        314
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "slot_index": 0,
+          "links": [
+            31,
+            43,
+            49,
+            87,
+            126
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "girl_dino_1024.png",
+        "image"
+      ]
+    },
+    {
+      "id": 12,
+      "type": "LoadImage",
+      "pos": [
+        -725.3201904296875,
+        819.2488403320312
+      ],
+      "size": [
+        315,
+        314
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "slot_index": 0,
+          "links": [
+            30,
+            42,
+            48
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "768x1344_dress.png",
+        "image"
+      ]
+    },
+    {
+      "id": 81,
+      "type": "LoadImage",
+      "pos": [
+        -1269.763427734375,
+        2275.29443359375
+      ],
+      "size": [
+        315,
+        314
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "slot_index": 0,
+          "links": [
+            137
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "girl_dino_1024.png",
+        "image",
+        ""
+      ]
+    },
+    {
+      "id": 84,
+      "type": "LoadImage",
+      "pos": [
+        -1268.330322265625,
+        2647.683349609375
+      ],
+      "size": [
+        315,
+        314
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            141
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "768x1344_dress.png",
+        "image",
+        ""
+      ]
+    },
+    {
+      "id": 77,
+      "type": "LayerUtility: GeminiImageEdit",
+      "pos": [
+        -861.7073364257812,
+        2517.60009765625
+      ],
+      "size": [
+        490.666748046875,
+        224
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 137
+        },
+        {
+          "name": "image_2",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 141
+        },
+        {
+          "name": "image_3",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            134
+          ]
+        },
+        {
+          "name": "text",
+          "type": "STRING",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LayerUtility: GeminiImageEdit"
+      },
+      "widgets_values": [
+        "gemini-2.0-flash-exp-image-generation",
+        0.5,
+        1102846641,
+        "randomize",
+        "Let the girl wear the dress shown in the second image"
+      ],
+      "color": "rgba(38, 73, 116, 0.7)"
+    },
+    {
+      "id": 78,
+      "type": "PreviewImage",
+      "pos": [
+        -275.3845520019531,
+        2320.55615234375
+      ],
+      "size": [
+        516.1419067382812,
+        543.9136962890625
+      ],
+      "flags": {},
+      "order": 18,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 134
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": [
+        ""
+      ]
+    }
+  ],
+  "links": [
+    [
+      1,
+      4,
+      0,
+      3,
+      0,
+      "MODEL"
+    ],
+    [
+      3,
+      4,
+      1,
+      6,
+      0,
+      "CLIP"
+    ],
+    [
+      4,
+      6,
+      0,
+      3,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      5,
+      4,
+      1,
+      7,
+      0,
+      "CLIP"
+    ],
+    [
+      6,
+      7,
+      0,
+      3,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      7,
+      3,
+      0,
+      8,
+      0,
+      "LATENT"
+    ],
+    [
+      8,
+      4,
+      2,
+      8,
+      1,
+      "VAE"
+    ],
+    [
+      9,
+      8,
+      0,
+      9,
+      0,
+      "IMAGE"
+    ],
+    [
+      25,
+      5,
+      0,
+      3,
+      3,
+      "LATENT"
+    ],
+    [
+      30,
+      12,
+      0,
+      19,
+      0,
+      "IMAGE"
+    ],
+    [
+      31,
+      11,
+      0,
+      19,
+      1,
+      "IMAGE"
+    ],
+    [
+      32,
+      19,
+      0,
+      13,
+      0,
+      "STRING"
+    ],
+    [
+      33,
+      13,
+      0,
+      6,
+      1,
+      "STRING"
+    ],
+    [
+      34,
+      4,
+      0,
+      20,
+      0,
+      "MODEL"
+    ],
+    [
+      36,
+      7,
+      0,
+      20,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      37,
+      5,
+      0,
+      20,
+      3,
+      "LATENT"
+    ],
+    [
+      38,
+      22,
+      0,
+      21,
+      0,
+      "IMAGE"
+    ],
+    [
+      39,
+      20,
+      0,
+      22,
+      0,
+      "LATENT"
+    ],
+    [
+      40,
+      4,
+      2,
+      22,
+      1,
+      "VAE"
+    ],
+    [
+      41,
+      24,
+      0,
+      23,
+      0,
+      "STRING"
+    ],
+    [
+      42,
+      12,
+      0,
+      24,
+      0,
+      "IMAGE"
+    ],
+    [
+      43,
+      11,
+      0,
+      24,
+      1,
+      "IMAGE"
+    ],
+    [
+      44,
+      4,
+      1,
+      25,
+      0,
+      "CLIP"
+    ],
+    [
+      45,
+      23,
+      0,
+      25,
+      2,
+      "STRING"
+    ],
+    [
+      46,
+      25,
+      0,
+      20,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      47,
+      31,
+      0,
+      26,
+      0,
+      "IMAGE"
+    ],
+    [
+      48,
+      12,
+      0,
+      27,
+      0,
+      "IMAGE"
+    ],
+    [
+      49,
+      11,
+      0,
+      27,
+      1,
+      "IMAGE"
+    ],
+    [
+      50,
+      27,
+      0,
+      28,
+      0,
+      "STRING"
+    ],
+    [
+      51,
+      4,
+      1,
+      29,
+      0,
+      "CLIP"
+    ],
+    [
+      52,
+      28,
+      0,
+      29,
+      2,
+      "STRING"
+    ],
+    [
+      53,
+      4,
+      0,
+      30,
+      0,
+      "MODEL"
+    ],
+    [
+      54,
+      29,
+      0,
+      30,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      55,
+      7,
+      0,
+      30,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      56,
+      5,
+      0,
+      30,
+      3,
+      "LATENT"
+    ],
+    [
+      57,
+      30,
+      0,
+      31,
+      0,
+      "LATENT"
+    ],
+    [
+      58,
+      4,
+      2,
+      31,
+      1,
+      "VAE"
+    ],
+    [
+      87,
+      11,
+      0,
+      44,
+      0,
+      "IMAGE"
+    ],
+    [
+      88,
+      44,
+      1,
+      45,
+      0,
+      "IMAGE"
+    ],
+    [
+      126,
+      11,
+      0,
+      75,
+      0,
+      "IMAGE"
+    ],
+    [
+      127,
+      75,
+      1,
+      76,
+      0,
+      "IMAGE"
+    ],
+    [
+      134,
+      77,
+      0,
+      78,
+      0,
+      "IMAGE"
+    ],
+    [
+      137,
+      81,
+      0,
+      77,
+      0,
+      "IMAGE"
+    ],
+    [
+      141,
+      84,
+      0,
+      77,
+      1,
+      "IMAGE"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.8264462809917354,
+      "offset": [
+        1984.9666976182002,
+        -1894.771297031591
+      ]
+    }
+  },
+  "version": 0.4
+}

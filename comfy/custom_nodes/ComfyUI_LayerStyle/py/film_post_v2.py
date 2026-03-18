@@ -1,11 +1,15 @@
-from .imagefunc import *
+import torch
+import time
+from PIL import Image,ImageEnhance
+from .imagefunc import log, tensor2pil, pil2tensor
+from .imagefunc import gamma_trans, depthblur_image, radialblur_image, vignette_image, filmgrain_image, image_add_grain
 
-NODE_NAME = 'FilmV2'
+
 
 class FilmV2:
 
     def __init__(self):
-        pass
+        self.NODE_NAME = 'FilmV2'
 
     @classmethod
     def INPUT_TYPES(self):
@@ -44,6 +48,7 @@ class FilmV2:
                   ):
 
         ret_images = []
+        seed = int(time.time())
 
         for i in image:
             i = torch.unsqueeze(i, 0)
@@ -72,14 +77,15 @@ class FilmV2:
 
             if grain_power:
                 if grain_method == "fastgrain":
-                    _canvas = image_add_grain(_canvas, grain_scale,grain_power, grain_sat, toe=0, seed=int(time.time()))
+                    _canvas = image_add_grain(_canvas, grain_scale,grain_power, grain_sat, toe=0, seed=seed)
                 elif grain_method == "filmgrainer":
-                    _canvas = filmgrain_image(_canvas, grain_scale, grain_power, filmgrainer_shadows, filmgrainer_highs, grain_sat)
+                    _canvas = filmgrain_image(_canvas, grain_scale, grain_power, filmgrainer_shadows, filmgrainer_highs, grain_sat, seed=seed)
+            seed += 1
 
             ret_image = _canvas
             ret_images.append(pil2tensor(ret_image))
 
-        log(f"{NODE_NAME} Processed {len(ret_images)} image(s).", message_type='finish')
+        log(f"{self.NODE_NAME} Processed {len(ret_images)} image(s).", message_type='finish')
         return (torch.cat(ret_images, dim=0),)
 
 NODE_CLASS_MAPPINGS = {

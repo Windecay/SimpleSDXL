@@ -1,0 +1,15 @@
+[project]
+name = "ComfyUI_LayerStyle_Advance"
+description = "The nodes detached from ComfyUI Layer Style are mainly those with complex requirements for dependency packages."
+version = "2.0.37"
+license = { text = "MIT License" }
+dependencies = ["numpy", "matplotlib", "scikit_image", "scikit_learn", "opencv-contrib-python", "pymatting", "timm", "blend_modes", "transformers", "diffusers", "loguru", "colour-science", "huggingface_hub", "segment_anything", "addict", "omegaconf", "yapf", "wget", "iopath", "mediapipe", "typer_config", "fastapi", "rich", "google-generativeai", "ultralytics", "transparent-background", "accelerate", "onnxruntime", "bitsandbytes", "peft", "protobuf", "hydra-core", "blind-watermark", "qrcode", "pyzbar", "psd-tools", "wandb", "zhipuai", "openai","google-genai", "fastapi","typer-config"]
+
+[project.urls]
+Repository = "https://github.com/chflame163/ComfyUI_LayerStyle_Advance"
+#  Used by Comfy Registry https://comfyregistry.org
+
+[tool.comfy]
+PublisherId = "chflame163"
+DisplayName = "ComfyUI_LayerStyle_Advance"
+Icon = "https://avatars.githubusercontent.com/u/130118553"

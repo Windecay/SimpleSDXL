@@ -1,0 +1,2399 @@
+{
+  "LayerMask: LoadBenModel": {
+    "display_name": "LayerMask: Load Ben Model(Advance)",
+    "inputs": {
+      "model": {
+        "name": "model"
+      },
+      "device": {
+        "name": "device"
+      }
+    },
+    "outputs": {
+      "ben_model": {
+        "name": "ben_model"
+      }
+    }
+  },
+  "LayerMask: BenUltra": {
+    "display_name": "LayerMask: Ben Ultra(Advance)",
+    "inputs": {
+      "ben_model": {
+        "name": "ben_model"
+      },
+      "image": {
+        "name": "image"
+      },
+      "detail_method": {
+        "name": "detail_method"
+      },
+      "detail_erode": {
+        "name": "detail_erode"
+      },
+      "detail_dilate": {
+        "name": "detail_dilate"
+      },
+      "black_point": {
+        "name": "black_point"
+      },
+      "white_point": {
+        "name": "white_point"
+      },
+      "max_megapixels": {
+        "name": "max_megapixels"
+      },
+      "process_detail": {
+        "name": "process_detail"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      },
+      "mask": {
+        "name": "mask"
+      }
+    }
+  },
+  "LayerMask: BiRefNetUltra": {
+    "display_name": "LayerMask: BiRefNetUltra(Advance)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "detail_method": {
+        "name": "detail_method"
+      },
+      "detail_erode": {
+        "name": "detail_erode"
+      },
+      "detail_dilate": {
+        "name": "detail_dilate"
+      },
+      "black_point": {
+        "name": "black_point"
+      },
+      "white_point": {
+        "name": "white_point"
+      },
+      "process_detail": {
+        "name": "process_detail"
+      },
+      "device": {
+        "name": "device"
+      },
+      "max_megapixels": {
+        "name": "max_megapixels"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      },
+      "mask": {
+        "name": "mask"
+      }
+    }
+  },
+  "LayerMask: LoadBiRefNetModel": {
+    "display_name": "LayerMask: Load BiRefNet Model(Advance)",
+    "inputs": {
+      "model": {
+        "name": "model"
+      }
+    },
+    "outputs": {
+      "birefnet_model": {
+        "name": "birefnet_model"
+      }
+    }
+  },
+  "LayerMask: LoadBiRefNetModelV2": {
+    "display_name": "LayerMask: Load BiRefNet Model V2(Advance)",
+    "inputs": {
+      "version": {
+        "name": "version"
+      }
+    },
+    "outputs": {
+      "birefnet_model": {
+        "name": "birefnet_model"
+      }
+    }
+  },
+  "LayerMask: BiRefNetUltraV2": {
+    "display_name": "LayerMask: BiRefNet Ultra V2(Advance)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "birefnet_model": {
+        "name": "birefnet_model"
+      },
+      "detail_method": {
+        "name": "detail_method"
+      },
+      "detail_erode": {
+        "name": "detail_erode"
+      },
+      "detail_dilate": {
+        "name": "detail_dilate"
+      },
+      "black_point": {
+        "name": "black_point"
+      },
+      "white_point": {
+        "name": "white_point"
+      },
+      "process_detail": {
+        "name": "process_detail"
+      },
+      "device": {
+        "name": "device"
+      },
+      "max_megapixels": {
+        "name": "max_megapixels"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      },
+      "mask": {
+        "name": "mask"
+      }
+    }
+  },
+  "LayerUtility: Collage": {
+    "display_name": "LayerUtility: Collage(Advance)",
+    "inputs": {
+      "images": {
+        "name": "images"
+      },
+      "canvas_width": {
+        "name": "canvas_width"
+      },
+      "canvas_height": {
+        "name": "canvas_height"
+      },
+      "border_width": {
+        "name": "border_width"
+      },
+      "rounded_rect_radius": {
+        "name": "rounded_rect_radius"
+      },
+      "uniformity": {
+        "name": "uniformity"
+      },
+      "background_color": {
+        "name": "background_color"
+      },
+      "seed": {
+        "name": "seed"
+      },
+      "florence2_model": {
+        "name": "florence2_model"
+      },
+      "object_prompt": {
+        "name": "object_prompt"
+      },
+      "image": {
+        "name": "image"
+      },
+      "bboxes": {
+        "name": "bboxes"
+      },
+      "grow_top": {
+        "name": "grow_top"
+      },
+      "grow_bottom": {
+        "name": "grow_bottom"
+      },
+      "grow_left": {
+        "name": "grow_left"
+      },
+      "grow_right": {
+        "name": "grow_right"
+      },
+      "proportional_width": {
+        "name": "proportional_width"
+      },
+      "proportional_height": {
+        "name": "proportional_height"
+      },
+      "mask": {
+        "name": "mask"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      },
+      "mask": {
+        "name": "mask"
+      }
+    }
+  },
+  "LayerUtility: DeepSeekAPI": {
+    "display_name": "LayerUtility: DeepSeek API",
+    "inputs": {
+      "model": {
+        "name": "model"
+      },
+      "max_tokens": {
+        "name": "max_tokens"
+      },
+      "temperature": {
+        "name": "temperature"
+      },
+      "top_p": {
+        "name": "top_p"
+      },
+      "presence_penalty": {
+        "name": "presence_penalty"
+      },
+      "frequency_penalty": {
+        "name": "frequency_penalty"
+      },
+      "history_length": {
+        "name": "history_length"
+      },
+      "system_prompt": {
+        "name": "system_prompt"
+      },
+      "user_prompt": {
+        "name": "user_prompt"
+      },
+      "history": {
+        "name": "history"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "string"
+      },
+      "deepseek_history": {
+        "name": "deepseek_history"
+      }
+    }
+  },
+  "LayerUtility: DeepSeekAPIV2": {
+    "display_name": "LayerUtility: DeepSeek API V2",
+    "inputs": {
+      "model": {
+        "name": "model"
+      },
+      "time_out": {
+        "name": "time_out"
+      },
+      "max_tokens": {
+        "name": "max_tokens"
+      },
+      "temperature": {
+        "name": "temperature"
+      },
+      "top_p": {
+        "name": "top_p"
+      },
+      "presence_penalty": {
+        "name": "presence_penalty"
+      },
+      "frequency_penalty": {
+        "name": "frequency_penalty"
+      },
+      "history_length": {
+        "name": "history_length"
+      },
+      "system_prompt": {
+        "name": "system_prompt"
+      },
+      "user_prompt": {
+        "name": "user_prompt"
+      },
+      "history": {
+        "name": "history"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "string"
+      },
+      "deepseek_history": {
+        "name": "deepseek_history"
+      }
+    }
+  },
+  "LayerMask: EVFSAMUltra": {
+    "display_name": "LayerMask: EVF-SAM Ultra(Advance)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "model": {
+        "name": "model"
+      },
+      "precision": {
+        "name": "precision"
+      },
+      "load_in_bit": {
+        "name": "load_in_bit"
+      },
+      "prompt": {
+        "name": "prompt"
+      },
+      "detail_method": {
+        "name": "detail_method"
+      },
+      "detail_erode": {
+        "name": "detail_erode"
+      },
+      "detail_dilate": {
+        "name": "detail_dilate"
+      },
+      "black_point": {
+        "name": "black_point"
+      },
+      "white_point": {
+        "name": "white_point"
+      },
+      "process_detail": {
+        "name": "process_detail"
+      },
+      "device": {
+        "name": "device"
+      },
+      "max_megapixels": {
+        "name": "max_megapixels"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      },
+      "mask": {
+        "name": "mask"
+      }
+    }
+  },
+  "LayerMask: LoadFlorence2Model": {
+    "display_name": "LayerMask: Load Florence2 Model(Advance)",
+    "inputs": {
+      "version": {
+        "name": "version"
+      }
+    },
+    "outputs": {
+      "florence2": {
+        "name": "florence2"
+      }
+    }
+  },
+  "LayerMask: Florence2Ultra": {
+    "display_name": "LayerMask: Florence2 Ultra(Advance)",
+    "inputs": {
+      "florence2_model": {
+        "name": "florence2_model"
+      },
+      "image": {
+        "name": "image"
+      },
+      "task": {
+        "name": "task"
+      },
+      "text_input": {
+        "name": "text_input"
+      },
+      "detail_method": {
+        "name": "detail_method"
+      },
+      "detail_erode": {
+        "name": "detail_erode"
+      },
+      "detail_dilate": {
+        "name": "detail_dilate"
+      },
+      "black_point": {
+        "name": "black_point"
+      },
+      "white_point": {
+        "name": "white_point"
+      },
+      "process_detail": {
+        "name": "process_detail"
+      },
+      "device": {
+        "name": "device"
+      },
+      "max_megapixels": {
+        "name": "max_megapixels"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      },
+      "mask": {
+        "name": "mask"
+      }
+    }
+  },
+  "LayerUtility: Florence2Image2Prompt": {
+    "display_name": "LayerUtility: Florence2 Image2Prompt(Advance)",
+    "inputs": {
+      "florence2_model": {
+        "name": "florence2_model"
+      },
+      "image": {
+        "name": "image"
+      },
+      "task": {
+        "name": "task"
+      },
+      "text_input": {
+        "name": "text_input"
+      },
+      "max_new_tokens": {
+        "name": "max_new_tokens"
+      },
+      "num_beams": {
+        "name": "num_beams"
+      },
+      "do_sample": {
+        "name": "do_sample"
+      },
+      "fill_mask": {
+        "name": "fill_mask"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "string"
+      },
+      "image": {
+        "name": "image"
+      }
+    }
+  },
+  "LayerUtility: Gemini": {
+    "display_name": "LayerUtility: Gemini(Advance)",
+    "inputs": {
+      "model": {
+        "name": "model"
+      },
+      "max_output_tokens": {
+        "name": "max_output_tokens"
+      },
+      "temperature": {
+        "name": "temperature"
+      },
+      "words_limit": {
+        "name": "words_limit"
+      },
+      "response_language": {
+        "name": "response_language"
+      },
+      "system_prompt": {
+        "name": "system_prompt"
+      },
+      "user_prompt": {
+        "name": "user_prompt"
+      },
+      "image_1": {
+        "name": "image_1"
+      },
+      "image_2": {
+        "name": "image_2"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "string"
+      }
+    }
+  },
+  "LayerUtility: GeminiV2": {
+    "display_name": "LayerUtility: Gemini V2(Advance)",
+    "inputs": {
+      "model": {
+        "name": "model"
+      },
+      "max_output_tokens": {
+        "name": "max_output_tokens"
+      },
+      "temperature": {
+        "name": "temperature"
+      },
+      "words_limit": {
+        "name": "words_limit"
+      },
+      "response_language": {
+        "name": "response_language"
+      },
+      "seed": {
+        "name": "seed"
+      },
+      "system_prompt": {
+        "name": "system_prompt"
+      },
+      "user_prompt": {
+        "name": "user_prompt"
+      },
+      "image_1": {
+        "name": "image_1"
+      },
+      "image_2": {
+        "name": "image_2"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "string"
+      }
+    }
+  },
+  "LayerMask: ObjectDetectorGemini": {
+    "display_name": "LayerMask: Object Detector Gemini(Advance)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "model": {
+        "name": "model"
+      },
+      "prompt": {
+        "name": "prompt"
+      }
+    },
+    "outputs": {
+      "bboxes": {
+        "name": "bboxes"
+      },
+      "image": {
+        "name": "image"
+      }
+    }
+  },
+  "LayerMask: ObjectDetectorGeminiV2": {
+    "display_name": "LayerMask: Object Detector Gemini V2(Advance)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "model": {
+        "name": "model"
+      },
+      "prompt": {
+        "name": "prompt"
+      }
+    },
+    "outputs": {
+      "bboxes": {
+        "name": "bboxes"
+      },
+      "image": {
+        "name": "image"
+      }
+    }
+  },
+  "LayerUtility: GeminiImageEdit": {
+    "display_name": "LayerUtility: Gemini Image Edit(Advance)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "model": {
+        "name": "model"
+      },
+      "temperature": {
+        "name": "temperature"
+      },
+      "seed": {
+        "name": "seed"
+      },
+      "user_prompt": {
+        "name": "user_prompt"
+      },
+      "image_2": {
+        "name": "image_2"
+      },
+      "image_3": {
+        "name": "image_3"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      }
+    }
+  },
+  "LayerUtility: GetColorTone": {
+    "display_name": "LayerUtility: GetColorTone(Advance)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "mode": {
+        "name": "mode"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "string"
+      },
+      "list": {
+        "name": "list"
+      }
+    }
+  },
+  "LayerUtility: GetColorToneV2": {
+    "display_name": "LayerUtility: GetColorTone V2(Advance)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "mode": {
+        "name": "mode"
+      },
+      "color_of": {
+        "name": "color_of"
+      },
+      "remove_bkgd_method": {
+        "name": "remove_bkgd_method"
+      },
+      "invert_mask": {
+        "name": "invert_mask"
+      },
+      "mask_grow": {
+        "name": "mask_grow"
+      },
+      "mask": {
+        "name": "mask"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      },
+      "string": {
+        "name": "string"
+      },
+      "list": {
+        "name": "list"
+      },
+      "mask": {
+        "name": "mask"
+      }
+    }
+  },
+  "LayerMask: HumanPartsUltra": {
+    "display_name": "LayerMask: Human Parts Ultra(Advance)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "face": {
+        "name": "face"
+      },
+      "hair": {
+        "name": "hair"
+      },
+      "glasses": {
+        "name": "glasses"
+      },
+      "top_clothes": {
+        "name": "top_clothes"
+      },
+      "bottom_clothes": {
+        "name": "bottom_clothes"
+      },
+      "torso_skin": {
+        "name": "torso_skin"
+      },
+      "left_arm": {
+        "name": "left_arm"
+      },
+      "right_arm": {
+        "name": "right_arm"
+      },
+      "left_leg": {
+        "name": "left_leg"
+      },
+      "right_leg": {
+        "name": "right_leg"
+      },
+      "left_foot": {
+        "name": "left_foot"
+      },
+      "right_foot": {
+        "name": "right_foot"
+      },
+      "detail_method": {
+        "name": "detail_method"
+      },
+      "detail_erode": {
+        "name": "detail_erode"
+      },
+      "detail_dilate": {
+        "name": "detail_dilate"
+      },
+      "black_point": {
+        "name": "black_point"
+      },
+      "white_point": {
+        "name": "white_point"
+      },
+      "process_detail": {
+        "name": "process_detail"
+      },
+      "device": {
+        "name": "device"
+      },
+      "max_megapixels": {
+        "name": "max_megapixels"
+      },
+      "pil_image": {
+        "name": "pil_image"
+      },
+      "model": {
+        "name": "model"
+      },
+      "rotation": {
+        "name": "rotation"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      },
+      "mask": {
+        "name": "mask"
+      }
+    }
+  },
+  "LayerUtility: ImageAutoCrop": {
+    "display_name": "LayerUtility: ImageAutoCrop(Advance)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "background_color": {
+        "name": "background_color"
+      },
+      "aspect_ratio": {
+        "name": "aspect_ratio"
+      },
+      "proportional_width": {
+        "name": "proportional_width"
+      },
+      "proportional_height": {
+        "name": "proportional_height"
+      },
+      "scale_to_longest_side": {
+        "name": "scale_to_longest_side"
+      },
+      "longest_side": {
+        "name": "longest_side"
+      },
+      "detect": {
+        "name": "detect"
+      },
+      "border_reserve": {
+        "name": "border_reserve"
+      },
+      "ultra_detail_range": {
+        "name": "ultra_detail_range"
+      },
+      "matting_method": {
+        "name": "matting_method"
+      },
+      "sam_model": {
+        "name": "sam_model"
+      },
+      "grounding_dino_model": {
+        "name": "grounding_dino_model"
+      },
+      "sam_threshold": {
+        "name": "sam_threshold"
+      },
+      "sam_prompt": {
+        "name": "sam_prompt"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      },
+      "mask": {
+        "name": "mask"
+      }
+    }
+  },
+  "LayerUtility: ImageAutoCrop V2": {
+    "display_name": "LayerUtility: ImageAutoCrop V2(Advance)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "fill_background": {
+        "name": "fill_background"
+      },
+      "background_color": {
+        "name": "background_color"
+      },
+      "aspect_ratio": {
+        "name": "aspect_ratio"
+      },
+      "proportional_width": {
+        "name": "proportional_width"
+      },
+      "proportional_height": {
+        "name": "proportional_height"
+      },
+      "scale_to_side": {
+        "name": "scale_to_side"
+      },
+      "scale_to_length": {
+        "name": "scale_to_length"
+      },
+      "detect": {
+        "name": "detect"
+      },
+      "border_reserve": {
+        "name": "border_reserve"
+      },
+      "ultra_detail_range": {
+        "name": "ultra_detail_range"
+      },
+      "matting_method": {
+        "name": "matting_method"
+      },
+      "sam_model": {
+        "name": "sam_model"
+      },
+      "grounding_dino_model": {
+        "name": "grounding_dino_model"
+      },
+      "sam_threshold": {
+        "name": "sam_threshold"
+      },
+      "sam_prompt": {
+        "name": "sam_prompt"
+      },
+      "mask": {
+        "name": "mask"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      },
+      "mask": {
+        "name": "mask"
+      }
+    }
+  },
+  "LayerUtility: ImageAutoCrop V3": {
+    "display_name": "LayerUtility: ImageAutoCrop V3(Advance)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "aspect_ratio": {
+        "name": "aspect_ratio"
+      },
+      "proportional_width": {
+        "name": "proportional_width"
+      },
+      "proportional_height": {
+        "name": "proportional_height"
+      },
+      "method": {
+        "name": "method"
+      },
+      "scale_to_side": {
+        "name": "scale_to_side"
+      },
+      "scale_to_length": {
+        "name": "scale_to_length"
+      },
+      "round_to_multiple": {
+        "name": "round_to_multiple"
+      },
+      "mask": {
+        "name": "mask"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      }
+    }
+  },
+  "LayerUtility: ImageRewardFilter": {
+    "display_name": "LayerUtility: ImageRewardFilter(Advanced)",
+    "inputs": {
+      "images": {
+        "name": "images"
+      },
+      "prompt": {
+        "name": "prompt"
+      },
+      "output_num": {
+        "name": "output_num"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      }
+    }
+  },
+  "LayerUtility: JoyCaption2ExtraOptions": {
+    "display_name": "LayerUtility: JoyCaption2 Extra Options(Advance)",
+    "inputs": {
+      "refer_character_name": {
+        "name": "refer_character_name"
+      },
+      "exclude_people_info": {
+        "name": "exclude_people_info"
+      },
+      "include_lighting": {
+        "name": "include_lighting"
+      },
+      "include_camera_angle": {
+        "name": "include_camera_angle"
+      },
+      "include_watermark": {
+        "name": "include_watermark"
+      },
+      "include_JPEG_artifacts": {
+        "name": "include_JPEG_artifacts"
+      },
+      "include_exif": {
+        "name": "include_exif"
+      },
+      "exclude_sexual": {
+        "name": "exclude_sexual"
+      },
+      "exclude_image_resolution": {
+        "name": "exclude_image_resolution"
+      },
+      "include_aesthetic_quality": {
+        "name": "include_aesthetic_quality"
+      },
+      "include_composition_style": {
+        "name": "include_composition_style"
+      },
+      "exclude_text": {
+        "name": "exclude_text"
+      },
+      "specify_depth_field": {
+        "name": "specify_depth_field"
+      },
+      "specify_lighting_sources": {
+        "name": "specify_lighting_sources"
+      },
+      "do_not_use_ambiguous_language": {
+        "name": "do_not_use_ambiguous_language"
+      },
+      "include_nsfw": {
+        "name": "include_nsfw"
+      },
+      "only_describe_most_important_elements": {
+        "name": "only_describe_most_important_elements"
+      },
+      "character_name": {
+        "name": "character_name"
+      }
+    },
+    "outputs": {
+      "joycaption2extraoption": {
+        "name": "joycaption2extraoption"
+      }
+    }
+  },
+  "LayerUtility: JoyCaption2": {
+    "display_name": "LayerUtility: JoyCaption2(Advance)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "llm_model": {
+        "name": "llm_model"
+      },
+      "device": {
+        "name": "device"
+      },
+      "dtype": {
+        "name": "dtype"
+      },
+      "vlm_lora": {
+        "name": "vlm_lora"
+      },
+      "caption_type": {
+        "name": "caption_type"
+      },
+      "caption_length": {
+        "name": "caption_length"
+      },
+      "user_prompt": {
+        "name": "user_prompt"
+      },
+      "max_new_tokens": {
+        "name": "max_new_tokens"
+      },
+      "top_p": {
+        "name": "top_p"
+      },
+      "temperature": {
+        "name": "temperature"
+      },
+      "cache_model": {
+        "name": "cache_model"
+      },
+      "use_global_model": {
+        "name": "use_global_model"
+      },
+      "extra_options": {
+        "name": "extra_options"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "string"
+      }
+    }
+  },
+  "LayerUtility: LoadJoyCaption2Model": {
+    "display_name": "LayerUtility: Load JoyCaption2 Model(Advance)",
+    "inputs": {
+      "llm_model": {
+        "name": "llm_model"
+      },
+      "device": {
+        "name": "device"
+      },
+      "dtype": {
+        "name": "dtype"
+      },
+      "vlm_lora": {
+        "name": "vlm_lora"
+      }
+    },
+    "outputs": {
+      "joycaption2_model": {
+        "name": "joycaption2_model"
+      }
+    }
+  },
+  "LayerUtility: JoyCaption2Split": {
+    "display_name": "LayerUtility: JoyCaption2 Split(Advance)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "joy2_model": {
+        "name": "joy2_model"
+      },
+      "caption_type": {
+        "name": "caption_type"
+      },
+      "caption_length": {
+        "name": "caption_length"
+      },
+      "user_prompt": {
+        "name": "user_prompt"
+      },
+      "max_new_tokens": {
+        "name": "max_new_tokens"
+      },
+      "top_p": {
+        "name": "top_p"
+      },
+      "temperature": {
+        "name": "temperature"
+      },
+      "extra_options": {
+        "name": "extra_options"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "string"
+      }
+    }
+  },
+  "LayerUtility: LaMa": {
+    "display_name": "LayerUtility: LaMa(Advance)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "mask": {
+        "name": "mask"
+      },
+      "lama_model": {
+        "name": "lama_model"
+      },
+      "device": {
+        "name": "device"
+      },
+      "invert_mask": {
+        "name": "invert_mask"
+      },
+      "mask_grow": {
+        "name": "mask_grow"
+      },
+      "mask_blur": {
+        "name": "mask_blur"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      }
+    }
+  },
+  "LayerUtility: LlamaVision": {
+    "display_name": "LayerUtility: Llama Vision(Advance)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "model": {
+        "name": "model"
+      },
+      "system_prompt": {
+        "name": "system_prompt"
+      },
+      "user_prompt": {
+        "name": "user_prompt"
+      },
+      "max_new_tokens": {
+        "name": "max_new_tokens"
+      },
+      "do_sample": {
+        "name": "do_sample"
+      },
+      "temperature": {
+        "name": "temperature"
+      },
+      "top_p": {
+        "name": "top_p"
+      },
+      "top_k": {
+        "name": "top_k"
+      },
+      "stop_strings": {
+        "name": "stop_strings"
+      },
+      "seed": {
+        "name": "seed"
+      },
+      "include_prompt_in_output": {
+        "name": "include_prompt_in_output"
+      },
+      "cache_model": {
+        "name": "cache_model"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "string"
+      }
+    }
+  },
+  "LayerUtility: LoadPSD": {
+    "display_name": "LayerUtility: Load PSD(Advance)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "file_path": {
+        "name": "file_path"
+      },
+      "include_hidden_layer": {
+        "name": "include_hidden_layer"
+      },
+      "find_layer_by": {
+        "name": "find_layer_by"
+      },
+      "layer_index": {
+        "name": "layer_index"
+      },
+      "layer_name": {
+        "name": "layer_name"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      }
+    }
+  },
+  "LayerMask: MaskByDifferent": {
+    "display_name": "LayerMask: MaskByDifferent(Advance)",
+    "inputs": {
+      "image_1": {
+        "name": "image_1"
+      },
+      "image_2": {
+        "name": "image_2"
+      },
+      "gain": {
+        "name": "gain"
+      },
+      "fix_gap": {
+        "name": "fix_gap"
+      },
+      "fix_threshold": {
+        "name": "fix_threshold"
+      },
+      "main_subject_detect": {
+        "name": "main_subject_detect"
+      }
+    },
+    "outputs": {
+      "mask": {
+        "name": "mask"
+      }
+    }
+  },
+  "LayerMask: MediapipeFacialSegment": {
+    "display_name": "LayerMask: Mediapipe Facial Segment(Advance)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "left_eye": {
+        "name": "left_eye"
+      },
+      "left_eyebrow": {
+        "name": "left_eyebrow"
+      },
+      "right_eye": {
+        "name": "right_eye"
+      },
+      "right_eyebrow": {
+        "name": "right_eyebrow"
+      },
+      "lips": {
+        "name": "lips"
+      },
+      "tooth": {
+        "name": "tooth"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      },
+      "mask": {
+        "name": "mask"
+      }
+    }
+  },
+  "LayerMask: BBoxJoin": {
+    "display_name": "LayerMask: BBox Join(Advance)",
+    "inputs": {
+      "bboxes_1": {
+        "name": "bboxes_1"
+      },
+      "bboxes_2": {
+        "name": "bboxes_2"
+      },
+      "bboxes_3": {
+        "name": "bboxes_3"
+      },
+      "bboxes_4": {
+        "name": "bboxes_4"
+      }
+    },
+    "outputs": {
+      "bboxes": {
+        "name": "bboxes"
+      }
+    }
+  },
+  "LayerMask: ObjectDetectorFL2": {
+    "display_name": "LayerMask: Object Detector Florence2(Advance)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "prompt": {
+        "name": "prompt"
+      },
+      "florence2_model": {
+        "name": "florence2_model"
+      },
+      "sort_method": {
+        "name": "sort_method"
+      },
+      "bbox_select": {
+        "name": "bbox_select"
+      },
+      "select_index": {
+        "name": "select_index"
+      },
+      "F_BBOXES": {
+        "name": "F_BBOXES"
+      }
+    },
+    "outputs": {
+      "bboxes": {
+        "name": "bboxes"
+      },
+      "image": {
+        "name": "image"
+      }
+    }
+  },
+  "LayerMask: ObjectDetectorMask": {
+    "display_name": "LayerMask: Object Detector Mask(Advance)",
+    "inputs": {
+      "object_mask": {
+        "name": "object_mask"
+      },
+      "sort_method": {
+        "name": "sort_method"
+      },
+      "bbox_select": {
+        "name": "bbox_select"
+      },
+      "select_index": {
+        "name": "select_index"
+      }
+    },
+    "outputs": {
+      "bboxes": {
+        "name": "bboxes"
+      },
+      "image": {
+        "name": "image"
+      }
+    }
+  },
+  "LayerMask: ObjectDetectorYOLO8": {
+    "display_name": "LayerMask: Object Detector YOLO8(Advance)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "yolo_model": {
+        "name": "yolo_model"
+      },
+      "sort_method": {
+        "name": "sort_method"
+      },
+      "bbox_select": {
+        "name": "bbox_select"
+      },
+      "select_index": {
+        "name": "select_index"
+      }
+    },
+    "outputs": {
+      "bboxes": {
+        "name": "bboxes"
+      },
+      "image": {
+        "name": "image"
+      }
+    }
+  },
+  "LayerMask: ObjectDetectorYOLOWorld": {
+    "display_name": "LayerMask: Object Detector YOLO World(Obsolete)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "yolo_world_model": {
+        "name": "yolo_world_model"
+      },
+      "confidence_threshold": {
+        "name": "confidence_threshold"
+      },
+      "nms_iou_threshold": {
+        "name": "nms_iou_threshold"
+      },
+      "prompt": {
+        "name": "prompt"
+      },
+      "sort_method": {
+        "name": "sort_method"
+      },
+      "bbox_select": {
+        "name": "bbox_select"
+      },
+      "select_index": {
+        "name": "select_index"
+      },
+      "categories": {
+        "name": "categories"
+      },
+      "model_id": {
+        "name": "model_id"
+      }
+    },
+    "outputs": {
+      "bboxes": {
+        "name": "bboxes"
+      },
+      "image": {
+        "name": "image"
+      }
+    }
+  },
+  "LayerMask: DrawBBoxMask": {
+    "display_name": "LayerMask: Draw BBox Mask(Advance)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "bboxes": {
+        "name": "bboxes"
+      },
+      "grow_top": {
+        "name": "grow_top"
+      },
+      "grow_bottom": {
+        "name": "grow_bottom"
+      },
+      "grow_left": {
+        "name": "grow_left"
+      },
+      "grow_right": {
+        "name": "grow_right"
+      }
+    },
+    "outputs": {
+      "mask": {
+        "name": "mask"
+      }
+    }
+  },
+  "LayerMask: DrawBBoxMaskV2": {
+    "display_name": "LayerMask: Draw BBox Mask V2(Advance)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "bboxes": {
+        "name": "bboxes"
+      },
+      "grow_top": {
+        "name": "grow_top"
+      },
+      "grow_bottom": {
+        "name": "grow_bottom"
+      },
+      "grow_left": {
+        "name": "grow_left"
+      },
+      "grow_right": {
+        "name": "grow_right"
+      },
+      "rounded_rect_radius": {
+        "name": "rounded_rect_radius"
+      },
+      "anti_aliasing": {
+        "name": "anti_aliasing"
+      }
+    },
+    "outputs": {
+      "mask": {
+        "name": "mask"
+      }
+    }
+  },
+  "LayerMask: PersonMaskUltra": {
+    "display_name": "LayerMask: PersonMaskUltra(Advance)",
+    "inputs": {
+      "images": {
+        "name": "images"
+      },
+      "face": {
+        "name": "face"
+      },
+      "hair": {
+        "name": "hair"
+      },
+      "body": {
+        "name": "body"
+      },
+      "clothes": {
+        "name": "clothes"
+      },
+      "accessories": {
+        "name": "accessories"
+      },
+      "background": {
+        "name": "background"
+      },
+      "confidence": {
+        "name": "confidence"
+      },
+      "detail_range": {
+        "name": "detail_range"
+      },
+      "black_point": {
+        "name": "black_point"
+      },
+      "white_point": {
+        "name": "white_point"
+      },
+      "process_detail": {
+        "name": "process_detail"
+      },
+      "image": {
+        "name": "image"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      },
+      "mask": {
+        "name": "mask"
+      }
+    }
+  },
+  "LayerMask: PersonMaskUltra V2": {
+    "display_name": "LayerMask: PersonMaskUltra V2(Advance)",
+    "inputs": {
+      "images": {
+        "name": "images"
+      },
+      "face": {
+        "name": "face"
+      },
+      "hair": {
+        "name": "hair"
+      },
+      "body": {
+        "name": "body"
+      },
+      "clothes": {
+        "name": "clothes"
+      },
+      "accessories": {
+        "name": "accessories"
+      },
+      "background": {
+        "name": "background"
+      },
+      "confidence": {
+        "name": "confidence"
+      },
+      "detail_method": {
+        "name": "detail_method"
+      },
+      "detail_erode": {
+        "name": "detail_erode"
+      },
+      "detail_dilate": {
+        "name": "detail_dilate"
+      },
+      "black_point": {
+        "name": "black_point"
+      },
+      "white_point": {
+        "name": "white_point"
+      },
+      "process_detail": {
+        "name": "process_detail"
+      },
+      "device": {
+        "name": "device"
+      },
+      "max_megapixels": {
+        "name": "max_megapixels"
+      },
+      "image": {
+        "name": "image"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      },
+      "mask": {
+        "name": "mask"
+      }
+    }
+  },
+  "LayerUtility: PhiPrompt": {
+    "display_name": "LayerUtility: Phi Prompt(Advance)",
+    "inputs": {
+      "model": {
+        "name": "model"
+      },
+      "device": {
+        "name": "device"
+      },
+      "dtype": {
+        "name": "dtype"
+      },
+      "cache_model": {
+        "name": "cache_model"
+      },
+      "system_prompt": {
+        "name": "system_prompt"
+      },
+      "user_prompt": {
+        "name": "user_prompt"
+      },
+      "do_sample": {
+        "name": "do_sample"
+      },
+      "temperature": {
+        "name": "temperature"
+      },
+      "max_new_tokens": {
+        "name": "max_new_tokens"
+      },
+      "image": {
+        "name": "image"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "string"
+      }
+    }
+  },
+  "LayerUtility: PromptEmbellish": {
+    "display_name": "LayerUtility: PromptEmbellish(Advance)",
+    "inputs": {
+      "api": {
+        "name": "api"
+      },
+      "token_limit": {
+        "name": "token_limit"
+      },
+      "describe": {
+        "name": "describe"
+      },
+      "image": {
+        "name": "image"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "string"
+      }
+    }
+  },
+  "LayerUtility: PromptTagger": {
+    "display_name": "LayerUtility: PromptTagger(Advance)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "api": {
+        "name": "api"
+      },
+      "token_limit": {
+        "name": "token_limit"
+      },
+      "exclude_word": {
+        "name": "exclude_word"
+      },
+      "replace_with_word": {
+        "name": "replace_with_word"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "string"
+      }
+    }
+  },
+  "LayerUtility: CreateQRCode": {
+    "display_name": "LayerUtility: Create QRCode(Advance)",
+    "inputs": {
+      "size": {
+        "name": "size"
+      },
+      "border": {
+        "name": "border"
+      },
+      "text": {
+        "name": "text"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      }
+    }
+  },
+  "LayerUtility: DecodeQRCode": {
+    "display_name": "LayerUtility: Decode QRCode(Advance)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "pre_blur": {
+        "name": "pre_blur"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "string"
+      }
+    }
+  },
+  "LayerUtility: QWenImage2Prompt": {
+    "display_name": "LayerUtility: QWenImage2Prompt(Advance)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "question": {
+        "name": "question"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "string"
+      }
+    }
+  },
+  "LayerMask: SAM2Ultra": {
+    "display_name": "LayerMask: SAM2 Ultra",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "bboxes": {
+        "name": "bboxes"
+      },
+      "sam2_model": {
+        "name": "sam2_model"
+      },
+      "precision": {
+        "name": "precision"
+      },
+      "bbox_select": {
+        "name": "bbox_select"
+      },
+      "select_index": {
+        "name": "select_index"
+      },
+      "cache_model": {
+        "name": "cache_model"
+      },
+      "detail_method": {
+        "name": "detail_method"
+      },
+      "detail_erode": {
+        "name": "detail_erode"
+      },
+      "detail_dilate": {
+        "name": "detail_dilate"
+      },
+      "black_point": {
+        "name": "black_point"
+      },
+      "white_point": {
+        "name": "white_point"
+      },
+      "process_detail": {
+        "name": "process_detail"
+      },
+      "device": {
+        "name": "device"
+      },
+      "max_megapixels": {
+        "name": "max_megapixels"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      },
+      "mask": {
+        "name": "mask"
+      }
+    }
+  },
+  "LayerMask: SAM2VideoUltra": {
+    "display_name": "LayerMask: SAM2 Video Ultra(Advance)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "sam2_model": {
+        "name": "sam2_model"
+      },
+      "precision": {
+        "name": "precision"
+      },
+      "cache_model": {
+        "name": "cache_model"
+      },
+      "individual_objects": {
+        "name": "individual_objects"
+      },
+      "mask_preview_color": {
+        "name": "mask_preview_color"
+      },
+      "detail_method": {
+        "name": "detail_method"
+      },
+      "detail_erode": {
+        "name": "detail_erode"
+      },
+      "detail_dilate": {
+        "name": "detail_dilate"
+      },
+      "black_point": {
+        "name": "black_point"
+      },
+      "white_point": {
+        "name": "white_point"
+      },
+      "process_detail": {
+        "name": "process_detail"
+      },
+      "device": {
+        "name": "device"
+      },
+      "max_megapixels": {
+        "name": "max_megapixels"
+      },
+      "bboxes": {
+        "name": "bboxes"
+      },
+      "first_frame_mask": {
+        "name": "first_frame_mask"
+      },
+      "pre_mask": {
+        "name": "pre_mask"
+      }
+    },
+    "outputs": {
+      "mask": {
+        "name": "mask"
+      },
+      "image": {
+        "name": "image"
+      }
+    }
+  },
+  "LayerUtility: SaveImagePlus": {
+    "display_name": "LayerUtility: SaveImage Plus(Advance)",
+    "inputs": {
+      "images": {
+        "name": "images"
+      },
+      "custom_path": {
+        "name": "custom_path"
+      },
+      "filename_prefix": {
+        "name": "filename_prefix"
+      },
+      "timestamp": {
+        "name": "timestamp"
+      },
+      "format": {
+        "name": "format"
+      },
+      "quality": {
+        "name": "quality"
+      },
+      "meta_data": {
+        "name": "meta_data"
+      },
+      "blind_watermark": {
+        "name": "blind_watermark"
+      },
+      "save_workflow_as_json": {
+        "name": "save_workflow_as_json"
+      },
+      "preview": {
+        "name": "preview"
+      },
+      "prompt": {
+        "name": "prompt"
+      },
+      "extra_pnginfo": {
+        "name": "extra_pnginfo"
+      }
+    },
+    "outputs": {}
+  },
+  "LayerUtility: SD3NegativeConditioning": {
+    "display_name": "LayerUtility: SD3 Negative Conditioning(Advance)",
+    "inputs": {
+      "conditioning": {
+        "name": "conditioning"
+      },
+      "zero_out_start": {
+        "name": "zero_out_start"
+      }
+    },
+    "outputs": {
+      "conditioning": {
+        "name": "conditioning"
+      }
+    }
+  },
+  "LayerMask: SegmentAnythingUltra": {
+    "display_name": "LayerMask: SegmentAnythingUltra(Advance)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "sam_model": {
+        "name": "sam_model"
+      },
+      "grounding_dino_model": {
+        "name": "grounding_dino_model"
+      },
+      "threshold": {
+        "name": "threshold"
+      },
+      "detail_range": {
+        "name": "detail_range"
+      },
+      "black_point": {
+        "name": "black_point"
+      },
+      "white_point": {
+        "name": "white_point"
+      },
+      "process_detail": {
+        "name": "process_detail"
+      },
+      "prompt": {
+        "name": "prompt"
+      },
+      "cache_model": {
+        "name": "cache_model"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      },
+      "mask": {
+        "name": "mask"
+      }
+    }
+  },
+  "LayerMask: SegmentAnythingUltra V2": {
+    "display_name": "LayerMask: SegmentAnythingUltra V2(Advance)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "sam_model": {
+        "name": "sam_model"
+      },
+      "grounding_dino_model": {
+        "name": "grounding_dino_model"
+      },
+      "threshold": {
+        "name": "threshold"
+      },
+      "detail_method": {
+        "name": "detail_method"
+      },
+      "detail_erode": {
+        "name": "detail_erode"
+      },
+      "detail_dilate": {
+        "name": "detail_dilate"
+      },
+      "black_point": {
+        "name": "black_point"
+      },
+      "white_point": {
+        "name": "white_point"
+      },
+      "process_detail": {
+        "name": "process_detail"
+      },
+      "prompt": {
+        "name": "prompt"
+      },
+      "device": {
+        "name": "device"
+      },
+      "max_megapixels": {
+        "name": "max_megapixels"
+      },
+      "cache_model": {
+        "name": "cache_model"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      },
+      "mask": {
+        "name": "mask"
+      }
+    }
+  },
+  "LayerMask: LoadSegmentAnythingModels": {
+    "display_name": "LayerMask: Load SegmentAnything Models(Advance)",
+    "inputs": {
+      "sam_model": {
+        "name": "sam_model"
+      },
+      "grounding_dino_model": {
+        "name": "grounding_dino_model"
+      }
+    },
+    "outputs": {
+      "ls_sam_models": {
+        "name": "ls_sam_models"
+      }
+    }
+  },
+  "LayerMask: SegmentAnythingUltra V3": {
+    "display_name": "LayerMask: SegmentAnythingUltra V3(Advance)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "sam_models": {
+        "name": "sam_models"
+      },
+      "threshold": {
+        "name": "threshold"
+      },
+      "detail_method": {
+        "name": "detail_method"
+      },
+      "detail_erode": {
+        "name": "detail_erode"
+      },
+      "detail_dilate": {
+        "name": "detail_dilate"
+      },
+      "black_point": {
+        "name": "black_point"
+      },
+      "white_point": {
+        "name": "white_point"
+      },
+      "process_detail": {
+        "name": "process_detail"
+      },
+      "prompt": {
+        "name": "prompt"
+      },
+      "device": {
+        "name": "device"
+      },
+      "max_megapixels": {
+        "name": "max_megapixels"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      },
+      "mask": {
+        "name": "mask"
+      }
+    }
+  },
+  "LayerUtility: LoadSmolLM2Model": {
+    "display_name": "LayerUtility: Load SmolLM2 Model(Advance)",
+    "inputs": {
+      "model": {
+        "name": "model"
+      },
+      "dtype": {
+        "name": "dtype"
+      },
+      "device": {
+        "name": "device"
+      }
+    },
+    "outputs": {
+      "smollm2_model": {
+        "name": "smollm2_model"
+      }
+    }
+  },
+  "LayerUtility: LoadSmolVLMModel": {
+    "display_name": "LayerUtility: Load SmolVLM Model(Advance)",
+    "inputs": {
+      "model": {
+        "name": "model"
+      },
+      "dtype": {
+        "name": "dtype"
+      },
+      "device": {
+        "name": "device"
+      }
+    },
+    "outputs": {
+      "smolvlm_model": {
+        "name": "smolvlm_model"
+      }
+    }
+  },
+  "LayerUtility: SmolLM2": {
+    "display_name": "LayerUtility: SmolLM2(Advance)",
+    "inputs": {
+      "smolLM2_model": {
+        "name": "smolLM2_model"
+      },
+      "max_new_tokens": {
+        "name": "max_new_tokens"
+      },
+      "do_sample": {
+        "name": "do_sample"
+      },
+      "temperature": {
+        "name": "temperature"
+      },
+      "top_p": {
+        "name": "top_p"
+      },
+      "system_prompt": {
+        "name": "system_prompt"
+      },
+      "user_prompt": {
+        "name": "user_prompt"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "string"
+      }
+    }
+  },
+  "LayerUtility: SmolVLM": {
+    "display_name": "LayerUtility: SmolVLM(Advance)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "smolVLM_model": {
+        "name": "smolVLM_model"
+      },
+      "max_new_tokens": {
+        "name": "max_new_tokens"
+      },
+      "user_prompt": {
+        "name": "user_prompt"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "string"
+      }
+    }
+  },
+  "LayerMask: TransparentBackgroundUltra": {
+    "display_name": "LayerMask: Transparent Background Ultra(Advance)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "model": {
+        "name": "model"
+      },
+      "detail_method": {
+        "name": "detail_method"
+      },
+      "detail_erode": {
+        "name": "detail_erode"
+      },
+      "detail_dilate": {
+        "name": "detail_dilate"
+      },
+      "black_point": {
+        "name": "black_point"
+      },
+      "white_point": {
+        "name": "white_point"
+      },
+      "process_detail": {
+        "name": "process_detail"
+      },
+      "device": {
+        "name": "device"
+      },
+      "max_megapixels": {
+        "name": "max_megapixels"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      },
+      "mask": {
+        "name": "mask"
+      }
+    }
+  },
+  "LayerUtility: UserPromptGeneratorTxt2ImgPromptWithReference": {
+    "display_name": "LayerUtility: UserPrompt Generator Txt2Img with Reference(Advance)",
+    "inputs": {
+      "template": {
+        "name": "template"
+      },
+      "reference_text": {
+        "name": "reference_text"
+      },
+      "describe": {
+        "name": "describe"
+      },
+      "limit_words": {
+        "name": "limit_words"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "string"
+      }
+    }
+  },
+  "LayerUtility: UserPromptGeneratorTxt2ImgPrompt": {
+    "display_name": "LayerUtility: UserPrompt Generator Txt2Img(Advance)",
+    "inputs": {
+      "template": {
+        "name": "template"
+      },
+      "describe": {
+        "name": "describe"
+      },
+      "limit_words": {
+        "name": "limit_words"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "string"
+      }
+    }
+  },
+  "LayerUtility: UserPromptGeneratorReplaceWord": {
+    "display_name": "LayerUtility: UserPrompt Generator Replace Word(Advance)",
+    "inputs": {
+      "orig_prompt": {
+        "name": "orig_prompt"
+      },
+      "template": {
+        "name": "template"
+      },
+      "exclude_word": {
+        "name": "exclude_word"
+      },
+      "replace_with_word": {
+        "name": "replace_with_word"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "string"
+      }
+    }
+  },
+  "LayerUtility: AddBlindWaterMark": {
+    "display_name": "LayerUtility: Add BlindWaterMark(Advance)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "watermark_image": {
+        "name": "watermark_image"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      }
+    }
+  },
+  "LayerUtility: ShowBlindWaterMark": {
+    "display_name": "LayerUtility: Show BlindWaterMark(Advance)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "image"
+      }
+    }
+  },
+  "LayerMask: YoloV8Detect": {
+    "display_name": "LayerMask: YoloV8 Detect(Advance)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "yolo_model": {
+        "name": "yolo_model"
+      },
+      "mask_merge": {
+        "name": "mask_merge"
+      }
+    },
+    "outputs": {
+      "mask": {
+        "name": "mask"
+      },
+      "image": {
+        "name": "image"
+      }
+    }
+  },
+  "LayerUtility: ZhipuGLM4V": {
+    "display_name": "LayerUtility: ZhipuGLM4V(Advance)",
+    "inputs": {
+      "image": {
+        "name": "image"
+      },
+      "model": {
+        "name": "model"
+      },
+      "user_prompt": {
+        "name": "user_prompt"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "string"
+      }
+    }
+  },
+  "LayerUtility: ZhipuGLM4": {
+    "display_name": "LayerUtility: ZhipuGLM4(Advance)",
+    "inputs": {
+      "model": {
+        "name": "model"
+      },
+      "user_prompt": {
+        "name": "user_prompt"
+      },
+      "history_length": {
+        "name": "history_length"
+      },
+      "history": {
+        "name": "history"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "string"
+      },
+      "glm4_history": {
+        "name": "glm4_history"
+      }
+    }
+  }
+}

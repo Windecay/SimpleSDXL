@@ -1,0 +1,2399 @@
+{
+  "LayerMask: LoadBenModel": {
+    "display_name": "LayerMask: Загрузка модели Ben (Продвинутый)",
+    "inputs": {
+      "model": {
+        "name": "модель"
+      },
+      "device": {
+        "name": "устройство"
+      }
+    },
+    "outputs": {
+      "ben_model": {
+        "name": "модель Ben"
+      }
+    }
+  },
+  "LayerMask: BenUltra": {
+    "display_name": "LayerMask: Ben Ultra (Продвинутый)",
+    "inputs": {
+      "ben_model": {
+        "name": "модель Ben"
+      },
+      "image": {
+        "name": "изображение"
+      },
+      "detail_method": {
+        "name": "метод детализации"
+      },
+      "detail_erode": {
+        "name": "эрозия деталей"
+      },
+      "detail_dilate": {
+        "name": "расширение деталей"
+      },
+      "black_point": {
+        "name": "черная точка"
+      },
+      "white_point": {
+        "name": "белая точка"
+      },
+      "max_megapixels": {
+        "name": "максимальное количество мегапикселей"
+      },
+      "process_detail": {
+        "name": "обработка деталей"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "mask": {
+        "name": "маска"
+      }
+    }
+  },
+  "LayerMask: BiRefNetUltra": {
+    "display_name": "LayerMask: BiRefNetUltra (Продвинутый)",
+    "inputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "detail_method": {
+        "name": "метод детализации"
+      },
+      "detail_erode": {
+        "name": "эрозия деталей"
+      },
+      "detail_dilate": {
+        "name": "расширение деталей"
+      },
+      "black_point": {
+        "name": "черная точка"
+      },
+      "white_point": {
+        "name": "белая точка"
+      },
+      "process_detail": {
+        "name": "обработка деталей"
+      },
+      "device": {
+        "name": "устройство"
+      },
+      "max_megapixels": {
+        "name": "максимальное количество мегапикселей"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "mask": {
+        "name": "маска"
+      }
+    }
+  },
+  "LayerMask: LoadBiRefNetModel": {
+    "display_name": "LayerMask: Загрузка модели BiRefNet (Продвинутый)",
+    "inputs": {
+      "model": {
+        "name": "модель"
+      }
+    },
+    "outputs": {
+      "birefnet_model": {
+        "name": "модель BiRefNet"
+      }
+    }
+  },
+  "LayerMask: LoadBiRefNetModelV2": {
+    "display_name": "LayerMask: Загрузка модели BiRefNet V2 (Продвинутый)",
+    "inputs": {
+      "version": {
+        "name": "версия"
+      }
+    },
+    "outputs": {
+      "birefnet_model": {
+        "name": "модель BiRefNet"
+      }
+    }
+  },
+  "LayerMask: BiRefNetUltraV2": {
+    "display_name": "LayerMask: BiRefNet Ultra V2 (Продвинутый)",
+    "inputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "birefnet_model": {
+        "name": "модель BiRefNet"
+      },
+      "detail_method": {
+        "name": "метод детализации"
+      },
+      "detail_erode": {
+        "name": "эрозия деталей"
+      },
+      "detail_dilate": {
+        "name": "расширение деталей"
+      },
+      "black_point": {
+        "name": "черная точка"
+      },
+      "white_point": {
+        "name": "белая точка"
+      },
+      "process_detail": {
+        "name": "обработка деталей"
+      },
+      "device": {
+        "name": "устройство"
+      },
+      "max_megapixels": {
+        "name": "максимальное количество мегапикселей"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "mask": {
+        "name": "маска"
+      }
+    }
+  },
+  "LayerUtility: Collage": {
+    "display_name": "LayerUtility: Коллаж (Продвинутый)",
+    "inputs": {
+      "images": {
+        "name": "изображения"
+      },
+      "canvas_width": {
+        "name": "ширина холста"
+      },
+      "canvas_height": {
+        "name": "высота холста"
+      },
+      "border_width": {
+        "name": "ширина границы"
+      },
+      "rounded_rect_radius": {
+        "name": "радиус скругления"
+      },
+      "uniformity": {
+        "name": "равномерность"
+      },
+      "background_color": {
+        "name": "цвет фона"
+      },
+      "seed": {
+        "name": "seed"
+      },
+      "florence2_model": {
+        "name": "модель Florence2"
+      },
+      "object_prompt": {
+        "name": "объектный промпт"
+      },
+      "image": {
+        "name": "изображение"
+      },
+      "bboxes": {
+        "name": "bboxes"
+      },
+      "grow_top": {
+        "name": "увеличение сверху"
+      },
+      "grow_bottom": {
+        "name": "увеличение снизу"
+      },
+      "grow_left": {
+        "name": "увеличение слева"
+      },
+      "grow_right": {
+        "name": "увеличение справа"
+      },
+      "proportional_width": {
+        "name": "пропорциональная ширина"
+      },
+      "proportional_height": {
+        "name": "пропорциональная высота"
+      },
+      "mask": {
+        "name": "маска"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "mask": {
+        "name": "маска"
+      }
+    }
+  },
+  "LayerUtility: DeepSeekAPI": {
+    "display_name": "LayerUtility: DeepSeek API",
+    "inputs": {
+      "model": {
+        "name": "модель"
+      },
+      "max_tokens": {
+        "name": "максимальное количество токенов"
+      },
+      "temperature": {
+        "name": "температура"
+      },
+      "top_p": {
+        "name": "top_p"
+      },
+      "presence_penalty": {
+        "name": "штраф за присутствие"
+      },
+      "frequency_penalty": {
+        "name": "штраф за частоту"
+      },
+      "history_length": {
+        "name": "длина истории"
+      },
+      "system_prompt": {
+        "name": "системный промпт"
+      },
+      "user_prompt": {
+        "name": "пользовательский промпт"
+      },
+      "history": {
+        "name": "история"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "строка"
+      },
+      "deepseek_history": {
+        "name": "история DeepSeek"
+      }
+    }
+  },
+  "LayerUtility: DeepSeekAPIV2": {
+    "display_name": "LayerUtility: DeepSeek API V2",
+    "inputs": {
+      "model": {
+        "name": "модель"
+      },
+      "time_out": {
+        "name": "тайм-аут"
+      },
+      "max_tokens": {
+        "name": "максимальное количество токенов"
+      },
+      "temperature": {
+        "name": "температура"
+      },
+      "top_p": {
+        "name": "top_p"
+      },
+      "presence_penalty": {
+        "name": "штраф за присутствие"
+      },
+      "frequency_penalty": {
+        "name": "штраф за частоту"
+      },
+      "history_length": {
+        "name": "длина истории"
+      },
+      "system_prompt": {
+        "name": "системный промпт"
+      },
+      "user_prompt": {
+        "name": "пользовательский промпт"
+      },
+      "history": {
+        "name": "история"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "строка"
+      },
+      "deepseek_history": {
+        "name": "история DeepSeek"
+      }
+    }
+  },
+  "LayerMask: EVFSAMUltra": {
+    "display_name": "LayerMask: EVF-SAM Ultra (Продвинутый)",
+    "inputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "model": {
+        "name": "модель"
+      },
+      "precision": {
+        "name": "точность"
+      },
+      "load_in_bit": {
+        "name": "загрузка в битах"
+      },
+      "prompt": {
+        "name": "промпт"
+      },
+      "detail_method": {
+        "name": "метод детализации"
+      },
+      "detail_erode": {
+        "name": "эрозия деталей"
+      },
+      "detail_dilate": {
+        "name": "расширение деталей"
+      },
+      "black_point": {
+        "name": "черная точка"
+      },
+      "white_point": {
+        "name": "белая точка"
+      },
+      "process_detail": {
+        "name": "обработка деталей"
+      },
+      "device": {
+        "name": "устройство"
+      },
+      "max_megapixels": {
+        "name": "максимальное количество мегапикселей"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "mask": {
+        "name": "маска"
+      }
+    }
+  },
+  "LayerMask: LoadFlorence2Model": {
+    "display_name": "LayerMask: Загрузка модели Florence2 (Продвинутый)",
+    "inputs": {
+      "version": {
+        "name": "версия"
+      }
+    },
+    "outputs": {
+      "florence2": {
+        "name": "Florence2"
+      }
+    }
+  },
+  "LayerMask: Florence2Ultra": {
+    "display_name": "LayerMask: Florence2 Ultra (Продвинутый)",
+    "inputs": {
+      "florence2_model": {
+        "name": "модель Florence2"
+      },
+      "image": {
+        "name": "изображение"
+      },
+      "task": {
+        "name": "задача"
+      },
+      "text_input": {
+        "name": "текстовый ввод"
+      },
+      "detail_method": {
+        "name": "метод детализации"
+      },
+      "detail_erode": {
+        "name": "эрозия деталей"
+      },
+      "detail_dilate": {
+        "name": "расширение деталей"
+      },
+      "black_point": {
+        "name": "черная точка"
+      },
+      "white_point": {
+        "name": "белая точка"
+      },
+      "process_detail": {
+        "name": "обработка деталей"
+      },
+      "device": {
+        "name": "устройство"
+      },
+      "max_megapixels": {
+        "name": "максимальное количество мегапикселей"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "mask": {
+        "name": "маска"
+      }
+    }
+  },
+  "LayerUtility: Florence2Image2Prompt": {
+    "display_name": "LayerUtility: Florence2 Image2Prompt (Продвинутый)",
+    "inputs": {
+      "florence2_model": {
+        "name": "модель Florence2"
+      },
+      "image": {
+        "name": "изображение"
+      },
+      "task": {
+        "name": "задача"
+      },
+      "text_input": {
+        "name": "текстовый ввод"
+      },
+      "max_new_tokens": {
+        "name": "максимальное количество новых токенов"
+      },
+      "num_beams": {
+        "name": "количество лучей"
+      },
+      "do_sample": {
+        "name": "делать выборку"
+      },
+      "fill_mask": {
+        "name": "заполнение маски"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "строка"
+      },
+      "image": {
+        "name": "изображение"
+      }
+    }
+  },
+  "LayerUtility: Gemini": {
+    "display_name": "LayerUtility: Gemini (Продвинутый)",
+    "inputs": {
+      "model": {
+        "name": "модель"
+      },
+      "max_output_tokens": {
+        "name": "максимальное количество выходных токенов"
+      },
+      "temperature": {
+        "name": "температура"
+      },
+      "words_limit": {
+        "name": "ограничение слов"
+      },
+      "response_language": {
+        "name": "язык ответа"
+      },
+      "system_prompt": {
+        "name": "системный промпт"
+      },
+      "user_prompt": {
+        "name": "пользовательский промпт"
+      },
+      "image_1": {
+        "name": "изображение_1"
+      },
+      "image_2": {
+        "name": "изображение_2"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "строка"
+      }
+    }
+  },
+  "LayerUtility: GeminiV2": {
+    "display_name": "LayerUtility: Gemini V2 (Продвинутый)",
+    "inputs": {
+      "model": {
+        "name": "модель"
+      },
+      "max_output_tokens": {
+        "name": "максимальное количество выходных токенов"
+      },
+      "temperature": {
+        "name": "температура"
+      },
+      "words_limit": {
+        "name": "ограничение слов"
+      },
+      "response_language": {
+        "name": "язык ответа"
+      },
+      "seed": {
+        "name": "seed"
+      },
+      "system_prompt": {
+        "name": "системный промпт"
+      },
+      "user_prompt": {
+        "name": "пользовательский промпт"
+      },
+      "image_1": {
+        "name": "изображение_1"
+      },
+      "image_2": {
+        "name": "изображение_2"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "строка"
+      }
+    }
+  },
+  "LayerMask: ObjectDetectorGemini": {
+    "display_name": "LayerMask: Детектор объектов Gemini (Продвинутый)",
+    "inputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "model": {
+        "name": "модель"
+      },
+      "prompt": {
+        "name": "промпт"
+      }
+    },
+    "outputs": {
+      "bboxes": {
+        "name": "bboxes"
+      },
+      "image": {
+        "name": "изображение"
+      }
+    }
+  },
+  "LayerMask: ObjectDetectorGeminiV2": {
+    "display_name": "LayerMask: Детектор объектов Gemini V2 (Продвинутый)",
+    "inputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "model": {
+        "name": "модель"
+      },
+      "prompt": {
+        "name": "промпт"
+      }
+    },
+    "outputs": {
+      "bboxes": {
+        "name": "bboxes"
+      },
+      "image": {
+        "name": "изображение"
+      }
+    }
+  },
+  "LayerUtility: GeminiImageEdit": {
+    "display_name": "LayerUtility: Редактирование изображения Gemini (Продвинутый)",
+    "inputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "model": {
+        "name": "модель"
+      },
+      "temperature": {
+        "name": "температура"
+      },
+      "seed": {
+        "name": "seed"
+      },
+      "user_prompt": {
+        "name": "пользовательский промпт"
+      },
+      "image_2": {
+        "name": "изображение_2"
+      },
+      "image_3": {
+        "name": "изображение_3"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "изображение"
+      }
+    }
+  },
+  "LayerUtility: GetColorTone": {
+    "display_name": "LayerUtility: Получить тон (Продвинутый)",
+    "inputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "mode": {
+        "name": "режим"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "строка"
+      },
+      "list": {
+        "name": "список"
+      }
+    }
+  },
+  "LayerUtility: GetColorToneV2": {
+    "display_name": "LayerUtility: Получить тон V2 (Продвинутый)",
+    "inputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "mode": {
+        "name": "режим"
+      },
+      "color_of": {
+        "name": "цвет"
+      },
+      "remove_bkgd_method": {
+        "name": "метод удаления фона"
+      },
+      "invert_mask": {
+        "name": "инвертировать маску"
+      },
+      "mask_grow": {
+        "name": "увеличение маски"
+      },
+      "mask": {
+        "name": "маска"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "string": {
+        "name": "строка"
+      },
+      "list": {
+        "name": "список"
+      },
+      "mask": {
+        "name": "маска"
+      }
+    }
+  },
+  "LayerMask: HumanPartsUltra": {
+    "display_name": "LayerMask: Части тела Ultra (Продвинутый)",
+    "inputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "face": {
+        "name": "лицо"
+      },
+      "hair": {
+        "name": "волосы"
+      },
+      "glasses": {
+        "name": "очки"
+      },
+      "top_clothes": {
+        "name": "верхняя одежда"
+      },
+      "bottom_clothes": {
+        "name": "нижняя одежда"
+      },
+      "torso_skin": {
+        "name": "кожа торса"
+      },
+      "left_arm": {
+        "name": "левая рука"
+      },
+      "right_arm": {
+        "name": "правая рука"
+      },
+      "left_leg": {
+        "name": "левая нога"
+      },
+      "right_leg": {
+        "name": "правая нога"
+      },
+      "left_foot": {
+        "name": "левая ступня"
+      },
+      "right_foot": {
+        "name": "правая ступня"
+      },
+      "detail_method": {
+        "name": "метод детализации"
+      },
+      "detail_erode": {
+        "name": "эрозия деталей"
+      },
+      "detail_dilate": {
+        "name": "расширение деталей"
+      },
+      "black_point": {
+        "name": "черная точка"
+      },
+      "white_point": {
+        "name": "белая точка"
+      },
+      "process_detail": {
+        "name": "обработка деталей"
+      },
+      "device": {
+        "name": "устройство"
+      },
+      "max_megapixels": {
+        "name": "максимальное количество мегапикселей"
+      },
+      "pil_image": {
+        "name": "pil изображение"
+      },
+      "model": {
+        "name": "модель"
+      },
+      "rotation": {
+        "name": "вращение"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "mask": {
+        "name": "маска"
+      }
+    }
+  },
+  "LayerUtility: ImageAutoCrop": {
+    "display_name": "LayerUtility: Автокадрирование (Продвинутый)",
+    "inputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "background_color": {
+        "name": "цвет фона"
+      },
+      "aspect_ratio": {
+        "name": "соотношение сторон"
+      },
+      "proportional_width": {
+        "name": "пропорциональная ширина"
+      },
+      "proportional_height": {
+        "name": "пропорциональная высота"
+      },
+      "scale_to_longest_side": {
+        "name": "масштабирование по длинной стороне"
+      },
+      "longest_side": {
+        "name": "длинная сторона"
+      },
+      "detect": {
+        "name": "детектирование"
+      },
+      "border_reserve": {
+        "name": "резерв границы"
+      },
+      "ultra_detail_range": {
+        "name": "диапазон детализации Ultra"
+      },
+      "matting_method": {
+        "name": "метод матирования"
+      },
+      "sam_model": {
+        "name": "модель SAM"
+      },
+      "grounding_dino_model": {
+        "name": "модель Grounding DINO"
+      },
+      "sam_threshold": {
+        "name": "порог SAM"
+      },
+      "sam_prompt": {
+        "name": "промпт SAM"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "mask": {
+        "name": "маска"
+      }
+    }
+  },
+  "LayerUtility: ImageAutoCrop V2": {
+    "display_name": "LayerUtility: Автокадрирование V2 (Продвинутый)",
+    "inputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "fill_background": {
+        "name": "заполнение фона"
+      },
+      "background_color": {
+        "name": "цвет фона"
+      },
+      "aspect_ratio": {
+        "name": "соотношение сторон"
+      },
+      "proportional_width": {
+        "name": "пропорциональная ширина"
+      },
+      "proportional_height": {
+        "name": "пропорциональная высота"
+      },
+      "scale_to_side": {
+        "name": "масштабирование по стороне"
+      },
+      "scale_to_length": {
+        "name": "масштабирование по длине"
+      },
+      "detect": {
+        "name": "детектирование"
+      },
+      "border_reserve": {
+        "name": "резерв границы"
+      },
+      "ultra_detail_range": {
+        "name": "диапазон детализации Ultra"
+      },
+      "matting_method": {
+        "name": "метод матирования"
+      },
+      "sam_model": {
+        "name": "модель SAM"
+      },
+      "grounding_dino_model": {
+        "name": "модель Grounding DINO"
+      },
+      "sam_threshold": {
+        "name": "порог SAM"
+      },
+      "sam_prompt": {
+        "name": "промпт SAM"
+      },
+      "mask": {
+        "name": "маска"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "mask": {
+        "name": "маска"
+      }
+    }
+  },
+  "LayerUtility: ImageAutoCrop V3": {
+    "display_name": "LayerUtility: Автокадрирование V3 (Продвинутый)",
+    "inputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "aspect_ratio": {
+        "name": "соотношение сторон"
+      },
+      "proportional_width": {
+        "name": "пропорциональная ширина"
+      },
+      "proportional_height": {
+        "name": "пропорциональная высота"
+      },
+      "method": {
+        "name": "метод"
+      },
+      "scale_to_side": {
+        "name": "масштабирование по стороне"
+      },
+      "scale_to_length": {
+        "name": "масштабирование по длине"
+      },
+      "round_to_multiple": {
+        "name": "округление до кратного"
+      },
+      "mask": {
+        "name": "маска"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "изображение"
+      }
+    }
+  },
+  "LayerUtility: ImageRewardFilter": {
+    "display_name": "LayerUtility: Фильтр эстетики (Продвинутый)",
+    "inputs": {
+      "images": {
+        "name": "изображения"
+      },
+      "prompt": {
+        "name": "промпт"
+      },
+      "output_num": {
+        "name": "количество выходных данных"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "изображение"
+      }
+    }
+  },
+  "LayerUtility: JoyCaption2ExtraOptions": {
+    "display_name": "LayerUtility: Дополнительные опции JoyCaption2 (Продвинутый)",
+    "inputs": {
+      "refer_character_name": {
+        "name": "имя персонажа"
+      },
+      "exclude_people_info": {
+        "name": "исключить информацию о людях"
+      },
+      "include_lighting": {
+        "name": "включить освещение"
+      },
+      "include_camera_angle": {
+        "name": "включить угол камеры"
+      },
+      "include_watermark": {
+        "name": "включить водяной знак"
+      },
+      "include_JPEG_artifacts": {
+        "name": "включить артефакты JPEG"
+      },
+      "include_exif": {
+        "name": "включить EXIF"
+      },
+      "exclude_sexual": {
+        "name": "исключить сексуальный контент"
+      },
+      "exclude_image_resolution": {
+        "name": "исключить разрешение изображения"
+      },
+      "include_aesthetic_quality": {
+        "name": "включить эстетическое качество"
+      },
+      "include_composition_style": {
+        "name": "включить стиль композиции"
+      },
+      "exclude_text": {
+        "name": "исключить текст"
+      },
+      "specify_depth_field": {
+        "name": "указать глубину резкости"
+      },
+      "specify_lighting_sources": {
+        "name": "указать источники освещения"
+      },
+      "do_not_use_ambiguous_language": {
+        "name": "не использовать неоднозначный язык"
+      },
+      "include_nsfw": {
+        "name": "включить NSFW"
+      },
+      "only_describe_most_important_elements": {
+        "name": "описывать только самые важные элементы"
+      },
+      "character_name": {
+        "name": "имя персонажа"
+      }
+    },
+    "outputs": {
+      "joycaption2extraoption": {
+        "name": "дополнительные опции JoyCaption2"
+      }
+    }
+  },
+  "LayerUtility: JoyCaption2": {
+    "display_name": "LayerUtility: JoyCaption2 (Продвинутый)",
+    "inputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "llm_model": {
+        "name": "модель LLM"
+      },
+      "device": {
+        "name": "устройство"
+      },
+      "dtype": {
+        "name": "dtype"
+      },
+      "vlm_lora": {
+        "name": "VLM LoRA"
+      },
+      "caption_type": {
+        "name": "тип подписи"
+      },
+      "caption_length": {
+        "name": "длина подписи"
+      },
+      "user_prompt": {
+        "name": "пользовательский промпт"
+      },
+      "max_new_tokens": {
+        "name": "максимальное количество новых токенов"
+      },
+      "top_p": {
+        "name": "top_p"
+      },
+      "temperature": {
+        "name": "температура"
+      },
+      "cache_model": {
+        "name": "кэширование модели"
+      },
+      "use_global_model": {
+        "name": "использовать глобальную модель"
+      },
+      "extra_options": {
+        "name": "дополнительные опции"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "строка"
+      }
+    }
+  },
+  "LayerUtility: LoadJoyCaption2Model": {
+    "display_name": "LayerUtility: Загрузка модели JoyCaption2 (Продвинутый)",
+    "inputs": {
+      "llm_model": {
+        "name": "модель LLM"
+      },
+      "device": {
+        "name": "устройство"
+      },
+      "dtype": {
+        "name": "dtype"
+      },
+      "vlm_lora": {
+        "name": "VLM LoRA"
+      }
+    },
+    "outputs": {
+      "joycaption2_model": {
+        "name": "модель JoyCaption2"
+      }
+    }
+  },
+  "LayerUtility: JoyCaption2Split": {
+    "display_name": "LayerUtility: Разделение JoyCaption2 (Продвинутый)",
+    "inputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "joy2_model": {
+        "name": "модель Joy2"
+      },
+      "caption_type": {
+        "name": "тип подписи"
+      },
+      "caption_length": {
+        "name": "длина подписи"
+      },
+      "user_prompt": {
+        "name": "пользовательский промпт"
+      },
+      "max_new_tokens": {
+        "name": "максимальное количество новых токенов"
+      },
+      "top_p": {
+        "name": "top_p"
+      },
+      "temperature": {
+        "name": "температура"
+      },
+      "extra_options": {
+        "name": "дополнительные опции"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "строка"
+      }
+    }
+  },
+  "LayerUtility: LaMa": {
+    "display_name": "LayerUtility: LaMa (Продвинутый)",
+    "inputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "mask": {
+        "name": "маска"
+      },
+      "lama_model": {
+        "name": "модель LaMa"
+      },
+      "device": {
+        "name": "устройство"
+      },
+      "invert_mask": {
+        "name": "инвертировать маску"
+      },
+      "mask_grow": {
+        "name": "увеличение маски"
+      },
+      "mask_blur": {
+        "name": "размытие маски"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "изображение"
+      }
+    }
+  },
+  "LayerUtility: LlamaVision": {
+    "display_name": "LayerUtility: Llama Vision (Продвинутый)",
+    "inputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "model": {
+        "name": "модель"
+      },
+      "system_prompt": {
+        "name": "системный промпт"
+      },
+      "user_prompt": {
+        "name": "пользовательский промпт"
+      },
+      "max_new_tokens": {
+        "name": "максимальное количество новых токенов"
+      },
+      "do_sample": {
+        "name": "делать выборку"
+      },
+      "temperature": {
+        "name": "температура"
+      },
+      "top_p": {
+        "name": "top_p"
+      },
+      "top_k": {
+        "name": "top_k"
+      },
+      "stop_strings": {
+        "name": "стоп-строки"
+      },
+      "seed": {
+        "name": "seed"
+      },
+      "include_prompt_in_output": {
+        "name": "включить промпт в вывод"
+      },
+      "cache_model": {
+        "name": "кэширование модели"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "строка"
+      }
+    }
+  },
+  "LayerUtility: LoadPSD": {
+    "display_name": "LayerUtility: Загрузка PSD (Продвинутый)",
+    "inputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "file_path": {
+        "name": "путь к файлу"
+      },
+      "include_hidden_layer": {
+        "name": "включить скрытый слой"
+      },
+      "find_layer_by": {
+        "name": "найти слой по"
+      },
+      "layer_index": {
+        "name": "индекс слоя"
+      },
+      "layer_name": {
+        "name": "имя слоя"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "изображение"
+      }
+    }
+  },
+  "LayerMask: MaskByDifferent": {
+    "display_name": "LayerMask: Маска по различию (Продвинутый)",
+    "inputs": {
+      "image_1": {
+        "name": "изображение_1"
+      },
+      "image_2": {
+        "name": "изображение_2"
+      },
+      "gain": {
+        "name": "усиление"
+      },
+      "fix_gap": {
+        "name": "исправление зазора"
+      },
+      "fix_threshold": {
+        "name": "порог исправления"
+      },
+      "main_subject_detect": {
+        "name": "детектирование основного объекта"
+      }
+    },
+    "outputs": {
+      "mask": {
+        "name": "маска"
+      }
+    }
+  },
+  "LayerMask: MediapipeFacialSegment": {
+    "display_name": "LayerMask: Сегментация лица Mediapipe (Продвинутый)",
+    "inputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "left_eye": {
+        "name": "левый глаз"
+      },
+      "left_eyebrow": {
+        "name": "левая бровь"
+      },
+      "right_eye": {
+        "name": "правый глаз"
+      },
+      "right_eyebrow": {
+        "name": "правая бровь"
+      },
+      "lips": {
+        "name": "губы"
+      },
+      "tooth": {
+        "name": "зуб"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "mask": {
+        "name": "маска"
+      }
+    }
+  },
+  "LayerMask: BBoxJoin": {
+    "display_name": "LayerMask: Объединение BBox (Продвинутый)",
+    "inputs": {
+      "bboxes_1": {
+        "name": "bboxes_1"
+      },
+      "bboxes_2": {
+        "name": "bboxes_2"
+      },
+      "bboxes_3": {
+        "name": "bboxes_3"
+      },
+      "bboxes_4": {
+        "name": "bboxes_4"
+      }
+    },
+    "outputs": {
+      "bboxes": {
+        "name": "bboxes"
+      }
+    }
+  },
+  "LayerMask: ObjectDetectorFL2": {
+    "display_name": "LayerMask: Детектор объектов Florence2 (Продвинутый)",
+    "inputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "prompt": {
+        "name": "промпт"
+      },
+      "florence2_model": {
+        "name": "модель Florence2"
+      },
+      "sort_method": {
+        "name": "метод сортировки"
+      },
+      "bbox_select": {
+        "name": "выбор bbox"
+      },
+      "select_index": {
+        "name": "индекс выбора"
+      },
+      "F_BBOXES": {
+        "name": "F_BBOXES"
+      }
+    },
+    "outputs": {
+      "bboxes": {
+        "name": "bboxes"
+      },
+      "image": {
+        "name": "изображение"
+      }
+    }
+  },
+  "LayerMask: ObjectDetectorMask": {
+    "display_name": "LayerMask: Маска детектора объектов (Продвинутый)",
+    "inputs": {
+      "object_mask": {
+        "name": "маска объекта"
+      },
+      "sort_method": {
+        "name": "метод сортировки"
+      },
+      "bbox_select": {
+        "name": "выбор bbox"
+      },
+      "select_index": {
+        "name": "индекс выбора"
+      }
+    },
+    "outputs": {
+      "bboxes": {
+        "name": "bboxes"
+      },
+      "image": {
+        "name": "изображение"
+      }
+    }
+  },
+  "LayerMask: ObjectDetectorYOLO8": {
+    "display_name": "LayerMask: Детектор объектов YOLO8 (Продвинутый)",
+    "inputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "yolo_model": {
+        "name": "модель YOLO"
+      },
+      "sort_method": {
+        "name": "метод сортировки"
+      },
+      "bbox_select": {
+        "name": "выбор bbox"
+      },
+      "select_index": {
+        "name": "индекс выбора"
+      }
+    },
+    "outputs": {
+      "bboxes": {
+        "name": "bboxes"
+      },
+      "image": {
+        "name": "изображение"
+      }
+    }
+  },
+  "LayerMask: ObjectDetectorYOLOWorld": {
+    "display_name": "LayerMask: Детектор объектов YOLO World (Устаревший)",
+    "inputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "yolo_world_model": {
+        "name": "модель YOLO World"
+      },
+      "confidence_threshold": {
+        "name": "порог уверенности"
+      },
+      "nms_iou_threshold": {
+        "name": "порог NMS IoU"
+      },
+      "prompt": {
+        "name": "промпт"
+      },
+      "sort_method": {
+        "name": "метод сортировки"
+      },
+      "bbox_select": {
+        "name": "выбор bbox"
+      },
+      "select_index": {
+        "name": "индекс выбора"
+      },
+      "categories": {
+        "name": "категории"
+      },
+      "model_id": {
+        "name": "ID модели"
+      }
+    },
+    "outputs": {
+      "bboxes": {
+        "name": "bboxes"
+      },
+      "image": {
+        "name": "изображение"
+      }
+    }
+  },
+  "LayerMask: DrawBBoxMask": {
+    "display_name": "LayerMask: Рисование маски BBox (Продвинутый)",
+    "inputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "bboxes": {
+        "name": "bboxes"
+      },
+      "grow_top": {
+        "name": "увеличение сверху"
+      },
+      "grow_bottom": {
+        "name": "увеличение снизу"
+      },
+      "grow_left": {
+        "name": "увеличение слева"
+      },
+      "grow_right": {
+        "name": "увеличение справа"
+      }
+    },
+    "outputs": {
+      "mask": {
+        "name": "маска"
+      }
+    }
+  },
+  "LayerMask: DrawBBoxMaskV2": {
+    "display_name": "LayerMask: Рисование маски BBox V2 (Продвинутый)",
+    "inputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "bboxes": {
+        "name": "bboxes"
+      },
+      "grow_top": {
+        "name": "увеличение сверху"
+      },
+      "grow_bottom": {
+        "name": "увеличение снизу"
+      },
+      "grow_left": {
+        "name": "увеличение слева"
+      },
+      "grow_right": {
+        "name": "увеличение справа"
+      },
+      "rounded_rect_radius": {
+        "name": "радиус скругления"
+      },
+      "anti_aliasing": {
+        "name": "сглаживание"
+      }
+    },
+    "outputs": {
+      "mask": {
+        "name": "маска"
+      }
+    }
+  },
+  "LayerMask: PersonMaskUltra": {
+    "display_name": "LayerMask: Маска человека Ultra (Продвинутый)",
+    "inputs": {
+      "images": {
+        "name": "изображения"
+      },
+      "face": {
+        "name": "лицо"
+      },
+      "hair": {
+        "name": "волосы"
+      },
+      "body": {
+        "name": "тело"
+      },
+      "clothes": {
+        "name": "одежда"
+      },
+      "accessories": {
+        "name": "аксессуары"
+      },
+      "background": {
+        "name": "фон"
+      },
+      "confidence": {
+        "name": "уверенность"
+      },
+      "detail_range": {
+        "name": "диапазон детализации"
+      },
+      "black_point": {
+        "name": "черная точка"
+      },
+      "white_point": {
+        "name": "белая точка"
+      },
+      "process_detail": {
+        "name": "обработка деталей"
+      },
+      "image": {
+        "name": "изображение"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "mask": {
+        "name": "маска"
+      }
+    }
+  },
+  "LayerMask: PersonMaskUltra V2": {
+    "display_name": "LayerMask: Маска человека Ultra V2 (Продвинутый)",
+    "inputs": {
+      "images": {
+        "name": "изображения"
+      },
+      "face": {
+        "name": "лицо"
+      },
+      "hair": {
+        "name": "волосы"
+      },
+      "body": {
+        "name": "тело"
+      },
+      "clothes": {
+        "name": "одежда"
+      },
+      "accessories": {
+        "name": "аксессуары"
+      },
+      "background": {
+        "name": "фон"
+      },
+      "confidence": {
+        "name": "уверенность"
+      },
+      "detail_method": {
+        "name": "метод детализации"
+      },
+      "detail_erode": {
+        "name": "эрозия деталей"
+      },
+      "detail_dilate": {
+        "name": "расширение деталей"
+      },
+      "black_point": {
+        "name": "черная точка"
+      },
+      "white_point": {
+        "name": "белая точка"
+      },
+      "process_detail": {
+        "name": "обработка деталей"
+      },
+      "device": {
+        "name": "устройство"
+      },
+      "max_megapixels": {
+        "name": "максимальное количество мегапикселей"
+      },
+      "image": {
+        "name": "изображение"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "mask": {
+        "name": "маска"
+      }
+    }
+  },
+  "LayerUtility: PhiPrompt": {
+    "display_name": "LayerUtility: Phi Prompt (Продвинутый)",
+    "inputs": {
+      "model": {
+        "name": "модель"
+      },
+      "device": {
+        "name": "устройство"
+      },
+      "dtype": {
+        "name": "dtype"
+      },
+      "cache_model": {
+        "name": "кэширование модели"
+      },
+      "system_prompt": {
+        "name": "системный промпт"
+      },
+      "user_prompt": {
+        "name": "пользовательский промпт"
+      },
+      "do_sample": {
+        "name": "делать выборку"
+      },
+      "temperature": {
+        "name": "температура"
+      },
+      "max_new_tokens": {
+        "name": "максимальное количество новых токенов"
+      },
+      "image": {
+        "name": "изображение"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "строка"
+      }
+    }
+  },
+  "LayerUtility: PromptEmbellish": {
+    "display_name": "LayerUtility: Улучшение промпта (Продвинутый)",
+    "inputs": {
+      "api": {
+        "name": "api"
+      },
+      "token_limit": {
+        "name": "ограничение токенов"
+      },
+      "describe": {
+        "name": "описание"
+      },
+      "image": {
+        "name": "изображение"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "строка"
+      }
+    }
+  },
+  "LayerUtility: PromptTagger": {
+    "display_name": "LayerUtility: Обратная генерация промптов (Продвинутый)",
+    "inputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "api": {
+        "name": "api"
+      },
+      "token_limit": {
+        "name": "ограничение токенов"
+      },
+      "exclude_word": {
+        "name": "исключить слово"
+      },
+      "replace_with_word": {
+        "name": "заменить на слово"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "строка"
+      }
+    }
+  },
+  "LayerUtility: CreateQRCode": {
+    "display_name": "LayerUtility: Создание QRCode (Продвинутый)",
+    "inputs": {
+      "size": {
+        "name": "размер"
+      },
+      "border": {
+        "name": "граница"
+      },
+      "text": {
+        "name": "текст"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "изображение"
+      }
+    }
+  },
+  "LayerUtility: DecodeQRCode": {
+    "display_name": "LayerUtility: Декодирование QRCode (Продвинутый)",
+    "inputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "pre_blur": {
+        "name": "предварительное размытие"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "строка"
+      }
+    }
+  },
+  "LayerUtility: QWenImage2Prompt": {
+    "display_name": "LayerUtility: QWenImage2Prompt (Продвинутый)",
+    "inputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "question": {
+        "name": "вопрос"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "строка"
+      }
+    }
+  },
+  "LayerMask: SAM2Ultra": {
+    "display_name": "LayerMask: SAM2 Ultra",
+    "inputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "bboxes": {
+        "name": "bboxes"
+      },
+      "sam2_model": {
+        "name": "модель SAM2"
+      },
+      "precision": {
+        "name": "точность"
+      },
+      "bbox_select": {
+        "name": "выбор bbox"
+      },
+      "select_index": {
+        "name": "индекс выбора"
+      },
+      "cache_model": {
+        "name": "кэширование модели"
+      },
+      "detail_method": {
+        "name": "метод детализации"
+      },
+      "detail_erode": {
+        "name": "эрозия деталей"
+      },
+      "detail_dilate": {
+        "name": "расширение деталей"
+      },
+      "black_point": {
+        "name": "черная точка"
+      },
+      "white_point": {
+        "name": "белая точка"
+      },
+      "process_detail": {
+        "name": "обработка деталей"
+      },
+      "device": {
+        "name": "устройство"
+      },
+      "max_megapixels": {
+        "name": "максимальное количество мегапикселей"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "mask": {
+        "name": "маска"
+      }
+    }
+  },
+  "LayerMask: SAM2VideoUltra": {
+    "display_name": "LayerMask: SAM2 Video Ultra (Продвинутый)",
+    "inputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "sam2_model": {
+        "name": "модель SAM2"
+      },
+      "precision": {
+        "name": "точность"
+      },
+      "cache_model": {
+        "name": "кэширование модели"
+      },
+      "individual_objects": {
+        "name": "отдельные объекты"
+      },
+      "mask_preview_color": {
+        "name": "цвет предпросмотра маски"
+      },
+      "detail_method": {
+        "name": "метод детализации"
+      },
+      "detail_erode": {
+        "name": "эрозия деталей"
+      },
+      "detail_dilate": {
+        "name": "расширение деталей"
+      },
+      "black_point": {
+        "name": "черная точка"
+      },
+      "white_point": {
+        "name": "белая точка"
+      },
+      "process_detail": {
+        "name": "обработка деталей"
+      },
+      "device": {
+        "name": "устройство"
+      },
+      "max_megapixels": {
+        "name": "максимальное количество мегапикселей"
+      },
+      "bboxes": {
+        "name": "bboxes"
+      },
+      "first_frame_mask": {
+        "name": "маска первого кадра"
+      },
+      "pre_mask": {
+        "name": "предварительная маска"
+      }
+    },
+    "outputs": {
+      "mask": {
+        "name": "маска"
+      },
+      "image": {
+        "name": "изображение"
+      }
+    }
+  },
+  "LayerUtility: SaveImagePlus": {
+    "display_name": "LayerUtility: Сохранение изображения Plus (Продвинутый)",
+    "inputs": {
+      "images": {
+        "name": "изображения"
+      },
+      "custom_path": {
+        "name": "пользовательский путь"
+      },
+      "filename_prefix": {
+        "name": "префикс имени файлу"
+      },
+      "timestamp": {
+        "name": "временная метка"
+      },
+      "format": {
+        "name": "формат"
+      },
+      "quality": {
+        "name": "качество"
+      },
+      "meta_data": {
+        "name": "метаданные"
+      },
+      "blind_watermark": {
+        "name": "скрытый водяной знак"
+      },
+      "save_workflow_as_json": {
+        "name": "сохранить workflow как JSON"
+      },
+      "preview": {
+        "name": "предпросмотр"
+      },
+      "prompt": {
+        "name": "промпт"
+      },
+      "extra_pnginfo": {
+        "name": "дополнительная информация PNG"
+      }
+    },
+    "outputs": {}
+  },
+  "LayerUtility: SD3NegativeConditioning": {
+    "display_name": "LayerUtility: Отрицательное кондиционирование SD3 (Продвинутый)",
+    "inputs": {
+      "conditioning": {
+        "name": "кондиционирование"
+      },
+      "zero_out_start": {
+        "name": "обнуление начала"
+      }
+    },
+    "outputs": {
+      "conditioning": {
+        "name": "кондиционирование"
+      }
+    }
+  },
+  "LayerMask: SegmentAnythingUltra": {
+    "display_name": "LayerMask: SegmentAnything Ultra (Продвинутый)",
+    "inputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "sam_model": {
+        "name": "модель SAM"
+      },
+      "grounding_dino_model": {
+        "name": "модель Grounding DINO"
+      },
+      "threshold": {
+        "name": "порог"
+      },
+      "detail_range": {
+        "name": "диапазон детализации"
+      },
+      "black_point": {
+        "name": "черная точка"
+      },
+      "white_point": {
+        "name": "белая точка"
+      },
+      "process_detail": {
+        "name": "обработка деталей"
+      },
+      "prompt": {
+        "name": "промпт"
+      },
+      "cache_model": {
+        "name": "кэширование модели"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "mask": {
+        "name": "маска"
+      }
+    }
+  },
+  "LayerMask: SegmentAnythingUltra V2": {
+    "display_name": "LayerMask: SegmentAnything Ultra V2 (Продвинутый)",
+    "inputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "sam_model": {
+        "name": "модель SAM"
+      },
+      "grounding_dino_model": {
+        "name": "модель Grounding DINO"
+      },
+      "threshold": {
+        "name": "порог"
+      },
+      "detail_method": {
+        "name": "метод детализации"
+      },
+      "detail_erode": {
+        "name": "эрозия деталей"
+      },
+      "detail_dilate": {
+        "name": "расширение деталей"
+      },
+      "black_point": {
+        "name": "черная точка"
+      },
+      "white_point": {
+        "name": "белая точка"
+      },
+      "process_detail": {
+        "name": "обработка деталей"
+      },
+      "prompt": {
+        "name": "промпт"
+      },
+      "device": {
+        "name": "устройство"
+      },
+      "max_megapixels": {
+        "name": "максимальное количество мегапикселей"
+      },
+      "cache_model": {
+        "name": "кэширование модели"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "mask": {
+        "name": "маска"
+      }
+    }
+  },
+  "LayerMask: LoadSegmentAnythingModels": {
+    "display_name": "LayerMask: Загрузка моделей SegmentAnything (Продвинутый)",
+    "inputs": {
+      "sam_model": {
+        "name": "модель SAM"
+      },
+      "grounding_dino_model": {
+        "name": "модель Grounding DINO"
+      }
+    },
+    "outputs": {
+      "ls_sam_models": {
+        "name": "модели SegmentAnything"
+      }
+    }
+  },
+  "LayerMask: SegmentAnythingUltra V3": {
+    "display_name": "LayerMask: SegmentAnything Ultra V3 (Продвинутый)",
+    "inputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "sam_models": {
+        "name": "модели SAM"
+      },
+      "threshold": {
+        "name": "порог"
+      },
+      "detail_method": {
+        "name": "метод детализации"
+      },
+      "detail_erode": {
+        "name": "эрозия деталей"
+      },
+      "detail_dilate": {
+        "name": "расширение деталей"
+      },
+      "black_point": {
+        "name": "черная точка"
+      },
+      "white_point": {
+        "name": "белая точка"
+      },
+      "process_detail": {
+        "name": "обработка деталей"
+      },
+      "prompt": {
+        "name": "промпт"
+      },
+      "device": {
+        "name": "устройство"
+      },
+      "max_megapixels": {
+        "name": "максимальное количество мегапикселей"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "mask": {
+        "name": "маска"
+      }
+    }
+  },
+  "LayerUtility: LoadSmolLM2Model": {
+    "display_name": "LayerUtility: Загрузка модели SmolLM2 (Продвинутый)",
+    "inputs": {
+      "model": {
+        "name": "модель"
+      },
+      "dtype": {
+        "name": "dtype"
+      },
+      "device": {
+        "name": "устройство"
+      }
+    },
+    "outputs": {
+      "smollm2_model": {
+        "name": "модель SmolLM2"
+      }
+    }
+  },
+  "LayerUtility: LoadSmolVLMModel": {
+    "display_name": "LayerUtility: Загрузка модели SmolVLM (Продвинутый)",
+    "inputs": {
+      "model": {
+        "name": "модель"
+      },
+      "dtype": {
+        "name": "dtype"
+      },
+      "device": {
+        "name": "устройство"
+      }
+    },
+    "outputs": {
+      "smolvlm_model": {
+        "name": "модель SmolVLM"
+      }
+    }
+  },
+  "LayerUtility: SmolLM2": {
+    "display_name": "LayerUtility: SmolLM2 (Продвинутый)",
+    "inputs": {
+      "smolLM2_model": {
+        "name": "модель SmolLM2"
+      },
+      "max_new_tokens": {
+        "name": "максимальное количество новых токенов"
+      },
+      "do_sample": {
+        "name": "делать выборку"
+      },
+      "temperature": {
+        "name": "температура"
+      },
+      "top_p": {
+        "name": "top_p"
+      },
+      "system_prompt": {
+        "name": "системный промпт"
+      },
+      "user_prompt": {
+        "name": "пользовательский промпт"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "строка"
+      }
+    }
+  },
+  "LayerUtility: SmolVLM": {
+    "display_name": "LayerUtility: SmolVLM (Продвинутый)",
+    "inputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "smolVLM_model": {
+        "name": "модель SmolVLM"
+      },
+      "max_new_tokens": {
+        "name": "максимальное количество новых токенов"
+      },
+      "user_prompt": {
+        "name": "пользовательский промпт"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "строка"
+      }
+    }
+  },
+  "LayerMask: TransparentBackgroundUltra": {
+    "display_name": "LayerMask: Прозрачный фон Ultra (Продвинутый)",
+    "inputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "model": {
+        "name": "модель"
+      },
+      "detail_method": {
+        "name": "метод детализации"
+      },
+      "detail_erode": {
+        "name": "эрозия деталей"
+      },
+      "detail_dilate": {
+        "name": "расширение деталей"
+      },
+      "black_point": {
+        "name": "черная точка"
+      },
+      "white_point": {
+        "name": "белая точка"
+      },
+      "process_detail": {
+        "name": "обработка деталей"
+      },
+      "device": {
+        "name": "устройство"
+      },
+      "max_megapixels": {
+        "name": "максимальное количество мегапикселей"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "mask": {
+        "name": "маска"
+      }
+    }
+  },
+  "LayerUtility: UserPromptGeneratorTxt2ImgPromptWithReference": {
+    "display_name": "LayerUtility: Генератор пользовательского промпта Txt2Img с референсом (Продвинутый)",
+    "inputs": {
+      "template": {
+        "name": "шаблон"
+      },
+      "reference_text": {
+        "name": "референсный текст"
+      },
+      "describe": {
+        "name": "описание"
+      },
+      "limit_words": {
+        "name": "ограничение слов"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "строка"
+      }
+    }
+  },
+  "LayerUtility: UserPromptGeneratorTxt2ImgPrompt": {
+    "display_name": "LayerUtility: Генератор пользовательского промпта Txt2Img (Продвинутый)",
+    "inputs": {
+      "template": {
+        "name": "шаблон"
+      },
+      "describe": {
+        "name": "описание"
+      },
+      "limit_words": {
+        "name": "ограничение слов"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "строка"
+      }
+    }
+  },
+  "LayerUtility: UserPromptGeneratorReplaceWord": {
+    "display_name": "LayerUtility: Генератор пользовательского промпта с заменой слова (Продвинутый)",
+    "inputs": {
+      "orig_prompt": {
+        "name": "оригинальный промпт"
+      },
+      "template": {
+        "name": "шаблон"
+      },
+      "exclude_word": {
+        "name": "исключить слово"
+      },
+      "replace_with_word": {
+        "name": "заменить на слово"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "строка"
+      }
+    }
+  },
+  "LayerUtility: AddBlindWaterMark": {
+    "display_name": "LayerUtility: Добавить скрытый водяной знак (Продвинутый)",
+    "inputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "watermark_image": {
+        "name": "изображение водяного знака"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "изображение"
+      }
+    }
+  },
+  "LayerUtility: ShowBlindWaterMark": {
+    "display_name": "LayerUtility: Показать скрытый водяной знак (Продвинутый)",
+    "inputs": {
+      "image": {
+        "name": "изображение"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "изображение"
+      }
+    }
+  },
+  "LayerMask: YoloV8Detect": {
+    "display_name": "LayerMask: Детектирование YoloV8 (Продвинутый)",
+    "inputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "yolo_model": {
+        "name": "модель YOLO"
+      },
+      "mask_merge": {
+        "name": "объединение масок"
+      }
+    },
+    "outputs": {
+      "mask": {
+        "name": "маска"
+      },
+      "image": {
+        "name": "изображение"
+      }
+    }
+  },
+  "LayerUtility: ZhipuGLM4V": {
+    "display_name": "LayerUtility: ZhipuGLM4V (Продвинутый)",
+    "inputs": {
+      "image": {
+        "name": "изображение"
+      },
+      "model": {
+        "name": "модель"
+      },
+      "user_prompt": {
+        "name": "пользовательский промпт"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "строка"
+      }
+    }
+  },
+  "LayerUtility: ZhipuGLM4": {
+    "display_name": "LayerUtility: ZhipuGLM4 (Продвинутый)",
+    "inputs": {
+      "model": {
+        "name": "модель"
+      },
+      "user_prompt": {
+        "name": "пользовательский промпт"
+      },
+      "history_length": {
+        "name": "длина истории"
+      },
+      "history": {
+        "name": "история"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "строка"
+      },
+      "glm4_history": {
+        "name": "история GLM4"
+      }
+    }
+  }
+}

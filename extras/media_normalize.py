@@ -2,6 +2,7 @@ import os
 import base64
 import tempfile
 import wave
+import shutil
 import numpy as np
 import gradio as gr
 from PIL import Image
@@ -70,12 +71,47 @@ def _write_wav_temp(sample_rate: int, wav_data):
         return None
 
 
-def normalize_gradio_audio_value(audio):
+_AUDIO_COPY_PREFIX = "simpleai_audio_"
+
+
+def _copy_existing_media_to_temp(src_path: str, prefix: str):
+    if not isinstance(src_path, str):
+        return None
+    p = src_path.strip()
+    if not p or not os.path.exists(p):
+        return None
+    base = os.path.basename(p)
+    if prefix and base.startswith(prefix):
+        return os.path.abspath(p)
+    try:
+        _root, ext = os.path.splitext(base)
+        with tempfile.NamedTemporaryFile(delete=False, suffix=ext or "", prefix=prefix or "") as tmp:
+            out_path = os.path.abspath(tmp.name)
+        shutil.copyfile(p, out_path)
+        return out_path
+    except Exception:
+        return os.path.abspath(p)
+
+
+def normalize_gradio_audio_value(audio, copy_existing=True):
     if audio is None:
         return None
     if isinstance(audio, str):
         p = audio.strip()
-        return p if p else None
+        if not p:
+            return None
+        if p.startswith("data:") and "," in p:
+            try:
+                raw = base64.b64decode(p.split(",", 1)[1], validate=False)
+                return _write_bytes_temp(raw, ".wav")
+            except Exception:
+                return None
+        if not os.path.exists(p):
+            return None
+        if copy_existing:
+            copied = _copy_existing_media_to_temp(p, _AUDIO_COPY_PREFIX)
+            return copied if copied else os.path.abspath(p)
+        return p
     if isinstance(audio, dict):
         if "waveform" in audio and "sample_rate" in audio:
             return _write_wav_temp(audio.get("sample_rate", None), audio.get("waveform", None))
@@ -84,6 +120,9 @@ def normalize_gradio_audio_value(audio):
             if isinstance(p, str) and p.strip():
                 p2 = p.strip()
                 if os.path.exists(p2):
+                    if copy_existing:
+                        copied = _copy_existing_media_to_temp(p2, _AUDIO_COPY_PREFIX)
+                        return copied if copied else p2
                     return p2
         data = audio.get("data", None)
         name = audio.get("name", None)

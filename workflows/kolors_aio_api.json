@@ -2445,6 +2445,7 @@
       ],
       "device": "cpu",
       "max_megapixels": 2,
+      "cache_model": false,
       "image": [
         "635",
         2
@@ -3353,6 +3354,7 @@
       ],
       "device": "cpu",
       "max_megapixels": 2,
+      "cache_model": false,
       "image": [
         "635",
         2
@@ -3383,6 +3385,7 @@
       ],
       "device": "cpu",
       "max_megapixels": 2,
+      "cache_model": false,
       "image": [
         "635",
         2

@@ -1,0 +1,2399 @@
+{
+  "LayerMask: LoadBenModel": {
+    "display_name": "图层遮罩：加载Ben模型（高级）",
+    "inputs": {
+      "model": {
+        "name": "模型"
+      },
+      "device": {
+        "name": "设备"
+      }
+    },
+    "outputs": {
+      "ben_model": {
+        "name": "本模型"
+      }
+    }
+  },
+  "LayerMask: BenUltra": {
+    "display_name": "图层遮罩：Ben Ultra（高级）",
+    "inputs": {
+      "ben_model": {
+        "name": "本模型"
+      },
+      "image": {
+        "name": "图像"
+      },
+      "detail_method": {
+        "name": "细节方法"
+      },
+      "detail_erode": {
+        "name": "细节腐蚀"
+      },
+      "detail_dilate": {
+        "name": "细节膨胀"
+      },
+      "black_point": {
+        "name": "黑点"
+      },
+      "white_point": {
+        "name": "白点"
+      },
+      "max_megapixels": {
+        "name": "最大百万像素"
+      },
+      "process_detail": {
+        "name": "处理细节"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "图像"
+      },
+      "mask": {
+        "name": "遮罩"
+      }
+    }
+  },
+  "LayerMask: BiRefNetUltra": {
+    "display_name": "图层遮罩：BiRefNet Ultra（高级）",
+    "inputs": {
+      "image": {
+        "name": "图像"
+      },
+      "detail_method": {
+        "name": "细节方法"
+      },
+      "detail_erode": {
+        "name": "细节腐蚀"
+      },
+      "detail_dilate": {
+        "name": "细节膨胀"
+      },
+      "black_point": {
+        "name": "黑点"
+      },
+      "white_point": {
+        "name": "白点"
+      },
+      "process_detail": {
+        "name": "处理细节"
+      },
+      "device": {
+        "name": "设备"
+      },
+      "max_megapixels": {
+        "name": "最大百万像素"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "图像"
+      },
+      "mask": {
+        "name": "遮罩"
+      }
+    }
+  },
+  "LayerMask: LoadBiRefNetModel": {
+    "display_name": "图层遮罩：加载BiRefNet模型（高级）",
+    "inputs": {
+      "model": {
+        "name": "模型"
+      }
+    },
+    "outputs": {
+      "birefnet_model": {
+        "name": "BiRefNet模型"
+      }
+    }
+  },
+  "LayerMask: LoadBiRefNetModelV2": {
+    "display_name": "图层遮罩：加载BiRefNet模型 V2（高级）",
+    "inputs": {
+      "version": {
+        "name": "版本"
+      }
+    },
+    "outputs": {
+      "birefnet_model": {
+        "name": "BiRefNet模型"
+      }
+    }
+  },
+  "LayerMask: BiRefNetUltraV2": {
+    "display_name": "图层遮罩：BiRefNet Ultra V2（高级）",
+    "inputs": {
+      "image": {
+        "name": "图像"
+      },
+      "birefnet_model": {
+        "name": "BiRefNet模型"
+      },
+      "detail_method": {
+        "name": "细节方法"
+      },
+      "detail_erode": {
+        "name": "细节腐蚀"
+      },
+      "detail_dilate": {
+        "name": "细节膨胀"
+      },
+      "black_point": {
+        "name": "黑点"
+      },
+      "white_point": {
+        "name": "白点"
+      },
+      "process_detail": {
+        "name": "处理细节"
+      },
+      "device": {
+        "name": "设备"
+      },
+      "max_megapixels": {
+        "name": "最大百万像素"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "图像"
+      },
+      "mask": {
+        "name": "遮罩"
+      }
+    }
+  },
+  "LayerUtility: Collage": {
+    "display_name": "图层工具：拼贴（高级）",
+    "inputs": {
+      "images": {
+        "name": "图像"
+      },
+      "canvas_width": {
+        "name": "画布宽度"
+      },
+      "canvas_height": {
+        "name": "画布高度"
+      },
+      "border_width": {
+        "name": "边框宽度"
+      },
+      "rounded_rect_radius": {
+        "name": "圆角矩形半径"
+      },
+      "uniformity": {
+        "name": "均匀性"
+      },
+      "background_color": {
+        "name": "背景颜色"
+      },
+      "seed": {
+        "name": "种子"
+      },
+      "florence2_model": {
+        "name": "Florence2模型"
+      },
+      "object_prompt": {
+        "name": "对象提示"
+      },
+      "image": {
+        "name": "图像"
+      },
+      "bboxes": {
+        "name": "边界框"
+      },
+      "grow_top": {
+        "name": "顶部扩展"
+      },
+      "grow_bottom": {
+        "name": "底部扩展"
+      },
+      "grow_left": {
+        "name": "左侧扩展"
+      },
+      "grow_right": {
+        "name": "右侧扩展"
+      },
+      "proportional_width": {
+        "name": "比例宽度"
+      },
+      "proportional_height": {
+        "name": "比例高度"
+      },
+      "mask": {
+        "name": "遮罩"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "图像"
+      },
+      "mask": {
+        "name": "遮罩"
+      }
+    }
+  },
+  "LayerUtility: DeepSeekAPI": {
+    "display_name": "图层工具：DeepSeek API",
+    "inputs": {
+      "model": {
+        "name": "模型"
+      },
+      "max_tokens": {
+        "name": "最大令牌数"
+      },
+      "temperature": {
+        "name": "温度"
+      },
+      "top_p": {
+        "name": "顶部P"
+      },
+      "presence_penalty": {
+        "name": "存在惩罚"
+      },
+      "frequency_penalty": {
+        "name": "频率惩罚"
+      },
+      "history_length": {
+        "name": "历史长度"
+      },
+      "system_prompt": {
+        "name": "系统提示"
+      },
+      "user_prompt": {
+        "name": "用户提示"
+      },
+      "history": {
+        "name": "历史"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "字符串"
+      },
+      "deepseek_history": {
+        "name": "DeepSeek历史"
+      }
+    }
+  },
+  "LayerUtility: DeepSeekAPIV2": {
+    "display_name": "图层工具：DeepSeek API V2",
+    "inputs": {
+      "model": {
+        "name": "模型"
+      },
+      "time_out": {
+        "name": "超时"
+      },
+      "max_tokens": {
+        "name": "最大令牌数"
+      },
+      "temperature": {
+        "name": "温度"
+      },
+      "top_p": {
+        "name": "顶部P"
+      },
+      "presence_penalty": {
+        "name": "存在惩罚"
+      },
+      "frequency_penalty": {
+        "name": "频率惩罚"
+      },
+      "history_length": {
+        "name": "历史长度"
+      },
+      "system_prompt": {
+        "name": "系统提示"
+      },
+      "user_prompt": {
+        "name": "用户提示"
+      },
+      "history": {
+        "name": "历史"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "字符串"
+      },
+      "deepseek_history": {
+        "name": "DeepSeek历史"
+      }
+    }
+  },
+  "LayerMask: EVFSAMUltra": {
+    "display_name": "图层遮罩：EVF-SAM Ultra（高级）",
+    "inputs": {
+      "image": {
+        "name": "图像"
+      },
+      "model": {
+        "name": "模型"
+      },
+      "precision": {
+        "name": "精度"
+      },
+      "load_in_bit": {
+        "name": "按位加载"
+      },
+      "prompt": {
+        "name": "提示"
+      },
+      "detail_method": {
+        "name": "细节方法"
+      },
+      "detail_erode": {
+        "name": "细节腐蚀"
+      },
+      "detail_dilate": {
+        "name": "细节膨胀"
+      },
+      "black_point": {
+        "name": "黑点"
+      },
+      "white_point": {
+        "name": "白点"
+      },
+      "process_detail": {
+        "name": "处理细节"
+      },
+      "device": {
+        "name": "设备"
+      },
+      "max_megapixels": {
+        "name": "最大百万像素"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "图像"
+      },
+      "mask": {
+        "name": "遮罩"
+      }
+    }
+  },
+  "LayerMask: LoadFlorence2Model": {
+    "display_name": "图层遮罩：加载Florence2模型（高级）",
+    "inputs": {
+      "version": {
+        "name": "版本"
+      }
+    },
+    "outputs": {
+      "florence2": {
+        "name": "Florence2"
+      }
+    }
+  },
+  "LayerMask: Florence2Ultra": {
+    "display_name": "图层遮罩：Florence2 Ultra（高级）",
+    "inputs": {
+      "florence2_model": {
+        "name": "Florence2模型"
+      },
+      "image": {
+        "name": "图像"
+      },
+      "task": {
+        "name": "任务"
+      },
+      "text_input": {
+        "name": "文本输入"
+      },
+      "detail_method": {
+        "name": "细节方法"
+      },
+      "detail_erode": {
+        "name": "细节腐蚀"
+      },
+      "detail_dilate": {
+        "name": "细节膨胀"
+      },
+      "black_point": {
+        "name": "黑点"
+      },
+      "white_point": {
+        "name": "白点"
+      },
+      "process_detail": {
+        "name": "处理细节"
+      },
+      "device": {
+        "name": "设备"
+      },
+      "max_megapixels": {
+        "name": "最大百万像素"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "图像"
+      },
+      "mask": {
+        "name": "遮罩"
+      }
+    }
+  },
+  "LayerUtility: Florence2Image2Prompt": {
+    "display_name": "图层工具：Florence2 图像转提示（高级）",
+    "inputs": {
+      "florence2_model": {
+        "name": "Florence2模型"
+      },
+      "image": {
+        "name": "图像"
+      },
+      "task": {
+        "name": "任务"
+      },
+      "text_input": {
+        "name": "文本输入"
+      },
+      "max_new_tokens": {
+        "name": "最大新令牌数"
+      },
+      "num_beams": {
+        "name": "光束数"
+      },
+      "do_sample": {
+        "name": "采样"
+      },
+      "fill_mask": {
+        "name": "填充遮罩"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "字符串"
+      },
+      "image": {
+        "name": "图像"
+      }
+    }
+  },
+  "LayerUtility: Gemini": {
+    "display_name": "图层工具：Gemini（高级）",
+    "inputs": {
+      "model": {
+        "name": "模型"
+      },
+      "max_output_tokens": {
+        "name": "最大输出令牌数"
+      },
+      "temperature": {
+        "name": "温度"
+      },
+      "words_limit": {
+        "name": "字数限制"
+      },
+      "response_language": {
+        "name": "响应语言"
+      },
+      "system_prompt": {
+        "name": "系统提示"
+      },
+      "user_prompt": {
+        "name": "用户提示"
+      },
+      "image_1": {
+        "name": "图像_1"
+      },
+      "image_2": {
+        "name": "图像_2"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "字符串"
+      }
+    }
+  },
+  "LayerUtility: GeminiV2": {
+    "display_name": "图层工具：Gemini V2（高级）",
+    "inputs": {
+      "model": {
+        "name": "模型"
+      },
+      "max_output_tokens": {
+        "name": "最大输出令牌数"
+      },
+      "temperature": {
+        "name": "温度"
+      },
+      "words_limit": {
+        "name": "字数限制"
+      },
+      "response_language": {
+        "name": "响应语言"
+      },
+      "seed": {
+        "name": "种子"
+      },
+      "system_prompt": {
+        "name": "系统提示"
+      },
+      "user_prompt": {
+        "name": "用户提示"
+      },
+      "image_1": {
+        "name": "图像_1"
+      },
+      "image_2": {
+        "name": "图像_2"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "字符串"
+      }
+    }
+  },
+  "LayerMask: ObjectDetectorGemini": {
+    "display_name": "图层遮罩：对象检测器 Gemini（高级）",
+    "inputs": {
+      "image": {
+        "name": "图像"
+      },
+      "model": {
+        "name": "模型"
+      },
+      "prompt": {
+        "name": "提示"
+      }
+    },
+    "outputs": {
+      "bboxes": {
+        "name": "边界框"
+      },
+      "image": {
+        "name": "图像"
+      }
+    }
+  },
+  "LayerMask: ObjectDetectorGeminiV2": {
+    "display_name": "图层遮罩：对象检测器 Gemini V2（高级）",
+    "inputs": {
+      "image": {
+        "name": "图像"
+      },
+      "model": {
+        "name": "模型"
+      },
+      "prompt": {
+        "name": "提示"
+      }
+    },
+    "outputs": {
+      "bboxes": {
+        "name": "边界框"
+      },
+      "image": {
+        "name": "图像"
+      }
+    }
+  },
+  "LayerUtility: GeminiImageEdit": {
+    "display_name": "图层工具：Gemini 图像编辑（高级）",
+    "inputs": {
+      "image": {
+        "name": "图像"
+      },
+      "model": {
+        "name": "模型"
+      },
+      "temperature": {
+        "name": "温度"
+      },
+      "seed": {
+        "name": "种子"
+      },
+      "user_prompt": {
+        "name": "用户提示"
+      },
+      "image_2": {
+        "name": "图像_2"
+      },
+      "image_3": {
+        "name": "图像_3"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "图像"
+      }
+    }
+  },
+  "LayerUtility: GetColorTone": {
+    "display_name": "图层工具：获取色调（高级）",
+    "inputs": {
+      "image": {
+        "name": "图像"
+      },
+      "mode": {
+        "name": "模式"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "字符串"
+      },
+      "list": {
+        "name": "列表"
+      }
+    }
+  },
+  "LayerUtility: GetColorToneV2": {
+    "display_name": "图层工具：获取色调 V2（高级）",
+    "inputs": {
+      "image": {
+        "name": "图像"
+      },
+      "mode": {
+        "name": "模式"
+      },
+      "color_of": {
+        "name": "颜色"
+      },
+      "remove_bkgd_method": {
+        "name": "移除背景方法"
+      },
+      "invert_mask": {
+        "name": "反转遮罩"
+      },
+      "mask_grow": {
+        "name": "遮罩扩展"
+      },
+      "mask": {
+        "name": "遮罩"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "图像"
+      },
+      "string": {
+        "name": "字符串"
+      },
+      "list": {
+        "name": "列表"
+      },
+      "mask": {
+        "name": "遮罩"
+      }
+    }
+  },
+  "LayerMask: HumanPartsUltra": {
+    "display_name": "图层遮罩：人体部位 Ultra（高级）",
+    "inputs": {
+      "image": {
+        "name": "图像"
+      },
+      "face": {
+        "name": "脸"
+      },
+      "hair": {
+        "name": "头发"
+      },
+      "glasses": {
+        "name": "眼镜"
+      },
+      "top_clothes": {
+        "name": "上衣"
+      },
+      "bottom_clothes": {
+        "name": "下衣"
+      },
+      "torso_skin": {
+        "name": "躯干皮肤"
+      },
+      "left_arm": {
+        "name": "左臂"
+      },
+      "right_arm": {
+        "name": "右臂"
+      },
+      "left_leg": {
+        "name": "左腿"
+      },
+      "right_leg": {
+        "name": "右腿"
+      },
+      "left_foot": {
+        "name": "左脚"
+      },
+      "right_foot": {
+        "name": "右脚"
+      },
+      "detail_method": {
+        "name": "细节方法"
+      },
+      "detail_erode": {
+        "name": "细节腐蚀"
+      },
+      "detail_dilate": {
+        "name": "细节膨胀"
+      },
+      "black_point": {
+        "name": "黑点"
+      },
+      "white_point": {
+        "name": "白点"
+      },
+      "process_detail": {
+        "name": "处理细节"
+      },
+      "device": {
+        "name": "设备"
+      },
+      "max_megapixels": {
+        "name": "最大百万像素"
+      },
+      "pil_image": {
+        "name": "PIL图像"
+      },
+      "model": {
+        "name": "模型"
+      },
+      "rotation": {
+        "name": "旋转"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "图像"
+      },
+      "mask": {
+        "name": "遮罩"
+      }
+    }
+  },
+  "LayerUtility: ImageAutoCrop": {
+    "display_name": "图层工具：图像自动裁剪（高级）",
+    "inputs": {
+      "image": {
+        "name": "图像"
+      },
+      "background_color": {
+        "name": "背景颜色"
+      },
+      "aspect_ratio": {
+        "name": "宽高比"
+      },
+      "proportional_width": {
+        "name": "比例宽度"
+      },
+      "proportional_height": {
+        "name": "比例高度"
+      },
+      "scale_to_longest_side": {
+        "name": "缩放至最长边"
+      },
+      "longest_side": {
+        "name": "最长边"
+      },
+      "detect": {
+        "name": "检测"
+      },
+      "border_reserve": {
+        "name": "边框保留"
+      },
+      "ultra_detail_range": {
+        "name": "超细节范围"
+      },
+      "matting_method": {
+        "name": "抠图方法"
+      },
+      "sam_model": {
+        "name": "SAM模型"
+      },
+      "grounding_dino_model": {
+        "name": "Grounding Dino模型"
+      },
+      "sam_threshold": {
+        "name": "SAM阈值"
+      },
+      "sam_prompt": {
+        "name": "SAM提示"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "图像"
+      },
+      "mask": {
+        "name": "遮罩"
+      }
+    }
+  },
+  "LayerUtility: ImageAutoCrop V2": {
+    "display_name": "图层工具：图像自动裁剪 V2（高级）",
+    "inputs": {
+      "image": {
+        "name": "图像"
+      },
+      "fill_background": {
+        "name": "填充背景"
+      },
+      "background_color": {
+        "name": "背景颜色"
+      },
+      "aspect_ratio": {
+        "name": "宽高比"
+      },
+      "proportional_width": {
+        "name": "比例宽度"
+      },
+      "proportional_height": {
+        "name": "比例高度"
+      },
+      "scale_to_side": {
+        "name": "缩放至边"
+      },
+      "scale_to_length": {
+        "name": "缩放至长度"
+      },
+      "detect": {
+        "name": "检测"
+      },
+      "border_reserve": {
+        "name": "边框保留"
+      },
+      "ultra_detail_range": {
+        "name": "超细节范围"
+      },
+      "matting_method": {
+        "name": "抠图方法"
+      },
+      "sam_model": {
+        "name": "SAM模型"
+      },
+      "grounding_dino_model": {
+        "name": "Grounding Dino模型"
+      },
+      "sam_threshold": {
+        "name": "SAM阈值"
+      },
+      "sam_prompt": {
+        "name": "SAM提示"
+      },
+      "mask": {
+        "name": "遮罩"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "图像"
+      },
+      "mask": {
+        "name": "遮罩"
+      }
+    }
+  },
+  "LayerUtility: ImageAutoCrop V3": {
+    "display_name": "图层工具：图像自动裁剪 V3（高级）",
+    "inputs": {
+      "image": {
+        "name": "图像"
+      },
+      "aspect_ratio": {
+        "name": "宽高比"
+      },
+      "proportional_width": {
+        "name": "比例宽度"
+      },
+      "proportional_height": {
+        "name": "比例高度"
+      },
+      "method": {
+        "name": "方法"
+      },
+      "scale_to_side": {
+        "name": "缩放至边"
+      },
+      "scale_to_length": {
+        "name": "缩放至长度"
+      },
+      "round_to_multiple": {
+        "name": "四舍五入至倍数"
+      },
+      "mask": {
+        "name": "遮罩"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "图像"
+      }
+    }
+  },
+  "LayerUtility: ImageRewardFilter": {
+    "display_name": "图层工具：图像美学过滤（高级）",
+    "inputs": {
+      "images": {
+        "name": "图像"
+      },
+      "prompt": {
+        "name": "提示"
+      },
+      "output_num": {
+        "name": "输出数量"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "图像"
+      }
+    }
+  },
+  "LayerUtility: JoyCaption2ExtraOptions": {
+    "display_name": "图层工具：JoyCaption2 额外选项（高级）",
+    "inputs": {
+      "refer_character_name": {
+        "name": "参考角色名称"
+      },
+      "exclude_people_info": {
+        "name": "排除人物信息"
+      },
+      "include_lighting": {
+        "name": "包含光照"
+      },
+      "include_camera_angle": {
+        "name": "包含相机角度"
+      },
+      "include_watermark": {
+        "name": "包含水印"
+      },
+      "include_JPEG_artifacts": {
+        "name": "包含JPEG伪影"
+      },
+      "include_exif": {
+        "name": "包含EXIF"
+      },
+      "exclude_sexual": {
+        "name": "排除性内容"
+      },
+      "exclude_image_resolution": {
+        "name": "排除图像分辨率"
+      },
+      "include_aesthetic_quality": {
+        "name": "包含美学质量"
+      },
+      "include_composition_style": {
+        "name": "包含构图风格"
+      },
+      "exclude_text": {
+        "name": "排除文本"
+      },
+      "specify_depth_field": {
+        "name": "指定景深"
+      },
+      "specify_lighting_sources": {
+        "name": "指定光源"
+      },
+      "do_not_use_ambiguous_language": {
+        "name": "不使用模糊语言"
+      },
+      "include_nsfw": {
+        "name": "包含NSFW"
+      },
+      "only_describe_most_important_elements": {
+        "name": "仅描述最重要的元素"
+      },
+      "character_name": {
+        "name": "角色名称"
+      }
+    },
+    "outputs": {
+      "joycaption2extraoption": {
+        "name": "JoyCaption2额外选项"
+      }
+    }
+  },
+  "LayerUtility: JoyCaption2": {
+    "display_name": "图层工具：JoyCaption2（高级）",
+    "inputs": {
+      "image": {
+        "name": "图像"
+      },
+      "llm_model": {
+        "name": "LLM模型"
+      },
+      "device": {
+        "name": "设备"
+      },
+      "dtype": {
+        "name": "数据类型"
+      },
+      "vlm_lora": {
+        "name": "VLM LoRA"
+      },
+      "caption_type": {
+        "name": "字幕类型"
+      },
+      "caption_length": {
+        "name": "字幕长度"
+      },
+      "user_prompt": {
+        "name": "用户提示"
+      },
+      "max_new_tokens": {
+        "name": "最大新令牌数"
+      },
+      "top_p": {
+        "name": "顶部P"
+      },
+      "temperature": {
+        "name": "温度"
+      },
+      "cache_model": {
+        "name": "缓存模型"
+      },
+      "use_global_model": {
+        "name": "使用全局模型"
+      },
+      "extra_options": {
+        "name": "额外选项"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "字符串"
+      }
+    }
+  },
+  "LayerUtility: LoadJoyCaption2Model": {
+    "display_name": "图层工具：加载JoyCaption2模型（高级）",
+    "inputs": {
+      "llm_model": {
+        "name": "LLM模型"
+      },
+      "device": {
+        "name": "设备"
+      },
+      "dtype": {
+        "name": "数据类型"
+      },
+      "vlm_lora": {
+        "name": "VLM LoRA"
+      }
+    },
+    "outputs": {
+      "joycaption2_model": {
+        "name": "JoyCaption2模型"
+      }
+    }
+  },
+  "LayerUtility: JoyCaption2Split": {
+    "display_name": "图层工具：JoyCaption2 分割（高级）",
+    "inputs": {
+      "image": {
+        "name": "图像"
+      },
+      "joy2_model": {
+        "name": "Joy2模型"
+      },
+      "caption_type": {
+        "name": "字幕类型"
+      },
+      "caption_length": {
+        "name": "字幕长度"
+      },
+      "user_prompt": {
+        "name": "用户提示"
+      },
+      "max_new_tokens": {
+        "name": "最大新令牌数"
+      },
+      "top_p": {
+        "name": "顶部P"
+      },
+      "temperature": {
+        "name": "温度"
+      },
+      "extra_options": {
+        "name": "额外选项"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "字符串"
+      }
+    }
+  },
+  "LayerUtility: LaMa": {
+    "display_name": "图层工具：LaMa（高级）",
+    "inputs": {
+      "image": {
+        "name": "图像"
+      },
+      "mask": {
+        "name": "遮罩"
+      },
+      "lama_model": {
+        "name": "LaMa模型"
+      },
+      "device": {
+        "name": "设备"
+      },
+      "invert_mask": {
+        "name": "反转遮罩"
+      },
+      "mask_grow": {
+        "name": "遮罩扩展"
+      },
+      "mask_blur": {
+        "name": "遮罩模糊"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "图像"
+      }
+    }
+  },
+  "LayerUtility: LlamaVision": {
+    "display_name": "图层工具：Llama 视觉（高级）",
+    "inputs": {
+      "image": {
+        "name": "图像"
+      },
+      "model": {
+        "name": "模型"
+      },
+      "system_prompt": {
+        "name": "系统提示"
+      },
+      "user_prompt": {
+        "name": "用户提示"
+      },
+      "max_new_tokens": {
+        "name": "最大新令牌数"
+      },
+      "do_sample": {
+        "name": "采样"
+      },
+      "temperature": {
+        "name": "温度"
+      },
+      "top_p": {
+        "name": "顶部P"
+      },
+      "top_k": {
+        "name": "顶部K"
+      },
+      "stop_strings": {
+        "name": "停止字符串"
+      },
+      "seed": {
+        "name": "种子"
+      },
+      "include_prompt_in_output": {
+        "name": "输出中包含提示"
+      },
+      "cache_model": {
+        "name": "缓存模型"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "字符串"
+      }
+    }
+  },
+  "LayerUtility: LoadPSD": {
+    "display_name": "图层工具：加载PSD（高级）",
+    "inputs": {
+      "image": {
+        "name": "图像"
+      },
+      "file_path": {
+        "name": "文件路径"
+      },
+      "include_hidden_layer": {
+        "name": "包含隐藏层"
+      },
+      "find_layer_by": {
+        "name": "查找图层依据"
+      },
+      "layer_index": {
+        "name": "图层索引"
+      },
+      "layer_name": {
+        "name": "图层名称"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "图像"
+      }
+    }
+  },
+  "LayerMask: MaskByDifferent": {
+    "display_name": "图层遮罩：差异遮罩（高级）",
+    "inputs": {
+      "image_1": {
+        "name": "图像_1"
+      },
+      "image_2": {
+        "name": "图像_2"
+      },
+      "gain": {
+        "name": "增益"
+      },
+      "fix_gap": {
+        "name": "修复间隙"
+      },
+      "fix_threshold": {
+        "name": "修复阈值"
+      },
+      "main_subject_detect": {
+        "name": "主体检测"
+      }
+    },
+    "outputs": {
+      "mask": {
+        "name": "遮罩"
+      }
+    }
+  },
+  "LayerMask: MediapipeFacialSegment": {
+    "display_name": "图层遮罩：Mediapipe 面部分割（高级）",
+    "inputs": {
+      "image": {
+        "name": "图像"
+      },
+      "left_eye": {
+        "name": "左眼"
+      },
+      "left_eyebrow": {
+        "name": "左眉"
+      },
+      "right_eye": {
+        "name": "右眼"
+      },
+      "right_eyebrow": {
+        "name": "右眉"
+      },
+      "lips": {
+        "name": "嘴唇"
+      },
+      "tooth": {
+        "name": "牙齿"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "图像"
+      },
+      "mask": {
+        "name": "遮罩"
+      }
+    }
+  },
+  "LayerMask: BBoxJoin": {
+    "display_name": "图层遮罩：边界框合并（高级）",
+    "inputs": {
+      "bboxes_1": {
+        "name": "边界框_1"
+      },
+      "bboxes_2": {
+        "name": "边界框_2"
+      },
+      "bboxes_3": {
+        "name": "边界框_3"
+      },
+      "bboxes_4": {
+        "name": "边界框_4"
+      }
+    },
+    "outputs": {
+      "bboxes": {
+        "name": "边界框"
+      }
+    }
+  },
+  "LayerMask: ObjectDetectorFL2": {
+    "display_name": "图层遮罩：对象检测器 Florence2（高级）",
+    "inputs": {
+      "image": {
+        "name": "图像"
+      },
+      "prompt": {
+        "name": "提示"
+      },
+      "florence2_model": {
+        "name": "Florence2模型"
+      },
+      "sort_method": {
+        "name": "排序方法"
+      },
+      "bbox_select": {
+        "name": "边界框选择"
+      },
+      "select_index": {
+        "name": "选择索引"
+      },
+      "F_BBOXES": {
+        "name": "F_边界框"
+      }
+    },
+    "outputs": {
+      "bboxes": {
+        "name": "边界框"
+      },
+      "image": {
+        "name": "图像"
+      }
+    }
+  },
+  "LayerMask: ObjectDetectorMask": {
+    "display_name": "图层遮罩：对象检测器遮罩（高级）",
+    "inputs": {
+      "object_mask": {
+        "name": "对象遮罩"
+      },
+      "sort_method": {
+        "name": "排序方法"
+      },
+      "bbox_select": {
+        "name": "边界框选择"
+      },
+      "select_index": {
+        "name": "选择索引"
+      }
+    },
+    "outputs": {
+      "bboxes": {
+        "name": "边界框"
+      },
+      "image": {
+        "name": "图像"
+      }
+    }
+  },
+  "LayerMask: ObjectDetectorYOLO8": {
+    "display_name": "图层遮罩：对象检测器 YOLO8（高级）",
+    "inputs": {
+      "image": {
+        "name": "图像"
+      },
+      "yolo_model": {
+        "name": "YOLO模型"
+      },
+      "sort_method": {
+        "name": "排序方法"
+      },
+      "bbox_select": {
+        "name": "边界框选择"
+      },
+      "select_index": {
+        "name": "选择索引"
+      }
+    },
+    "outputs": {
+      "bboxes": {
+        "name": "边界框"
+      },
+      "image": {
+        "name": "图像"
+      }
+    }
+  },
+  "LayerMask: ObjectDetectorYOLOWorld": {
+    "display_name": "图层遮罩：对象检测器 YOLO World（已弃用）",
+    "inputs": {
+      "image": {
+        "name": "图像"
+      },
+      "yolo_world_model": {
+        "name": "YOLO World模型"
+      },
+      "confidence_threshold": {
+        "name": "置信度阈值"
+      },
+      "nms_iou_threshold": {
+        "name": "NMS IoU阈值"
+      },
+      "prompt": {
+        "name": "提示"
+      },
+      "sort_method": {
+        "name": "排序方法"
+      },
+      "bbox_select": {
+        "name": "边界框选择"
+      },
+      "select_index": {
+        "name": "选择索引"
+      },
+      "categories": {
+        "name": "类别"
+      },
+      "model_id": {
+        "name": "模型ID"
+      }
+    },
+    "outputs": {
+      "bboxes": {
+        "name": "边界框"
+      },
+      "image": {
+        "name": "图像"
+      }
+    }
+  },
+  "LayerMask: DrawBBoxMask": {
+    "display_name": "图层遮罩：绘制边界框遮罩（高级）",
+    "inputs": {
+      "image": {
+        "name": "图像"
+      },
+      "bboxes": {
+        "name": "边界框"
+      },
+      "grow_top": {
+        "name": "顶部扩展"
+      },
+      "grow_bottom": {
+        "name": "底部扩展"
+      },
+      "grow_left": {
+        "name": "左侧扩展"
+      },
+      "grow_right": {
+        "name": "右侧扩展"
+      }
+    },
+    "outputs": {
+      "mask": {
+        "name": "遮罩"
+      }
+    }
+  },
+  "LayerMask: DrawBBoxMaskV2": {
+    "display_name": "图层遮罩：绘制边界框遮罩 V2（高级）",
+    "inputs": {
+      "image": {
+        "name": "图像"
+      },
+      "bboxes": {
+        "name": "边界框"
+      },
+      "grow_top": {
+        "name": "顶部扩展"
+      },
+      "grow_bottom": {
+        "name": "底部扩展"
+      },
+      "grow_left": {
+        "name": "左侧扩展"
+      },
+      "grow_right": {
+        "name": "右侧扩展"
+      },
+      "rounded_rect_radius": {
+        "name": "圆角矩形半径"
+      },
+      "anti_aliasing": {
+        "name": "抗锯齿"
+      }
+    },
+    "outputs": {
+      "mask": {
+        "name": "遮罩"
+      }
+    }
+  },
+  "LayerMask: PersonMaskUltra": {
+    "display_name": "图层遮罩：人物遮罩 Ultra（高级）",
+    "inputs": {
+      "images": {
+        "name": "图像"
+      },
+      "face": {
+        "name": "脸"
+      },
+      "hair": {
+        "name": "头发"
+      },
+      "body": {
+        "name": "身体"
+      },
+      "clothes": {
+        "name": "衣服"
+      },
+      "accessories": {
+        "name": "配饰"
+      },
+      "background": {
+        "name": "背景"
+      },
+      "confidence": {
+        "name": "置信度"
+      },
+      "detail_range": {
+        "name": "细节范围"
+      },
+      "black_point": {
+        "name": "黑点"
+      },
+      "white_point": {
+        "name": "白点"
+      },
+      "process_detail": {
+        "name": "处理细节"
+      },
+      "image": {
+        "name": "图像"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "图像"
+      },
+      "mask": {
+        "name": "遮罩"
+      }
+    }
+  },
+  "LayerMask: PersonMaskUltra V2": {
+    "display_name": "图层遮罩：人物遮罩 Ultra V2（高级）",
+    "inputs": {
+      "images": {
+        "name": "图像"
+      },
+      "face": {
+        "name": "脸"
+      },
+      "hair": {
+        "name": "头发"
+      },
+      "body": {
+        "name": "身体"
+      },
+      "clothes": {
+        "name": "衣服"
+      },
+      "accessories": {
+        "name": "配饰"
+      },
+      "background": {
+        "name": "背景"
+      },
+      "confidence": {
+        "name": "置信度"
+      },
+      "detail_method": {
+        "name": "细节方法"
+      },
+      "detail_erode": {
+        "name": "细节腐蚀"
+      },
+      "detail_dilate": {
+        "name": "细节膨胀"
+      },
+      "black_point": {
+        "name": "黑点"
+      },
+      "white_point": {
+        "name": "白点"
+      },
+      "process_detail": {
+        "name": "处理细节"
+      },
+      "device": {
+        "name": "设备"
+      },
+      "max_megapixels": {
+        "name": "最大百万像素"
+      },
+      "image": {
+        "name": "图像"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "图像"
+      },
+      "mask": {
+        "name": "遮罩"
+      }
+    }
+  },
+  "LayerUtility: PhiPrompt": {
+    "display_name": "图层工具：Phi 提示（高级）",
+    "inputs": {
+      "model": {
+        "name": "模型"
+      },
+      "device": {
+        "name": "设备"
+      },
+      "dtype": {
+        "name": "数据类型"
+      },
+      "cache_model": {
+        "name": "缓存模型"
+      },
+      "system_prompt": {
+        "name": "系统提示"
+      },
+      "user_prompt": {
+        "name": "用户提示"
+      },
+      "do_sample": {
+        "name": "采样"
+      },
+      "temperature": {
+        "name": "温度"
+      },
+      "max_new_tokens": {
+        "name": "最大新令牌数"
+      },
+      "image": {
+        "name": "图像"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "字符串"
+      }
+    }
+  },
+  "LayerUtility: PromptEmbellish": {
+    "display_name": "图层工具：提示词润色（高级）",
+    "inputs": {
+      "api": {
+        "name": "API"
+      },
+      "token_limit": {
+        "name": "令牌限制"
+      },
+      "describe": {
+        "name": "描述"
+      },
+      "image": {
+        "name": "图像"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "字符串"
+      }
+    }
+  },
+  "LayerUtility: PromptTagger": {
+    "display_name": "图层工具：提示词反推（高级）",
+    "inputs": {
+      "image": {
+        "name": "图像"
+      },
+      "api": {
+        "name": "API"
+      },
+      "token_limit": {
+        "name": "令牌限制"
+      },
+      "exclude_word": {
+        "name": "排除词"
+      },
+      "replace_with_word": {
+        "name": "替换词"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "字符串"
+      }
+    }
+  },
+  "LayerUtility: CreateQRCode": {
+    "display_name": "图层工具：创建二维码（高级）",
+    "inputs": {
+      "size": {
+        "name": "大小"
+      },
+      "border": {
+        "name": "边框"
+      },
+      "text": {
+        "name": "文本"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "图像"
+      }
+    }
+  },
+  "LayerUtility: DecodeQRCode": {
+    "display_name": "图层工具：解码二维码（高级）",
+    "inputs": {
+      "image": {
+        "name": "图像"
+      },
+      "pre_blur": {
+        "name": "预模糊"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "字符串"
+      }
+    }
+  },
+  "LayerUtility: QWenImage2Prompt": {
+    "display_name": "图层工具：QWen 图像转提示（高级）",
+    "inputs": {
+      "image": {
+        "name": "图像"
+      },
+      "question": {
+        "name": "问题"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "字符串"
+      }
+    }
+  },
+  "LayerMask: SAM2Ultra": {
+    "display_name": "图层遮罩：SAM2 Ultra",
+    "inputs": {
+      "image": {
+        "name": "图像"
+      },
+      "bboxes": {
+        "name": "边界框"
+      },
+      "sam2_model": {
+        "name": "SAM2模型"
+      },
+      "precision": {
+        "name": "精度"
+      },
+      "bbox_select": {
+        "name": "边界框选择"
+      },
+      "select_index": {
+        "name": "选择索引"
+      },
+      "cache_model": {
+        "name": "缓存模型"
+      },
+      "detail_method": {
+        "name": "细节方法"
+      },
+      "detail_erode": {
+        "name": "细节腐蚀"
+      },
+      "detail_dilate": {
+        "name": "细节膨胀"
+      },
+      "black_point": {
+        "name": "黑点"
+      },
+      "white_point": {
+        "name": "白点"
+      },
+      "process_detail": {
+        "name": "处理细节"
+      },
+      "device": {
+        "name": "设备"
+      },
+      "max_megapixels": {
+        "name": "最大百万像素"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "图像"
+      },
+      "mask": {
+        "name": "遮罩"
+      }
+    }
+  },
+  "LayerMask: SAM2VideoUltra": {
+    "display_name": "图层遮罩：SAM2 视频 Ultra（高级）",
+    "inputs": {
+      "image": {
+        "name": "图像"
+      },
+      "sam2_model": {
+        "name": "SAM2模型"
+      },
+      "precision": {
+        "name": "精度"
+      },
+      "cache_model": {
+        "name": "缓存模型"
+      },
+      "individual_objects": {
+        "name": "独立对象"
+      },
+      "mask_preview_color": {
+        "name": "遮罩预览颜色"
+      },
+      "detail_method": {
+        "name": "细节方法"
+      },
+      "detail_erode": {
+        "name": "细节腐蚀"
+      },
+      "detail_dilate": {
+        "name": "细节膨胀"
+      },
+      "black_point": {
+        "name": "黑点"
+      },
+      "white_point": {
+        "name": "白点"
+      },
+      "process_detail": {
+        "name": "处理细节"
+      },
+      "device": {
+        "name": "设备"
+      },
+      "max_megapixels": {
+        "name": "最大百万像素"
+      },
+      "bboxes": {
+        "name": "边界框"
+      },
+      "first_frame_mask": {
+        "name": "第一帧遮罩"
+      },
+      "pre_mask": {
+        "name": "预遮罩"
+      }
+    },
+    "outputs": {
+      "mask": {
+        "name": "遮罩"
+      },
+      "image": {
+        "name": "图像"
+      }
+    }
+  },
+  "LayerUtility: SaveImagePlus": {
+    "display_name": "图层工具：保存图像 Plus（高级）",
+    "inputs": {
+      "images": {
+        "name": "图像"
+      },
+      "custom_path": {
+        "name": "自定义路径"
+      },
+      "filename_prefix": {
+        "name": "文件名前缀"
+      },
+      "timestamp": {
+        "name": "时间戳"
+      },
+      "format": {
+        "name": "格式"
+      },
+      "quality": {
+        "name": "质量"
+      },
+      "meta_data": {
+        "name": "元数据"
+      },
+      "blind_watermark": {
+        "name": "盲水印"
+      },
+      "save_workflow_as_json": {
+        "name": "保存工作流为JSON"
+      },
+      "preview": {
+        "name": "预览"
+      },
+      "prompt": {
+        "name": "提示"
+      },
+      "extra_pnginfo": {
+        "name": "额外PNG信息"
+      }
+    },
+    "outputs": {}
+  },
+  "LayerUtility: SD3NegativeConditioning": {
+    "display_name": "图层工具：SD3 负面条件（高级）",
+    "inputs": {
+      "conditioning": {
+        "name": "条件"
+      },
+      "zero_out_start": {
+        "name": "零化开始"
+      }
+    },
+    "outputs": {
+      "conditioning": {
+        "name": "条件"
+      }
+    }
+  },
+  "LayerMask: SegmentAnythingUltra": {
+    "display_name": "图层遮罩：SegmentAnything Ultra（高级）",
+    "inputs": {
+      "image": {
+        "name": "图像"
+      },
+      "sam_model": {
+        "name": "SAM模型"
+      },
+      "grounding_dino_model": {
+        "name": "Grounding Dino模型"
+      },
+      "threshold": {
+        "name": "阈值"
+      },
+      "detail_range": {
+        "name": "细节范围"
+      },
+      "black_point": {
+        "name": "黑点"
+      },
+      "white_point": {
+        "name": "白点"
+      },
+      "process_detail": {
+        "name": "处理细节"
+      },
+      "prompt": {
+        "name": "提示"
+      },
+      "cache_model": {
+        "name": "缓存模型"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "图像"
+      },
+      "mask": {
+        "name": "遮罩"
+      }
+    }
+  },
+  "LayerMask: SegmentAnythingUltra V2": {
+    "display_name": "图层遮罩：SegmentAnything Ultra V2（高级）",
+    "inputs": {
+      "image": {
+        "name": "图像"
+      },
+      "sam_model": {
+        "name": "SAM模型"
+      },
+      "grounding_dino_model": {
+        "name": "Grounding Dino模型"
+      },
+      "threshold": {
+        "name": "阈值"
+      },
+      "detail_method": {
+        "name": "细节方法"
+      },
+      "detail_erode": {
+        "name": "细节腐蚀"
+      },
+      "detail_dilate": {
+        "name": "细节膨胀"
+      },
+      "black_point": {
+        "name": "黑点"
+      },
+      "white_point": {
+        "name": "白点"
+      },
+      "process_detail": {
+        "name": "处理细节"
+      },
+      "prompt": {
+        "name": "提示"
+      },
+      "device": {
+        "name": "设备"
+      },
+      "max_megapixels": {
+        "name": "最大百万像素"
+      },
+      "cache_model": {
+        "name": "缓存模型"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "图像"
+      },
+      "mask": {
+        "name": "遮罩"
+      }
+    }
+  },
+  "LayerMask: LoadSegmentAnythingModels": {
+    "display_name": "图层遮罩：加载SegmentAnything模型（高级）",
+    "inputs": {
+      "sam_model": {
+        "name": "SAM模型"
+      },
+      "grounding_dino_model": {
+        "name": "Grounding Dino模型"
+      }
+    },
+    "outputs": {
+      "ls_sam_models": {
+        "name": "LS SAM模型"
+      }
+    }
+  },
+  "LayerMask: SegmentAnythingUltra V3": {
+    "display_name": "图层遮罩：SegmentAnything Ultra V3（高级）",
+    "inputs": {
+      "image": {
+        "name": "图像"
+      },
+      "sam_models": {
+        "name": "SAM模型"
+      },
+      "threshold": {
+        "name": "阈值"
+      },
+      "detail_method": {
+        "name": "细节方法"
+      },
+      "detail_erode": {
+        "name": "细节腐蚀"
+      },
+      "detail_dilate": {
+        "name": "细节膨胀"
+      },
+      "black_point": {
+        "name": "黑点"
+      },
+      "white_point": {
+        "name": "白点"
+      },
+      "process_detail": {
+        "name": "处理细节"
+      },
+      "prompt": {
+        "name": "提示"
+      },
+      "device": {
+        "name": "设备"
+      },
+      "max_megapixels": {
+        "name": "最大百万像素"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "图像"
+      },
+      "mask": {
+        "name": "遮罩"
+      }
+    }
+  },
+  "LayerUtility: LoadSmolLM2Model": {
+    "display_name": "图层工具：加载SmolLM2模型（高级）",
+    "inputs": {
+      "model": {
+        "name": "模型"
+      },
+      "dtype": {
+        "name": "数据类型"
+      },
+      "device": {
+        "name": "设备"
+      }
+    },
+    "outputs": {
+      "smollm2_model": {
+        "name": "SmolLM2模型"
+      }
+    }
+  },
+  "LayerUtility: LoadSmolVLMModel": {
+    "display_name": "图层工具：加载SmolVLM模型（高级）",
+    "inputs": {
+      "model": {
+        "name": "模型"
+      },
+      "dtype": {
+        "name": "数据类型"
+      },
+      "device": {
+        "name": "设备"
+      }
+    },
+    "outputs": {
+      "smolvlm_model": {
+        "name": "SmolVLM模型"
+      }
+    }
+  },
+  "LayerUtility: SmolLM2": {
+    "display_name": "图层工具：SmolLM2（高级）",
+    "inputs": {
+      "smolLM2_model": {
+        "name": "SmolLM2模型"
+      },
+      "max_new_tokens": {
+        "name": "最大新令牌数"
+      },
+      "do_sample": {
+        "name": "采样"
+      },
+      "temperature": {
+        "name": "温度"
+      },
+      "top_p": {
+        "name": "顶部P"
+      },
+      "system_prompt": {
+        "name": "系统提示"
+      },
+      "user_prompt": {
+        "name": "用户提示"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "字符串"
+      }
+    }
+  },
+  "LayerUtility: SmolVLM": {
+    "display_name": "图层工具：SmolVLM（高级）",
+    "inputs": {
+      "image": {
+        "name": "图像"
+      },
+      "smolVLM_model": {
+        "name": "SmolVLM模型"
+      },
+      "max_new_tokens": {
+        "name": "最大新令牌数"
+      },
+      "user_prompt": {
+        "name": "用户提示"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "字符串"
+      }
+    }
+  },
+  "LayerMask: TransparentBackgroundUltra": {
+    "display_name": "图层遮罩：透明背景 Ultra（高级）",
+    "inputs": {
+      "image": {
+        "name": "图像"
+      },
+      "model": {
+        "name": "模型"
+      },
+      "detail_method": {
+        "name": "细节方法"
+      },
+      "detail_erode": {
+        "name": "细节腐蚀"
+      },
+      "detail_dilate": {
+        "name": "细节膨胀"
+      },
+      "black_point": {
+        "name": "黑点"
+      },
+      "white_point": {
+        "name": "白点"
+      },
+      "process_detail": {
+        "name": "处理细节"
+      },
+      "device": {
+        "name": "设备"
+      },
+      "max_megapixels": {
+        "name": "最大百万像素"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "图像"
+      },
+      "mask": {
+        "name": "遮罩"
+      }
+    }
+  },
+  "LayerUtility: UserPromptGeneratorTxt2ImgPromptWithReference": {
+    "display_name": "图层工具：用户提示生成器 Txt2Img 带参考（高级）",
+    "inputs": {
+      "template": {
+        "name": "模板"
+      },
+      "reference_text": {
+        "name": "参考文本"
+      },
+      "describe": {
+        "name": "描述"
+      },
+      "limit_words": {
+        "name": "字数限制"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "字符串"
+      }
+    }
+  },
+  "LayerUtility: UserPromptGeneratorTxt2ImgPrompt": {
+    "display_name": "图层工具：用户提示生成器 Txt2Img（高级）",
+    "inputs": {
+      "template": {
+        "name": "模板"
+      },
+      "describe": {
+        "name": "描述"
+      },
+      "limit_words": {
+        "name": "字数限制"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "字符串"
+      }
+    }
+  },
+  "LayerUtility: UserPromptGeneratorReplaceWord": {
+    "display_name": "图层工具：用户提示生成器 替换词（高级）",
+    "inputs": {
+      "orig_prompt": {
+        "name": "原始提示"
+      },
+      "template": {
+        "name": "模板"
+      },
+      "exclude_word": {
+        "name": "排除词"
+      },
+      "replace_with_word": {
+        "name": "替换词"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "字符串"
+      }
+    }
+  },
+  "LayerUtility: AddBlindWaterMark": {
+    "display_name": "图层工具：添加盲水印（高级）",
+    "inputs": {
+      "image": {
+        "name": "图像"
+      },
+      "watermark_image": {
+        "name": "水印图像"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "图像"
+      }
+    }
+  },
+  "LayerUtility: ShowBlindWaterMark": {
+    "display_name": "图层工具：显示盲水印（高级）",
+    "inputs": {
+      "image": {
+        "name": "图像"
+      }
+    },
+    "outputs": {
+      "image": {
+        "name": "图像"
+      }
+    }
+  },
+  "LayerMask: YoloV8Detect": {
+    "display_name": "图层遮罩：YoloV8 检测（高级）",
+    "inputs": {
+      "image": {
+        "name": "图像"
+      },
+      "yolo_model": {
+        "name": "YOLO模型"
+      },
+      "mask_merge": {
+        "name": "遮罩合并"
+      }
+    },
+    "outputs": {
+      "mask": {
+        "name": "遮罩"
+      },
+      "image": {
+        "name": "图像"
+      }
+    }
+  },
+  "LayerUtility: ZhipuGLM4V": {
+    "display_name": "图层工具：ZhipuGLM4V（高级）",
+    "inputs": {
+      "image": {
+        "name": "图像"
+      },
+      "model": {
+        "name": "模型"
+      },
+      "user_prompt": {
+        "name": "用户提示"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "字符串"
+      }
+    }
+  },
+  "LayerUtility: ZhipuGLM4": {
+    "display_name": "图层工具：ZhipuGLM4（高级）",
+    "inputs": {
+      "model": {
+        "name": "模型"
+      },
+      "user_prompt": {
+        "name": "用户提示"
+      },
+      "history_length": {
+        "name": "历史长度"
+      },
+      "history": {
+        "name": "历史"
+      }
+    },
+    "outputs": {
+      "string": {
+        "name": "字符串"
+      },
+      "glm4_history": {
+        "name": "GLM4历史"
+      }
+    }
+  }
+}

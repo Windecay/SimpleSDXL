@@ -1,11 +1,13 @@
-from .imagefunc import *
+import torch
+from .imagefunc import log, tensor2pil, pil2tensor
+from .imagefunc import get_resource_dir, apply_lut, RGB2RGBA
 
-NODE_NAME = 'LUT Apply'
+
 
 class ColorCorrectLUTapply:
 
     def __init__(self):
-        pass
+        self.NODE_NAME = 'LUT Apply'
 
     @classmethod
     def INPUT_TYPES(self):
@@ -32,8 +34,7 @@ class ColorCorrectLUTapply:
 
     def color_correct_LUTapply(self, image, LUT, color_space, strength):
 
-        (LUT_DICT, _) = get_resource_dir()
-        log(f"LUT_DICT={LUT_DICT}")
+        (LUT_DICT, _) = get_resource_dir()        
         ret_images = []
         for i in image:
             i = torch.unsqueeze(i, 0)
@@ -46,7 +47,7 @@ class ColorCorrectLUTapply:
                 ret_image = RGB2RGBA(ret_image, _image.split()[-1])
             ret_images.append(pil2tensor(ret_image))
 
-        log(f"{NODE_NAME} Processed {len(ret_images)} image(s).", message_type='finish')
+        log(f"{self.NODE_NAME} Processed {len(ret_images)} image(s).", message_type='finish')
         return (torch.cat(ret_images, dim=0),)
 
 

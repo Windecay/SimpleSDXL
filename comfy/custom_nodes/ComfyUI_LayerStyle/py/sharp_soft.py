@@ -1,11 +1,16 @@
-from .imagefunc import *
+import torch
+import copy
+import cv2
+import numpy as np
+from PIL import Image
+from .imagefunc import log
 
-NODE_NAME = 'Sharp & Soft'
+
 
 class SharpAndSoft:
 
     def __init__(self):
-        pass
+        self.NODE_NAME = 'Sharp & Soft'
 
     @classmethod
     def INPUT_TYPES(self):
@@ -53,6 +58,7 @@ class SharpAndSoft:
         n = denoise / 10
         dup = copy.deepcopy(images.cpu().numpy())
 
+        from cv2.ximgproc import guidedFilter
         for index, image in enumerate(dup):
             imgB = image
             if denoise > 0.0:
@@ -61,7 +67,7 @@ class SharpAndSoft:
             details = (imgB / imgG - 1) * detail_mult + 1
             dup[index] = np.clip(details * imgG - imgB + image, 0, 1)
 
-        log(f"{NODE_NAME} Processed {dup.shape[0]} image(s).", message_type='finish')
+        log(f"{self.NODE_NAME} Processed {dup.shape[0]} image(s).", message_type='finish')
         return (torch.from_numpy(dup),)
 
 
