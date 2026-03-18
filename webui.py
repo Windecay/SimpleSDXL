@@ -11,33 +11,9 @@ import tempfile
 import wave
 
 try:
-    import gradio.processing_utils as _gr_processing_utils
+    from extras.media_normalize import patch_gradio_processing_utils_for_missing_ffprobe as _patch_gradio_processing_utils_for_missing_ffprobe
 
-    if hasattr(_gr_processing_utils, "video_is_playable"):
-        _orig_video_is_playable = _gr_processing_utils.video_is_playable
-
-        def _video_is_playable_safe(video):
-            try:
-                return _orig_video_is_playable(video)
-            except Exception as e:
-                if e.__class__.__name__ == "FFExecutableNotFoundError" or "ffprobe" in str(e).lower():
-                    return True
-                raise
-
-        _gr_processing_utils.video_is_playable = _video_is_playable_safe
-
-    if hasattr(_gr_processing_utils, "audio_is_playable"):
-        _orig_audio_is_playable = _gr_processing_utils.audio_is_playable
-
-        def _audio_is_playable_safe(audio):
-            try:
-                return _orig_audio_is_playable(audio)
-            except Exception as e:
-                if e.__class__.__name__ == "FFExecutableNotFoundError" or "ffprobe" in str(e).lower():
-                    return True
-                raise
-
-        _gr_processing_utils.audio_is_playable = _audio_is_playable_safe
+    _patch_gradio_processing_utils_for_missing_ffprobe()
 except Exception:
     pass
 import shared
@@ -284,7 +260,7 @@ def generate_clicked(task: worker.AsyncTask, state):
     local_start_time = time.time()
     last_heartbeat_time = local_start_time
     HEARTBEAT_INTERVAL = 1.0
-    UNLOCK_CONTROLS_AFTER = 5.0
+    UNLOCK_CONTROLS_AFTER = 8.0
     logged_controls_unlock = False
     logged_backend_ready_wait = False
     logged_first_yield = False
@@ -308,6 +284,7 @@ def generate_clicked(task: worker.AsyncTask, state):
     try:
         while not finished:
             current_time = time.time()
+            force_unlock_update = False
             if (current_time - last_update_time > MAX_WAIT_TIME) or not ready_flag:
                 yield gr.update(visible=True, value=modules.html.make_progress_html(0, '生图任务已超时!')), \
                     gr.update(visible=True), \
@@ -343,6 +320,7 @@ def generate_clicked(task: worker.AsyncTask, state):
             if controls_unlocked and (not backend_ready) and (not logged_controls_unlock):
                 logged_controls_unlock = True
                 logger.warning(f"[Generate] controls_unlocked_by_timeout: unlock_after={UNLOCK_CONTROLS_AFTER}s, {task_meta}")
+                force_unlock_update = True
 
             if (not backend_ready) and (not logged_backend_ready_wait) and ((current_time - local_start_time) >= 15.0):
                 logged_backend_ready_wait = True
@@ -523,10 +501,14 @@ def generate_clicked(task: worker.AsyncTask, state):
                     gr.update(visible=False, size='sm'), \
                     gr.update(interactive=True), \
                     gr.update(interactive=True)
-            elif (current_time - last_heartbeat_time) >= HEARTBEAT_INTERVAL:
-                last_heartbeat_time = current_time
-                if in_progress:
-                    continue
+            elif (current_time - last_heartbeat_time) >= HEARTBEAT_INTERVAL or force_unlock_update:
+                if not force_unlock_update:
+                    last_heartbeat_time = current_time
+                    if in_progress:
+                        continue
+                else:
+                    last_heartbeat_time = current_time
+
                 title = '任务准备中，加载模型...' if not backend_ready else '任务进行中...'
                 yield gr.update(visible=True, value=modules.html.make_progress_html(max(last_preview_percentage, 1), title)), \
                     gr.update(), \
@@ -4529,7 +4511,7 @@ with shared.gradio_root:
             styles.update([])
             return describe_prompt if describe_prompt else gr.update(), list(styles), gr.update(interactive=ready_to_gen and img_is_ok)
 
-        def trigger_auto_aspect_ratio_for_scene_from_canvas_image(state, canvas_image, input_image1, scene_theme, video=None, audio=None):
+        def trigger_auto_aspect_ratio_for_scene_from_canvas_image(state, canvas_image, input_image1, scene_theme, video=None, audio=None, is_generating=False):
             results = [trigger_auto_aspect_ratio_for_scene(state, canvas_image['image'], scene_theme)]
             need_canvas_image = 'scene_canvas_image' not in state["scene_frontend"].get('disvisible', [])
             need_input_image1 = 'scene_input_image1' not in state["scene_frontend"].get('disvisible', [])
@@ -4538,20 +4520,22 @@ with shared.gradio_root:
             video_visible = 'scene_video' not in state["scene_frontend"].get('disvisible', [])
             audio_visible = 'scene_audio' not in state["scene_frontend"].get('disvisible', [])
 
+            gen_btn_visible = not is_generating
+
             if video_visible and video is not None:
-                 results.append(gr.update(interactive=True, visible=True))
+                 results.append(gr.update(interactive=True, visible=gen_btn_visible))
                  return results
             if audio_visible and audio is not None:
-                 results.append(gr.update(interactive=True, visible=True))
+                 results.append(gr.update(interactive=True, visible=gen_btn_visible))
                  return results
 
             if need_canvas_image and canvas_image is not None:
                 if need_input_image2 or (not need_input_image1 or (need_input_image1 and input_image1 is not None)):
-                    results.append(gr.update(interactive=True, visible=True))
+                    results.append(gr.update(interactive=True, visible=gen_btn_visible))
                 else:
-                    results.append(gr.update(interactive=False, visible=True))
+                    results.append(gr.update(interactive=False, visible=gen_btn_visible))
             else:
-                results.append(gr.update(interactive=False, visible=True))
+                results.append(gr.update(interactive=False, visible=gen_btn_visible))
             return results
 
         def trigger_auto_aspect_ratio_for_scene_from_input_image(state, input_image1, scene_theme):
@@ -4675,7 +4659,7 @@ with shared.gradio_root:
                 gr.update(value=parsed_loras[3][1]),
             ]
 
-        scene_canvas_image.upload(trigger_auto_aspect_ratio_for_scene_from_canvas_image, inputs=[state_topbar, scene_canvas_image, scene_input_image1, scene_theme, scene_video, scene_audio], outputs=[scene_aspect_ratio, generate_button], show_progress=False, queue=False).then(lambda: None, _js='()=>{refresh_scene_localization();}')
+        scene_canvas_image.upload(trigger_auto_aspect_ratio_for_scene_from_canvas_image, inputs=[state_topbar, scene_canvas_image, scene_input_image1, scene_theme, scene_video, scene_audio, state_is_generating], outputs=[scene_aspect_ratio, generate_button], show_progress=False, queue=False).then(lambda: None, _js='()=>{refresh_scene_localization();}')
         #scene_canvas_image.change(scene_canvas_image_clear, inputs=[state_topbar, scene_canvas_image, scene_input_image1], outputs=[generate_button], show_progress=False, queue=False)
         scene_input_image1.upload(trigger_auto_describe_for_scene, inputs=[state_topbar, scene_canvas_image, scene_input_image1, scene_theme, scene_additional_prompt, scene_additional_prompt_2, state_is_generating], outputs=[prompt, style_selections, generate_button], show_progress=True, queue=True) \
                         .then(trigger_auto_aspect_ratio_for_scene_from_input_image, inputs=[state_topbar, scene_input_image1, scene_theme],

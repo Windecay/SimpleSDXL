@@ -61,7 +61,7 @@ groundingdino_model_list = {
 }
 
 def get_bert_base_uncased_model_path():
-    comfy_bert_model_base = os.path.join(folder_paths.models_dir, 'bert-base-uncased')
+    comfy_bert_model_base = os.path.join(folder_paths.models_dir, 'llms', 'bert-base-uncased')
     if glob.glob(os.path.join(comfy_bert_model_base, '**/model.safetensors'), recursive=True):
         print('grounding-dino is using models/bert-base-uncased')
         return comfy_bert_model_base
@@ -107,6 +107,9 @@ def get_local_filepath(url, dirname, local_file_name=None):
 
     destination = os.path.join(folder, local_file_name)
     if not os.path.exists(destination):
+        if 'HF_ENDPOINT' in os.environ:
+            logger.warn(f'HF endpoint: {os.environ["HF_ENDPOINT"]}')
+        url = str.replace(url, "huggingface.co", "hf-mirror.com", 1)
         logger.warn(f'downloading {url} to {destination}')
         download_url_to_file(url, destination)
     return destination
