@@ -1,4 +1,13 @@
 
+import os
+import nodes
+
+# ComfyUI 2.0兼容性：使用nodes.EXTENSION_WEB_DIRS注册JavaScript目录
+# 必须在其他导入之前设置
+custom_node_dir = os.path.dirname(os.path.realpath(__file__))
+js_dir = os.path.join(custom_node_dir, "js_node")
+nodes.EXTENSION_WEB_DIRS["weilin-comfyui-tools"] = js_dir
+
 from .app.server.prompt_server import *
 import comfy.lora
 import comfy.utils

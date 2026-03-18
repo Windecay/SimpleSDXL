@@ -1,0 +1,13 @@
+# 依赖目录
+node_modules
+dist
+build
+
+# 配置文件
+package-lock.json
+yarn.lock
+
+# 其他
+*.min.css
+coverage
+.nyc_output

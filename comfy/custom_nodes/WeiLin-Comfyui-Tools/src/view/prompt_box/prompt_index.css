@@ -1,0 +1,1185 @@
+.weilin_prompt_ui_prompt-box {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  box-sizing: border-box;
+  overflow: visible;
+  background: var(--weilin-prompt-ui-primary-bg);
+  transition: width 0.3s ease;
+}
+
+.weilin_prompt_ui_main-content {
+  height: auto;
+  /* 高度自动调整 */
+  transition: width 0.3s ease;
+  /* 添加过渡效果 */
+}
+
+.input-area {
+  width: 100%;
+  padding: 8px 12px;
+  resize: vertical;
+  border: 2px solid var(--weilin-prompt-ui-border-color);
+  border-radius: 6px;
+  overflow-y: auto;
+  box-sizing: border-box;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--weilin-prompt-ui-primary-text);
+  background-color: var(--weilin-prompt-ui-input-bg);
+  transition: all 0.3s ease;
+  box-shadow: inset 0 1px 3px var(--weilin-prompt-ui-shadow-color);
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.input-area:hover {
+  border-color: var(--weilin-prompt-ui-secondary-text);
+}
+
+.input-area:focus {
+  outline: none;
+  border-color: var(--weilin-prompt-ui-primary-color);
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+}
+
+.input-area::placeholder {
+  color: var(--weilin-prompt-ui-secondary-text);
+  font-size: 14px;
+}
+
+/* 更新标签工具条 */
+.update-label-bar {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.update-label-bar .token-counter {
+  position: static;
+  background: transparent;
+  padding: 0;
+  color: var(--weilin-prompt-ui-secondary-text);
+}
+.update-label-btn {
+  height: 32px;
+  padding: 0 14px;
+  min-width: 110px;
+  border-radius: 6px;
+  border: 1px solid var(--weilin-prompt-ui-primary-color);
+  background: var(--weilin-prompt-ui-primary-color);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    filter 0.15s ease,
+    transform 0.05s ease,
+    background 0.15s ease;
+}
+.update-label-btn:hover:enabled {
+  filter: brightness(1.08);
+}
+.update-label-btn.is-dirty {
+  box-shadow:
+    0 0 0 2px color-mix(in srgb, var(--weilin-prompt-ui-primary-color) 35%, transparent),
+    0 0 10px color-mix(in srgb, var(--weilin-prompt-ui-primary-color) 40%, transparent);
+}
+.update-label-btn:active:enabled {
+  transform: translateY(1px);
+}
+.update-label-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  filter: grayscale(0.2);
+}
+
+.tokens-container {
+  display: flex;
+  flex-flow: wrap;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--weilin-prompt-ui-border-color);
+  border-radius: 6px;
+  align-items: flex-start;
+  background-color: var(--weilin-prompt-ui-primary-bg);
+  transition: border-color 0.2s ease;
+  margin-top: 10px;
+  width: 100%;
+}
+
+.tokens-container:hover {
+  border-color: var(--weilin-prompt-ui-secondary-text);
+}
+
+.token-item {
+  overflow: visible;
+  color: var(--weilin-prompt-ui-primary-text);
+  font-size: 13px;
+  line-height: 1.5;
+  display: flex;
+  align-items: center;
+}
+
+.token-item-icon {
+  width: 12px;
+  height: 12px;
+  fill: var(--weilin-prompt-ui-icon-color);
+}
+
+.token-item input {
+  width: auto;
+  min-width: 20px;
+  padding: 4px 8px;
+  border: 2px solid var(--weilin-prompt-ui-primary-color);
+  border-radius: 4px;
+  font-size: inherit;
+  font-family: inherit;
+  line-height: inherit;
+  margin: -4px 0;
+  box-sizing: border-box;
+  background: var(--weilin-prompt-ui-input-bg);
+  color: var(--weilin-prompt-ui-primary-text);
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+  transition: all 0.2s ease;
+}
+
+.token-item input:focus {
+  outline: none;
+  border-color: #40a9ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+.line-break {
+  display: block;
+  width: 100%;
+  height: 1px;
+  clear: both;
+}
+
+.newline-token {
+  color: var(--weilin-prompt-ui-secondary-text);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  font-size: 14px;
+  display: inline-block;
+}
+
+.newline-token::after {
+  content: '';
+  /* 插入空内容 */
+  width: 100%;
+  /* 占满剩余空间 */
+  order: 1;
+  /* 确保它在.br-class之后 */
+}
+
+.newline-token ~ .token-item-box {
+  order: 2;
+  /* 让.br-class之后的元素换行 */
+}
+
+.tab-token {
+  color: var(--weilin-prompt-ui-secondary-text);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  font-size: 14px;
+}
+
+.newline-token:hover,
+.tab-token:hover {
+  transform: translateY(-1px);
+}
+
+.token-symbol {
+  font-family: monospace;
+  user-select: none;
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.tokens-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.tokens-container::-webkit-scrollbar-track {
+  background: var(--weilin-prompt-ui-scrollbar-track);
+  border-radius: 3px;
+}
+
+.tokens-container::-webkit-scrollbar-thumb {
+  background: var(--weilin-prompt-ui-scrollbar-thumb);
+  border-radius: 3px;
+}
+
+.tokens-container::-webkit-scrollbar-thumb:hover {
+  background: var(--weilin-prompt-ui-scrollbar-thumb-hover);
+}
+
+.input-area::-webkit-scrollbar {
+  width: 6px;
+}
+
+.input-area::-webkit-scrollbar-track {
+  background: var(--weilin-prompt-ui-scrollbar-track);
+  border-radius: 3px;
+}
+
+.input-area::-webkit-scrollbar-thumb {
+  background: var(--weilin-prompt-ui-scrollbar-thumb);
+  border-radius: 3px;
+}
+
+.input-area::-webkit-scrollbar-thumb:hover {
+  background: var(--weilin-prompt-ui-scrollbar-thumb-hover);
+}
+
+.action-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 0 0 auto;
+  margin-right: 8px;
+}
+
+.language-switch-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.language-switch-btn:hover {
+  background-color: var(--weilin-prompt-ui-hover-bg-color);
+}
+
+.translate-icon {
+  width: 20px;
+  height: 20px;
+  fill: var(--weilin-prompt-ui-icon-color);
+}
+
+.action-text {
+  font-size: 12px;
+  color: var(--weilin-prompt-ui-secondary-text);
+  white-space: nowrap;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: all 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.token-controls {
+  position: fixed;
+  transform: translateX(-50%);
+  background-color: var(--weilin-prompt-ui-primary-bg);
+  padding: 6px;
+  border: 1px solid var(--weilin-prompt-ui-border-color);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px var(--weilin-prompt-ui-shadow-color);
+  z-index: 1000;
+  display: flex;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+
+.delete-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  background-color: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.delete-btn:hover {
+  background-color: rgba(255, 77, 79, 0.1);
+}
+
+.delete-btn svg {
+  width: 16px;
+  height: 16px;
+  fill: #ff4d4f;
+  transition: transform 0.2s ease;
+}
+
+.favour-btn {
+  background: transparent;
+  border: none;
+  padding: 2px 4px;
+  cursor: pointer;
+  vertical-align: middle;
+  outline: none;
+  transition: background 0.2s;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.favour-btn svg {
+  display: block;
+  margin: 0 auto;
+  transition: filter 0.2s;
+}
+
+.favour-btn:hover {
+  background: #fffbe6a6;
+  box-shadow: 0 0 4px #ffd70044;
+}
+
+.favour-btn:active svg {
+  filter: brightness(0.85);
+}
+
+/* 禁用按钮特殊样式 */
+.disable-btn svg {
+  fill: #1890ff;
+}
+
+/* 启用按钮特殊样式 */
+.enable-btn svg path {
+  fill: green;
+}
+
+/* 复制按钮特殊样式 */
+.copy-btn svg {
+  fill: #722ed1;
+}
+
+.delete-btn:hover svg {
+  transform: scale(1.1);
+}
+
+.settings-icon {
+  width: 24px;
+  height: 24px;
+  fill: var(--weilin-prompt-ui-icon-color);
+  transition: transform 0.3s ease;
+}
+
+.settings-btn:hover .settings-icon {
+  transform: rotate(30deg);
+}
+
+.token-item.punctuation {
+  cursor: default;
+  color: var(--weilin-prompt-ui-secondary-text);
+}
+
+.token-item.punctuation:hover {
+  transform: none;
+  box-shadow: none;
+  background-color: var(--weilin-prompt-ui-secondary-bg);
+}
+
+/* 修改分隔线样式 */
+.action-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  right: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 24px;
+  width: 1px;
+  background-color: var(--weilin-prompt-ui-border-color);
+  opacity: 0.5;
+}
+
+.action-item button:hover {
+  background-color: var(--weilin-prompt-ui-hover-bg-color);
+  transform: translateY(-1px);
+}
+
+.action-item button:active {
+  transform: translateY(0);
+}
+
+/* 确保语言切换按钮容器是相对定位且不被遮挡 */
+.action-item {
+  position: relative;
+  z-index: 9999;
+}
+
+/* 添加过渡动画样式 */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.settings-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.settings-btn:hover {
+  background-color: var(--weilin-prompt-ui-hover-bg-color);
+}
+
+.settings-icon {
+  width: 20px;
+  height: 20px;
+  fill: var(--weilin-prompt-ui-icon-color);
+  transition: transform 0.3s ease;
+}
+
+.settings-btn:hover .settings-icon {
+  transform: rotate(30deg);
+}
+
+.action-text {
+  font-size: 12px;
+  color: var(--weilin-prompt-ui-secondary-text);
+  white-space: nowrap;
+  margin-top: 2px;
+}
+
+/* 确保所有按钮样式一致 */
+.language-switch-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.language-switch-btn:hover .translate-icon {
+  transform: rotate(10deg);
+}
+
+.language-switch-btn:hover {
+  background-color: var(--weilin-prompt-ui-hover-bg-color);
+}
+
+.translate-icon {
+  width: 20px;
+  height: 20px;
+  fill: var(--weilin-prompt-ui-icon-color);
+}
+
+/* 修改分隔线样式 */
+.action-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  right: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 24px;
+  width: 1px;
+  background-color: var(--weilin-prompt-ui-border-color);
+  opacity: 0.5;
+}
+
+/* 添加按钮点击效果 */
+.settings-btn:active,
+.tag-manager-btn:active,
+.language-switch-btn:active {
+  transform: scale(0.95);
+}
+
+.tag-manager-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 48px;
+}
+
+.tag-manager-btn:hover .tag-icon {
+  transform: rotate(10deg);
+}
+
+.tag-icon {
+  width: 20px;
+  height: 20px;
+  fill: var(--weilin-prompt-ui-icon-color);
+}
+
+.tag-manager-btn .action-text {
+  font-size: 12px;
+  text-align: center;
+}
+
+.tag-manager-container {
+  margin-top: 1px;
+}
+
+.lora-manager-container {
+  margin-top: 1px;
+  padding: 6px;
+  box-sizing: border-box;
+  max-height: 600px;
+  min-height: 200px;
+  /* 确保有足够的最小高度 */
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.tag-manager-section {
+  margin-top: 16px;
+  background: var(--weilin-prompt-ui-primary-bg);
+  border: 1px solid var(--weilin-prompt-ui-border-color);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.tag-manager-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.3s ease;
+  background: var(--weilin-prompt-ui-secondary-bg);
+  border-bottom: 1px solid var(--weilin-prompt-ui-border-color);
+}
+
+.tag-manager-header:hover {
+  background: var(--weilin-prompt-ui-hover-bg-color);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tag-icon {
+  width: 18px;
+  height: 18px;
+  fill: var(--weilin-prompt-ui-icon-color);
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--weilin-prompt-ui-primary-text);
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+}
+
+.collapse-icon {
+  width: 20px;
+  height: 20px;
+  fill: var(--weilin-prompt-ui-secondary-text);
+  transition: transform 0.3s ease;
+}
+
+.collapse-icon.is-collapsed {
+  transform: rotate(180deg);
+}
+
+.tag-manager-container {
+  background: var(--weilin-prompt-ui-primary-bg);
+  transition: all 0.3s ease;
+}
+
+/* 翻译 */
+/* 翻译结果显示区域 */
+.translation-result {
+  display: flex;
+  align-items: center;
+  margin-top: 5px;
+  font-size: 12px;
+}
+
+/* 翻译按钮样式 */
+.translation-result .translate-button {
+  margin-right: 5px;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  font-size: 12px;
+}
+
+.translation-result button:hover {
+  background-color: var(--weilin-prompt-ui-primary-color-hover);
+}
+
+/* 翻译结果文本样式 */
+.translated-text {
+  color: var(--weilin-prompt-ui-primary-text);
+  font-weight: bold;
+  font-size: 0.9em;
+}
+
+.token-item-box {
+  display: inline-block;
+  flex-direction: column;
+  padding: 3px 6px;
+  background-color: var(--weilin-prompt-ui-token-bg);
+  border-radius: 6px;
+  overflow: hidden;
+  color: var(--weilin-prompt-ui-primary-text);
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  font-size: 14px;
+  line-height: 1.5;
+  box-shadow: 0 1px 2px var(--weilin-prompt-ui-shadow-color);
+  cursor: grab;
+}
+
+.token-item-box:active {
+  cursor: grabbing;
+}
+
+.token-item-box:hover {
+  background-color: var(--weilin-prompt-ui-hover-bg-color);
+  border-color: var(--weilin-prompt-ui-border-color);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px var(--weilin-prompt-ui-shadow-color);
+}
+
+/* 自动补全 */
+/* 自动补全容器 */
+.autocomplete-container {
+  position: absolute;
+  z-index: 12000;
+  width: 450px;
+  max-height: 350px;
+  overflow-y: auto;
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 8px 0;
+  margin-top: 4px;
+  background-color: var(--weilin-prompt-ui-primary-bg);
+  /* 添加最大宽度限制 */
+  max-width: calc(100% - 16px);
+}
+
+/* 关闭按钮 */
+.autocomplete-container .close-autocomplete-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--weilin-prompt-ui-primary-bg);
+  border: 1px solid var(--weilin-prompt-ui-border-color);
+  border-radius: 50%;
+  color: var(--weilin-prompt-ui-primary-text);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.autocomplete-container .close-autocomplete-btn:hover {
+  background-color: var(--weilin-prompt-ui-danger-color);
+}
+
+/* 自动补全项 */
+.autocomplete-item {
+  display: flex;
+  flex-direction: row;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  align-items: center;
+}
+
+.autocomplete-item:hover {
+  color: var(--weilin-prompt-ui-primary-text);
+  background-color: var(--weilin-prompt-ui-hover-bg-color);
+}
+
+/* 选中项 */
+.autocomplete-item.selected {
+  color: var(--weilin-prompt-ui-primary-text);
+  background-color: var(--weilin-prompt-ui-primary-color);
+}
+
+/* 标签样式 */
+.tag {
+  width: 65%;
+  font-weight: 500;
+  color: var(--weilin-prompt-ui-primary-text);
+  font-size: 14px;
+}
+
+/* 描述样式 */
+.desc {
+  width: 35%;
+  padding-left: 20px;
+  color: var(--weilin-prompt-ui-primary-text);
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+/* 中间翻译区域 */
+.prompt-input-translate-area {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  white-space: nowrap;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 4px;
+  padding-left: 10px;
+  scrollbar-width: thin; /* Firefox */
+  flex-direction: row-reverse;
+}
+
+.prompt-input-translate-area::-webkit-scrollbar {
+  height: 8px;
+}
+.prompt-input-translate-area::-webkit-scrollbar-thumb {
+  background: #e0e0e0;
+  border-radius: 4px;
+}
+.prompt-input-translate-area::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* 保证每个按钮和输入框不会被压缩 */
+.prompt-input-translate-area > * {
+  flex: 0 0 auto;
+}
+
+.prompt-input-translate-area-textarea {
+  width: 300px;
+  height: 45px;
+  border: 1px solid var(--weilin-prompt-ui-border-color);
+  background-color: var(--weilin-prompt-ui-input-bg);
+  border-radius: 8px;
+  padding: 6px;
+}
+
+.prompt-input-translate-area-textarea:hover {
+  border-color: var(--weilin-prompt-ui-primary-color);
+}
+
+/* 添加权重输入框样式 */
+.weight-control {
+  display: flex;
+  align-items: center;
+  margin-right: 8px;
+}
+
+.weight-input {
+  width: 50px;
+  padding: 4px;
+  margin-right: 4px;
+  border: 1px solid var(--weilin-prompt-ui-border-color);
+  border-radius: 4px;
+  background: var(--weilin-prompt-ui-input-bg);
+  color: var(--weilin-prompt-ui-primary-text);
+}
+
+.weight-label {
+  font-size: 12px;
+  color: var(--weilin-prompt-ui-secondary-text);
+}
+
+/* 添加括号按钮样式 */
+.bracket-btn {
+  padding: 4px 8px;
+  color: var(--weilin-prompt-ui-primary-text);
+}
+
+.translate-btn {
+  padding: 7px 8px;
+  margin-right: 4px;
+  background: var(--weilin-prompt-ui-secondary-bg);
+  border: 1px solid var(--weilin-prompt-ui-border-color);
+  border-radius: 4px;
+  color: var(--weilin-prompt-ui-primary-text);
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+}
+
+.translate-btn:hover {
+  background: var(--weilin-prompt-ui-primary-color-hover);
+  color: white;
+}
+
+.translate-btn:hover .action-text {
+  color: white;
+}
+
+.translate-btn:hover .token-item-icon {
+  fill: white;
+}
+
+.translate-btn:hover .utils-item-icon {
+  fill: white;
+}
+
+/* 删除按钮开关的活跃状态样式 - 只让图标变色 */
+.translate-btn.toggle-delete-btn.active .utils-item-icon {
+  fill: var(--weilin-prompt-ui-primary-color);
+}
+
+.translate-btn.toggle-delete-btn.active:hover .utils-item-icon {
+  fill: var(--weilin-prompt-ui-primary-color-hover);
+}
+
+/* 快捷删除按钮样式 */
+.quick-delete-btn {
+  opacity: 0.6;
+  transition: opacity 0.2s;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 3px;
+}
+
+.quick-delete-btn:hover {
+  opacity: 1;
+  background: rgba(255, 77, 79, 0.1);
+}
+
+/* 操作按钮 */
+.bracket-btn-group {
+  display: flex;
+  gap: 8px;
+}
+
+.bracket-btn-container {
+  display: flex;
+  align-items: center;
+  background: var(--weilin-prompt-ui-secondary-bg);
+  border: 1px solid var(--weilin-prompt-ui-border-color);
+  border-radius: 4px;
+}
+
+.vertical-btn-group {
+  display: flex;
+  flex-direction: column;
+  border-left: none;
+}
+
+.vertical-btn {
+  padding: 2px 4px;
+  border: 1px solid var(--weilin-prompt-ui-border-color);
+  background-color: var(--weilin-prompt-ui-secondary-bg);
+  cursor: pointer;
+  font-size: 12px;
+  height: 15px;
+  width: 15px;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vertical-btn:hover {
+  background-color: var(--weilin-prompt-ui-primary-color);
+}
+
+.tag-tips-box {
+  position: fixed;
+  z-index: 1000;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  max-width: 300px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+}
+
+.tag-tips-content {
+  margin: 0;
+}
+
+.tag-tips-content p {
+  white-space: normal;
+  line-height: 1.5;
+}
+
+.token-counter {
+  position: absolute;
+  bottom: 5px;
+  right: 10px;
+  font-size: 12px;
+  color: #888;
+  background-color: rgba(255, 255, 255, 0.7);
+  padding: 2px 5px;
+  border-radius: 3px;
+  pointer-events: none;
+  /* 确保不会干扰文本输入 */
+}
+
+/* 暗色主题适配 */
+#weilin_comfyui_tools_prompt_ui_div[data-theme='dark'] .token-counter {
+  background-color: rgba(0, 0, 0, 0.5);
+  color: #ccc;
+}
+
+.random-tag-btn,
+.random-tag-settings-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.random-tag-btn .action-text,
+.random-tag-settings-btn .action-text {
+  margin-left: 4px;
+}
+
+.utils-item-icon {
+  fill: var(--weilin-prompt-ui-icon-color);
+}
+
+/* Lora标签样式 */
+.lora-tag {
+  background-color: rgba(64, 158, 255, 0.1) !important;
+  border: 1px solid rgba(64, 158, 255, 0.5) !important;
+  border-radius: 4px;
+}
+
+.lora-tag-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin-right: 4px;
+}
+
+.lora-tag-icon svg {
+  fill: #a7a8a9;
+}
+
+.lora-weight-controls {
+  display: flex;
+  gap: 5px;
+  padding: 5px;
+  background-color: var(--weilin-prompt-ui-background);
+  border-radius: 4px;
+  flex-direction: row;
+  align-items: center;
+}
+
+.lora-weight-controls .weight-control {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.lora-weight-controls .weight-input {
+  width: 50px;
+  text-align: center;
+  border: 1px solid var(--weilin-prompt-ui-border-color);
+  border-radius: 3px;
+  background-color: var(--weilin-prompt-ui-input-background);
+  color: var(--weilin-prompt-ui-primary-text);
+}
+
+.lora-weight-controls .weight-label {
+  font-size: 12px;
+  color: var(--weilin-prompt-ui-secondary-text);
+}
+
+.weilin-comfyui-sidebar-toggle-icon {
+  fill: var(--weilin-prompt-ui-icon-color);
+  transition: transform 0.3s ease;
+  transform: rotate(180deg); /* 默认展开时向右 */
+}
+
+.weilin-comfyui-sidebar-toggle-icon.is-closed {
+  transform: rotate(0deg); /* 收起时回到向左 */
+}
+
+/* 框选操作菜单额外样式 */
+.weilin-comfyui-selection-actions-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.weilin-comfyui-selection-actions-count {
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: var(--weilin-prompt-ui-secondary-text);
+  text-align: center;
+}
+
+.weilin-comfyui-selection-actions-buttons {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+}
+
+/* 隐藏提示的样式增强 */
+/* 禁用token的样式 - 斜杠覆盖、半透明和红色边框 */
+.token-item-box-disabled {
+  opacity: 0.5 !important;
+  position: relative;
+  border: 1px solid #ff4d4f !important;
+}
+
+.token-item-box-disabled::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    45deg,
+    transparent calc(50% - 1px),
+    #ff4d4f calc(50% - 1px),
+    #ff4d4f calc(50% + 1px),
+    transparent calc(50% + 1px)
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* 确保禁用状态下的token内容在斜杠下方 */
+.token-item-box-disabled > * {
+  position: relative;
+  z-index: 2;
+}
+
+.weilin-comfyui-toolbar-right {
+  margin-left: auto;
+}
+
+/* 框选高亮样式 */
+.token-item-box-selected {
+  border: 2px solid #4285f4 !important;
+  box-shadow: 0 0 8px #4285f455;
+  background-color: rgba(66, 133, 244, 0.08) !important;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s,
+    background-color 0.2s;
+  z-index: 2;
+}
+
+.center-container {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  white-space: nowrap;
+  align-items: center;
+  scrollbar-width: thin; /* Firefox */
+  margin-bottom: 8px;
+}
+
+.center-container::-webkit-scrollbar {
+  height: 8px;
+}
+.center-container::-webkit-scrollbar-thumb {
+  background: #e0e0e0;
+  border-radius: 4px;
+}
+.center-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.line-token-btn {
+  background: transparent;
+  border: none;
+  padding: 2px 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  transition: background 0.2s;
+  font-size: 14px;
+}
+
+.line-token-btn svg {
+  margin-right: 2px;
+  vertical-align: middle;
+  transition: filter 0.2s;
+}
+
+.line-token-btn:hover {
+  background: #e6f7ff5d;
+  box-shadow: 0 0 4px #4285f444;
+}
+
+.line-token-btn:active svg {
+  filter: brightness(0.85);
+}
+
+.quick-delete-btn {
+  background: transparent;
+  border: none;
+  padding: 2px 2px;
+  margin-left: 2px;
+  cursor: pointer;
+  border-radius: 3px;
+  display: inline-flex;
+  align-items: center;
+  transition: background 0.2s;
+  vertical-align: middle;
+}
+.quick-delete-btn:hover {
+  background: #fff1f0;
+}
+.quick-delete-btn svg {
+  display: block;
+  transition: filter 0.2s;
+}
+.quick-delete-btn:active svg {
+  filter: brightness(0.85);
+}

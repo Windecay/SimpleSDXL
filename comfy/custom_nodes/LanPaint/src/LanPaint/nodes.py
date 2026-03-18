@@ -1,17 +1,21 @@
 from contextlib import contextmanager
-from inspect import cleandoc
-import inspect
+import math
 # import nodes.py
 import comfy
 import nodes
 import latent_preview
-from functools import partial
+import torch
 from comfy.utils import repeat_to_batch_size
 from comfy.samplers import *
 from comfy.model_base import ModelType
-from .utils import *
 from .lanpaint import LanPaint
 from comfy.model_base import WAN22
+import comfyui_version 
+
+def _version_tuple(value):
+    return tuple(int(part) if part.isdigit() else 0 for part in value.split("."))
+
+COMFYUI_VERSION_060_OR_NEWER = _version_tuple(comfyui_version.__version__) >= (0, 6, 0)
 
 def reshape_mask(input_mask, output_shape,video_inpainting=False):
     dims = len(output_shape) - 2
@@ -20,30 +24,43 @@ def reshape_mask(input_mask, output_shape,video_inpainting=False):
     print('input mask',input_mask.shape,type(input_mask),torch.max(input_mask),torch.min(input_mask))
     print('target output_shape',output_shape)
     print('input_mask.ndim:', input_mask.ndim, 'output_shape len:', len(output_shape))
-    
+
+    # Handle input mask dimensions
+    if input_mask.ndim == 2:
+        input_mask = input_mask.unsqueeze(0).unsqueeze(0)
+    elif input_mask.ndim == 3:
+        input_mask = input_mask.unsqueeze(1)
+
+    # Handle 5D output shape (B, C, F, H, W) by ensuring input is 5D
+    if len(output_shape) == 5 and input_mask.ndim == 4:
+        if COMFYUI_VERSION_060_OR_NEWER:
+            input_mask = input_mask.unsqueeze(2)  # (B, C, 1, H, W)
+
     # Handle video case with temporal dimension
     if video_inpainting:  # Video case: (batch, channels, frames, height, width)
         target_frames = output_shape[2]
         target_height, target_width = output_shape[-2:]
-        
+
         print('Video case - input_mask initial shape:', input_mask.shape)
-        
+
         # First reshape input_mask to have proper dimensions for video processing
         # Assume input is (frames, channels, height, width) -> (1, channels, frames, height, width)
-        input_mask = input_mask.permute(1, 0, 2, 3).unsqueeze(0)
+        ## if comfy version < 0.6.0
+        if not COMFYUI_VERSION_060_OR_NEWER:
+            input_mask = input_mask.permute(1, 0, 2, 3).unsqueeze(0)
         print('Video case - input_mask after reshaping:', input_mask.shape)
         # Ensure we have the correct 5D shape: (batch, channels, frames, height, width)
         batch_size, channels, frames, height, width = input_mask.shape
         print('Video case - dimensions: batch_size={}, channels={}, frames={}, height={}, width={}'.format(batch_size, channels, frames, height, width))
         print('Video case - target size:', (target_frames, target_height, target_width))
-        
+
         # 3D nearest-exact interpolation: (batch, channels, frames, height, width) -> (batch, channels, target_frames, target_height, target_width)
         temp_mask = torch.nn.functional.interpolate(
             input_mask, 
             size=(target_frames, target_height, target_width), 
             mode=scale_mode, 
         )
-        
+
         # temp_mask is already 5D: (batch, channels, target_frames, target_height, target_width)
         mask = temp_mask
         print('after mask',mask.shape)
@@ -53,12 +70,15 @@ def reshape_mask(input_mask, output_shape,video_inpainting=False):
         # Handle batch dimension
         mask = repeat_to_batch_size(mask, output_shape[0])
     else:  # Original 2D image case
-        mask = torch.nn.functional.interpolate(input_mask, size=output_shape[-2:], mode=scale_mode)
+        if not COMFYUI_VERSION_060_OR_NEWER:
+            mask = torch.nn.functional.interpolate(input_mask, size=output_shape[-2:], mode=scale_mode)
+        else:
+            mask = torch.nn.functional.interpolate(input_mask, size=output_shape[2:], mode=scale_mode)
         if mask.shape[1] < output_shape[1]:
             mask = mask.repeat((1, output_shape[1]) + (1,) * dims)[:,:output_shape[1]]
         mask = repeat_to_batch_size(mask, output_shape[0])
-    
-    print('resize mask',mask.shape,type(mask),torch.max(mask),torch.min(mask))
+
+
     return mask
 def prepare_mask(noise_mask, shape, device,video_inpainting=False):
     return reshape_mask(noise_mask, shape,video_inpainting).to(device)
@@ -138,7 +158,7 @@ class KSamplerX0Inpaint:
             abt = (1 - Flow_t)**2 / ((1 - Flow_t)**2 + Flow_t**2 )
             VE_Sigma = Flow_t / (1 - Flow_t)
             #print("t", torch.mean( sigma ).item(), "VE_Sigma", torch.mean( VE_Sigma ).item())
-            
+
 
         else:
             VE_Sigma = sigma 
@@ -163,7 +183,7 @@ class KSamplerX0Inpaint:
                 out = self.PaintMethod(x, self.latent_image, self.noise, sigma, latent_mask, current_times, model_options, seed)
         else:
             out, _ = self.inner_model(x, sigma, model_options=model_options, seed=seed)
-        
+
         # Add TAESD preview support - directly use the latent_preview module
         current_step = model_options.get("i", kwargs.get("i", 0))
         total_steps = model_options.get("total_steps", 0)
@@ -174,7 +194,7 @@ class KSamplerX0Inpaint:
             callback = model_options.get("callback", None)
             if callback is not None:
                 callback({"i": current_step, "denoised": out, "x": x})
-    
+
         return out
 
 # Custom sampler class extending ComfyUI's KSAMPLER for LanPaint
@@ -207,7 +227,10 @@ class KSAMPLER(comfy.samplers.KSAMPLER):
                                        model_wrap.model_patcher.LanPaint_Beta,
                                        model_wrap.model_patcher.LanPaint_StepSize, 
                                        IS_FLUX = IS_FLUX, 
-                                       IS_FLOW = IS_FLOW)
+                                       IS_FLOW = IS_FLOW,
+                                       EarlyStopThreshold = getattr(model_wrap.model_patcher, "LanPaint_InnerThreshold", 0.0),
+                                       EarlyStopPatience = getattr(model_wrap.model_patcher, "LanPaint_InnerPatience", 1),
+                                       EarlyStopHook = extra_args.get("model_options", {}).get("lanpaint_semantic_hook", None))
         model_k.LanPaint_early_stop = model_wrap.model_patcher.LanPaint_EarlyStop
         #if not inpainting, after noise_scaling, noise = noise * sigma, which is the noise added to the clean latent image in the variance exploding diffusion model notation.
         #if inpainting, after noise_scaling, noise = latent_image + noise * sigma, which is x_t in the variance exploding diffusion model notation for the known region.
@@ -310,17 +333,19 @@ class LanPaint_KSampler():
         model.LanPaint_NumSteps = LanPaint_NumSteps
         model.LanPaint_Friction = 15.
         model.LanPaint_EarlyStop = 1
+        model.LanPaint_InnerThreshold = 0.0
+        model.LanPaint_InnerPatience = 1
         if LanPaint_PromptMode == "Image First":
             model.LanPaint_cfg_BIG = cfg
         else:
             model.LanPaint_cfg_BIG = 0*cfg - 0.5
-        
+
         # Convert inpainting_mode to boolean for video_inpainting
         video_inpainting = (Inpainting_mode == "🎬 Video Inpainting")
         if not hasattr(model, 'model_options') or model.model_options is None:
             model.model_options = {}
         model.model_options["video_inpainting"] = video_inpainting
-        
+
         with override_sample_function():
             return nodes.common_ksampler(model, seed, steps, cfg, sampler_name, scheduler, positive, negative, latent_image, denoise=denoise)
 class LanPaint_KSamplerAdvanced:
@@ -349,6 +374,8 @@ class LanPaint_KSamplerAdvanced:
                 "LanPaint_EarlyStop": ("INT", {"default": 1, "min": 0, "max": 10000, "tooltip": "The number of steps to stop the LanPaint early, useful for preventing the image from irregular patterns."}),
                 "LanPaint_Info": ("STRING", {"default": "LanPaint KSampler Adv. For more info, visit https://github.com/scraed/LanPaint. If you find it useful, please give a star ⭐️!", "multiline": True}),
                 "Inpainting_mode": (["🖼️ Image Inpainting", "🎬 Video Inpainting"], {"default": "🖼️ Image Inpainting", "tooltip": "Choose Image mode for photos or Video mode for video frames with temporal consistency"}),
+                "LanPaint_InnerThreshold": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 1.0, "step": 0.0001, "round": 0.0001, "tooltip": "Early stop threshold for Langevin iterations based on semantic distance. 0.0 to disable. (Contributed by godnight10061)"}),
+                "LanPaint_InnerPatience": ("INT", {"default": 1, "min": 1, "max": 100, "tooltip": "Number of consecutive steps below threshold required to stop. (Contributed by godnight10061)"}),
                      },
                 }
 
@@ -357,7 +384,7 @@ class LanPaint_KSamplerAdvanced:
 
     CATEGORY = "sampling"
 
-    def sample(self, model, add_noise, noise_seed, steps, cfg, sampler_name, scheduler, positive, negative, latent_image, start_at_step, end_at_step, return_with_leftover_noise, LanPaint_NumSteps=5, LanPaint_Lambda=16.0, LanPaint_StepSize=0.2, LanPaint_Beta=1.0, LanPaint_Friction=15.0, LanPaint_PromptMode="Image First", LanPaint_EarlyStop=1, LanPaint_Info="", Inpainting_mode="🖼️ Image Inpainting"):
+    def sample(self, model, add_noise, noise_seed, steps, cfg, sampler_name, scheduler, positive, negative, latent_image, start_at_step, end_at_step, return_with_leftover_noise, LanPaint_NumSteps=5, LanPaint_Lambda=16.0, LanPaint_StepSize=0.2, LanPaint_Beta=1.0, LanPaint_Friction=15.0, LanPaint_PromptMode="Image First", LanPaint_EarlyStop=1, LanPaint_Info="", Inpainting_mode="🖼️ Image Inpainting", LanPaint_InnerThreshold=0.0, LanPaint_InnerPatience=1):
         force_full_denoise = True
         if return_with_leftover_noise == "enable":
             force_full_denoise = False
@@ -370,11 +397,13 @@ class LanPaint_KSamplerAdvanced:
         model.LanPaint_NumSteps = LanPaint_NumSteps
         model.LanPaint_Friction = LanPaint_Friction
         model.LanPaint_EarlyStop = LanPaint_EarlyStop
+        model.LanPaint_InnerThreshold = LanPaint_InnerThreshold
+        model.LanPaint_InnerPatience = LanPaint_InnerPatience
         if LanPaint_PromptMode == "Image First":
             model.LanPaint_cfg_BIG = cfg
         else:
             model.LanPaint_cfg_BIG = 0*cfg - 0.5
-        
+
         # Convert inpainting_mode to boolean for video_inpainting
         video_inpainting = (Inpainting_mode == "🎬 Video Inpainting")
         if not hasattr(model, 'model_options') or model.model_options is None:
@@ -426,7 +455,7 @@ class MaskBlend:
         kernel = self.gaussian_kernel(blend_overlap)
         kernel = kernel.to(image1.device)
         kernel = kernel[None, None, ...]
-        
+
         mask = torch.nn.functional.conv2d(mask[:,None,:,:], kernel, padding=blend_overlap//2)[:,0,:,:]
 
 
@@ -491,6 +520,8 @@ class LanPaint_SamplerCustom:
         model.LanPaint_NumSteps = LanPaint_NumSteps
         model.LanPaint_Friction = 15.
         model.LanPaint_EarlyStop = 1
+        model.LanPaint_InnerThreshold = 0.0
+        model.LanPaint_InnerPatience = 1
         if LanPaint_PromptMode == "Image First":
             model.LanPaint_cfg_BIG = cfg
         else:
@@ -524,7 +555,7 @@ class LanPaint_SamplerCustom:
             else:
                 out_denoised = out
             return (out, out_denoised)
-        
+
 class LanPaint_SamplerCustomAdvanced:
     @classmethod
     def INPUT_TYPES(s):
@@ -542,6 +573,8 @@ class LanPaint_SamplerCustomAdvanced:
                      "LanPaint_PromptMode": (["Image First", "Prompt First"], {"tooltip": "Image First: prioritizes image quality; Prompt First: prioritizes prompt adherence."}),
                      "LanPaint_EarlyStop": ("INT", {"default": 1, "min": 0, "max": 10000, "tooltip": "Steps to stop LanPaint early, preventing irregular patterns."}),
                      "LanPaint_Info": ("STRING", {"default": "LanPaint Custom Sampler Adv. For more info, visit https://github.com/scraed/LanPaint. If you find it useful, please give a star ⭐️!", "multiline": True}),
+                     "LanPaint_InnerThreshold": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 1.0, "step": 0.0001, "round": 0.0001, "tooltip": "Early stop threshold for Langevin iterations based on semantic distance. 0.0 to disable. (Contributed by godnight10061)"}),
+                     "LanPaint_InnerPatience": ("INT", {"default": 1, "min": 1, "max": 100, "tooltip": "Number of consecutive steps below threshold required to stop. (Contributed by godnight10061)"}),
                     }
                }
 
@@ -552,7 +585,7 @@ class LanPaint_SamplerCustomAdvanced:
 
     CATEGORY = "sampling/custom_sampling"
 
-    def sample(self, noise, guider, sampler, sigmas, latent_image, LanPaint_NumSteps, LanPaint_Lambda, LanPaint_StepSize, LanPaint_Beta, LanPaint_Friction, LanPaint_PromptMode, LanPaint_EarlyStop, LanPaint_Info=""):
+    def sample(self, noise, guider, sampler, sigmas, latent_image, LanPaint_NumSteps, LanPaint_Lambda, LanPaint_StepSize, LanPaint_Beta, LanPaint_Friction, LanPaint_PromptMode, LanPaint_EarlyStop, LanPaint_Info="", LanPaint_InnerThreshold=0.0, LanPaint_InnerPatience=1):
         model = guider.model_patcher
         model.LanPaint_StepSize = LanPaint_StepSize
         model.LanPaint_Lambda = LanPaint_Lambda
@@ -560,6 +593,8 @@ class LanPaint_SamplerCustomAdvanced:
         model.LanPaint_NumSteps = LanPaint_NumSteps
         model.LanPaint_Friction = LanPaint_Friction
         model.LanPaint_EarlyStop = LanPaint_EarlyStop
+        model.LanPaint_InnerThreshold = LanPaint_InnerThreshold
+        model.LanPaint_InnerPatience = LanPaint_InnerPatience
         if LanPaint_PromptMode == "Image First":
             model.LanPaint_cfg_BIG = guider.cfg
         else:

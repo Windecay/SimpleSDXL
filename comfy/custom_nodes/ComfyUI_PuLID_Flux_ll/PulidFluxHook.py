@@ -5,6 +5,21 @@ from comfy.ldm.flux.layers import timestep_embedding
 import comfy
 from .patch_util import PatchKeys
 
+def invert_slices(slices, length):
+    sorted_slices = sorted(slices)
+    result = []
+    current = 0
+
+    for start, end in sorted_slices:
+        if current < start:
+            result.append((current, start))
+        current = max(current, end)
+
+    if current < length:
+        result.append((current, length))
+
+    return result
+
 def set_model_dit_patch_replace(model, patch_kwargs, key):
     to = model.model_options["transformer_options"]
     if "patches_replace" not in to:
@@ -146,9 +161,12 @@ def pulid_forward_orig(
     y: Tensor,
     guidance: Tensor = None,
     control = None,
+    timestep_zero_index=None,
     transformer_options={},
     attn_mask: Tensor = None,
 ) -> Tensor:
+    transformer_options = transformer_options.copy()
+    patches = transformer_options.get("patches", {})
     patches_replace = transformer_options.get("patches_replace", {})
 
     if img.ndim != 3 or txt.ndim != 3:
@@ -162,11 +180,46 @@ def pulid_forward_orig(
         if guidance is not None:
             vec = vec + self.guidance_in(timestep_embedding(guidance, 256).to(img.dtype))
 
-    vec = vec + self.vector_in(y)
+    if getattr(self, "vector_in", None) is not None:
+        if y is None:
+            y = torch.zeros((img.shape[0], self.params.vec_in_dim), device=img.device, dtype=img.dtype)
+        vec = vec + self.vector_in(y[:, :self.params.vec_in_dim])
+
+    if getattr(self, "txt_norm", None) is not None:
+        txt = self.txt_norm(txt)
     txt = self.txt_in(txt)
 
-    ids = torch.cat((txt_ids, img_ids), dim=1)
-    pe = self.pe_embedder(ids)
+    if "post_input" in patches:
+        for p in patches["post_input"]:
+            out = p({"img": img, "txt": txt, "img_ids": img_ids, "txt_ids": txt_ids, "transformer_options": transformer_options})
+            img = out["img"]
+            txt = out["txt"]
+            img_ids = out["img_ids"]
+            txt_ids = out["txt_ids"]
+
+    if img_ids is not None:
+        ids = torch.cat((txt_ids, img_ids), dim=1)
+        pe = self.pe_embedder(ids)
+    else:
+        pe = None
+
+    vec_orig = vec
+    txt_vec = vec
+    extra_kwargs = {}
+    if timestep_zero_index is not None:
+        modulation_dims = []
+        batch = vec.shape[0] // 2
+        vec_orig = vec_orig.reshape(2, batch, vec.shape[1]).movedim(0, 1)
+        invert = invert_slices(timestep_zero_index, img.shape[1])
+        for s in invert:
+            modulation_dims.append((s[0], s[1], 0))
+        for s in timestep_zero_index:
+            modulation_dims.append((s[0], s[1], 1))
+        extra_kwargs["modulation_dims_img"] = modulation_dims
+        txt_vec = vec[:batch]
+
+    if getattr(self.params, "global_modulation", False):
+        vec = (self.double_stream_modulation_img(vec_orig), self.double_stream_modulation_txt(txt_vec))
 
     blocks_replace = patches_replace.get("dit", {})
 
@@ -179,14 +232,17 @@ def pulid_forward_orig(
                                                txt=args["txt"],
                                                vec=args["vec"],
                                                pe=args["pe"],
-                                               attn_mask=args.get("attn_mask"))
+                                               attn_mask=args.get("attn_mask"),
+                                               transformer_options=args.get("transformer_options"),
+                                               **extra_kwargs)
                 return out
 
             out = blocks_replace[("double_block", i)]({"img": img,
                                                        "txt": txt,
                                                        "vec": vec,
                                                        "pe": pe,
-                                                       "attn_mask": attn_mask
+                                                       "attn_mask": attn_mask,
+                                                       "transformer_options": transformer_options
                                                        },
                                                       {
                                                           "original_block": block_wrap,
@@ -199,16 +255,29 @@ def pulid_forward_orig(
                              txt=txt,
                              vec=vec,
                              pe=pe,
-                             attn_mask=attn_mask)
+                             attn_mask=attn_mask,
+                             transformer_options=transformer_options,
+                             **extra_kwargs)
 
         if control is not None:  # Controlnet
             control_i = control.get("input")
             if i < len(control_i):
                 add = control_i[i]
                 if add is not None:
-                    img += add
+                    img[:, :add.shape[1]] += add
+
+    if img.dtype == torch.float16:
+        img = torch.nan_to_num(img, nan=0.0, posinf=65504, neginf=-65504)
 
     img = torch.cat((txt, img), 1)
+
+    if getattr(self.params, "global_modulation", False):
+        vec, _ = self.single_stream_modulation(vec_orig)
+
+    extra_kwargs = {}
+    if timestep_zero_index is not None:
+        modulation_dims_combined = list(map(lambda x: (0 if x[0] == 0 else x[0] + txt.shape[1], x[1] + txt.shape[1], x[2]), modulation_dims))
+        extra_kwargs["modulation_dims"] = modulation_dims_combined
 
     for i, block in enumerate(self.single_blocks):
         # 0 -> 37
@@ -218,13 +287,16 @@ def pulid_forward_orig(
                 out["img"] = block(args["img"],
                                    vec=args["vec"],
                                    pe=args["pe"],
-                                   attn_mask=args.get("attn_mask"))
+                                   attn_mask=args.get("attn_mask"),
+                                   transformer_options=args.get("transformer_options"),
+                                   **extra_kwargs)
                 return out
 
             out = blocks_replace[("single_block", i)]({"img": img,
                                                        "vec": vec,
                                                        "pe": pe,
-                                                       "attn_mask": attn_mask
+                                                       "attn_mask": attn_mask,
+                                                       "transformer_options": transformer_options
                                                        },
                                                       {
                                                           "original_block": block_wrap,
@@ -232,20 +304,24 @@ def pulid_forward_orig(
                                                       })
             img = out["img"]
         else:
-            img = block(img, vec=vec, pe=pe, attn_mask=attn_mask)
+            img = block(img, vec=vec, pe=pe, attn_mask=attn_mask, transformer_options=transformer_options, **extra_kwargs)
 
         if control is not None:  # Controlnet
             control_o = control.get("output")
             if i < len(control_o):
                 add = control_o[i]
                 if add is not None:
-                    img[:, txt.shape[1]:, ...] += add
+                    img[:, txt.shape[1]: txt.shape[1] + add.shape[1], ...] += add
 
     img = img[:, txt.shape[1]:, ...]
 
-    img = self.final_layer(img, vec)  # (N, T, patch_size ** 2 * out_channels)
+    extra_kwargs = {}
+    if timestep_zero_index is not None:
+        extra_kwargs["modulation_dims"] = modulation_dims
 
-    del transformer_options[PatchKeys.running_net_model]
+    img = self.final_layer(img, vec_orig, **extra_kwargs)  # (N, T, patch_size ** 2 * out_channels)
+
+    transformer_options.pop(PatchKeys.running_net_model, None)
 
     return img
 

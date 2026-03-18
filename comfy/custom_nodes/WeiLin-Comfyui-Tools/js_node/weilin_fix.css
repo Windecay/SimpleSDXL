@@ -1,0 +1,78 @@
+/* WeiLin ComfyUI 2.0 兼容性修复 */
+/* 解决dom-widget容器遮挡画布的问题 */
+
+/* 
+ * 问题分析：
+ * 1. 存在多个 dom-widget size-full 容器，几乎重叠
+ * 2. 所有容器都有 position: fixed，固定在视口上
+ * 3. pointer-events: auto 导致事件被拦截
+ * 4. 输入框（textarea）被隐藏（display: none）
+ * 
+ * 解决方案：
+ * 1. 设置 pointer-events: none 让画布可以交互
+ * 2. 设置 position: absolute 让容器跟随节点
+ * 3. 确保内部交互元素（textarea等）可以正常响应
+ */
+
+/* 方案1：针对包含weilin相关元素的dom-widget */
+.dom-widget:has([class*="weilin-"]) {
+    pointer-events: none !important;
+    position: absolute !important;
+}
+
+/* 确保weilin内部的交互元素可以正常响应 */
+.dom-widget:has([class*="weilin-"]) * {
+    pointer-events: auto !important;
+}
+
+/* 方案2：针对包含特定name的textarea的dom-widget */
+.dom-widget:has(textarea[name="positive"]) {
+    pointer-events: none !important;
+    position: absolute !important;
+}
+
+.dom-widget:has(textarea[name="lora_str"]) {
+    pointer-events: none !important;
+    position: absolute !important;
+}
+
+.dom-widget:has(textarea[name="temp_str"]) {
+    pointer-events: none !important;
+    position: absolute !important;
+}
+
+.dom-widget:has(textarea[name="temp_lora_str"]) {
+    pointer-events: none !important;
+    position: absolute !important;
+}
+
+/* 确保textarea可以正常交互 */
+.dom-widget:has(textarea[name="positive"]) textarea {
+    pointer-events: auto !important;
+}
+
+.dom-widget:has(textarea[name="lora_str"]) textarea {
+    pointer-events: auto !important;
+}
+
+.dom-widget:has(textarea[name="temp_str"]) textarea {
+    pointer-events: auto !important;
+}
+
+.dom-widget:has(textarea[name="temp_lora_str"]) textarea {
+    pointer-events: auto !important;
+}
+
+/* 方案3：针对size-full类的通用修复 */
+/* 注意：这个选择器可能会影响其他节点，所以放在最后，优先级较低 */
+.dom-widget.size-full:not(:has(button)):not(:has(input[type="checkbox"])):not(:has(select)) {
+    pointer-events: none !important;
+}
+
+/* 确保size-full内部的交互元素可以正常响应 */
+.dom-widget.size-full textarea,
+.dom-widget.size-full input,
+.dom-widget.size-full select,
+.dom-widget.size-full button {
+    pointer-events: auto !important;
+}

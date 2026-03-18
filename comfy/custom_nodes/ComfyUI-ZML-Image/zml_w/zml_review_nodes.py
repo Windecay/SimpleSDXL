@@ -8,6 +8,7 @@ import time
 import uuid
 import json
 from scipy.spatial.distance import cdist
+import comfy.model_management # 新增：用于检测系统中断信号
 
 
 # 全局字典，用于存储节点ID和预览图像路径的映射
@@ -79,6 +80,26 @@ async def unpause_node(request):
     except Exception as e:
         return web.Response(status=500, text=f"Error: {e}")
 
+# --- API Endpoint (For Buffer Node) ---
+@server.PromptServer.instance.routes.post("/zml/buffer_continue")
+async def buffer_continue(request):
+    try:
+        data = await request.json()
+        node_id = data.get("node_id")
+        
+        if node_id is not None:
+            temp_dir = folder_paths.get_temp_directory()
+            # 创建一个信号文件，用于通知节点结束等待
+            signal_file = os.path.join(temp_dir, f"zml_buffer_{node_id}.signal")
+            
+            with open(signal_file, "w", encoding="utf-8") as f:
+                f.write("CONTINUE")
+            return web.Response(status=200, text="Buffer skipped")
+        else:
+            return web.Response(status=400, text="Node ID not provided")
+    except Exception as e:
+        return web.Response(status=500, text=f"Error: {e}")
+
 # --- API Endpoint for Preview Images ---
 @server.PromptServer.instance.routes.get("/zml_pause_node/preview/{node_id}")
 async def get_preview_image(request):
@@ -127,7 +148,11 @@ def force_compatibility_mode():
 
 class ZML_AutoCensorNode:
     def __init__(self):
-        self.node_dir = os.path.dirname(os.path.abspath(__file__)); self.counter_dir = os.path.join(self.node_dir, "counter"); os.makedirs(self.counter_dir, exist_ok=True); self.counter_file = os.path.join(self.counter_dir, "review.txt"); self.ensure_counter_file()
+        self.node_dir = os.path.dirname(os.path.abspath(__file__))
+        self.counter_dir = os.path.join(self.node_dir, "counter")
+        os.makedirs(self.counter_dir, exist_ok=True)
+        self.counter_file = os.path.join(self.counter_dir, "review.txt")
+        self.ensure_counter_file()
     def ensure_counter_file(self):
         if not os.path.exists(self.counter_file):
             with open(self.counter_file, "w", encoding="utf-8") as f: f.write("0")
@@ -135,22 +160,41 @@ class ZML_AutoCensorNode:
     def INPUT_TYPES(cls):
         try: model_list = folder_paths.get_filename_list("ultralytics") or []
         except KeyError: model_list = []
-        return {"required": {"原始图像": ("IMAGE",), "YOLO模型": (model_list,), "置信度阈值": ("FLOAT", {"default": 0.5, "min": 0.0, "max": 1.0, "step": 0.01}), "覆盖模式": (["图像", "马赛克"],), "拉伸图像": ("BOOLEAN", {"default": False}), "检测模式": ("BOOLEAN", {"default": False, "description": "开启后如果YOLO检测到目标，则输出覆盖图像"}), "马赛克数量": ("INT", {"default": 5, "min": 1, "max": 256, "step": 1}), "遮罩缩放系数": ("FLOAT", {"default": 1.0, "min": 0.1, "max": 5.0, "step": 0.05}), "遮罩膨胀": ("INT", {"default": 0, "min": 0, "max": 128, "step": 1}),}, "optional": { "覆盖图": ("IMAGE",), }}
-    RETURN_TYPES = ("IMAGE", "MASK"); RETURN_NAMES = ("处理后图像", "检测遮罩"); FUNCTION = "process"; CATEGORY = "image/ZML_图像/工具"
-    def process(self, 原始图像, YOLO模型, 置信度阈值, 覆盖模式, 拉伸图像, 检测模式, 马赛克数量, 遮罩缩放系数, 遮罩膨胀, 覆盖图=None):
-        if not YOLO模型: _, h, w, _ = 原始图像.shape; return (原始图像, torch.zeros((1, h, w), dtype=torch.float32))
-        if 覆盖模式 == "图像" and 覆盖图 is None: 覆盖图 = torch.zeros((1, 1, 1, 3), dtype=torch.float32)
+        return {
+            "required": {
+                "原始图像": ("IMAGE",),
+                "YOLO模型": (model_list,),
+                "置信度阈值": ("FLOAT", {"default": 0.5, "min": 0.0, "max": 1.0, "step": 0.01}),
+                "覆盖模式": (["图像", "马赛克"],),
+                "拉伸图像": ("BOOLEAN", {"default": False}),
+                "审查模式": ("BOOLEAN", {"default": False, "tooltip": "开启审查模式时，如果检测到目标，将直接输出安全审查图像"}),
+                "马赛克数量": ("INT", {"default": 5, "min": 1, "max": 256, "step": 1}),
+                "遮罩缩放系数": ("FLOAT", {"default": 1.0, "min": 0.1, "max": 5.0, "step": 0.05}),
+                "遮罩膨胀": ("INT", {"default": 0, "min": 0, "max": 128, "step": 1}),
+            },
+            "optional": {
+                "安全审查图像": ("IMAGE", {"tooltip": "开启审查模式时，如果检测到目标，将直接输出安全审查图像"})
+            }
+        }
+    RETURN_TYPES = ("IMAGE", "MASK", "BOOLEAN"); RETURN_NAMES = ("处理后图像", "检测遮罩", "检测结果"); FUNCTION = "process"; CATEGORY = "image/ZML_图像/工具"
+    def process(self, 原始图像, YOLO模型, 置信度阈值, 覆盖模式, 拉伸图像, 审查模式, 马赛克数量, 遮罩缩放系数, 遮罩膨胀, 安全审查图像=None):
+        if not YOLO模型:
+            _, h, w, _ = 原始图像.shape
+            return (原始图像, torch.zeros((1, h, w), dtype=torch.float32), False)
+        if 覆盖模式 == "图像" and 安全审查图像 is None: 安全审查图像 = torch.zeros((1, 1, 1, 3), dtype=torch.float32)
         model_path = folder_paths.get_full_path("ultralytics", YOLO模型)
         if not model_path: raise FileNotFoundError(f"模型文件 '{YOLO模型}' 未找到。")
         with force_compatibility_mode(): model = YOLO(model_path)
-        source_pil = self.tensor_to_pil(原始图像); source_cv2 = cv2.cvtColor(np.array(source_pil), cv2.COLOR_RGB2BGR); h, w = source_cv2.shape[:2]
+        source_pil = self.tensor_to_pil(原始图像)
+        source_cv2 = cv2.cvtColor(np.array(source_pil), cv2.COLOR_RGB2BGR)
+        h, w = source_cv2.shape[:2]
         results = model(source_pil, conf= 置信度阈值, verbose=False)
         final_combined_mask = Image.new('L', (w, h), 0)
         has_detections = len(results[0]) > 0
         
-        if has_detections and 检测模式 and 覆盖模式 == "图像":
-            # 当检测到目标且检测模式开启时，直接返回覆盖图像的原始尺寸
-            overlay_pil = self.tensor_to_pil(覆盖图)
+        if has_detections and 审查模式 and 覆盖模式 == "图像":
+            # 当检测到目标且审查模式开启时，直接返回安全审查图像的原始尺寸
+            overlay_pil = self.tensor_to_pil(安全审查图像)
             # 不再调整覆盖图大小，直接使用原始尺寸
             # 转换为OpenCV格式
             source_cv2 = cv2.cvtColor(np.array(overlay_pil.convert('RGB')), cv2.COLOR_RGB2BGR)
@@ -159,18 +203,23 @@ class ZML_AutoCensorNode:
                 mask_cv, mask_type = self.get_mask(result, w, h)
                 if mask_cv is None: continue
                 processed_mask_cv = self.process_mask(mask_cv, 遮罩缩放系数, 遮罩膨胀)
-                source_cv2 = self.apply_overlay(source_cv2, processed_mask_cv, 覆盖模式, 覆盖图, 马赛克数量, 拉伸图像, mask_type)
+                source_cv2 = self.apply_overlay(source_cv2, processed_mask_cv, 覆盖模式, 安全审查图像, 马赛克数量, 拉伸图像, mask_type)
                 final_combined_mask.paste(Image.fromarray(processed_mask_cv), (0,0), Image.fromarray(processed_mask_cv))
         # 未检测到目标时，保持原始图像不变
         
         final_image_pil = Image.fromarray(cv2.cvtColor(source_cv2, cv2.COLOR_BGR2RGB))
-        return (self.pil_to_tensor(final_image_pil), self.pil_to_tensor(final_combined_mask).squeeze(-1))
+        return (self.pil_to_tensor(final_image_pil), self.pil_to_tensor(final_combined_mask).squeeze(-1), has_detections)
         
         final_image_pil = Image.fromarray(cv2.cvtColor(source_cv2, cv2.COLOR_BGR2RGB))
         return (self.pil_to_tensor(final_image_pil), self.pil_to_tensor(final_combined_mask).squeeze(-1))
     def get_mask(self, result, w, h):
-        if hasattr(result, 'masks') and result.masks: return (cv2.resize(result.masks.data[0].cpu().numpy(), (w, h), interpolation=cv2.INTER_NEAREST) * 255).astype(np.uint8), 'segm'
-        elif hasattr(result, 'boxes') and result.boxes: box = result.boxes.xyxy[0].cpu().numpy().astype(int); mask_cv = np.zeros((h, w), dtype=np.uint8); cv2.rectangle(mask_cv, (box[0], box[1]), (box[2], box[3]), 255, -1); return mask_cv, 'bbox' # 修正了box[1]这里的问题
+        if hasattr(result, 'masks') and result.masks:
+            return (cv2.resize(result.masks.data[0].cpu().numpy(), (w, h), interpolation=cv2.INTER_NEAREST) * 255).astype(np.uint8), 'segm'
+        elif hasattr(result, 'boxes') and result.boxes:
+            box = result.boxes.xyxy[0].cpu().numpy().astype(int)
+            mask_cv = np.zeros((h, w), dtype=np.uint8)
+            cv2.rectangle(mask_cv, (box[0], box[1]), (box[2], box[3]), 255, -1)
+            return mask_cv, 'bbox' # 修正了box[1]这里的问题
         return None, None
     def process_mask(self, mask_cv, scale, dilation):
         processed_mask = mask_cv.copy()
@@ -992,6 +1041,63 @@ class ZML_AudioPlayerNode:
         # 返回结果，可以连接到其他任何节点
         return (output,)
 
+
+# ============================== 缓冲节点 ==============================
+class ZML_BufferNode:
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "缓冲时间": ("FLOAT", {"default": 60.0, "min": 0.0, "max": 3600.0, "step": 1, "display": "number"}),
+            },
+            "optional": {
+                "任意输入": (any_type, {}),
+            },
+            "hidden": {"unique_id": "UNIQUE_ID"},
+        }
+
+    RETURN_TYPES = (any_type,)
+    RETURN_NAMES = ("任意输出",)
+    FUNCTION = "wait_and_pass"
+    CATEGORY = "image/ZML_图像/工具"
+
+    def wait_and_pass(self, 缓冲时间, unique_id, 任意输入=None):
+        temp_dir = folder_paths.get_temp_directory()
+        signal_file = os.path.join(temp_dir, f"zml_buffer_{unique_id}.signal")
+
+        # 1. 清理旧的信号文件
+        if os.path.exists(signal_file):
+            try:
+                os.remove(signal_file)
+            except:
+                pass
+
+        start_time = time.time()
+
+        # 2. 开始循环等待
+        while (time.time() - start_time) < 缓冲时间:
+            
+            # --- 检测 A: 是否有【Skip按钮】信号 ---
+            if os.path.exists(signal_file):
+                try:
+                    os.remove(signal_file)
+                except:
+                    pass
+                break # 跳出循环，继续执行后续工作流
+            
+            # --- 检测 B: 是否有【ComfyUI全局取消】信号 ---
+            # 这是检测 Cancel 按钮的正确且安全的方法
+            if comfy.model_management.processing_interrupted():
+                # 抛出这个异常会通知 ComfyUI 立即终止工作流，不再运行后续节点
+                raise comfy.model_management.InterruptProcessingException()
+
+            time.sleep(0.1)
+
+        # 3. 时间到或跳过，返回数据
+        output = 任意输入 if 任意输入 is not None else tuple()
+        return (output,)
+
+
 # ============================== 遮罩分离-2 节点 ==============================
 class ZML_MaskSeparateDistance:
     @classmethod
@@ -1236,26 +1342,25 @@ class ZML_MaskSeparateThree:
 class ZML_UnifyImageResolution:
     @classmethod
     def INPUT_TYPES(cls):
+        # 预定义最多20个图像输入名称，供前端按需动态添加/移除
+        optional_inputs = {}
+        for i in range(1, 21):
+            optional_inputs[f"图像{i}"] = ("IMAGE", {"forceInput": True})
         return {
             "required": {
-                "图像": ("IMAGE",),
                 "分辨率": (["根据首张图像", "根据最大图像", "根据最小图像", "自定义"], {"default": "根据首张图像"}),
                 "宽度": ("INT", {"default": 1024, "min": 8, "max": 8192, "step": 8}),
                 "高度": ("INT", {"default": 1024, "min": 8, "max": 8192, "step": 8}),
                 "处理模式": (["拉伸", "中心裁剪", "填充黑", "填充白", "填充透明"],),
             },
-            "optional": {
-                "图像_2": ("IMAGE",),
-                "图像_3": ("IMAGE",),
-                "图像_4": ("IMAGE",),
-                "图像_5": ("IMAGE",),
-            }
+            "optional": optional_inputs,
         }
 
     RETURN_TYPES = ("IMAGE", "INT", "INT")
     RETURN_NAMES = ("图像", "输出宽度", "输出高度")
     FUNCTION = "unify_resolution"
     CATEGORY = "image/ZML_图像/图像"
+    INPUT_IS_LIST = (False, False, False, False) + tuple([True] * 20)  # 所有图像输入都支持列表
 
     def tensor_to_pil(self, tensor):
         # 确保转换为RGBA以正确处理透明度（尤其是填充模式）
@@ -1288,8 +1393,31 @@ class ZML_UnifyImageResolution:
         else: # 对于拉伸和中心裁剪，实际上不会用到填充色，但为了RGBA统一返回透明
             return (0, 0, 0, 0) # 完全透明
 
-    def unify_resolution(self, 图像, 分辨率, 宽度, 高度, 处理模式, 图像_2=None, 图像_3=None, 图像_4=None, 图像_5=None):
-        all_input_images_batches = [图像, 图像_2, 图像_3, 图像_4, 图像_5]
+    def unify_resolution(self, 分辨率, 宽度, 高度, 处理模式, **kwargs):
+        # 处理列表输入
+        all_input_images_batches = []
+        
+        # 处理所有图像输入
+        for i in range(1, 21):
+            key = f"图像{i}"
+            img = kwargs.get(key, None)
+            if img is not None:
+                if isinstance(img, list):
+                    for item in img:
+                        if item is not None:
+                            all_input_images_batches.append(item)
+                else:
+                    all_input_images_batches.append(img)
+        
+        # 处理非列表参数
+        if isinstance(宽度, list):
+            宽度 = 宽度[0] if 宽度 else 1024
+        if isinstance(高度, list):
+            高度 = 高度[0] if 高度 else 1024
+        if isinstance(分辨率, list):
+            分辨率 = 分辨率[0] if 分辨率 else "自定义"
+        if isinstance(处理模式, list):
+            处理模式 = 处理模式[0] if 处理模式 else "拉伸"
 
         # 过滤掉None的输入图像批次，并展平为一个列表，包含所有批次中的所有图像张量
         all_individual_images_tensors = []
@@ -1743,6 +1871,7 @@ NODE_CLASS_MAPPINGS = {
     "ZML_LimitImageAspect": ZML_LimitImageAspect,
     "ZML_MaskCropNode": ZML_MaskCropNode,
     "ZML_ImageSelectorNode": ZML_ImageSelectorNode,
+    "ZML_BufferNode": ZML_BufferNode,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -1761,4 +1890,5 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "ZML_LimitImageAspect": "ZML_限制图像比例",
     "ZML_MaskCropNode": "ZML_遮罩裁剪",
     "ZML_ImageSelectorNode": "ZML_多图选择",
+    "ZML_BufferNode": "ZML_缓冲节点",
 }

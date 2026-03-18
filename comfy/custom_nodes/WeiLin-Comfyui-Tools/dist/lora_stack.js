@@ -5,9 +5,18 @@ window.weilinGlobalSelectedLoras = [];
 // window.addEventListener('message', handleWindowMessage);
 
 // Open Lora Manager
-function openLoraManager(event) {
-   const seedThis = event.getAttribute("data-seed");
-   const seed = seedThis;
+function openLoraManager(buttonElement) {
+   // 确保参数是DOM元素而不是事件对象
+   const element = buttonElement && buttonElement.target ? buttonElement.currentTarget : buttonElement;
+   if (!element) {
+       console.warn('[weilin-comfyui] openLoraManager: Invalid button element');
+       return;
+   }
+   const seed = element.getAttribute("data-seed");
+   if (!seed) {
+       console.warn('[weilin-comfyui] openLoraManager: No seed found on button');
+       return;
+   }
    // console.log(seed)
    window.postMessage({
        type: 'weilin_prompt_ui_openLoraManager_addLora_stack_node',

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "LanPaint"
-version = "1.4.6"
+version = "1.5.0"
 description = "Achieve seamless inpainting results without needing a specialized inpainting model."
 authors = [
   {name = "LanPaint", email = "czhengac@connect.ust.hk"}
@@ -74,6 +74,9 @@ select = [
     "F",  # The "F" series in Ruff stands for "Pyflakes" rules, which catch various Python syntax errors and undefined names.
     # See all rules here: https://docs.astral.sh/ruff/rules/#pyflakes-f
 ]
+
+[tool.ruff.lint.per-file-ignores]
+"src/LanPaint/nodes.py" = ["F403", "F405"]
 
 [tool.ruff.lint.flake8-quotes]
 inline-quotes = "double"

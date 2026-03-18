@@ -31,10 +31,6 @@ from .py.danbooru_gallery import NODE_CLASS_MAPPINGS as danbooru_mappings, NODE_
 from .py.character_feature_swap import NODE_CLASS_MAPPINGS as swap_mappings, NODE_DISPLAY_NAME_MAPPINGS as swap_display_mappings
 from .py.prompt_selector import NODE_CLASS_MAPPINGS as ps_mappings, NODE_DISPLAY_NAME_MAPPINGS as ps_display_mappings
 from .py.multi_character_editor import NODE_CLASS_MAPPINGS as mce_mappings, NODE_DISPLAY_NAME_MAPPINGS as mce_display_mappings
-from .py.image_cache_save import NODE_CLASS_MAPPINGS as cache_save_mappings, NODE_DISPLAY_NAME_MAPPINGS as cache_save_display_mappings
-from .py.image_cache_get import NODE_CLASS_MAPPINGS as cache_get_mappings, NODE_DISPLAY_NAME_MAPPINGS as cache_get_display_mappings
-from .py.global_text_cache_save import NODE_CLASS_MAPPINGS as text_cache_save_mappings, NODE_DISPLAY_NAME_MAPPINGS as text_cache_save_display_mappings
-from .py.global_text_cache_get import NODE_CLASS_MAPPINGS as text_cache_get_mappings, NODE_DISPLAY_NAME_MAPPINGS as text_cache_get_display_mappings
 from .py.resolution_master_simplify import NODE_CLASS_MAPPINGS as rms_mappings, NODE_DISPLAY_NAME_MAPPINGS as rms_display_mappings
 from .py.prompt_cleaning_maid import NODE_CLASS_MAPPINGS as pcm_mappings, NODE_DISPLAY_NAME_MAPPINGS as pcm_display_mappings
 from .py.simple_image_compare import NODE_CLASS_MAPPINGS as sic_mappings, NODE_DISPLAY_NAME_MAPPINGS as sic_display_mappings
@@ -51,22 +47,16 @@ from .py.model_name_extractor import NODE_CLASS_MAPPINGS as mne_mappings, NODE_D
 # 导入枚举切换节点
 from .py.enum_switch import NODE_CLASS_MAPPINGS as enum_switch_mappings, NODE_DISPLAY_NAME_MAPPINGS as enum_switch_display_mappings
 
-# 导入优化执行系统
-from .py.group_executor_manager import NODE_CLASS_MAPPINGS as group_manager_mappings
-from .py.group_executor_manager import NODE_DISPLAY_NAME_MAPPINGS as group_manager_display_mappings
-from .py.group_executor_trigger import GroupExecutorTrigger
-
 # 导入组静音管理器
 from .py.group_mute_manager import NODE_CLASS_MAPPINGS as group_mute_mappings
 from .py.group_mute_manager import NODE_DISPLAY_NAME_MAPPINGS as group_mute_display_mappings
+# 导入组忽略管理器
+from .py.group_ignore_manager import NODE_CLASS_MAPPINGS as group_ignore_mappings
+from .py.group_ignore_manager import NODE_DISPLAY_NAME_MAPPINGS as group_ignore_display_mappings
 
 # 导入工作流说明节点
 from .py.workflow_description import NODE_CLASS_MAPPINGS as workflow_description_mappings
 from .py.workflow_description import NODE_DISPLAY_NAME_MAPPINGS as workflow_description_display_mappings
-
-# 导入文本缓存查看器节点
-from .py.text_cache_viewer import NODE_CLASS_MAPPINGS as text_cache_viewer_mappings
-from .py.text_cache_viewer import NODE_DISPLAY_NAME_MAPPINGS as text_cache_viewer_display_mappings
 
 # 导入Open In Krita节点
 from .py.open_in_krita import NODE_CLASS_MAPPINGS as open_in_krita_mappings
@@ -83,14 +73,12 @@ from .py.group_is_enabled.group_is_enabled import update_all_group_states as gie
 
 # 优化执行系统映射
 opt_mappings = {
-    "GroupExecutorTrigger": GroupExecutorTrigger,
-    **group_manager_mappings,
-    **group_mute_mappings
+    **group_mute_mappings,
+    **group_ignore_mappings
 }
 opt_display_mappings = {
-    "GroupExecutorTrigger": "组执行触发器 (Group Executor Trigger)",
-    **group_manager_display_mappings,
-    **group_mute_display_mappings
+    **group_mute_display_mappings,
+    **group_ignore_display_mappings
 }
 
 # 合并所有节点映射
@@ -99,10 +87,6 @@ NODE_CLASS_MAPPINGS = {
     **swap_mappings,
     **ps_mappings,
     **mce_mappings,
-    **cache_save_mappings,
-    **cache_get_mappings,
-    **text_cache_save_mappings,
-    **text_cache_get_mappings,
     **rms_mappings,
     **pcm_mappings,
     **sic_mappings,
@@ -118,7 +102,6 @@ NODE_CLASS_MAPPINGS = {
     **enum_switch_mappings,
     **opt_mappings,
     **workflow_description_mappings,
-    **text_cache_viewer_mappings,
     **open_in_krita_mappings,
     **quick_group_navigation_mappings,
     **gie_mappings
@@ -129,10 +112,6 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     **swap_display_mappings,
     **ps_display_mappings,
     **mce_display_mappings,
-    **cache_save_display_mappings,
-    **cache_get_display_mappings,
-    **text_cache_save_display_mappings,
-    **text_cache_get_display_mappings,
     **rms_display_mappings,
     **pcm_display_mappings,
     **sic_display_mappings,
@@ -148,7 +127,6 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     **enum_switch_display_mappings,
     **opt_display_mappings,
     **workflow_description_display_mappings,
-    **text_cache_viewer_display_mappings,
     **open_in_krita_display_mappings,
     **quick_group_navigation_display_mappings,
     **gie_display_mappings
@@ -156,7 +134,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
 
 # 统计节点加载情况
 _node_load_stats["total_nodes"] = len(NODE_CLASS_MAPPINGS)
-_node_load_stats["loaded_modules"] = 26  # 成功导入的模块数(根据上面的import语句统计)
+_node_load_stats["loaded_modules"] = 20  # 成功导入的模块数(根据上面的import语句统计)
 
 # 控制台输出
 print("=" * 70, file=sys.stderr)
@@ -187,8 +165,6 @@ WEB_DIRECTORY = "./js"
 try:
     from server import PromptServer
     from aiohttp import web
-    from .py.image_cache_manager.image_cache_manager import cache_manager
-    from .py.text_cache_manager.text_cache_manager import text_cache_manager
     from .py.utils import debug_config
     from .py.utils import config
     import time
@@ -201,14 +177,6 @@ try:
         # Tag sync API 依赖 cache 模块，如果 cache 不可用则此功能不可用
         # 这不影响其他核心功能（如 SaveImagePlus）
         tag_sync_api = None
-
-    # 导入并设置文本缓存管理器API（增强版，支持工作流扫描）
-    try:
-        from .py.text_cache_manager.api import setup_text_cache_api
-        setup_text_cache_api()
-        logger.info("✓ 文本缓存管理器API已注册（支持工作流扫描）")
-    except Exception as e:
-        logger.warning(f" 文本缓存管理器API注册失败: {e}")
 
     # 导入并注册 checkpoint 预览图 API
     try:
@@ -270,26 +238,6 @@ try:
                 "success": False,
                 "error": str(e)
             }, status=500)
-
-    @PromptServer.instance.routes.post("/danbooru_gallery/clear_cache")
-    async def clear_image_cache(request):
-        """清空图像缓存的API端点"""
-        try:
-            cache_manager.clear_cache()
-            return web.json_response({"success": True, "message": "缓存已清空"})
-        except Exception as e:
-            return web.json_response({"success": False, "error": str(e)}, status=500)
-
-    @PromptServer.instance.routes.post("/danbooru_gallery/set_current_group")
-    async def set_current_group(request):
-        """设置当前执行组名的API端点"""
-        try:
-            data = await request.json()
-            group_name = data.get("group_name")
-            cache_manager.set_current_group(group_name)
-            return web.json_response({"success": True, "group_name": group_name})
-        except Exception as e:
-            return web.json_response({"success": False, "error": str(e)}, status=500)
 
     @PromptServer.instance.routes.get("/danbooru_gallery/get_debug_config")
     async def get_debug_config(request):
@@ -360,288 +308,6 @@ try:
                 "status": "error",
                 "message": str(e)
             }, status=500)
-
-    # 文本缓存相关API路由
-    @PromptServer.instance.routes.post("/danbooru/text_cache/update")
-    async def update_text_cache(request):
-        """实时更新文本缓存的API端点（由JavaScript调用）"""
-        try:
-            data = await request.json()
-            text = data.get("text", "")
-            channel_name = data.get("channel_name", "default")
-            triggered_by = data.get("triggered_by", "")
-
-            # 确保text是字符串
-            if not isinstance(text, str):
-                text = str(text)
-
-            # 限制triggered_by长度，防止过大日志
-            if len(triggered_by) > 200:
-                triggered_by = triggered_by[:200] + "..."
-
-            # ✅ 内容变化检测：获取旧内容进行比较
-            old_text = ""
-            if text_cache_manager.channel_exists(channel_name):
-                old_text = text_cache_manager.get_cached_text(channel_name)
-
-            content_changed = (old_text != text)
-
-            # 只有内容变化时才更新缓存
-            if content_changed:
-                # 更新缓存（使用skip_websocket=True，由API端点统一发送WebSocket）
-                metadata = {
-                    "triggered_by": triggered_by,
-                    "timestamp": time.time(),
-                    "auto_update": True
-                }
-                text_cache_manager.cache_text(text, channel_name, metadata, skip_websocket=True)
-
-                # 统一在API端点发送WebSocket事件（错误不应阻塞响应）
-                try:
-                    PromptServer.instance.send_sync("text-cache-channel-updated", {
-                        "channel": channel_name,
-                        "timestamp": time.time(),
-                        "text_length": len(text),
-                        "triggered_by": triggered_by[:50] if triggered_by else ""  # 限制长度
-                    })
-                except Exception as ws_error:
-                    logger.warning(f"[TextCache] WebSocket发送失败: {ws_error}")
-                    # 不阻塞API响应
-            else:
-                logger.warning(f"[TextCache] ⏭️ 内容未变化，跳过缓存更新: 通道={channel_name}, 长度={len(text)}")
-
-            return web.json_response({
-                "status": "success",
-                "channel": channel_name,
-                "text_length": len(text),
-                "content_changed": content_changed  # ✅ 返回内容是否变化的标志
-            })
-        except Exception as e:
-            import traceback
-            logger.warning(f"[TextCache] API异常: {e}")
-            logger.debug(traceback.format_exc())
-            return web.json_response({"status": "error", "error": str(e)}, status=500)
-
-    @PromptServer.instance.routes.get("/danbooru/text_cache/channels")
-    async def get_text_cache_channels(request):
-        """获取所有文本缓存通道列表的API端点"""
-        try:
-            channels = text_cache_manager.get_all_channels()
-            return web.json_response({
-                "status": "success",
-                "channels": channels,
-                "count": len(channels)
-            })
-        except Exception as e:
-            return web.json_response({"status": "error", "error": str(e)}, status=500)
-
-    @PromptServer.instance.routes.get("/danbooru/text_cache/get_all_details")
-    async def get_all_text_cache_details(request):
-        """获取所有文本缓存通道的详细信息（包括内容、长度、时间戳等）"""
-        try:
-            all_channels = text_cache_manager.get_all_channels()
-            channel_details = []
-
-            current_time = time.time()
-
-            for channel_name in all_channels:
-                if text_cache_manager.channel_exists(channel_name):
-                    # 获取通道数据
-                    channel_info = text_cache_manager.get_cache_channel(channel_name)
-                    text = channel_info.get("text", "")
-                    timestamp = channel_info.get("timestamp", 0)
-
-                    # 计算更新时间差
-                    time_diff = current_time - timestamp
-                    if time_diff < 60:
-                        time_str = "刚刚"
-                    elif time_diff < 3600:
-                        time_str = f"{int(time_diff / 60)}分钟前"
-                    elif time_diff < 86400:
-                        time_str = f"{int(time_diff / 3600)}小时前"
-                    else:
-                        time_str = f"{int(time_diff / 86400)}天前"
-
-                    # 内容预览（完整内容，由CSS控制显示行数）
-                    preview = text
-
-                    channel_details.append({
-                        "name": channel_name,
-                        "length": len(text),
-                        "time": time_str,
-                        "preview": preview,
-                        "timestamp": timestamp
-                    })
-
-            # 按时间戳排序（最新的在前）
-            channel_details.sort(key=lambda x: x.get("timestamp", 0), reverse=True)
-
-            return web.json_response({
-                "status": "success",
-                "channels": channel_details,
-                "count": len(channel_details)
-            })
-        except Exception as e:
-            import traceback
-            logger.warning(f"[TextCache] 获取所有通道详情失败: {e}")
-            logger.debug(traceback.format_exc())
-            return web.json_response({"status": "error", "error": str(e)}, status=500)
-
-    @PromptServer.instance.routes.post("/danbooru/text_cache/ensure_channel")
-    async def ensure_text_cache_channel(request):
-        """确保文本缓存通道存在的API端点（用于前端预注册通道）"""
-        try:
-            data = await request.json()
-            channel_name = data.get("channel_name", "default")
-
-            # 调用TextCacheManager的ensure_channel_exists方法
-            success = text_cache_manager.ensure_channel_exists(channel_name)
-
-            if success:
-                # 发送WebSocket事件通知所有客户端通道列表已更新
-                PromptServer.instance.send_sync("text-cache-channel-updated", {
-                    "channel": channel_name,
-                    "timestamp": time.time(),
-                    "text_length": 0,
-                    "triggered_by": "ensure_channel"
-                })
-
-                return web.json_response({
-                    "status": "success",
-                    "channel": channel_name,
-                    "message": "通道已确保存在"
-                })
-            else:
-                return web.json_response({
-                    "status": "error",
-                    "error": "创建通道失败"
-                }, status=500)
-        except Exception as e:
-            return web.json_response({"status": "error", "error": str(e)}, status=500)
-
-    @PromptServer.instance.routes.post("/danbooru/text_cache/rename_channel")
-    async def rename_text_cache_channel(request):
-        """重命名文本缓存通道的API端点"""
-        try:
-            data = await request.json()
-            old_name = data.get("old_name", "")
-            new_name = data.get("new_name", "")
-
-            if not old_name or not new_name:
-                return web.json_response({
-                    "status": "error",
-                    "error": "缺少old_name或new_name参数"
-                }, status=400)
-
-            # 调用TextCacheManager的rename_channel方法
-            success = text_cache_manager.rename_channel(old_name, new_name)
-
-            if success:
-                # 发送WebSocket事件通知所有客户端通道已重命名
-                PromptServer.instance.send_sync("text-cache-channel-renamed", {
-                    "old_name": old_name,
-                    "new_name": new_name,
-                    "timestamp": time.time()
-                })
-
-                return web.json_response({
-                    "status": "success",
-                    "old_name": old_name,
-                    "new_name": new_name,
-                    "message": f"通道已重命名: '{old_name}' -> '{new_name}'"
-                })
-            else:
-                return web.json_response({
-                    "status": "error",
-                    "error": f"重命名通道失败: '{old_name}' -> '{new_name}'"
-                }, status=500)
-        except Exception as e:
-            return web.json_response({"status": "error", "error": str(e)}, status=500)
-
-    # 图像缓存相关API路由
-    @PromptServer.instance.routes.get("/danbooru/image_cache/channels")
-    async def get_image_cache_channels(request):
-        """获取所有图像缓存通道列表的API端点"""
-        try:
-            channels = cache_manager.get_all_channels()
-            return web.json_response({
-                "status": "success",
-                "channels": channels,
-                "count": len(channels)
-            })
-        except Exception as e:
-            return web.json_response({"status": "error", "error": str(e)}, status=500)
-
-    @PromptServer.instance.routes.post("/danbooru/image_cache/ensure_channel")
-    async def ensure_image_cache_channel(request):
-        """确保图像缓存通道存在的API端点（用于前端预注册通道）"""
-        try:
-            data = await request.json()
-            channel_name = data.get("channel_name", "default")
-
-            # 调用ImageCacheManager的ensure_channel_exists方法
-            success = cache_manager.ensure_channel_exists(channel_name)
-
-            if success:
-                # 发送WebSocket事件通知所有客户端通道列表已更新
-                PromptServer.instance.send_sync("image-cache-channel-updated", {
-                    "channel": channel_name,
-                    "timestamp": time.time(),
-                    "image_count": 0,
-                    "triggered_by": "ensure_channel"
-                })
-
-                return web.json_response({
-                    "status": "success",
-                    "channel": channel_name,
-                    "message": "通道已确保存在"
-                })
-            else:
-                return web.json_response({
-                    "status": "error",
-                    "error": "创建通道失败"
-                }, status=500)
-        except Exception as e:
-            return web.json_response({"status": "error", "error": str(e)}, status=500)
-
-    @PromptServer.instance.routes.post("/danbooru/image_cache/rename_channel")
-    async def rename_image_cache_channel(request):
-        """重命名图像缓存通道的API端点"""
-        try:
-            data = await request.json()
-            old_name = data.get("old_name", "")
-            new_name = data.get("new_name", "")
-
-            if not old_name or not new_name:
-                return web.json_response({
-                    "status": "error",
-                    "error": "缺少old_name或new_name参数"
-                }, status=400)
-
-            # 调用ImageCacheManager的rename_channel方法
-            success = cache_manager.rename_channel(old_name, new_name)
-
-            if success:
-                # 发送WebSocket事件通知所有客户端通道已重命名
-                PromptServer.instance.send_sync("image-cache-channel-renamed", {
-                    "old_name": old_name,
-                    "new_name": new_name,
-                    "timestamp": time.time()
-                })
-
-                return web.json_response({
-                    "status": "success",
-                    "old_name": old_name,
-                    "new_name": new_name,
-                    "message": f"通道已重命名: '{old_name}' -> '{new_name}'"
-                })
-            else:
-                return web.json_response({
-                    "status": "error",
-                    "error": f"重命名通道失败: '{old_name}' -> '{new_name}'"
-                }, status=500)
-        except Exception as e:
-            return web.json_response({"status": "error", "error": str(e)}, status=500)
 
     # 工作流说明节点相关API路由
     import os
@@ -846,17 +512,18 @@ try:
     @PromptServer.instance.routes.get("/open_in_krita/browse_path")
     async def browse_krita_path(request):
         """打开文件选择对话框，让用户选择Krita可执行文件"""
-        try:
+        import subprocess
+        import shutil
+        import sys
+
+        def _browse_with_tkinter():
             import tkinter as tk
             from tkinter import filedialog
-            import sys
 
-            # 创建隐藏的Tkinter根窗口
             root = tk.Tk()
-            root.withdraw()  # 隐藏主窗口
-            root.attributes('-topmost', True)  # 文件对话框置顶
+            root.withdraw()
+            root.attributes('-topmost', True)
 
-            # 根据平台设置文件类型过滤器
             if sys.platform == "win32":
                 filetypes = [
                     ("可执行文件", "*.exe"),
@@ -869,46 +536,103 @@ try:
                     ("所有文件", "*.*")
                 ]
                 title = "选择Krita应用程序"
-            else:  # Linux
+            else:
                 filetypes = [
                     ("所有文件", "*.*")
                 ]
                 title = "选择Krita可执行文件"
 
-            # 打开文件选择对话框
-            file_path = filedialog.askopenfilename(
-                title=title,
-                filetypes=filetypes
-            )
+            try:
+                return filedialog.askopenfilename(
+                    title=title,
+                    filetypes=filetypes
+                )
+            finally:
+                root.destroy()
 
-            # 销毁Tkinter窗口
-            root.destroy()
+        def _run_dialog_command(cmd):
+            try:
+                result = subprocess.run(
+                    cmd,
+                    capture_output=True,
+                    text=True,
+                    timeout=60
+                )
+                output = (result.stdout or "").strip()
+                if output:
+                    return output, None
+                if result.returncode in (0, 1):
+                    return "", None  # 0/1都可能是用户取消
+                error = (result.stderr or "").strip() or f"exit code {result.returncode}"
+                return None, error
+            except Exception as e:
+                return None, str(e)
 
-            if file_path:
+        def _browse_with_system_dialog():
+            if sys.platform == "win32":
+                ps_script = (
+                    "Add-Type -AssemblyName System.Windows.Forms; "
+                    "$dialog = New-Object System.Windows.Forms.OpenFileDialog; "
+                    "$dialog.Filter = 'Executable (*.exe)|*.exe|All files (*.*)|*.*'; "
+                    "$dialog.Title = '选择Krita可执行文件 (krita.exe)'; "
+                    "if ($dialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) "
+                    "{ Write-Output $dialog.FileName }"
+                )
+                last_error = "未找到可用的PowerShell可执行文件"
+                for ps_cmd in ("powershell", "powershell.exe", "pwsh", "pwsh.exe"):
+                    if shutil.which(ps_cmd):
+                        path, err = _run_dialog_command(
+                            [ps_cmd, "-NoProfile", "-Command", ps_script]
+                        )
+                        if path is not None:
+                            return path, None
+                        last_error = err
+                return None, f"系统对话框不可用: {last_error}"
+
+            if sys.platform == "darwin":
+                script = (
+                    "set selectedFile to choose file with prompt \"选择Krita应用程序\" "
+                    "of type {\"app\"}\n"
+                    "POSIX path of selectedFile"
+                )
+                path, err = _run_dialog_command(["osascript", "-e", script])
+                return path, err
+
+            if shutil.which("zenity"):
+                path, err = _run_dialog_command(
+                    ["zenity", "--file-selection", "--title=选择Krita可执行文件"]
+                )
+                return path, err
+
+            if shutil.which("kdialog"):
+                path, err = _run_dialog_command(
+                    ["kdialog", "--getopenfilename", "", "All files (*)", "选择Krita可执行文件"]
+                )
+                return path, err
+
+            return None, "找不到系统文件对话框程序（zenity/kdialog）"
+
+        try:
+            file_path = _browse_with_tkinter()
+        except Exception as tk_error:
+            logger.warning(f"[OpenInKrita] Tkinter对话框不可用，尝试系统对话框: {tk_error}")
+            file_path, fallback_error = _browse_with_system_dialog()
+            if file_path is None:
                 return web.json_response({
-                    "status": "success",
-                    "path": file_path
-                })
-            else:
-                # 用户取消选择
-                return web.json_response({
-                    "status": "cancelled",
-                    "message": "用户取消选择"
-                })
+                    "status": "error",
+                    "message": f"文件选择不可用。tkinter错误: {tk_error}; 系统对话框错误: {fallback_error}"
+                }, status=500)
 
-        except ImportError:
+        if file_path:
             return web.json_response({
-                "status": "error",
-                "message": "tkinter不可用，请手动输入路径"
-            }, status=500)
-        except Exception as e:
-            import traceback
-            logger.error(f"[OpenInKrita] 文件选择对话框失败: {e}")
-            logger.debug(traceback.format_exc())
-            return web.json_response({
-                "status": "error",
-                "message": str(e)
-            }, status=500)
+                "status": "success",
+                "path": file_path
+            })
+
+        return web.json_response({
+            "status": "cancelled",
+            "message": "用户取消选择"
+        })
 
     @PromptServer.instance.routes.post("/open_in_krita/set_path")
     async def set_krita_path(request):

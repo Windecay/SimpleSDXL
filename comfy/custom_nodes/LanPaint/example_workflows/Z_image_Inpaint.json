@@ -2,7 +2,7 @@
   "id": "9ae6082b-c7f4-433c-9971-7a8f65a3ea65",
   "revision": 0,
   "last_node_id": 73,
-  "last_link_id": 93,
+  "last_link_id": 95,
   "nodes": [
     {
       "id": 39,
@@ -29,9 +29,9 @@
         }
       ],
       "properties": {
+        "Node name for S&R": "CLIPLoader",
         "cnr_id": "comfy-core",
         "ver": "0.3.73",
-        "Node name for S&R": "CLIPLoader",
         "models": [
           {
             "name": "qwen_3_4b.safetensors",
@@ -81,9 +81,9 @@
         }
       ],
       "properties": {
+        "Node name for S&R": "VAELoader",
         "cnr_id": "comfy-core",
         "ver": "0.3.73",
-        "Node name for S&R": "VAELoader",
         "models": [
           {
             "name": "ae.safetensors",
@@ -134,9 +134,9 @@
         }
       ],
       "properties": {
+        "Node name for S&R": "ConditioningZeroOut",
         "cnr_id": "comfy-core",
         "ver": "0.3.73",
-        "Node name for S&R": "ConditioningZeroOut",
         "enableTabs": false,
         "tabWidth": 65,
         "tabXOffset": 10,
@@ -146,54 +146,6 @@
         "secondTabWidth": 65
       },
       "widgets_values": []
-    },
-    {
-      "id": 46,
-      "type": "UNETLoader",
-      "pos": [
-        158.31605577680375,
-        332.3053621604172
-      ],
-      "size": [
-        323.734375,
-        145.390625
-      ],
-      "flags": {},
-      "order": 2,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "MODEL",
-          "type": "MODEL",
-          "links": [
-            54
-          ]
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.3.73",
-        "Node name for S&R": "UNETLoader",
-        "models": [
-          {
-            "name": "z_image_turbo_bf16.safetensors",
-            "url": "https://huggingface.co/Comfy-Org/z_image_turbo/resolve/main/split_files/diffusion_models/z_image_turbo_bf16.safetensors",
-            "directory": "diffusion_models"
-          }
-        ],
-        "enableTabs": false,
-        "tabWidth": 65,
-        "tabXOffset": 10,
-        "hasSecondTab": false,
-        "secondTabText": "Send Back",
-        "secondTabOffset": 80,
-        "secondTabWidth": 65
-      },
-      "widgets_values": [
-        "z_image_turbo_bf16.safetensors",
-        "default"
-      ]
     },
     {
       "id": 41,
@@ -207,7 +159,7 @@
         179.390625
       ],
       "flags": {},
-      "order": 3,
+      "order": 2,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -219,9 +171,9 @@
         }
       ],
       "properties": {
+        "Node name for S&R": "EmptySD3LatentImage",
         "cnr_id": "comfy-core",
         "ver": "0.3.64",
-        "Node name for S&R": "EmptySD3LatentImage",
         "enableTabs": false,
         "tabWidth": 65,
         "tabXOffset": 10,
@@ -248,7 +200,7 @@
         111.390625
       ],
       "flags": {},
-      "order": 12,
+      "order": 13,
       "mode": 0,
       "inputs": [
         {
@@ -268,9 +220,9 @@
         }
       ],
       "properties": {
+        "Node name for S&R": "ModelSamplingAuraFlow",
         "cnr_id": "comfy-core",
         "ver": "0.3.64",
-        "Node name for S&R": "ModelSamplingAuraFlow",
         "enableTabs": false,
         "tabWidth": 65,
         "tabXOffset": 10,
@@ -321,9 +273,9 @@
         }
       ],
       "properties": {
+        "Node name for S&R": "VAEDecode",
         "cnr_id": "comfy-core",
         "ver": "0.3.64",
-        "Node name for S&R": "VAEDecode",
         "enableTabs": false,
         "tabWidth": 65,
         "tabXOffset": 10,
@@ -366,9 +318,9 @@
         }
       ],
       "properties": {
+        "Node name for S&R": "CLIPTextEncode",
         "cnr_id": "comfy-core",
         "ver": "0.3.73",
-        "Node name for S&R": "CLIPTextEncode",
         "enableTabs": false,
         "tabWidth": 65,
         "tabXOffset": 10,
@@ -395,7 +347,7 @@
         145.390625
       ],
       "flags": {},
-      "order": 8,
+      "order": 10,
       "mode": 4,
       "inputs": [
         {
@@ -414,9 +366,9 @@
         }
       ],
       "properties": {
+        "Node name for S&R": "LoraLoaderModelOnly",
         "cnr_id": "comfy-core",
         "ver": "0.3.75",
-        "Node name for S&R": "LoraLoaderModelOnly",
         "models": [
           {
             "name": "pixel_art_style_z_image_turbo.safetensors",
@@ -451,7 +403,7 @@
       "flags": {
         "collapsed": false
       },
-      "order": 4,
+      "order": 3,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -509,12 +461,12 @@
         }
       ],
       "properties": {
+        "Node name for S&R": "LanPaint_KSampler",
         "cnr_id": "LanPaint",
-        "ver": "6109df6591a4cf2bc9d3b113d03f7297fa9248e9",
-        "Node name for S&R": "LanPaint_KSampler"
+        "ver": "6109df6591a4cf2bc9d3b113d03f7297fa9248e9"
       },
       "widgets_values": [
-        454543748915702,
+        880311146947153,
         "randomize",
         9,
         1,
@@ -539,7 +491,7 @@
         686.171875
       ],
       "flags": {},
-      "order": 5,
+      "order": 4,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -547,7 +499,6 @@
           "name": "IMAGE",
           "type": "IMAGE",
           "links": [
-            74,
             85,
             88
           ]
@@ -556,15 +507,14 @@
           "name": "MASK",
           "type": "MASK",
           "links": [
-            75,
             89
           ]
         }
       ],
       "properties": {
+        "Node name for S&R": "LoadImage",
         "cnr_id": "comfy-core",
         "ver": "0.3.59",
-        "Node name for S&R": "LoadImage",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.1",
@@ -613,9 +563,9 @@
         }
       ],
       "properties": {
+        "Node name for S&R": "VAEEncode",
         "cnr_id": "comfy-core",
         "ver": "0.3.59",
-        "Node name for S&R": "VAEEncode",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.1",
@@ -660,9 +610,9 @@
         }
       ],
       "properties": {
+        "Node name for S&R": "SetLatentNoiseMask",
         "cnr_id": "comfy-core",
         "ver": "0.3.59",
-        "Node name for S&R": "SetLatentNoiseMask",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.1",
@@ -689,7 +639,7 @@
         {
           "name": "image1",
           "type": "IMAGE",
-          "link": 74
+          "link": 94
         },
         {
           "name": "image2",
@@ -699,7 +649,7 @@
         {
           "name": "mask",
           "type": "MASK",
-          "link": 75
+          "link": 95
         }
       ],
       "outputs": [
@@ -712,9 +662,9 @@
         }
       ],
       "properties": {
+        "Node name for S&R": "LanPaint_MaskBlend",
         "cnr_id": "LanPaint",
-        "ver": "4d3d5d17f0105b673df92da5b084cce567c9c712",
-        "Node name for S&R": "LanPaint_MaskBlend"
+        "ver": "4d3d5d17f0105b673df92da5b084cce567c9c712"
       },
       "widgets_values": [
         9
@@ -762,7 +712,7 @@
         101.421875
       ],
       "flags": {},
-      "order": 13,
+      "order": 12,
       "mode": 0,
       "inputs": [
         {
@@ -787,69 +737,11 @@
         }
       ],
       "properties": {
+        "Node name for S&R": "VAEDecode",
         "cnr_id": "comfy-core",
-        "ver": "0.3.23",
-        "Node name for S&R": "VAEDecode"
+        "ver": "0.3.23"
       },
       "widgets_values": []
-    },
-    {
-      "id": 63,
-      "type": "ImageScale",
-      "pos": [
-        1283.837511214967,
-        1657.4367336671903
-      ],
-      "size": [
-        323.90625,
-        213.375
-      ],
-      "flags": {},
-      "order": 15,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "image",
-          "type": "IMAGE",
-          "link": 88
-        },
-        {
-          "name": "width",
-          "type": "INT",
-          "widget": {
-            "name": "width"
-          },
-          "link": 77
-        },
-        {
-          "name": "height",
-          "type": "INT",
-          "widget": {
-            "name": "height"
-          },
-          "link": 78
-        }
-      ],
-      "outputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            90
-          ]
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.3.52",
-        "Node name for S&R": "ImageScale"
-      },
-      "widgets_values": [
-        "area",
-        512,
-        512,
-        "center"
-      ]
     },
     {
       "id": 64,
@@ -863,7 +755,7 @@
         77.421875
       ],
       "flags": {},
-      "order": 10,
+      "order": 9,
       "mode": 0,
       "inputs": [
         {
@@ -882,50 +774,11 @@
         }
       ],
       "properties": {
+        "Node name for S&R": "MaskToImage",
         "cnr_id": "comfy-core",
-        "ver": "0.3.51",
-        "Node name for S&R": "MaskToImage"
+        "ver": "0.3.51"
       },
       "widgets_values": []
-    },
-    {
-      "id": 65,
-      "type": "ImageToMask",
-      "pos": [
-        1274.556170930292,
-        2196.94755423526
-      ],
-      "size": [
-        323.90625,
-        111.390625
-      ],
-      "flags": {},
-      "order": 18,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "image",
-          "type": "IMAGE",
-          "link": 79
-        }
-      ],
-      "outputs": [
-        {
-          "name": "MASK",
-          "type": "MASK",
-          "links": [
-            91
-          ]
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.3.51",
-        "Node name for S&R": "ImageToMask"
-      },
-      "widgets_values": [
-        "red"
-      ]
     },
     {
       "id": 67,
@@ -939,7 +792,7 @@
         101.421875
       ],
       "flags": {},
-      "order": 9,
+      "order": 8,
       "mode": 0,
       "inputs": [
         {
@@ -963,9 +816,9 @@
         }
       ],
       "properties": {
+        "Node name for S&R": "VAEEncode",
         "cnr_id": "comfy-core",
         "ver": "0.3.50",
-        "Node name for S&R": "VAEEncode",
         "enableTabs": false,
         "tabWidth": 65,
         "tabXOffset": 10,
@@ -1026,9 +879,9 @@
         }
       ],
       "properties": {
+        "Node name for S&R": "ImageScale",
         "cnr_id": "comfy-core",
-        "ver": "0.3.52",
-        "Node name for S&R": "ImageScale"
+        "ver": "0.3.52"
       },
       "widgets_values": [
         "nearest-exact",
@@ -1082,18 +935,196 @@
         }
       ],
       "properties": {
+        "Node name for S&R": "GetImageSize",
         "cnr_id": "comfy-core",
-        "ver": "0.3.52",
-        "Node name for S&R": "GetImageSize"
+        "ver": "0.3.52"
+      },
+      "widgets_values": [
+        "width: 1024, height: 1024\n batch size: 1"
+      ]
+    },
+    {
+      "id": 73,
+      "type": "PreviewImage",
+      "pos": [
+        2226.506787053337,
+        107.57278250350078
+      ],
+      "size": [
+        225,
+        246
+      ],
+      "flags": {},
+      "order": 23,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 93
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage",
+        "cnr_id": "comfy-core",
+        "ver": "0.3.76"
       },
       "widgets_values": []
+    },
+    {
+      "id": 63,
+      "type": "ImageScale",
+      "pos": [
+        1283.837511214967,
+        1657.4367336671903
+      ],
+      "size": [
+        323.90625,
+        213.375
+      ],
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 88
+        },
+        {
+          "name": "width",
+          "type": "INT",
+          "widget": {
+            "name": "width"
+          },
+          "link": 77
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "widget": {
+            "name": "height"
+          },
+          "link": 78
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            90,
+            94
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ImageScale",
+        "cnr_id": "comfy-core",
+        "ver": "0.3.52"
+      },
+      "widgets_values": [
+        "area",
+        512,
+        512,
+        "center"
+      ]
+    },
+    {
+      "id": 65,
+      "type": "ImageToMask",
+      "pos": [
+        1274.556170930292,
+        2196.94755423526
+      ],
+      "size": [
+        323.90625,
+        111.390625
+      ],
+      "flags": {},
+      "order": 18,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 79
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": [
+            91,
+            95
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ImageToMask",
+        "cnr_id": "comfy-core",
+        "ver": "0.3.51"
+      },
+      "widgets_values": [
+        "red"
+      ]
+    },
+    {
+      "id": 46,
+      "type": "UNETLoader",
+      "pos": [
+        159.05646022112083,
+        288.62105108441466
+      ],
+      "size": [
+        323.734375,
+        145.390625
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            54
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "UNETLoader",
+        "cnr_id": "comfy-core",
+        "ver": "0.3.73",
+        "models": [
+          {
+            "name": "z_image_turbo_bf16.safetensors",
+            "url": "https://huggingface.co/Comfy-Org/z_image_turbo/resolve/main/split_files/diffusion_models/z_image_turbo_bf16.safetensors",
+            "directory": "diffusion_models"
+          }
+        ],
+        "enableTabs": false,
+        "tabWidth": 65,
+        "tabXOffset": 10,
+        "hasSecondTab": false,
+        "secondTabText": "Send Back",
+        "secondTabOffset": 80,
+        "secondTabWidth": 65
+      },
+      "widgets_values": [
+        "z_image_turbo_bf16.safetensors",
+        "default"
+      ]
     },
     {
       "id": 72,
       "type": "Note",
       "pos": [
-        1266.1247223180148,
-        1534.1298096819087
+        1288.7909707861209,
+        1503.5796522859714
       ],
       "size": [
         225,
@@ -1110,35 +1141,6 @@
       ],
       "color": "#432",
       "bgcolor": "#653"
-    },
-    {
-      "id": 73,
-      "type": "PreviewImage",
-      "pos": [
-        2226.506787053337,
-        107.57278250350078
-      ],
-      "size": [
-        225,
-        77.421875
-      ],
-      "flags": {},
-      "order": 23,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 93
-        }
-      ],
-      "outputs": [],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.3.76",
-        "Node name for S&R": "PreviewImage"
-      },
-      "widgets_values": []
     }
   ],
   "links": [
@@ -1253,22 +1255,6 @@
       60,
       1,
       "IMAGE"
-    ],
-    [
-      74,
-      57,
-      0,
-      60,
-      0,
-      "IMAGE"
-    ],
-    [
-      75,
-      57,
-      1,
-      60,
-      2,
-      "MASK"
     ],
     [
       76,
@@ -1397,6 +1383,22 @@
       73,
       0,
       "IMAGE"
+    ],
+    [
+      94,
+      63,
+      0,
+      60,
+      0,
+      "IMAGE"
+    ],
+    [
+      95,
+      65,
+      0,
+      60,
+      2,
+      "MASK"
     ]
   ],
   "groups": [
@@ -1456,13 +1458,13 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.17731177475370102,
+      "scale": 0.3800835362432756,
       "offset": [
-        2305.975484371013,
-        1284.903135448736
+        -902.897494105397,
+        -396.4805064253962
       ]
     },
-    "frontendVersion": "1.32.10",
+    "frontendVersion": "1.33.14",
     "VHS_latentpreview": false,
     "VHS_latentpreviewrate": 0,
     "VHS_MetadataImage": true,

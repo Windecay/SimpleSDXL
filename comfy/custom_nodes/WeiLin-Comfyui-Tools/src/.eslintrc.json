@@ -1,0 +1,143 @@
+{
+  "root": true,
+  "env": {
+    "browser": true,
+    "es2021": true,
+    "node": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:vue/vue3-recommended"
+  ],
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module"
+  },
+  "plugins": [
+    "vue"
+  ],
+  "rules": {
+    "vue/multi-word-component-names": "off",
+    "vue/no-v-html": "warn",
+    "vue/require-default-prop": "off",
+    "vue/require-prop-types": "off",
+    "no-console": "off",
+    "no-debugger": "warn",
+    "no-unused-vars": "warn",
+    "no-undef": "error",
+    "semi": ["error", "never"],
+    "quotes": ["error", "single", { "avoidEscape": true }],
+    "comma-dangle": ["error", "never"],
+    "indent": ["warn", 2],
+    "no-multiple-empty-lines": ["warn", { "max": 1 }],
+    "eol-last": ["warn", "always"],
+    "no-trailing-spaces": "warn",
+    "space-before-function-paren": ["warn", {
+      "anonymous": "always",
+      "named": "never",
+      "asyncArrow": "always"
+    }],
+    "arrow-spacing": ["warn", { "before": true, "after": true }],
+    "object-curly-spacing": ["warn", "always"],
+    "array-bracket-spacing": ["warn", "never"],
+    "space-in-parens": ["warn", "never"],
+    "keyword-spacing": ["warn", { "before": true, "after": true }],
+    "space-infix-ops": "warn",
+    "comma-spacing": ["warn", { "before": false, "after": true }],
+    "key-spacing": ["warn", { "beforeColon": false, "afterColon": true }],
+    "brace-style": ["warn", "1tbs", { "allowSingleLine": true }],
+    "curly": ["warn", "all"],
+    "eqeqeq": ["error", "always"],
+    "no-var": "warn",
+    "prefer-const": "warn",
+    "prefer-arrow-callback": "warn",
+    "prefer-template": "warn",
+    "template-curly-spacing": ["warn", "always"],
+    "no-duplicate-imports": "warn",
+    "no-useless-concat": "warn",
+    "no-useless-return": "warn",
+    "no-else-return": "warn",
+    "no-empty-function": "warn",
+    "no-eval": "error",
+    "no-implied-eval": "error",
+    "no-new-func": "error",
+    "no-return-await": "warn",
+    "require-await": "warn",
+    "no-await-in-loop": "warn",
+    "no-constant-condition": "off",
+    "no-throw-literal": "warn",
+    "prefer-promise-reject-errors": "warn",
+    "no-shadow": "off",
+    "no-delete-var": "error",
+    "no-undef-init": "warn",
+    "no-unused-expressions": "warn",
+    "no-use-before-define": "off",
+    "camelcase": ["warn", { "properties": "never" }],
+    "new-cap": ["warn", { "newIsCap": true, "capIsNew": false }],
+    "no-extend-native": "error",
+    "no-extra-bind": "warn",
+    "no-extra-boolean-cast": "warn",
+    "no-implicit-coercion": ["warn", {
+      "boolean": false,
+      "number": true,
+      "string": true
+    }],
+    "no-iterator": "warn",
+    "no-loop-func": "warn",
+    "no-multi-spaces": "warn",
+    "no-global-assign": "error",
+    "no-new": "warn",
+    "no-new-object": "warn",
+    "no-proto": "error",
+    "no-restricted-syntax": [
+      "warn",
+      {
+        "selector": "ForInStatement",
+        "message": "for..in loops iterate over the entire prototype chain, which is virtually never what you want. Use Object.{keys,values,entries}, and iterate over the resulting array."
+      }
+    ],
+    "no-return-assign": "error",
+    "no-script-url": "error",
+    "no-self-compare": "warn",
+    "no-sequences": "warn",
+    "no-unmodified-loop-condition": "warn",
+    "no-useless-call": "warn",
+    "no-useless-escape": "warn",
+    "no-warning-comments": "off",
+    "no-with": "error",
+    "radix": "warn",
+    "yoda": "warn",
+    "vue/component-definition-name-casing": "off",
+    "vue/component-name-in-template-casing": "off",
+    "vue/prop-name-casing": "warn",
+    "vue/v-bind-style": ["warn", "shorthand"],
+    "vue/v-on-style": ["warn", "shorthand"],
+    "vue/no-unused-components": "warn",
+    "vue/no-use-v-if-with-v-for": "warn",
+    "vue/attribute-hyphenation": "off",
+    "vue/html-indent": "off",
+    "vue/html-self-closing": ["warn", {
+      "html": {
+        "void": "always",
+        "normal": "never",
+        "component": "always"
+      },
+      "svg": "always",
+      "math": "always"
+    }],
+    "vue/max-attributes-per-line": "off",
+    "vue/multiline-html-element-content-newline": "off",
+    "vue/no-multi-spaces": "warn",
+    "vue/no-spaces-around-equal-signs-in-attribute": "warn",
+    "vue/first-attribute-linebreak": "off",
+    "vue/html-closing-bracket-newline": "off",
+    "vue/html-closing-bracket-spacing": "off",
+    "vue/attributes-order": "off"
+  },
+  "globals": {
+    "defineProps": "readonly",
+    "defineEmits": "readonly",
+    "defineExpose": "readonly",
+    "withDefaults": "readonly"
+  }
+}

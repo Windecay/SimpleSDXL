@@ -4,10 +4,7 @@ import time
 import random
 import json
 import math
-
-# 导入 ComfyUI 的 server 模块
 import server
-# 从 aiohttp 导入 web 用于 JSON 响应
 from aiohttp import web 
 
 # 获取当前文件所在目录
@@ -967,7 +964,7 @@ class ZML_MultiTextInput5:
 
 # ============================== 多文本输入_五V2 节点 ==============================
 class ZML_MultiTextInput5V2:
-    """ZML 多文本输入_五V2 节点：提供五个单行文本输入和五个独立文本输出。"""
+    """ZML 多文本输入_五V2 节点：提供五个单行文本输入和五个独立文本输出，以及合并文本和文本列表输出。"""
 
     @classmethod
     def INPUT_TYPES(cls):
@@ -1007,12 +1004,18 @@ class ZML_MultiTextInput5V2:
         }
 
     CATEGORY = "image/ZML_图像/文本"
-    RETURN_TYPES = ("STRING", "STRING", "STRING", "STRING", "STRING", "STRING",)
-    RETURN_NAMES = ("文本1", "文本2", "文本3", "文本4", "文本5", "合并文本",)
+    
+    # 7个输出端口
+    RETURN_TYPES = ("STRING", "STRING", "STRING", "STRING", "STRING", "STRING", "STRING")
+    RETURN_NAMES = ("文本1", "文本2", "文本3", "文本4", "文本5", "合并文本", "文本列表")
+    
+    # 前6个是 False (单值)，第7个是 True (列表/批次)
+    OUTPUT_IS_LIST = (False, False, False, False, False, False, True)
+    
     FUNCTION = "passthrough_texts"
 
     def passthrough_texts(self, 分隔符, 文本1_输入, 文本2_输入, 文本3_输入, 文本4_输入, 文本5_输入):
-        """将五个输入文本作为五个独立输出返回，并使用分隔符合并文本输出。"""
+        """将五个输入文本作为五个独立输出返回，并使用分隔符合并文本输出，同时输出原始列表。"""
         # 安全地将所有文本放入列表
         texts = [
             文本1_输入,
@@ -1022,7 +1025,7 @@ class ZML_MultiTextInput5V2:
             文本5_输入
         ]
         
-        # 过滤掉空文本
+        # 过滤掉空文本 (这就是我们需要的列表，不带分隔符)
         non_empty_texts = [t for t in texts if t.strip()]
 
         # 处理分隔符中的换行符写法
@@ -1031,7 +1034,8 @@ class ZML_MultiTextInput5V2:
         # 使用分隔符合并文本
         merged_text = processed_separator.join(non_empty_texts)
             
-        return (文本1_输入, 文本2_输入, 文本3_输入, 文本4_输入, 文本5_输入, merged_text,)
+        # 返回值：前6个是字符串，第7个是列表
+        return (文本1_输入, 文本2_输入, 文本3_输入, 文本4_输入, 文本5_输入, merged_text, non_empty_texts)
 
 # ============================== 多文本输入节点（三个输入框）==============================
 class ZML_MultiTextInput3:
@@ -1447,15 +1451,15 @@ class ZML_AppendTextByKeyword:
 
 # ============================== 合并文本（动态）节点 ==============================
 class ZML_MergeText:
-    """ZML 合并文本（动态输入）节点：支持动态字符串输入、分隔符、标签化提示词。
-    标签化提示词启用时，会将所有输入拆分为标签（按逗号、中文逗号、空格、换行等分隔），去重后以分隔符连接。
+    """ZML 合并文本（动态输入）节点：支持动态字符串输入、分隔符。
+    支持最多20个输入，并提供文本列表输出。
     """
 
     @classmethod
     def INPUT_TYPES(cls):
-        # 预定义最多10个文本输入名称，供前端按需动态添加/移除
+        # 预定义最多20个文本输入名称，供前端按需动态添加/移除
         optional_inputs = {}
-        for i in range(1, 11):
+        for i in range(1, 21): # 修改：范围扩大到 20
             optional_inputs[f"文本{i}"] = ("STRING", {"forceInput": True})
         return {
             "required": {
@@ -1465,36 +1469,41 @@ class ZML_MergeText:
         }
 
     CATEGORY = "image/ZML_图像/文本"
-    RETURN_TYPES = ("STRING",)
-    RETURN_NAMES = ("文本",)
+    
+    # 修改1: 增加第二个输出类型
+    RETURN_TYPES = ("STRING", "STRING")
+    # 修改2: 增加第二个输出名称
+    RETURN_NAMES = ("合并文本", "文本列表")
+    
+    # 修改3: 声明第二个输出为列表 (True)，第一个为单值 (False)
+    OUTPUT_IS_LIST = (False, True)
+    
     FUNCTION = "merge_text"
 
-    def _split_to_tags(self, text):
-        # 以常见分隔符拆分为标签：英文逗号、中文逗号、顿号、分号、空白、换行
-        if not text:
-            return []
-        parts = [p.strip() for p in re.split(r"[\s,，、；;\n\r]+", text) if p and p.strip()]
-        return parts
-
-    def merge_text(self, 分隔符,
-                   文本1=None, 文本2=None, 文本3=None, 文本4=None, 文本5=None,
-                   文本6=None, 文本7=None, 文本8=None, 文本9=None, 文本10=None):
-        # 收集所有非空文本
-        texts = [
-            文本1 or "", 文本2 or "", 文本3 or "", 文本4 or "", 文本5 or "",
-            文本6 or "", 文本7 or "", 文本8 or "", 文本9 or "", 文本10 or "",
-        ]
+    def merge_text(self, 分隔符, **kwargs):
+        # 收集所有非空文本 (遍历 1 到 20)
+        texts = []
+        for i in range(1, 21):
+            key = f"文本{i}"
+            # 从 kwargs 中获取输入，如果没有则为空字符串
+            val = kwargs.get(key, "")
+            # 处理可能的 None 值
+            texts.append(val or "")
+            
+        # 过滤掉空文本 (这就是输出的文本列表，无分隔符)
         non_empty_texts = [t for t in texts if t.strip()]
 
         # 处理分隔符中的换行符写法
         processed_separator = 分隔符.replace("\\n", "\n")
 
-        # 原样合并
+        # 原样合并 (合并文本输出)
         combined = processed_separator.join(non_empty_texts)
 
-        # 标点格式化清理
+        # 标点格式化清理 (调用同文件中的全局函数)
         combined = format_punctuation_global(combined)
-        return (combined,)
+        
+        # 返回: (合并后的单字符串, 原始列表)
+        return (combined, non_empty_texts)
 
 # ============================== 筛选提示词V2节点 ==============================
 class ZML_TextFilterV2:
@@ -1695,6 +1704,114 @@ class ZML_TextFilterV2:
         
         return (result, filtered_text, translation_text)
 
+
+# ============================== 通用 Any 类型定义 ==============================
+class AnyType(str):
+    """一个特殊的类，用于让 ComfyUI 认为它可以匹配任何类型"""
+    def __ne__(self, __value: object) -> bool:
+        return False
+
+# 实例化一个通配符对象
+ANY_TYPE = AnyType("*")
+
+# ============================== 合并到列表节点 ==============================
+class ZML_MergeToList:
+    """
+    ZML 合并到列表节点
+    功能：将多个输入合并为列表输出，支持动态添加输入接口。
+    逻辑：输入类型任意，但为了保证列表安全性，后续输入必须与第一个输入的类型一致，否则会被忽略。
+    """
+    
+    @classmethod
+    def INPUT_TYPES(cls):
+        # 预定义所有可能的输入，防止后端由前端动态调整时报错
+        # 实际显示的接口数量由前端 JS 控制
+        optional_inputs = {}
+        for i in range(1, 21):
+            optional_inputs[f"输入{i}"] = (ANY_TYPE, {"forceInput": True})
+            
+        return {
+            "optional": optional_inputs
+        }
+
+    CATEGORY = "image/ZML_图像/工具"
+    
+    # 返回任意类型
+    RETURN_TYPES = (ANY_TYPE,)
+    RETURN_NAMES = ("列表",)
+    
+    # 关键：标记输出为列表，这样下游节点会识别为批量/循环执行
+    OUTPUT_IS_LIST = (True,)
+    
+    FUNCTION = "merge_to_list"
+
+    def merge_to_list(self, **kwargs):
+        # 收集数据
+        collected_list = []
+        first_item_type = None
+        
+        # 按照 1 到 20 的顺序遍历
+        for i in range(1, 21):
+            key = f"输入{i}"
+            val = kwargs.get(key, None)
+            
+            if val is not None:
+                # 逻辑：取最上面的类型 (1>2>3)
+                # 如果是列表里的第一个元素，确定基准类型
+                if len(collected_list) == 0:
+                    collected_list.append(val)
+                    first_item_type = type(val)
+                else:
+                    # 检查后续元素的类型是否与第一个元素兼容
+                    # 注意：ComfyUI 的 Tensor 图片和 Latent 都是 torch.Tensor，可能需要更宽松的判断
+                    # 这里做简单的 type 判断，如果不匹配则打印警告并跳过，防止下游节点崩溃
+                    if isinstance(val, first_item_type) or (first_item_type is not None and isinstance(first_item_type, type(val))):
+                        collected_list.append(val)
+                    else:
+                        print(f"[ZML_MergeToList] 警告: 输入 '{key}' 的类型 {type(val)} 与第一个输入的类型 {first_item_type} 不一致，已忽略。")
+
+        # 如果没有收集到任何东西 (全空)，为了防止报错，返回一个空列表或 None
+        if not collected_list:
+            # 这种情况下通常下游会报错，但我们尽力返回空
+            return ([],)
+
+        return (collected_list,)
+
+
+# ============================== 复制到列表节点 ==============================
+class ZML_CopyToList:
+    """
+    ZML 复制到列表节点
+    功能：将输入的任意类型复制指定次数，并输出为列表。
+    逻辑：输入类型任意，复制次数可通过 Widget 控制 (1-100)。
+    """
+    
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "输入": (ANY_TYPE,),
+                "复制次数": ("INT", {"default": 1, "min": 1, "max": 100, "step": 1, "display": "number"}),
+            }
+        }
+
+    CATEGORY = "image/ZML_图像/工具"
+    
+    # 返回任意类型
+    RETURN_TYPES = (ANY_TYPE,)
+    RETURN_NAMES = ("列表",)
+    
+    # 关键：标记输出为列表，这样下游节点会识别为批量/循环执行
+    OUTPUT_IS_LIST = (True,)
+    
+    FUNCTION = "copy_to_list"
+
+    def copy_to_list(self, 输入, 复制次数):
+        # 创建输入的复制列表
+        result_list = [输入] * 复制次数
+        return (result_list,)
+
+
 # ============================== 节点注册 ==============================
 NODE_CLASS_MAPPINGS = {
     "ZML_TextFormatter": ZML_TextFormatter,
@@ -1713,6 +1830,8 @@ NODE_CLASS_MAPPINGS = {
     "ZML_SplitText": ZML_SplitText,
     "ZML_AppendTextByKeyword": ZML_AppendTextByKeyword,
     "ZML_MergeText": ZML_MergeText,
+    "ZML_MergeToList": ZML_MergeToList,
+    "ZML_CopyToList": ZML_CopyToList,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -1732,4 +1851,6 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "ZML_SplitText": "ZML_文本分离",
     "ZML_AppendTextByKeyword": "ZML_追加提示词",
     "ZML_MergeText": "ZML_合并文本（动态）",
+    "ZML_MergeToList": "ZML_合并到列表",
+    "ZML_CopyToList": "ZML_复制到列表",
 }

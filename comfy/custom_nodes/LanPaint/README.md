@@ -1,23 +1,60 @@
 <div align="center">
 
 # LanPaint: Universal Inpainting Sampler with "Think Mode"
-[![arXiv](https://img.shields.io/badge/Arxiv-2502.03491-b31b1b.svg?logo=arXiv)](https://arxiv.org/abs/2502.03491)
+[![TMLR PDF](https://img.shields.io/badge/TMLR-PDF-8A2BE2?logo=openreview&logoColor=white)](https://openreview.net/pdf?id=JPC8JyOUSW)
 [![Python Benchmark](https://img.shields.io/badge/🐍-Python_Benchmark-3776AB?logo=python)](https://github.com/scraed/LanPaintBench)
 [![ComfyUI Extension](https://img.shields.io/badge/ComfyUI-Extension-7B5DFF)](https://github.com/comfyanonymous/ComfyUI)
 [![Hugging Face](https://img.shields.io/badge/Hugging%20Face-yellow?logo=huggingface&logoColor=white)](https://huggingface.co/charrywhite/LanPaint)
 [![Blog](https://img.shields.io/badge/📝-Blog-9cf)](https://scraed.github.io/scraedBlog/)
 [![GitHub stars](https://img.shields.io/github/stars/scraed/LanPaint)](https://github.com/scraed/LanPaint/stargazers)
+[![Discord](https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/yN5wYDE6W4)
 </div>
 
 
 Universally applicable inpainting ability for every model. LanPaint sampler lets the model "think" through multiple iterations before denoising, enabling you to invest more computation time for superior inpainting quality.  
 
-This is the official implementation of ["Lanpaint: Training-Free Diffusion Inpainting with Exact and Fast Conditional Inference"](https://arxiv.org/abs/2502.03491), accepted by TMLR. The repository is for ComfyUI extension. Local Python benchmark code is published here: [LanPaintBench](https://github.com/scraed/LanPaintBench).
+This is the official implementation of ["LanPaint: Training-Free Diffusion Inpainting with Asymptotically Exact and Fast Conditional Sampling"](https://arxiv.org/abs/2502.03491), accepted by TMLR. 
+
+The repository is for ComfyUI extension. 
+
+Diffusers Support: [LanPaint-Diffusers](https://github.com/charrywhite/LanPaint-diffusers) by [@charrywhite](https://github.com/charrywhite/)
+
+Benchmark code for paper reproduce: [LanPaintBench](https://github.com/scraed/LanPaintBench).
+
+## Citation
+
+```
+@article{
+zheng2025lanpaint,
+title={LanPaint: Training-Free Diffusion Inpainting with Asymptotically Exact and Fast Conditional Sampling},
+author={Candi Zheng and Yuan Lan and Yang Wang},
+journal={Transactions on Machine Learning Research},
+issn={2835-8856},
+year={2025},
+url={https://openreview.net/forum?id=JPC8JyOUSW},
+note={}
+}
+```
+**🎉 NEW 2026: Join our discord!**
+
+[Join our Discord](https://discord.gg/yN5wYDE6W4) to share experiences, discuss features, and explore future development.
+
+`v1.5.0` fixes an important hidden bug that reduced performance and could blur images (especially with `z-image-base`) and also boosts overall LanPaint performance across other models. 
+If your inpainting results have wierd (glowing / broken) mask boundary, check this [issue](https://github.com/scraed/LanPaint/issues/80).
+
 **🎬 NEW: LanPaint now supports inpainting and outpainting based on Z-Image!**
+
+
 
 | Original | Masked | Inpainted |
 |:--------:|:------:|:---------:|
 | ![Original Z-image](https://github.com/scraed/LanPaint/blob/master/examples/Example_21/Original_No_Mask.png) | ![Masked Z-image](https://github.com/scraed/LanPaint/blob/master/examples/Example_21/Masked_Load_Me_in_Loader.png) | ![Inpainted Z-image](https://github.com/scraed/LanPaint/blob/master/examples/Example_21/InPainted_Drag_Me_to_ComfyUI.png) |
+
+**🎬 NEW: LanPaint now supports Z-Image-Base too!**
+
+| Original | Masked | Inpainted |
+|:--------:|:------:|:---------:|
+| ![Original Z-image-base](https://github.com/scraed/LanPaint/blob/master/examples/Example_25/Original_No_Mask.png) | ![Masked Z-image-base](https://github.com/scraed/LanPaint/blob/master/examples/Example_25/Masked_Load_Me_in_Loader.png) | ![Inpainted Z-image-base](https://github.com/scraed/LanPaint/blob/master/examples/Example_25/InPainted_Drag_Me_to_ComfyUI.png) |
 
 
 **🎬 NEW: LanPaint now supports video inpainting and outpainting based on Wan 2.2!**
@@ -46,11 +83,14 @@ Check our latest [Wan 2.2 Video Examples](#video-examples-beta), [Wan 2.2 Image 
   - [Wan 2.2 Video Outpainting](#wan-22-video-outpainting)
   - [Resource Consumption](#resource-consumption)
 - [Image Examples](#image-examples)
+  - [Flux.2.Dev](#example-flux2dev-inpaintlanpaint-k-sampler-5-steps-of-thinking)
+  - [Flux 2 klein](#example-flux-2-klein-inpaintlanpaint-k-sampler-2-steps-of-thinking)
   - [Z-image](#example-z-image-inpaintlanpaint-k-sampler-5-steps-of-thinking)
+  - [Z-image-base](#example-z-image-base-inpaintlanpaint-k-sampler-3-steps-of-thinking)
   - [Hunyuan T2I](#example-hunyuan-t2i-inpaintlanpaint-k-sampler-5-steps-of-thinking)
   - [Wan 2.2 T2I](#example-wan22-inpaintlanpaint-k-sampler-5-steps-of-thinking)
   - [Wan 2.2 T2I with reference](#example-wan22-partial-inpaintlanpaint-k-sampler-5-steps-of-thinking)
-  - [Qwen Image Edit 2509](#example-qwen-edit-2509-inpaint)
+  - [Qwen Image Edit 2511 2509](#example-qwen-edit-2509-inpaint)
   - [Qwen Image Edit 2508](#example-qwen-edit-2508-inpaint)
   - [Qwen Image](#example-qwen-image-inpaintlanpaint-k-sampler-5-steps-of-thinking)
   - [HiDream](#example-hidream-inpaint-lanpaint-k-sampler-5-steps-of-thinking)
@@ -69,7 +109,7 @@ Check our latest [Wan 2.2 Video Examples](#video-examples-beta), [Wan 2.2 Image 
 
 ## Features
 
-- **Universal Compatibility** – Works instantly with almost any model (**SD 1.5, XL, 3.5, Flux, HiDream, Qwen-Image, Wan2.2 or custom LoRAs**) and ControlNet.  
+- **Universal Compatibility** – Works instantly with almost any model (**Z-image, Z-image-base, Hunyuan, Wan 2.2, Qwen Image/Edit, HiDream, SD 3.5, Flux-series, SDXL, SD 1.5 or custom LoRAs**) and ControlNet.  
 ![Inpainting Result 13](https://github.com/scraed/LanPaint/blob/master/examples/InpaintChara_13.jpg) 
 - **No Training Needed** – Works out of the box with your existing model.  
 - **Easy to Use** – Same workflow as standard ComfyUI KSampler.  
@@ -252,6 +292,24 @@ LanPaint also supports inpainting with the Z-image text-to-image model.
 
 You can download the Z-image model for ComfyUI from [Z-image](https://docs.comfy.org/zh-CN/tutorials/image/z-image/z-image-turbo).
 
+### Example Z-image-base: InPaint(LanPaint K Sampler, 3 steps of thinking)
+LanPaint also supports inpainting with the Z-image-base model.
+
+**Warning (stability)**: Z-image-base can easily diverge with LanPaint. Start with **small `LanPaint_StepSize`** and **fewer thinking iterations** (lower `LanPaint_NumSteps`) and increase gradually only if stable.
+
+<details open>
+<summary>View Original / Masked / Inpainted Comparison</summary>
+
+| Original | Masked | Inpainted |
+|:--------:|:------:|:---------:|
+| ![Original Z-image-base](https://github.com/scraed/LanPaint/blob/master/examples/Example_25/Original_No_Mask.png) | ![Masked Z-image-base](https://github.com/scraed/LanPaint/blob/master/examples/Example_25/Masked_Load_Me_in_Loader.png) | ![Inpainted Z-image-base](https://github.com/scraed/LanPaint/blob/master/examples/Example_25/InPainted_Drag_Me_to_ComfyUI.png) |
+
+</details>
+
+[View Workflow & Masks](https://github.com/scraed/LanPaint/tree/master/examples/Example_25)
+
+Workflow template (JSON): [Z_image_base_Inpaint.json](https://github.com/scraed/LanPaint/blob/master/example_workflows/Z_image_base_Inpaint.json)
+
 ### Example Wan2.2: Partial InPaint(LanPaint K Sampler, 5 steps of thinking)
 Sometimes we don't want to inpaint completely new content, but rather let the inpainted image reference the original image. One option to achieve this is to inpaint with an edit model like Qwen Image Edit. Another option is to perform a partial inpaint: allowing the diffusion process to start at some middle steps rather than from 0.
 
@@ -263,7 +321,7 @@ You need to follow the ComfyUI version of [Wan2.2 T2V workflow](https://docs.com
 
 
 ### Example Qwen Edit 2509: InPaint
-Check our latest updated [Mased Qwen Edit Workflow](https://github.com/scraed/LanPaint/tree/master/examples/Example_14) for Qwen Image Edit 2509. Download the model at [Qwen Image Edit 2509 Comfy](https://huggingface.co/Comfy-Org/Qwen-Image-Edit_ComfyUI/tree/main/split_files/diffusion_models).
+Check our latest updated [Mased Qwen Edit Workflow](https://github.com/scraed/LanPaint/tree/master/examples/Example_14) for Qwen Image Edit 2509. Download the model at [Qwen Image Edit 2509 Comfy](https://huggingface.co/Comfy-Org/Qwen-Image-Edit_ComfyUI/tree/main/split_files/diffusion_models). This workflow also supports Qwen Image Edit 2511.
 
 ![Qwen Result 3](https://github.com/scraed/LanPaint/blob/master/examples/LanPaintQwen_04.jpg) 
 
@@ -303,6 +361,39 @@ You need to follow the ComfyUI version of [HiDream workflow](https://docs.comfy.
 [View Workflow & Masks](https://github.com/scraed/LanPaint/tree/master/examples/Example_9)
 
 You need to follow the ComfyUI version of [SD 3.5 workflow](https://comfyui-wiki.com/en/tutorial/advanced/stable-diffusion-3-5-comfyui-workflow) to download and install the model.
+
+### Example Flux.2.Dev: InPaint(LanPaint K Sampler, 5 steps of thinking)
+
+<details open>
+<summary>View Original / Masked / Inpainted Comparison</summary>
+
+| Original | Masked | Inpainted |
+|:--------:|:------:|:---------:|
+| ![Original Flux.2.Dev](https://github.com/scraed/LanPaint/blob/master/examples/Example_23/Original_No_Mask.png) | ![Masked Flux.2.Dev](https://github.com/scraed/LanPaint/blob/master/examples/Example_23/Masked_Load_Me_in_Loader.png) | ![Inpainted Flux.2.Dev](https://github.com/scraed/LanPaint/blob/master/examples/Example_23/InPainted_Drag_Me_to_ComfyUI.png) |
+
+</details>
+
+[View Workflow & Masks](https://github.com/scraed/LanPaint/tree/master/examples/Example_23)
+
+[Model Used in This Example](https://huggingface.co/Comfy-Org/flux2-dev)
+
+(Note: Prompt First mode is disabled on Flux.2.Dev. As it does not use CFG guidance.)
+
+### Example Flux 2 klein: InPaint(LanPaint K Sampler, 2 steps of thinking)
+
+<details open>
+<summary>View Original / Masked / Inpainted Comparison</summary>
+
+| Original | Masked | Inpainted |
+|:--------:|:------:|:---------:|
+| ![Original Flux 2 klein](https://github.com/scraed/LanPaint/blob/master/examples/Example_24/Original_No_Mask.png) | ![Masked Flux 2 klein](https://github.com/scraed/LanPaint/blob/master/examples/Example_24/Masked_Load_Me_in_Loader.png) | ![Inpainted Flux 2 klein](https://github.com/scraed/LanPaint/blob/master/examples/Example_24/InPainted_Drag_Me_to_ComfyUI.png) |
+
+</details>
+
+[View Workflow & Masks](https://github.com/scraed/LanPaint/tree/master/examples/Example_24)
+
+[Model Used in This Example](https://docs.comfy.org/zh-CN/tutorials/flux/flux-2-klein). If you have quality problem on Comfy 0.11 and 0.12, check [this issue](https://github.com/scraed/LanPaint/issues/80).
+
 
 ### Example Flux: InPaint(LanPaint K Sampler, 5 steps of thinking)
 ![Inpainting Result 7](https://github.com/scraed/LanPaint/blob/master/examples/InpaintChara_10.jpg)  
@@ -424,6 +515,10 @@ Submit a PR to add your tutorial/video here, or open an [Issue](https://github.c
 [Working togather with crop&stitch](https://github.com/scraed/LanPaint/issues/46)
 
 ## Updates
+- 2026/03/02
+    - `v1.5.0`: Fixed a hidden bug that hurt performance and caused image blur (especially on `z-image-base`), and improved overall LanPaint performance on other models too.
+- 2026/01/30
+    - Add Z-image-base documentation and Example_25 workflow images.
 - 2025/08/08
     - Add Qwen image support
 - 2025/06/21
@@ -451,20 +546,21 @@ Submit a PR to add your tutorial/video here, or open an [Issue](https://github.c
 - Try Implement Detailer
 - ~~Provide inference code on without GUI.~~ Check our local Python benchmark code [LanPaintBench](https://github.com/scraed/LanPaintBench).
 
+
 ## Citation
 
 ```
-@misc{zheng2025lanpainttrainingfreediffusioninpainting,
-      title={Lanpaint: Training-Free Diffusion Inpainting with Exact and Fast Conditional Inference}, 
-      author={Candi Zheng and Yuan Lan and Yang Wang},
-      year={2025},
-      eprint={2502.03491},
-      archivePrefix={arXiv},
-      primaryClass={eess.IV},
-      url={https://arxiv.org/abs/2502.03491}, 
+@article{
+zheng2025lanpaint,
+title={LanPaint: Training-Free Diffusion Inpainting with Asymptotically Exact and Fast Conditional Sampling},
+author={Candi Zheng and Yuan Lan and Yang Wang},
+journal={Transactions on Machine Learning Research},
+issn={2835-8856},
+year={2025},
+url={https://openreview.net/forum?id=JPC8JyOUSW},
+note={}
 }
 ```
-
 
 
 

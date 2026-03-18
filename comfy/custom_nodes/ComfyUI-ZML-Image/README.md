@@ -8,7 +8,7 @@
 
 
 ## 💕简单介绍一下节点：
-**这是一个功能丰富的COMFYUI自定义节点，目前节点总数共有100+，各个方面的节点都有，已经不再是仅有图像了。**
+**这是一个功能丰富的COMFYUI自定义节点，目前节点总数共有140+，各个方面的节点都有，已经不再是仅有图像了。**
 
 **节点对环境的要求很低，不会破坏你的comfyui环境**
 
@@ -16,92 +16,75 @@
 
  `为了方便查找，我将节点名称设置为全部以“ZML_”开头，并且节点全部放在comfyui官方"图像"分类下的子分类"ZML_图像”里。`
 
-<details>
-<summary>点击此处查看图像节点介绍</summary>
-
-> ### 最开始是为了方便管理图像和提示词而设计，将提示词以PNG文本块的方式保存在图像里：
-> <img width="1632" height="875" alt="1_1" src="https://github.com/user-attachments/assets/b23e248e-dc40-4000-9cb7-0f77dd448350" />
->
-> ### 为了更加方便管理，我还做了一个可视化UI：
-> <img width="1739" height="877" alt="1_15" src="https://github.com/user-attachments/assets/14957496-ca5e-406d-8c07-e944371c98f3" />
-> 
-> ### 可以实时编辑文本块：
-> <img width="1796" height="889" alt="1_16" src="https://github.com/user-attachments/assets/49a5645c-61d7-4f90-88c4-bf137a63a808" />
-> 
-> ### 然后输出：
-> <img width="1413" height="617" alt="1_6" src="https://github.com/user-attachments/assets/9c805e33-40dc-468d-a4a1-6bd8df9ff7ee" />
->
-> ### 从路径加载图像节点可以随机图像和文本块，加载图像可以输出透明通道和文本块，就不配图了。
-
-> ### 然后是其它的图像节点，比如可视化裁剪图像：
-> <img width="982" height="893" alt="1_2" src="https://github.com/user-attachments/assets/3bbf3bb4-9c4e-4d9a-bf0b-6a415d0eea7b" />
-> <img width="1254" height="753" alt="1_3" src="https://github.com/user-attachments/assets/9c7d6257-9f81-4d61-9fde-1b606cc6a0ef" />
-> 
-> ### 可视化合并图像：
-> <img width="911" height="894" alt="1_4" src="https://github.com/user-attachments/assets/e79c6d57-1714-4347-8559-082a191ddf1c" />
-> <img width="1290" height="760" alt="1_5" src="https://github.com/user-attachments/assets/8af17c60-e8e6-4758-a81a-415f37a71cf6" />
-> 
-> ### 画画：
-> <img width="1048" height="925" alt="1_8" src="https://github.com/user-attachments/assets/0b60dbbb-bf59-4fea-b93f-fc5470e6db2b" />
-
-</details>
-
- <details>
-<summary>点击此处查看LoRA节点介绍</summary>
-
-> ### 因为功能较多，所以我不详细介绍了，看图应该可以看懂个大概。
-> 
-> ### 不过有个功能我非常想告诉你！那就是节点可以给Nunchuck使用！！使用强力lora节点的功能来管理你的LoRA，再把加载的LoRA列表连接给我为Nunchuck专门做的加载节点上，即可使用强力LoRA加载器的强大功能来使用Nunchuck！！
->
-> ### 给LoRA一个自定义文本或触发词模板，即可通过点击一个按钮来快速切换功能！一键3D、一键写实！一键手办！一键TY……
->  <img width="1559" height="748" alt="1_13" src="https://github.com/user-attachments/assets/a8d2cc89-6572-4686-85b6-94b57e1cec96" />
-> 
-> ### 可视化UI管理你的LoRA：
-> <img width="1069" height="826" alt="1_9" src="https://github.com/user-attachments/assets/379631be-4fbc-43c3-93a9-21c2c3e4ac23" />
->
-> ### 预览MP4！
-> https://github.com/user-attachments/assets/14200a30-581d-4fd1-9dfc-f145f91aa593
-> 
-> ### 实时更改触发词和LoRA介绍：
-> <img width="1103" height="759" alt="356" src="https://github.com/user-attachments/assets/65a3e0b3-04df-46e3-afa9-a2ff173ba6d5" />
-> 
-> #### LoRA节点的信息文件，为了文件夹的整洁，我将其放在了子文件夹“zml”中，如果你需要和WebUI一致（放在LoRA的相同目录），那可以考虑试试[这个分支版本](https://github.com/zml-w/ComfyUI-ZML-Image/tree/modified-version)
-
-
-</details>
-
- <details>
-<summary>点击此处查看其它节点介绍</summary>
-
-> ### 桌宠！聊天！娱乐！涩涩……
-> <img width="1356" height="865" alt="1_7" src="https://github.com/user-attachments/assets/5aa82821-520e-4d8e-9e55-44af75f40412" />
-> 
-> ### 生成文字图像和为图像添加文字：
-> <img width="1582" height="843" alt="1_11" src="https://github.com/user-attachments/assets/97caad3f-ac3d-44a8-acaf-b0719a65fc79" />
-> 
-> ### 功能丰富的文本节点，不介绍了，看图即可：
-> <img width="1662" height="869" alt="1_14" src="https://github.com/user-attachments/assets/bf64f1bb-c476-403c-a01e-eb649bcfde8c" />
-> 
-> ### 为多人图制作的多个遮罩节点：
-> <img width="1225" height="743" alt="1_10" src="https://github.com/user-attachments/assets/e8a3dfd8-9d76-4f16-b47b-d5b8e177eb30" />
-> 
-> #### 节点很多且更新很快，所以就不在这里一一介绍了。可以在版本更新介绍里查看！每个新增节点都会有介绍。
-
-</details>
-
 ## ✨版本更新文字介绍
 
-> ### 最新更新日期： **2025.12.03**
+> ### 最新更新日期： **2026.03.12**
+>
+
+> - #### 修复了一些bug，添加了几个新节点，更新了部分节点。
+
+<details>
+<summary>点击查看往期更多更新内容</summary>
+
+> ### 更新日期： **2026.01.15**
+>
+
+> - #### 修复了一些bug。
+>
+> - #### http节点升级了，模仿n8n制作，相似度大概有80%。
+>
+> - #### XY图表新增了LoRA_V3节点，可以使用相同的多个提示词测试LoRA效果。
+>
+> - #### 新分类"子工作流"，主要是为了解决comfyui无法多线程并行的缺点，但目前只能给一些api节点，或者不需要加载模型 只有简单的逻辑处理的工作流使用（比如32线程并行为图像加水印，或者8线程并行调用大香蕉修改图像）。
+
+> ### 更新日期： **2025.12.28**
+>
+
+> - #### 更新了大概十个节点，还修复了一些bug。
+>
+> - #### 统一分辨率节点的输入接口改为动态的了，并且支持处理列表。
+>
+> - #### 桥接预览图像节点加入了和预览图像节点一样暂存次数的功能。
+>
+> - #### 新分类"采样器相关"，最初是因为效率采样器和我的桥接预览图像节点不适配，所以借鉴了一下他的劫持comfy预览方式的代码。后来想着做都做了，干脆做一套。
+>
+>   * 借鉴了[效率采样器](https://github.com/jags111/efficiency-nodes-comfyui)的随机种方法和预览实现方式。
+>  
+>   * 借鉴了[SMZ](https://github.com/shiimizu/ComfyUI_smZNodes)的GPU噪波方式。
+>  
+>   * 借鉴了[视频节点](https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite)的视频动态预览方式。
+>  
+>   * 新增了CLIP编码节点，这个节点不止会输出条件向量，还会输出字符串列表给采样器。
+>
+>   * 新增了保存图像（A1111元数据）节点，通过采样器节点拿到生成参数，LoRA信息通过强力LoRA加载器获取，提示词有三种获取方法，1. 从保存图像节点上获取、2. 如果保存图像节点上是空的，则从CLIP编码节点上获取、3. 如果没有使用ZML的CLIP编码节点，那么采样器节点会通过工作流连线来查找提示词，如果工作流过于复杂，可能会无法查找到提示词。
+>
+>   * 新增了一系列的脚本节点，有动态CFG、添加额外噪波、亮度对比度、锐化模糊，可以选择在采样的过程中插入这些调整，以下是简单的测试图：
+>
+>   <img width="3196" height="1308" alt="1" src="https://github.com/user-attachments/assets/4943ba29-fb54-4c41-be6c-8f3e3cb5c508" />
+>   <img width="4132" height="1001" alt="2" src="https://github.com/user-attachments/assets/a45cdde6-0db5-48d2-9766-532e80366b63" />
+
+
+> ### 更新日期： **2025.12.17**
+>
+
+> - #### 更新了大概二十个节点，还修复了一些bug。
+>
+> - #### 发现ComfyUI也可以像n8n那样自动处理多个item(ComfyUI里是列表),所以做了很多输出列表的节点.
+>
+> - #### 新分类"XYZ",支持任意模型的LoRA的XY图表,支持测试提示词XY图表,支持测试步数和CFG的图表。
+>
+> - #### 新分类"http",让用户可以自定义http请求。
+>
+> - #### llm节点升级了.
+>
+
+> ### 更新日期： **2025.12.03**
 >
 
 > - #### 更新了大概十个节点，还修复了一些bug，我懒得一个个介绍了。
 >
 > - #### 做了一套llm节点，可以自定义模型，支持结构化输出，api密钥存在浏览器缓存里，分享工作流不会保留自己的api密钥，你可以在“图像展示更新”里快速了解llm相关节点。
 >
-
-
-<details>
-<summary>点击查看往期更多更新内容</summary>
 
 > ### 更新日期： **2025.11.16**
 >
@@ -706,11 +689,6 @@
 
 </details>
 
-
-## ✨视频介绍：[点击访问](https://www.bilibili.com/video/BV1i4twzDELr/?spm_id_from=333.1007.0.0&vd_source=0134812498ce59b7f53810ad84889d12)
-
-`介绍少，没更新视频`
-
 ### ✨附属脚本仓库：
 
 `这里放的是我做的一些小工具，有的是辅助节点使用，有的是提取的节点功能`
@@ -718,20 +696,20 @@
 `脚本都是独立运行的，而不是在comfyui中使用`
 
 - **https://github.com/zml-w/ZML-Image-Script/tree/main**
-  
-### ✨QQ群聊：1023857787
-
-**在群聊里可以找到已经写入文本块的图像，你可以直接下载使用它们**
-
-**如果不想添加群聊，那也可以通过[百度网盘](https://pan.baidu.com/s/1ULhAL6TKcujkOu1aHDgRVQ?pwd=ZMLw)下载（因为种种原因，网盘里的文本块图像并没有QQ群文件里的多）**
-
-
 
 ## ✨部分节点和功能是借鉴的别人的，感谢他们💕
 
 ### 借鉴的代码：
 
 - **LoRA加载节点：https://github.com/pythongosssss/ComfyUI-Custom-Scripts**
+
+- **采样器节点：**
+
+   * 借鉴了[效率采样器](https://github.com/jags111/efficiency-nodes-comfyui)的随机种方法和预览实现方式。
+  
+   * 借鉴了[SMZ](https://github.com/shiimizu/ComfyUI_smZNodes)的GPU噪波方式。
+  
+   * 借鉴了[视频节点](https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite)的视频动态预览方式。
 
 ### 借鉴的灵感：
 

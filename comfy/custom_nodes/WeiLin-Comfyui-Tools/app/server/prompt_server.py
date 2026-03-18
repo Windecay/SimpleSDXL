@@ -210,6 +210,20 @@ async def _get_group_tags(request):
         return web.Response(status=500)
 
 
+@PromptServer.instance.routes.get(baseUrl+"prompt/get_group_tags_paginated")
+async def _get_group_tags_paginated(request):
+    try:
+        # 支持分页参数
+        page = int(request.rel_url.query.get('page', 1))
+        page_size = int(request.rel_url.query.get('page_size', 500))
+        
+        data = await get_group_tags_paginated(page, page_size)
+        return web.json_response(data)
+    except Exception as e:
+        print(f"Error: {e}")
+        return web.Response(status=500)
+
+
 @PromptServer.instance.routes.post(baseUrl+"prompt/add_new_f_group")
 async def _add_new_f_group(request):
     data = await request.json()

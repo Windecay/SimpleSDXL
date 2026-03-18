@@ -160,13 +160,16 @@ def get_lora_folder():
             else:
                 # 二级及以下目录
                 subdir = "\\".join(parts[1:-1])  # 排除文件名
-                
-                # 确保子目录在一级目录下
+
+                # 确保子目录在一级目录下，并包含"all"键
                 if subdir not in result[level1_dir]:
-                    result[level1_dir][subdir] = {}
-                
+                    result[level1_dir][subdir] = {
+                        "all": []  # 该子目录下所有文件
+                    }
+
                 # 添加文件到子目录，使用完整路径
                 result[level1_dir][subdir][parts[-1]] = file_path
+                result[level1_dir][subdir]["all"].append(file_path)
                 result[level1_dir]["all"].append(file_path)
     
     return result

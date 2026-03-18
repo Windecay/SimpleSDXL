@@ -126,6 +126,28 @@ def create_tables():
                 version INTEGER PRIMARY KEY
             )
         ''')
+        
+        # 添加性能优化索引
+        cursor.execute('''
+            CREATE INDEX IF NOT EXISTS idx_tag_tags_g_uuid 
+            ON tag_tags(g_uuid)
+        ''')
+        
+        cursor.execute('''
+            CREATE INDEX IF NOT EXISTS idx_tag_subgroups_p_uuid 
+            ON tag_subgroups(p_uuid)
+        ''')
+        
+        cursor.execute('''
+            CREATE INDEX IF NOT EXISTS idx_tag_tags_text 
+            ON tag_tags(text)
+        ''')
+        
+        cursor.execute('''
+            CREATE INDEX IF NOT EXISTS idx_tag_tags_create_time 
+            ON tag_tags(create_time)
+        ''')
+        
         conn.commit()
         conn.close()
 

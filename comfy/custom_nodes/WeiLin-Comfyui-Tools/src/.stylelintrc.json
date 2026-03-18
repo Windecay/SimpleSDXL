@@ -1,0 +1,55 @@
+{
+  "extends": ["stylelint-config-standard", "stylelint-config-recommended-vue"],
+  "rules": {
+    "no-duplicate-selectors": true,
+    "color-hex-length": "short",
+    "color-named": "never",
+    "selector-attribute-quotes": "always",
+    "function-url-quotes": "always",
+    "comment-whitespace-inside": "always",
+    "comment-empty-line-before": [
+      "always",
+      {
+        "ignore": ["stylelint-commands", "after-comment"]
+      }
+    ],
+    "rule-empty-line-before": [
+      "always",
+      {
+        "except": ["first-nested"],
+        "ignore": ["after-comment"]
+      }
+    ],
+    "selector-pseudo-element-colon-notation": "double",
+    "selector-max-id": 0,
+    "selector-max-type": 0,
+    "selector-max-compound-selectors": 4,
+    "selector-max-specificity": "0,4,0",
+    "max-nesting-depth": 3,
+    "declaration-no-important": true,
+    "alpha-value-notation": "number",
+    "hue-degree-notation": "angle",
+    "length-zero-no-unit": true,
+    "shorthand-property-no-redundant-values": true,
+    "function-calc-no-unspaced-operator": true,
+    "selector-no-qualifying-type": true,
+    "selector-no-vendor-prefix": true,
+    "value-no-vendor-prefix": true,
+    "property-no-vendor-prefix": true,
+    "media-feature-name-no-vendor-prefix": true,
+    "at-rule-no-vendor-prefix": true,
+    "selector-class-pattern": "^[a-z][a-z0-9-_]*$",
+    "custom-property-pattern": "^[a-z][a-z0-9-_]*$",
+    "keyframes-name-pattern": "^[a-z][a-z0-9-_]*$"
+  },
+  "overrides": [
+    {
+      "files": ["**/*.vue"],
+      "rules": {
+        "selector-class-pattern": null,
+        "custom-property-pattern": null,
+        "keyframes-name-pattern": null
+      }
+    }
+  ]
+}

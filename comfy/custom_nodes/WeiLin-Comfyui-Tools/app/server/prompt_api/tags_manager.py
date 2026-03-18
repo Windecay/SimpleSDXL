@@ -4,6 +4,17 @@ import uuid
 import sqlite3
 from uuid_extensions import uuid7
 
+# 全局缓存变量
+_tags_cache = None
+_tags_cache_time = 0
+CACHE_DURATION = 300  # 5分钟缓存
+
+def _invalidate_cache():
+    """清除标签缓存"""
+    global _tags_cache, _tags_cache_time
+    _tags_cache = None
+    _tags_cache_time = 0
+
 def generate_unique_timestamp():
     return int(time.time() * 1000) + uuid.uuid4().int % 1000
 
@@ -13,6 +24,7 @@ async def add_group_tag(text, desc, subgroup_id, color, g_uuid):
         VALUES (?, ?, ?, ?, ?, ?, ?)
     '''
     await execute_query('tags',query, (subgroup_id, text, desc, color, generate_unique_timestamp(), str(uuid7()), g_uuid ))
+    _invalidate_cache()
 
 async def edit_group_tag(text, desc, id_index, color):
     query = '''
@@ -21,6 +33,7 @@ async def edit_group_tag(text, desc, id_index, color):
         WHERE id_index = ?
     '''
     await execute_query('tags',query, (text, desc, color, id_index))
+    _invalidate_cache()
 
 async def move_tag(id_index, reference_id_index, position='before'):
     query = 'SELECT create_time FROM tag_tags WHERE id_index = ?'
@@ -43,6 +56,7 @@ async def move_tag(id_index, reference_id_index, position='before'):
         WHERE id_index = ?
     '''
     await execute_query('tags',query, (new_create_time, id_index))
+    _invalidate_cache()
 
     return {"info": "Tag moved"}
 
@@ -68,6 +82,7 @@ async def move_group(id_index, reference_id_index, position='before'):
         WHERE id_index = ?
     '''
     await execute_query('tags',query, (new_create_time, id_index))
+    _invalidate_cache()
 
     return {"info": "Group moved"}
 
@@ -92,17 +107,20 @@ async def move_subgroup(id_index, reference_id_index, position='before'):
         WHERE id_index = ?
     '''
     await execute_query('tags',query, (new_create_time, id_index))
+    _invalidate_cache()
 
     return {"info": "Subgroup moved"}
 
 async def delete_group_tag(id_index):
     query = 'DELETE FROM tag_tags WHERE id_index = ?'
     await execute_query('tags',query, (id_index,))
+    _invalidate_cache()
 
 async def batch_delete_group_tags(id_indices):
     query = "DELETE FROM tag_tags WHERE id_index IN ({seq})".format(
         seq=','.join(['?']*len(id_indices)))
     await execute_query('tags',query, id_indices)
+    _invalidate_cache()
 
 async def add_new_node_group(key, color):
     # 检查 name 是否已经存在
@@ -118,6 +136,7 @@ async def add_new_node_group(key, color):
         VALUES (?, ?, ?, ?)
     '''
     await execute_query('tags',query, (key, color, generate_unique_timestamp(), str(uuid7()) ))
+    _invalidate_cache()
     return {"code": 200}
 
 async def add_new_group(key, group_key, color, p_uuid):
@@ -134,6 +153,7 @@ async def add_new_group(key, group_key, color, p_uuid):
         VALUES (?, ?, ?, ?, ?, ?)
     '''
     await execute_query('tags',query, (key, group_key, color, generate_unique_timestamp(), p_uuid, str(uuid7()) ))
+    _invalidate_cache()
     return {"code": 200}
 
 async def edit_node_group(id_index, new_key, new_color):
@@ -151,6 +171,7 @@ async def edit_node_group(id_index, new_key, new_color):
         WHERE id_index = ?
     '''
     await execute_query('tags',query, (new_key, new_color, id_index))
+    _invalidate_cache()
     return {"code": 200}
 
 async def edit_child_node_group(id_index, new_key, new_color):
@@ -168,6 +189,7 @@ async def edit_child_node_group(id_index, new_key, new_color):
         WHERE id_index = ?
     '''
     await execute_query('tags',query, (new_key, new_color, id_index))
+    _invalidate_cache()
     return {"code": 200}
 
 def delete_node_group(p_uuid):
@@ -196,6 +218,7 @@ def delete_node_group(p_uuid):
         
         # 提交事务
         conn.commit()
+        _invalidate_cache()
     except Exception as e:
         # 回滚事务
         conn.rollback()
@@ -221,6 +244,7 @@ def delete_child_node_group(g_uuid):
         
         # 提交事务
         conn.commit()
+        _invalidate_cache()
     except Exception as e:
         # 回滚事务
         conn.rollback()
@@ -229,6 +253,18 @@ def delete_child_node_group(g_uuid):
         conn.close()
 
 async def get_group_tags():
+    """
+    获取所有标签分组（带缓存）
+    文件位置: app/server/prompt_api/tags_manager.py:231
+    """
+    global _tags_cache, _tags_cache_time
+    
+    # 检查缓存
+    current_time = time.time()
+    if _tags_cache and (current_time - _tags_cache_time) < CACHE_DURATION:
+        return _tags_cache
+    
+    # 缓存过期，执行查询
     query = '''
         SELECT 
             g.id_index as group_id, g.name as group_name, g.color as group_color, 
@@ -292,7 +328,114 @@ async def get_group_tags():
             subgroups[tag_data['g_uuid']]['tags'].append(tag_data)
     
     # 返回列表形式的结果
-    return list(result.values())
+    result_list = list(result.values())
+    
+    # 更新缓存
+    _tags_cache = result_list
+    _tags_cache_time = current_time
+    
+    return result_list
+
+async def get_group_tags_paginated(page=1, page_size=500):
+    """
+    分页获取标签分组
+    """
+    global _tags_cache, _tags_cache_time
+    
+    # 检查缓存
+    current_time = time.time()
+    if _tags_cache and (current_time - _tags_cache_time) < CACHE_DURATION:
+        # 从缓存中分页返回
+        start = (page - 1) * page_size
+        end = start + page_size
+        return {
+            "data": _tags_cache[start:end],
+            "page": page,
+            "page_size": page_size,
+            "total": len(_tags_cache),
+            "total_pages": (len(_tags_cache) + page_size - 1) // page_size
+        }
+    
+    # 缓存过期，执行查询
+    query = '''
+        SELECT 
+            g.id_index as group_id, g.name as group_name, g.color as group_color, 
+            g.create_time as group_create_time, g.p_uuid as group_p_uuid,
+            sg.id_index as subgroup_id, sg.name as subgroup_name, sg.color as subgroup_color,
+            sg.create_time as subgroup_create_time, sg.g_uuid as subgroup_g_uuid, sg.p_uuid as subgroup_p_uuid,
+            t.id_index as tag_id, t.text as tag_text, t.desc as tag_desc, 
+            t.color as tag_color, t.create_time as tag_create_time, t.g_uuid as tag_g_uuid
+        FROM tag_groups g
+        LEFT JOIN tag_subgroups sg ON g.p_uuid = sg.p_uuid
+        LEFT JOIN tag_tags t ON sg.g_uuid = t.g_uuid
+        ORDER BY g.create_time ASC, sg.create_time ASC, t.create_time DESC
+    '''
+    data = await fetch_all('tags', query)
+    
+    # 使用字典存储结果，提高查找效率
+    result = {}
+    subgroups = {}
+    
+    for row in data:
+        # 解包数据
+        group_data = {
+            'id_index': row[0],
+            'name': row[1],
+            'color': row[2],
+            'create_time': row[3],
+            'p_uuid': row[4],
+            'groups': []
+        }
+        
+        subgroup_data = {
+            'id_index': row[5],
+            'name': row[6],
+            'color': row[7],
+            'create_time': row[8],
+            'g_uuid': row[9],
+            'p_uuid': row[10],
+            'tags': []
+        }
+        
+        tag_data = {
+            'id_index': row[11],
+            'text': row[12],
+            'desc': row[13],
+            'color': row[14],
+            'create_time': row[15],
+            'g_uuid': row[16]
+        } if row[11] else None
+        
+        # 处理组数据
+        if group_data['p_uuid'] not in result:
+            result[group_data['p_uuid']] = group_data
+        
+        # 处理子组数据
+        if subgroup_data['g_uuid'] and subgroup_data['g_uuid'] not in subgroups:
+            subgroups[subgroup_data['g_uuid']] = subgroup_data
+            result[group_data['p_uuid']]['groups'].append(subgroup_data)
+        
+        # 处理标签数据
+        if tag_data and tag_data['g_uuid'] in subgroups:
+            subgroups[tag_data['g_uuid']]['tags'].append(tag_data)
+    
+    # 返回列表形式的结果
+    result_list = list(result.values())
+    
+    # 更新缓存
+    _tags_cache = result_list
+    _tags_cache_time = current_time
+    
+    # 分页返回
+    start = (page - 1) * page_size
+    end = start + page_size
+    return {
+        "data": result_list[start:end],
+        "page": page,
+        "page_size": page_size,
+        "total": len(result_list),
+        "total_pages": (len(result_list) + page_size - 1) // page_size
+    }
 
 async def get_groups_list():
     query = '''
@@ -354,6 +497,7 @@ def run_sql_text(sql_array):
             cursor.execute(sql)
         # 提交事务
         conn.commit()
+        _invalidate_cache()
         print("SQL执行成功")
         return {"code": 200, "message": "SQL执行成功"}
     except Exception as e:
