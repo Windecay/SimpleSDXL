@@ -1574,7 +1574,7 @@
     },
     "class_type": "ImageBlur",
     "_meta": {
-      "title": "ImageBlur"
+      "title": "Image Blur"
     }
   },
   "306": {
@@ -2238,7 +2238,7 @@
     },
     "class_type": "LayerUtility: ImageMaskScaleAs",
     "_meta": {
-      "title": "LayerUtility: ImageMaskScaleAs"
+      "title": "LayerUtility: Image Mask Scale As"
     }
   },
   "347": {
@@ -3170,7 +3170,7 @@
     },
     "class_type": "LayerUtility: ImageMaskScaleAs",
     "_meta": {
-      "title": "LayerUtility: ImageMaskScaleAs"
+      "title": "LayerUtility: Image Mask Scale As"
     }
   },
   "420": {
@@ -3863,10 +3863,6 @@
         0
       ],
       "value2": [
-        "801",
-        0
-      ],
-      "value3": [
         "529",
         0
       ]
@@ -4130,7 +4126,7 @@
   },
   "583": {
     "inputs": {
-      "total": 4,
+      "total": 3,
       "initial_value1": [
         "439",
         0

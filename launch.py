@@ -140,7 +140,7 @@ def check_base_environment():
     if torch.__version__ == '2.9.1+cu130':
         logger.info(f'当前环境：PyTorch 2.9.1+CUDA 13.0. 50系以上显卡支持Nvfp4模型加速推理.')
         update_pkgs = [('comfyui_frontend_package', '1.41.18'), ('comfyui_workflow_templates', '0.9.21'), ('comfyui-embedded-docs', '0.4.3'), ('comfy-kitchen', '0.2.8'), ('comfy-aimdo', '0.2.10'), ('transformers', '4.57.6'), ('PyOpenGL', '3.1.10'), ('glfw', '2.10.0'), ('blake3', '1.0.8'), ('aiohttp', '3.13.3'),
-        ('ninja', '1.11.1.4'), ('numpy', '1.26.4')]
+        ('ninja', '1.11.1.4'), ('numpy', '1.26.4'), ('absl-py', '2.4.0'), ('flatbuffers', '25.12.19'), ('mediapipe', '0.10.32'), ('psd-tools', '1.14.1'), ('sounddevice', '0.5.5')]
         for (update_pkg_name, update_pkg_version) in update_pkgs:
             if not is_installed_version(update_pkg_name, update_pkg_version):
                 success = install_package_with_retry(update_pkg_name, update_pkg_version)
@@ -178,21 +178,12 @@ def check_base_environment():
             print('Skipping llama_cpp_python installation and continuing...')
 
     elif is_installed("sageattention"):
-        # logger.info(f'检测到旧版环境. 您可以更新到最新CUDA 13.0环境以获得更好的性能.')
-        # logger.info(f'请参考SimpAI.cn的安装说明重新部署.')
-        
-        extra_pkgs = [('comfyui_embedded_docs', 'comfyui_embedded_docs==0.2.3'), ('socketio', 'python-socketio'), ('jsonpatch', 'jsonpatch'), 
-                ('alembic', 'alembic'), ('sqlalchemy', 'SQLAlchemy'), ('pyloudnorm', 'pyloudnorm'), ('pydantic', 'pydantic~=2.0'), ('pydantic_settings', 'pydantic-settings~=2.0')]
-        for (extra_pkg, extra_pkg_name) in extra_pkgs:
-            if not is_installed(extra_pkg):
-                pkg_command = f'pip install {extra_pkg_name} -i {index_url}'
-                run(f'"{python}" -m {pkg_command}', f'Installing {extra_pkg_name}', f"Couldn't install {extra_pkg_name}", live=True)
 
         update_pkgs = [('comfyui_frontend_package', '1.41.18'), ('comfyui_workflow_templates', '0.9.21'), ('comfyui-embedded-docs', '0.4.3'), ('transformers', '4.57.6'), ('bitsandbytes', '0.45.5'), ('accelerate', '1.10.1'), ('av', '14.2.0'), ('yarl', '1.18.0'), ('gguf', '0.14.0'),
                        ('sentencepiece', '0.2.0'), ('diffusers', '0.36.0'), ('huggingface_hub', '0.35.1'), ('peft', '0.17.1'), ('tokenizers', '0.22.1'), ('tiktoken', '0.11.0'), ('librosa', '0.11.0'), ('moviepy', '2.2.1'), ('piexif', '1.1.3'), ('deepdiff', '8.6.0'), ('pydantic', '2.12.2'),
                        ('GitPython', '3.1.45'), ('PyGithub', '2.8.1'), ('matrix-nio', '0.24.0'), ('toml', '0.10.2'), ('uv', '0.9.3'), ('clip-interrogator', '0.6.0'), ('simpleeval', '1.0.3'), ('compel', '2.3.0'), ('rotary-embedding-torch', '0.8.9'), ('hydra-core', '1.3.2'), ('uuid7', '0.1.0'), ('aiosqlite', '0.21.0'), ('configs','3.0.3'),
                        ('mmdet', '3.3.0'), ('mmengine', '0.10.7'), ('munkres', '1.1.4'), ('terminaltables', '3.1.10'), ('color-matcher', '0.6.0'), ('natsort', '8.4.0'), ('olefile', '0.47'), ('taichi', '1.7.4'), ('torchdiffeq', '0.2.5'), ('lark', '1.3.1'), ('comfy-kitchen', '0.2.8'), ('comfy-aimdo', '0.2.10'), ('PyOpenGL', '3.1.10'), ('glfw', '2.10.0'), ('blake3', '1.0.8'),
-                       ('aiohttp', '3.13.3'), ('ninja', '1.11.1.4'), ('numpy', '1.26.4')]
+                       ('aiohttp', '3.13.3'), ('ninja', '1.11.1.4'), ('numpy', '1.26.4'), ('absl-py', '2.4.0'), ('flatbuffers', '25.12.19'), ('mediapipe', '0.10.32'), ('psd-tools', '1.14.1'), ('sounddevice', '0.5.5')]
         for (update_pkg_name, update_pkg_version) in update_pkgs:
             if not is_installed_version(update_pkg_name, update_pkg_version):
                 success = install_package_with_retry(update_pkg_name, update_pkg_version)
@@ -257,21 +248,6 @@ def check_base_environment():
             print('Skipping nunchaku installation and continuing...')
 
         try:
-            if platform.system() == 'Windows' and not is_installed_version('SAM_2', '1.0'):
-                sam_url = 'https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/sam/SAM_2-1.0-cp310-cp310-win_amd64.whl'
-                sam_path = os.path.abspath(os.path.join(root, 'SAM_2-1.0-cp310-cp310-win_amd64.whl'))
-                print('check SAM_2...')
-                has_update_sam = download_if_updated(sam_url, sam_path)
-                is_sam_version_ok = is_installed_version('SAM_2', '1.0')
-
-                if has_update_sam or not is_sam_version_ok:
-                    print(f'ready to install {sam_path}')
-                    run(f'"{python}" -m pip install -U {sam_path}', f'Install {sam_path}', live=True)
-        except Exception as e:
-            print(f'Error installing SAM_2: {str(e)}')
-            print('Skipping SAM_2 installation and continuing...')
-
-        try:
             is_mmcv_installed = is_installed_version('mmcv', '2.1.0')
             if platform.system() == 'Windows':
                 if not is_mmcv_installed:
@@ -297,19 +273,6 @@ def check_base_environment():
         except Exception as e:
             print(f'Error installing mmcv: {str(e)}')
             print('Skipping mmcv installation and continuing...')
-
-        try:
-            if not is_installed_version('sox', '1.5.0'):
-                sox_url = 'https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/sox/sox-1.5.0-py3-none-any.whl'
-                sox_path = os.path.abspath(os.path.join(root, 'sox-1.5.0-py3-none-any.whl'))
-                print('check sox...')
-                has_update_sox = download_if_updated(sox_url, sox_path)
-                if has_update_sox or not is_installed_version('sox', '1.5.0'):
-                    print(f'ready to install {sox_path}')
-                    run(f'"{python}" -m pip install -U {sox_path}', f'Install {sox_path}', live=True)
-        except Exception as e:
-            print(f'Error installing sox: {str(e)}')
-            print('Skipping sox installation and continuing...')
 
         try:
             target_llama_ver = '0.3.30'
@@ -399,7 +362,7 @@ def check_base_environment():
         min_display = cuda_code_to_string(min_cuda_code)
         min_cu_display = f"cu{(min_cuda_code // 1000) * 10 + ((min_cuda_code % 1000) // 10)}"
         logger.warning(f'CUDA driver/runtime version is too low (CUDA: {cuda_display}). Requires CUDA >= {min_display} ({min_cu_display}). Please update your GPU driver: https://www.nvidia.cn/drivers/')
-        logger.warning(f'检测到CUDA驱动/运行时版本过低(CUDA: {cuda_display})。需要CUDA >= {min_display} ({min_cu_display})。请更新显卡驱动：https://www.nvidia.cn/drivers/')
+        logger.warning(f'检测到CUDA驱动/运行时版本过低(CUDA: {cuda_display})。需要CUDA >= {min_display} ({min_cu_display})。请更新显卡驱动否则无法启动：https://www.nvidia.cn/drivers/')
 
     if (sysinfo.get("ram_total", 0)+sysinfo.get("ram_swap", 0))<65536 and not shared.args.disable_backend:
         logger.info(f'The total virtual memory capacity of the system is too small, which will affect the loading and computing efficiency of the model. Please expand the total virtual memory capacity of the system to be greater than 40G.')
@@ -487,14 +450,6 @@ def prepare_environment():
                 run_pip(f"install -U -I --no-deps {xformers_whl_url_linux}", "xformers 0.0.31")
 
     if REINSTALL_ALL or not requirements_met(requirements_file):
-        # if len(met_diff.keys())>0:
-        #     for p in met_diff.keys():
-        #         logger.info(f'Uninstall {p}.{met_diff[p]} ...')
-        #         run(f'"{python}" -m pip uninstall -y {p}=={met_diff[p]}')
-        # if is_win32_standalone_build:
-        #     run_pip(f"install -r \"{requirements_file}\" -t {target_path_win}", "requirements")
-        # else:
-        #     run_pip(f"install -r \"{requirements_file}\"", "requirements", live=True)
         logger.info(f'运行环境中有不匹配的依赖，可能曾经被改动。重新部署程序或咨询交流群1005085136。')
     return
 
