@@ -438,7 +438,7 @@ def print_instructions():
     time.sleep(0.1)
     print(f"{Fore.GREEN}★{Style.RESET_ALL}打开默认浏览器设置，关闭GPU加速、或图形加速的选项。{Fore.GREEN}★{Style.RESET_ALL}大内存(64+)与固态硬盘存放模型有助于减少模型加载时间。{Fore.GREEN}★{Style.RESET_ALL}")
     time.sleep(0.1)
-    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：1005085136{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:26.03.15{Fore.GREEN}★{Style.RESET_ALL}")
+    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：1005085136{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:26.03.20{Fore.GREEN}★{Style.RESET_ALL}")
     print()
     time.sleep(0.1)
 
@@ -2553,7 +2553,7 @@ packages = {'base_package': {'id': 1,
                      'info_links': ['https://civitai.com/models/1981116/dasiwa-wan-22-i2v-14b-or-lightspeed-or-safetensors'],
                      'preset_sample': []},
  'qwen_tts_0_6b': {'id': 39, 'name': '[39]Qwen3-TTS 0.6B模型包', 
-                        'note': 'Qwen3-TTS 0.6B语音生成、克隆模块', 
+                        'note': 'Qwen3-TTS 0.6B语音生成、克隆模块|显存需求：★ 速度：★★★', 
                         'files': ['qwen-tts,Qwen3-TTS-Tokenizer-12Hz/config.json,2336,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-Tokenizer-12Hz/resolve/master/config.json,https://huggingface.co/Qwen/Qwen3-TTS-Tokenizer-12Hz/resolve/main/config.json',
                                 'qwen-tts,Qwen3-TTS-Tokenizer-12Hz/configuration.json,76,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-Tokenizer-12Hz/resolve/master/configuration.json,https://huggingface.co/Qwen/Qwen3-TTS-Tokenizer-12Hz/resolve/main/configuration.json',
                                 'qwen-tts,Qwen3-TTS-Tokenizer-12Hz/model.safetensors,682293092,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-Tokenizer-12Hz/resolve/master/model.safetensors,https://huggingface.co/Qwen/Qwen3-TTS-Tokenizer-12Hz/resolve/main/model.safetensors',
@@ -2585,7 +2585,7 @@ packages = {'base_package': {'id': 1,
                         'info_links': ['https://www.modelscope.cn/collections/Qwen/Qwen3-TTS'],
                         "preset_sample": []}, 
  'qwen_tts_1_7b': {'id': 40, 'name': '[40]Qwen3-TTS 1.7B模型包', 
-                        'note': 'Qwen3-TTS 1.7B语音生成、克隆模块', 
+                        'note': 'Qwen3-TTS 1.7B语音生成、克隆模块|显存需求：★☆ 速度：★★★', 
                         'files': ['qwen-tts,Qwen3-TTS-Tokenizer-12Hz/config.json,2336,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-Tokenizer-12Hz/resolve/master/config.json,https://huggingface.co/Qwen/Qwen3-TTS-Tokenizer-12Hz/resolve/main/config.json',
                                 'qwen-tts,Qwen3-TTS-Tokenizer-12Hz/configuration.json,76,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-Tokenizer-12Hz/resolve/master/configuration.json,https://huggingface.co/Qwen/Qwen3-TTS-Tokenizer-12Hz/resolve/main/configuration.json',
                                 'qwen-tts,Qwen3-TTS-Tokenizer-12Hz/model.safetensors,682293092,0,https://www.modelscope.cn/models/Qwen/Qwen3-TTS-Tokenizer-12Hz/resolve/master/model.safetensors,https://huggingface.co/Qwen/Qwen3-TTS-Tokenizer-12Hz/resolve/main/model.safetensors',
@@ -2629,7 +2629,7 @@ packages = {'base_package': {'id': 1,
                         'info_links': ['https://www.modelscope.cn/collections/Qwen/Qwen3-TTS'],
                         "preset_sample": []},
  'wan_infinitetalk': {'id': 41, 'name': '[41]Wan-InfiniteTalk对口型预置包', 
-                        'note': 'Wan-InfiniteTalk音频驱动数字人对口型预置包', 
+                        'note': 'Wan-InfiniteTalk音频驱动数字人对口型预置包|显存需求：★★★ 速度：★★', 
                         'files': ['diffusion_models,Wan2_1-I2V-14B-480P_fp8_e4m3fn.safetensors,16993877896,0,https://www.modelscope.cn/models/Kijai/WanVideo_comfy/resolve/master/Wan2_1-I2V-14B-480P_fp8_e4m3fn.safetensors,https://huggingface.co/Kijai/wav2vec2_safetensors/resolve/main/wav2vec2-chinese-base_fp16.safetensors',
                                 'clip,umt5-xxl-encoder-Q8_0.gguf,6043068256,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/clip/umt5-xxl-encoder-Q8_0.gguf,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/clip/umt5-xxl-encoder-Q8_0.gguf',
                                 'vae,Wan2_1_VAE_bf16.safetensors,253806278,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/vae/Wan2_1_VAE_bf16.safetensors,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/vae/Wan2_1_VAE_bf16.safetensors',
@@ -2645,6 +2645,21 @@ packages = {'base_package': {'id': 1,
                     'files': ['LLM,Qwen3.5-9B-ultra-heretic/Qwen3.5-9B-ultra-heretic-Q6_K.gguf,7359259040,0,https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/LLM/Qwen3.5-9B-ultra-heretic/Qwen3.5-9B-ultra-heretic-Q6_K.gguf,https://huggingface.co/llmfan46/Qwen3.5-9B-ultra-heretic-GGUF/resolve/main/Qwen3.5-9B-ultra-heretic-Q6_K.gguf',
                              'LLM,Qwen3.5-9B-ultra-heretic/Qwen3.5-9B-mmproj-BF16.gguf,921704480,0,https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/LLM/Qwen3.5-9B-ultra-heretic/Qwen3.5-9B-mmproj-BF16.gguf,https://huggingface.co/llmfan46/Qwen3.5-9B-ultra-heretic-GGUF/resolve/main/Qwen3.5-9B-mmproj-BF16.gguf'],
                     'info_links': ['https://modelscope.cn/models/Qwen/Qwen3.5-9B'],
+                    'preset_sample': []},
+ 'ltx2.3_package': {'id': 43, 'name': '[43]LTX2.3图生音视频生成预置包',
+                    'note': 'LTX2.3图生音视频生成预置包|显存需求：★★★☆ 速度：★★☆',
+                    'files': [
+                        'diffusion_models,ltx-2-3-22b-dev_transformer_only_fp8_input_scaled.safetensors,25016398608,0,https://www.modelscope.cn/models/Kijai/LTX2.3_comfy/resolve/master/diffusion_models/ltx-2-3-22b-dev_transformer_only_fp8_input_scaled.safetensors,https://huggingface.co/Kijai/LTX2.3_comfy/resolve/main/diffusion_models/ltx-2-3-22b-dev_transformer_only_fp8_input_scaled.safetensors',
+                        'loras,ltx/ltx-2.3-22b-distilled-lora-384.safetensors,7605507256,0,https://www.modelscope.cn/models/Lightricks/LTX-2.3/resolve/master/ltx-2.3-22b-distilled-lora-384.safetensors,https://huggingface.co/Lightricks/LTX-2.3/resolve/main/ltx-2.3-22b-distilled-lora-384.safetensors',
+                        'loras,ltx/gemma-3-12b-it-abliterated_heretic_lora_rank64_bf16.safetensors,628203616,0,https://www.modelscope.cn/models/Comfy-Org/ltx-2/resolve/master/split_files/loras/gemma-3-12b-it-abliterated_heretic_lora_rank64_bf16.safetensors,https://huggingface.co/Comfy-Org/ltx-2/resolve/main/split_files/loras/gemma-3-12b-it-abliterated_heretic_lora_rank64_bf16.safetensors',
+                        'text_encoders,ltx-2.3_text_projection_bf16.safetensors,2312149072,0,https://www.modelscope.cn/models/Kijai/LTX2.3_comfy/resolve/master/text_encoders/ltx-2.3_text_projection_bf16.safetensors,https://huggingface.co/Kijai/LTX2.3_comfy/resolve/main/text_encoders/ltx-2.3_text_projection_bf16.safetensors',
+                        'text_encoders,gemma_3_12B_it_fpmixed.safetensors,13708659515,0,https://www.modelscope.cn/models/Comfy-Org/ltx-2/resolve/master/split_files/text_encoders/gemma_3_12B_it_fpmixed.safetensors,https://huggingface.co/Comfy-Org/ltx-2/resolve/main/split_files/text_encoders/gemma_3_12B_it_fpmixed.safetensors',
+                        'latent_upscale_models,ltx-2.3-spatial-upscaler-x2-1.1.safetensors,995743560,0,https://www.modelscope.cn/models/Lightricks/LTX-2.3/resolve/master/ltx-2.3-spatial-upscaler-x2-1.1.safetensors,https://huggingface.co/Lightricks/LTX-2.3/resolve/main/ltx-2.3-spatial-upscaler-x2-1.1.safetensors',
+                        'vae,LTX23_audio_vae_bf16.safetensors,364855188,0,https://www.modelscope.cn/models/Kijai/LTX2.3_comfy/resolve/master/vae/LTX23_audio_vae_bf16.safetensors,https://huggingface.co/Kijai/LTX2.3_comfy/resolve/main/vae/LTX23_audio_vae_bf16.safetensors',
+                        'vae,LTX23_video_vae_bf16.safetensors,1452258578,0,https://www.modelscope.cn/models/Kijai/LTX2.3_comfy/resolve/master/vae/LTX23_video_vae_bf16.safetensors,https://huggingface.co/Kijai/LTX2.3_comfy/resolve/main/vae/LTX23_video_vae_bf16.safetensors',
+                        'vae,taeltx2_3.safetensors,23531296,0,https://www.modelscope.cn/models/Kijai/LTX2.3_comfy/resolve/master/vae/taeltx2_3.safetensors,https://huggingface.co/Kijai/LTX2.3_comfy/resolve/main/vae/taeltx2_3.safetensors',
+                        'controlnet,rife/flownet.pkl,24636301,0,https://www.modelscope.cn/models/windecay/rife/resolve/master/flownet.pkl,https://huggingface.co/windecay/SimpleSDXL2/resolve/main/SimpleModels/controlnet/rife/flownet.pkl'],
+                    'info_links': ['https://www.modelscope.cn/models/Lightricks/LTX-2.3'],
                     'preset_sample': []}
                     }
 MANUAL_DOWNLOAD_MAP = {
