@@ -314,7 +314,8 @@ def generate_clicked(task: worker.AsyncTask, state):
                     gr.update(interactive=True)
                 break
 
-            time.sleep(POLL_INTERVAL)
+            if len(task.yields) == 0:
+                time.sleep(POLL_INTERVAL)
 
             controls_unlocked = backend_ready or ((current_time - local_start_time) >= UNLOCK_CONTROLS_AFTER)
             if controls_unlocked and (not backend_ready) and (not logged_controls_unlock):
