@@ -21,7 +21,13 @@
 }
 
 /* 确保weilin内部的交互元素可以正常响应 */
-.dom-widget:has([class*="weilin-"]) * {
+.dom-widget:has([class*="weilin-"]) textarea,
+.dom-widget:has([class*="weilin-"]) input,
+.dom-widget:has([class*="weilin-"]) select,
+.dom-widget:has([class*="weilin-"]) button,
+.dom-widget:has([class*="weilin-"]) a,
+.dom-widget:has([class*="weilin-"]) [contenteditable="true"],
+.dom-widget:has([class*="weilin-"]) [class*="weilin-"] {
     pointer-events: auto !important;
 }
 
@@ -73,6 +79,8 @@
 .dom-widget.size-full textarea,
 .dom-widget.size-full input,
 .dom-widget.size-full select,
-.dom-widget.size-full button {
+.dom-widget.size-full button,
+.dom-widget.size-full audio,
+.dom-widget.size-full video {
     pointer-events: auto !important;
 }
