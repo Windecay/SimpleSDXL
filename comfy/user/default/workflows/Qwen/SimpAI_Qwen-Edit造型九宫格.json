@@ -1,8 +1,8 @@
 {
   "id": "52f1ab9e-0d7d-49c8-acf6-17c6e949af41",
   "revision": 0,
-  "last_node_id": 219,
-  "last_link_id": 533,
+  "last_node_id": 221,
+  "last_link_id": 535,
   "nodes": [
     {
       "id": 2,
@@ -575,7 +575,7 @@
       ],
       "size": [
         660,
-        20
+        26
       ],
       "flags": {
         "pinned": true,
@@ -645,7 +645,7 @@
       ],
       "size": [
         521.240234375,
-        20
+        26
       ],
       "flags": {
         "pinned": true,
@@ -1674,7 +1674,6 @@
           "link": null
         },
         {
-          "dir": 3,
           "name": "any_05",
           "type": "STRING",
           "link": null
@@ -3204,52 +3203,6 @@
       ],
       "color": "#1b4669",
       "bgcolor": "#29699c"
-    },
-    {
-      "id": 189,
-      "type": "SetNode",
-      "pos": [
-        3460,
-        520
-      ],
-      "size": [
-        210,
-        60
-      ],
-      "flags": {
-        "collapsed": true,
-        "pinned": true
-      },
-      "order": 98,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "link": 510
-        }
-      ],
-      "outputs": [
-        {
-          "name": "*",
-          "type": "*",
-          "links": null
-        }
-      ],
-      "title": "Set_image_grid",
-      "properties": {
-        "previousName": "image_grid",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "version": "7.3",
-          "input_ue_unconnectable": {}
-        }
-      },
-      "widgets_values": [
-        "image_grid"
-      ],
-      "color": "#2a363b",
-      "bgcolor": "#3f5159"
     },
     {
       "id": 190,
@@ -5075,97 +5028,6 @@
       "bgcolor": "#653"
     },
     {
-      "id": 215,
-      "type": "ImageListToImageBatch",
-      "pos": [
-        3320,
-        170
-      ],
-      "size": [
-        210.77109375,
-        26
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 86,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 525
-        }
-      ],
-      "outputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            526
-          ]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "ImageListToImageBatch",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.3"
-        }
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 214,
-      "type": "ZML_ImageBatchConcat",
-      "pos": [
-        3320,
-        230
-      ],
-      "size": [
-        270,
-        178
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 94,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "图像批次",
-          "type": "IMAGE",
-          "link": 526
-        }
-      ],
-      "outputs": [
-        {
-          "name": "拼接后图像",
-          "type": "IMAGE",
-          "links": [
-            510
-          ]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "ZML_ImageBatchConcat",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.3"
-        }
-      },
-      "widgets_values": [
-        "右",
-        3,
-        2,
-        "#000000",
-        2,
-        "#000000"
-      ]
-    },
-    {
       "id": 205,
       "type": "ModelSamplingAuraFlow",
       "pos": [
@@ -5328,13 +5190,14 @@
         }
       ],
       "properties": {
+        "Node name for S&R": "GetGPUInfo",
         "ue_properties": {
           "widget_ue_connectable": {},
           "input_ue_unconnectable": {},
           "version": "7.3"
-        },
-        "Node name for S&R": "GetGPUInfo"
-      }
+        }
+      },
+      "widgets_values": []
     },
     {
       "id": 219,
@@ -5369,12 +5232,12 @@
         }
       ],
       "properties": {
+        "Node name for S&R": "PathchSageAttentionKJ",
         "ue_properties": {
           "widget_ue_connectable": {},
           "input_ue_unconnectable": {},
           "version": "7.3"
-        },
-        "Node name for S&R": "PathchSageAttentionKJ"
+        }
       },
       "widgets_values": [
         "auto",
@@ -5477,15 +5340,159 @@
         }
       ],
       "properties": {
+        "Node name for S&R": "easy ifElse",
         "ue_properties": {
           "widget_ue_connectable": {},
           "input_ue_unconnectable": {},
           "version": "7.3"
-        },
-        "Node name for S&R": "easy ifElse"
+        }
       },
       "widgets_values": [
         false
+      ]
+    },
+    {
+      "id": 215,
+      "type": "ImageListToImageBatch",
+      "pos": [
+        3350,
+        80
+      ],
+      "size": [
+        210.77109375,
+        26
+      ],
+      "flags": {},
+      "order": 86,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 525
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            534
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ImageListToImageBatch",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 189,
+      "type": "SetNode",
+      "pos": [
+        3510,
+        110
+      ],
+      "size": [
+        210,
+        60
+      ],
+      "flags": {
+        "collapsed": true,
+        "pinned": true
+      },
+      "order": 98,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "link": 535
+        }
+      ],
+      "outputs": [
+        {
+          "name": "*",
+          "type": "*",
+          "links": null
+        }
+      ],
+      "title": "Set_image_grid",
+      "properties": {
+        "previousName": "image_grid",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.3",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "image_grid"
+      ],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 221,
+      "type": "ZML_XY_Custom_Grid",
+      "pos": [
+        3350,
+        140
+      ],
+      "size": [
+        300,
+        400
+      ],
+      "flags": {
+        "collapsed": false,
+        "pinned": true
+      },
+      "order": 94,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "图像",
+          "type": "IMAGE",
+          "link": 534
+        }
+      ],
+      "outputs": [
+        {
+          "name": "自定义图表",
+          "type": "IMAGE",
+          "links": [
+            535
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ZML_XY_Custom_Grid",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        "无",
+        "",
+        "右",
+        3,
+        0,
+        1,
+        "爱点风雅黑长体(商用免费).ttf",
+        96,
+        "#000000",
+        "#FFFFFF",
+        30,
+        "#FFFFFF",
+        30,
+        "#FFFFFF"
       ]
     }
   ],
@@ -6075,26 +6082,10 @@
       "MODEL"
     ],
     [
-      510,
-      214,
-      0,
-      189,
-      0,
-      "IMAGE"
-    ],
-    [
       525,
       5,
       0,
       215,
-      0,
-      "IMAGE"
-    ],
-    [
-      526,
-      215,
-      0,
-      214,
       0,
       "IMAGE"
     ],
@@ -6145,6 +6136,22 @@
       218,
       1,
       "MODEL"
+    ],
+    [
+      534,
+      215,
+      0,
+      221,
+      0,
+      "IMAGE"
+    ],
+    [
+      535,
+      221,
+      0,
+      189,
+      0,
+      "IMAGE"
     ]
   ],
   "groups": [
@@ -6377,10 +6384,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.6209213230591552,
+      "scale": 2.1435888100000016,
       "offset": [
-        -185.22183114633086,
-        382.9420617349056
+        -2946.6614807806145,
+        -179.32100085824993
       ]
     },
     "ue_links": [
@@ -6433,7 +6440,7 @@
         "type": "CLIP"
       }
     ],
-    "frontendVersion": "1.35.9",
+    "frontendVersion": "1.41.18",
     "VHS_latentpreview": true,
     "VHS_latentpreviewrate": 8,
     "VHS_MetadataImage": true,
