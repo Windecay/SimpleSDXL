@@ -6109,7 +6109,7 @@
         256,
         0,
         "randomize",
-        false,
+        true,
         false
       ]
     },
