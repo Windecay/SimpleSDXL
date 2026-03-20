@@ -282,10 +282,7 @@ waitForApp((app) => {
                   // 只修复当前节点的dom-widget
                   // 设置pointer-events: none让画布可以交互
                   parent.style.setProperty('pointer-events', 'none', 'important');
-                  // 设置position: absolute让容器跟随节点
-                  parent.style.setProperty('position', 'absolute', 'important');
-                  // 移除size-full类
-                  parent.classList.remove('size-full');
+                  parent.classList.add('weilin-dom-widget-fixed');
                   
                   // 确保内部元素可以交互
                   if (widget.element) {
