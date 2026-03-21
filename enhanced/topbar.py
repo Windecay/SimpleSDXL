@@ -180,6 +180,8 @@ PRESET_STORE_ORDER = [
     "Animate-Outpaint",
     "Wan-SCAIL",
     "InfiniteTalk",
+    "LTX2.3(IA2V)",
+    "LTX2.3(TA2V)",
     "default",
     "eraser-a",
     "StyleTransfer",
