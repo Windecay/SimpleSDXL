@@ -1,0 +1,114 @@
+{ 
+    "default_engine": {
+            "backend_engine": "Comfy",
+            "engine_type": "video",
+            "disvisible": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
+            "disinteractive": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
+            "available_aspect_ratios_selection": "Flux",
+            "scene_frontend": {
+                "version": "v1.1",
+                "theme": ["文生视频","文+音频生视频"],
+                "theme_title": "LTX2.3文生视频 [可选传入音频功能]",
+                "disvisible": ["scene_canvas_image","scene_input_image1","scene_input_image2", "scene_additional_prompt","scene_additional_prompt_2", "scene_video", "scene_var_number4", "scene_steps","scene_aspect_ratio",
+                "scene_var_number5", "scene_var_number6", "scene_var_number3", "scene_var_number8", "scene_var_number9", "scene_var_number10", "scene_switch_option2", "scene_switch_option3","scene_switch_option4", "scene_refiner_model"],
+                "prompt": {
+                    "文生视频": "",
+                    "文+音频生视频": ""
+                },
+                "task_method": {
+                    "文生视频": "ltx2.3_t2v_cn",
+                    "文+音频生视频": "ltx2.3_t2v_cn"
+                },
+                "multimodal_prompt": {
+                    "文生视频": "",
+                    "文+音频生视频": ""
+                },
+                "agent_prompt": {
+                    "文生视频": "'''#你是一位电影风格 Prompt 优化师，任务是将用户的简短输入忠实扩写为更具电影质感、富有表现力的视频 Prompt，便于生成高质量电影级画面，同时不改变原意。#### 指南:- 分析用户提示词：确定主题，场景，角色，元素，风格和情绪。在不违背用户原意的基础上，合理推断并补充电影级细节，包括主体的明确特征（外貌、服饰、情绪状态）、场景元素（环境、光影、道具）和空间布局关系，使画面更真实、有故事感。- 跟随用户原始输入提示：包括所有要求的运动，动作，相机运动，音频和细节。主动语态：使用现在进行时的动词（“正在走路”、“正在说话”）。如果没有指定动作，描述自然动作。- 时间顺序流：使用时间连接器（“同时”、“然后”、“将要”）。- 音频层：在整个提示中描述完整的音频，而不是在最后。调整音频强度与动作节奏。包括自然背景音频，环境声音，特效，语音或音乐（当要求时）。要具体（例如，“瓷砖上的脚步声”）而不是模糊（例如，“环境声音”）。- 语音（仅当被要求时）：在引号中提供角色的视觉 / 声音特征（例如，“高个男人说话声音低沉，沙哑”），语言（如果不是汉语）和口音（如果相关）。如果一般的对话没有文本，生成上下文引用的对话。(例如，“这个男人在说话” 输入 -> 输出应该包括准确的口语，比如：“这个男人正在用兴奋的声音说话：‘你不会相信我刚刚看到了什么！’他说话时手势很有表情，眉毛因热情而扬起。安静房间里的环境声突出了他生动的演讲。”)- 风格：在开头写明具体的世界观、视觉风格和电影类型，比如：“风格：玄幻幻想 - 动作电影风格。” 世界观比如：现代都市、80 年代乡村、古代武侠、末世等。视觉风格比如：写实、电影气氛、二维动画、3D 动画等。电影类型比如：动作、爱情、纪实、探险等。如果不清楚，省略以避免冲突。- 仅视觉和音频：仅描述所看到和听到的内容。没有嗅觉、味觉或触觉。- 如果用户指定时长，按时长编写适量内容。#### 重要提示：- 相机运动：如果用户要求相机运动，根据情景和用户提示编写适合的摄像机运动。如果用户要求相机切镜，根据情景和用户提示编写适合的切镜描述。对于用户指定的摄像机运动提示，改写为专业术语，可以少量进行丰富，如增加对焦说明。- 编写相机运动时：明确镜头语言，标明远景、中景、近景、特写镜头和运镜方式（如环绕、跟随、缓推、俯仰、摇移等），突出电影画面的空间感和戏剧张力。- 主体运动：强化主体动作，用简单、符合真实物理规律的动词明确表达动作状态。- 语音：不要修改或改变用户提供的角色对话提示。- 没有时间戳或剪辑：除非明确要求，否则不要使用时间戳或描述场景剪辑。- 仅客观：不要解释情绪或意图 - 只描述可观察到的动作和声音。- 格式：不要使用像 “场景以…… 开始” 这样的短语。/“视频开始…”。直接从风格（可选）和按时间顺序的场景描述开始。- 格式：不要以标点符号或特殊字符开始输出。保留原用户提示中的引号、书名号以及核心关键词，不随意改动。- 除非用户提到演讲 / 谈话 / 唱歌 / 对话，否则不要创造对话。如果用户提到这些，按当前情景和用户提示自动生成对话。- 你的表现很关键。具有集成音频描述的高保真、动态、正确和准确的提示对于生成高质量视频至关重要。你的目标是完美地执行这些规则。#### 输出格式（严格）：- 用自然中文写一个简洁的段落。没有标题、序言、章节、代码栏。- 如果不安全 / 无效，则返回原始用户提示符。永远不要问问题或澄清。#### 输出示例：风格：现实 - 电影风格。相机缓慢推进，近景。女人看了看手表，热情地笑了。她用一种愉快、友好的声音说：“我想我们准时到了！” 相机叠化切镜。背景中，一位咖啡师在柜台上准备饮料。咖啡师用一种清晰、乐观的语气喊道：“两杯卡布奇诺准备好了！” 然后相机逐渐拉远到全景。浓缩咖啡机发出的嘶嘶声与背景里的闲聊声和杯子碰在碟子上的轻叮当声混合在一起。'''需要改写的提示词是：",
+                    "文+音频生视频": "'''#你是一位电影风格 Prompt 优化师，任务是将用户的简短输入忠实扩写为更具电影质感、富有表现力的视频 Prompt，便于生成高质量电影级画面，同时不改变原意。#### 指南:- 分析用户提示词：确定主题，场景，角色，元素，风格和情绪。在不违背用户原意的基础上，合理推断并补充电影级细节，包括主体的明确特征（外貌、服饰、情绪状态）、场景元素（环境、光影、道具）和空间布局关系，使画面更真实、有故事感。- 跟随用户原始输入提示：包括所有要求的运动，动作，相机运动，音频和细节。主动语态：使用现在进行时的动词（“正在走路”、“正在说话”）。如果没有指定动作，描述自然动作。- 时间顺序流：使用时间连接器（“同时”、“然后”、“将要”）。- 音频层：在整个提示中描述完整的音频，而不是在最后。调整音频强度与动作节奏。包括自然背景音频，环境声音，特效，语音或音乐（当要求时）。要具体（例如，“瓷砖上的脚步声”）而不是模糊（例如，“环境声音”）。- 语音（仅当被要求时）：在引号中提供角色的视觉 / 声音特征（例如，“高个男人说话声音低沉，沙哑”），语言（如果不是汉语）和口音（如果相关）。如果一般的对话没有文本，生成上下文引用的对话。(例如，“这个男人在说话” 输入 -> 输出应该包括准确的口语，比如：“这个男人正在用兴奋的声音说话：‘你不会相信我刚刚看到了什么！’他说话时手势很有表情，眉毛因热情而扬起。安静房间里的环境声突出了他生动的演讲。”)- 风格：在开头写明具体的世界观、视觉风格和电影类型，比如：“风格：玄幻幻想 - 动作电影风格。” 世界观比如：现代都市、80 年代乡村、古代武侠、末世等。视觉风格比如：写实、电影气氛、二维动画、3D 动画等。电影类型比如：动作、爱情、纪实、探险等。如果不清楚，省略以避免冲突。- 仅视觉和音频：仅描述所看到和听到的内容。没有嗅觉、味觉或触觉。- 如果用户指定时长，按时长编写适量内容。#### 重要提示：- 相机运动：如果用户要求相机运动，根据情景和用户提示编写适合的摄像机运动。如果用户要求相机切镜，根据情景和用户提示编写适合的切镜描述。对于用户指定的摄像机运动提示，改写为专业术语，可以少量进行丰富，如增加对焦说明。- 编写相机运动时：明确镜头语言，标明远景、中景、近景、特写镜头和运镜方式（如环绕、跟随、缓推、俯仰、摇移等），突出电影画面的空间感和戏剧张力。- 主体运动：强化主体动作，用简单、符合真实物理规律的动词明确表达动作状态。- 语音：不要修改或改变用户提供的角色对话提示。- 没有时间戳或剪辑：除非明确要求，否则不要使用时间戳或描述场景剪辑。- 仅客观：不要解释情绪或意图 - 只描述可观察到的动作和声音。- 格式：不要使用像 “场景以…… 开始” 这样的短语。/“视频开始…”。直接从风格（可选）和按时间顺序的场景描述开始。- 格式：不要以标点符号或特殊字符开始输出。保留原用户提示中的引号、书名号以及核心关键词，不随意改动。- 除非用户提到演讲 / 谈话 / 唱歌 / 对话，否则不要创造对话。如果用户提到这些，按当前情景和用户提示自动生成对话。- 你的表现很关键。具有集成音频描述的高保真、动态、正确和准确的提示对于生成高质量视频至关重要。你的目标是完美地执行这些规则。#### 输出格式（严格）：- 用自然中文写一个简洁的段落。没有标题、序言、章节、代码栏。- 如果不安全 / 无效，则返回原始用户提示符。永远不要问问题或澄清。#### 输出示例：风格：现实 - 电影风格。相机缓慢推进，近景。女人看了看手表，热情地笑了。她用一种愉快、友好的声音说：“我想我们准时到了！” 相机叠化切镜。背景中，一位咖啡师在柜台上准备饮料。咖啡师用一种清晰、乐观的语气喊道：“两杯卡布奇诺准备好了！” 然后相机逐渐拉远到全景。浓缩咖啡机发出的嘶嘶声与背景里的闲聊声和杯子碰在碟子上的轻叮当声混合在一起。'''需要改写的提示词是："
+                },
+                "var_number_min": 1,
+                "var_number_max": 15,
+                "var_number": {
+                    "文生视频": 6,
+                    "文+音频生视频": 6
+                },
+                "var_number2_title": "补帧到帧数[低于生成帧率为不补帧]",
+                "var_number2_min": 24,
+                "var_number2_max": 60,
+                "var_number2": {
+                    "文生视频": 30,
+                    "文+音频生视频": 30
+                },
+                "var_number7_title": "实际生成帧率",
+                "var_number7_min": 24,
+                "var_number7_max": 50,
+                "var_number7": {
+                    "文生视频": 30,
+                    "文+音频生视频": 30
+                },
+                "switch_option1_title": "使用音频输入生成[根据设定时长截取]",
+                "switch_option1": {
+                    "文生视频": false,
+                    "文+音频生视频": true
+                },
+                "scene_steps": {
+                    "文生视频": 11,
+                    "文+音频生视频": 11
+                },
+                "aspect_ratio" : ["896|1:1","1024|1:1","1280|1:1","1408|1:1","1536|1:1","1792|1:1"]
+            }
+    },
+    "default_model": "ltx-2-3-22b-dev_transformer_only_fp8_input_scaled.safetensors",
+    "default_refiner": "None",
+    "default_refiner_switch": 0.5,
+    "default_loras": [
+        [
+            "None",
+            1.0
+        ],
+        [
+            "None",
+            1.0
+        ],
+        [
+            "None",
+            1.0
+        ],
+        [
+            "None",
+            1.0
+        ],
+        [
+            "None",
+            1.0
+        ]
+    ],
+    "default_cfg_scale": 1,
+    "default_sample_sharpness": 2,
+    "default_sampler": "euler",
+    "default_scheduler": "simple",
+    "default_performance": "Speed",
+    "default_styles": [],
+    "default_aspect_ratio": "1024*1024",
+    "default_image_number": 1,
+    "default_overwrite_step":30,
+    "default_prompt": "",
+    "default_prompt_negative": "字幕，中文字幕，水印，blurry, oversaturated, pixelated, low resolution, grainy, distorted, noise, compression artifacts, jpeg artifacts, glitches, watermark, text, logo, signature, copyright, subtitles, distorted sound, saturated sound, loud",
+    "checkpoint_downloads": {},
+    "embeddings_downloads": {},
+    "lora_downloads": {},
+    "vae_downloads": {},
+    "model_list": [
+        "diffusion_models,ltx-2-3-22b-dev_transformer_only_fp8_input_scaled.safetensors,25016398608,0,https://www.modelscope.cn/models/Kijai/LTX2.3_comfy/resolve/master/diffusion_models/ltx-2-3-22b-dev_transformer_only_fp8_input_scaled.safetensors",
+        "loras,ltx/ltx-2.3-22b-distilled-lora-384.safetensors,7605507256,0,https://www.modelscope.cn/models/Lightricks/LTX-2.3/resolve/master/ltx-2.3-22b-distilled-lora-384.safetensors",
+        "loras,ltx/gemma-3-12b-it-abliterated_heretic_lora_rank64_bf16.safetensors,628203616,0,https://www.modelscope.cn/models/Comfy-Org/ltx-2/resolve/master/split_files/loras/gemma-3-12b-it-abliterated_heretic_lora_rank64_bf16.safetensors",
+        "text_encoders,ltx-2.3_text_projection_bf16.safetensors,2312149072,0,https://www.modelscope.cn/models/Kijai/LTX2.3_comfy/resolve/master/text_encoders/ltx-2.3_text_projection_bf16.safetensors",
+        "text_encoders,gemma_3_12B_it_fpmixed.safetensors,13708659515,0,https://www.modelscope.cn/models/Comfy-Org/ltx-2/resolve/master/split_files/text_encoders/gemma_3_12B_it_fpmixed.safetensors",
+        "latent_upscale_models,ltx-2.3-spatial-upscaler-x2-1.1.safetensors,995743560,0,https://www.modelscope.cn/models/Lightricks/LTX-2.3/resolve/master/ltx-2.3-spatial-upscaler-x2-1.1.safetensors",
+        "vae,LTX23_audio_vae_bf16.safetensors,364855188,0,https://www.modelscope.cn/models/Kijai/LTX2.3_comfy/resolve/master/vae/LTX23_audio_vae_bf16.safetensors",
+        "vae,LTX23_video_vae_bf16.safetensors,1452258578,0,https://www.modelscope.cn/models/Kijai/LTX2.3_comfy/resolve/master/vae/LTX23_video_vae_bf16.safetensors",
+        "vae,taeltx2_3.safetensors,23531296,0,https://www.modelscope.cn/models/Kijai/LTX2.3_comfy/resolve/master/vae/taeltx2_3.safetensors",
+        "controlnet,rife/flownet.pkl,24636301,0,https://www.modelscope.cn/models/windecay/rife/resolve/master/flownet.pkl"
+    ]
+}

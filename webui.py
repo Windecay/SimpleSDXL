@@ -979,14 +979,6 @@ with shared.gradio_root:
                                 gr.update(visible=show_sam3, open=show_sam3),
                             )
 
-                        scene_theme.change(
-                            fn=check_camera_control_visibility,
-                            inputs=[scene_theme, state_topbar],
-                            outputs=[camera_control_accordion, anglelight_control_accordion, style_transfer_accordion, sam3_video_mask_accordion],
-                            queue=False,
-                            show_progress=False
-                        )
-                            
                         scene_canvas_image = grh.Image(label='Upload and canvas(1)', show_label=True, source='upload', type='numpy', tool='sketch', height=250, brush_color="#70FF81", mask_color=True, image_mode='RGBA', elem_id='scene_canvas')
                         with gr.Row() as scene_input_images:
                             scene_input_image1 = grh.Image(label='Upload prompt image(2)', value=None, source='upload', type='numpy', image_mode='RGBA', show_label=True, height=300, show_download_button=False)
@@ -1027,6 +1019,41 @@ with shared.gradio_root:
                         scene_video = gr.Video(label="Video (Upload)", visible=False, source="upload", height=400)
                         scene_video.upload(on_video_upload, inputs=[scene_video], outputs=[scene_video, scene_original_video_path, active_video_source], show_progress=True)
                         scene_video_placeholder = gr.HTML('<div style="height: 400px; display: flex; align-items: center; justify-content: center; border: 2px dashed #ccc; border-radius: 8px; background: rgba(128,128,128,0.1); color: #888; font-size: 16px;"><span>Hide When Generating...</span></div>', visible=False, elem_id="scene_video_placeholder")
+                        with gr.Accordion(label='Resolution Box', visible=False) as scene_resolution_override_accordion:
+                            scene_use_resolution_override_checkbox = gr.Checkbox(label='Resolution Box', value=False, visible=False)
+                            scene_resolution_override = gr.HTML(
+                                value="""
+                                <div id="scene_resolution_override_widget" style="display:flex; flex-direction:column; gap:12px; padding:12px; border:1px solid var(--neutral-700); border-radius:12px; width:100%; margin:0 auto; align-items:center;">
+                                <div style="display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap; width:100%;">
+                                    <div style="display:flex; gap:10px; align-items:center; justify-content:flex-start; flex-wrap:wrap;">
+                                    <label style="display:flex; gap:6px; align-items:center; font-size:12px; opacity:0.9;">
+                                        W
+                                        <input data-role="winput" title="图像宽" type="number" min="-1" max="2048" step="1" value="-1" style="width:80px; padding:6px 8px; border-radius:8px; border:1px solid var(--neutral-700); background:var(--neutral-900); color:inherit;" />
+                                    </label>
+                                    <label style="display:flex; gap:6px; align-items:center; font-size:12px; opacity:0.9;">
+                                        H
+                                        <input data-role="hinput" title="图像高" type="number" min="-1" max="2048" step="1" value="-1" style="width:80px; padding:6px 8px; border-radius:8px; border:1px solid var(--neutral-700); background:var(--neutral-900); color:inherit;" />
+                                    </label>
+                                    <select data-role="qstep" title="规格化步长" style="width:32px; padding:6px 6px; border-radius:8px; border:1px solid var(--neutral-700); background:var(--neutral-900); color:inherit; font-size:12px;">
+                                        <option value="16">16</option>
+                                        <option value="32">32</option>
+                                        <option value="64">64</option>
+                                    </select>
+                                    </div>
+                                    <div style="display:flex; gap:8px; align-items:center; justify-content:flex-end;">
+                                    <button data-role="scale_down" type="button" title="缩小 10%" style="width:36px; height:30px; border-radius:8px; border:1px solid var(--neutral-700); background:var(--neutral-900); color:inherit; cursor:pointer; font-size:14px; line-height:1;">-</button>
+                                    <button data-role="scale_up" type="button" title="放大 10%" style="width:36px; height:30px; border-radius:8px; border:1px solid var(--neutral-700); background:var(--neutral-900); color:inherit; cursor:pointer; font-size:14px; line-height:1;">+</button>
+                                    </div>
+                                </div>
+                                <div data-role="pad" style="position:relative; width:min(520px, 100%); aspect-ratio:1/1; height:auto; border-radius:12px; border:1px solid var(--neutral-700); background:radial-gradient(circle at 1px 1px, rgba(255,255,255,0.07) 1px, transparent 1px) 0 0 / 18px 18px; overflow:hidden; user-select:none; touch-action:none; margin:0 auto;">
+                                    <div data-role="rect" style="position:absolute; left:0; top:0; width:50%; height:50%; background:rgba(255,255,255,0.08); border:2px solid rgba(255,255,255,0.35); border-radius:8px; box-sizing:border-box;">
+                                    <div data-role="handle" style="position:absolute; right:0; bottom:0; width:14px; height:14px; border-radius:50%; background:rgba(255,255,255,0.75); border:2px solid rgba(0,0,0,0.35); box-sizing:border-box; transform:translate(50%, 50%);"></div>
+                                    </div>
+                                </div>
+                                </div>
+                                """,
+                                visible=False
+                            )
                         scene_audio = gr.Audio(label="Audio (Upload)", visible=False, source="upload", type="filepath")
                         scene_audio_placeholder = gr.HTML('<div style="padding: 20px; text-align: center; border: 2px dashed #ccc; border-radius: 8px; background: rgba(128,128,128,0.1); color: #888;">Hide When Generating...</div>', visible=False, elem_id="scene_audio_placeholder")
                         scene_additional_prompt_2 = gr.Textbox(label="Blessing words", show_label=True, max_lines=1, visible=False, elem_classes='scene_input_2', elem_id='scene_additional_prompt_2')
@@ -3049,11 +3076,30 @@ with shared.gradio_root:
                                     last_preset_ratio = ratio_value
                                 return ratio_value
 
+                            def maybe_clear_overwrite_after_aspect_ratio_select(state):
+                                if isinstance(state, dict) and "scene_frontend" in state:
+                                    try:
+                                        scenes = state.get("scene_frontend", {})
+                                        theme = state.get("scene_theme", None)
+                                        task_method = scenes.get("task_method", "")
+                                        if isinstance(task_method, dict):
+                                            if isinstance(theme, str) and theme in task_method:
+                                                task_method = task_method.get(theme, "")
+                                            elif task_method:
+                                                task_method = next(iter(task_method.values()), "")
+                                        elif isinstance(task_method, list):
+                                            task_method = task_method[0] if task_method else ""
+                                        if "t2v" in str(task_method or "").lower():
+                                            return [gr.update(), gr.update()]
+                                    except Exception:
+                                        return [gr.update(), gr.update()]
+                                return [gr.update(value=-1), gr.update(value=-1)]
+
                             for i, aspect_ratios_select in enumerate(aspect_ratios_selections):
                                 template = flags.aspect_ratios_templates[i]
                                 aspect_ratios_select.change(lambda x, t=template: save_selected_preset_ratio(f"{x},{t}"), inputs=aspect_ratios_select, outputs=aspect_ratios_selection, queue=False, show_progress=False) \
                                     .then(lambda x: None, inputs=aspect_ratios_select, queue=False, show_progress=False, _js='(x)=>{refresh_aspect_ratios_label(x);}') \
-                                    .then(lambda: [gr.update(value=-1), gr.update(value=-1)], outputs=[overwrite_width, overwrite_height], queue=False, show_progress=False)
+                                    .then(maybe_clear_overwrite_after_aspect_ratio_select, inputs=[state_topbar], outputs=[overwrite_width, overwrite_height], queue=False, show_progress=False)
 
                             def overwrite_aspect_ratios(width, height):
                                 global last_condition_met, last_preset_ratio
@@ -4046,7 +4092,6 @@ with shared.gradio_root:
             show_progress=False
         )
 
-
         output_format.input(lambda x: gr.update(output_format=x), inputs=output_format)
 
         advanced_checkbox.change(lambda x: gr.update(visible=x), advanced_checkbox, advanced_column,
@@ -4147,7 +4192,7 @@ with shared.gradio_root:
         image_input_panel_ctrls = [engine_class_display, uov_method, layer_method, layer_input_image, enhance_checkbox, enhance_input_image]
         reset_preset_layout = [params_backend, advanced_checkbox, performance_selection, scheduler_name, sampler_name, input_image_checkbox, prompt_panel_checkbox, enhance_checkbox, base_model, refiner_model, overwrite_step, guidance_scale, negative_prompt, preset_instruction, identity_dialog] + image_input_panel_ctrls + lora_ctrls
         reset_preset_func = [output_format, inpaint_advanced_masking_checkbox, mixing_image_prompt_and_vary_upscale, mixing_image_prompt_and_inpaint, backfill_prompt, translation_methods, input_image_checkbox, quick_enhance]
-        scene_frontend_ctrls = [prompt_internal_panel, random_button, super_prompter, disable_intermediate_results, image_tools_checkbox, scene_panel, scene_theme] + scene_params[1:] + [generate_button, load_parameter_button]
+        scene_frontend_ctrls = [prompt_internal_panel, random_button, super_prompter, disable_intermediate_results, image_tools_checkbox, scene_panel, scene_theme, scene_resolution_override_accordion, scene_use_resolution_override_checkbox, scene_resolution_override] + scene_params[1:] + [generate_button, load_parameter_button]
 
         metadata_import_button.click(trigger_metadata_import, inputs=[metadata_input_image, state_is_generating, state_topbar], outputs=reset_preset_layout + reset_preset_func + scene_frontend_ctrls + load_data_outputs, queue=False, show_progress=True) \
             .then(style_sorter.sort_styles, inputs=style_selections, outputs=style_selections, queue=False, show_progress=False)
@@ -4685,8 +4730,26 @@ with shared.gradio_root:
                    .then(switch_scene_theme_ready_to_gen, inputs=[state_topbar, image_number, scene_canvas_image, scene_input_image1, scene_additional_prompt, scene_additional_prompt_2, scene_theme, scene_video, scene_audio], outputs=[prompt, generate_button], queue=False, show_progress=True) \
                    .then(check_camera_control_visibility, inputs=[scene_theme, state_topbar], outputs=[camera_control_accordion, anglelight_control_accordion, style_transfer_accordion, sam3_video_mask_accordion], queue=False, show_progress=False)
 
-        scene_aspect_ratio.change(lambda: [gr.update(value=-1), gr.update(value=-1)], outputs=[overwrite_width, overwrite_height], queue=False, show_progress=False)
-        scene_aspect_ratio.select(lambda: [gr.update(value=-1), gr.update(value=-1)], outputs=[overwrite_width, overwrite_height], queue=False, show_progress=False)
+        def scene_aspect_ratio_changed(state, theme, scene_ar):
+            task_method = ""
+            if isinstance(state, dict):
+                scenes = state.get("scene_frontend", {})
+                if isinstance(scenes, dict):
+                    tm = scenes.get("task_method", "")
+                    if isinstance(tm, dict):
+                        if isinstance(theme, str) and theme in tm:
+                            tm = tm.get(theme, "")
+                        elif tm:
+                            tm = next(iter(tm.values()), "")
+                    elif isinstance(tm, list):
+                        tm = tm[0] if tm else ""
+                    task_method = str(tm or "")
+            if "t2v" in task_method.lower():
+                return [gr.update(), gr.update()]
+            return [gr.update(value=-1), gr.update(value=-1)]
+
+        scene_aspect_ratio.change(scene_aspect_ratio_changed, inputs=[state_topbar, scene_theme, scene_aspect_ratio], outputs=[overwrite_width, overwrite_height], queue=False, show_progress=False)
+        scene_aspect_ratio.select(scene_aspect_ratio_changed, inputs=[state_topbar, scene_theme, scene_aspect_ratio], outputs=[overwrite_width, overwrite_height], queue=False, show_progress=False)
 
         scene_video.upload(switch_scene_theme_ready_to_gen, inputs=[state_topbar, image_number, scene_canvas_image, scene_input_image1, scene_additional_prompt, scene_additional_prompt_2, scene_theme, scene_video, scene_audio], outputs=[prompt, generate_button], queue=False, show_progress=False)
         scene_video.clear(switch_scene_theme_ready_to_gen, inputs=[state_topbar, image_number, scene_canvas_image, scene_input_image1, scene_additional_prompt, scene_additional_prompt_2, scene_theme, scene_video, scene_audio], outputs=[prompt, generate_button], queue=False, show_progress=False)
@@ -4793,7 +4856,7 @@ with shared.gradio_root:
     topbar.reset_layout_num = len(reset_layout_ui_outputs) - len(nav_bars)
     topbar.reset_layout_ui_outputs_len = len(reset_layout_ui_outputs)
     reset_preset_inputs = [prompt, negative_prompt, state_topbar, state_is_generating, inpaint_mode, comfyd_active_checkbox]
-    reset_values_inputs = [state_topbar, state_is_generating, inpaint_mode, use_resolution_override_checkbox]
+    reset_values_inputs = [state_topbar, state_is_generating, inpaint_mode, use_resolution_override_checkbox, scene_theme, scene_aspect_ratio]
 
     for i in range(shared.BUTTON_NUM):
         bar_buttons[i].click(topbar.reset_layout_ui, inputs=reset_preset_inputs + [bar_buttons[i]], outputs=reset_layout_ui_outputs + [state_topbar, comparison_state, comparison_box, progress_gallery, compare_btn, progress_window], queue=False, show_progress=False) \
@@ -4806,7 +4869,6 @@ with shared.gradio_root:
                .then(fn=lambda x: None, inputs=system_params, _js='(x)=>{refresh_topbar_status_js(x); refresh_style_localization(); refresh_scene_localization();}') \
                .then(update_describe_output_tags, inputs=engine_class_display, outputs=describe_output_tags, queue=False, show_progress=False) \
                .then(inpaint_mode_change, inputs=[inpaint_mode, inpaint_engine_state, outpaint_selections, state_topbar], outputs=[inpaint_additional_prompt, outpaint_selections, example_inpaint_prompts, inpaint_disable_initial_latent, inpaint_engine, inpaint_strength, inpaint_respective_field], show_progress=False, queue=False) \
-               .then(check_camera_control_visibility, inputs=[scene_theme, state_topbar], outputs=[camera_control_accordion, anglelight_control_accordion, style_transfer_accordion, sam3_video_mask_accordion], queue=False, show_progress=False) \
                .then(inpaint_engine_state_change, inputs=[inpaint_engine_state, state_topbar] + enhance_inpaint_mode_ctrls, outputs=enhance_inpaint_engine_ctrls, queue=False, show_progress=False)  \
                .then(check_and_show_missing_models, inputs=[bar_buttons[i], state_topbar], outputs=[missing_model_modal, missing_model_list, missing_model_total_progress, missing_model_btn]) \
                .then(topbar.stop_comfyd_background, inputs=[comfyd_active_checkbox], queue=False)
@@ -4824,7 +4886,6 @@ with shared.gradio_root:
                       .then(fn=lambda x: None, inputs=system_params, _js='(x)=>{refresh_topbar_status_js(x);}') \
                       .then(topbar.sync_message, inputs=state_topbar) \
                       .then(inpaint_mode_change, inputs=[inpaint_mode, inpaint_engine_state, outpaint_selections, state_topbar], outputs=[inpaint_additional_prompt, outpaint_selections, example_inpaint_prompts, inpaint_disable_initial_latent, inpaint_engine, inpaint_strength, inpaint_respective_field], show_progress=False, queue=False) \
-                      .then(check_camera_control_visibility, inputs=[scene_theme, state_topbar], outputs=[camera_control_accordion, anglelight_control_accordion, style_transfer_accordion, sam3_video_mask_accordion], queue=False, show_progress=False) \
                       .then(lambda x: x, inputs=aspect_ratios_selections[0], outputs=aspect_ratios_selection, queue=False, show_progress=False) \
                       .then(lambda x: None, inputs=aspect_ratios_selections[0], queue=False, show_progress=False, _js='(x)=>{refresh_aspect_ratios_label(x);}') \
                       .then(fn=lambda: None, _js='refresh_grid_delayed') \

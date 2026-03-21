@@ -438,7 +438,7 @@ def print_instructions():
     time.sleep(0.1)
     print(f"{Fore.GREEN}★{Style.RESET_ALL}打开默认浏览器设置，关闭GPU加速、或图形加速的选项。{Fore.GREEN}★{Style.RESET_ALL}大内存(64+)与固态硬盘存放模型有助于减少模型加载时间。{Fore.GREEN}★{Style.RESET_ALL}")
     time.sleep(0.1)
-    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：1005085136{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:26.03.20{Fore.GREEN}★{Style.RESET_ALL}")
+    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：1005085136{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:26.03.22{Fore.GREEN}★{Style.RESET_ALL}")
     print()
     time.sleep(0.1)
 
@@ -2646,8 +2646,8 @@ packages = {'base_package': {'id': 1,
                              'LLM,Qwen3.5-9B-ultra-heretic/Qwen3.5-9B-mmproj-BF16.gguf,921704480,0,https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/LLM/Qwen3.5-9B-ultra-heretic/Qwen3.5-9B-mmproj-BF16.gguf,https://huggingface.co/llmfan46/Qwen3.5-9B-ultra-heretic-GGUF/resolve/main/Qwen3.5-9B-mmproj-BF16.gguf'],
                     'info_links': ['https://modelscope.cn/models/Qwen/Qwen3.5-9B'],
                     'preset_sample': []},
- 'ltx2.3_package': {'id': 43, 'name': '[43]LTX2.3图生音视频生成预置包',
-                    'note': 'LTX2.3图生音视频生成预置包|显存需求：★★★☆ 速度：★★☆',
+ 'ltx2.3_package': {'id': 43, 'name': '[43]LTX2.3文生、图生音视频生成预置包',
+                    'note': 'LTX2.3文生、图生音视频生成预置包|显存需求：★★★☆ 速度：★★☆',
                     'files': [
                         'diffusion_models,ltx-2-3-22b-dev_transformer_only_fp8_input_scaled.safetensors,25016398608,0,https://www.modelscope.cn/models/Kijai/LTX2.3_comfy/resolve/master/diffusion_models/ltx-2-3-22b-dev_transformer_only_fp8_input_scaled.safetensors,https://huggingface.co/Kijai/LTX2.3_comfy/resolve/main/diffusion_models/ltx-2-3-22b-dev_transformer_only_fp8_input_scaled.safetensors',
                         'loras,ltx/ltx-2.3-22b-distilled-lora-384.safetensors,7605507256,0,https://www.modelscope.cn/models/Lightricks/LTX-2.3/resolve/master/ltx-2.3-22b-distilled-lora-384.safetensors,https://huggingface.co/Lightricks/LTX-2.3/resolve/main/ltx-2.3-22b-distilled-lora-384.safetensors',

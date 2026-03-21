@@ -464,6 +464,20 @@ def switch_layout_template(presetdata: dict | str, state_params, preset_url=''):
         themes_title = scenes.get('theme_title', '')
         results.append(get_layout_update_label_and_choice_visible_inter(themes_title, themes, theme_default, 'scene_theme', visible, inter))
 
+        task_method = scenes.get("task_method", "")
+        if isinstance(task_method, dict):
+            if isinstance(theme_default, str) and theme_default in task_method:
+                task_method = task_method.get(theme_default, "")
+            elif task_method:
+                task_method = next(iter(task_method.values()), "")
+        elif isinstance(task_method, list):
+            task_method = task_method[0] if task_method else ""
+        is_t2v = "t2v" in str(task_method or "").lower()
+
+        results.append(gr.update(visible=is_t2v))                 # scene_resolution_override_accordion
+        results.append(gr.update(visible=False, value=is_t2v))    # scene_use_resolution_override_checkbox
+        results.append(gr.update(visible=is_t2v))                 # scene_resolution_override
+
         results.append(get_layout_visible('scene_canvas_image', visible))
         results.append(get_layout_visible('scene_input_image1', visible))
         results.append(get_layout_visible('scene_input_image2', visible))
@@ -559,7 +573,7 @@ def switch_layout_template(presetdata: dict | str, state_params, preset_url=''):
         results.append(gr.update(visible=False))
         results.append(gr.update(visible=True, interactive=True))
         
-        results += [gr.update(visible=False)] * 26
+        results += [gr.update(visible=False)] * 29
 
         results.append(gr.update(visible=True, interactive=True))  #generate_button
         results.append(gr.update(visible=False))                   #load_parameter_button

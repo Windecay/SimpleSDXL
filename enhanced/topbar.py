@@ -1017,7 +1017,7 @@ def reset_layout_ui(prompt, negative_prompt, state_params, is_generating, inpain
     
     return results + [state_params] + comparison_outputs
 
-def reset_layout_values(state_params, is_generating, inpaint_mode, use_resolution_override):
+def reset_layout_values(state_params, is_generating, inpaint_mode, use_resolution_override, scene_theme=None, scene_aspect_ratio=None):
     if not isinstance(state_params, dict):
         state_params = {}
 
@@ -1055,10 +1055,75 @@ def reset_layout_values(state_params, is_generating, inpaint_mode, use_resolutio
             'is_mobile': state_params.get("__is_mobile", False) })
 
     results = meta_parser.load_parameter_button_click(preset_prepared, is_generating, inpaint_mode, use_resolution_override, no_welcome=ads.get_admin_default("no_welcome_checkbox"))
+
+    def _parse_scene_resolution(value):
+        if value is None:
+            return -1, -1
+        s = str(value).strip()
+        if not s:
+            return -1, -1
+        s = s.split(",", 1)[0].strip()
+        if "|" in s:
+            parts = s.split("|", 1)
+            w_raw = parts[0].strip()
+            ratio = parts[1].strip()
+            if w_raw.isdigit() and ":" in ratio:
+                try:
+                    a_str, b_str = ratio.split(":", 1)
+                    a = float(a_str)
+                    b = float(b_str)
+                    w = int(w_raw)
+                    if a > 0 and b > 0 and w > 0:
+                        h = int(round(w * (b / a)))
+                        return w, h
+                except Exception:
+                    pass
+        try:
+            import re
+            m = re.search(r"(\d+)\D+(\d+)", s.replace("×", "x").replace("*", "x"))
+            if m:
+                return int(m.group(1)), int(m.group(2))
+        except Exception:
+            pass
+        return -1, -1
+
+    def _scene_is_t2v(state):
+        try:
+            scenes = state.get("scene_frontend", {})
+            if not isinstance(scenes, dict):
+                return False
+            task_method = scenes.get("task_method", "")
+            theme = scene_theme if isinstance(scene_theme, str) and scene_theme else state.get("scene_theme", None)
+            if isinstance(task_method, dict):
+                if isinstance(theme, str) and theme in task_method:
+                    task_method = task_method.get(theme, "")
+                elif task_method:
+                    task_method = next(iter(task_method.values()), "")
+            elif isinstance(task_method, list):
+                task_method = task_method[0] if task_method else ""
+            return "t2v" in str(task_method or "").lower()
+        except Exception:
+            return False
+
+    scene_t2v_enabled = _scene_is_t2v(state_params)
+    if scene_t2v_enabled:
+        try:
+            ow = results[13]
+            oh = results[14]
+            ow_val = int(ow) if isinstance(ow, (int, float)) else -1
+            oh_val = int(oh) if isinstance(oh, (int, float)) else -1
+        except Exception:
+            ow_val, oh_val = -1, -1
+
+        if not (ow_val > 0 and oh_val > 0):
+            w2, h2 = _parse_scene_resolution(scene_aspect_ratio)
+            if w2 > 0 and h2 > 0:
+                results[13] = gr.update(value=int(w2))
+                results[14] = gr.update(value=int(h2))
     results += update_after_identity_sub(state_params)
 
     reset_ui_results = [gr.update(), gr.update(), gr.update()] + \
-               ["None"]*4 + [True] + [False] + \
+               [gr.update()]*4 + [True] + [False] + \
                [gr.update(visible=False),False,[],"base",gr.update(variant="secondary"),gr.update(variant="secondary")] + \
                [gr.update(visible=False) for _ in config.default_loras] + \
                [False for _ in config.default_loras] + \

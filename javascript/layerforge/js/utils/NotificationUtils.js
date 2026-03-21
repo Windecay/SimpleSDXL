@@ -209,34 +209,6 @@ export function showNotification(message, backgroundColor = "#4a6cd4", duration 
         dismissTimeout = window.setTimeout(closeNotification, duration);
         progressBar.style.animation = `lf-progress ${duration / 1000}s linear`;
     };
-    const pauseAndRewindTimer = () => {
-        if (dismissTimeout !== null)
-            clearTimeout(dismissTimeout);
-        dismissTimeout = null;
-        const computedStyle = window.getComputedStyle(progressBar);
-        progressBar.style.transform = computedStyle.transform;
-        progressBar.style.animation = 'lf-progress-rewind 0.5s ease-out forwards';
-    };
-    notification.addEventListener('mouseenter', () => {
-        pauseAndRewindTimer();
-        // Update stored timeout if deduplicate is enabled
-        if (deduplicate) {
-            const stored = activeNotifications.get(message);
-            if (stored) {
-                stored.timeout = null;
-            }
-        }
-    });
-    notification.addEventListener('mouseleave', () => {
-        startDismissTimer();
-        // Update stored timeout if deduplicate is enabled
-        if (deduplicate) {
-            const stored = activeNotifications.get(message);
-            if (stored) {
-                stored.timeout = dismissTimeout;
-            }
-        }
-    });
     startDismissTimer();
     // Store notification if deduplicate is enabled
     if (deduplicate) {
@@ -250,7 +222,7 @@ export function showNotification(message, backgroundColor = "#4a6cd4", duration 
  * @param duration - Duration in milliseconds (default: 3000)
  * @param deduplicate - If true, will not show duplicate messages (default: false)
  */
-export function showSuccessNotification(message, duration = 3000, deduplicate = false) {
+export function showSuccessNotification(message, duration = 2000, deduplicate = false) {
     showNotification(message, undefined, duration, "success", deduplicate);
 }
 /**
@@ -259,7 +231,7 @@ export function showSuccessNotification(message, duration = 3000, deduplicate = 
  * @param duration - Duration in milliseconds (default: 5000)
  * @param deduplicate - If true, will not show duplicate messages (default: false)
  */
-export function showErrorNotification(message, duration = 5000, deduplicate = false) {
+export function showErrorNotification(message, duration = 3000, deduplicate = false) {
     showNotification(message, undefined, duration, "error", deduplicate);
 }
 /**
@@ -268,7 +240,7 @@ export function showErrorNotification(message, duration = 5000, deduplicate = fa
  * @param duration - Duration in milliseconds (default: 3000)
  * @param deduplicate - If true, will not show duplicate messages (default: false)
  */
-export function showInfoNotification(message, duration = 3000, deduplicate = false) {
+export function showInfoNotification(message, duration = 2000, deduplicate = false) {
     showNotification(message, undefined, duration, "info", deduplicate);
 }
 /**
@@ -277,7 +249,7 @@ export function showInfoNotification(message, duration = 3000, deduplicate = fal
  * @param duration - Duration in milliseconds (default: 3000)
  * @param deduplicate - If true, will not show duplicate messages (default: false)
  */
-export function showWarningNotification(message, duration = 3000, deduplicate = false) {
+export function showWarningNotification(message, duration = 2000, deduplicate = false) {
     showNotification(message, undefined, duration, "warning", deduplicate);
 }
 /**
@@ -286,7 +258,7 @@ export function showWarningNotification(message, duration = 3000, deduplicate = 
  * @param duration - Duration in milliseconds (default: 3000)
  * @param deduplicate - If true, will not show duplicate messages (default: false)
  */
-export function showAlertNotification(message, duration = 3000, deduplicate = false) {
+export function showAlertNotification(message, duration = 2000, deduplicate = false) {
     showNotification(message, undefined, duration, "alert", deduplicate);
 }
 /**
@@ -297,7 +269,7 @@ export function showAllNotificationTypes(message) {
     types.forEach((type, index) => {
         const notificationMessage = message || `This is a '${type}' notification.`;
         setTimeout(() => {
-            showNotification(notificationMessage, undefined, 3000, type, false);
+            showNotification(notificationMessage, undefined, 2000, type, false);
         }, index * 400); // Stagger the notifications
     });
 }

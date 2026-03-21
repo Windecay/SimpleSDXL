@@ -9179,9 +9179,9 @@
       "properties": {
         "Node name for S&R": "mxSlider",
         "value": 896,
-        "min": 720,
+        "min": 768,
         "max": 1792,
-        "step": 128,
+        "step": 64,
         "decimals": 0,
         "snap": true,
         "ue_properties": {

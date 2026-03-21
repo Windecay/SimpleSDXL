@@ -7,9 +7,10 @@ AUTO_SKIP_CONTROL_HINT_THRESH = {
     "y_light_thr": 0.45,
     "y_mid_low": 0.20,
     "y_mid_high": 0.80,
-    "sat_grayscale_max": 0.10,
+    "sat_grayscale_max": 0.06,
     "sat_hi_thr": 0.25,
-    "sat_hi_ratio_grayscale_max": 0.03,
+    "sat_hi_ratio_grayscale_max": 0.01,
+    "rgb_diff_mean_grayscale_max": 0.025,
     "dark_bg_ratio_dark_min": 0.60,
     "dark_bg_mean_y_max": 0.38,
     "light_bg_ratio_bright_min": 0.55,
@@ -70,6 +71,7 @@ def extract_features(image_np):
     maxc = np.maximum(np.maximum(r, g), b)
     minc = np.minimum(np.minimum(r, g), b)
     sat = maxc - minc
+    rgb_diff_mean = float(np.mean((np.abs(r - g) + np.abs(g - b) + np.abs(b - r)) / 3.0))
 
     t = AUTO_SKIP_CONTROL_HINT_THRESH
 
@@ -91,7 +93,11 @@ def extract_features(image_np):
 
     ratio_mid = float(np.mean((y > t["y_mid_low"]) & (y < t["y_mid_high"])))
 
-    grayscale_like = sat_mean < t["sat_grayscale_max"] and sat_hi_ratio < t["sat_hi_ratio_grayscale_max"]
+    grayscale_like = (
+        sat_mean < t["sat_grayscale_max"]
+        and sat_hi_ratio < t["sat_hi_ratio_grayscale_max"]
+        and rgb_diff_mean < t["rgb_diff_mean_grayscale_max"]
+    )
     dark_background_like = ratio_dark > t["dark_bg_ratio_dark_min"] and mean_y < t["dark_bg_mean_y_max"]
     light_background_like = ratio_bright > t["light_bg_ratio_bright_min"] and mean_y > t["light_bg_mean_y_min"] and ratio_dark < t["light_bg_ratio_dark_max"]
 
@@ -133,6 +139,7 @@ def extract_features(image_np):
         "sat_mean": sat_mean,
         "sat_hi_ratio": sat_hi_ratio,
         "sat_fg_mean": sat_fg_mean,
+        "rgb_diff_mean": rgb_diff_mean,
         "edge_density": edge_density,
         "edge_ratio": edge_ratio,
         "grayscale_like": bool(grayscale_like),

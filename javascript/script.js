@@ -940,8 +940,8 @@ function _ro_gcd(a, b) {
     return a || 1;
 }
 
-function initResolutionOverrideWidget() {
-    const widget = gradioApp().getElementById('resolution_override_widget');
+function initResolutionOverrideWidgetById(widgetId) {
+    const widget = gradioApp().getElementById(widgetId);
     if (!widget) return;
     if (widget.dataset.initialized === '1') {
         if (typeof widget.__ro_sync === 'function') {
@@ -1151,8 +1151,13 @@ function initResolutionOverrideWidget() {
     syncFromSliders();
 }
 
-onUiLoaded(initResolutionOverrideWidget);
-onAfterUiUpdate(initResolutionOverrideWidget);
+function initResolutionOverrideWidgets() {
+    initResolutionOverrideWidgetById('resolution_override_widget');
+    initResolutionOverrideWidgetById('scene_resolution_override_widget');
+}
+
+onUiLoaded(initResolutionOverrideWidgets);
+onAfterUiUpdate(initResolutionOverrideWidgets);
 
 function initPersonalWildcardsPopup() {
     const app = (typeof gradioApp === 'function') ? gradioApp() : null;
