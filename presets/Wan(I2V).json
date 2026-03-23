@@ -32,9 +32,7 @@
                 "var_number2_min": 16,
                 "var_number2_max": 60,
                 "var_number2": {
-                    "基础": 60,
-                    "质量[8步]": 60,
-                    "极致[10步]": 60
+                    "基础": 30
                 },
                 "var_number3_title": "CFG引导系数[大于1采样变慢]",
                 "var_number3_min": 1.0,

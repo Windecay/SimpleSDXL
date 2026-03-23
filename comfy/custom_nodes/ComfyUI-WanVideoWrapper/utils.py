@@ -25,6 +25,39 @@ import comfy.model_management as mm
 device = mm.get_torch_device()
 offload_device = mm.unet_offload_device()
 
+def get_wanvae_tiling_params(width, height, upsampling_factor, max_tile_px=512, max_overlap_px=64):
+    if upsampling_factor is None or upsampling_factor <= 0:
+        return None, None
+
+    width = int(width)
+    height = int(height)
+    upsampling_factor = int(upsampling_factor)
+
+    tile_w = min(max_tile_px, width)
+    tile_h = min(max_tile_px, height)
+
+    tile_w = max(upsampling_factor, (tile_w // upsampling_factor) * upsampling_factor)
+    tile_h = max(upsampling_factor, (tile_h // upsampling_factor) * upsampling_factor)
+
+    overlap_w = min(max_overlap_px, tile_w // 4)
+    overlap_h = min(max_overlap_px, tile_h // 4)
+
+    overlap_w = max(upsampling_factor, (overlap_w // upsampling_factor) * upsampling_factor)
+    overlap_h = max(upsampling_factor, (overlap_h // upsampling_factor) * upsampling_factor)
+
+    overlap_w = min(overlap_w, tile_w - upsampling_factor)
+    overlap_h = min(overlap_h, tile_h - upsampling_factor)
+
+    stride_w = tile_w - overlap_w
+    stride_h = tile_h - overlap_h
+
+    stride_w = max(upsampling_factor, (stride_w // upsampling_factor) * upsampling_factor)
+    stride_h = max(upsampling_factor, (stride_h // upsampling_factor) * upsampling_factor)
+
+    tile_size = (tile_h // upsampling_factor, tile_w // upsampling_factor)
+    tile_stride = (stride_h // upsampling_factor, stride_w // upsampling_factor)
+    return tile_size, tile_stride
+
 try:
     from .gguf.gguf import GGUFParameter
 except:

@@ -249,7 +249,7 @@
       ],
       "force_offload": true,
       "frame_window_size": [
-        "747",
+        "792",
         0
       ],
       "colormatch": "disabled",
@@ -261,7 +261,10 @@
         "748",
         15
       ],
-      "tiled_vae": false,
+      "tiled_vae": [
+        "748",
+        20
+      ],
       "vae": [
         "38",
         0
@@ -755,45 +758,6 @@
       "title": "SaveVideoWebsocket"
     }
   },
-  "743": {
-    "inputs": {
-      "expression": "a//4*4+1",
-      "a": [
-        "747",
-        0
-      ]
-    },
-    "class_type": "UtilityExpression",
-    "_meta": {
-      "title": "Expression"
-    }
-  },
-  "744": {
-    "inputs": {
-      "expression": "b if (a%b == 0 or a%b>=b*0.5 or a//b==0) else ((max(a//(a//b), b//2)-1)//4)*4+1",
-      "a": [
-        "400",
-        1
-      ],
-      "b": [
-        "743",
-        0
-      ]
-    },
-    "class_type": "UtilityExpression",
-    "_meta": {
-      "title": "Expression"
-    }
-  },
-  "747": {
-    "inputs": {
-      "value": 77
-    },
-    "class_type": "easy int",
-    "_meta": {
-      "title": "Int"
-    }
-  },
   "748": {
     "inputs": {
       "prompt": "",
@@ -1250,6 +1214,19 @@
     "class_type": "easy ifElse",
     "_meta": {
       "title": "If else"
+    }
+  },
+  "792": {
+    "inputs": {
+      "frame_count": [
+        "751",
+        6
+      ],
+      "force_size": 1
+    },
+    "class_type": "WanAnimateBestFrameWindow",
+    "_meta": {
+      "title": "WanAnimate Best Frame Window"
     }
   }
 }

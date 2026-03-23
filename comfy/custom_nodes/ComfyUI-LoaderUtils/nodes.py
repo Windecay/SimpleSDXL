@@ -348,14 +348,18 @@ class CLIPLoader_Any:
 class DualCLIPLoader_Any:
     @classmethod
     def INPUT_TYPES(s):
-        return {"required": { "clip_name1": (folder_paths.get_filename_list("text_encoders"), ),
-                              "clip_name2": (folder_paths.get_filename_list("text_encoders"), ),
-                              "type": (["sdxl", "sd3", "flux", "hidream", "hunyuan_image"], ),
-                             },
-                "optional": {
-                              "device": (["default", "cpu"], {"advanced": True}),
-                              "any": (IO.ANY, {})
-                             }}
+        try:
+            import nodes
+            return add_any_input(nodes.DualCLIPLoader.INPUT_TYPES())
+        except Exception:
+            return {"required": { "clip_name1": (folder_paths.get_filename_list("text_encoders"), ),
+                                  "clip_name2": (folder_paths.get_filename_list("text_encoders"), ),
+                                  "type": (["sdxl", "sd3", "flux", "hidream", "hunyuan_image"], ),
+                                 },
+                    "optional": {
+                                  "device": (["default", "cpu"], {"advanced": True}),
+                                  "any": (IO.ANY, {})
+                                 }}
     RETURN_TYPES = ("CLIP",)
     FUNCTION = "load_clip"
 

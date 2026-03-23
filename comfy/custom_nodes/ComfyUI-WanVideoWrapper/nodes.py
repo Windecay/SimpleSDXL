@@ -4,7 +4,7 @@ import torch.nn.functional as F
 import hashlib
 from tqdm import tqdm
 
-from .utils import(log, clip_encode_image_tiled, add_noise_to_reference_video, set_module_tensor_to_device)
+from .utils import(log, clip_encode_image_tiled, add_noise_to_reference_video, set_module_tensor_to_device, get_wanvae_tiling_params)
 from .taehv import TAEHV
 
 from comfy import model_management as mm
@@ -1245,6 +1245,9 @@ class WanVideoAnimateEmbeds:
         mm.soft_empty_cache()
         gc.collect()
         vae.to(device)
+        tile_size, tile_stride = (None, None)
+        if tiled_vae:
+            tile_size, tile_stride = get_wanvae_tiling_params(W, H, vae.upsampling_factor)
         # Resize and rearrange the input image dimensions
         pose_latents = ref_latent = None
         if pose_images is not None:
@@ -1255,7 +1258,7 @@ class WanVideoAnimateEmbeds:
                 resized_pose_images = pose_images.permute(3, 0, 1, 2) # C, T, H, W
             resized_pose_images = resized_pose_images * 2 - 1
             if not looping:
-                pose_latents = vae.encode([resized_pose_images.to(device, vae.dtype)], device,tiled=tiled_vae)
+                pose_latents = vae.encode([resized_pose_images.to(device, vae.dtype)], device, tiled=tiled_vae, tile_size=tile_size, tile_stride=tile_stride)
                 pose_latents = pose_latents.to(offload_device)
             
                 if pose_latents.shape[2] < latent_window_size:
@@ -1278,7 +1281,7 @@ class WanVideoAnimateEmbeds:
         if not looping:
             if bg_images is None:
                 resized_bg_images = torch.zeros(3, num_frames - num_refs, H, W, device=device, dtype=vae.dtype)
-            bg_latents = vae.encode([resized_bg_images.to(device, vae.dtype)], device,tiled=tiled_vae)[0].to(offload_device)
+            bg_latents = vae.encode([resized_bg_images.to(device, vae.dtype)], device, tiled=tiled_vae, tile_size=tile_size, tile_stride=tile_stride)[0].to(offload_device)
             del resized_bg_images
         elif bg_images is not None:
             resized_bg_images = resized_bg_images.to(offload_device, dtype=vae.dtype)
@@ -1290,7 +1293,7 @@ class WanVideoAnimateEmbeds:
                 resized_ref_images = ref_images.permute(3, 0, 1, 2) # C, T, H, W
             resized_ref_images = resized_ref_images[:3] * 2 - 1
 
-            ref_latent = vae.encode([resized_ref_images.to(device, vae.dtype)], device,tiled=tiled_vae)[0]
+            ref_latent = vae.encode([resized_ref_images.to(device, vae.dtype)], device, tiled=tiled_vae, tile_size=tile_size, tile_stride=tile_stride)[0]
             msk = torch.zeros(4, 1, lat_h, lat_w, device=device, dtype=vae.dtype)
             msk[:, :num_refs] = 1
             ref_latent_masked = torch.cat([msk, ref_latent], dim=0).to(offload_device) # 4+C 1 H W
@@ -1364,6 +1367,7 @@ class WanVideoAnimateEmbeds:
             "looping": looping,
             "pose_strength": pose_strength,
             "face_strength": face_strength,
+            "tiled_vae": tiled_vae,
         }
 
         return (image_embeds,)

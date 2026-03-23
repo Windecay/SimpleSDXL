@@ -9,7 +9,7 @@ from .wanvideo.schedulers import get_scheduler, scheduler_list
 from .gguf.gguf import set_lora_params_gguf
 from .multitalk.multitalk import add_noise
 from .utils import(log, print_memory, apply_lora, fourier_filter, optimized_scale, setup_radial_attention,
-                   compile_model, dict_to_device, tangential_projection, get_raag_guidance, temporal_score_rescaling, offload_transformer, init_blockswap)
+                   compile_model, dict_to_device, tangential_projection, get_raag_guidance, temporal_score_rescaling, offload_transformer, init_blockswap, get_wanvae_tiling_params)
 from .multitalk.multitalk_loop import multitalk_loop
 from .cache_methods.cache_methods import cache_report
 from .nodes_model_loading import load_weights
@@ -2258,6 +2258,7 @@ class WanVideoSampler:
 
                             noise = torch.randn(16, latent_window_size + 1, lat_h, lat_w, dtype=torch.float32, device=torch.device("cpu"), generator=seed_g).to(device)
                             seq_len = math.ceil((noise.shape[2] * noise.shape[3]) / 4 * noise.shape[1])
+                            tile_size, tile_stride = (None, None)
 
                             if current_ref_images is not None or bg_images is not None or ref_latent is not None:
                                 if offload:
@@ -2272,11 +2273,15 @@ class WanVideoSampler:
                                     bg_image_slice = bg_images_in[:, start:end].to(device)
                                 else:
                                     bg_image_slice = torch.zeros(3, frame_window_size-refert_num, lat_h * 8, lat_w * 8, device=device, dtype=vae.dtype)
+
+                                if tiled_vae:
+                                    tile_size, tile_stride = get_wanvae_tiling_params(bg_image_slice.shape[3], bg_image_slice.shape[2], vae.upsampling_factor)
+
                                 if mask_reft_len == 0:
-                                    temporal_ref_latents = vae.encode([bg_image_slice], device,tiled=tiled_vae)[0]
+                                    temporal_ref_latents = vae.encode([bg_image_slice], device, tiled=tiled_vae, tile_size=tile_size, tile_stride=tile_stride)[0]
                                 else:
                                     concatenated = torch.cat([current_ref_images.to(device, dtype=vae.dtype), bg_image_slice[:, mask_reft_len:]], dim=1)
-                                    temporal_ref_latents = vae.encode([concatenated.to(device, vae.dtype)], device,tiled=tiled_vae, pbar=False)[0]
+                                    temporal_ref_latents = vae.encode([concatenated.to(device, vae.dtype)], device, tiled=tiled_vae, tile_size=tile_size, tile_stride=tile_stride, pbar=False)[0]
                                     msk[:, :mask_reft_len] = 1
 
                                 if msk.shape[1] != temporal_ref_latents.shape[1]:
@@ -2300,7 +2305,9 @@ class WanVideoSampler:
                             if pose_images is not None:
                                 vae.to(device)
                                 pose_image_slice = pose_images_in[:, start:end].to(device)
-                                pose_input_slice = vae.encode([pose_image_slice], device,tiled=tiled_vae, pbar=False).to(dtype)
+                                if tiled_vae and tile_size is None:
+                                    tile_size, tile_stride = get_wanvae_tiling_params(pose_image_slice.shape[3], pose_image_slice.shape[2], vae.upsampling_factor)
+                                pose_input_slice = vae.encode([pose_image_slice], device, tiled=tiled_vae, tile_size=tile_size, tile_stride=tile_stride, pbar=False).to(dtype)
 
                             vae.to(offload_device)
 
