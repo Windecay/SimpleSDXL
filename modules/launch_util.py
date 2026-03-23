@@ -122,13 +122,26 @@ def run(command, desc=None, errdesc=None, custom_env=None, live: bool = default_
 
     return (result.stdout or "")
 
+def _make_pip_env(base_env=None):
+    env = (os.environ if base_env is None else base_env).copy()
+    env["PYTHONNOUSERSITE"] = "1"
+    env["PIP_USER"] = "0"
+    env.pop("PYTHONPATH", None)
+    env.pop("PYTHONHOME", None)
+    return env
+
 
 def run_pip(command, desc=None, live=default_command_live):
     try:
         index_url_line = f' --index-url {index_url}' if index_url != '' else ''
         index_url_line = f'{index_url_line} --extra-index-url {extra_index_url}' if extra_index_url != '' else index_url_line
-        return run(f'"{python}" -m pip {command} {target_path_install} --prefer-binary{index_url_line}', desc=f"Installing {desc}",
-                   errdesc=f"Couldn't install {desc}", live=live)
+        return run(
+            f'"{python}" -s -m pip --no-user {command} {target_path_install} --prefer-binary{index_url_line}',
+            desc=f"Installing {desc}",
+            errdesc=f"Couldn't install {desc}",
+            custom_env=_make_pip_env(),
+            live=live,
+        )
     except Exception as e:
         logger.info(e)
         logger.info(f'CMD Failed {desc}: {command}')

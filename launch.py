@@ -61,6 +61,14 @@ if "GRADIO_SERVER_PORT" not in os.environ:
 
 ssl._create_default_https_context = ssl._create_unverified_context
 
+def _make_pip_env():
+    env = os.environ.copy()
+    env["PYTHONNOUSERSITE"] = "1"
+    env["PIP_USER"] = "0"
+    env.pop("PYTHONPATH", None)
+    env.pop("PYTHONHOME", None)
+    return env
+
 def install_package_with_retry(pkg_name, pkg_version=None, description=None):
     """尝试安装包，先使用阿里源，如果失败则尝试使用清华源"""
     desc = description or f'Installing {pkg_name}'
@@ -68,11 +76,11 @@ def install_package_with_retry(pkg_name, pkg_version=None, description=None):
 
     try:
         if pkg_version:
-            pkg_command = f'pip install -U {pkg_name}=={pkg_version} -i {index_url}'
+            pkg_command = f'pip install -U --no-user {pkg_name}=={pkg_version} -i {index_url}'
         else:
-            pkg_command = f'pip install -U {pkg_name} -i {index_url}'
+            pkg_command = f'pip install -U --no-user {pkg_name} -i {index_url}'
 
-        run(f'"{python}" -m {pkg_command}', desc, errdesc, live=True)
+        run(f'"{python}" -s -m {pkg_command}', desc, errdesc, custom_env=_make_pip_env(), live=True)
         return True
     except Exception as e:
         logger.warning(f"阿里源安装{pkg_name}失败: {str(e)}")
@@ -80,11 +88,11 @@ def install_package_with_retry(pkg_name, pkg_version=None, description=None):
 
     try:
         if pkg_version:
-            pkg_command = f'pip install -U {pkg_name}=={pkg_version} -i {extra_index_url}'
+            pkg_command = f'pip install -U --no-user {pkg_name}=={pkg_version} -i {extra_index_url}'
         else:
-            pkg_command = f'pip install -U {pkg_name} -i {extra_index_url}'
+            pkg_command = f'pip install -U --no-user {pkg_name} -i {extra_index_url}'
 
-        run(f'"{python}" -m {pkg_command}', desc, errdesc, live=True)
+        run(f'"{python}" -s -m {pkg_command}', desc, errdesc, custom_env=_make_pip_env(), live=True)
         return True
     except Exception as e:
         logger.error(f"使用清华源安装{pkg_name}失败: {str(e)}")
@@ -125,12 +133,12 @@ def check_base_environment():
     if has_update_whl or REINSTALL_BASE or not is_installed_version(base_pkg, ver_required):
         if os.path.exists(base_path):
             if not is_installed(base_pkg):
-                run(f'"{python}" -m pip install {base_path}', f'Install {base_pkg} {ver_required}')
+                run(f'"{python}" -s -m pip install --no-user {base_path}', f'Install {base_pkg} {ver_required}', custom_env=_make_pip_env())
             else:
                 version_installed = importlib.metadata.version(base_pkg)
                 if REINSTALL_BASE or packaging.version.parse(ver_required) != packaging.version.parse(version_installed):
                     logger.info(f"正在更新 {base_pkg}: {version_installed} -> {ver_required}")
-                    run(f'"{python}" -m pip install -U {base_path}', f'Update {base_pkg} {ver_required}')
+                    run(f'"{python}" -s -m pip install --no-user -U {base_path}', f'Update {base_pkg} {ver_required}', custom_env=_make_pip_env())
         else:
             if not is_installed(base_pkg):
                 logger.error(f"缺失必要的包 {base_pkg} 且下载失败，程序可能无法正常运行。请检查网络连接并重新启动。")
@@ -172,7 +180,7 @@ def check_base_environment():
                     has_update_llama = download_if_updated(llama_url, llama_path)
                     if has_update_llama or not is_installed_version('llama_cpp_python', target_llama_ver) or need_reinstall:
                         print(f'ready to install {llama_path}')
-                        run(f'"{python}" -m pip install -U --force-reinstall --no-deps {llama_path}', f'Install {llama_path}', live=True)
+                        run(f'"{python}" -s -m pip install --no-user -U --force-reinstall --no-deps {llama_path}', f'Install {llama_path}', custom_env=_make_pip_env(), live=True)
         except Exception as e:
             print(f'Error installing llama_cpp_python: {str(e)}')
             print('Skipping llama_cpp_python installation and continuing...')
@@ -242,7 +250,7 @@ def check_base_environment():
                     has_update_whl = download_if_updated(pkg_url, pkg_path)
                     # 再次检查是否已安装对应版本，防止重复安装
                     if has_update_whl or (target_ver is not None and not is_installed_version('nunchaku', target_ver)) or (platform.system() == 'Linux' and need_nunchaku_install):
-                        run(f'"{python}" -m pip install -U {pkg_path}', f'Install {pkg_path}', live=True)
+                        run(f'"{python}" -s -m pip install --no-user -U {pkg_path}', f'Install {pkg_path}', custom_env=_make_pip_env(), live=True)
         except Exception as e:
             print(f'Error installing nunchaku: {str(e)}')
             print('Skipping nunchaku installation and continuing...')
@@ -257,7 +265,7 @@ def check_base_environment():
                     has_update_mmcv = download_if_updated(mmcv_url, mmcv_path)
                     if has_update_mmcv or not is_installed_version('mmcv', '2.1.0'):
                         print(f'ready to install {mmcv_path}')
-                        run(f'"{python}" -m pip install -U {mmcv_path}', f'Install {mmcv_path}', live=True)
+                        run(f'"{python}" -s -m pip install --no-user -U {mmcv_path}', f'Install {mmcv_path}', custom_env=_make_pip_env(), live=True)
             elif platform.system() == 'Linux':
                 need_reinstall = not is_mmcv_installed
                 if is_mmcv_installed:
@@ -269,7 +277,7 @@ def check_base_environment():
 
                 if need_reinstall:
                     print('Installing mmcv for Linux...')
-                    run(f'"{python}" -m pip install -U mmcv==2.1.0', 'Install mmcv', live=True)
+                    run(f'"{python}" -s -m pip install --no-user -U mmcv==2.1.0', 'Install mmcv', custom_env=_make_pip_env(), live=True)
         except Exception as e:
             print(f'Error installing mmcv: {str(e)}')
             print('Skipping mmcv installation and continuing...')
@@ -300,7 +308,7 @@ def check_base_environment():
                     has_update_llama = download_if_updated(llama_url, llama_path)
                     if has_update_llama or not is_installed_version('llama_cpp_python', target_llama_ver) or need_reinstall:
                         print(f'ready to install {llama_path}')
-                        run(f'"{python}" -m pip install -U --force-reinstall --no-deps {llama_path}', f'Install {llama_path}', live=True)
+                        run(f'"{python}" -s -m pip install --no-user -U --force-reinstall --no-deps {llama_path}', f'Install {llama_path}', custom_env=_make_pip_env(), live=True)
         except Exception as e:
             print(f'Error installing llama_cpp_python: {str(e)}')
             print('Skipping llama_cpp_python installation and continuing...')

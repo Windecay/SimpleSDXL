@@ -590,7 +590,28 @@ function refresh_style_layout() {
 
                 if (!btn.style.backgroundImage || btn.style.backgroundImage === 'none') {
                     const styleName = rawName.toLowerCase().replace(/ /g, '_').replace(/[^a-z0-9_]/g, '');
-                    btn.style.backgroundImage = `url("file=sdxl_styles/samples/${styleName}.jpg")`;
+                    const defaultUrl = 'file=sdxl_styles/samples/default_style.jpg';
+                    const candidateUrls = [
+                        `file=sdxl_styles/samples/${styleName}.jpg`
+                    ];
+
+                    btn.style.backgroundImage = `url("${defaultUrl}")`;
+
+                    let candidateIndex = 0;
+                    const probe = new Image();
+                    probe.onload = () => {
+                        const url = candidateUrls[candidateIndex];
+                        if (url) {
+                            btn.style.backgroundImage = `url("${url}")`;
+                        }
+                    };
+                    probe.onerror = () => {
+                        candidateIndex += 1;
+                        if (candidateIndex < candidateUrls.length) {
+                            probe.src = candidateUrls[candidateIndex];
+                        }
+                    };
+                    probe.src = candidateUrls[candidateIndex];
                 }
 
                 if (isSelected) {

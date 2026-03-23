@@ -289,10 +289,22 @@ function initStylePreviewOverlay() {
         overlay.style.opacity = "1";
         const originalText = label.querySelector("span").getAttribute("data-original-text");
         const name = originalText || label.querySelector("span").textContent;
-        overlay.style.backgroundImage = `url("${samplesPath.replace(
-            "fooocus_v2",
-            name.toLowerCase().replaceAll(" ", "_")
-        ).replaceAll("\\", "\\\\")}")`;
+        const normalizedName = String(name || '')
+            .toLowerCase()
+            .replaceAll(" ", "_")
+            .replace(/[^a-z0-9_]/g, '');
+
+        const defaultUrl = samplesPath.replace("fooocus_v2", "default_style");
+        const candidateUrl = samplesPath.replace("fooocus_v2", normalizedName);
+        const escapedDefaultUrl = defaultUrl.replaceAll("\\", "\\\\");
+        const escapedCandidateUrl = candidateUrl.replaceAll("\\", "\\\\");
+
+        overlay.style.backgroundImage = `url("${escapedDefaultUrl}")`;
+        const probe = new Image();
+        probe.onload = () => {
+            overlay.style.backgroundImage = `url("${escapedCandidateUrl}")`;
+        };
+        probe.src = candidateUrl;
 
         tooltip.textContent = label.querySelector("span").textContent || name;
 

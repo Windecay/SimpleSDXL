@@ -797,7 +797,7 @@
   },
   "548": {
     "inputs": {
-      "expression": "b*(round(a/1000)/8*8)+1  ",
+      "expression": "round(a/1000*b/8)*8+1",
       "values.a": [
         "269",
         0
@@ -817,7 +817,7 @@
       "spatial_tiles": 2,
       "spatial_overlap": 4,
       "temporal_tile_length": 16,
-      "temporal_overlap": 2,
+      "temporal_overlap": 4,
       "last_frame_fix": false,
       "working_device": "auto",
       "working_dtype": "auto",
