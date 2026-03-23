@@ -814,10 +814,10 @@
   },
   "567": {
     "inputs": {
-      "spatial_tiles": 2,
-      "spatial_overlap": 4,
+      "spatial_tiles": 4,
+      "spatial_overlap": 2,
       "temporal_tile_length": 16,
-      "temporal_overlap": 4,
+      "temporal_overlap": 2,
       "last_frame_fix": false,
       "working_device": "auto",
       "working_dtype": "auto",

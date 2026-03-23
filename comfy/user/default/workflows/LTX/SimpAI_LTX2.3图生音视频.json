@@ -4815,8 +4815,8 @@
         }
       },
       "widgets_values": [
-        2,
         4,
+        2,
         16,
         2,
         true,
@@ -9078,7 +9078,7 @@
       "title": "图生时长(秒）",
       "properties": {
         "Node name for S&R": "mxSlider",
-        "value": 6,
+        "value": 8,
         "min": 1,
         "max": 40,
         "step": 1,
