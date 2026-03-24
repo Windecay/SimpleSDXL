@@ -170,6 +170,64 @@ def install_llama_cpp_python():
 
     return None
 
+def install_nvidia_vfx():
+    import subprocess
+    import importlib.metadata
+
+    python_exe = sys.executable
+    timeout_seconds = int(os.environ.get("COMFY_NVIDIA_VFX_INSTALL_TIMEOUT", "300"))
+
+    def build_pip_cmd():
+        cmd = [python_exe]
+        if sys.flags.no_user_site or ("python_embeded" in python_exe) or ("python_embedded" in python_exe):
+            cmd.append("-s")
+        cmd += ["-m", "pip", "install", "-U", "--force-reinstall", "--no-deps"]
+        return cmd
+
+    def version_matches(installed: str, target: str) -> bool:
+        if not installed:
+            return False
+        return installed == target or installed.split("+", 1)[0] == target
+
+    vfx_url = None
+    target_vfx_ver = "0.1.0.1"
+    if sys.version_info.major == 3 and sys.version_info.minor == 10:
+        if platform.system() == "Windows":
+            vfx_url = "https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/nvidia_vfx/nvidia_vfx-0.1.0.1-cp310-cp310-win_amd64.whl"
+        elif platform.system() == "Linux":
+            vfx_url = "https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/nvidia_vfx/nvidia_vfx-0.1.0.1-cp310-cp310-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl"
+
+    if not vfx_url:
+        return None
+
+    installed_ver = None
+    for dist in ("nvidia-vfx", "nvidia_vfx"):
+        try:
+            installed_ver = importlib.metadata.version(dist)
+            if installed_ver:
+                break
+        except Exception:
+            continue
+
+    need_reinstall = not version_matches(installed_ver, target_vfx_ver)
+    if not need_reinstall and platform.system() == "Linux":
+        try:
+            import nvvfx
+        except Exception:
+            need_reinstall = True
+
+    if need_reinstall:
+        try:
+            print(f"[Comfyd] Installing nvidia-vfx from: {vfx_url}")
+            cmd = build_pip_cmd() + [vfx_url]
+            subprocess.run(cmd, check=False, timeout=timeout_seconds)
+        except subprocess.TimeoutExpired:
+            print("[Comfyd] nvidia-vfx install timed out")
+        except Exception as e:
+            print(f"[Comfyd] nvidia-vfx install failed: {e}")
+
+    return None
+
 if __name__ == "__main__":
     try:
         install_requirements_sequential()
@@ -179,6 +237,10 @@ if __name__ == "__main__":
         install_llama_cpp_python()
     except Exception as e:
         print(f"[Comfyd] llama_cpp_python install step failed: {e}")
+    try:
+        install_nvidia_vfx()
+    except Exception as e:
+        print(f"[Comfyd] nvidia-vfx install step failed: {e}")
 
 import comfy.options
 comfy.options.enable_args_parsing()

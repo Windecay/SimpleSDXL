@@ -17,6 +17,7 @@ from modules.model_loader import load_file_from_url
 from modules.extra_utils import makedirs_with_log, get_files_from_folder, try_eval_env_var
 from modules.flags import OutputFormat, Performance
 from enhanced.logger import format_name
+from enhanced.simpleai import init_modelsinfo, get_path_in_user_dir
 logger = logging.getLogger(format_name(__name__))
 ARCH_FAMILY_ALGO = 3
 ARCH_FAMILY_CATALOGS = {"checkpoints", "diffusion_models", "loras", "vae", "unet"}
@@ -241,6 +242,7 @@ paths_embeddings = get_dir_or_set_default('path_embeddings', [f'{path_models_roo
 paths_vae_approx = get_dir_or_set_default('path_vae_approx', [f'{path_models_root}/vae_approx/'], True)
 paths_vae = get_dir_or_set_default('path_vae', [f'{path_models_root}/vae/'], True)
 paths_upscale_models = get_dir_or_set_default('path_upscale_models', [f'{path_models_root}/upscale_models/'], True)
+paths_latent_upscale_models = get_dir_or_set_default('path_latent_upscale_models', [f'{path_models_root}/latent_upscale_models/', 'models/latent_upscale_models/'], True)
 paths_inpaint = get_dir_or_set_default('path_inpaint', [f'{path_models_root}/inpaint/', 'models/inpaint/'], True)
 paths_controlnet = get_dir_or_set_default('path_controlnet', [f'{path_models_root}/controlnet/', 'models/controlnet/'], True)
 paths_clip = get_dir_or_set_default('path_clip', [f'{path_models_root}/clip/'], True)
@@ -251,6 +253,7 @@ paths_LLM = get_dir_or_set_default('path_LLM', [f'{path_models_root}/LLM/'], Tru
 paths_wildcards = get_dir_or_set_default('path_wildcards', [f'{path_models_root}/wildcards/'], True)
 paths_safety_checker = get_dir_or_set_default('path_safety_checker', [f'{path_models_root}/safety_checker/'], True)
 path_sam = paths_inpaint[0]
+paths_sams = get_dir_or_set_default('path_sams', f'{path_models_root}/sams', True)
 paths_unet = get_dir_or_set_default('path_unet', f'{path_models_root}/unet', True)
 paths_rembg = get_dir_or_set_default('path_rembg', f'{path_models_root}/rembg', True)
 paths_layer_model = get_dir_or_set_default('path_layer_model', f'{path_models_root}/layer_model', True)
@@ -265,6 +268,7 @@ paths_detection = get_dir_or_set_default('path_detection', f'{path_models_root}/
 paths_diffusion_models = get_dir_or_set_default('path_diffusion_models', f'{path_models_root}/diffusion_models', True)
 paths_text_encoders = get_dir_or_set_default('path_text_encoders', f'{path_models_root}/text_encoders', True)
 paths_sam3 = get_dir_or_set_default('path_sam3', f'{path_models_root}/sam3', True)
+paths_SEEDVR2 = get_dir_or_set_default('path_SEEDVR2', f'{path_models_root}/SEEDVR2', True)
 
 
 
@@ -276,6 +280,7 @@ model_cata_map = {
     'DIFFUSERS': paths_diffusers,
     'vae': paths_vae,
     'upscale_models': paths_upscale_models,
+    'latent_upscale_models': paths_latent_upscale_models,
     'inpaint': paths_inpaint,
     'controlnet': paths_controlnet,
     'clip': paths_text_encoders + paths_clip,
@@ -295,6 +300,9 @@ model_cata_map = {
     'diffusion_models': paths_unet + paths_diffusion_models + paths_checkpoints,
     'text_encoders': paths_text_encoders + paths_clip,
     'sam3': paths_sam3,
+    'sams': paths_sams,
+    'seedvr2': paths_SEEDVR2,
+    'SEEDVR2': paths_SEEDVR2,
     }
 
 def _normalize_model_dirs(paths):
@@ -352,8 +360,6 @@ def _build_modelsinfo_path_map(path_map: Dict[str, List[str]]) -> Dict[str, List
         out["ipadapter"] = _normalize_model_dirs(paths_ipadapter)
 
     return out
-
-from enhanced.simpleai import init_modelsinfo, get_path_in_user_dir
 modelsinfo = init_modelsinfo(path_models_root, _build_modelsinfo_path_map(model_cata_map))
 
 shared.path_userhome = path_userhome
@@ -1088,12 +1094,14 @@ comfyui:
      embeddings: {embeddings}
      loras: {loras}
      upscale_models: {upscale_models}
+     latent_upscale_models: {latent_upscale_models}
      unet: {unet}
      rembg: {rembg}
      layer_model: {layer_model}
      vae: {vae}
      ipadapter: {ipadapter}
      inpaint: {inpaint}
+     sams: {sams}
      pulid: {pulid}
      insightface: {insightface}
      style_models: {style_models}
@@ -1102,9 +1110,11 @@ comfyui:
      detection: {detection}
      text_encoders: {text_encoders}
      sam3: {sam3}
+     seedvr2: {seedvr2}
      '''
 
-paths2str = lambda p,n: p[0] if len(p)<=1 else '|\n'+''.join([' ']*(5+len(n)))+''.join(['\n']+[' ']*(5+len(n))).join(p) 
+def paths2str(p, n):
+    return p[0] if len(p) <= 1 else '|\n' + ''.join([' '] * (5 + len(n))) + ''.join(['\n'] + [' '] * (5 + len(n))).join(p)
 
 config_comfy_text = config_comfy_formatted_text.format(
         models_root=path_models_root, 
@@ -1116,12 +1126,14 @@ config_comfy_text = config_comfy_formatted_text.format(
         embeddings=paths2str(paths_embeddings, 'embeddings'),
         loras=paths2str(paths_loras, 'loras'), 
         upscale_models=paths2str(paths_upscale_models, 'upscale_models'),
+        latent_upscale_models=paths2str(paths_latent_upscale_models, 'latent_upscale_models'),
         unet=paths2str(paths_unet + paths_diffusion_models + paths_checkpoints, 'unet'),
         rembg=paths2str(paths_rembg, 'rembg'),
         layer_model=paths2str(paths_layer_model, 'layer_model'),
         vae=paths2str(paths_vae, 'vae'),
         ipadapter=paths2str(paths_ipadapter + paths_controlnet, 'ipadapter'),
         inpaint=paths2str(paths_inpaint,'inpaint'), 
+        sams=paths2str(paths_sams, 'sams'),
         pulid=paths2str(paths_pulid, 'pulid'),
         insightface=paths2str(paths_insightface, 'insightface'),
         style_models=paths2str(paths_style_models, 'style_models'),
@@ -1131,6 +1143,7 @@ config_comfy_text = config_comfy_formatted_text.format(
         text_encoders=paths2str(paths_text_encoders + paths_clip, 'text_encoders'),
         diffusion_models=paths2str(paths_unet + paths_diffusion_models + paths_checkpoints, 'diffusion_models'),
         sam3=paths2str(paths_sam3, 'sam3'),
+        seedvr2=paths2str(paths_SEEDVR2, 'seedvr2'),
         )
 
 with open(config_comfy_path, "w", encoding="utf-8") as comfy_file:

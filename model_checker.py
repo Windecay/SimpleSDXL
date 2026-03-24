@@ -223,7 +223,9 @@ def load_model_paths():
             "nlf": [os.path.join(simplemodels_root, "nlf")],
             "SEEDVR2": [os.path.join(simplemodels_root, "SEEDVR2")],
             "sam3": [os.path.join(simplemodels_root, "sam3")],
+            "sams": [os.path.join(simplemodels_root, "sams")],
             "qwen-tts": [os.path.join(simplemodels_root, "qwen-tts")],
+            "latent_upscale_models": [os.path.join(simplemodels_root, "latent_upscale_models")],
         }
 
     for key in path_mapping:
@@ -438,7 +440,7 @@ def print_instructions():
     time.sleep(0.1)
     print(f"{Fore.GREEN}★{Style.RESET_ALL}打开默认浏览器设置，关闭GPU加速、或图形加速的选项。{Fore.GREEN}★{Style.RESET_ALL}大内存(64+)与固态硬盘存放模型有助于减少模型加载时间。{Fore.GREEN}★{Style.RESET_ALL}")
     time.sleep(0.1)
-    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：1005085136{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:26.03.22{Fore.GREEN}★{Style.RESET_ALL}")
+    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：1005085136{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:26.03.24{Fore.GREEN}★{Style.RESET_ALL}")
     print()
     time.sleep(0.1)
 
@@ -735,7 +737,9 @@ def validate_files(packages):
         os.path.join(simplemodels_root, "LLM", "Qwen3-VL-4B-Instruct-abliterated"),
         os.path.join(simplemodels_root, "rembg"),
         os.path.join(simplemodels_root, "sam3"),
+        os.path.join(simplemodels_root, "sams"),
         os.path.join(simplemodels_root, "qwen-tts"),
+        os.path.join(simplemodels_root, "latent_upscale_models"),
         ]
         for model_root in MODEL_PATHS_TO_SCAN:
             if not os.path.exists(model_root):
@@ -1034,7 +1038,8 @@ def delete_partial_files():
         'vae_approx', 'vae', 'upscale_models', 'inpaint', "ipadapter",
         'clip', 'clip_vision', 'llms', 'LLM', 'unet', 'diffusers', 'model_patches',
         'text_encoders', 'audio_encoders', 'safety_checker', 'layer_model', 'pulid', 'insightface',
-        'prompt_expansion', 'fooocus_expansion', 'gemma3', 'jina_clip', 'rembg', 'sam3', 'qwen-tts',
+        'prompt_expansion', 'fooocus_expansion', 'gemma3', 'jina_clip', 'rembg', 'sam3', 'sams', 'qwen-tts',
+        'latent_upscale_models',
     ]
 
     scan_dirs = []
@@ -1109,7 +1114,8 @@ def _find_obsolete_model_files():
         'vae_approx', 'vae', 'upscale_models', 'inpaint', "ipadapter",
         'clip', 'clip_vision', 'llms', 'LLM', 'unet', 'diffusers', 'model_patches',
         'text_encoders', 'audio_encoders', 'safety_checker', 'layer_model', 'pulid', 'insightface',
-        'prompt_expansion', 'fooocus_expansion', 'gemma3', 'jina_clip', 'rembg', 'sam3', 'qwen-tts',
+        'prompt_expansion', 'fooocus_expansion', 'gemma3', 'jina_clip', 'rembg', 'sam3', 'sams', 'qwen-tts',
+        'latent_upscale_models',
     ]
 
     scan_dirs = []

@@ -97,6 +97,62 @@ def install_package_with_retry(pkg_name, pkg_version=None, description=None):
     except Exception as e:
         logger.error(f"使用清华源安装{pkg_name}失败: {str(e)}")
         return False
+
+def ensure_nvidia_vfx_installed():
+    target_ver = "0.1.0.1"
+    module_name = "nvvfx"
+    dist_candidates = ("nvidia-vfx", "nvidia_vfx")
+
+    version_ok = False
+    for dist in dist_candidates:
+        try:
+            if is_installed_version(dist, target_ver):
+                version_ok = True
+                break
+        except Exception:
+            continue
+
+    is_ok = is_installed(module_name) and version_ok
+    need_reinstall = not is_ok
+
+    if not need_reinstall and platform.system() == "Linux":
+        try:
+            import nvvfx  # noqa: F401
+        except Exception:
+            print("nvidia-vfx detected but failed to import. Reinstalling for Linux...")
+            need_reinstall = True
+
+    if not need_reinstall:
+        return
+
+    if not (sys.version_info.major == 3 and sys.version_info.minor == 10):
+        logger.info("Skip nvidia-vfx install: only cp310 wheels are provided.")
+        return
+
+    vfx_url = None
+    vfx_name = None
+    if platform.system() == "Windows":
+        vfx_url = "https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/nvidia_vfx/nvidia_vfx-0.1.0.1-cp310-cp310-win_amd64.whl"
+        vfx_name = "nvidia_vfx-0.1.0.1-cp310-cp310-win_amd64.whl"
+    elif platform.system() == "Linux":
+        vfx_url = "https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/nvidia_vfx/nvidia_vfx-0.1.0.1-cp310-cp310-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl"
+        vfx_name = "nvidia_vfx-0.1.0.1-cp310-cp310-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl"
+
+    if not vfx_url:
+        logger.info("Skip nvidia-vfx install: unsupported platform.")
+        return
+
+    vfx_path = os.path.abspath(os.path.join(root, vfx_name))
+    print("check nvidia-vfx...")
+    has_update_vfx = download_if_updated(vfx_url, vfx_path)
+    if has_update_vfx or need_reinstall:
+        print(f"ready to install {vfx_path}")
+        run(
+            f'"{python}" -s -m pip install --no-user -U --force-reinstall --no-deps {vfx_path}',
+            f"Install {vfx_path}",
+            custom_env=_make_pip_env(),
+            live=True,
+        )
 def check_base_environment():
     print(f"{now_string()} Python {sys.version}")
     print(f"{now_string()} Fooocus version: {fooocus_version.version}")
@@ -184,6 +240,12 @@ def check_base_environment():
         except Exception as e:
             print(f'Error installing llama_cpp_python: {str(e)}')
             print('Skipping llama_cpp_python installation and continuing...')
+
+        try:
+            ensure_nvidia_vfx_installed()
+        except Exception as e:
+            print(f'Error installing nvidia-vfx: {str(e)}')
+            print('Skipping nvidia-vfx installation and continuing...')
 
     elif is_installed("sageattention"):
 
@@ -312,6 +374,12 @@ def check_base_environment():
         except Exception as e:
             print(f'Error installing llama_cpp_python: {str(e)}')
             print('Skipping llama_cpp_python installation and continuing...')
+
+        try:
+            ensure_nvidia_vfx_installed()
+        except Exception as e:
+            print(f'Error installing nvidia-vfx: {str(e)}')
+            print('Skipping nvidia-vfx installation and continuing...')
 
     else:
         logger.info(f'环境缺失必要组件或系统不匹配。请参考SimpAI.cn的安装说明重新部署。')
