@@ -36,11 +36,6 @@ OBSOLETE_CUSTOM_NODE_FOLDERS = (
     "ComfyUI-Newbie-Nodes",
     "x-flux-comfyui",
 )
-if os.name == "nt":
-    try:
-        asyncio.set_event_loop_policy(asyncio.windows_events.WindowsSelectorEventLoopPolicy())
-    except Exception:
-        pass
 
 def cleanup_obsolete_custom_nodes():
     custom_nodes_root = os.path.join(root, "comfy", "custom_nodes")
