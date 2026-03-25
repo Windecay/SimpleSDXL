@@ -433,6 +433,12 @@ import threading
 import gc
 
 if os.name == "nt":
+    try:
+        asyncio.set_event_loop_policy(asyncio.windows_events.WindowsSelectorEventLoopPolicy())
+    except Exception:
+        pass
+
+if os.name == "nt":
     os.environ['MIMALLOC_PURGE_DELAY'] = '0'
 
 if __name__ == "__main__":

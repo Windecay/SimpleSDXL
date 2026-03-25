@@ -15,6 +15,7 @@ import socket
 import logging
 import shutil
 import torch
+import asyncio
 from pathlib import Path
 from build_launcher import build_launcher, ready_checker, is_win32_standalone_build, python_embeded_path, download_if_updated
 from modules.launch_util import is_installed, is_installed_version, run, python, run_pip, requirements_met, delete_folder_content, git_clone, index_url, extra_index_url, target_path_install, met_diff
@@ -35,6 +36,11 @@ OBSOLETE_CUSTOM_NODE_FOLDERS = (
     "ComfyUI-Newbie-Nodes",
     "x-flux-comfyui",
 )
+if os.name == "nt":
+    try:
+        asyncio.set_event_loop_policy(asyncio.windows_events.WindowsSelectorEventLoopPolicy())
+    except Exception:
+        pass
 
 def cleanup_obsolete_custom_nodes():
     custom_nodes_root = os.path.join(root, "comfy", "custom_nodes")

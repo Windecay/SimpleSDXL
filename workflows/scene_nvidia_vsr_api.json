@@ -1,0 +1,184 @@
+{
+  "10": {
+    "inputs": {
+      "resize_type": "scale by multiplier",
+      "resize_type.scale": [
+        "19",
+        0
+      ],
+      "quality": "ULTRA",
+      "images": [
+        "25",
+        0
+      ]
+    },
+    "class_type": "RTXVideoSuperResolution",
+    "_meta": {
+      "title": "RTX Video Super Resolution"
+    }
+  },
+  "11": {
+    "inputs": {
+      "video": "example.mp4",
+      "force_rate": 0,
+      "custom_width": 0,
+      "custom_height": 0,
+      "frame_load_cap": 0,
+      "skip_first_frames": 0,
+      "select_every_nth": 1,
+      "format": "AnimateDiff"
+    },
+    "class_type": "VHS_LoadVideo",
+    "_meta": {
+      "title": "Load Video (Upload) 🎥🅥🅗🅢"
+    }
+  },
+  "14": {
+    "inputs": {
+      "format": "MP4",
+      "codec": "h264",
+      "fps": [
+        "24",
+        0
+      ],
+      "crf": [
+        "23",
+        11
+      ],
+      "images": [
+        "10",
+        0
+      ],
+      "audio": [
+        "11",
+        2
+      ]
+    },
+    "class_type": "SaveVideoWebsocket",
+    "_meta": {
+      "title": "SaveVideoWebsocket"
+    }
+  },
+  "15": {
+    "inputs": {
+      "video_info": [
+        "11",
+        3
+      ]
+    },
+    "class_type": "VHS_VideoInfoLoaded",
+    "_meta": {
+      "title": "Video Info (Loaded) 🎥🅥🅗🅢"
+    }
+  },
+  "19": {
+    "inputs": {
+      "value": [
+        "23",
+        10
+      ]
+    },
+    "class_type": "JWIntegerToFloat",
+    "_meta": {
+      "title": "Integer to Float"
+    }
+  },
+  "22": {
+    "inputs": {
+      "source_fps": [
+        "15",
+        0
+      ],
+      "target_fps": [
+        "24",
+        0
+      ],
+      "scale": 2,
+      "model_name": "flownet.pkl",
+      "batch_size": 32,
+      "use_fp16": true,
+      "images": [
+        "11",
+        0
+      ]
+    },
+    "class_type": "RIFEInterpolation",
+    "_meta": {
+      "title": "RIFE Frame Interpolation"
+    }
+  },
+  "23": {
+    "inputs": {
+      "prompt": "",
+      "additional_prompt": "",
+      "ip_image": "None",
+      "ip_image1": "None",
+      "inpaint_image": "None",
+      "inpaint_mask": "None",
+      "width": 512,
+      "height": 512,
+      "cfg": 8,
+      "steps": 20,
+      "var_number": 0,
+      "var_number2": 0,
+      "var_number3": 0,
+      "var_number4": 0,
+      "var_number5": 0,
+      "var_number6": 0,
+      "var_number7": 0,
+      "var_number8": 0,
+      "var_number9": 0,
+      "var_number10": 0,
+      "switch_option1": false,
+      "switch_option2": false,
+      "switch_option3": false,
+      "switch_option4": false,
+      "model_type": 1,
+      "model_type2": 1
+    },
+    "class_type": "SceneInput",
+    "_meta": {
+      "title": "SceneInput"
+    }
+  },
+  "24": {
+    "inputs": {
+      "boolean": [
+        "23",
+        20
+      ],
+      "on_true": [
+        "23",
+        12
+      ],
+      "on_false": [
+        "15",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "25": {
+    "inputs": {
+      "boolean": [
+        "23",
+        20
+      ],
+      "on_true": [
+        "22",
+        0
+      ],
+      "on_false": [
+        "11",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  }
+}

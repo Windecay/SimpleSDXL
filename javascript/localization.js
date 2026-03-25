@@ -907,20 +907,59 @@ document.addEventListener("DOMContentLoaded", function() {
 
     localizeWholePage();
 
-    function bind_dynamic_localization_observers() {
-        const btn = gradioApp().getElementById('super_prompter_button');
-        if (btn && btn.dataset.localizationObserverBound !== '1') {
-            btn.dataset.localizationObserverBound = '1';
-            (new MutationObserver(() => {
-                processNode(btn);
-            })).observe(btn, { childList: true, subtree: true, characterData: true });
-            processNode(btn);
-        }
+    function bind_global_dynamic_localization_observer() {
+        const root = gradioApp();
+        if (!root || root.dataset.globalLocalizationObserverBound === '1') return;
+        root.dataset.globalLocalizationObserverBound = '1';
+
+        let scheduled = false;
+        const pending = new Set();
+
+        const scheduleFlush = () => {
+            if (scheduled) return;
+            scheduled = true;
+            requestAnimationFrame(() => {
+                scheduled = false;
+                const nodes = Array.from(pending);
+                pending.clear();
+                nodes.forEach((n) => {
+                    try {
+                        processNode(n);
+                    } catch (e) {}
+                });
+            });
+        };
+
+        const observer = new MutationObserver((mutations) => {
+            for (const mutation of mutations) {
+                if (mutation.type === 'childList') {
+                    mutation.addedNodes.forEach((n) => pending.add(n));
+                    if (mutation.target) pending.add(mutation.target);
+                } else if (mutation.type === 'characterData') {
+                    if (mutation.target) pending.add(mutation.target);
+                    const p = mutation.target && mutation.target.parentElement ? mutation.target.parentElement : null;
+                    if (p) pending.add(p);
+                } else if (mutation.type === 'attributes') {
+                    if (mutation.target) pending.add(mutation.target);
+                }
+            }
+            scheduleFlush();
+        });
+
+        observer.observe(root, {
+            childList: true,
+            subtree: true,
+            characterData: true,
+            attributes: true,
+            attributeFilter: ['title', 'placeholder'],
+        });
     }
 
-    bind_dynamic_localization_observers();
+    bind_global_dynamic_localization_observer();
     if (typeof onAfterUiUpdate === 'function') {
-        onAfterUiUpdate(bind_dynamic_localization_observers);
+        onAfterUiUpdate(() => {
+            bind_global_dynamic_localization_observer();
+        });
     }
 
     if (localization.rtl) { // if the language is from right to left,
