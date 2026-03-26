@@ -1,8 +1,8 @@
 {
   "id": "bbb25062-c549-4ecc-85ee-ce7c7c477109",
   "revision": 0,
-  "last_node_id": 30,
-  "last_link_id": 46,
+  "last_node_id": 42,
+  "last_link_id": 64,
   "nodes": [
     {
       "id": 10,
@@ -15,8 +15,10 @@
         285.81015625,
         106
       ],
-      "flags": {},
-      "order": 8,
+      "flags": {
+        "pinned": true
+      },
+      "order": 17,
       "mode": 0,
       "inputs": [
         {
@@ -69,8 +71,10 @@
         290,
         250
       ],
-      "flags": {},
-      "order": 6,
+      "flags": {
+        "pinned": true
+      },
+      "order": 13,
       "mode": 0,
       "inputs": [
         {
@@ -132,8 +136,10 @@
         250.4150390625,
         106
       ],
-      "flags": {},
-      "order": 4,
+      "flags": {
+        "pinned": true
+      },
+      "order": 9,
       "mode": 0,
       "inputs": [
         {
@@ -193,7 +199,9 @@
         280,
         30
       ],
-      "flags": {},
+      "flags": {
+        "pinned": true
+      },
       "order": 0,
       "mode": 0,
       "inputs": [],
@@ -208,18 +216,18 @@
       ],
       "title": "补帧到帧数",
       "properties": {
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.3"
-        },
         "Node name for S&R": "mxSliderFloatSmall",
         "value": 30,
         "min": 16,
         "max": 120,
         "step": 1,
         "decimals": 2,
-        "snap": true
+        "snap": true,
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
       },
       "widgets_values": [
         30,
@@ -240,7 +248,9 @@
         280,
         60
       ],
-      "flags": {},
+      "flags": {
+        "pinned": true
+      },
       "order": 1,
       "mode": 0,
       "inputs": [],
@@ -281,9 +291,10 @@
         78
       ],
       "flags": {
-        "collapsed": true
+        "collapsed": true,
+        "pinned": true
       },
-      "order": 7,
+      "order": 15,
       "mode": 0,
       "inputs": [
         {
@@ -338,9 +349,10 @@
         78
       ],
       "flags": {
-        "collapsed": true
+        "collapsed": true,
+        "pinned": true
       },
-      "order": 5,
+      "order": 11,
       "mode": 0,
       "inputs": [
         {
@@ -395,8 +407,10 @@
         220.7333984375,
         334
       ],
-      "flags": {},
-      "order": 9,
+      "flags": {
+        "pinned": true
+      },
+      "order": 19,
       "mode": 0,
       "inputs": [
         {
@@ -475,7 +489,9 @@
         280,
         30
       ],
-      "flags": {},
+      "flags": {
+        "pinned": true
+      },
       "order": 2,
       "mode": 0,
       "inputs": [],
@@ -520,9 +536,11 @@
       ],
       "size": [
         255.8291015625,
-        310
+        675.4905080613057
       ],
-      "flags": {},
+      "flags": {
+        "pinned": true
+      },
       "order": 3,
       "mode": 0,
       "inputs": [
@@ -600,6 +618,692 @@
             "skip_first_frames": 0,
             "select_every_nth": 1
           }
+        }
+      }
+    },
+    {
+      "id": 33,
+      "type": "VHS_VideoInfoLoaded",
+      "pos": [
+        1310,
+        20
+      ],
+      "size": [
+        250.4150390625,
+        106
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 10,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "video_info",
+          "type": "VHS_VIDEOINFO",
+          "link": 52
+        }
+      ],
+      "outputs": [
+        {
+          "name": "fps🟦",
+          "type": "FLOAT",
+          "links": [
+            50,
+            57
+          ]
+        },
+        {
+          "name": "frame_count🟦",
+          "type": "INT",
+          "links": null
+        },
+        {
+          "name": "duration🟦",
+          "type": "FLOAT",
+          "links": null
+        },
+        {
+          "name": "width🟦",
+          "type": "INT",
+          "links": null
+        },
+        {
+          "name": "height🟦",
+          "type": "INT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VHS_VideoInfoLoaded",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": {}
+    },
+    {
+      "id": 34,
+      "type": "mxSliderFloatSmall",
+      "pos": [
+        1300,
+        -70
+      ],
+      "size": [
+        280,
+        30
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 4,
+      "mode": 4,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "FLOAT",
+          "links": [
+            56
+          ]
+        }
+      ],
+      "title": "补帧到帧数",
+      "properties": {
+        "Node name for S&R": "mxSliderFloatSmall",
+        "value": 30,
+        "min": 16,
+        "max": 120,
+        "step": 1,
+        "decimals": 2,
+        "snap": true,
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        30,
+        30,
+        1
+      ],
+      "color": "#233",
+      "bgcolor": "#355"
+    },
+    {
+      "id": 35,
+      "type": "easy boolean",
+      "pos": [
+        1300,
+        -190
+      ],
+      "size": [
+        280,
+        60
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 5,
+      "mode": 4,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "boolean",
+          "type": "BOOLEAN",
+          "links": [
+            55,
+            58
+          ]
+        }
+      ],
+      "title": "是否开启补帧",
+      "properties": {
+        "Node name for S&R": "easy boolean",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        false
+      ],
+      "color": "#233",
+      "bgcolor": "#355"
+    },
+    {
+      "id": 37,
+      "type": "easy ifElse",
+      "pos": [
+        1410,
+        170
+      ],
+      "size": [
+        270,
+        78
+      ],
+      "flags": {
+        "collapsed": true,
+        "pinned": true
+      },
+      "order": 12,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "on_true",
+          "type": "*",
+          "link": 56
+        },
+        {
+          "name": "on_false",
+          "type": "*",
+          "link": 57
+        },
+        {
+          "name": "boolean",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "boolean"
+          },
+          "link": 58
+        }
+      ],
+      "outputs": [
+        {
+          "name": "*",
+          "type": "*",
+          "links": [
+            51,
+            61
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "easy ifElse",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        false
+      ]
+    },
+    {
+      "id": 38,
+      "type": "VHS_VideoCombine",
+      "pos": [
+        2200,
+        -280
+      ],
+      "size": [
+        220.7333984375,
+        334
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 20,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 63
+        },
+        {
+          "name": "audio",
+          "shape": 7,
+          "type": "AUDIO",
+          "link": 60
+        },
+        {
+          "name": "meta_batch",
+          "shape": 7,
+          "type": "VHS_BatchManager",
+          "link": null
+        },
+        {
+          "name": "vae",
+          "shape": 7,
+          "type": "VAE",
+          "link": null
+        },
+        {
+          "name": "frame_rate",
+          "type": "FLOAT",
+          "widget": {
+            "name": "frame_rate"
+          },
+          "link": 61
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Filenames",
+          "type": "VHS_FILENAMES",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VHS_VideoCombine",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": {
+        "frame_rate": 8,
+        "loop_count": 0,
+        "filename_prefix": "Upscale\\Nvidia_VSR",
+        "format": "video/h264-mp4",
+        "pix_fmt": "yuv420p",
+        "crf": 19,
+        "save_metadata": true,
+        "trim_to_audio": false,
+        "pingpong": false,
+        "save_output": true,
+        "videopreview": {
+          "hidden": false,
+          "paused": false,
+          "params": {}
+        }
+      }
+    },
+    {
+      "id": 39,
+      "type": "mxSliderFloatSmall",
+      "pos": [
+        1300,
+        -290
+      ],
+      "size": [
+        280,
+        30
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 6,
+      "mode": 4,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "FLOAT",
+          "links": [
+            64
+          ]
+        }
+      ],
+      "title": "放大倍数",
+      "properties": {
+        "Node name for S&R": "mxSliderFloatSmall",
+        "value": 2,
+        "min": 1,
+        "max": 4,
+        "step": 0.05,
+        "decimals": 2,
+        "snap": true,
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        2,
+        2,
+        1
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
+      "id": 40,
+      "type": "VHS_LoadVideo",
+      "pos": [
+        960,
+        -300
+      ],
+      "size": [
+        255.8291015625,
+        675.4905080613057
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 7,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "meta_batch",
+          "shape": 7,
+          "type": "VHS_BatchManager",
+          "link": null
+        },
+        {
+          "name": "vae",
+          "shape": 7,
+          "type": "VAE",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            49,
+            54
+          ]
+        },
+        {
+          "name": "frame_count",
+          "type": "INT",
+          "links": null
+        },
+        {
+          "name": "audio",
+          "type": "AUDIO",
+          "links": [
+            60
+          ]
+        },
+        {
+          "name": "video_info",
+          "type": "VHS_VIDEOINFO",
+          "links": [
+            52
+          ]
+        }
+      ],
+      "title": "上传视频",
+      "properties": {
+        "Node name for S&R": "VHS_LoadVideo",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": {
+        "video": "example.mp4",
+        "force_rate": 0,
+        "custom_width": 0,
+        "custom_height": 0,
+        "frame_load_cap": 0,
+        "skip_first_frames": 0,
+        "select_every_nth": 1,
+        "format": "AnimateDiff",
+        "videopreview": {
+          "hidden": false,
+          "paused": false,
+          "params": {
+            "filename": "example.mp4",
+            "type": "input",
+            "format": "video/mp4",
+            "force_rate": 0,
+            "custom_width": 0,
+            "custom_height": 0,
+            "frame_load_cap": 0,
+            "skip_first_frames": 0,
+            "select_every_nth": 1
+          }
+        }
+      }
+    },
+    {
+      "id": 36,
+      "type": "easy ifElse",
+      "pos": [
+        1520,
+        -350
+      ],
+      "size": [
+        270,
+        78
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 16,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "on_true",
+          "type": "*",
+          "link": 53
+        },
+        {
+          "name": "on_false",
+          "type": "*",
+          "link": 54
+        },
+        {
+          "name": "boolean",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "boolean"
+          },
+          "link": 55
+        }
+      ],
+      "outputs": [
+        {
+          "name": "*",
+          "type": "*",
+          "links": [
+            62
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "easy ifElse",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        false
+      ]
+    },
+    {
+      "id": 32,
+      "type": "RIFEInterpolation",
+      "pos": [
+        1750,
+        140
+      ],
+      "size": [
+        290,
+        250
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 49
+        },
+        {
+          "name": "source_fps",
+          "type": "FLOAT",
+          "widget": {
+            "name": "source_fps"
+          },
+          "link": 50
+        },
+        {
+          "name": "target_fps",
+          "type": "FLOAT",
+          "widget": {
+            "name": "target_fps"
+          },
+          "link": 51
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": [
+            53
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "RIFEInterpolation",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.3"
+        }
+      },
+      "widgets_values": [
+        30,
+        60,
+        2,
+        "flownet.pkl",
+        32,
+        true
+      ]
+    },
+    {
+      "id": 41,
+      "type": "RTXVideoSuperResolutionChunkedImageSequence",
+      "pos": [
+        1680,
+        -300
+      ],
+      "size": [
+        464.0025390625,
+        334
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 18,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "video",
+          "shape": 7,
+          "type": "VIDEO",
+          "link": null
+        },
+        {
+          "name": "images",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 62
+        },
+        {
+          "name": "audio",
+          "shape": 7,
+          "type": "AUDIO",
+          "link": null
+        },
+        {
+          "name": "resize_type.scale",
+          "type": "FLOAT",
+          "widget": {
+            "name": "resize_type.scale"
+          },
+          "link": 64
+        }
+      ],
+      "outputs": [
+        {
+          "name": "upscaled_images",
+          "type": "IMAGE",
+          "links": [
+            63
+          ]
+        },
+        {
+          "name": "audio",
+          "type": "AUDIO",
+          "links": null
+        },
+        {
+          "name": "fps",
+          "type": "FLOAT",
+          "links": null
+        },
+        {
+          "name": "cache_info",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        },
+        "aux_id": "Comfy-Org/Nvidia_RTX_Nodes_ComfyUI",
+        "ver": "892515e3eb9a4920a131a502a047e47adca9eb0d",
+        "Node name for S&R": "RTXVideoSuperResolutionChunkedImageSequence"
+      },
+      "widgets_values": [
+        0,
+        "scale by multiplier",
+        2,
+        "ULTRA",
+        "disk",
+        300,
+        134217728,
+        "auto",
+        "auto",
+        "near_lossless"
+      ]
+    },
+    {
+      "id": 42,
+      "type": "Fast Groups Bypasser (rgthree)",
+      "pos": [
+        -780,
+        -570
+      ],
+      "size": [
+        580,
+        110
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 8,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "OPT_CONNECTION",
+          "type": "*",
+          "links": null
+        }
+      ],
+      "properties": {
+        "matchColors": "",
+        "matchTitle": "",
+        "showNav": true,
+        "showAllGraphs": true,
+        "sort": "position",
+        "customSortAlphabet": "",
+        "toggleRestriction": "default",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
         }
       }
     }
@@ -724,6 +1428,126 @@
       24,
       0,
       "FLOAT"
+    ],
+    [
+      49,
+      40,
+      0,
+      32,
+      0,
+      "IMAGE"
+    ],
+    [
+      50,
+      33,
+      0,
+      32,
+      1,
+      "FLOAT"
+    ],
+    [
+      51,
+      37,
+      0,
+      32,
+      2,
+      "FLOAT"
+    ],
+    [
+      52,
+      40,
+      3,
+      33,
+      0,
+      "VHS_VIDEOINFO"
+    ],
+    [
+      53,
+      32,
+      0,
+      36,
+      0,
+      "IMAGE"
+    ],
+    [
+      54,
+      40,
+      0,
+      36,
+      1,
+      "IMAGE"
+    ],
+    [
+      55,
+      35,
+      0,
+      36,
+      2,
+      "BOOLEAN"
+    ],
+    [
+      56,
+      34,
+      0,
+      37,
+      0,
+      "FLOAT"
+    ],
+    [
+      57,
+      33,
+      0,
+      37,
+      1,
+      "FLOAT"
+    ],
+    [
+      58,
+      35,
+      0,
+      37,
+      2,
+      "BOOLEAN"
+    ],
+    [
+      60,
+      40,
+      2,
+      38,
+      1,
+      "AUDIO"
+    ],
+    [
+      61,
+      37,
+      0,
+      38,
+      4,
+      "FLOAT"
+    ],
+    [
+      62,
+      36,
+      0,
+      41,
+      1,
+      "IMAGE"
+    ],
+    [
+      63,
+      41,
+      0,
+      38,
+      0,
+      "IMAGE"
+    ],
+    [
+      64,
+      39,
+      0,
+      41,
+      3,
+      "FLOAT"
     ]
   ],
   "groups": [
@@ -739,15 +1563,28 @@
       "color": "#3f789e",
       "font_size": 24,
       "flags": {}
+    },
+    {
+      "id": 2,
+      "title": "Nvidia-VSR超分辨率视频放大(长视频版本）",
+      "bounding": [
+        870,
+        -430,
+        1650,
+        1210
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
     }
   ],
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.9090909090909095,
+      "scale": 0.7513148009015777,
       "offset": [
-        1294.783989516411,
-        1045.942854849054
+        1353.6688815858006,
+        1554.803598027408
       ]
     },
     "ue_links": [],

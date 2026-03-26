@@ -24,8 +24,7 @@ class MilliSecondsFormatter(logging.Formatter):
 class LogInterceptor(io.TextIOWrapper):
     def __init__(self, stream, log_file, *args, **kwargs):
         buffer = stream.buffer
-        encoding = stream.encoding
-        super().__init__(buffer, *args, **kwargs, encoding=encoding, line_buffering=stream.line_buffering)
+        super().__init__(buffer, *args, **kwargs, encoding="utf-8", errors="backslashreplace", line_buffering=stream.line_buffering)
         self._lock = threading.Lock()
         self._flush_callbacks = []
         self._logs_since_flush = []
@@ -46,8 +45,18 @@ class LogInterceptor(io.TextIOWrapper):
                 f.write(f"{entry['m']}")
                 #f.write(f"{entry['t']} - {entry['m']}")
 
-        super().write(data)
-        super().flush()  # 立即刷新到底层流，确保启动器能实时捕获日志
+        try:
+            super().write(data)
+            super().flush()
+        except (OSError, UnicodeEncodeError, ValueError):
+            try:
+                if isinstance(data, str):
+                    self.buffer.write(data.encode("utf-8", errors="backslashreplace"))
+                else:
+                    self.buffer.write(str(data).encode("utf-8", errors="backslashreplace"))
+                self.buffer.flush()
+            except Exception:
+                pass
 
     def flush(self):
         super().flush()

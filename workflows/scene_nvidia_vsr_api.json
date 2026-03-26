@@ -8,7 +8,7 @@
       ],
       "quality": "ULTRA",
       "images": [
-        "25",
+        "28",
         0
       ]
     },
@@ -46,7 +46,7 @@
         11
       ],
       "images": [
-        "10",
+        "30",
         0
       ],
       "audio": [
@@ -119,13 +119,13 @@
       "height": 512,
       "cfg": 8,
       "steps": 20,
-      "var_number": 0,
-      "var_number2": 0,
-      "var_number3": 0,
+      "var_number": 2,
+      "var_number2": 19,
+      "var_number3": 30,
       "var_number4": 0,
       "var_number5": 0,
       "var_number6": 0,
-      "var_number7": 0,
+      "var_number7": 300,
       "var_number8": 0,
       "var_number9": 0,
       "var_number10": 0,
@@ -173,6 +173,83 @@
       ],
       "on_false": [
         "11",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "26": {
+    "inputs": {
+      "comparison": "a > b",
+      "a": [
+        "28",
+        3
+      ],
+      "b": [
+        "23",
+        16
+      ]
+    },
+    "class_type": "easy compare",
+    "_meta": {
+      "title": "Compare"
+    }
+  },
+  "28": {
+    "inputs": {
+      "image": [
+        "25",
+        0
+      ]
+    },
+    "class_type": "GetImageSizeAndCount",
+    "_meta": {
+      "title": "Get Image Size & Count"
+    }
+  },
+  "29": {
+    "inputs": {
+      "fps": 0,
+      "resize_type": "scale by multiplier",
+      "resize_type.scale": [
+        "19",
+        0
+      ],
+      "quality": "ULTRA",
+      "cache_backend": "disk",
+      "chunk_frames": [
+        "23",
+        16
+      ],
+      "max_pixels_per_batch": 134217728,
+      "encoder": "auto",
+      "writer": "auto",
+      "compression": "near_lossless",
+      "images": [
+        "28",
+        0
+      ]
+    },
+    "class_type": "RTXVideoSuperResolutionChunkedImageSequence",
+    "_meta": {
+      "title": "RTX Video Super Resolution Chunked Image Sequence"
+    }
+  },
+  "30": {
+    "inputs": {
+      "boolean": [
+        "26",
+        0
+      ],
+      "on_true": [
+        "29",
+        0
+      ],
+      "on_false": [
+        "10",
         0
       ]
     },
