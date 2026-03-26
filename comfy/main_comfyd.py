@@ -549,7 +549,21 @@ def prompt_worker(q, server_instance):
                 extra_data[k] = sensitive[k]
 
             asset_seeder.pause()
+            try:
+                import torch
+                if torch.cuda.is_available() and torch.backends.cudnn.is_available() and torch.backends.cudnn.benchmark:
+                    logging.info("Forcing torch.backends.cudnn.benchmark = False before prompt execution.")
+                    torch.backends.cudnn.benchmark = False
+            except Exception:
+                pass
             e.execute(item[2], prompt_id, extra_data, item[4])
+            try:
+                import torch
+                if torch.cuda.is_available() and torch.backends.cudnn.is_available() and torch.backends.cudnn.benchmark:
+                    logging.warning("torch.backends.cudnn.benchmark was re-enabled during prompt execution. Forcing it back to False.")
+                    torch.backends.cudnn.benchmark = False
+            except Exception:
+                pass
             need_gc = True
 
             remove_sensitive = lambda prompt: prompt[:5] + prompt[6:]

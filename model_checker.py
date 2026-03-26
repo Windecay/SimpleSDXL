@@ -440,7 +440,7 @@ def print_instructions():
     time.sleep(0.1)
     print(f"{Fore.GREEN}★{Style.RESET_ALL}打开默认浏览器设置，关闭GPU加速、或图形加速的选项。{Fore.GREEN}★{Style.RESET_ALL}大内存(64+)与固态硬盘存放模型有助于减少模型加载时间。{Fore.GREEN}★{Style.RESET_ALL}")
     time.sleep(0.1)
-    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：1005085136{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:26.03.24{Fore.GREEN}★{Style.RESET_ALL}")
+    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：1005085136{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:26.03.27{Fore.GREEN}★{Style.RESET_ALL}")
     print()
     time.sleep(0.1)
 
@@ -2218,8 +2218,7 @@ packages = {'base_package': {'id': 1,
                               'note': 'NoobAI/光辉全功能-Comfy后端-默认模型OneObsession_20Bold|显存需求：★★★ 速度：★★★',
                               'files': ['checkpoints,OneObsession_20Bold.safetensors,6938040682,0,https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/checkpoints/OneObsession_20Bold.safetensors,https://huggingface.co/windecay/SimpleSDXL2/resolve/main/SimpleModels/checkpoints/OneObsession_20Bold.safetensors?',
                                         'ipadapter,noob_ip_adapter.bin,1396798350,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/ipadapter/noob_ip_adapter.bin,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/ipadapter/noob_ip_adapter.bin',
-                                        'upscale_models,RealESRGAN_x4plus_anime_6B.pth,17938799,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/upscale_models/RealESRGAN_x4plus_anime_6B.pth,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/upscale_models/RealESRGAN_x4plus_anime_6B.pth',
-                                        'upscale_models,4x-UltraSharp.pth,66961958,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/upscale_models/4x-UltraSharp.pth,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/upscale_models/4x-UltraSharp.pth',
+                                        'upscale_models,remacri_original.safetensors,66864028,0,https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/upscale_models/remacri_original.safetensors,https://huggingface.co/windecay/SimpleSDXL2/resolve/main/SimpleModels/upscale_models/remacri_original.safetensors',
                                         'controlnet,lllyasviel/Annotators/ZoeD_M12_N.pt,1443406099,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/controlnet/lllyasviel/Annotators/ZoeD_M12_N.pt,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/controlnet/lllyasviel/Annotators/ZoeD_M12_N.pt',
                                         'controlnet,noob_sdxl_controlnet_inpainting.safetensors,5004167832,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/controlnet/noob_sdxl_controlnet_inpainting.safetensors,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/controlnet/noob_sdxl_controlnet_inpainting.safetensors',
                                         'vae,ponyDiffusionV6XL_vae.safetensors,334641162,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/vae/ponyDiffusionV6XL_vae.safetensors,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/vae/ponyDiffusionV6XL_vae.safetensors',

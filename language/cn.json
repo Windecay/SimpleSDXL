@@ -1190,5 +1190,12 @@
   "Mk Tlingit Art": "Mk 特林吉特艺术",
   "Mk Adnate Style": "Mk 阿德纳特街头肖像",
   "Mk Ron English Style": "Mk 罗恩·英格利街头艺术",
-  "Mk Shepard Fairey Style": "Mk 谢泼德街头艺术"
+  "Mk Shepard Fairey Style": "Mk 谢泼德街头艺术",
+  "Batch": "批量处理",
+  "Batch Target": "批量目标控件",
+  "Folder(Local Path)": "文件夹（本机路径，远端请使用上传图片）",
+  "Upload images": "上传图片（多选）",
+  "Batch status": "批量状态",
+  "Batch Start": "开始批量生成",
+  "Batch Stop": "停止批量生成"
 }

@@ -9,6 +9,7 @@ import re
 import random
 import tempfile
 import wave
+import functools
 
 try:
     from extras.media_normalize import patch_gradio_processing_utils_for_missing_ffprobe as _patch_gradio_processing_utils_for_missing_ffprobe
@@ -25,6 +26,7 @@ import modules.flags as flags
 import modules.gradio_hijack as grh
 import modules.style_sorter as style_sorter
 import modules.meta_parser
+import modules.batch_utils as batch_utils
 import copy
 import args_manager
 import ldm_patched.modules.model_management as model_management
@@ -280,6 +282,7 @@ def generate_clicked(task: worker.AsyncTask, state):
     waiting_for_new_step_frame = False
     backend_ready = False
     preview_interval = 1.0 / 8.0
+    last_preview_image = None
 
     try:
         while not finished:
@@ -327,7 +330,7 @@ def generate_clicked(task: worker.AsyncTask, state):
                 logged_backend_ready_wait = True
                 logger.warning(f"[Generate] backend_ready_delayed: waited={current_time - local_start_time:.2f}s, yields_len={len(task.yields)}, processing={getattr(task, 'processing', None)}, {task_meta}")
 
-            if len(preview_cache) > 1 and current_time >= next_preview_ui_time:
+            if task.content_type == 'video' and len(preview_cache) > 1 and current_time >= next_preview_ui_time:
                 head_flag = task.yields[0][0] if len(task.yields) > 0 else None
                 head_preview_image_none = False
                 if head_flag == 'preview':
@@ -381,10 +384,17 @@ def generate_clicked(task: worker.AsyncTask, state):
 
                 if flag == 'preview':
                     last_update_time = current_time
+                    previous_percentage = last_preview_percentage
                     percentage, title, image = product
 
                     title_changed = title != last_preview_title
-                    if title != last_preview_title:
+                    percentage_reset = False
+                    if previous_percentage > 1.5:
+                        percentage_reset = percentage < previous_percentage and percentage <= 1.0
+                    else:
+                        percentage_reset = percentage < previous_percentage and percentage <= 0.05
+                    step_changed = title_changed or percentage_reset
+                    if step_changed:
                         last_preview_title = title
                         waiting_for_new_step_frame = True
                         if task.content_type != 'video':
@@ -392,6 +402,7 @@ def generate_clicked(task: worker.AsyncTask, state):
                             preview_cache_index = 0
 
                     if image is not None:
+                        last_preview_image = image
                         if waiting_for_new_step_frame:
                             preview_cache = []
                             preview_cache_index = 0
@@ -401,14 +412,17 @@ def generate_clicked(task: worker.AsyncTask, state):
 
                     last_preview_percentage = percentage
                     image_to_show = image
-                    if image_to_show is None and len(preview_cache) > 0 and not waiting_for_new_step_frame:
-                        preview_cache_index = (preview_cache_index + 1) % len(preview_cache)
-                        image_to_show = preview_cache[preview_cache_index]
+                    if image_to_show is None:
+                        if last_preview_image is not None:
+                            image_to_show = last_preview_image
+                        elif len(preview_cache) > 0 and not waiting_for_new_step_frame:
+                            preview_cache_index = len(preview_cache) - 1
+                            image_to_show = preview_cache[preview_cache_index]
                     if image_to_show is not None:
                         last_preview_frame_time = current_time
 
                     should_yield_preview = False
-                    if title_changed:
+                    if step_changed:
                         should_yield_preview = True
                     elif image_to_show is not None:
                         should_yield_preview = current_time >= next_preview_ui_time
@@ -421,7 +435,7 @@ def generate_clicked(task: worker.AsyncTask, state):
                     if not should_yield_preview:
                         continue
 
-                    if title_changed:
+                    if step_changed:
                         next_preview_ui_time = current_time + preview_interval
                     else:
                         next_preview_ui_time += preview_interval
@@ -484,7 +498,7 @@ def generate_clicked(task: worker.AsyncTask, state):
                             if isinstance(filepath, str) and os.path.exists(filepath):
                                 os.remove(filepath)
 
-            elif len(preview_cache) > 1 and current_time >= next_preview_ui_time:
+            elif task.content_type == 'video' and len(preview_cache) > 1 and current_time >= next_preview_ui_time:
                 preview_cache_index = (preview_cache_index + 1) % len(preview_cache)
                 cached_image = preview_cache[preview_cache_index]
                 last_preview_frame_time = current_time
@@ -983,6 +997,15 @@ with shared.gradio_root:
                         with gr.Row() as scene_input_images:
                             scene_input_image1 = grh.Image(label='Upload prompt image(2)', value=None, source='upload', type='numpy', image_mode='RGBA', show_label=True, height=300, show_download_button=False)
                             scene_input_image2 = grh.Image(label='Upload prompt image(3)', value=None, source='upload', type='numpy', image_mode='RGBA', show_label=True, height=300, show_download_button=False)
+                        with gr.Accordion("Batch", open=False) as scene_batch_accordion:
+                            scene_batch_target = gr.Radio(label="Batch Target", choices=["Upload and canvas(1)", "Upload prompt image(2)", "Upload prompt image(3)"], value="Upload prompt image(2)")
+                            scene_batch_folder = gr.Textbox(label="Folder(Local Path)", placeholder="e.g. D:\\images\\inputs")
+                            scene_batch_files = gr.File(label="Upload images", file_count="multiple", file_types=[".png", ".jpg", ".jpeg", ".webp", ".bmp"], type="file")
+                            scene_batch_status = gr.Textbox(label="Batch status", value="", interactive=False, elem_id="scene_batch_status")
+                            scene_batch_id = gr.State("")
+                            with gr.Row():
+                                scene_batch_start = gr.Button(value="Batch Start", size="sm")
+                                scene_batch_stop = gr.Button(value="Batch Stop", size="sm")
                         
                         def update_qwen_image(image):
                             if image is None:
@@ -2645,6 +2668,14 @@ with shared.gradio_root:
                                 uov_input_image = grh.Image(label='Image', source='upload', type='numpy', image_mode='RGBA', height=300, show_label=False)
                                 with gr.Row():
                                     describe_uov_button = gr.Button(value='Describe Image', variant='secondary', size='sm', visible=False)
+                                with gr.Accordion("Batch", open=False) as uov_batch_accordion:
+                                    uov_batch_folder = gr.Textbox(label="Folder(Local Path)", placeholder="e.g. D:\\images\\inputs")
+                                    uov_batch_files = gr.File(label="Upload images", file_count="multiple", file_types=[".png", ".jpg", ".jpeg", ".webp", ".bmp"], type="file")
+                                    uov_batch_status = gr.Textbox(label="Batch status", value="", interactive=False, elem_id="uov_batch_status")
+                                    uov_batch_id = gr.State("")
+                                    with gr.Row():
+                                        uov_batch_start = gr.Button(value="Batch Start", size="sm")
+                                        uov_batch_stop = gr.Button(value="Batch Stop", size="sm")
                             with gr.Column():
                                 with gr.Group():
                                     mixing_image_prompt_and_vary_upscale = gr.Checkbox(label='Mixing Image Prompt and Vary/Upscale', value=False)
@@ -2786,6 +2817,14 @@ with shared.gradio_root:
                                 enhance_input_image = grh.Image(label='Use with Enhance, skips image generation', source='upload', type='numpy', image_mode='RGBA')
                                 with gr.Row():
                                     describe_enhance_button = gr.Button(value='Describe Image', variant='secondary', size='sm', visible=False)
+                                with gr.Accordion("Batch", open=False) as enhance_batch_accordion:
+                                    enhance_batch_folder = gr.Textbox(label="Folder(Local Path)", placeholder="e.g. D:\\images\\inputs")
+                                    enhance_batch_files = gr.File(label="Upload images", file_count="multiple", file_types=[".png", ".jpg", ".jpeg", ".webp", ".bmp"], type="file")
+                                    enhance_batch_status = gr.Textbox(label="Batch status", value="", interactive=False, elem_id="enhance_batch_status")
+                                    enhance_batch_id = gr.State("")
+                                    with gr.Row():
+                                        enhance_batch_start = gr.Button(value="Batch Start", size="sm")
+                                        enhance_batch_stop = gr.Button(value="Batch Stop", size="sm")
                                 with gr.Group():
                                     with gr.Row():
                                         enhance_enabled_1 = gr.Checkbox(label='Enable Region#1', value=False, elem_classes='min_check')
@@ -4153,6 +4192,68 @@ with shared.gradio_root:
         ctrls += enhance_ctrls
         # ctrls += [random_aspect_ratio_checkbox]
 
+        batch_stop_fn = functools.partial(batch_utils.stop_batch, worker=worker)
+        batch_run_uov_fn = functools.partial(
+            batch_utils.batch_run_uov,
+            get_task_with_resolution_multiplier=get_task_with_resolution_multiplier,
+            generate_clicked=generate_clicked,
+            worker=worker,
+            constants=constants,
+            html=modules.html,
+            get_welcome_image=get_welcome_image
+        )
+        batch_run_enhance_fn = functools.partial(
+            batch_utils.batch_run_enhance,
+            get_task_with_resolution_multiplier=get_task_with_resolution_multiplier,
+            generate_clicked=generate_clicked,
+            worker=worker,
+            constants=constants,
+            html=modules.html,
+            get_welcome_image=get_welcome_image
+        )
+        batch_run_scene_fn = functools.partial(
+            batch_utils.batch_run_scene,
+            get_task_with_resolution_multiplier=get_task_with_resolution_multiplier,
+            generate_clicked=generate_clicked,
+            worker=worker,
+            constants=constants,
+            html=modules.html,
+            get_welcome_image=get_welcome_image,
+            api_params=api_params,
+            topbar=topbar
+        )
+
+        uov_batch_stop.click(fn=batch_stop_fn, inputs=[uov_batch_id], outputs=[uov_batch_status], queue=False, show_progress=False)
+        uov_batch_evt = uov_batch_start.click(
+            fn=batch_run_uov_fn,
+            inputs=[uov_batch_folder, uov_batch_files, seed_random] + ctrls + [resolution_multiplier, resolution_quantize_step, state_topbar],
+            outputs=[progress_html, progress_window, progress_gallery, progress_video, gallery, comparison_state, comparison_box, compare_btn, stop_button, skip_button, generate_button, state_is_generating, uov_batch_status, uov_batch_id],
+            show_progress=False
+        )
+
+        enhance_batch_stop.click(fn=batch_stop_fn, inputs=[enhance_batch_id], outputs=[enhance_batch_status], queue=False, show_progress=False)
+        enhance_batch_evt = enhance_batch_start.click(
+            fn=batch_run_enhance_fn,
+            inputs=[enhance_batch_folder, enhance_batch_files, seed_random] + ctrls + [resolution_multiplier, resolution_quantize_step, state_topbar],
+            outputs=[progress_html, progress_window, progress_gallery, progress_video, gallery, comparison_state, comparison_box, compare_btn, stop_button, skip_button, generate_button, state_is_generating, enhance_batch_status, enhance_batch_id],
+            show_progress=False
+        )
+
+        scene_batch_stop.click(fn=batch_stop_fn, inputs=[scene_batch_id], outputs=[scene_batch_status], queue=False, show_progress=False)
+        scene_batch_evt = scene_batch_start.click(
+            fn=batch_run_scene_fn,
+            inputs=[
+                scene_batch_folder, scene_batch_files, scene_batch_target, seed_random, image_seed, params_backend, scene_theme, scene_canvas_image, scene_input_image1, scene_input_image2, scene_additional_prompt, scene_additional_prompt_2,
+                scene_var_number, scene_var_number2, scene_var_number3, scene_var_number4, scene_var_number5, scene_var_number6,
+                scene_var_number7, scene_var_number8, scene_var_number9, scene_var_number10, scene_steps,
+                scene_switch_option1, scene_switch_option2, scene_switch_option3, scene_switch_option4, scene_aspect_ratio,
+                scene_image_number, scene_video, scene_audio, scene_original_video_path, active_video_source,
+                sam3_input_video, sam3_original_video_path, sam3_mask_video
+            ] + ctrls + [resolution_multiplier, resolution_quantize_step, state_topbar],
+            outputs=[progress_html, progress_window, progress_gallery, progress_video, gallery, comparison_state, comparison_box, compare_btn, stop_button, skip_button, generate_button, state_is_generating, scene_batch_status, scene_batch_id],
+            show_progress=False
+        )
+
         def parse_meta(raw_prompt_txt, state_params, scene_input_image1, state_is_generating):
             if state_is_generating:
                  return [gr.update()]*5
@@ -4398,6 +4499,13 @@ with shared.gradio_root:
         from extras.media_normalize import stash_scene_media_before_generation as _stash_scene_media_before_generation
         from extras.media_normalize import stash_scene_media_preview as _stash_scene_media_preview
         from extras.media_normalize import restore_scene_media_after_generation as _restore_scene_media_after_generation
+
+        uov_batch_evt.then(topbar.process_after_generation, inputs=state_topbar, outputs=[generate_button, stop_button, skip_button, state_is_generating, gallery_index, index_radio] + protections + [gallery_index_stat, history_link], show_progress=False) \
+            .then(lambda x: None, inputs=gallery_index_stat, queue=False, show_progress=False, _js='(x)=>{refresh_finished_images_catalog_label(x);}')
+        enhance_batch_evt.then(topbar.process_after_generation, inputs=state_topbar, outputs=[generate_button, stop_button, skip_button, state_is_generating, gallery_index, index_radio] + protections + [gallery_index_stat, history_link], show_progress=False) \
+            .then(lambda x: None, inputs=gallery_index_stat, queue=False, show_progress=False, _js='(x)=>{refresh_finished_images_catalog_label(x);}')
+        scene_batch_evt.then(topbar.process_after_generation, inputs=state_topbar, outputs=[generate_button, stop_button, skip_button, state_is_generating, gallery_index, index_radio] + protections + [gallery_index_stat, history_link], show_progress=False) \
+            .then(lambda x: None, inputs=gallery_index_stat, queue=False, show_progress=False, _js='(x)=>{refresh_finished_images_catalog_label(x);}')
 
         generate_button.click(_stash_scene_media_before_generation, inputs=[scene_video, scene_audio, scene_original_video_path, state_topbar], outputs=[scene_video_backup, scene_audio_backup, scene_original_video_backup, scene_video, scene_audio, scene_original_video_path, scene_video_placeholder, scene_audio_placeholder, generate_button, skip_button, stop_button, random_aspect_ratio_state], queue=False, show_progress=False) \
             .then(cache_input_image_func, inputs=[state_topbar, enhance_checkbox, current_tab, uov_input_image, inpaint_input_image, layer_input_image, enhance_input_image, scene_input_image1, scene_canvas_image], outputs=[cached_input_image]) \
@@ -4728,7 +4836,9 @@ with shared.gradio_root:
         scene_theme.change(switch_scene_theme, inputs=[state_topbar, image_number, scene_canvas_image, scene_input_image1, scene_additional_prompt, scene_additional_prompt_2, scene_var_number, scene_var_number2, scene_var_number3, scene_var_number4, scene_var_number5, scene_var_number6, scene_var_number7, scene_var_number8, scene_var_number9, scene_var_number10, scene_steps, scene_switch_option1, scene_switch_option2, scene_switch_option3, scene_switch_option4, scene_theme], outputs=scene_params[1:], queue=False, show_progress=False) \
                    .then(update_scene_model_dropdown_visibility, inputs=[state_topbar], outputs=[scene_base_model, scene_refiner_model], queue=False, show_progress=False) \
                    .then(switch_scene_theme_ready_to_gen, inputs=[state_topbar, image_number, scene_canvas_image, scene_input_image1, scene_additional_prompt, scene_additional_prompt_2, scene_theme, scene_video, scene_audio], outputs=[prompt, generate_button], queue=False, show_progress=True) \
-                   .then(check_camera_control_visibility, inputs=[scene_theme, state_topbar], outputs=[camera_control_accordion, anglelight_control_accordion, style_transfer_accordion, sam3_video_mask_accordion], queue=False, show_progress=False)
+                   .then(check_camera_control_visibility, inputs=[scene_theme, state_topbar], outputs=[camera_control_accordion, anglelight_control_accordion, style_transfer_accordion, sam3_video_mask_accordion], queue=False, show_progress=False) \
+                   .then(batch_utils.refresh_scene_batch_accordion, inputs=[state_topbar], outputs=[scene_batch_accordion], queue=False, show_progress=False) \
+                   .then(batch_utils.refresh_scene_batch_target, inputs=[state_topbar, scene_batch_target], outputs=[scene_batch_target], queue=False, show_progress=False)
 
         def scene_aspect_ratio_changed(state, theme, scene_ar):
             task_method = ""
@@ -4860,6 +4970,8 @@ with shared.gradio_root:
 
     for i in range(shared.BUTTON_NUM):
         bar_buttons[i].click(topbar.reset_layout_ui, inputs=reset_preset_inputs + [bar_buttons[i]], outputs=reset_layout_ui_outputs + [state_topbar, comparison_state, comparison_box, progress_gallery, compare_btn, progress_window], queue=False, show_progress=False) \
+               .then(batch_utils.refresh_scene_batch_accordion, inputs=[state_topbar], outputs=[scene_batch_accordion], queue=False, show_progress=False) \
+               .then(batch_utils.refresh_scene_batch_target, inputs=[state_topbar, scene_batch_target], outputs=[scene_batch_target], queue=False, show_progress=False) \
                .then(lambda sp, umf: refresh_files_clicked(sp, umf, False), inputs=[state_topbar, model_filter_state], outputs=refresh_files_output + lora_ctrls, queue=False, show_progress=False) \
                .then(topbar.reset_layout_values, inputs=reset_values_inputs, outputs=reset_layout_values_outputs, show_progress=False) \
                .then(_sanitize_ip_types, inputs=ip_types, outputs=ip_types, queue=False, show_progress=False) \
@@ -4876,6 +4988,8 @@ with shared.gradio_root:
                       .then(topbar.init_nav_bars, inputs=[state_topbar] + admin_ctrls, outputs=[progress_window, language_ui, background_theme, preset_instruction] + user_app_ctrls + admin_ctrls, show_progress=False) \
                       .then(_qwen_refresh_style_preset_dropdowns, inputs=[state_topbar, qwen_design_style_preset_choices, qwen_custom_style_preset_choices], outputs=[qwen_design_style_preset_choices, qwen_custom_style_preset_choices], queue=False, show_progress=False) \
                       .then(topbar.reset_layout_ui, inputs=reset_preset_inputs, outputs=reset_layout_ui_outputs + [state_topbar, comparison_state, comparison_box, progress_gallery, compare_btn, progress_window], show_progress=False) \
+                      .then(batch_utils.refresh_scene_batch_accordion, inputs=[state_topbar], outputs=[scene_batch_accordion], queue=False, show_progress=False) \
+                      .then(batch_utils.refresh_scene_batch_target, inputs=[state_topbar, scene_batch_target], outputs=[scene_batch_target], queue=False, show_progress=False) \
                       .then(lambda sp, umf: refresh_files_clicked(sp, umf, False), inputs=[state_topbar, model_filter_state], outputs=refresh_files_output + lora_ctrls, queue=True, show_progress=False) \
                       .then(topbar.refresh_preset_store_list, inputs=state_topbar, outputs=preset_store_list, show_progress=False, queue=False) \
                       .then(topbar.reset_layout_values, inputs=reset_values_inputs, outputs=reset_layout_values_outputs, show_progress=False) \

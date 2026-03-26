@@ -60,13 +60,16 @@ def barrier_if_distributed(*args, **kwargs):
         return dist.barrier(*args, **kwargs)
 
 
-def init_torch(cudnn_benchmark=True, timeout=timedelta(seconds=600)):
+def init_torch(cudnn_benchmark=False, timeout=timedelta(seconds=600)):
     """
     Common PyTorch initialization configuration.
     """
     torch.backends.cuda.matmul.allow_tf32 = True
     torch.backends.cudnn.allow_tf32 = True
-    torch.backends.cudnn.benchmark = cudnn_benchmark
+    if torch.backends.cudnn.is_available() and cudnn_benchmark:
+        torch.backends.cudnn.benchmark = True
+    elif torch.backends.cudnn.is_available() and torch.backends.cudnn.benchmark:
+        torch.backends.cudnn.benchmark = False
     torch.cuda.set_device(get_local_rank())
     dist.init_process_group(
         backend="nccl",

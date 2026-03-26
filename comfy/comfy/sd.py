@@ -973,7 +973,7 @@ class VAE:
             do_tile = True
         finally:
             if old_benchmark is not None:
-                torch.backends.cudnn.benchmark = old_benchmark
+                torch.backends.cudnn.benchmark = False
 
         if do_tile:
             dims = samples_in.ndim - 2

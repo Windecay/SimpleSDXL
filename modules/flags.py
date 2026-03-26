@@ -244,7 +244,7 @@ model_file_filter = {
         'Qwen'   : ['qwen'],
         'Z-image': [['z_image'], ['z-image'], ['zimage'], ['zit'], ['zib']],
         }
-model_file_filter['Fooocus'] = model_file_filter['SD3x'] + model_file_filter['Flux'] + model_file_filter['HyDiT']
+model_file_filter['Fooocus'] = model_file_filter['SDXL']
 
 language_radio = lambda x: '中文' if x=='cn' else 'En'
 language_radio_revert = lambda x: 'cn' if x=='中文' else 'en'

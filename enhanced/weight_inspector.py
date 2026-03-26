@@ -368,6 +368,7 @@ def _make_key_signature(keys: List[str]) -> Dict[str, Any]:
 
 
 def _infer_arch_family_from_keys(keys: List[str], metadata: Dict[str, Any]) -> str:
+    hint_arch: Optional[str] = None
     for v in (metadata or {}).values():
         try:
             s = str(v).lower()
@@ -383,18 +384,18 @@ def _infer_arch_family_from_keys(keys: List[str], metadata: Dict[str, Any]) -> s
             return "flux"
         if "wan" in s or "wan2" in s:
             return "wan"
-        if "sdxl" in s or "sd-xl" in s or "stable-diffusion-xl" in s:
-            return "sdxl"
-        if "sd3" in s or "sd-3" in s:
-            return "sd3"
-        if "sd15" in s or "sd1.5" in s or "sd_1.5" in s or "sd-v1-5" in s:
-            return "sdxl"
+        if hint_arch is None and ("sdxl" in s or "sd-xl" in s or "stable-diffusion-xl" in s):
+            hint_arch = "sdxl"
+        if hint_arch is None and ("sd3" in s or "sd-3" in s):
+            hint_arch = "sd3"
+        if hint_arch is None and ("sd15" in s or "sd1.5" in s or "sd_1.5" in s or "sd-v1-5" in s):
+            hint_arch = "sdxl"
 
     arch = str(metadata.get("modelspec.architecture", "") or "")
     if arch:
         arch_l = arch.lower()
         if "sd-3" in arch_l or "sd3" in arch_l:
-            return "sd3"
+            hint_arch = hint_arch or "sd3"
         if (
             "sd-xl" in arch_l
             or "sdxl" in arch_l
@@ -402,9 +403,9 @@ def _infer_arch_family_from_keys(keys: List[str], metadata: Dict[str, Any]) -> s
             or re.search(r"(diffusion|stable)[-_ ]?diffusion[-_ ]?xl", arch_l)
             or "xl-v1" in arch_l
         ):
-            return "sdxl"
+            hint_arch = hint_arch or "sdxl"
         if "sd-1" in arch_l or "sd1" in arch_l or "sd-v1" in arch_l:
-            return "sdxl"
+            hint_arch = hint_arch or "sdxl"
         if "flux" in arch_l:
             return "flux"
         if "wan" in arch_l:
@@ -446,13 +447,13 @@ def _infer_arch_family_from_keys(keys: List[str], metadata: Dict[str, Any]) -> s
     if md_base:
         md_l = md_base.lower()
         if "sdxl" in md_l:
-            return "sdxl"
+            hint_arch = hint_arch or "sdxl"
         if "sd3" in md_l:
-            return "sd3"
+            hint_arch = hint_arch or "sd3"
         if "sd-v2" in md_l or "sd2" in md_l:
-            return "sd2"
+            hint_arch = hint_arch or "sd2"
         if "sd_1.5" in md_l or "sd-v1-5" in md_l or "sd15" in md_l or "sd1.5" in md_l:
-            return "sdxl"
+            hint_arch = hint_arch or "sdxl"
         if "flux" in md_l:
             return "flux"
         if "wan" in md_l:
@@ -464,8 +465,6 @@ def _infer_arch_family_from_keys(keys: List[str], metadata: Dict[str, Any]) -> s
     if "mask_estimators." in joined and "band_split." in joined and "layers." in joined:
         return "melband_roformer"
 
-    if "lora_te2_" in joined or "lora_te2." in joined:
-        return "sdxl"
     if "double_blocks." in joined and "img_attn" in joined and "txt_attn" in joined:
         return "flux"
     if "single_transformer_blocks." in joined:
@@ -506,6 +505,8 @@ def _infer_arch_family_from_keys(keys: List[str], metadata: Dict[str, Any]) -> s
         return "qwen"
     if "vocoder." in joined and ("audio_vae." in joined or "audio_vae_" in joined or "\naudio_vae" in joined):
         return "ltx2"
+    if "lora_te2_" in joined or "lora_te2." in joined:
+        return "sdxl"
     if "text_encoder_2" in joined or "conditioner.embedders.1" in joined:
         return "sdxl"
     if "model.diffusion_model" in joined and "cond_stage_model" in joined:
@@ -573,7 +574,7 @@ def _infer_arch_family_from_keys(keys: List[str], metadata: Dict[str, Any]) -> s
         return "wan"
     if "cap_embedder" in joined and "context_refiner" in joined:
         return "z_image"
-    return "unknown"
+    return hint_arch or "unknown"
 
 
 def _infer_arch_family_from_filename(path: str) -> str:
@@ -594,6 +595,8 @@ def _infer_arch_family_from_filename(path: str) -> str:
         return "qwen"
     if "wan" in s or re.search(r"(^|[^a-z0-9])wan([^a-z0-9]|$)", s):
         return "wan"
+    if "kontext" in s:
+        return "flux"
     if "flux" in s or "f.1" in s or "flux2" in s or "f.2" in s or "klein" in s:
         return "flux"
     if "sdxl" in s or "sd-xl" in s or "xl" in s or re.search(r"(^|[^a-z0-9])xl([^a-z0-9]|$)", s):

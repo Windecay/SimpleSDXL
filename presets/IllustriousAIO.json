@@ -50,8 +50,7 @@
     "model_list": [
         "checkpoints,miaomiaoHarem_v15b.safetensors,6938043202,0,",
         "ipadapter,noob_ip_adapter.bin,1396798350,0,",
-        "upscale_models,RealESRGAN_x4plus_anime_6B.pth,17938799,0,",
-        "upscale_models,4x-UltraSharp.pth,66961958,0,",
+        "upscale_models,remacri_original.safetensors,66864028,0,https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/upscale_models/remacri_original.safetensors",
         "clip_vision,clip_vision_vit_h.safetensors,1972298538,0,",
         "controlnet,lllyasviel/Annotators/ZoeD_M12_N.pt,1443406099,0,",
         "controlnet,noob_sdxl_controlnet_inpainting.safetensors,5004167832,0,",

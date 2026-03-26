@@ -760,7 +760,7 @@
         1
       ],
       "on_false": [
-        "453",
+        "643",
         0
       ]
     },
@@ -780,7 +780,7 @@
         1
       ],
       "on_false": [
-        "453",
+        "643",
         0
       ]
     },
@@ -816,7 +816,7 @@
         9
       ],
       "model": [
-        "197",
+        "5",
         0
       ],
       "positive": [
@@ -861,7 +861,7 @@
       ],
       "denoise": 1,
       "model": [
-        "198",
+        "596",
         0
       ],
       "positive": [
@@ -902,46 +902,6 @@
     "class_type": "easy int",
     "_meta": {
       "title": "i2i_uov_tiled_width"
-    }
-  },
-  "197": {
-    "inputs": {
-      "object_to_patch": "diffusion_model",
-      "residual_diff_threshold": [
-        "467",
-        12
-      ],
-      "start": 0.2,
-      "end": 0.9,
-      "max_consecutive_cache_hits": 2,
-      "model": [
-        "5",
-        0
-      ]
-    },
-    "class_type": "ApplyFBCacheOnModel",
-    "_meta": {
-      "title": "Apply First Block Cache"
-    }
-  },
-  "198": {
-    "inputs": {
-      "object_to_patch": "diffusion_model",
-      "residual_diff_threshold": [
-        "467",
-        12
-      ],
-      "start": 0.2,
-      "end": 0.9,
-      "max_consecutive_cache_hits": 2,
-      "model": [
-        "596",
-        0
-      ]
-    },
-    "class_type": "ApplyFBCacheOnModel",
-    "_meta": {
-      "title": "Apply First Block Cache"
     }
   },
   "199": {
@@ -1047,26 +1007,6 @@
       "title": "If else"
     }
   },
-  "214": {
-    "inputs": {
-      "object_to_patch": "diffusion_model",
-      "residual_diff_threshold": [
-        "467",
-        12
-      ],
-      "start": 0,
-      "end": 0.9,
-      "max_consecutive_cache_hits": 2,
-      "model": [
-        "5",
-        0
-      ]
-    },
-    "class_type": "ApplyFBCacheOnModel",
-    "_meta": {
-      "title": "Apply First Block Cache"
-    }
-  },
   "217": {
     "inputs": {
       "opacity": 75,
@@ -1129,7 +1069,7 @@
   "228": {
     "inputs": {
       "upscale_model": [
-        "266",
+        "298",
         0
       ],
       "image": [
@@ -1202,26 +1142,6 @@
       "title": "VAE Decode"
     }
   },
-  "234": {
-    "inputs": {
-      "object_to_patch": "diffusion_model",
-      "residual_diff_threshold": [
-        "467",
-        12
-      ],
-      "start": 0.2,
-      "end": 0.9,
-      "max_consecutive_cache_hits": 2,
-      "model": [
-        "195",
-        0
-      ]
-    },
-    "class_type": "ApplyFBCacheOnModel",
-    "_meta": {
-      "title": "Apply First Block Cache"
-    }
-  },
   "235": {
     "inputs": {
       "comparison": "a <= b",
@@ -1288,7 +1208,7 @@
         0
       ],
       "on_false": [
-        "241",
+        "644",
         0
       ]
     },
@@ -1304,20 +1224,6 @@
     "class_type": "easy boolean",
     "_meta": {
       "title": "is_custom_vae"
-    }
-  },
-  "241": {
-    "inputs": {
-      "sage_attention": "auto",
-      "allow_compile": false,
-      "model": [
-        "242",
-        0
-      ]
-    },
-    "class_type": "PathchSageAttentionKJ",
-    "_meta": {
-      "title": "Patch Sage Attention KJ"
     }
   },
   "242": {
@@ -1400,15 +1306,6 @@
     "class_type": "easy ifElse",
     "_meta": {
       "title": "If else"
-    }
-  },
-  "266": {
-    "inputs": {
-      "model_name": "RealESRGAN_x4plus_anime_6B.pth"
-    },
-    "class_type": "UpscaleModelLoader",
-    "_meta": {
-      "title": "Load Upscale Model"
     }
   },
   "268": {
@@ -1608,7 +1505,7 @@
         9
       ],
       "model": [
-        "234",
+        "195",
         0
       ],
       "positive": [
@@ -1679,7 +1576,7 @@
         0
       ],
       "model": [
-        "214",
+        "5",
         0
       ],
       "positive": [
@@ -1695,7 +1592,7 @@
         0
       ],
       "upscale_model": [
-        "303",
+        "298",
         0
       ]
     },
@@ -1733,7 +1630,7 @@
     "inputs": {
       "multiplier": 0.5000000000000001,
       "model": [
-        "241",
+        "644",
         0
       ]
     },
@@ -1813,7 +1710,7 @@
   },
   "298": {
     "inputs": {
-      "model_name": "RealESRGAN_x4plus_anime_6B.pth"
+      "model_name": "remacri_original.safetensors"
     },
     "class_type": "UpscaleModelLoader",
     "_meta": {
@@ -1889,7 +1786,7 @@
         9
       ],
       "model": [
-        "234",
+        "195",
         0
       ],
       "positive": [
@@ -1908,15 +1805,6 @@
     "class_type": "KSampler",
     "_meta": {
       "title": "KSampler"
-    }
-  },
-  "303": {
-    "inputs": {
-      "model_name": "4x-UltraSharp.pth"
-    },
-    "class_type": "UpscaleModelLoader",
-    "_meta": {
-      "title": "Load Upscale Model"
     }
   },
   "304": {
@@ -1947,55 +1835,6 @@
     "class_type": "DifferentialDiffusion",
     "_meta": {
       "title": "Differential Diffusion"
-    }
-  },
-  "306": {
-    "inputs": {
-      "object_to_patch": "diffusion_model",
-      "residual_diff_threshold": [
-        "467",
-        12
-      ],
-      "start": 0,
-      "end": 1,
-      "max_consecutive_cache_hits": 3,
-      "model": [
-        "305",
-        0
-      ]
-    },
-    "class_type": "ApplyFBCacheOnModel",
-    "_meta": {
-      "title": "Apply First Block Cache"
-    }
-  },
-  "307": {
-    "inputs": {
-      "model_name": "4x-UltraSharp.pth"
-    },
-    "class_type": "UpscaleModelLoader",
-    "_meta": {
-      "title": "Load Upscale Model"
-    }
-  },
-  "308": {
-    "inputs": {
-      "object_to_patch": "diffusion_model",
-      "residual_diff_threshold": [
-        "467",
-        12
-      ],
-      "start": 0,
-      "end": 1,
-      "max_consecutive_cache_hits": 3,
-      "model": [
-        "5",
-        0
-      ]
-    },
-    "class_type": "ApplyFBCacheOnModel",
-    "_meta": {
-      "title": "Apply First Block Cache"
     }
   },
   "309": {
@@ -2511,7 +2350,7 @@
     },
     "class_type": "LayerUtility: ImageMaskScaleAs",
     "_meta": {
-      "title": "LayerUtility: ImageMaskScaleAs"
+      "title": "LayerUtility: Image Mask Scale As"
     }
   },
   "356": {
@@ -3093,26 +2932,6 @@
       "title": "PromptReplace"
     }
   },
-  "389": {
-    "inputs": {
-      "object_to_patch": "diffusion_model",
-      "residual_diff_threshold": [
-        "467",
-        12
-      ],
-      "start": 0,
-      "end": 1,
-      "max_consecutive_cache_hits": 3,
-      "model": [
-        "5",
-        0
-      ]
-    },
-    "class_type": "ApplyFBCacheOnModel",
-    "_meta": {
-      "title": "Apply First Block Cache"
-    }
-  },
   "390": {
     "inputs": {
       "channel": "red",
@@ -3181,7 +3000,7 @@
   "396": {
     "inputs": {
       "upscale_model": [
-        "397",
+        "298",
         0
       ],
       "image": [
@@ -3192,15 +3011,6 @@
     "class_type": "ImageUpscaleWithModel",
     "_meta": {
       "title": "Upscale Image (using Model)"
-    }
-  },
-  "397": {
-    "inputs": {
-      "model_name": "4x-UltraSharp.pth"
-    },
-    "class_type": "UpscaleModelLoader",
-    "_meta": {
-      "title": "Load Upscale Model"
     }
   },
   "398": {
@@ -3220,7 +3030,7 @@
   "399": {
     "inputs": {
       "upscale_model": [
-        "471",
+        "298",
         0
       ],
       "image": [
@@ -3875,7 +3685,7 @@
         1
       ],
       "model": [
-        "389",
+        "5",
         0
       ],
       "positive": [
@@ -4001,38 +3811,6 @@
     "class_type": "EnhanceRegionInput",
     "_meta": {
       "title": "EnhanceRegionInput2"
-    }
-  },
-  "452": {
-    "inputs": {
-      "text": [
-        "467",
-        0
-      ],
-      "clip": [
-        "242",
-        1
-      ]
-    },
-    "class_type": "CLIPTextEncode",
-    "_meta": {
-      "title": "CLIP Text Encode (Prompt)"
-    }
-  },
-  "453": {
-    "inputs": {
-      "text": [
-        "467",
-        1
-      ],
-      "clip": [
-        "242",
-        1
-      ]
-    },
-    "class_type": "CLIPTextEncode",
-    "_meta": {
-      "title": "CLIP Text Encode (Prompt)"
     }
   },
   "455": {
@@ -4168,7 +3946,7 @@
         0
       ],
       "model": [
-        "308",
+        "5",
         0
       ],
       "positive": [
@@ -4184,7 +3962,7 @@
         0
       ],
       "upscale_model": [
-        "307",
+        "298",
         0
       ]
     },
@@ -4204,7 +3982,7 @@
         0
       ],
       "on_false": [
-        "452",
+        "642",
         0
       ]
     },
@@ -4224,7 +4002,7 @@
         0
       ],
       "on_false": [
-        "452",
+        "642",
         0
       ]
     },
@@ -4261,7 +4039,7 @@
     },
     "class_type": "LayerUtility: ImageMaskScaleAs",
     "_meta": {
-      "title": "LayerUtility: ImageMaskScaleAs"
+      "title": "LayerUtility: Image Mask Scale As"
     }
   },
   "466": {
@@ -4330,15 +4108,6 @@
     "class_type": "CLIPTextEncode",
     "_meta": {
       "title": "CLIP Text Encode (Prompt)"
-    }
-  },
-  "471": {
-    "inputs": {
-      "model_name": "4x-UltraSharp.pth"
-    },
-    "class_type": "UpscaleModelLoader",
-    "_meta": {
-      "title": "Load Upscale Model"
     }
   },
   "472": {
@@ -4524,7 +4293,7 @@
       "check_mode": "any_vpred",
       "specific_type": "V_PREDICTION",
       "model": [
-        "241",
+        "644",
         0
       ]
     },
@@ -4800,7 +4569,7 @@
         1
       ],
       "model": [
-        "389",
+        "5",
         0
       ],
       "positive": [
@@ -4888,7 +4657,7 @@
         0
       ],
       "model": [
-        "306",
+        "305",
         0
       ],
       "positive": [
@@ -5132,7 +4901,7 @@
         0
       ],
       "model": [
-        "308",
+        "5",
         0
       ],
       "positive": [
@@ -5148,7 +4917,7 @@
         0
       ],
       "upscale_model": [
-        "307",
+        "298",
         0
       ]
     },
@@ -5935,11 +5704,11 @@
     "inputs": {
       "total": 3,
       "initial_value1": [
-        "452",
+        "642",
         0
       ],
       "initial_value2": [
-        "453",
+        "643",
         0
       ]
     },
@@ -6145,7 +5914,7 @@
   "628": {
     "inputs": {
       "upscale_model": [
-        "629",
+        "298",
         0
       ],
       "image": [
@@ -6156,15 +5925,6 @@
     "class_type": "ImageUpscaleWithModel",
     "_meta": {
       "title": "Upscale Image (using Model)"
-    }
-  },
-  "629": {
-    "inputs": {
-      "model_name": "4x-UltraSharp.pth"
-    },
-    "class_type": "UpscaleModelLoader",
-    "_meta": {
-      "title": "Load Upscale Model"
     }
   },
   "630": {
@@ -6272,6 +6032,126 @@
     "class_type": "LoraLoaderModelOnly",
     "_meta": {
       "title": "lora_8"
+    }
+  },
+  "642": {
+    "inputs": {
+      "text": [
+        "467",
+        0
+      ],
+      "parser": "A1111",
+      "mean_normalization": true,
+      "multi_conditioning": true,
+      "use_old_emphasis_implementation": false,
+      "with_SDXL": false,
+      "ascore": 6,
+      "width": 1024,
+      "height": 1024,
+      "crop_w": 0,
+      "crop_h": 0,
+      "target_width": 1024,
+      "target_height": 1024,
+      "text_g": "",
+      "text_l": "",
+      "smZ_steps": 1,
+      "clip": [
+        "242",
+        1
+      ]
+    },
+    "class_type": "smZ CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode++"
+    }
+  },
+  "643": {
+    "inputs": {
+      "text": [
+        "467",
+        1
+      ],
+      "parser": "A1111",
+      "mean_normalization": true,
+      "multi_conditioning": true,
+      "use_old_emphasis_implementation": false,
+      "with_SDXL": false,
+      "ascore": 6,
+      "width": 1024,
+      "height": 1024,
+      "crop_w": 0,
+      "crop_h": 0,
+      "target_width": 1024,
+      "target_height": 1024,
+      "text_g": "",
+      "text_l": "",
+      "smZ_steps": 1,
+      "clip": [
+        "242",
+        1
+      ]
+    },
+    "class_type": "smZ CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode++"
+    }
+  },
+  "644": {
+    "inputs": {
+      "extra": "{\"show_headings\":true,\"show_descriptions\":false,\"mode\":\"*\"}",
+      "ㅤ": "Stable Diffusion",
+      "info_comma_padding_backtrack": "",
+      "Prompt word wrap length limit": 20,
+      "enable_emphasis": true,
+      "info_RNG": "",
+      "RNG": "gpu",
+      "ㅤㅤ": "Compute Settings",
+      "info_disable_nan_check": "",
+      "disable_nan_check": true,
+      "ㅤㅤㅤ": "Sampler parameters",
+      "info_eta_ancestral": "",
+      "eta": 1,
+      "info_s_churn": "",
+      "s_churn": 0,
+      "info_s_tmin": "",
+      "s_tmin": 0,
+      "info_s_tmax": "",
+      "s_tmax": 0,
+      "info_s_noise": "",
+      "s_noise": 1,
+      "info_eta_noise_seed_delta": "",
+      "ENSD": 31337,
+      "info_skip_early_cond": "",
+      "skip_early_cond": 0,
+      "info_sgm_noise_multiplier": "",
+      "sgm_noise_multiplier": false,
+      "info_upcast_sampling": "",
+      "upcast_sampling": true,
+      "ㅤㅤㅤㅤ": "Optimizations",
+      "info_NGMS": "",
+      "NGMS": 0,
+      "info_NGMS_all_steps": "",
+      "NGMS all steps": false,
+      "info_pad_cond_uncond": "",
+      "pad_cond_uncond": false,
+      "info_batch_cond_uncond": "",
+      "batch_cond_uncond": true,
+      "ㅤㅤㅤㅤㅤ": "Compatibility",
+      "info_use_prev_scheduling": "",
+      "Use previous prompt editing timelines": true,
+      "ㅤㅤㅤㅤㅤㅤ": "Experimental",
+      "info_use_CFGDenoiser": "",
+      "Use CFGDenoiser": false,
+      "info_debug": "",
+      "debug": false,
+      "*": [
+        "242",
+        0
+      ]
+    },
+    "class_type": "smZ Settings",
+    "_meta": {
+      "title": "Settings (smZ)"
     }
   }
 }

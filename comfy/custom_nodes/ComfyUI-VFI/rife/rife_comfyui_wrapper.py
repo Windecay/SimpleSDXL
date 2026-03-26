@@ -18,8 +18,8 @@ class RIFEWrapper:
 
         torch.set_grad_enabled(False)
         if torch.cuda.is_available():
-            torch.backends.cudnn.enabled = True
-            torch.backends.cudnn.benchmark = True
+            if torch.backends.cudnn.is_available() and torch.backends.cudnn.benchmark:
+                torch.backends.cudnn.benchmark = False
             if hasattr(torch.backends.cuda, "enable_mem_efficient_sdp"):
                 torch.backends.cuda.enable_mem_efficient_sdp(True)
 

@@ -121,6 +121,7 @@ document.addEventListener("DOMContentLoaded", function() {
     mutationObserver.observe(gradioApp(), {childList: true, subtree: true});
     initGeneratingStateRecovery();
     initStylePreviewOverlay();
+    initBatchPreviewGeneratingOverlay();
 });
 
 var onAppend = function(elem, f) {
@@ -479,6 +480,79 @@ function initStylePreviewOverlay() {
             handleStyleData(dataInput, e);
         }
     });
+}
+
+function initBatchPreviewGeneratingOverlay() {
+    const statusIds = ["uov_batch_status", "enhance_batch_status", "scene_batch_status"];
+    const isRunningText = function(text) {
+        if (!text) return false;
+        const t = String(text).trim().toLowerCase();
+        if (!t) return false;
+        if (t.startsWith("batch finished")) return false;
+        if (t.startsWith("batch stopped")) return false;
+        if (t.includes("folder is empty")) return false;
+        return true;
+    };
+    const getStatusValue = function(elemId) {
+        const root = gradioApp().getElementById(elemId);
+        if (!root) return "";
+        const input = root.querySelector("textarea, input");
+        return input ? (input.value || "") : "";
+    };
+
+    const findPreviewGeneratingTarget = function() {
+        const preview = gradioApp().getElementById("preview_generating");
+        if (!preview) return null;
+        const component = preview.closest('[id^="component-"]');
+        if (!component) return preview.parentElement || null;
+
+        const candidates = Array.from(component.querySelectorAll(".wrap"));
+        for (const el of candidates) {
+            if (!el || !el.classList) continue;
+            const cls = Array.from(el.classList);
+            const hasSvelte = cls.some((c) => typeof c === "string" && c.startsWith("svelte-"));
+            if (!hasSvelte) continue;
+            const cs = window.getComputedStyle ? window.getComputedStyle(el) : null;
+            const isOverlayLike = cs && (cs.position === "absolute" || cs.position === "fixed") && cs.pointerEvents === "none";
+            if (isOverlayLike) {
+                return el;
+            }
+        }
+
+        return component;
+    };
+
+    if (!window.SimpleAI) {
+        window.SimpleAI = {};
+    }
+    window.SimpleAI.findBatchPreviewGeneratingTarget = findPreviewGeneratingTarget;
+
+    window.setInterval(function() {
+        const target = findPreviewGeneratingTarget();
+        if (!target || !target.classList) return;
+        const running = statusIds.some((id) => isRunningText(getStatusValue(id)));
+        if (running) {
+            if (target.dataset.simpleaiForcedGenerating !== "1") {
+                target.dataset.simpleaiForcedGenerating = "1";
+                target.dataset.simpleaiPrevHadHide = target.classList.contains("hide") ? "1" : "0";
+                target.dataset.simpleaiPrevHadHidden = target.classList.contains("hidden") ? "1" : "0";
+            }
+            target.classList.remove("hide");
+            target.classList.remove("hidden");
+            target.classList.add("generating");
+        } else {
+            if (target.dataset.simpleaiForcedGenerating === "1") {
+                const restoreHide = target.dataset.simpleaiPrevHadHide === "1";
+                const restoreHidden = target.dataset.simpleaiPrevHadHidden === "1";
+                target.dataset.simpleaiForcedGenerating = "";
+                target.dataset.simpleaiPrevHadHide = "";
+                target.dataset.simpleaiPrevHadHidden = "";
+                target.classList.remove("generating");
+                if (restoreHide) target.classList.add("hide");
+                if (restoreHidden) target.classList.add("hidden");
+            }
+        }
+    }, 250);
 }
 const style = document.createElement('style');
 style.textContent = `

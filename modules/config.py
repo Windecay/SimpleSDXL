@@ -1296,6 +1296,27 @@ def _ensure_weight_inspector_cache_for_keys(models_root: str, model_keys: List[s
         current_stamp = {"size": current_size, "mtime": current_mtime}
 
         cached_arch_family = entry.get("arch_family")
+        if catalog == "loras":
+            file_basename = os.path.basename(file_path).lower()
+            file_parent = os.path.basename(os.path.dirname(file_path)).lower()
+            if "kontext" in file_basename or "kontext" in file_parent or "kontext" in resolved_key.lower():
+                desired_arch_family = "flux"
+                if str(cached_arch_family or "").lower() != desired_arch_family:
+                    entry["arch_family"] = desired_arch_family
+                    entry["arch_family_algo"] = ARCH_FAMILY_ALGO
+                    entry["arch_family_stamp"] = current_stamp
+                    cached_arch_family = desired_arch_family
+                    updated = True
+                    try:
+                        mi = shared.modelsinfo
+                        if mi is not None and isinstance(getattr(mi, "m_info", None), dict):
+                            mi_entry = mi.m_info.get(resolved_key)
+                            if isinstance(mi_entry, dict):
+                                mi_entry["arch_family"] = entry["arch_family"]
+                                mi_entry["arch_family_algo"] = entry["arch_family_algo"]
+                                mi_entry["arch_family_stamp"] = entry["arch_family_stamp"]
+                    except Exception:
+                        pass
         if (
             cached_arch_family
             and entry.get("arch_family_stamp") == current_stamp
