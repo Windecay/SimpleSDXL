@@ -2668,14 +2668,6 @@ with shared.gradio_root:
                                 uov_input_image = grh.Image(label='Image', source='upload', type='numpy', image_mode='RGBA', height=300, show_label=False)
                                 with gr.Row():
                                     describe_uov_button = gr.Button(value='Describe Image', variant='secondary', size='sm', visible=False)
-                                with gr.Accordion("Batch", open=False) as uov_batch_accordion:
-                                    uov_batch_folder = gr.Textbox(label="Folder(Local Path)", placeholder="e.g. D:\\images\\inputs")
-                                    uov_batch_files = gr.File(label="Upload images", file_count="multiple", file_types=[".png", ".jpg", ".jpeg", ".webp", ".bmp"], type="file")
-                                    uov_batch_status = gr.Textbox(label="Batch status", value="", interactive=False, elem_id="uov_batch_status")
-                                    uov_batch_id = gr.State("")
-                                    with gr.Row():
-                                        uov_batch_start = gr.Button(value="Batch Start", size="sm")
-                                        uov_batch_stop = gr.Button(value="Batch Stop", size="sm")
                             with gr.Column():
                                 with gr.Group():
                                     mixing_image_prompt_and_vary_upscale = gr.Checkbox(label='Mixing Image Prompt and Vary/Upscale', value=False)
@@ -2692,6 +2684,14 @@ with shared.gradio_root:
                                         hires_fix_stop = gr.Slider(label='Stop At', minimum=0.0, maximum=1.0, step=0.05, value=0.8, min_width=20)
                                         hires_fix_weight = gr.Slider(label='Weight', minimum=0.0, maximum=2.0, step=0.05, value=0.5, min_width=20)
                                         hires_fix_blurred = gr.Slider(label='Blurred', minimum=0.0, maximum=1.0, step=0.05, value=0.0, min_width=20)
+                                with gr.Accordion("Batch", open=False) as uov_batch_accordion:
+                                    uov_batch_folder = gr.Textbox(label="Folder(Local Path)", placeholder="e.g. D:\\images\\inputs")
+                                    uov_batch_files = gr.File(label="Upload images", file_count="multiple", file_types=[".png", ".jpg", ".jpeg", ".webp", ".bmp"], type="file")
+                                    uov_batch_status = gr.Textbox(label="Batch status", value="", interactive=False, elem_id="uov_batch_status")
+                                    uov_batch_id = gr.State("")
+                                    with gr.Row():
+                                        uov_batch_start = gr.Button(value="Batch Start", size="sm")
+                                        uov_batch_stop = gr.Button(value="Batch Stop", size="sm")
                         uov_input_image.upload(topbar.update_upscale_size_of_image, inputs=[uov_input_image, uov_method], outputs=uov_image_size, show_progress=False, queue=False)
                         uov_method.change(topbar.update_size_and_hires_fix, inputs=[uov_input_image, uov_method, params_backend, hires_fix_stop, hires_fix_weight, hires_fix_blurred], outputs=[uov_image_size, uov_hires_fix, overwrite_vary_strength, overwrite_upscale_strength], show_progress=False, queue=False)
                         hires_fix_stop.change(lambda x,y,z: sync_backend_params('hires_fix_s',x,y,z), inputs=[hires_fix_stop, params_backend, state_topbar])
@@ -2817,14 +2817,6 @@ with shared.gradio_root:
                                 enhance_input_image = grh.Image(label='Use with Enhance, skips image generation', source='upload', type='numpy', image_mode='RGBA')
                                 with gr.Row():
                                     describe_enhance_button = gr.Button(value='Describe Image', variant='secondary', size='sm', visible=False)
-                                with gr.Accordion("Batch", open=False) as enhance_batch_accordion:
-                                    enhance_batch_folder = gr.Textbox(label="Folder(Local Path)", placeholder="e.g. D:\\images\\inputs")
-                                    enhance_batch_files = gr.File(label="Upload images", file_count="multiple", file_types=[".png", ".jpg", ".jpeg", ".webp", ".bmp"], type="file")
-                                    enhance_batch_status = gr.Textbox(label="Batch status", value="", interactive=False, elem_id="enhance_batch_status")
-                                    enhance_batch_id = gr.State("")
-                                    with gr.Row():
-                                        enhance_batch_start = gr.Button(value="Batch Start", size="sm")
-                                        enhance_batch_stop = gr.Button(value="Batch Stop", size="sm")
                                 with gr.Group():
                                     with gr.Row():
                                         enhance_enabled_1 = gr.Checkbox(label='Enable Region#1', value=False, elem_classes='min_check')
@@ -2856,7 +2848,14 @@ with shared.gradio_root:
                                                                     inputs=enhance_uov_processing_order,
                                                                     outputs=enhance_uov_prompt_type,
                                                                     queue=False, show_progress=False)
-                                                    gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/3281" target="_blank">\U0001F4D4 Documentation</a>')
+                                with gr.Accordion("Batch", open=False) as enhance_batch_accordion:
+                                    enhance_batch_folder = gr.Textbox(label="Folder(Local Path)", placeholder="e.g. D:\\images\\inputs")
+                                    enhance_batch_files = gr.File(label="Upload images", file_count="multiple", file_types=[".png", ".jpg", ".jpeg", ".webp", ".bmp"], type="file")
+                                    enhance_batch_status = gr.Textbox(label="Batch status", value="", interactive=False, elem_id="enhance_batch_status")
+                                    enhance_batch_id = gr.State("")
+                                    with gr.Row():
+                                        enhance_batch_start = gr.Button(value="Batch Start", size="sm")
+                                        enhance_batch_stop = gr.Button(value="Batch Stop", size="sm")
                                         enhance_ctrls = []
                                         enhance_inpaint_mode_ctrls = []
                                         enhance_inpaint_engine_ctrls = []
@@ -2949,7 +2948,6 @@ with shared.gradio_root:
                                                                                  '(default is 0, always processed before any mask invert)')
                                                     enhance_mask_invert = gr.Checkbox(label='Invert Mask', value=False)
 
-                                                gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/3281" target="_blank">\U0001F4D4 Documentation</a>')
                                             enhance_ctrls += [
                                                 enhance_enabled,
                                                 enhance_mask_dino_prompt_text,
