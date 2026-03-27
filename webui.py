@@ -2848,14 +2848,7 @@ with shared.gradio_root:
                                                                     inputs=enhance_uov_processing_order,
                                                                     outputs=enhance_uov_prompt_type,
                                                                     queue=False, show_progress=False)
-                                with gr.Accordion("Batch", open=False) as enhance_batch_accordion:
-                                    enhance_batch_folder = gr.Textbox(label="Folder(Local Path)", placeholder="e.g. D:\\images\\inputs")
-                                    enhance_batch_files = gr.File(label="Upload images", file_count="multiple", file_types=[".png", ".jpg", ".jpeg", ".webp", ".bmp"], type="file")
-                                    enhance_batch_status = gr.Textbox(label="Batch status", value="", interactive=False, elem_id="enhance_batch_status")
-                                    enhance_batch_id = gr.State("")
-                                    with gr.Row():
-                                        enhance_batch_start = gr.Button(value="Batch Start", size="sm")
-                                        enhance_batch_stop = gr.Button(value="Batch Stop", size="sm")
+
                                         enhance_ctrls = []
                                         enhance_inpaint_mode_ctrls = []
                                         enhance_inpaint_engine_ctrls = []
@@ -2989,7 +2982,14 @@ with shared.gradio_root:
                                                 outputs=[enhance_mask_cloth_category, enhance_mask_dino_prompt_text, sam_options,
                                                         example_enhance_mask_dino_prompt_text],
                                                 queue=False, show_progress=False)
-
+                                with gr.Accordion("Batch", open=False) as enhance_batch_accordion:
+                                    enhance_batch_folder = gr.Textbox(label="Folder(Local Path)", placeholder="e.g. D:\\images\\inputs")
+                                    enhance_batch_files = gr.File(label="Upload images", file_count="multiple", file_types=[".png", ".jpg", ".jpeg", ".webp", ".bmp"], type="file")
+                                    enhance_batch_status = gr.Textbox(label="Batch status", value="", interactive=False, elem_id="enhance_batch_status")
+                                    enhance_batch_id = gr.State("")
+                                    with gr.Row():
+                                        enhance_batch_start = gr.Button(value="Batch Start", size="sm")
+                                        enhance_batch_stop = gr.Button(value="Batch Stop", size="sm")
             switch_js = "(x) => {if(x){viewer_to_bottom(100);viewer_to_bottom(500);}else{viewer_to_top();} return x;}"
             switch_js_two = "(x,y) => {if(x){viewer_to_bottom(100);viewer_to_bottom(500);}else{if(!y){viewer_to_top();}} return [x,y];}"
             down_js = "() => {viewer_to_bottom();}"
@@ -4231,6 +4231,11 @@ with shared.gradio_root:
 
         enhance_batch_stop.click(fn=batch_stop_fn, inputs=[enhance_batch_id], outputs=[enhance_batch_status], queue=False, show_progress=False)
         enhance_batch_evt = enhance_batch_start.click(
+            fn=lambda: gr.update(value=True),
+            outputs=[enhance_checkbox],
+            queue=False,
+            show_progress=False
+        ).then(
             fn=batch_run_enhance_fn,
             inputs=[enhance_batch_folder, enhance_batch_files, seed_random] + ctrls + [resolution_multiplier, resolution_quantize_step, state_topbar],
             outputs=[progress_html, progress_window, progress_gallery, progress_video, gallery, comparison_state, comparison_box, compare_btn, stop_button, skip_button, generate_button, state_is_generating, enhance_batch_status, enhance_batch_id],
