@@ -1179,7 +1179,27 @@ def update_navbar_from_mystore(selected_preset, state):
     user_did = state["user"].get_did()
     is_guest = shared.token.is_guest(user_did)
 
-    selected_preset_name = preset_samples[user_did if not is_guest else 'guest'][selected_preset][0]
+    def _to_index(v):
+        if v is None:
+            return None
+        if isinstance(v, (list, tuple)):
+            if not v:
+                return None
+            v = v[0]
+        try:
+            return int(v)
+        except Exception:
+            return None
+
+    idx = _to_index(selected_preset)
+    samples = get_preset_samples(user_did)
+    if idx is None or idx < 0 or idx >= len(samples):
+        if is_guest:
+            samples = get_preset_samples(None)
+        if idx is None or idx < 0 or idx >= len(samples):
+            return refresh_nav_bars(state) + update_topbar_js_params(state)
+
+    selected_preset_name = samples[idx][0]
     selected_preset_name = _strip_preset_marker(selected_preset_name)
 
     results = refresh_nav_bars(state)
