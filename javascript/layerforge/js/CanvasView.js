@@ -457,6 +457,776 @@ export async function createCanvasWidget(node, widget, app) {
                         }
                     }
                 }),
+                $el("button.painter-button.requires-selection.sam3-matting-button", {
+                    textContent: "智能抠图",
+                    title: "使用 SAM3 通过点选进行交互式抠图（右键为负样本）",
+                    onclick: async (e) => {
+                        const button = e.target.closest('.sam3-matting-button');
+                        if (button.classList.contains('loading'))
+                            return;
+                        const spinner = $el("div.matting-spinner");
+                        button.appendChild(spinner);
+                        button.classList.add('loading');
+                        try {
+                            const modelCheckResponse = await fetch("/sam3/check-model");
+                            if (!modelCheckResponse.ok) {
+                                throw new Error(`${modelCheckResponse.status} ${modelCheckResponse.statusText}`);
+                            }
+                            const modelStatus = await modelCheckResponse.json();
+                            if (!modelStatus.available) {
+                                if (modelStatus.reason === 'not_downloaded') {
+                                    showWarningNotification("需要先下载 SAM3 模型。这将在您继续时自动发生（需要互联网连接）。", 5000);
+                                    if (!confirm("需要下载 SAM3 模型（约 3.2GB）。这是一次性下载。要继续吗？")) {
+                                        return;
+                                    }
+                                    showInfoNotification("正在下载 SAM3 模型... 这可能需要几分钟。", 10000);
+                                }
+                                else {
+                                    showErrorNotification(modelStatus.message || "SAM3 模型不可用", 8000);
+                                    return;
+                                }
+                            }
+                            if (canvas.canvasSelection.selectedLayers.length !== 1) {
+                                showWarningNotification("请选择且仅选择一个图像图层进行智能抠图");
+                                return;
+                            }
+                            const selectedLayer = canvas.canvasSelection.selectedLayers[0];
+                            const imageData = await canvas.canvasLayers.getLayerImageData(selectedLayer);
+                            const modalId = `sam3_image_mask_modal_backdrop_${node.id}`;
+                            if (document.getElementById(modalId)) {
+                                return;
+                            }
+                            const state = {
+                                open: false,
+                                pointsPos: [],
+                                pointsNeg: [],
+                                running: false,
+                                pending: false,
+                                pendingFinal: false,
+                                confirmRequested: false,
+                                hadRunOnce: false,
+                                pointsVersion: 0,
+                                lastRunVersion: -1,
+                                lastChangeTs: 0,
+                                debounceTimer: null,
+                                baseImg: null,
+                                maskImg: null,
+                                cutoutDataUrl: null,
+                                overlayCanvas: null,
+                                overlayImgVersion: null,
+                                history: [],
+                                historyIndex: -1,
+                                viewScale: 1,
+                                spaceDown: false,
+                                sam3Threshold: 0.3,
+                                sam3MaskThreshold: 0.4,
+                                sam3CloseRadius: 1,
+                            };
+                            const backdrop = $el("div", {
+                                id: modalId,
+                                style: {
+                                    position: "fixed",
+                                    inset: "0",
+                                    background: "rgba(0,0,0,0.7)",
+                                    zIndex: "99999",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                }
+                            });
+                            const modal = $el("div", {
+                                style: {
+                                    width: "min(1100px, 92vw)",
+                                    height: "min(780px, 92vh)",
+                                    background: "#111827",
+                                    border: "1px solid rgba(255,255,255,0.12)",
+                                    borderRadius: "14px",
+                                    boxShadow: "0 18px 60px rgba(0,0,0,0.5)",
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    overflow: "hidden",
+                                }
+                            });
+                            const header = $el("div", {
+                                style: {
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    padding: "10px 14px",
+                                    borderBottom: "1px solid rgba(255,255,255,0.10)",
+                                    gap: "8px",
+                                }
+                            });
+                            const headerTop = $el("div", {
+                                style: {
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "space-between",
+                                    gap: "10px",
+                                    flexWrap: "wrap",
+                                }
+                            });
+                            const headerTitle = $el("div", { style: { display: "flex", flexDirection: "column", gap: "2px", minWidth: "0", flex: "1 1 240px" } }, [
+                                $el("div", { style: { color: "white", fontSize: "14px", fontWeight: "600", whiteSpace: "nowrap" } }, ["智能抠图"]),
+                                $el("div", { style: { color: "rgba(255,255,255,0.65)", fontSize: "12px" } }, ["左键添加绿色点；右键添加红色点；点击“确认”生成图层"]),
+                            ]);
+                            const headerActions = $el("div", { style: { display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap", justifyContent: "flex-end", flex: "1 1 320px" } });
+                            const headerBottom = $el("div", {
+                                style: {
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "10px",
+                                    flexWrap: "wrap",
+                                }
+                            });
+                            headerTop.appendChild(headerTitle);
+                            headerTop.appendChild(headerActions);
+                            header.appendChild(headerTop);
+                            header.appendChild(headerBottom);
+                            const realtimeCheckbox = $el("input", { type: "checkbox", checked: true });
+                            const fillHolesCheckbox = $el("input", { type: "checkbox", checked: false });
+                            const closeEdgesCheckbox = $el("input", { type: "checkbox", checked: true });
+                            const mkSlider = (labelText, min, max, step, initialValue, valueFormatter) => {
+                                const input = $el("input", {
+                                    type: "range",
+                                    min: String(min),
+                                    max: String(max),
+                                    step: String(step),
+                                    value: String(initialValue),
+                                    style: { width: "110px" }
+                                });
+                                const valueEl = $el("span", { style: { color: "rgba(255,255,255,0.75)", fontSize: "11px", minWidth: "34px", textAlign: "right" } }, [
+                                    valueFormatter(initialValue)
+                                ]);
+                                const wrap = $el("div", { style: { display: "flex", alignItems: "center", gap: "6px" } }, [
+                                    $el("span", { style: { color: "rgba(255,255,255,0.8)", fontSize: "12px", userSelect: "none" } }, [labelText]),
+                                    input,
+                                    valueEl
+                                ]);
+                                return { wrap, input, valueEl };
+                            };
+                            const thresholdSlider = mkSlider("threshold", 0.05, 0.6, 0.01, state.sam3Threshold, (v) => Number(v).toFixed(2));
+                            const maskThresholdSlider = mkSlider("mask", 0.15, 0.6, 0.01, state.sam3MaskThreshold, (v) => Number(v).toFixed(2));
+                            const closeRadiusSlider = mkSlider("close", 0, 6, 1, state.sam3CloseRadius, (v) => String(parseInt(String(v), 10)));
+                            const btnUndo = $el("button", {
+                                className: "painter-button",
+                                textContent: "撤销",
+                                style: { height: "30px", minWidth: "64px" },
+                            });
+                            const btnRedo = $el("button", {
+                                className: "painter-button",
+                                textContent: "重做",
+                                style: { height: "30px", minWidth: "64px" },
+                            });
+                            const btnClear = $el("button", {
+                                className: "painter-button",
+                                textContent: "清空",
+                                style: { height: "30px", minWidth: "64px" },
+                            });
+                            const btnCancel = $el("button", {
+                                className: "painter-button",
+                                textContent: "取消",
+                                style: { height: "30px", minWidth: "64px" },
+                            });
+                            const btnConfirm = $el("button", {
+                                className: "painter-button",
+                                textContent: "确认",
+                                style: { height: "30px", minWidth: "64px" },
+                            });
+                            headerActions.appendChild(btnUndo);
+                            headerActions.appendChild(btnRedo);
+                            headerActions.appendChild(btnClear);
+                            headerActions.appendChild(btnCancel);
+                            headerActions.appendChild(btnConfirm);
+                            headerBottom.appendChild($el("label", { style: { display: "flex", alignItems: "center", gap: "6px", color: "rgba(255,255,255,0.8)", fontSize: "12px", userSelect: "none", whiteSpace: "nowrap" } }, [
+                                realtimeCheckbox,
+                                $el("span", {}, ["实时生成"])
+                            ]));
+                            headerBottom.appendChild(thresholdSlider.wrap);
+                            headerBottom.appendChild(maskThresholdSlider.wrap);
+                            headerBottom.appendChild($el("label", { style: { display: "flex", alignItems: "center", gap: "6px", color: "rgba(255,255,255,0.8)", fontSize: "12px", userSelect: "none", whiteSpace: "nowrap" } }, [
+                                closeEdgesCheckbox,
+                                $el("span", {}, ["边缘闭合"])
+                            ]));
+                            headerBottom.appendChild(closeRadiusSlider.wrap);
+                            headerBottom.appendChild($el("label", { style: { display: "flex", alignItems: "center", gap: "6px", color: "rgba(255,255,255,0.8)", fontSize: "12px", userSelect: "none", whiteSpace: "nowrap" } }, [
+                                fillHolesCheckbox,
+                                $el("span", {}, ["填充孔洞"])
+                            ]));
+                            const body = $el("div", {
+                                style: {
+                                    position: "relative",
+                                    flex: "1",
+                                    padding: "0",
+                                    background: "#0b1020",
+                                    overflow: "hidden",
+                                }
+                            });
+                            const canvasWrap = $el("div", {
+                                style: {
+                                    position: "absolute",
+                                    inset: "10px",
+                                    display: "block",
+                                    overflow: "auto",
+                                }
+                            });
+                            const canvasStage = $el("div", {
+                                style: {
+                                    minWidth: "100%",
+                                    minHeight: "100%",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                }
+                            });
+                            const busyOverlayText = $el("div", {
+                                style: {
+                                    marginTop: "10px",
+                                    color: "rgba(255,255,255,0.9)",
+                                    fontSize: "13px",
+                                    textAlign: "center",
+                                    maxWidth: "420px",
+                                    lineHeight: "1.4",
+                                }
+                            }, ["正在加载..."]);
+                            const busyOverlay = $el("div", {
+                                style: {
+                                    position: "absolute",
+                                    inset: "0",
+                                    display: "none",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    background: "rgba(11, 16, 32, 0.35)",
+                                    zIndex: "2",
+                                }
+                            }, [
+                                $el("div", { style: { display: "flex", flexDirection: "column", alignItems: "center" } }, [
+                                    $el("div.matting-spinner"),
+                                    busyOverlayText,
+                                ])
+                            ]);
+                            const editorCanvas = $el("canvas", {
+                                style: {
+                                    background: "transparent",
+                                    borderRadius: "10px",
+                                    boxShadow: "0 10px 40px rgba(0,0,0,0.35)",
+                                    display: "block",
+                                    cursor: "crosshair",
+                                }
+                            });
+                            canvasStage.appendChild(editorCanvas);
+                            canvasWrap.appendChild(canvasStage);
+                            body.appendChild(canvasWrap);
+                            body.appendChild(busyOverlay);
+                            modal.appendChild(header);
+                            modal.appendChild(body);
+                            backdrop.appendChild(modal);
+                            document.body.appendChild(backdrop);
+                            const ctx = editorCanvas.getContext("2d");
+                            if (!ctx) {
+                                backdrop.remove();
+                                throw new Error("Canvas context not available");
+                            }
+                            let onKeydown = null;
+                            let onKeyup = null;
+                            const closeModal = () => {
+                                state.open = false;
+                                if (state.debounceTimer) {
+                                    clearTimeout(state.debounceTimer);
+                                    state.debounceTimer = null;
+                                }
+                                window.removeEventListener("resize", layoutCanvas);
+                                if (onKeydown) {
+                                    window.removeEventListener("keydown", onKeydown);
+                                }
+                                if (onKeyup) {
+                                    window.removeEventListener("keyup", onKeyup);
+                                }
+                                try {
+                                    fetch("/sam3/offload", { method: "POST" }).catch(() => { });
+                                }
+                                catch {
+                                }
+                                backdrop.remove();
+                            };
+                            const layoutCanvas = () => {
+                                if (!state.open || !state.baseImg)
+                                    return;
+                                const dpr = window.devicePixelRatio || 1;
+                                state.viewDpr = dpr;
+                                const imgW = state.baseImg.width;
+                                const imgH = state.baseImg.height;
+                                const cssW = Math.max(1, Math.round(imgW * Math.max(0.0001, state.viewScale)));
+                                const cssH = Math.max(1, Math.round(imgH * Math.max(0.0001, state.viewScale)));
+                                editorCanvas.style.width = cssW + "px";
+                                editorCanvas.style.height = cssH + "px";
+                                state.viewCssW = cssW;
+                                state.viewCssH = cssH;
+                                editorCanvas.width = Math.max(1, Math.round(cssW * dpr));
+                                editorCanvas.height = Math.max(1, Math.round(cssH * dpr));
+                                canvasStage.style.width = Math.max(cssW, canvasWrap.clientWidth || 0) + "px";
+                                canvasStage.style.height = Math.max(cssH, canvasWrap.clientHeight || 0) + "px";
+                                draw();
+                            };
+                            const buildOverlayCanvas = async () => {
+                                if (!state.baseImg || !state.maskImg)
+                                    return;
+                                const w = state.baseImg.width;
+                                const h = state.baseImg.height;
+                                const oc = document.createElement("canvas");
+                                oc.width = w;
+                                oc.height = h;
+                                const octx = oc.getContext("2d");
+                                if (!octx)
+                                    return;
+                                octx.clearRect(0, 0, w, h);
+                                octx.drawImage(state.maskImg, 0, 0, w, h);
+                                const imgData = octx.getImageData(0, 0, w, h);
+                                const d = imgData.data;
+                                for (let i = 0; i < d.length; i += 4) {
+                                    const a = d[i];
+                                    d[i] = 112;
+                                    d[i + 1] = 255;
+                                    d[i + 2] = 129;
+                                    d[i + 3] = a;
+                                }
+                                octx.putImageData(imgData, 0, 0);
+                                state.overlayCanvas = oc;
+                            };
+                            const draw = () => {
+                                if (!state.open || !state.baseImg)
+                                    return;
+                                const dpr = state.viewDpr || window.devicePixelRatio || 1;
+                                const cssW = state.viewCssW || Math.max(1, editorCanvas.getBoundingClientRect().width || 1);
+                                const cssH = state.viewCssH || Math.max(1, editorCanvas.getBoundingClientRect().height || 1);
+                                ctx.setTransform(1, 0, 0, 1, 0, 0);
+                                ctx.clearRect(0, 0, editorCanvas.width, editorCanvas.height);
+                                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                                ctx.drawImage(state.baseImg, 0, 0, cssW, cssH);
+                                if (state.overlayCanvas) {
+                                    ctx.save();
+                                    ctx.globalAlpha = 0.35;
+                                    ctx.drawImage(state.overlayCanvas, 0, 0, cssW, cssH);
+                                    ctx.restore();
+                                }
+                                const drawPoint = (p, color) => {
+                                    const baseR = Math.max(4, Math.min(canvasWrap.clientWidth || 1, canvasWrap.clientHeight || 1) * 0.012);
+                                    const r = baseR;
+                                    ctx.beginPath();
+                                    ctx.arc(p.x * cssW, p.y * cssH, r, 0, Math.PI * 2);
+                                    ctx.fillStyle = color;
+                                    ctx.fill();
+                                    ctx.lineWidth = 1.5;
+                                    ctx.strokeStyle = "rgba(0,0,0,0.6)";
+                                    ctx.stroke();
+                                };
+                                state.pointsPos.forEach(p => drawPoint(p, "#70FF81"));
+                                state.pointsNeg.forEach(p => drawPoint(p, "#FF6B6B"));
+                                ctx.setTransform(1, 0, 0, 1, 0, 0);
+                            };
+                            const getCanvasNormPos = (ev) => {
+                                const rect = editorCanvas.getBoundingClientRect();
+                                const cx = (ev.clientX - rect.left);
+                                const cy = (ev.clientY - rect.top);
+                                const x = cx / Math.max(1, rect.width);
+                                const y = cy / Math.max(1, rect.height);
+                                return { x: Math.max(0, Math.min(1, x)), y: Math.max(0, Math.min(1, y)) };
+                            };
+                            const updateUndoRedo = () => {
+                                const canUndo = state.historyIndex > 0;
+                                const canRedo = state.historyIndex >= 0 && state.historyIndex < state.history.length - 1;
+                                btnUndo.style.opacity = canUndo ? "1" : "0.35";
+                                btnUndo.style.pointerEvents = canUndo ? "auto" : "none";
+                                btnRedo.style.opacity = canRedo ? "1" : "0.35";
+                                btnRedo.style.pointerEvents = canRedo ? "auto" : "none";
+                            };
+                            const pushHistory = () => {
+                                const snapshot = {
+                                    pointsPos: state.pointsPos.map(p => ({ x: p.x, y: p.y })),
+                                    pointsNeg: state.pointsNeg.map(p => ({ x: p.x, y: p.y })),
+                                };
+                                if (state.historyIndex < state.history.length - 1) {
+                                    state.history = state.history.slice(0, state.historyIndex + 1);
+                                }
+                                state.history.push(snapshot);
+                                state.historyIndex = state.history.length - 1;
+                                updateUndoRedo();
+                            };
+                            const restoreHistory = (idx) => {
+                                if (idx < 0 || idx >= state.history.length)
+                                    return;
+                                const s = state.history[idx];
+                                state.pointsPos = (s.pointsPos || []).map(p => ({ x: p.x, y: p.y }));
+                                state.pointsNeg = (s.pointsNeg || []).map(p => ({ x: p.x, y: p.y }));
+                                state.historyIndex = idx;
+                                updateUndoRedo();
+                            };
+                            const setUiBusy = (busy, text) => {
+                                btnConfirm.disabled = busy;
+                                btnClear.disabled = busy;
+                                realtimeCheckbox.disabled = busy;
+                                fillHolesCheckbox.disabled = busy;
+                                closeEdgesCheckbox.disabled = busy;
+                                thresholdSlider.input.disabled = busy;
+                                maskThresholdSlider.input.disabled = busy;
+                                closeRadiusSlider.input.disabled = busy;
+                                if (busy) {
+                                    busyOverlayText.textContent = text || "正在生成蒙版...";
+                                    busyOverlay.style.display = "flex";
+                                }
+                                else {
+                                    busyOverlay.style.display = "none";
+                                }
+                            };
+                            const scheduleRealtime = () => {
+                                if (!realtimeCheckbox.checked)
+                                    return;
+                                state.lastChangeTs = Date.now();
+                                if (state.debounceTimer) {
+                                    clearTimeout(state.debounceTimer);
+                                }
+                                state.debounceTimer = setTimeout(() => {
+                                    state.debounceTimer = null;
+                                    triggerRun(false);
+                                }, 200);
+                            };
+                            const finalizeToLayer = async () => {
+                                if (!state.cutoutDataUrl) {
+                                    throw new Error("cutout image missing");
+                                }
+                                const newImg = new Image();
+                                newImg.src = state.cutoutDataUrl;
+                                await newImg.decode();
+                                await canvas.canvasLayers.addLayerWithImage(newImg, {
+                                    name: "SAM3",
+                                    x: selectedLayer.x,
+                                    y: selectedLayer.y,
+                                    width: selectedLayer.width,
+                                    height: selectedLayer.height,
+                                    rotation: selectedLayer.rotation || 0,
+                                    flipH: !!selectedLayer.flipH,
+                                    flipV: !!selectedLayer.flipV,
+                                }, 'default');
+                                canvas.render();
+                                canvas.saveState();
+                                canvas.canvasLayersPanel?.renderLayers?.();
+                                showSuccessNotification("智能抠图完成，已生成新图层！");
+                                closeModal();
+                            };
+                            const triggerRun = async (isFinal) => {
+                                if (!state.open)
+                                    return;
+                                if (isFinal) {
+                                    state.confirmRequested = true;
+                                }
+                                if (state.running) {
+                                    state.pending = true;
+                                    state.pendingFinal = state.pendingFinal || isFinal;
+                                    return;
+                                }
+                                if (state.pointsPos.length === 0 && state.pointsNeg.length === 0) {
+                                    state.maskImg = null;
+                                    state.overlayCanvas = null;
+                                    state.cutoutDataUrl = null;
+                                    draw();
+                                    return;
+                                }
+                                state.running = true;
+                                setUiBusy(true, state.hadRunOnce ? "正在生成蒙版..." : "首次运行将加载模型并生成蒙版...");
+                                const reqVersion = state.pointsVersion;
+                                state.lastRunVersion = reqVersion;
+                                try {
+                                    const response = await fetch("/sam3/image-mask", {
+                                        method: "POST",
+                                        headers: { "Content-Type": "application/json" },
+                                        body: JSON.stringify({
+                                            image: imageData,
+                                            positive_points: state.pointsPos,
+                                            negative_points: state.pointsNeg,
+                                            threshold: state.sam3Threshold,
+                                            fill_holes: !!fillHolesCheckbox.checked,
+                                            mask_threshold: state.sam3MaskThreshold,
+                                            close_radius: closeEdgesCheckbox.checked ? state.sam3CloseRadius : 0,
+                                        })
+                                    });
+                                    const result = await response.json();
+                                    if (!response.ok) {
+                                        let errorMsg = `Server error: ${response.status} - ${response.statusText}`;
+                                        if (result && result.error) {
+                                            errorMsg = `${result.error}: ${result.details || 'Check console'}`;
+                                        }
+                                        throw new Error(errorMsg);
+                                    }
+                                    state.cutoutDataUrl = result.cutout_image || null;
+                                    if (result.mask) {
+                                        const mi = new Image();
+                                        mi.src = result.mask;
+                                        await mi.decode();
+                                        state.maskImg = mi;
+                                        await buildOverlayCanvas();
+                                    }
+                                    state.hadRunOnce = true;
+                                    draw();
+                                }
+                                finally {
+                                    state.running = false;
+                                    setUiBusy(false);
+                                    const shouldFinalize = state.confirmRequested && state.lastRunVersion === state.pointsVersion && !!state.cutoutDataUrl && !state.pending;
+                                    if (shouldFinalize) {
+                                        try {
+                                            await finalizeToLayer();
+                                        }
+                                        catch (err) {
+                                            showErrorNotification(`生成图层失败: ${err.message || err}`);
+                                        }
+                                        return;
+                                    }
+                                    if (state.pending) {
+                                        state.pending = false;
+                                        const elapsed = Date.now() - state.lastChangeTs;
+                                        const waitMs = Math.max(0, 200 - elapsed);
+                                        setTimeout(() => triggerRun(state.pendingFinal), waitMs);
+                                        state.pendingFinal = false;
+                                    }
+                                }
+                            };
+                            editorCanvas.addEventListener("contextmenu", (ev) => ev.preventDefault());
+                            let panActive = false;
+                            let panStartX = 0;
+                            let panStartY = 0;
+                            let panBaseScrollLeft = 0;
+                            let panBaseScrollTop = 0;
+                            editorCanvas.addEventListener("mousedown", (ev) => {
+                                if (!state.open)
+                                    return;
+                                if (!state.baseImg)
+                                    return;
+                                if (ev.button === 0 && (state.spaceDown || ev.altKey)) {
+                                    panStartX = ev.clientX;
+                                    panStartY = ev.clientY;
+                                    panBaseScrollLeft = canvasWrap.scrollLeft;
+                                    panBaseScrollTop = canvasWrap.scrollTop;
+                                    panActive = true;
+                                    editorCanvas.style.cursor = "grabbing";
+                                    ev.preventDefault();
+                                    return;
+                                }
+                                if (ev.button === 1) {
+                                    panStartX = ev.clientX;
+                                    panStartY = ev.clientY;
+                                    panBaseScrollLeft = canvasWrap.scrollLeft;
+                                    panBaseScrollTop = canvasWrap.scrollTop;
+                                    panActive = true;
+                                    editorCanvas.style.cursor = "grabbing";
+                                    ev.preventDefault();
+                                    return;
+                                }
+                                const p = getCanvasNormPos(ev);
+                                if (ev.button === 2) {
+                                    state.pointsNeg.push(p);
+                                }
+                                else {
+                                    state.pointsPos.push(p);
+                                }
+                                state.pointsVersion += 1;
+                                pushHistory();
+                                draw();
+                                scheduleRealtime();
+                            });
+                            window.addEventListener("mousemove", (ev) => {
+                                if (!state.open)
+                                    return;
+                                if (!panActive)
+                                    return;
+                                const dx = ev.clientX - panStartX;
+                                const dy = ev.clientY - panStartY;
+                                canvasWrap.scrollLeft = panBaseScrollLeft - dx;
+                                canvasWrap.scrollTop = panBaseScrollTop - dy;
+                            });
+                            window.addEventListener("mouseup", () => {
+                                if (!state.open)
+                                    return;
+                                if (!panActive)
+                                    return;
+                                panActive = false;
+                                editorCanvas.style.cursor = "crosshair";
+                            });
+                            editorCanvas.addEventListener("wheel", (ev) => {
+                                if (!state.open)
+                                    return;
+                                if (!state.baseImg)
+                                    return;
+                                const factor = Math.exp((-ev.deltaY || 0) * 0.001);
+                                const oldScale = state.viewScale;
+                                const newScale = Math.max(0.2, Math.min(8, oldScale * factor));
+                                const wrapRect = canvasWrap.getBoundingClientRect();
+                                const pointerX = ev.clientX - wrapRect.left;
+                                const pointerY = ev.clientY - wrapRect.top;
+                                const oldW = Math.max(1, editorCanvas.offsetWidth || state.viewCssW || 1);
+                                const oldH = Math.max(1, editorCanvas.offsetHeight || state.viewCssH || 1);
+                                const canvasOffsetX = editorCanvas.offsetLeft || 0;
+                                const canvasOffsetY = editorCanvas.offsetTop || 0;
+                                const contentX = canvasWrap.scrollLeft + pointerX;
+                                const contentY = canvasWrap.scrollTop + pointerY;
+                                const canvasX = contentX - canvasOffsetX;
+                                const canvasY = contentY - canvasOffsetY;
+                                const normX = Math.max(0, Math.min(1, canvasX / oldW));
+                                const normY = Math.max(0, Math.min(1, canvasY / oldH));
+                                state.viewScale = newScale;
+                                layoutCanvas();
+                                const newW = Math.max(1, editorCanvas.offsetWidth || state.viewCssW || 1);
+                                const newH = Math.max(1, editorCanvas.offsetHeight || state.viewCssH || 1);
+                                const newCanvasOffsetX = editorCanvas.offsetLeft || 0;
+                                const newCanvasOffsetY = editorCanvas.offsetTop || 0;
+                                canvasWrap.scrollLeft = (newCanvasOffsetX + (normX * newW)) - pointerX;
+                                canvasWrap.scrollTop = (newCanvasOffsetY + (normY * newH)) - pointerY;
+                                ev.preventDefault();
+                            }, { passive: false });
+                            btnClear.addEventListener("click", () => {
+                                state.pointsPos = [];
+                                state.pointsNeg = [];
+                                state.pointsVersion += 1;
+                                state.maskImg = null;
+                                state.overlayCanvas = null;
+                                state.cutoutDataUrl = null;
+                                state.confirmRequested = false;
+                                state.pending = false;
+                                state.pendingFinal = false;
+                                pushHistory();
+                                draw();
+                            });
+                            btnCancel.addEventListener("click", () => closeModal());
+                            btnConfirm.addEventListener("click", async () => {
+                                try {
+                                    const canReuse = !state.running && !state.pending && state.lastRunVersion === state.pointsVersion && !!state.cutoutDataUrl;
+                                    if (canReuse) {
+                                        state.confirmRequested = true;
+                                        await finalizeToLayer();
+                                        return;
+                                    }
+                                    triggerRun(true);
+                                }
+                                catch (err) {
+                                    showErrorNotification(`生成图层失败: ${err.message || err}`);
+                                }
+                            });
+                            window.addEventListener("resize", layoutCanvas);
+                            onKeydown = (ev) => {
+                                const k = (ev.key || "").toLowerCase();
+                                if (ev.key === " " || k === "spacebar") {
+                                    state.spaceDown = true;
+                                }
+                                if ((ev.ctrlKey || ev.metaKey) && k === "z") {
+                                    ev.preventDefault();
+                                    if (state.historyIndex > 0) {
+                                        restoreHistory(state.historyIndex - 1);
+                                        state.pointsVersion += 1;
+                                        draw();
+                                        scheduleRealtime();
+                                    }
+                                    return;
+                                }
+                                if ((ev.ctrlKey || ev.metaKey) && (k === "y" || (k === "z" && ev.shiftKey))) {
+                                    ev.preventDefault();
+                                    if (state.historyIndex >= 0 && state.historyIndex < state.history.length - 1) {
+                                        restoreHistory(state.historyIndex + 1);
+                                        state.pointsVersion += 1;
+                                        draw();
+                                        scheduleRealtime();
+                                    }
+                                }
+                            };
+                            window.addEventListener("keydown", onKeydown);
+                            onKeyup = (ev) => {
+                                const k = (ev.key || "").toLowerCase();
+                                if (ev.key === " " || k === "spacebar") {
+                                    state.spaceDown = false;
+                                }
+                            };
+                            window.addEventListener("keyup", onKeyup);
+                            btnUndo.addEventListener("click", () => {
+                                if (state.historyIndex > 0) {
+                                    restoreHistory(state.historyIndex - 1);
+                                    state.pointsVersion += 1;
+                                    draw();
+                                    scheduleRealtime();
+                                }
+                            });
+                            btnRedo.addEventListener("click", () => {
+                                if (state.historyIndex >= 0 && state.historyIndex < state.history.length - 1) {
+                                    restoreHistory(state.historyIndex + 1);
+                                    state.pointsVersion += 1;
+                                    draw();
+                                    scheduleRealtime();
+                                }
+                            });
+                            fillHolesCheckbox.addEventListener("change", () => {
+                                if (state.pointsPos.length === 0 && state.pointsNeg.length === 0)
+                                    return;
+                                state.pointsVersion += 1;
+                                scheduleRealtime();
+                            });
+                            closeEdgesCheckbox.addEventListener("change", () => {
+                                if (state.pointsPos.length === 0 && state.pointsNeg.length === 0)
+                                    return;
+                                closeRadiusSlider.input.disabled = !closeEdgesCheckbox.checked;
+                                state.pointsVersion += 1;
+                                scheduleRealtime();
+                            });
+                            thresholdSlider.input.addEventListener("input", () => {
+                                const v = parseFloat(String(thresholdSlider.input.value));
+                                state.sam3Threshold = isFinite(v) ? v : 0.3;
+                                thresholdSlider.valueEl.textContent = Number(state.sam3Threshold).toFixed(2);
+                                if (state.pointsPos.length === 0 && state.pointsNeg.length === 0)
+                                    return;
+                                state.pointsVersion += 1;
+                                scheduleRealtime();
+                            });
+                            maskThresholdSlider.input.addEventListener("input", () => {
+                                const v = parseFloat(String(maskThresholdSlider.input.value));
+                                state.sam3MaskThreshold = isFinite(v) ? v : 0.4;
+                                maskThresholdSlider.valueEl.textContent = Number(state.sam3MaskThreshold).toFixed(2);
+                                if (state.pointsPos.length === 0 && state.pointsNeg.length === 0)
+                                    return;
+                                state.pointsVersion += 1;
+                                scheduleRealtime();
+                            });
+                            closeRadiusSlider.input.addEventListener("input", () => {
+                                const v = parseInt(String(closeRadiusSlider.input.value), 10);
+                                state.sam3CloseRadius = isFinite(v) ? v : 1;
+                                closeRadiusSlider.valueEl.textContent = String(state.sam3CloseRadius);
+                                if (!closeEdgesCheckbox.checked)
+                                    return;
+                                if (state.pointsPos.length === 0 && state.pointsNeg.length === 0)
+                                    return;
+                                state.pointsVersion += 1;
+                                scheduleRealtime();
+                            });
+                            state.baseImg = new Image();
+                            state.baseImg.src = imageData;
+                            await state.baseImg.decode();
+                            state.open = true;
+                            closeRadiusSlider.input.disabled = !closeEdgesCheckbox.checked;
+                            state.viewScale = Math.min(1, (canvasWrap.clientWidth || 1) / Math.max(1, state.baseImg.width), (canvasWrap.clientHeight || 1) / Math.max(1, state.baseImg.height));
+                            state.history = [];
+                            state.historyIndex = -1;
+                            pushHistory();
+                            layoutCanvas();
+                            draw();
+                            canvasWrap.scrollLeft = Math.max(0, (canvasWrap.scrollWidth - canvasWrap.clientWidth) / 2);
+                            canvasWrap.scrollTop = Math.max(0, (canvasWrap.scrollHeight - canvasWrap.clientHeight) / 2);
+                        }
+                        catch (error) {
+                            showErrorNotification(`智能抠图失败: ${error.message || "未知错误"}`);
+                        }
+                        finally {
+                            button.classList.remove('loading');
+                            const spinner = button.querySelector('.matting-spinner');
+                            if (spinner && button.contains(spinner)) {
+                                button.removeChild(spinner);
+                            }
+                        }
+                    }
+                }),
                 $el("button.painter-button.requires-selection.openpose-button", {
                     textContent: "骨骼编辑",
                     title: "对选定图层执行 OpenPose 检测并编辑骨骼",

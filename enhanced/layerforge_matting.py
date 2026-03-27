@@ -23,7 +23,7 @@ if project_root not in sys.path:
 try:
     from enhanced.birefnet.models.birefnet import BiRefNet
 except ImportError as e:
-    logger.error(f"[LayerForge Matting] Error importing BiRefNet modules: {e}")
+    logger.error(f"Error importing BiRefNet modules: {e}")
     raise e
 
 interpolation_modes_mapping = {
@@ -79,7 +79,7 @@ VERSION = ["old", "v1"]
 def get_birefnet_model(model_name="General"):
     global _model_cache
     if _model_cache is None:
-        logger.info(f"[LayerForge Matting] Loading BiRefNet model: {model_name}...")
+        logger.info(f"Loading BiRefNet model: {model_name}...")
 
         possible_paths = [
             os.path.join(config.path_models_root, "rembg", f"{model_name}.safetensors"),
@@ -93,7 +93,7 @@ def get_birefnet_model(model_name="General"):
                 break
         
         if model_path is None:
-             logger.warning(f"[LayerForge Matting] Model {model_name} not found locally. Attempting download...")
+             logger.warning(f"Model {model_name} not found locally. Attempting download...")
              download_url = f"https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/rembg/General.safetensors"
              target_dir = os.path.join(config.path_models_root, "rembg")
              if not os.path.exists(target_dir):
@@ -103,10 +103,10 @@ def get_birefnet_model(model_name="General"):
                  load_file_from_url(download_url, model_dir=target_dir, file_name=f"{model_name}.safetensors")
                  model_path = os.path.join(target_dir, f"{model_name}.safetensors")
              except Exception as e:
-                 logger.error(f"[LayerForge Matting] Download failed: {e}")
+                 logger.error(f"[Download failed: {e}")
                  raise e
         
-        logger.info(f"[LayerForge Matting] Found model at: {model_path}")
+        logger.info(f"Found model at: {model_path}")
 
         bb_index = 6
         biRefNet_model = BiRefNet(bb_pretrained=False, bb_index=bb_index)
@@ -222,7 +222,7 @@ def process_matting(image_base64, threshold=0.5):
         }
         
     except Exception as e:
-        logger.error(f"[LayerForge Matting] Error: {e}")
+        logger.error(f"Error: {e}")
         import traceback
         traceback.print_exc()
         raise e

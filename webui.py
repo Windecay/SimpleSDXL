@@ -5128,9 +5128,11 @@ from fastapi.responses import HTMLResponse, PlainTextResponse
 from starlette.concurrency import run_in_threadpool
 import enhanced.layerforge_matting as layerforge_matting
 import enhanced.layerforge_openpose as layerforge_openpose
+import enhanced.layerforge_sam3_image_mask as layerforge_sam3_image_mask
 
 _matting_lock = threading.Lock()
 _openpose_lock = threading.Lock()
+_sam3_image_mask_lock = threading.Lock()
 
 @app.get("/matting/check-model")
 async def matting_check_model():
@@ -5198,6 +5200,70 @@ async def openpose_detect_endpoint(payload: dict = Body(...)):
         return JSONResponse(
             {
                 "error": "OpenPose Error",
+                "details": str(e),
+            },
+            status_code=500,
+        )
+
+@app.get("/sam3/check-model")
+async def sam3_check_model():
+    return layerforge_sam3_image_mask.check_model_availability()
+
+@app.post("/sam3/image-mask")
+async def sam3_image_mask_endpoint(payload: dict = Body(...)):
+    try:
+        image_data = payload.get("image")
+        positive_points = payload.get("positive_points", None)
+        negative_points = payload.get("negative_points", None)
+        threshold = payload.get("threshold", 0.3)
+        fill_holes = payload.get("fill_holes", False)
+        if not isinstance(image_data, str) or not image_data.startswith("data:image"):
+            return JSONResponse(
+                {
+                    "error": "Bad Request",
+                    "details": "Missing or invalid 'image' data URL.",
+                },
+                status_code=400,
+            )
+
+        def safe_process():
+            with _sam3_image_mask_lock:
+                return layerforge_sam3_image_mask.process_sam3_image_mask(
+                    image_data,
+                    positive_points=positive_points,
+                    negative_points=negative_points,
+                    threshold=threshold,
+                    fill_holes=fill_holes,
+                )
+
+        result = await run_in_threadpool(safe_process)
+        return result
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return JSONResponse(
+            {
+                "error": "SAM3 Error",
+                "details": str(e),
+            },
+            status_code=500,
+        )
+
+@app.post("/sam3/offload")
+async def sam3_offload_endpoint():
+    try:
+        def safe_process():
+            with _sam3_image_mask_lock:
+                return layerforge_sam3_image_mask.offload_model()
+
+        result = await run_in_threadpool(safe_process)
+        return result
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return JSONResponse(
+            {
+                "error": "SAM3 Offload Error",
                 "details": str(e),
             },
             status_code=500,
