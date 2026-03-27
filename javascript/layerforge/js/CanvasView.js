@@ -831,6 +831,39 @@ export async function createCanvasWidget(node, widget, app) {
                                 const y = cy / Math.max(1, rect.height);
                                 return { x: Math.max(0, Math.min(1, x)), y: Math.max(0, Math.min(1, y)) };
                             };
+                            const getPointRadiusPx = () => {
+                                return Math.max(4, Math.min(canvasWrap.clientWidth || 1, canvasWrap.clientHeight || 1) * 0.012);
+                            };
+                            const findHitPoint = (ev) => {
+                                const rect = editorCanvas.getBoundingClientRect();
+                                const mx = (ev.clientX - rect.left);
+                                const my = (ev.clientY - rect.top);
+                                const r = getPointRadiusPx();
+                                const rr = (r * 1.6) * (r * 1.6);
+                                let best = null;
+                                let bestD2 = Infinity;
+                                for (let i = 0; i < state.pointsPos.length; i++) {
+                                    const p = state.pointsPos[i];
+                                    const dx = mx - (p.x * rect.width);
+                                    const dy = my - (p.y * rect.height);
+                                    const d2 = (dx * dx) + (dy * dy);
+                                    if (d2 <= rr && d2 < bestD2) {
+                                        bestD2 = d2;
+                                        best = { group: "pos", index: i };
+                                    }
+                                }
+                                for (let i = 0; i < state.pointsNeg.length; i++) {
+                                    const p = state.pointsNeg[i];
+                                    const dx = mx - (p.x * rect.width);
+                                    const dy = my - (p.y * rect.height);
+                                    const d2 = (dx * dx) + (dy * dy);
+                                    if (d2 <= rr && d2 < bestD2) {
+                                        bestD2 = d2;
+                                        best = { group: "neg", index: i };
+                                    }
+                                }
+                                return best;
+                            };
                             const updateUndoRedo = () => {
                                 const canUndo = state.historyIndex > 0;
                                 const canRedo = state.historyIndex >= 0 && state.historyIndex < state.history.length - 1;
@@ -991,6 +1024,10 @@ export async function createCanvasWidget(node, widget, app) {
                             };
                             editorCanvas.addEventListener("contextmenu", (ev) => ev.preventDefault());
                             let panActive = false;
+                            let dragActive = false;
+                            let dragGroup = "pos";
+                            let dragIndex = -1;
+                            let dragStartPoint = null;
                             let panStartX = 0;
                             let panStartY = 0;
                             let panBaseScrollLeft = 0;
@@ -1020,6 +1057,19 @@ export async function createCanvasWidget(node, widget, app) {
                                     ev.preventDefault();
                                     return;
                                 }
+                                if (ev.button === 0 || ev.button === 2) {
+                                    const hit = findHitPoint(ev);
+                                    if (hit) {
+                                        dragActive = true;
+                                        dragGroup = hit.group;
+                                        dragIndex = hit.index;
+                                        const src = dragGroup === "pos" ? state.pointsPos : state.pointsNeg;
+                                        dragStartPoint = { x: src[dragIndex].x, y: src[dragIndex].y };
+                                        editorCanvas.style.cursor = "grabbing";
+                                        ev.preventDefault();
+                                        return;
+                                    }
+                                }
                                 const p = getCanvasNormPos(ev);
                                 if (ev.button === 2) {
                                     state.pointsNeg.push(p);
@@ -1035,20 +1085,45 @@ export async function createCanvasWidget(node, widget, app) {
                             window.addEventListener("mousemove", (ev) => {
                                 if (!state.open)
                                     return;
-                                if (!panActive)
+                                if (dragActive) {
+                                    const rect = editorCanvas.getBoundingClientRect();
+                                    const cx = (ev.clientX - rect.left);
+                                    const cy = (ev.clientY - rect.top);
+                                    const x = Math.max(0, Math.min(1, cx / Math.max(1, rect.width)));
+                                    const y = Math.max(0, Math.min(1, cy / Math.max(1, rect.height)));
+                                    const dst = dragGroup === "pos" ? state.pointsPos : state.pointsNeg;
+                                    if (dragIndex >= 0 && dragIndex < dst.length) {
+                                        dst[dragIndex].x = x;
+                                        dst[dragIndex].y = y;
+                                        draw();
+                                    }
                                     return;
-                                const dx = ev.clientX - panStartX;
-                                const dy = ev.clientY - panStartY;
-                                canvasWrap.scrollLeft = panBaseScrollLeft - dx;
-                                canvasWrap.scrollTop = panBaseScrollTop - dy;
+                                }
+                                if (panActive) {
+                                    const dx = ev.clientX - panStartX;
+                                    const dy = ev.clientY - panStartY;
+                                    canvasWrap.scrollLeft = panBaseScrollLeft - dx;
+                                    canvasWrap.scrollTop = panBaseScrollTop - dy;
+                                }
                             });
                             window.addEventListener("mouseup", () => {
                                 if (!state.open)
                                     return;
-                                if (!panActive)
+                                if (dragActive) {
+                                    dragActive = false;
+                                    dragIndex = -1;
+                                    dragStartPoint = null;
+                                    editorCanvas.style.cursor = "crosshair";
+                                    state.pointsVersion += 1;
+                                    pushHistory();
+                                    draw();
+                                    scheduleRealtime();
                                     return;
-                                panActive = false;
-                                editorCanvas.style.cursor = "crosshair";
+                                }
+                                if (panActive) {
+                                    panActive = false;
+                                    editorCanvas.style.cursor = "crosshair";
+                                }
                             });
                             editorCanvas.addEventListener("wheel", (ev) => {
                                 if (!state.open)
