@@ -4221,8 +4221,15 @@ with shared.gradio_root:
             topbar=topbar
         )
 
+        batch_lock_controls = [random_button, super_prompter, background_theme, image_tools_checkbox] + nav_bars
+
         uov_batch_stop.click(fn=batch_stop_fn, inputs=[uov_batch_id], outputs=[uov_batch_status], queue=False, show_progress=False)
         uov_batch_evt = uov_batch_start.click(
+            fn=lambda: [gr.update(interactive=False)] * len(batch_lock_controls),
+            outputs=batch_lock_controls,
+            queue=False,
+            show_progress=False
+        ).then(
             fn=batch_run_uov_fn,
             inputs=[uov_batch_folder, uov_batch_files, seed_random] + ctrls + [resolution_multiplier, resolution_quantize_step, state_topbar],
             outputs=[progress_html, progress_window, progress_gallery, progress_video, gallery, comparison_state, comparison_box, compare_btn, stop_button, skip_button, generate_button, state_is_generating, uov_batch_status, uov_batch_id],
@@ -4231,8 +4238,8 @@ with shared.gradio_root:
 
         enhance_batch_stop.click(fn=batch_stop_fn, inputs=[enhance_batch_id], outputs=[enhance_batch_status], queue=False, show_progress=False)
         enhance_batch_evt = enhance_batch_start.click(
-            fn=lambda: gr.update(value=True),
-            outputs=[enhance_checkbox],
+            fn=lambda: [gr.update(value=True)] + [gr.update(interactive=False)] * len(batch_lock_controls),
+            outputs=[enhance_checkbox] + batch_lock_controls,
             queue=False,
             show_progress=False
         ).then(
@@ -4244,6 +4251,11 @@ with shared.gradio_root:
 
         scene_batch_stop.click(fn=batch_stop_fn, inputs=[scene_batch_id], outputs=[scene_batch_status], queue=False, show_progress=False)
         scene_batch_evt = scene_batch_start.click(
+            fn=lambda: [gr.update(interactive=False)] * len(batch_lock_controls),
+            outputs=batch_lock_controls,
+            queue=False,
+            show_progress=False
+        ).then(
             fn=batch_run_scene_fn,
             inputs=[
                 scene_batch_folder, scene_batch_files, scene_batch_target, seed_random, image_seed, params_backend, scene_theme, scene_canvas_image, scene_input_image1, scene_input_image2, scene_additional_prompt, scene_additional_prompt_2,
