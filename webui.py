@@ -3834,12 +3834,23 @@ with shared.gradio_root:
                                             minicpm_version = gr.Dropdown(label='VLM Version', choices=['Qwen3-VL-2B-Instruct-abliterated', 'Qwen3-VL-4B-Instruct-abliterated', 'Qwen3-VL-8B-Instruct-abliterated', 'Qwen3.5-9B-ultra-heretic', 'MiniCPMv45', 'MiniCPMv26'], value=ads.get_admin_default('minicpm_version'), info='Select the VLM model version to use')
                                     with gr.Column(visible=True if not args_manager.args.disable_backend else False):
                                         reserved_vram = gr.Slider(label='Reserved VRAM(GB)', minimum=0, maximum=24, step=0.1, value=ads.get_admin_default('reserved_vram'), info='Reserve VRAM to prevent OOM or Slow inference.')
-                                        cache_ram = gr.Slider(label='Cache RAM(GB)', minimum=0, maximum=96, step=0.1, value=ads.get_admin_default('cache_ram'), info='[BETA]Set RAM cache threshold. 0: Classic; >0: RAM Pressure mode (auto-purge when available RAM is low).')
+                                        cache_ram_enable = gr.Checkbox(label='Enable Cache RAM', value=ads.get_admin_default('cache_ram_enable'), info='When disabled, always use Classic cache mode.')
+                                        cache_ram = gr.Slider(label='Cache RAM(GB)', minimum=0, maximum=96, step=0.1, value=ads.get_admin_default('cache_ram'), interactive=ads.get_admin_default('cache_ram_enable'), info='[BETA]Set RAM cache threshold. 0: Classic; >0: RAM Pressure mode (auto-purge when available RAM is low).')
                                         wavespeed_strength = gr.Slider(label='wavespeed_strength', minimum=0, maximum=1, step=0.01, value=ads.get_admin_default('wavespeed_strength'), info='Wavespeed optimization strength to improve inference speed on some presets.')
                                     with gr.Row(visible=True if not args_manager.args.disable_backend else False):
                                         translation_methods = gr.Radio(label='Translation methods', choices=modules.flags.translation_methods, value=ads.get_admin_default('translation_methods'))
+                                    with gr.Row():
+                                        with gr.Column():
+                                            restore_all_defaults_btn = gr.Button(value='Restore all defaults', size="sm", min_width=70)
+                                            restore_defaults_panel = gr.Box(visible=False)
+                                            with restore_defaults_panel:
+                                                restore_defaults_title = gr.Markdown("Confirm restore all defaults?")
+                                                restore_defaults_desc = gr.Markdown("This will clear all saved local settings for the current user. This cannot be undone.")
+                                                with gr.Row():
+                                                    restore_defaults_confirm_btn = gr.Button("Confirm Restore")
+                                                    restore_defaults_cancel_btn = gr.Button("Cancel")
 
-                            with gr.Row(visible=True):
+                            with gr.Row(visible=False):
                                 with gr.Group():
                                     web_in_did_title = gr.Markdown(value="Accessed Users:", elem_classes=["p2p_title"])
                                     with gr.Row():
@@ -3849,8 +3860,8 @@ with shared.gradio_root:
                                         web_in_did_switch_btn = gr.Button(value="Switch", size="sm", min_width=30)
                                     web_in_did_list = gr.Markdown(elem_classes=["htmlcontent"])
 
-                    with gr.Tab(label='P2P Network'):
-                        with gr.Group() as p2p_panel:
+                    with gr.Tab(label='P2P Network',visible=False):
+                        with gr.Group(visible=False) as p2p_panel:
                             p2p_active_checkbox = gr.Checkbox(label='Enable P2P network', value=ads.get_admin_default('p2p_active_checkbox'), info=shared.token.get_p2p_address())
                             p2p_remote_process = gr.Radio(label='Remote process', choices=['Disable', 'out', 'in'], value=ads.get_admin_default('p2p_remote_process'), interactive=ads.get_admin_default('p2p_active_checkbox'))
                             with gr.Group(visible=True if ads.get_admin_default('p2p_remote_process')=='out' else False) as p2p_out:
@@ -3905,6 +3916,9 @@ with shared.gradio_root:
                         ads.set_user_default_value(key, v, state) 
                     return params
 
+                def apply_preferred_output_format(state_params):
+                    return topbar.apply_preferred_output_format(state_params)
+
                 def toggle_minicpm(x, state):
                     MiniCPM.set_enable(x)
                     ads.set_admin_default_value('minicpm_checkbox', x, state) 
@@ -3926,13 +3940,19 @@ with shared.gradio_root:
                 minicpm_checkbox.change(toggle_minicpm, inputs=[minicpm_checkbox, state_topbar], outputs=[describe_apply_styles, describe_output_tags, describe_output_chinese, describe_output_artist, describe_methods, describe_prompt, vlm_describe_col, describe_btn, qwen_design_expand_btn, qwen_custom_expand_btn], queue=False, show_progress=False).then(None, _js="() => localizeWholePage()")
                 minicpm_version.change(fn=lambda version, state: [minicpm.set_version(version), ads.set_admin_default_value('minicpm_version', version, state), gr.update(value=f'<div style="margin-bottom: 5px;">🤖 <b>VLM Model:</b> <span style="color: #2196F3;">{version}</span></div>')][-1], inputs=[minicpm_version, state_topbar], outputs=vlm_status_info)
                 reserved_vram.change(lambda x,y: ads.set_admin_default_value('reserved_vram',x,y), inputs=[reserved_vram, state_topbar])
+                cache_ram_enable.change(lambda x,y: [ads.set_admin_default_value('cache_ram_enable',x,y), gr.update(interactive=x)][-1], inputs=[cache_ram_enable, state_topbar], outputs=cache_ram)
                 cache_ram.change(lambda x,y: ads.set_admin_default_value('cache_ram',x,y), inputs=[cache_ram, state_topbar])
                 advanced_logs.change(simpleai.change_advanced_logs, inputs=[advanced_logs, state_topbar])
                 wavespeed_strength.change(lambda x,y: ads.set_admin_default_value('wavespeed_strength',x,y), inputs=[wavespeed_strength, state_topbar])
                 admin_sync_button.click(topbar.admin_sync_to_guest, inputs=[state_topbar], outputs=admin_sync_button, queue=False, show_progress=False)
 
-                admin_ctrls = [comfyd_active_checkbox, fast_comfyd_checkbox, cache_clear_on_finish_checkbox, reserved_vram, cache_ram, minicpm_checkbox, minicpm_version, advanced_logs, wavespeed_strength, translation_methods, p2p_active_checkbox, p2p_remote_process, p2p_in_did_list, p2p_out_did_list, no_welcome_checkbox, missing_model_filter_checkbox]
+                admin_ctrls = [comfyd_active_checkbox, fast_comfyd_checkbox, cache_clear_on_finish_checkbox, reserved_vram, cache_ram_enable, cache_ram, minicpm_checkbox, minicpm_version, advanced_logs, wavespeed_strength, translation_methods, p2p_active_checkbox, p2p_remote_process, p2p_in_did_list, p2p_out_did_list, no_welcome_checkbox, missing_model_filter_checkbox]
                 user_app_ctrls = [backfill_prompt, image_tools_checkbox, disable_preview, disable_intermediate_results, disable_seed_increment, save_final_enhanced_image_only, style_preview_checkbox, generate_image_grid, black_out_nsfw, save_metadata_to_images, metadata_scheme, no_model_modal_checkbox]
+
+                restore_all_defaults_btn.click(lambda: gr.update(visible=True), inputs=None, outputs=restore_defaults_panel, queue=False, show_progress=False)
+                restore_defaults_cancel_btn.click(lambda: gr.update(visible=False), inputs=None, outputs=restore_defaults_panel, queue=False, show_progress=False)
+                restore_defaults_confirm_btn.click(topbar.restore_all_defaults, inputs=[state_topbar], outputs=[restore_defaults_panel, progress_window, language_ui, background_theme, preset_instruction] + user_app_ctrls + admin_ctrls + [output_format], queue=False, show_progress=False) \
+                    .then(fn=lambda: None, inputs=None, outputs=None, queue=False, show_progress=False, _js='()=>{try{refresh_style_localization();refresh_style_layout();}catch(e){} try{localizeWholePage();}catch(e){}}')
 
 
             iclight_enable.change(lambda x: [gr.update(interactive=x, value='' if not x else comfy_task.iclight_source_names[0]), gr.update(value=flags.add_ratio('1024*1024') if not x else modules.config.default_aspect_ratio)], inputs=iclight_enable, outputs=[iclight_source_radio, aspect_ratios_selections[0]], queue=False, show_progress=False)
@@ -4129,7 +4149,7 @@ with shared.gradio_root:
             show_progress=False
         )
 
-        output_format.input(lambda x: gr.update(output_format=x), inputs=output_format)
+        output_format.change(lambda x,y: ads.set_user_default_value("output_format", x, y), inputs=[output_format, state_topbar], queue=False)
 
         advanced_checkbox.change(lambda x: gr.update(visible=x), advanced_checkbox, advanced_column,
                                  queue=False, show_progress=False) \
@@ -4974,19 +4994,18 @@ with shared.gradio_root:
 
     reset_layout_params = nav_bars + reset_preset_layout + reset_preset_func + scene_frontend_ctrls + load_data_outputs + after_identity
     reset_layout_ui_outputs = nav_bars + reset_preset_layout + reset_preset_func + scene_frontend_ctrls
-    reset_layout_values_outputs = load_data_outputs + after_identity + \
+    reset_layout_values_outputs = [scene_batch_accordion, scene_batch_target] + load_data_outputs + after_identity + \
                                   [scene_canvas_image, scene_input_image1, scene_input_image2, scene_lora_model, scene_lora_model_2, scene_lora_model_3, scene_lora_model_4, scene_use_lora, quick_enhance, model_gallery, gallery_visible, current_previews, active_target, base_preview_btn, refiner_preview_btn] + \
                                   lora_galleries + lora_gallery_visible + lora_current_previews + lora_preview_btns
 
     topbar.reset_layout_num = len(reset_layout_ui_outputs) - len(nav_bars)
     topbar.reset_layout_ui_outputs_len = len(reset_layout_ui_outputs)
     reset_preset_inputs = [prompt, negative_prompt, state_topbar, state_is_generating, inpaint_mode, comfyd_active_checkbox]
-    reset_values_inputs = [state_topbar, state_is_generating, inpaint_mode, use_resolution_override_checkbox, scene_theme, scene_aspect_ratio]
+    reset_values_inputs = [state_topbar, state_is_generating, inpaint_mode, use_resolution_override_checkbox, scene_batch_target, scene_theme, scene_aspect_ratio]
 
     for i in range(shared.BUTTON_NUM):
         bar_buttons[i].click(topbar.reset_layout_ui, inputs=reset_preset_inputs + [bar_buttons[i]], outputs=reset_layout_ui_outputs + [state_topbar, comparison_state, comparison_box, progress_gallery, compare_btn, progress_window], queue=False, show_progress=False) \
-               .then(batch_utils.refresh_scene_batch_accordion, inputs=[state_topbar], outputs=[scene_batch_accordion], queue=False, show_progress=False) \
-               .then(batch_utils.refresh_scene_batch_target, inputs=[state_topbar, scene_batch_target], outputs=[scene_batch_target], queue=False, show_progress=False) \
+               .then(apply_preferred_output_format, inputs=[state_topbar], outputs=[output_format], queue=False, show_progress=False) \
                .then(lambda sp, umf: refresh_files_clicked(sp, umf, False), inputs=[state_topbar, model_filter_state], outputs=refresh_files_output + lora_ctrls, queue=False, show_progress=False) \
                .then(topbar.reset_layout_values, inputs=reset_values_inputs, outputs=reset_layout_values_outputs, show_progress=False) \
                .then(_sanitize_ip_types, inputs=ip_types, outputs=ip_types, queue=False, show_progress=False) \
@@ -5003,8 +5022,7 @@ with shared.gradio_root:
                       .then(topbar.init_nav_bars, inputs=[state_topbar] + admin_ctrls, outputs=[progress_window, language_ui, background_theme, preset_instruction] + user_app_ctrls + admin_ctrls, show_progress=False) \
                       .then(_qwen_refresh_style_preset_dropdowns, inputs=[state_topbar, qwen_design_style_preset_choices, qwen_custom_style_preset_choices], outputs=[qwen_design_style_preset_choices, qwen_custom_style_preset_choices], queue=False, show_progress=False) \
                       .then(topbar.reset_layout_ui, inputs=reset_preset_inputs, outputs=reset_layout_ui_outputs + [state_topbar, comparison_state, comparison_box, progress_gallery, compare_btn, progress_window], show_progress=False) \
-                      .then(batch_utils.refresh_scene_batch_accordion, inputs=[state_topbar], outputs=[scene_batch_accordion], queue=False, show_progress=False) \
-                      .then(batch_utils.refresh_scene_batch_target, inputs=[state_topbar, scene_batch_target], outputs=[scene_batch_target], queue=False, show_progress=False) \
+                      .then(apply_preferred_output_format, inputs=[state_topbar], outputs=[output_format], queue=False, show_progress=False) \
                       .then(lambda sp, umf: refresh_files_clicked(sp, umf, False), inputs=[state_topbar, model_filter_state], outputs=refresh_files_output + lora_ctrls, queue=True, show_progress=False) \
                       .then(topbar.refresh_preset_store_list, inputs=state_topbar, outputs=preset_store_list, show_progress=False, queue=False) \
                       .then(topbar.reset_layout_values, inputs=reset_values_inputs, outputs=reset_layout_values_outputs, show_progress=False) \

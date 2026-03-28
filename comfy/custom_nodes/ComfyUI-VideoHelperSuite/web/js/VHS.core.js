@@ -167,10 +167,15 @@ function useKVState(nodeType) {
         });
     })
 }
-var helpDOM;
-if (!app.helpDOM) {
+var helpDOM = app.VHSHelp;
+if (!app.VHSHelp) {
     helpDOM = document.createElement("div");
     app.VHSHelp = helpDOM
+} else {
+    app.extensionManager.dialog
+      .showErrorDialog('Please check your custom_nodes directory and manually remove the duplicate.',
+                       { title: 'Duplicate VHS install detected' })
+    throw new Error('Duplicate VHS install detected. Check your custom_nodes directory')
 }
 function initHelpDOM() {
     let parentDOM = document.createElement("div");
@@ -458,6 +463,17 @@ function allowDragFromWidget(widget) {
     }
 }
 
+//Cloud specific auth code. Short circuits if not on cloud
+async function getAuthHeader() {
+  try {
+    const authStore = await api.getAuthStore()
+    return authStore ? await authStore.getAuthHeader() : null
+  } catch (error) {
+    console.warn('Failed to get auth header:', error)
+    return null
+  }
+}
+
 async function uploadFile(file, progressCallback) {
     try {
         // Wrap file in formdata so it includes filename
@@ -478,7 +494,12 @@ async function uploadFile(file, progressCallback) {
             req.upload.onprogress = (e) => progressCallback?.(e.loaded/e.total)
             req.onload = () => resolve(req)
             req.open('post', url, true)
-            req.send(body)
+            getAuthHeader().then((headers) => {
+                headers ??= {}
+                for (const key in headers)
+                    req.setRequestHeader(key, headers[key])
+                req.send(body)
+            })
         })
 
         if (resp.status !== 200) {
@@ -1594,7 +1615,8 @@ function inner_value_change(widget, value, node, pos) {
 }
 function drawAnnotated(ctx, node, widget_width, y, H) {
   const litegraph_base = LiteGraph
-  const show_text = app.canvas.ds.scale >= (app.canvas.low_quality_zoom_threshold ?? 0.5)
+  // In vueNodes mode, always show text since Vue renders at 1:1 scale
+  const show_text = LiteGraph.vueNodesMode || app.canvas.ds.scale >= (app.canvas.low_quality_zoom_threshold ?? 0.5)
   const margin = 15
   ctx.strokeStyle = litegraph_base.WIDGET_OUTLINE_COLOR
   ctx.fillStyle = litegraph_base.WIDGET_BGCOLOR

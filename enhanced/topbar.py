@@ -518,10 +518,10 @@ function(system_params) {
 }
 '''
 
-def init_nav_bars(state_params, comfyd_active_checkbox, fast_comfyd_checkbox, cache_clear_on_finish_checkbox, reserved_vram, ram_pressure, minicpm_checkbox, minicpm_version, advanced_logs, wavespeed_strength, translation_methods, p2p_active_checkbox, p2p_remote_process, p2p_in_did_list, p2p_out_did_list, no_welcome_checkbox, missing_model_filter_checkbox, request: gr.Request):
+def init_nav_bars(state_params, comfyd_active_checkbox, fast_comfyd_checkbox, cache_clear_on_finish_checkbox, reserved_vram, cache_ram_enable, ram_pressure, minicpm_checkbox, minicpm_version, advanced_logs, wavespeed_strength, translation_methods, p2p_active_checkbox, p2p_remote_process, p2p_in_did_list, p2p_out_did_list, no_welcome_checkbox, missing_model_filter_checkbox, request: gr.Request):
     #logger.info(f'request.headers:{request.headers}')
     #logger.info(f'request.client:{request.client}')
-    admin_currunt_value = [comfyd_active_checkbox, fast_comfyd_checkbox, cache_clear_on_finish_checkbox, reserved_vram, ram_pressure, minicpm_checkbox, minicpm_version, advanced_logs, wavespeed_strength, translation_methods, p2p_active_checkbox, p2p_remote_process, p2p_in_did_list, p2p_out_did_list, no_welcome_checkbox, missing_model_filter_checkbox]
+    admin_currunt_value = [comfyd_active_checkbox, fast_comfyd_checkbox, cache_clear_on_finish_checkbox, reserved_vram, cache_ram_enable, ram_pressure, minicpm_checkbox, minicpm_version, advanced_logs, wavespeed_strength, translation_methods, p2p_active_checkbox, p2p_remote_process, p2p_in_did_list, p2p_out_did_list, no_welcome_checkbox, missing_model_filter_checkbox]
     #logger.info(f'admin_currunt_value: {admin_currunt_value}')
 
     user_agent = request.headers["user-agent"]
@@ -953,6 +953,11 @@ def reset_layout_ui(prompt, negative_prompt, state_params, is_generating, inpain
     if bar_button is not None:
         state_params.update({"bar_button": bar_button})
 
+    if "__lang" not in state_params:
+        state_params["__lang"] = ads.get_user_default("__lang", state_params, args_manager.args.language)
+    if "__theme" not in state_params:
+        state_params["__theme"] = ads.get_user_default("__theme", state_params, args_manager.args.theme)
+
     state_params.update({"__message": system_message})
     system_message = 'system message was displayed!'
     if '__preset' not in state_params.keys() or 'bar_button' not in state_params.keys() or state_params["__preset"]==state_params['bar_button']:
@@ -964,7 +969,7 @@ def reset_layout_ui(prompt, negative_prompt, state_params, is_generating, inpain
             fill_count = 0
         return nav_updates + [gr.update()] * fill_count + [state_params] + comparison_default
     preset = state_params["bar_button"] if '\u2B07' not in state_params["bar_button"] else state_params["bar_button"].replace('\u2B07', '')
-    logger.info(f'Reset_context: preset={state_params["__preset"]}-->{preset}, theme={state_params["__theme"]}, lang={state_params["__lang"]}')
+    logger.info(f'Reset_context: preset={state_params.get("__preset", None)}-->{preset}, theme={state_params.get("__theme", None)}, lang={state_params.get("__lang", None)}')
     if not args_manager.args.disable_backend and '\u2B07' in state_params["bar_button"]:
         if not ads.get_user_default("no_model_modal_checkbox", state_params, False):
             gr.Info(preset_down_note_info)
@@ -1019,7 +1024,7 @@ def reset_layout_ui(prompt, negative_prompt, state_params, is_generating, inpain
     
     return results + [state_params] + comparison_outputs
 
-def reset_layout_values(state_params, is_generating, inpaint_mode, use_resolution_override, scene_theme=None, scene_aspect_ratio=None):
+def reset_layout_values(state_params, is_generating, inpaint_mode, use_resolution_override, scene_batch_target, scene_theme=None, scene_aspect_ratio=None):
     if not isinstance(state_params, dict):
         state_params = {}
 
@@ -1136,7 +1141,15 @@ def reset_layout_values(state_params, is_generating, inpaint_mode, use_resolutio
     sync_intput_reserved()
     ldm_patched.modules.model_management.print_memory_info("after switched preset")
 
-    return results
+    try:
+        import modules.batch_utils as batch_utils
+        batch_accordion_update = batch_utils.refresh_scene_batch_accordion(state_params)
+        batch_target_update = batch_utils.refresh_scene_batch_target(state_params, scene_batch_target)
+    except Exception:
+        batch_accordion_update = gr.update()
+        batch_target_update = gr.update()
+
+    return [batch_accordion_update, batch_target_update] + results
 
 def check_admin_exists():
     try:
@@ -1288,9 +1301,16 @@ def update_topbar_js_params(state):
     filtered_preset_name_list = [preset for preset in preset_name_list if preset in filtered_presets]
     filtered_nav_name_list_str = ','.join(filtered_preset_name_list)
 
+    if "__lang" not in state:
+        state["__lang"] = ads.get_user_default("__lang", state, args_manager.args.language)
+    if "__theme" not in state:
+        state["__theme"] = ads.get_user_default("__theme", state, args_manager.args.theme)
+    if "__preset" not in state:
+        state["__preset"] = config.preset
+
     system_params= dict(
-        __preset=state["__preset"],
-        __theme=state["__theme"],
+        __preset=state.get("__preset"),
+        __theme=state.get("__theme"),
         __nav_name_list=filtered_nav_name_list_str,  # 使用过滤后的预设列表
         sstoken=state["sstoken"],
         user_name=state["user"].get_nickname(),
@@ -1301,7 +1321,7 @@ def update_topbar_js_params(state):
         preset_store=state["preset_store"],
         __message='' if "__message" not in state else state["__message"],
         __webpath=state["__webpath"],
-        __lang=state["__lang"],
+        __lang=state.get("__lang"),
         __preset_url=state["__preset_url"],
         __finished_nums_pages=state["__finished_nums_pages"],
         user_qr="" if 'user_qr' not in state else state.pop("user_qr"),
@@ -1444,7 +1464,7 @@ def update_after_identity_sub(state):
     results += [gr.update(visible=True)]
     results += [gr.update(visible=is_admin or is_privileged_guest)]
     results += [gr.update(visible=is_admin or is_privileged_guest)]
-    results += [gr.update(visible=is_admin or is_privileged_guest)]
+    results += [gr.update(visible=False)]
     results += [gr.update(visible=is_admin or is_privileged_guest, value=update_comfyd_url(state))]
     results += update_topbar_js_params(state)
     ip_list = modules.flags.ip_list if state["engine"] in ['Fooocus', 'Flux', 'Kolors', 'Comfy', 'Wan', 'Qwen', 'Z-image']  else modules.flags.ip_list[:-1]
@@ -1510,19 +1530,169 @@ def get_all_user_default(state):
     results += [ads.get_user_default("no_model_modal_checkbox", state, False)]
     return results
 
+def get_preferred_output_format(state_params):
+    allowed = modules.flags.OutputFormat.list()
+    user_did = None
+    try:
+        user = state_params.get("user", None) if isinstance(state_params, dict) else None
+        user_did = user.get_did() if user is not None and hasattr(user, "get_did") else None
+    except Exception:
+        user_did = None
+    if not user_did:
+        try:
+            user_did = shared.token.get_guest_did()
+        except Exception:
+            user_did = None
+
+    preset_name = None
+    try:
+        preset_name = state_params.get("__preset", None) if isinstance(state_params, dict) else None
+    except Exception:
+        preset_name = None
+    if not preset_name:
+        preset_name = config.preset
+
+    user_fmt = None
+    try:
+        user_session = state_params.get("__session", None) if isinstance(state_params, dict) else None
+        ua_hash = state_params.get("ua_hash", None) if isinstance(state_params, dict) else None
+        if user_session and ua_hash:
+            raw_user_fmt = shared.token.get_local_vars("output_format", "Unknown", user_session, ua_hash)
+            if isinstance(raw_user_fmt, str):
+                raw_user_fmt = raw_user_fmt.strip()
+            if raw_user_fmt and raw_user_fmt not in ["Unknown", "None"]:
+                user_fmt = ads.convert_value(str(raw_user_fmt))
+    except Exception:
+        user_fmt = None
+
+    preset_fmt = None
+    try:
+        if preset_name:
+            preset_content = config.try_get_preset_content(str(preset_name), user_did)
+            if isinstance(preset_content, dict):
+                preset_fmt = preset_content.get("default_output_format", None)
+    except Exception:
+        preset_fmt = None
+
+    fmt = preset_fmt if preset_fmt in allowed else user_fmt
+    if fmt not in allowed:
+        fmt = "jpeg"
+    try:
+        logger.debug(f"[OutputFormat] preset={preset_name}, preset_default={preset_fmt}, user={user_fmt}, final={fmt}")
+    except Exception:
+        pass
+    return fmt
+
+def apply_preferred_output_format(state_params):
+    return gr.update(value=get_preferred_output_format(state_params))
+
+def restore_all_defaults(state_params):
+    user_keys = ["__lang", "__theme", "backfill_prompt", "image_tools_checkbox", "disable_preview", "disable_intermediate_results", "disable_seed_increment", "save_final_enhanced_image_only", "style_preview_checkbox", "generate_image_grid", "black_out_nsfw", "save_metadata_to_images", "metadata_scheme", "no_model_modal_checkbox", "output_format"]
+    admin_keys = ["comfyd_active_checkbox", "fast_comfyd_checkbox", "cache_clear_on_finish_checkbox", "reserved_vram", "cache_ram_enable", "cache_ram", "minicpm_checkbox", "minicpm_version", "advanced_logs", "wavespeed_strength", "translation_methods", "p2p_active_checkbox", "p2p_remote_process", "p2p_in_did_list", "p2p_out_did_list", "no_welcome_checkbox", "missing_model_filter_checkbox"]
+
+    try:
+        user = state_params.get("user", None) if isinstance(state_params, dict) else None
+        user_did = user.get_did() if user is not None and hasattr(user, "get_did") else None
+    except Exception:
+        user_did = None
+    try:
+        logger.info(f"[RestoreDefaults] confirm: session={state_params.get('__session', None)}, ua_hash={state_params.get('ua_hash', None)}, did={user_did}")
+    except Exception:
+        pass
+
+    user_session = state_params.get("__session", None) if isinstance(state_params, dict) else None
+    ua_hash = state_params.get("ua_hash", None) if isinstance(state_params, dict) else None
+    if not user_session or not ua_hash:
+        try:
+            gr.Info("Restore failed: missing session/ua_hash (refresh page and retry).")
+        except Exception:
+            pass
+        outputs_len = 1 + 4 + len(get_all_user_default(state_params)) + len(admin_keys) + 1
+        return [gr.update(visible=True)] + [gr.update()] * (outputs_len - 1)
+
+    for key in user_keys:
+        try:
+            shared.token.set_local_vars(key, "Default", user_session, ua_hash)
+        except Exception:
+            pass
+        try:
+            ads.cache_vars.pop(f"{user_session}_{key}", None)
+        except Exception:
+            pass
+
+    for key in admin_keys:
+        try:
+            shared.token.set_local_admin_vars(key, "", user_session, ua_hash)
+        except Exception:
+            pass
+        try:
+            ads.cache_vars.pop(f"admin_{key}", None)
+        except Exception:
+            pass
+
+    try:
+        if "__lang" in state_params:
+            del state_params["__lang"]
+        if "__theme" in state_params:
+            del state_params["__theme"]
+    except Exception:
+        pass
+
+    try:
+        gr.Info("Defaults restored (including admin settings).")
+    except Exception:
+        pass
+
+    lang_internal = ads.get_user_default("__lang", state_params, args_manager.args.language)
+    theme_internal = ads.get_user_default("__theme", state_params, args_manager.args.theme)
+    user_defaults = [gr.update(value=v) for v in get_all_user_default(state_params)]
+
+    admin_values_new = []
+    for key in admin_keys:
+        v = ads.get_admin_default(key)
+        if key == "comfyd_active_checkbox":
+            if args_manager.args.disable_comfyd or args_manager.args.disable_backend:
+                v = False
+        elif key == "translation_methods":
+            try:
+                if v not in modules.flags.translation_methods:
+                    v = config.default_translation_methods
+            except Exception:
+                pass
+        elif key == "p2p_remote_process":
+            try:
+                if v not in ["Disable", "out", "in"]:
+                    v = "Disable"
+            except Exception:
+                pass
+        admin_values_new.append(v)
+
+    admin_updates = []
+    for k, v in zip(admin_keys, admin_values_new):
+        if k == "cache_ram":
+            try:
+                cache_enable = bool(admin_values_new[admin_keys.index("cache_ram_enable")])
+            except Exception:
+                cache_enable = True
+            admin_updates.append(gr.update(value=v, interactive=cache_enable))
+        elif k == "p2p_remote_process":
+            try:
+                p2p_enable = bool(admin_values_new[admin_keys.index("p2p_active_checkbox")])
+            except Exception:
+                p2p_enable = True
+            admin_updates.append(gr.update(value=v, interactive=p2p_enable))
+        else:
+            admin_updates.append(gr.update(value=v))
+
+    fmt = get_preferred_output_format(state_params)
+    return [gr.update(visible=False), gr.update(), gr.update(value=modules.flags.language_radio(lang_internal)), gr.update(value=theme_internal), gr.update()] + user_defaults + admin_updates + [gr.update(value=fmt)]
+
 def get_all_admin_default(currunt_value):
-    admin_keys = ['comfyd_active_checkbox', 'fast_comfyd_checkbox', 'cache_clear_on_finish_checkbox', 'reserved_vram', 'cache_ram', 'minicpm_checkbox', 'minicpm_version', 'advanced_logs', 'wavespeed_strength', 'translation_methods', 'p2p_active_checkbox', "p2p_remote_process", "p2p_in_did_list", "p2p_out_did_list", "no_welcome_checkbox", "missing_model_filter_checkbox"]
+    admin_keys = ['comfyd_active_checkbox', 'fast_comfyd_checkbox', 'cache_clear_on_finish_checkbox', 'reserved_vram', 'cache_ram_enable', 'cache_ram', 'minicpm_checkbox', 'minicpm_version', 'advanced_logs', 'wavespeed_strength', 'translation_methods', 'p2p_active_checkbox', "p2p_remote_process", "p2p_in_did_list", "p2p_out_did_list", "no_welcome_checkbox", "missing_model_filter_checkbox"]
     result = []
     for i, admin_key in enumerate(admin_keys):
         admin_value = ads.get_admin_default(admin_key)
 
-        # if admin_key == 'no_welcome_checkbox':
-        #     if isinstance(admin_value, str):
-        #         processed_value = admin_value.lower() == 'true'
-        #     else:
-        #         processed_value = bool(admin_value)
-        #     result.append(gr.update(value=processed_value, interactive=True))
-        #     continue
         if admin_value == 'None':
             result.append(gr.update(interactive=False))
             continue
