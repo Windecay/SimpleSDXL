@@ -1,54 +1,54 @@
-{ 
+{
     "default_engine": {
-            "backend_engine": "Wan",
-            "engine_type": "video",
-            "disvisible": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
-            "disinteractive": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
-            "available_aspect_ratios_selection": "Flux",
-            "scene_frontend": {
-                "version": "v1.1",
-                "theme": ["InfiniteTalk-AI2V"],
-                "theme_title": "Wan-InfiniteTalk图片+音频对口型",
-                "disvisible": ["scene_canvas_image", "scene_additional_prompt","scene_additional_prompt_2","scene_input_image2", "scene_video", "scene_refiner_model",
+        "backend_engine": "Wan",
+        "engine_type": "video",
+        "disvisible": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
+        "disinteractive": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
+        "available_aspect_ratios_selection": "Flux",
+        "scene_frontend": {
+            "version": "v1.1",
+            "theme": ["InfiniteTalk-AI2V"],
+            "theme_title": "Wan-InfiniteTalk Image+Audio Lip Sync",
+            "disvisible": ["scene_canvas_image", "scene_additional_prompt","scene_additional_prompt_2","scene_input_image2", "scene_video", "scene_refiner_model",
                 "scene_var_number4","scene_var_number5", "scene_var_number6", "scene_var_number8", "scene_var_number9", "scene_var_number10"
                 ,"scene_switch_option1","scene_switch_option2","scene_switch_option3","scene_switch_option4"],
-                "task_method": {
-                    "InfiniteTalk-AI2V": "wan_infinitetalk_cn"
-                },
-                "multimodal_prompt": {
-                    "InfiniteTalk-AI2V": ""
-                },
-                "scene_steps_min": 4,
-                "scene_steps_max": 6,
-                "scene_steps": {
-                    "InfiniteTalk-AI2V": 4
-                },
-                "var_number_min": 0,
-                "var_number_max": 120,
-                "var_number_title": "限制时长(秒)[0为不限制]",
-                "var_number": {
-                    "InfiniteTalk-AI2V": 0
-                },
-                "var_number2_title": "补帧到帧数[低于25帧率不补帧]",
-                "var_number2_min": 25,
-                "var_number2_max": 60,
-                "var_number2": {
-                    "InfiniteTalk-AI2V": 60
-                },
-                "var_number3_title": "跳过参考音频的前N秒",
-                "var_number3_min": 0.0,
-                "var_number3_max": 120,
-                "var_number3": {
-                    "InfiniteTalk-AI2V": 0.0
-                },
-                "var_number7_title": "每分段帧数[数值小省显存]",
-                "var_number7_min": 45,
-                "var_number7_max": 185,
-                "var_number7": {
-                    "InfiniteTalk-AI2V": 121
-                },
-                "aspect_ratio" : ["640|1:1","720|1:1","832|1:1","960|1:1","1024|1:1","1280|1:1"]
-            }
+            "task_method": {
+                "InfiniteTalk-AI2V": "wan_infinitetalk_cn"
+            },
+            "multimodal_prompt": {
+                "InfiniteTalk-AI2V": ""
+            },
+            "scene_steps_min": 4,
+            "scene_steps_max": 6,
+            "scene_steps": {
+                "InfiniteTalk-AI2V": 4
+            },
+            "var_number_min": 0,
+            "var_number_max": 120,
+            "var_number_title": "Duration limit (seconds) [0 = no limit]",
+            "var_number": {
+                "InfiniteTalk-AI2V": 0
+            },
+            "var_number2_title": "Interpolate to total frames [no interpolation below 25 FPS]",
+            "var_number2_min": 25,
+            "var_number2_max": 60,
+            "var_number2": {
+                "InfiniteTalk-AI2V": 60
+            },
+            "var_number3_title": "Skip first N seconds of reference audio",
+            "var_number3_min": 0.0,
+            "var_number3_max": 120,
+            "var_number3": {
+                "InfiniteTalk-AI2V": 0.0
+            },
+            "var_number7_title": "Frames per segment [smaller saves VRAM]",
+            "var_number7_min": 45,
+            "var_number7_max": 185,
+            "var_number7": {
+                "InfiniteTalk-AI2V": 121
+            },
+            "aspect_ratio" : ["640|1:1","720|1:1","832|1:1","960|1:1","1024|1:1","1280|1:1"]
+        }
     },
     "default_model": "Wan2_1-I2V-14B-480P_fp8_e4m3fn.safetensors",
     "default_refiner": "None",
@@ -83,7 +83,7 @@
     "default_styles": [],
     "default_aspect_ratio": "1024*1024",
     "default_image_number": 1,
-    "default_overwrite_step":30,
+    "default_overwrite_step": 30,
     "default_prompt": "",
     "default_prompt_negative": "",
     "checkpoint_downloads": {},

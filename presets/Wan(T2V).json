@@ -5,81 +5,81 @@
             "disvisible": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
             "disinteractive": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
         "available_aspect_ratios_selection": "Wan",
-            "scene_frontend": {
-                "version": "v1.1",
-                "theme": ["基础"],
-                "theme_title": "Wan2.2文生视频",
-                "disvisible": ["scene_canvas_image", "scene_additional_prompt","scene_additional_prompt_2", "scene_video", "scene_audio", "scene_input_image1", "scene_input_image2", "scene_var_number4",
+        "scene_frontend": {
+            "version": "v1.1",
+            "theme": ["Basic"],
+            "theme_title": "Wan2.2 Text-to-Video",
+            "disvisible": ["scene_canvas_image", "scene_additional_prompt","scene_additional_prompt_2", "scene_video", "scene_audio", "scene_input_image1", "scene_input_image2", "scene_var_number4",
                 "scene_var_number5", "scene_var_number6", "scene_var_number7", "scene_var_number8", "scene_var_number9", "scene_var_number10"
                 ,"scene_switch_option2","scene_switch_option3", "scene_switch_option4", "scene_aspect_ratio"],
-                "prompt": {
-                    "基础": ""
-                },
-                "task_method": {
-                    "基础": "wan2.2_t2v_cn"
-                },
-                "multimodal_prompt": {
-                    "基础": ""
-                },
-                "agent_prompt": {
-                    "基础": "'''你是一个视频描述提示词的改写专家，你的任务是根据用户给你输入的提示词，对提供的视频描述提示词进行改写，你要强调潜在的动态内容。具体要求如下\n用户输入的语言可能含有多样化的描述，如markdown文档格式、指令格式，长度过长或者过短，你需要根据图片的内容和用户的输入的提示词，尽可能提取用户输入的提示词和图片关联信息。\n你改写的视频描述结果要尽可能保留提供给你的视频描述提示词中动态部分，保留主体的动作。\n你要根据用户提示词，强调并简化视频描述提示词中的图像主体，如果用户只提供了动作，你要合理补充，例如出现动作细节和形态。”\n如果用户输入的提示词过长，你需要提炼潜在的动作过程\n如果用户输入的提示词过短，综合用户输入的提示词，合理的增加潜在的运动信息\n强调视频描述提示词中关于运镜手段的描述，如“镜头上摇”，“镜头从左到右”，“镜头从右到左”等等，你要保留，如“镜头拍摄两个男人打斗，他们先是躺在地上，随后镜头向上移动，拍摄他们站起来，接着镜头向左移动，左边男人拿着一个蓝色的东西，右边男人上前抢夺，两人激烈地来回争抢。”。\n你需要给出对视频描述的动态内容，不要添加对于静态场景的描述，如果用户输入的描述已经在画面中出现，则移除这些描述\n改写后的prompt字数控制在100字以下\n无论用户输入那种语言，你都需要输出中文\n改写后 prompt 示例：\n1. 镜头后拉，拍摄两个外国男人，走在楼梯上，镜头左侧的男人右手搀扶着镜头右侧的男人。\n2. 一只黑色的小松鼠专注地吃着东西，偶尔抬头看看四周。\n3. 男子说着话，表情从微笑逐渐转变为闭眼，然后睁开眼睛，最后是闭眼微笑，他的手势活跃，在说话时做出一系列的手势。\n4. 一个人正在用尺子和笔进行测量的特写，右手用一支黑色水性笔在纸上画出一条直线。\n5. 一辆车模型在木板上形式，车辆从画面的右侧向左侧移动，经过一片草地和一些木制结构。\n6. 镜头左移后前推，拍摄一个人坐在防波堤上。\n7. 男子说着话，他的表情和手势随着对话内容的变化而变化，但整体场景保持不变。\n8. 镜头左移后前推，拍摄一个人坐在防波堤上。\n9. 带着珍珠项链的女子看向画面右侧并说着话。\n请直接输出改写后的文本，不要进行多余的回复。'''需要改写的提示词是："
-                },
-                "var_number_min": 1,
-                "var_number": {
-                    "基础": 5
-                },
-                "var_number2_title": "补帧到帧数[16为不补帧]",
-                "var_number2_min": 16,
-                "var_number2_max": 60,
-                "var_number2": {
-                    "基础": 30
-                },
-                "var_number3_title": "CFG引导系数[大于1采样变慢]",
-                "var_number3_min": 1.0,
-                "var_number3_max": 5.0,
-                "var_number3": {
-                    "基础": 1.0
-                },
-                "switch_option1_title": "使用分块VAE解码",
-                "switch_option1": {
-                    "基础": false
-                },
-                "scene_steps_min": 6,
-                "scene_steps_max": 10,
-                "scene_steps": {
-                    "基础": 6
-                },
+            "prompt": {
+                "Basic": ""
+            },
+            "task_method": {
+                "Basic": "wan2.2_t2v_cn"
+            },
+            "multimodal_prompt": {
+                "Basic": ""
+            },
+            "agent_prompt": {
+                "Basic": "'''你是一个视频描述提示词的改写专家，你的任务是根据用户给你输入的提示词，对提供的视频描述提示词进行改写，你要强调潜在的动态内容。具体要求如下\n用户输入的语言可能含有多样化的描述，如markdown文档格式、指令格式，长度过长或者过短，你需要根据图片的内容和用户的输入的提示词，尽可能提取用户输入的提示词和图片关联信息。\n你改写的视频描述结果要尽可能保留提供给你的视频描述提示词中动态部分，保留主体的动作。\n你要根据用户提示词，强调并简化视频描述提示词中的图像主体，如果用户只提供了动作，你要合理补充，例如出现动作细节和形态。”\n如果用户输入的提示词过长，你需要提炼潜在的动作过程\n如果用户输入的提示词过短，综合用户输入的提示词，合理的增加潜在的运动信息\n强调视频描述提示词中关于运镜手段的描述，如“镜头上摇”，“镜头从左到右”，“镜头从右到左”等等，你要保留，如“镜头拍摄两个男人打斗，他们先是躺在地上，随后镜头向上移动，拍摄他们站起来，接着镜头向左移动，左边男人拿着一个蓝色的东西，右边男人上前抢夺，两人激烈地来回争抢。”。\n你需要给出对视频描述的动态内容，不要添加对于静态场景的描述，如果用户输入的描述已经在画面中出现，则移除这些描述\n改写后的prompt字数控制在100字以下\n无论用户输入那种语言，你都需要输出中文\n改写后 prompt 示例：\n1. 镜头后拉，拍摄两个外国男人，走在楼梯上，镜头左侧的男人右手搀扶着镜头右侧的男人。\n2. 一只黑色的小松鼠专注地吃着东西，偶尔抬头看看四周。\n3. 男子说着话，表情从微笑逐渐转变为闭眼，然后睁开眼睛，最后是闭眼微笑，他的手势活跃，在说话时做出一系列的手势。\n4. 一个人正在用尺子和笔进行测量的特写，右手用一支黑色水性笔在纸上画出一条直线。\n5. 一辆车模型在木板上形式，车辆从画面的右侧向左侧移动，经过一片草地和一些木制结构。\n6. 镜头左移后前推，拍摄一个人坐在防波堤上。\n7. 男子说着话，他的表情和手势随着对话内容的变化而变化，但整体场景保持不变。\n8. 镜头左移后前推，拍摄一个人坐在防波堤上。\n9. 带着珍珠项链的女子看向画面右侧并说着话。\n请直接输出改写后的文本，不要进行多余的回复。'''需要改写的提示词是："
+            },
+            "var_number_min": 1,
+            "var_number": {
+                "Basic": 5
+            },
+            "var_number2_title": "Interpolate to total frames [16 = no interpolation]",
+            "var_number2_min": 16,
+            "var_number2_max": 60,
+            "var_number2": {
+                "Basic": 30
+            },
+            "var_number3_title": "CFG Scale [>1 slows sampling]",
+            "var_number3_min": 1.0,
+            "var_number3_max": 5.0,
+            "var_number3": {
+                "Basic": 1.0
+            },
+            "switch_option1_title": "Use Tiled VAE Decode",
+            "switch_option1": {
+                "Basic": false
+            },
+            "scene_steps_min": 6,
+            "scene_steps_max": 10,
+            "scene_steps": {
+                "Basic": 6
+            },
                 "aspect_ratio" : ["640|1:1","720|1:1","832|1:1","960|1:1","1024|1:1","1280|1:1"],
-                "var_number_max": 10
-            }
+            "var_number_max": 10
+        }
     },
     "default_model": "Wan2.2_T2V_High_Noise_14B_VACE-Q4_K_M.gguf",
     "default_refiner": "Wan2.2_T2V_Low_Noise_14B_VACE-Q4_K_M.gguf",
     "default_refiner_switch": 0.5,
     "default_loras": [
-	    [
+        [
             "lightx2v_T2V_14B_cfg_step_distill_v2_lora_rank64_bf16.safetensors",
             0.0
         ],
-	    [
+        [
             "None",
             1.0
         ],
-	    [
+        [
             "lightx2v_T2V_14B_cfg_step_distill_v2_lora_rank64_bf16.safetensors",
             1.0
         ],
-	    [
+        [
             "None",
             1.0
         ],
-	    [
+        [
             "None",
             1.0
         ]
     ],
     "default_cfg_scale": 3.5,
-    "default_vae":"Wan2_1_VAE_bf16.safetensors",
+    "default_vae": "Wan2_1_VAE_bf16.safetensors",
     "default_sample_sharpness": 2.0,
     "default_sampler": "euler",
     "default_scheduler": "simple",

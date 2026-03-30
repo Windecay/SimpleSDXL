@@ -1,45 +1,45 @@
-{ 
+{
     "default_engine": {
-	"backend_engine": "Comfy",
+        "backend_engine": "Comfy",
 	"disvisible": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
 	"disinteractive": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
-	"available_aspect_ratios_selection": "Flux",
-	"scene_frontend": {
-	    "version": "m1.1",
-	    "theme": ["深度图", "细节重绘深度图", "线稿转白瓷雕像", "照片转白瓷雕像"],
-	    "theme_title": "深度信息较少的线稿、动漫、艺术类图片，建议选线稿选项，会先生成雕像再生成深度图。信息较多的真实照片选其他选项，直接生成深度图，再生成雕像或重绘细节。EXR 专业格式文件保存在 SimpAI\\outputs\\users\\用户ID\\outputs\\ComfyUI 目录下，前缀 OneKeyDepth_EXR",
+        "available_aspect_ratios_selection": "Flux",
+        "scene_frontend": {
+            "version": "m1.1",
+            "theme": ["Depth map", "Detail redraw depth map", "Line art to white porcelain statue", "Photo to white porcelain statue"],
+            "theme_title": "For images with little depth info (line art, anime, artistic images), choose the Line Art option: it generates a statue first, then a depth map. For real photos with richer info, choose other options: it generates a depth map first, then a statue or detail redraw. EXR (professional format) files are saved under SimpAI\\\\outputs\\\\users\\\\<UserID>\\\\outputs\\\\ComfyUI with prefix OneKeyDepth_EXR.",
             "disvisible": ["scene_additional_prompt", "scene_canvas_image", "scene_aspect_ratio", "scene_var_number", "scene_input_image2", "scene_use_lora", "scene_video", "scene_audio",
-                    "scene_var_number2","scene_var_number3","scene_var_number4","scene_switch_option1","scene_switch_option2","scene_steps", "scene_base_model", "scene_refiner_model", "scene_var_number5", "scene_var_number6", "scene_var_number7", "scene_var_number8", "scene_var_number9", "scene_var_number10"
+                "scene_var_number2","scene_var_number3","scene_var_number4","scene_switch_option1","scene_switch_option2","scene_steps", "scene_base_model", "scene_refiner_model", "scene_var_number5", "scene_var_number6", "scene_var_number7", "scene_var_number8", "scene_var_number9", "scene_var_number10"
                     ,"scene_switch_option3","scene_switch_option4"],
-	    "prompt": {
-    		"深度图": "",
-	    	"细节重绘深度图": "",
-	    	"线稿转白瓷雕像": "(A white porcelain statue, Simple pure solid color background, monochrome, black and white:1.2),      \n",
-	    	"照片转白瓷雕像": "(A white porcelain statue, Simple pure solid color background, monochrome, black and white:1.2),      \n"
-	    },
-            "additional_prompt_title_2": "深度图暗部调节，值越小越暗，默认值为-0.3，建议值-1.00到1.00",
+            "prompt": {
+                "Depth map": "",
+                "Detail redraw depth map": "",
+                "Line art to white porcelain statue": "(A white porcelain statue, Simple pure solid color background, monochrome, black and white:1.2),      \n",
+                "Photo to white porcelain statue": "(A white porcelain statue, Simple pure solid color background, monochrome, black and white:1.2),      \n"
+            },
+            "additional_prompt_title_2": "Depth map shadow adjustment: lower = darker; default -0.3; suggested -1.00 to 1.00",
             "additional_prompt_2": {
-		"深度图": "-0.3",
-		"细节重绘深度图": "-0.3",
-		"线稿转白瓷雕像": "-0.3",
-		"照片转白瓷雕像": "-0.3"
-                },
-	    "multimodal_prompt": {
-	    	"线稿转白瓷雕像": "tags",
-	    	"照片转白瓷雕像": "tags"
-	    },
-	    "aspect_ratio" : ["1280|1:1"],
-	    "aspect_ratio_select_mode": "",
-	    "task_method": {
-		"深度图": "x4-okdepthstatue1",
-		"细节重绘深度图": "x4-okdepthstatue2",
-		"线稿转白瓷雕像": "x4-okdepthstatue3",
-		"照片转白瓷雕像": "x4-okdepthstatue4"
-	    },
-	    "scene_steps": {
-		"线稿转白瓷雕像": 8
-	    }
-    	}
+                "Depth map": "-0.3",
+                "Detail redraw depth map": "-0.3",
+                "Line art to white porcelain statue": "-0.3",
+                "Photo to white porcelain statue": "-0.3"
+            },
+            "multimodal_prompt": {
+                "Line art to white porcelain statue": "tags",
+                "Photo to white porcelain statue": "tags"
+            },
+	        "aspect_ratio" : ["1280|1:1"],
+            "aspect_ratio_select_mode": "",
+            "task_method": {
+                "Depth map": "x4-okdepthstatue1",
+                "Detail redraw depth map": "x4-okdepthstatue2",
+                "Line art to white porcelain statue": "x4-okdepthstatue3",
+                "Photo to white porcelain statue": "x4-okdepthstatue4"
+            },
+            "scene_steps": {
+                "Line art to white porcelain statue": 8
+            }
+        }
     },
     "default_model": "juggernautXL_juggXIByRundiffusion.safetensors",
     "default_refiner": "None",
@@ -81,7 +81,7 @@
     "lora_downloads": {},
     "vae_downloads": {},
     "model_list": [
-    	"checkpoints,juggernautXL_juggXIByRundiffusion.safetensors,7105350536,0,",
+        "checkpoints,juggernautXL_juggXIByRundiffusion.safetensors,7105350536,0,",
         "loras,Hyper-SDXL-8steps-lora.safetensors,787359648,0,",
         "controlnet,xinsir_cn_union_sdxl_1.0_promax.safetensors,2513342408,0,",
         "controlnet,depth-anything/Depth-Anything-V2-Large/depth_anything_v2_vitl.pth,1341395338,0,",
@@ -89,6 +89,5 @@
         "controlnet,lllyasviel/Annotators/sk_model2.pth,17173511,0,",
         "clip_vision,clip_vision_vit_h.safetensors,1972298538,0,",
         "controlnet,ip-adapter-plus_sdxl_vit-h.bin,1013454427,0,"
-        ]
+    ]
 }
-

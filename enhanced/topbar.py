@@ -177,7 +177,7 @@ PRESET_STORE_ORDER = [
     "Wan-TTP",
     "Wan(T2V)",
     "Wan-Animate",
-    "Animate-Outpaint",
+    "Wan-Outpaint",
     "Wan-SCAIL",
     "InfiniteTalk",
     "LTX2.3(IA2V)",
@@ -506,14 +506,34 @@ def preset_instruction():
 get_system_params_js = '''
 function(system_params) {
     const params = new URLSearchParams(window.location.search);
-    const sessionCookie = getCookie('aitoken');
+    const readCookie = (name) => {
+        try {
+            const cookies = document.cookie.split(';').map(c => c.trim());
+            const cookie = cookies.find(c => c.startsWith(name + '='));
+            if (!cookie) return null;
+            const raw = cookie.split('=').slice(1).join('=');
+            try { return decodeURIComponent(raw); } catch (e) { return raw; }
+        } catch (e) {
+            return null;
+        }
+    };
+    const sessionCookie = readCookie('aitoken') || (typeof getCookie === 'function' ? getCookie('aitoken') : null);
+    const sessionLocal = (!sessionCookie && typeof localStorage !== "undefined") ? localStorage.getItem("aitoken") : null;
     const url_params = Object.fromEntries(params);
     if (url_params["__lang"]) 
         system_params["__lang"]=url_params["__lang"];
+    if (!url_params["__lang"]) {
+        const persistedLang = readCookie("ailang") || (typeof localStorage !== "undefined" ? localStorage.getItem("ailang") : null);
+        if (persistedLang === "cn" || persistedLang === "en") {
+            system_params["__lang"] = persistedLang;
+        }
+    }
     if (url_params["__theme"]) 
         system_params["__theme"]=url_params["__theme"];
     if (sessionCookie) 
         system_params["__session"]=sessionCookie;
+    else if (sessionLocal)
+        system_params["__session"]=sessionLocal;
     return system_params;
 }
 '''

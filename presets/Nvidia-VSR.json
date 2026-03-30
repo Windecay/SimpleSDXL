@@ -1,52 +1,52 @@
-{ 
+{
     "default_engine": {
-            "backend_engine": "Comfy",
-            "engine_type": "video",
+        "backend_engine": "Comfy",
+        "engine_type": "video",
             "disvisible": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
             "disinteractive": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
-            "available_aspect_ratios_selection": "Flux",
-            "scene_frontend": {
-                "version": "v1.1",
-                "theme": ["Nvidia-VSR快速超分辨率"],
-                "theme_title": "Nvidia-VSR快速视频超分辨率放大[可选补帧]",
-                "disvisible": ["scene_canvas_image", "scene_additional_prompt","scene_additional_prompt_2","scene_aspect_ratio", "scene_image_number", "scene_use_lora", "scene_audio","scene_input_image1","scene_input_image2",
-        "scene_var_number4","scene_var_number5","scene_var_number6","scene_var_number8","scene_var_number9","scene_var_number10","scene_switch_option2","scene_switch_option3","scene_switch_option4","scene_steps", "scene_base_model", "scene_refiner_model"],
-                "task_method": {
-                    "Nvidia-VSR快速超分辨率": "nvidia_vsr"
-                },
-                "scene_steps": {
-                    "Nvidia-VSR快速超分辨率": 1
-                },
-                "var_number_title": "放大倍数",
-                "var_number": {
-                    "Nvidia-VSR快速超分辨率":2
-                },
-                "var_number_min": 1,
-                "var_number_max": 4,
-                "var_number2_title": "保存质量（越低越好体积越大）",
-                "var_number2": {
-                    "Nvidia-VSR快速超分辨率":19
-                },
-                "var_number2_min": 5,
-                "var_number2_max": 45,
-                "var_number3_title": "补帧到设定帧率",
-                "var_number3": {
-                    "Nvidia-VSR快速超分辨率":30
-                },
-                "var_number3_min": 16,
-                "var_number3_max": 120,
-                "var_number7_title": "长视频分段帧数（分段长消耗内存多）",
-                "var_number7": {
-                    "Nvidia-VSR快速超分辨率":300
-                },
-                "var_number7_min": 60,
-                "var_number7_max": 600,
-                "switch_option1_title": "是否使用补帧",
-                "switch_option1": {
-                    "Nvidia-VSR快速超分辨率":false
-                },
+        "available_aspect_ratios_selection": "Flux",
+        "scene_frontend": {
+            "version": "v1.1",
+            "theme": ["Nvidia-VSR Super Resolution"],
+            "theme_title": "Nvidia-VSR Fast Video Super-Resolution Upscale [Optional frame interpolation]",
+            "disvisible": ["scene_canvas_image", "scene_additional_prompt","scene_additional_prompt_2","scene_aspect_ratio", "scene_image_number", "scene_use_lora", "scene_audio","scene_input_image1","scene_input_image2",
+                "scene_var_number4","scene_var_number5","scene_var_number6","scene_var_number8","scene_var_number9","scene_var_number10","scene_switch_option2","scene_switch_option3","scene_switch_option4","scene_steps", "scene_base_model", "scene_refiner_model"],
+            "task_method": {
+                "Nvidia-VSR Super Resolution": "nvidia_vsr"
+            },
+            "scene_steps": {
+                "Nvidia-VSR Super Resolution": 1
+            },
+            "var_number_title": "Upscale factor",
+            "var_number": {
+                "Nvidia-VSR Super Resolution": 2
+            },
+            "var_number_min": 1,
+            "var_number_max": 4,
+            "var_number2_title": "Save quality (lower = better, larger file size)",
+            "var_number2": {
+                "Nvidia-VSR Super Resolution": 19
+            },
+            "var_number2_min": 5,
+            "var_number2_max": 45,
+            "var_number3_title": "Interpolate to target FPS",
+            "var_number3": {
+                "Nvidia-VSR Super Resolution": 30
+            },
+            "var_number3_min": 16,
+            "var_number3_max": 120,
+            "var_number7_title": "Long video segment length (frames) [longer segments use more RAM]",
+            "var_number7": {
+                "Nvidia-VSR Super Resolution": 300
+            },
+            "var_number7_min": 60,
+            "var_number7_max": 600,
+            "switch_option1_title": "Enable frame interpolation",
+            "switch_option1": {
+                "Nvidia-VSR Super Resolution": false
+            },
                 "aspect_ratio" : ["9:16", "4:5", "4:3", "3:2", "16:9"]
-            }
+        }
     },
     "default_model": "None",
     "default_refiner": "None",
@@ -81,7 +81,7 @@
     "default_styles": [],
     "default_aspect_ratio": "1024*1024",
     "default_image_number": 1,
-    "default_overwrite_step":30,
+    "default_overwrite_step": 30,
     "default_prompt": "",
     "default_prompt_negative": "",
     "checkpoint_downloads": {},

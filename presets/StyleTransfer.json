@@ -1,89 +1,89 @@
-{ 
+{
     "default_engine": {
-	"backend_engine": "Comfy",
-	"disvisible": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
-	"disinteractive": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
-	"available_aspect_ratios_selection": "Flux",
-	"scene_frontend": {
-	    "version": "m1.1",
-	    "theme": ["黏土","手办","像素","Q版","萌系","油画","水彩","水墨","纸艺","吉卜力","蜡笔","线稿"],
-	    "theme_title": "选择不同的转绘风格",
+        "backend_engine": "Comfy",
+        "disvisible": [            "input_image_checkbox",             "prompt_panel_checkbox",             "advanced_checkbox"        ],
+        "disinteractive": [            "input_image_checkbox",             "prompt_panel_checkbox",             "advanced_checkbox"        ],
+        "available_aspect_ratios_selection": "Flux",
+        "scene_frontend": {
+            "version": "m1.1",
+            "theme": ["Claymation", "PVC figure", "Pixel art", "Chibi", "Moe", "Oil painting", "Watercolor", "Ink wash", "Papercraft", "Ghibli", "Crayon", "Line art"],
+            "theme_title": "Choose a style transfer preset",
             "disvisible": ["scene_additional_prompt", "scene_aspect_ratio", "scene_canvas_image", "scene_var_number", "scene_input_image2", "scene_use_lora", "scene_video", "scene_audio",
-                    "scene_var_number2","scene_var_number3","scene_var_number4","scene_switch_option1","scene_switch_option2","scene_steps", "scene_base_model", "scene_refiner_model", "scene_var_number5", "scene_var_number6", "scene_var_number7", "scene_var_number8", "scene_var_number9", "scene_var_number10"
+                "scene_var_number2","scene_var_number3","scene_var_number4","scene_switch_option1","scene_switch_option2","scene_steps", "scene_base_model", "scene_refiner_model", "scene_var_number5", "scene_var_number6", "scene_var_number7", "scene_var_number8", "scene_var_number9", "scene_var_number10"
                     ,"scene_switch_option3","scene_switch_option4"],
-	    "aspect_ratio" : ["9:16", "4:5", "4:3", "3:2", "16:9", "21:9"],
-	    "task_method": {
-                "黏土": "claymation",
-                "手办": "pvcfigure",
-                "像素": "pixelart",
-                "Q版": "cute",
-                "萌系": "moe",
-                "油画": "oilpainting",
-                "水彩": "watercolor",
-                "水墨": "inkpainting",
-                "纸艺": "papercut",
-                "吉卜力": "ghibli",
-                "蜡笔": "crayon",
-                "线稿": "lineart"
-	    },
-        "prompt": {
-            "黏土": "claymation,",
-            "手办": "pvcfigure,",
-            "像素": "pixelart,",
-            "Q版": "cute,",
-            "萌系": "moe,",
-            "油画": "oilpainting,",
-            "水彩": "watercolor,",
-            "水墨": "inkpainting,",
-            "纸艺": "papercutting,",
-            "吉卜力": "ghibli,",
-            "蜡笔": "crayon,",
-            "线稿": "lineart,"
-        },
-        "additional_prompt_title_2": "面部权重，默认0为关闭，可以输入0.0~2.0之间的数字,无脸会报错",
-        "additional_prompt_2": {
-            "黏土": "0",
-            "手办": "0",
-            "像素": "0",
-            "Q版": "0",
-            "萌系": "0",
-            "油画": "0",
-            "水彩": "0",
-            "水墨": "0",
-            "纸艺": "0",
-            "吉卜力": "0",
-            "蜡笔": "0",
-            "线稿": "0"
-        },
-        "multimodal_prompt": {
-            "黏土": "tags",
-            "手办": "tags",
-            "像素": "tags",
-            "Q版": "tags",
-            "萌系": "tags",
-            "油画": "tags",
-            "水彩": "tags",
-            "水墨": "tags",
-            "纸艺": "tags",
-            "吉卜力": "tags",
-            "蜡笔": "tags",
-            "线稿": "tags"
-        },
-        "scene_steps": {
-            "黏土": 30,
-            "手办": 30,
-            "像素": 30,
-            "Q版": 30,
-            "萌系": 30,
-            "油画": 30,
-            "水彩": 30,
-            "水墨": 30,
-            "纸艺": 30,
-            "吉卜力": 30,
-            "蜡笔": 30,
-            "线稿": 30
+            "aspect_ratio" : ["9:16", "4:5", "4:3", "3:2", "16:9", "21:9"],
+            "task_method": {
+                "Claymation": "claymation",
+                "PVC figure": "pvcfigure",
+                "Pixel art": "pixelart",
+                "Chibi": "cute",
+                "Moe": "moe",
+                "Oil painting": "oilpainting",
+                "Watercolor": "watercolor",
+                "Ink wash": "inkpainting",
+                "Papercraft": "papercut",
+                "Ghibli": "ghibli",
+                "Crayon": "crayon",
+                "Line art": "lineart"
+            },
+            "prompt": {
+                "Claymation": "claymation,",
+                "PVC figure": "pvcfigure,",
+                "Pixel art": "pixelart,",
+                "Chibi": "cute,",
+                "Moe": "moe,",
+                "Oil painting": "oilpainting,",
+                "Watercolor": "watercolor,",
+                "Ink wash": "inkpainting,",
+                "Papercraft": "papercutting,",
+                "Ghibli": "ghibli,",
+                "Crayon": "crayon,",
+                "Line art": "lineart,"
+            },
+            "additional_prompt_title_2": "Face weight: default 0 disables. Enter 0.0–2.0; errors if no face.",
+            "additional_prompt_2": {
+                "Claymation": "0",
+                "PVC figure": "0",
+                "Pixel art": "0",
+                "Chibi": "0",
+                "Moe": "0",
+                "Oil painting": "0",
+                "Watercolor": "0",
+                "Ink wash": "0",
+                "Papercraft": "0",
+                "Ghibli": "0",
+                "Crayon": "0",
+                "Line art": "0"
+            },
+            "multimodal_prompt": {
+                "Claymation": "tags",
+                "PVC figure": "tags",
+                "Pixel art": "tags",
+                "Chibi": "tags",
+                "Moe": "tags",
+                "Oil painting": "tags",
+                "Watercolor": "tags",
+                "Ink wash": "tags",
+                "Papercraft": "tags",
+                "Ghibli": "tags",
+                "Crayon": "tags",
+                "Line art": "tags"
+            },
+            "scene_steps": {
+                "Claymation": 30,
+                "PVC figure": 30,
+                "Pixel art": 30,
+                "Chibi": 30,
+                "Moe": 30,
+                "Oil painting": 30,
+                "Watercolor": 30,
+                "Ink wash": 30,
+                "Papercraft": 30,
+                "Ghibli": 30,
+                "Crayon": 30,
+                "Line art": 30
             }
-    	}
+        }
     },
     "default_refiner": "None",
     "default_refiner_switch": 0.5,
@@ -152,5 +152,5 @@
         "insightface,models/buffalo_l/det_10g.onnx,16923827,0,",
         "insightface,models/buffalo_l/genderage.onnx,1322532,0,",
         "insightface,models/buffalo_l/w600k_r50.onnx,174383860,0,"
-        ]
+    ]
 }

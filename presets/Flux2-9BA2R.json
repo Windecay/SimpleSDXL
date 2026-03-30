@@ -1,67 +1,66 @@
-{ 
+{
     "default_engine": {
-            "backend_engine": "Flux",
+        "backend_engine": "Flux",
             "disvisible": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
             "disinteractive": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
-            "available_aspect_ratios_selection": "Flux",
-            "scene_frontend": {
-                "version": "m1.1",
-                "theme": ["Flux2_9B_A2R_1024px", "Flux2_9B_A2R_1536px", "Flux2_9B_A2R_2048px"],
-                "theme_title": "Flux2-9B-A2R动漫转真人[蒙版可选]",
-                "disvisible": ["scene_additional_prompt","scene_additional_prompt_2","scene_input_image1","scene_input_image2","scene_switch_option1", "scene_switch_option2", "scene_video", "scene_audio","scene_aspect_ratio",
+        "available_aspect_ratios_selection": "Flux",
+        "scene_frontend": {
+            "version": "m1.1",
+            "theme": ["Flux2_9B_A2R_1024px", "Flux2_9B_A2R_1536px", "Flux2_9B_A2R_2048px"],
+            "theme_title": "Flux2-9B-A2R Anime-to-Real [Optional mask]",
+            "disvisible": ["scene_additional_prompt","scene_additional_prompt_2","scene_input_image1","scene_input_image2","scene_switch_option1", "scene_switch_option2", "scene_video", "scene_audio","scene_aspect_ratio",
                 "scene_var_number","scene_var_number2","scene_var_number3", "scene_refiner_model", "scene_var_number5", "scene_var_number6", "scene_var_number7", "scene_var_number8", "scene_var_number9", "scene_var_number10"
                 ,"scene_switch_option3","scene_switch_option4"],
-                "task_method": {
-                    "Flux2_9B_A2R_1024px": "flux2_9b_edit_1024px_cn",
-                    "Flux2_9B_A2R_1536px": "flux2_9b_edit_1536px_cn",
-                    "Flux2_9B_A2R_2048px": "flux2_9b_edit_2048px_cn"
-                },
-                "prompt": {
+            "task_method": {
+                "Flux2_9B_A2R_1024px": "flux2_9b_edit_1024px_cn",
+                "Flux2_9B_A2R_1536px": "flux2_9b_edit_1536px_cn",
+                "Flux2_9B_A2R_2048px": "flux2_9b_edit_2048px_cn"
+            },
+            "prompt": {
                     "Flux2_9B_A2R_1024px": "转成亚洲写实风格",
                     "Flux2_9B_A2R_1536px": "转成亚洲写实风格",
                     "Flux2_9B_A2R_2048px": "转成亚洲写实风格"
-                },
-                "scene_steps_min": 4,
-                "scene_steps_max": 8,
-                "scene_steps": {
-                    "Flux2_9B_A2R_1024px": 4,
-                    "Flux2_9B_A2R_1536px": 4,
-                    "Flux2_9B_A2R_2048px": 4
-                },
-                "image_preprocessor_method": {
+            },
+            "scene_steps_min": 4,
+            "scene_steps_max": 8,
+            "scene_steps": {
+                "Flux2_9B_A2R_1024px": 4,
+                "Flux2_9B_A2R_1536px": 4,
+                "Flux2_9B_A2R_2048px": 4
+            },
+            "image_preprocessor_method": {
                     "Flux2_9B_A2R_1024px": [["-normalization"]],
                     "Flux2_9B_A2R_1536px": [["-normalization"]],
                     "Flux2_9B_A2R_2048px": [["-normalization"]]    
-                },
-                "var_number4_title": "颜色匹配原图",
-                "var_number4_min": 0,
-                "var_number4_max": 1.0,
-                "var_number4": {
-                    "Flux2_9B_A2R_1024px": 0,
-                    "Flux2_9B_A2R_1536px": 0,
-                    "Flux2_9B_A2R_2048px": 0
-                },
-                "switch_option1_title": "自定义比例[下方选择]",
-                "switch_option1": {
-                    "Flux2_9B_A2R_1024px": false,
-                    "Flux2_9B_A2R_1536px": false,
-                    "Flux2_9B_A2R_2048px": false
-                },
-                "switch_option2_title": "图2直接转换为骨骼",
-                "switch_option2": {
-                    "Flux2_9B_A2R_1024px": false,
-                    "Flux2_9B_A2R_1536px": false,
-                    "Flux2_9B_A2R_2048px": false
-                },
+            },
+            "var_number4_title": "Match original colors",
+            "var_number4_min": 0,
+            "var_number4_max": 1.0,
+            "var_number4": {
+                "Flux2_9B_A2R_1024px": 0,
+                "Flux2_9B_A2R_1536px": 0,
+                "Flux2_9B_A2R_2048px": 0
+            },
+            "switch_option1_title": "Custom aspect ratio [choose below]",
+            "switch_option1": {
+                "Flux2_9B_A2R_1024px": false,
+                "Flux2_9B_A2R_1536px": false,
+                "Flux2_9B_A2R_2048px": false
+            },
+            "switch_option2_title": "Convert Image 2 to pose",
+            "switch_option2": {
+                "Flux2_9B_A2R_1024px": false,
+                "Flux2_9B_A2R_1536px": false,
+                "Flux2_9B_A2R_2048px": false
+            },
                 "aspect_ratio" : [ "1024|1:1", "756|9:16", "832|2:3", "1216|4:3", "1248|3:2", "1344|16:9"],
-                "agent_prompt": {
-                    "Flux2_9B_A2R_1024px": "Your task is to generate realistic-style portrait prompts centered on young Asian characters (girls, women, men). Adjust gender, race, and age group as needed. Add appropriate supplementary words after the main cue to enhance facial features, expressions, background, and overall character details.",
-                    "Flux2_9B_A2R_1536px": "Your task is to generate realistic-style portrait prompts centered on young Asian characters (girls, women, men). Adjust gender, race, and age group as needed. Add appropriate supplementary words after the main cue to enhance facial features, expressions, background, and overall character details.",
-                    "Flux2_9B_A2R_2048px": "Your task is to generate realistic-style portrait prompts centered on young Asian characters (girls, women, men). Adjust gender, race, and age group as needed. Add appropriate supplementary words after the main cue to enhance facial features, expressions, background, and overall character details."
-                }
+            "agent_prompt": {
+                "Flux2_9B_A2R_1024px": "Your task is to generate realistic-style portrait prompts centered on young Asian characters (girls, women, men). Adjust gender, race, and age group as needed. Add appropriate supplementary words after the main cue to enhance facial features, expressions, background, and overall character details.",
+                "Flux2_9B_A2R_1536px": "Your task is to generate realistic-style portrait prompts centered on young Asian characters (girls, women, men). Adjust gender, race, and age group as needed. Add appropriate supplementary words after the main cue to enhance facial features, expressions, background, and overall character details.",
+                "Flux2_9B_A2R_2048px": "Your task is to generate realistic-style portrait prompts centered on young Asian characters (girls, women, men). Adjust gender, race, and age group as needed. Add appropriate supplementary words after the main cue to enhance facial features, expressions, background, and overall character details."
             }
+        }
     },
-
     "default_model": "flux-2-klein-9b-fp8.safetensors",
     "default_refiner": "None",
     "default_refiner_switch": 0.5,
@@ -95,7 +94,7 @@
     "default_styles": [],
     "default_aspect_ratio": "1024*1024",
     "default_image_number": 1,
-    "default_overwrite_step":8,
+    "default_overwrite_step": 8,
     "default_prompt": "转成亚洲写实风格",
     "default_prompt_negative": "",
     "checkpoint_downloads": {},
@@ -109,5 +108,5 @@
         "vae,flux2-vae.safetensors,336211292,0,https://www.modelscope.cn/models/Comfy-Org/flux2-klein-4B/resolve/master/split_files/vae/flux2-vae.safetensors",
         "controlnet/hr16/DWPose-TorchScript-BatchSize5,dw-ll_ucoco_384_bs5.torchscript.pt,135059124,0,https://www.modelscope.cn/models/svjack/DWPose-TorchScript-BatchSize5/resolve/master/dw-ll_ucoco_384_bs5.torchscript.pt",
         "controlnet/yzd-v/DWPose,yolox_l.onnx,216746733,0,https://www.modelscope.cn/models/zhangjin/DWPose/resolve/master/yolox_l.onnx"
-        ]
+    ]
 }

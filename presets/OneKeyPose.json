@@ -1,62 +1,63 @@
-{ 
+{
     "default_engine": {
-            "backend_engine": "Comfy",
-            "disvisible": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
-            "disinteractive": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
-            "available_aspect_ratios_selection": "Flux",
-            "scene_frontend": {
-                "version": "m1.1",
-                "theme": ["SDPose-OOD","DWPose"],
-                "theme_title": "快速转换Pose骨骼图",
-                "disvisible": ["scene_canvas_image", "scene_input_image2","scene_additional_prompt","scene_additional_prompt_2","scene_aspect_ratio", "scene_image_number", "scene_use_lora", "scene_video", "scene_audio",
-                    "scene_var_number2","scene_var_number4", "scene_steps", "scene_base_model", "scene_refiner_model", "scene_var_number5", "scene_var_number6", "scene_var_number7", "scene_var_number8", "scene_var_number9", "scene_var_number10"],
-                "task_method": {
-                    "SDPose-OOD": "sdpose",
-                    "DWPose": "dw_pose"
-                },
-                "scene_steps": {
-                    "SDPose-OOD": 1,
-                    "DWPose": 1
-                },
+        "backend_engine": "Comfy",
+        "disvisible": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
+        "disinteractive": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
+        "available_aspect_ratios_selection": "Flux",
+        "scene_frontend": {
+            "version": "m1.1",
+            "theme": ["SDPose-OOD","DWPose"],
+            "theme_title": "Quick Pose (skeleton) conversion",
+            "disvisible": ["scene_canvas_image", "scene_input_image2","scene_additional_prompt","scene_additional_prompt_2","scene_aspect_ratio", "scene_image_number", "scene_use_lora", "scene_video", "scene_audio",
+                "scene_var_number2","scene_var_number4", "scene_steps", "scene_base_model", "scene_refiner_model", "scene_var_number5", "scene_var_number6", "scene_var_number7", "scene_var_number8", "scene_var_number9", "scene_var_number10"],
+            "task_method": {
+                "SDPose-OOD": "sdpose",
+                "DWPose": "dw_pose"
+            },
+            "scene_steps": {
+                "SDPose-OOD": 1,
+                "DWPose": 1
+            },
                 "aspect_ratio" : ["9:16", "4:5", "4:3", "3:2", "16:9"],
-                "image_preprocessor_method": {
-                    "DWPose": [["-normalization"]]
-                },
-                "var_number_title": "最大人数（仅SDPose生效）",
-                "var_number_min": 0,
-                "var_number_max": 10,
-                "var_number": {
-                    "SDPose-OOD": 3,
-                    "DWPose": 3
-                },
-                "var_number3_title": "识别阈值（仅SDPose生效）",
-                "var_number3_min": 0,
-                "var_number3_max": 1.0,
-                "var_number3": {
-                    "SDPose-OOD": 0.3,
-                    "DWPose": 0.3
-                },
-                "switch_option1_title": "加粗骨骼",
-                "switch_option1": {
-                    "SDPose-OOD": true,
-                    "DWPose": true
-                },
-                "switch_option2_title": "绘制手部",
-                "switch_option2": {
-                    "SDPose-OOD": true,
-                    "DWPose": true
-                },
-                "switch_option3_title": "绘制面部",
-                "switch_option3": {
-                    "SDPose-OOD": true,
-                    "DWPose": true
-                },
-                "switch_option4_title": "绘制足部（仅SDPose）",
-                "switch_option4": {
-                    "SDPose-OOD": true,
-                    "DWPose": true
-                }
+            "image_preprocessor_method": {
+                "SDPose-OOD": [["-normalization"]],
+                "DWPose": [["-normalization"]]
+            },
+            "var_number_title": "Max people (SDPose only)",
+            "var_number_min": 0,
+            "var_number_max": 10,
+            "var_number": {
+                "SDPose-OOD": 3,
+                "DWPose": 3
+            },
+            "var_number3_title": "Detection threshold (SDPose only)",
+            "var_number3_min": 0,
+            "var_number3_max": 1.0,
+            "var_number3": {
+                "SDPose-OOD": 0.3,
+                "DWPose": 0.3
+            },
+            "switch_option1_title": "Thicken skeleton",
+            "switch_option1": {
+                "SDPose-OOD": true,
+                "DWPose": true
+            },
+            "switch_option2_title": "Draw hands",
+            "switch_option2": {
+                "SDPose-OOD": true,
+                "DWPose": true
+            },
+            "switch_option3_title": "Draw face",
+            "switch_option3": {
+                "SDPose-OOD": true,
+                "DWPose": true
+            },
+            "switch_option4_title": "Draw feet (SDPose only)",
+            "switch_option4": {
+                "SDPose-OOD": true,
+                "DWPose": true
             }
+        }
     },
     "default_model": "None",
     "default_refiner": "None",
@@ -91,7 +92,7 @@
     "default_styles": [],
     "default_aspect_ratio": "1024*1024",
     "default_image_number": 1,
-    "default_overwrite_step":30,
+    "default_overwrite_step": 30,
     "default_prompt": "",
     "default_prompt_negative": "",
     "checkpoint_downloads": {},

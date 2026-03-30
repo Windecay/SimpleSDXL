@@ -1,70 +1,69 @@
-{ 
+{
     "default_engine": {
-            "backend_engine": "Qwen",
-            "disvisible": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
-            "disinteractive": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
-            "available_aspect_ratios_selection": "Flux",
-            "scene_frontend": {
-                "version": "m1.1",
-                "theme": ["MultiAngle-1024px","MultiAngle-1536px","MultiAngle-2048px"],
-                "theme_title": "Qwen-MultiAngle自由视角",
-                "disvisible": ["scene_additional_prompt", "scene_video", "scene_audio","scene_canvas_image","scene_input_image2",
+        "backend_engine": "Qwen",
+        "disvisible": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
+        "disinteractive": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
+        "available_aspect_ratios_selection": "Flux",
+        "scene_frontend": {
+            "version": "m1.1",
+            "theme": ["MultiAngle-1024px","MultiAngle-1536px","MultiAngle-2048px"],
+            "theme_title": "Qwen-MultiAngle Free Viewpoint",
+            "disvisible": ["scene_additional_prompt", "scene_video", "scene_audio","scene_canvas_image","scene_input_image2",
                 "scene_var_number","scene_var_number2","scene_switch_option2", "scene_refiner_model", "scene_var_number5", "scene_var_number6", "scene_var_number7", "scene_var_number8", "scene_var_number9", "scene_var_number10"
                 ,"scene_switch_option3","scene_switch_option4"],
-                "task_method": {
-                    "MultiAngle-1024px": "qwen_multiangle_cn",
-                    "MultiAngle-1536px": "qwen_multiangle_1536_cn",
-                    "MultiAngle-2048px": "qwen_multiangle_2048_cn"
-                },
-                "prompt": {
-                    "MultiAngle-1024px": " ",
-                    "MultiAngle-1536px": " ",
-                    "MultiAngle-2048px": " "   
-                },
-                "scene_steps_min": 4,
-                "scene_steps_max": 10,
-                "scene_steps": {
-                    "MultiAngle-1024px": 4,
-                    "MultiAngle-1536px": 4,
-                    "MultiAngle-2048px": 4
-                },
-                "image_preprocessor_method": {
+            "task_method": {
+                "MultiAngle-1024px": "qwen_multiangle_cn",
+                "MultiAngle-1536px": "qwen_multiangle_1536_cn",
+                "MultiAngle-2048px": "qwen_multiangle_2048_cn"
+            },
+            "prompt": {
+                "MultiAngle-1024px": " ",
+                "MultiAngle-1536px": " ",
+                "MultiAngle-2048px": " "
+            },
+            "scene_steps_min": 4,
+            "scene_steps_max": 10,
+            "scene_steps": {
+                "MultiAngle-1024px": 4,
+                "MultiAngle-1536px": 4,
+                "MultiAngle-2048px": 4
+            },
+            "image_preprocessor_method": {
                     "MultiAngle-1024px": [["-normalization"]],
                     "MultiAngle-1536px": [["-normalization"]],
                     "MultiAngle-2048px": [["-normalization"]]
-                },
-                "var_number3_title": "CFGNorm质感微调",
-                "var_number3_min": 0.95,
-                "var_number3_max": 1.05,
-                "var_number3": {
-                    "MultiAngle-1024px": 0.98,
-                    "MultiAngle-1536px": 0.98,
-                    "MultiAngle-2048px": 0.98
-                },
-                "var_number4_title": "颜色匹配原图",
-                "var_number4_min": 0,
-                "var_number4_max": 1.0,
-                "var_number4": {
-                    "MultiAngle-1024px": 0,
-                    "MultiAngle-1536px": 0,
-                    "MultiAngle-2048px": 0
-                },
-                "switch_option1_title": "自定义比例[下方选择]",
-                "switch_option1": {
-                    "MultiAngle-1024px": false,
-                    "MultiAngle-1536px": false,
-                    "MultiAngle-2048px": false
-                },
-                "additional_prompt_title_2": "视角参数",
-                "additional_prompt_2": {
-                    "MultiAngle-1024px": "front view, eye level, medium shot, {\"horizontal\":0,\"vertical\":0,\"zoom\":5}",
-                    "MultiAngle-1536px": "front view, eye level, medium shot, {\"horizontal\":0,\"vertical\":0,\"zoom\":5}",
-                    "MultiAngle-2048px": "front view, eye level, medium shot, {\"horizontal\":0,\"vertical\":0,\"zoom\":5}"
-                },
+            },
+            "var_number3_title": "CFGNorm Texture Fine-tune",
+            "var_number3_min": 0.95,
+            "var_number3_max": 1.05,
+            "var_number3": {
+                "MultiAngle-1024px": 0.98,
+                "MultiAngle-1536px": 0.98,
+                "MultiAngle-2048px": 0.98
+            },
+            "var_number4_title": "Match original colors",
+            "var_number4_min": 0,
+            "var_number4_max": 1.0,
+            "var_number4": {
+                "MultiAngle-1024px": 0,
+                "MultiAngle-1536px": 0,
+                "MultiAngle-2048px": 0
+            },
+            "switch_option1_title": "Custom aspect ratio [choose below]",
+            "switch_option1": {
+                "MultiAngle-1024px": false,
+                "MultiAngle-1536px": false,
+                "MultiAngle-2048px": false
+            },
+            "additional_prompt_title_2": "View parameters",
+            "additional_prompt_2": {
+                "MultiAngle-1024px": "front view, eye level, medium shot, {\"horizontal\":0,\"vertical\":0,\"zoom\":5}",
+                "MultiAngle-1536px": "front view, eye level, medium shot, {\"horizontal\":0,\"vertical\":0,\"zoom\":5}",
+                "MultiAngle-2048px": "front view, eye level, medium shot, {\"horizontal\":0,\"vertical\":0,\"zoom\":5}"
+            },
                 "aspect_ratio" : [ "1024|1:1", "756|9:16", "832|2:3", "1216|4:3", "1248|3:2", "1344|16:9"]
-            }
+        }
     },
-
     "default_model": "qwen_image_edit_2511_fp8mixed.safetensors",
     "default_refiner": "None",
     "default_refiner_switch": 0.5,
@@ -98,7 +97,7 @@
     "default_styles": [],
     "default_aspect_ratio": "1024*1024",
     "default_image_number": 1,
-    "default_overwrite_step":8,
+    "default_overwrite_step": 8,
     "default_prompt": "",
     "default_prompt_negative": "",
     "checkpoint_downloads": {},
@@ -114,5 +113,5 @@
         "vae,qwen_image_vae.safetensors,253806246,0,",
         "controlnet/hr16/DWPose-TorchScript-BatchSize5,dw-ll_ucoco_384_bs5.torchscript.pt,135059124,0,https://www.modelscope.cn/models/svjack/DWPose-TorchScript-BatchSize5/resolve/master/dw-ll_ucoco_384_bs5.torchscript.pt",
         "controlnet/yzd-v/DWPose,yolox_l.onnx,216746733,0,https://www.modelscope.cn/models/zhangjin/DWPose/resolve/master/yolox_l.onnx"
-        ]
+    ]
 }

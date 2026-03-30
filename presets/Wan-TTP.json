@@ -1,53 +1,53 @@
-{ 
+{
     "default_engine": {
-            "backend_engine": "Wan",
+        "backend_engine": "Wan",
             "disvisible": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
             "disinteractive": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
-            "available_aspect_ratios_selection": "Flux",
-            "scene_frontend": {
-                "version": "m1.1",
-                "theme": ["Wan_TTP_Hires.Upscale"],
-                "theme_title": "使用SeedVR2+万相模型进行TTP分块放大",
-                "disvisible": ["scene_canvas_image", "scene_additional_prompt","scene_additional_prompt_2","scene_input_image2","scene_aspect_ratio", "scene_video", "scene_audio",
-                    "scene_var_number4","scene_steps", "scene_refiner_model", "scene_var_number5", "scene_var_number6", "scene_var_number7", "scene_var_number8", "scene_var_number9", "scene_var_number10"
+        "available_aspect_ratios_selection": "Flux",
+        "scene_frontend": {
+            "version": "m1.1",
+            "theme": ["Wan_TTP_Hires.Upscale"],
+            "theme_title": "Use SeedVR2 + Wan for tiled TTP upscaling",
+            "disvisible": ["scene_canvas_image", "scene_additional_prompt","scene_additional_prompt_2","scene_input_image2","scene_aspect_ratio", "scene_video", "scene_audio",
+                "scene_var_number4","scene_steps", "scene_refiner_model", "scene_var_number5", "scene_var_number6", "scene_var_number7", "scene_var_number8", "scene_var_number9", "scene_var_number10"
                     ,"scene_switch_option3","scene_switch_option4"],
-                "task_method": {
-                    "Wan_TTP_Hires.Upscale": "wan_ttp_cn"
-                },
-                "prompt": {
-                    "Wan_TTP_Hires.Upscale": "(Masterpiece:1.2), (best quality:1.2), ultra high resolution, (ultra-detailed), (beautiful and aesthetic:1.2),high texture,hyperrealistic materials, 4K, raw, arw, cr2,"                },
-                "scene_steps": {
-                    "Wan_TTP_Hires.Upscale": 24                },
-                "image_preprocessor_method": {
-                    "Wan_TTP_Hires.Upscale": [["-normalization"]]
-                },
-                "var_number_title": "最终像素数量（百万）",
-                "var_number": {
-                    "Wan_TTP_Hires.Upscale": 8
-                },
-                "var_number2_title":"前置SeedVR2放大分辨率(短边)",
-                "var_number2_max": 4096,
-                "var_number2_min": 1024,
-                "var_number2": {
-                    "Wan_TTP_Hires.Upscale": 3072
-                },
-                "var_number3_title":"放大重绘幅度[过高会导致接缝]",
-                "var_number3_max": 0.5,
-                "var_number3_min": 0.1,
-                "var_number3": {
-                    "Wan_TTP_Hires.Upscale": 0.28
-                },
-                "switch_option1_title":"FlashAttention[20系以下禁用]",
-                "switch_option1": {
-                    "Wan_TTP_Hires.Upscale": true
-                },
-                "switch_option2_title":"使用2倍VAE解码",
-                "switch_option2": {
-                    "Wan_TTP_Hires.Upscale": false
-                },
-                "var_number_max": 16,
+            "task_method": {
+                "Wan_TTP_Hires.Upscale": "wan_ttp_cn"
+            },
+            "prompt": {
+                "Wan_TTP_Hires.Upscale": "(Masterpiece:1.2), (best quality:1.2), ultra high resolution, (ultra-detailed), (beautiful and aesthetic:1.2),high texture,hyperrealistic materials, 4K, raw, arw, cr2,"                },
+            "scene_steps": {
+                "Wan_TTP_Hires.Upscale": 24                },
+            "image_preprocessor_method": {
+                "Wan_TTP_Hires.Upscale": [["-normalization"]]
+            },
+            "var_number_title": "Final megapixels",
+            "var_number": {
+                "Wan_TTP_Hires.Upscale": 8
+            },
+            "var_number2_title": "SeedVR2 pre-upscale resolution (short side)",
+            "var_number2_max": 4096,
+            "var_number2_min": 1024,
+            "var_number2": {
+                "Wan_TTP_Hires.Upscale": 3072
+            },
+            "var_number3_title": "Upscale denoise strength [too high may cause seams]",
+            "var_number3_max": 0.5,
+            "var_number3_min": 0.1,
+            "var_number3": {
+                "Wan_TTP_Hires.Upscale": 0.28
+            },
+            "switch_option1_title": "FlashAttention [Disable on RTX 20 series and below]",
+            "switch_option1": {
+                "Wan_TTP_Hires.Upscale": true
+            },
+            "switch_option2_title": "Use 2x VAE Decode",
+            "switch_option2": {
+                "Wan_TTP_Hires.Upscale": false
+            },
+            "var_number_max": 16,
                 "aspect_ratio" : ["1024|1:1"]
-            }
+        }
     },
     "default_model": "Wan2.2_T2V_Low_Noise_14B_VACE-Q4_K_M.gguf",
     "default_refiner": "None",
@@ -82,7 +82,7 @@
     "default_styles": [],
     "default_aspect_ratio": "1024*1024",
     "default_image_number": 1,
-    "default_overwrite_step":24,
+    "default_overwrite_step": 24,
     "default_prompt": "",
     "default_prompt_negative": "色调艳丽，过曝，静态，细节模糊不清，字幕，风格，作品，画作，画面，静止，整体发灰，最差质量，低质量，JPEG压缩残留，丑陋的，残缺的，多余的手指，画得不好的手部，画得不好的脸部，畸形的，毁容的，形态畸形的肢体，手指融合，静止不动的画面，杂乱的背景，三条腿，背景人很多，倒着走",
     "checkpoint_downloads": {},
@@ -97,5 +97,5 @@
         "loras,lightx2v_T2V_14B_cfg_step_distill_v2_lora_rank64_bf16.safetensors,630697104,0,",
         "SEEDVR2,ema_vae_fp16.safetensors,501324814,0,https://www.modelscope.cn/models/numz/SeedVR2_comfyUI/resolve/master/ema_vae_fp16.safetensors",
         "SEEDVR2,seedvr2_ema_3b_fp16.safetensors,6783018808,0,https://www.modelscope.cn/models/numz/SeedVR2_comfyUI/resolve/master/seedvr2_ema_3b_fp16.safetensors"
-        ]
+    ]
 }

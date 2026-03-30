@@ -49,6 +49,11 @@ async function set_language_by_ui(newLanguage) {
     try {
         try {
             setCookie("ailang", newLocale, 365);
+            try {
+                localStorage.setItem("ailang", newLocale);
+            } catch (e) {
+                console.error("set ailang localStorage failed:", e);
+            }
         } catch (e) {
             console.error("set ailang cookie failed:", e);
         }
@@ -462,6 +467,12 @@ function refresh_topbar_status_js(system_params) {
     const lang=system_params["__lang"];
     if (lang!=null) {
         set_language(lang);
+        try {
+            setCookie("ailang", lang, 365);
+        } catch (e) {}
+        try {
+            localStorage.setItem("ailang", lang);
+        } catch (e) {}
     }
     let preset_url = system_params["__preset_url"];
     if (preset_url!=null) {

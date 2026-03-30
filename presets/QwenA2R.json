@@ -1,52 +1,51 @@
-{ 
+{
     "default_engine": {
-            "backend_engine": "Comfy",
+        "backend_engine": "Comfy",
             "disvisible": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
             "disinteractive": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
-            "available_aspect_ratios_selection": "Flux",
-            "scene_frontend": {
-                "version": "m1.1",
+        "available_aspect_ratios_selection": "Flux",
+        "scene_frontend": {
+            "version": "m1.1",
                 "theme": ["QwenEdit+A2R", "QwenEdit+A2R_lite"],
-                "theme_title": "QwenEdit+A2R动漫转真人",
+                "theme_title": "QwenEdit+ A2R Anime-to-Real",
                 "disvisible": ["scene_additional_prompt", "scene_video", "scene_audio","scene_canvas_image","scene_input_image2",
                 "scene_var_number","scene_var_number2", "scene_switch_option1", "scene_switch_option2", "scene_additional_prompt_2", "scene_aspect_ratio", "scene_steps", "scene_var_number5", "scene_var_number6", "scene_var_number7", "scene_var_number8", "scene_var_number9", "scene_var_number10"
                 ,"scene_switch_option3","scene_switch_option4"],
-                "task_method": {
-                    "QwenEdit+A2R": "qwenedit_a2r_cn",
-                    "QwenEdit+A2R_lite": "qwenedit_a2r_lite_cn"
-                },
-                "prompt": {
-                    "QwenEdit+A2R": "change the picture 1 to realistic photograph,"
-                },
-                "agent_prompt": {
-                    "QwenEdit+A2R": "描述这张图片角色的关键细节，对描述结果要求明暗度保持一致，描述服饰内衣内裤细节, 描述角色瞳孔颜色、发型细节、是否遮住眼睛，淡妆，不要有任何腮红或者脸红的描述，注意描述表情细节，角色的面部朝向，视线方向。按此格式输出：’change the picture 1 to realistic photograph, : 这张图片图片描述。'"
-                },
-                "scene_steps": {
-                    "QwenEdit+A2R": 20,
-                    "QwenEdit+A2R_lite": 4
-                },
-                "image_preprocessor_method": {
+            "task_method": {
+                "QwenEdit+A2R": "qwenedit_a2r_cn",
+                "QwenEdit+A2R_lite": "qwenedit_a2r_lite_cn"
+            },
+            "prompt": {
+                "QwenEdit+A2R": "change the picture 1 to realistic photograph,"
+            },
+            "agent_prompt": {
+                "QwenEdit+A2R": "描述这张图片角色的关键细节，对描述结果要求明暗度保持一致，描述服饰内衣内裤细节, 描述角色瞳孔颜色、发型细节、是否遮住眼睛，淡妆，不要有任何腮红或者脸红的描述，注意描述表情细节，角色的面部朝向，视线方向。按此格式输出：’change the picture 1 to realistic photograph, : 这张图片图片描述。'"
+            },
+            "scene_steps": {
+                "QwenEdit+A2R": 20,
+                "QwenEdit+A2R_lite": 4
+            },
+            "image_preprocessor_method": {
                     "QwenEdit+A2R": [["-normalization"]],
                     "QwenEdit+A2R_lite": [["-normalization"]]
-                },
-                "var_number3_title": "Z-image重绘幅度",
-                "var_number3_min": 0.0,
-                "var_number3_max": 0.5,
-                "var_number3": {
-                    "QwenEdit+A2R": 0.28,
-                    "QwenEdit+A2R_lite": 0.0
-                },
-                "var_number4_title": "颜色匹配原图",
-                "var_number4_min": 0,
-                "var_number4_max": 1.0,
-                "var_number4": {
-                    "QwenEdit+A2R": 0.0,
-                    "QwenEdit+A2R_lite": 0.0
-                },
+            },
+            "var_number3_title": "Z-image Denoise Strength",
+            "var_number3_min": 0.0,
+            "var_number3_max": 0.5,
+            "var_number3": {
+                "QwenEdit+A2R": 0.28,
+                "QwenEdit+A2R_lite": 0.0
+            },
+            "var_number4_title": "Match original colors",
+            "var_number4_min": 0,
+            "var_number4_max": 1.0,
+            "var_number4": {
+                "QwenEdit+A2R": 0.0,
+                "QwenEdit+A2R_lite": 0.0
+            },
                 "aspect_ratio" : [ "1024|1:1", "756|9:16", "832|2:3", "1216|4:3", "1248|3:2", "1344|16:9"]
-            }
+        }
     },
-
     "default_model": "qwen_image_edit_2511_fp8mixed.safetensors",
     "default_refiner": "z_image_turbo_bf16.safetensors",
     "default_refiner_switch": 0.5,
@@ -80,7 +79,7 @@
     "default_styles": [],
     "default_aspect_ratio": "1024*1024",
     "default_image_number": 1,
-    "default_overwrite_step":8,
+    "default_overwrite_step": 8,
     "default_prompt": "",
     "default_prompt_negative": "",
     "checkpoint_downloads": {},
@@ -98,5 +97,5 @@
         "diffusion_models,z_image_turbo_bf16.safetensors,12309866400,0,https://modelscope.cn/models/VerStella/z_image_turbo_comfyui/resolve/master/split_files/diffusion_models/z_image_turbo_bf16.safetensors",
         "text_encoders,qwen_3_4b.safetensors,8044982048,0,https://modelscope.cn/models/VerStella/z_image_turbo_comfyui/resolve/master/split_files/text_encoders/qwen_3_4b.safetensors",
         "vae,ae.safetensors,335304388,0,"
-        ]
+    ]
 }

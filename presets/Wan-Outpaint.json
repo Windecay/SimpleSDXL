@@ -1,90 +1,90 @@
-{ 
+{
     "default_engine": {
-            "backend_engine": "Wan",
-            "engine_type": "video",
+        "backend_engine": "Wan",
+        "engine_type": "video",
             "disvisible": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
             "disinteractive": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
-            "available_aspect_ratios_selection": "Flux",
-            "scene_frontend": {
-                "version": "v1.1",
+        "available_aspect_ratios_selection": "Flux",
+        "scene_frontend": {
+            "version": "v1.1",
                 "theme": ["Animate Outpaint"],
-                "theme_title": "Wan-Animate-视频外扩",
+            "theme_title": "Wan-Animate Video Outpaint",
                 "disvisible": ["scene_canvas_image", "scene_additional_prompt", "scene_additional_prompt_2", "scene_input_image1", "scene_input_image2", "scene_audio", "scene_refiner_model", "scene_var_number6", "scene_switch_option3","scene_switch_option4"],
-                "task_method": {
-                    "Animate Outpaint": "wan_animate_outpaint_cn"
-                },
-                "multimodal_prompt": {
-                    "Animate Outpaint": ""
-                },
-                "scene_steps_min": 8,
-                "scene_steps_max": 12,
-                "scene_steps": {
-                    "Animate Outpaint": 8
-                },
-                "var_number_min": 0,
-                "var_number_max": 60,
-                "var_number_title": "限制时长(秒)[0为不限制]",
-                "var_number": {
-                    "Animate Outpaint": 0
-                },
-                "var_number2_title": "补帧到帧数[低于覆盖帧率不补帧]",
-                "var_number2_min": 16,
-                "var_number2_max": 60,
-                "var_number2": {
-                    "Animate Outpaint": 30
-                },
-                "var_number3_title": "参考视频覆盖帧率",
-                "var_number3_min": 16.0,
-                "var_number3_max": 30.0,
-                "var_number3": {
-                    "Animate Outpaint": 16.0
-                },
-                "var_number4_title": "跳过参考视频的前N秒",
-                "var_number4_min": 0.0,
-                "var_number4_max": 60,
-                "var_number4": {
-                    "Animate Outpaint": 0.0
-                },
-                "var_number5_min": 0,
-                "var_number5_max": 40.0,
-                "var_number5_title": "显存块交换[越小使用越多显存]",
-                "var_number5": {
-                    "Animate Outpaint": 35.0
-                },
-                "var_number7_min": 0,
-                "var_number7_max": 50,
-                "var_number7_title": "上扩百分比",
-                "var_number7": {
-                    "Animate Outpaint": 20
-                },
-                "var_number8_title": "下扩百分比",
-                "var_number8_min": 0,
-                "var_number8_max": 50,
-                "var_number8": {
-                    "Animate Outpaint": 20
-                },
-                "var_number9_title": "左扩百分比",
-                "var_number9_min": 0,
-                "var_number9_max": 50,
-                "var_number9": {
-                    "Animate Outpaint": 20
-                },
-                "var_number10_title": "右扩百分比",
-                "var_number10_min": 0,
-                "var_number10_max": 50,
-                "var_number10": {
-                    "Animate Outpaint": 20
-                },
-                "switch_option1_title": "使用分块VAE解码",
-                "switch_option1": {
-                    "Animate Outpaint": true
-                },
-                "switch_option2_title": "SageAttention加速",
-                "switch_option2": {
-                    "Animate Outpaint": true
-                },
+            "task_method": {
+                "Animate Outpaint": "wan_animate_outpaint_cn"
+            },
+            "multimodal_prompt": {
+                "Animate Outpaint": ""
+            },
+            "scene_steps_min": 8,
+            "scene_steps_max": 12,
+            "scene_steps": {
+                "Animate Outpaint": 8
+            },
+            "var_number_min": 0,
+            "var_number_max": 60,
+            "var_number_title": "Duration limit (seconds) [0 = no limit]",
+            "var_number": {
+                "Animate Outpaint": 0
+            },
+            "var_number2_title": "Interpolate to total frames [no interpolation below override FPS]",
+            "var_number2_min": 16,
+            "var_number2_max": 60,
+            "var_number2": {
+                "Animate Outpaint": 30
+            },
+            "var_number3_title": "Reference video override FPS",
+            "var_number3_min": 16.0,
+            "var_number3_max": 30.0,
+            "var_number3": {
+                "Animate Outpaint": 16.0
+            },
+            "var_number4_title": "Skip first N seconds of reference video",
+            "var_number4_min": 0.0,
+            "var_number4_max": 60,
+            "var_number4": {
+                "Animate Outpaint": 0.0
+            },
+            "var_number5_min": 0,
+            "var_number5_max": 40.0,
+            "var_number5_title": "Block Swap [smaller uses more VRAM]",
+            "var_number5": {
+                "Animate Outpaint": 35.0
+            },
+            "var_number7_min": 0,
+            "var_number7_max": 50,
+            "var_number7_title": "Outpaint Up (%)",
+            "var_number7": {
+                "Animate Outpaint": 20
+            },
+            "var_number8_title": "Outpaint Down (%)",
+            "var_number8_min": 0,
+            "var_number8_max": 50,
+            "var_number8": {
+                "Animate Outpaint": 20
+            },
+            "var_number9_title": "Outpaint Left (%)",
+            "var_number9_min": 0,
+            "var_number9_max": 50,
+            "var_number9": {
+                "Animate Outpaint": 20
+            },
+            "var_number10_title": "Outpaint Right (%)",
+            "var_number10_min": 0,
+            "var_number10_max": 50,
+            "var_number10": {
+                "Animate Outpaint": 20
+            },
+            "switch_option1_title": "Use Tiled VAE Decode",
+            "switch_option1": {
+                "Animate Outpaint": true
+            },
+            "switch_option2_title": "SageAttention SpeedUp",
+            "switch_option2": {
+                "Animate Outpaint": true
+            },
                 "aspect_ratio" : ["640|1:1","720|1:1","832|1:1","960|1:1","1024|1:1","1280|1:1"]
-            }
+        }
     },
     "default_model": "Wan2_2-Animate-14B_fp8_scaled_e4m3fn_KJ_v2.safetensors",
     "default_refiner": "None",
@@ -119,7 +119,7 @@
     "default_styles": [],
     "default_aspect_ratio": "1024*1024",
     "default_image_number": 1,
-    "default_overwrite_step":30,
+    "default_overwrite_step": 30,
     "default_prompt": "",
     "default_prompt_negative": "",
     "checkpoint_downloads": {},

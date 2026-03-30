@@ -900,15 +900,6 @@
       "title": "Crop Latent"
     }
   },
-  "248": {
-    "inputs": {
-      "unet_name": "flux-hyp8-Q5_K_M.gguf"
-    },
-    "class_type": "UnetLoaderGGUF",
-    "_meta": {
-      "title": "Unet Loader (GGUF)"
-    }
-  },
   "249": {
     "inputs": {
       "samples": [
@@ -1256,7 +1247,7 @@
       "sage_attention": "auto",
       "allow_compile": false,
       "model": [
-        "248",
+        "237",
         0
       ]
     },

@@ -1,46 +1,46 @@
-{ 
+{
     "default_engine": {
-	"backend_engine": "Flux",
+        "backend_engine": "Flux",
 	"disvisible": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
 	"disinteractive": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
-	"available_aspect_ratios_selection": "Flux",
-	"scene_frontend": {
-	    "version": "m1.1",
-	    "disvisible": ["scene_additional_prompt", "scene_additional_prompt_2", "scene_var_number", "scene_input_image2", "scene_use_lora", "scene_video", "scene_audio",
-                    "scene_var_number2","scene_switch_option1","scene_switch_option2","scene_steps", "scene_refiner_model", "scene_var_number5", "scene_var_number6", "scene_var_number7", "scene_var_number8", "scene_var_number9", "scene_var_number10"
+        "available_aspect_ratios_selection": "Flux",
+        "scene_frontend": {
+            "version": "m1.1",
+            "disvisible": ["scene_additional_prompt", "scene_additional_prompt_2", "scene_var_number", "scene_input_image2", "scene_use_lora", "scene_video", "scene_audio",
+                "scene_var_number2","scene_switch_option1","scene_switch_option2","scene_steps", "scene_refiner_model", "scene_var_number5", "scene_var_number6", "scene_var_number7", "scene_var_number8", "scene_var_number9", "scene_var_number10"
                     ,"scene_switch_option3","scene_switch_option4"],
-	    "additional_prompt_title": "参考图检测目标",
-	    "additional_prompt": {
-            "ACE++": "head, face",
-	    "ACE+Pulid": "head, face"
+            "additional_prompt_title": "Reference image target",
+            "additional_prompt": {
+                "ACE++": "head, face",
+                "ACE+Pulid": "head, face"
             },
-	    "theme": ["ACE++", "ACE+Pulid"],
-	    "theme_title": "ACE++高效，Pulid慢速，处理尺寸越大越清晰越耗时，输出为原图尺寸",
-        "image_preprocessor_method": {
+            "theme": ["ACE++", "ACE+Pulid"],
+            "theme_title": "ACE++ is fast; PuLID is slow. Larger processing size = clearer but slower. Output keeps original image size.",
+            "image_preprocessor_method": {
             "ACE++": [["-normalization"]],
             "ACE+Pulid": [["-normalization"]]  
-        },
+            },
 	    "aspect_ratio" : ["768|1:1", "1024|1:1", "1536|1:1"],
-	    "aspect_ratio_select_mode": "",
-	    "task_method": {
-		"ACE++": "x3-swapface1",
-		"ACE+Pulid": "x3-swapface2"
-	    },
-        "var_number3_title": "ACE++Lora权重",
-        "var_number3_min": 0,
-        "var_number3_max": 2.0,
-        "var_number3": {
-            "ACE++": 1.0,
-            "ACE+Pulid": 1.0
-        },
-        "var_number4_title": "PulidFlux权重",
-        "var_number4_min": 0,
-        "var_number4_max": 2.0,
-        "var_number4": {
-            "ACE++": 1.0,
-            "ACE+Pulid": 1.0
+            "aspect_ratio_select_mode": "",
+            "task_method": {
+                "ACE++": "x3-swapface1",
+                "ACE+Pulid": "x3-swapface2"
+            },
+            "var_number3_title": "ACE++ LoRA Weight",
+            "var_number3_min": 0,
+            "var_number3_max": 2.0,
+            "var_number3": {
+                "ACE++": 1.0,
+                "ACE+Pulid": 1.0
+            },
+            "var_number4_title": "PuLID Flux Weight",
+            "var_number4_min": 0,
+            "var_number4_max": 2.0,
+            "var_number4": {
+                "ACE++": 1.0,
+                "ACE+Pulid": 1.0
+            }
         }
-    	}
     },
     "default_model": "flux1-fill-dev-OneReward_fp8.safetensors",
     "default_refiner": "None",
@@ -84,23 +84,23 @@
     "vae_downloads": {},
     "model_list": [
         "checkpoints,flux1-fill-dev-OneReward_fp8.safetensors,11902532704,0,",
-	"pulid,pulid_flux_v0.9.1.safetensors,1142099520,0,",
+        "pulid,pulid_flux_v0.9.1.safetensors,1142099520,0,",
         "clip,clip_l.safetensors,246144152,0,",
-	"clip,t5xxl_fp8_e4m3fn.safetensors,4893934904,0,",
+        "clip,t5xxl_fp8_e4m3fn.safetensors,4893934904,0,",
         "clip_vision,sigclip_vision_patch14_384.safetensors,856505640,0,",
         "vae,ae.safetensors,335304388,0,",
-	"loras,flux1-turbo.safetensors,694082424,0,",
-	"style_models,flux1-redux-dev.safetensors,129063232,0,",
-	"insightface,models/antelopev2/1k3d68.onnx,143607619,0,",
+        "loras,flux1-turbo.safetensors,694082424,0,",
+        "style_models,flux1-redux-dev.safetensors,129063232,0,",
+        "insightface,models/antelopev2/1k3d68.onnx,143607619,0,",
         "insightface,models/antelopev2/2d106det.onnx,5030888,0,",
         "insightface,models/antelopev2/genderage.onnx,1322532,0,",
         "insightface,models/antelopev2/glintr100.onnx,260665334,0,",
         "insightface,models/antelopev2/scrfd_10g_bnkps.onnx,16923827,0,",
-	"inpaint,groundingdino_swint_ogc.pth,693997677,0,",
-	"clip,EVA02_CLIP_L_336_psz14_s6B.pt,856461210,0,",
-	"inpaint,sam_vit_h_4b8939.pth,2564550879,0,",
-    "loras,comfyui_portrait_lora64.safetensors,612742344,0,",
-    "controlnet,detection_Resnet50_Final.pth,109497761,0,",
-    "controlnet,parsing_bisenet.pth,53289463,0,"
-    	]
+        "inpaint,groundingdino_swint_ogc.pth,693997677,0,",
+        "clip,EVA02_CLIP_L_336_psz14_s6B.pt,856461210,0,",
+        "inpaint,sam_vit_h_4b8939.pth,2564550879,0,",
+        "loras,comfyui_portrait_lora64.safetensors,612742344,0,",
+        "controlnet,detection_Resnet50_Final.pth,109497761,0,",
+        "controlnet,parsing_bisenet.pth,53289463,0,"
+    ]
 }
