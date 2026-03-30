@@ -916,6 +916,7 @@
   "Swap": "换装",
   "Swap&Refine": "换装[精修]",
   "Swap&Refine[Match Origin Resolution]": "换装[精修]（匹配原图分辨率）",
+  "Feature transfer via Flux-fill-OneReward; the reference image blends into the painted region": "使用Flux-fill-OneReward进行特征迁移，参考图将融合到涂抹的区域",
   "Mask Fill Hole": "遮罩填充孔洞",
   "Reference Image Target=[Subject] / [Custom Target] / [None(empty)]": "参考图检测目标=[主体] / [输入自定目标] / [无（留空）]",
   "Vertical|9:16": "竖屏|9:16",
