@@ -110,6 +110,7 @@
   },
   "35": {
     "inputs": {
+      "strength": 1,
       "model": [
         "345",
         0
@@ -198,7 +199,7 @@
       "downsampling_function": "area",
       "mode": "autocrop with mask",
       "weight": 1,
-      "autocrop_margin": 0.05000000000000001,
+      "autocrop_margin": 0.05,
       "conditioning": [
         "33",
         0
@@ -258,7 +259,10 @@
       "blur_radius": 2.5,
       "lerp_alpha": 1,
       "decay_factor": 1,
-      "fill_holes": false,
+      "fill_holes": [
+        "346",
+        0
+      ],
       "mask": [
         "327",
         0
@@ -484,7 +488,7 @@
       "matting_method": "SegmentAnything",
       "sam_model": "sam_vit_h (2.56GB)",
       "grounding_dino_model": "GroundingDINO_SwinT_OGC (694MB)",
-      "sam_threshold": 0.30000000000000004,
+      "sam_threshold": 0.3,
       "sam_prompt": [
         "170",
         0
@@ -525,7 +529,7 @@
       "downsampling_function": "area",
       "mode": "keep aspect ratio",
       "weight": 1,
-      "autocrop_margin": 0.05000000000000001,
+      "autocrop_margin": 0.05,
       "conditioning": [
         "33",
         0
@@ -685,7 +689,7 @@
       "downsampling_function": "area",
       "mode": "keep aspect ratio",
       "weight": 1,
-      "autocrop_margin": 0.05000000000000001,
+      "autocrop_margin": 0.05,
       "conditioning": [
         "33",
         0
@@ -733,7 +737,10 @@
       "blur_radius": 5,
       "lerp_alpha": 1,
       "decay_factor": 1,
-      "fill_holes": false,
+      "fill_holes": [
+        "346",
+        0
+      ],
       "mask": [
         "183",
         1
@@ -805,7 +812,7 @@
         "340",
         8
       ],
-      "denoise": 0.15000000000000002,
+      "denoise": 0.15,
       "model": [
         "252",
         0
@@ -933,7 +940,10 @@
       "blur_radius": 15,
       "lerp_alpha": 1,
       "decay_factor": 1,
-      "fill_holes": false,
+      "fill_holes": [
+        "346",
+        0
+      ],
       "mask": [
         "250",
         0
@@ -946,6 +956,7 @@
   },
   "252": {
     "inputs": {
+      "strength": 1,
       "model": [
         "343",
         0
@@ -1082,7 +1093,10 @@
       "blur_radius": 25,
       "lerp_alpha": 1,
       "decay_factor": 1,
-      "fill_holes": false,
+      "fill_holes": [
+        "346",
+        0
+      ],
       "mask": [
         "231",
         0
@@ -1211,6 +1225,7 @@
   },
   "333": {
     "inputs": {
+      "strength": 1,
       "model": [
         "342",
         0
@@ -1223,8 +1238,8 @@
   },
   "339": {
     "inputs": {
-      "crop_size_mult": 1.0000000000000002,
-      "bbox_smooth_alpha": 0.5000000000000001,
+      "crop_size_mult": 1,
+      "bbox_smooth_alpha": 0.5,
       "original_images": [
         "205",
         0
@@ -1318,6 +1333,15 @@
     "class_type": "NunchakuFluxLoraLoader",
     "_meta": {
       "title": "Nunchaku FLUX.1 LoRA Loader"
+    }
+  },
+  "346": {
+    "inputs": {
+      "value": false
+    },
+    "class_type": "easy boolean",
+    "_meta": {
+      "title": "switch_option1"
     }
   }
 }

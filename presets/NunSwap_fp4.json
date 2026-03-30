@@ -6,47 +6,48 @@
 	"available_aspect_ratios_selection": "Flux",
 	"scene_frontend": {
 	    "version": "m1.1",
-	    "theme": ["换装", "换装+","换装++","换装+++"],
-        "theme_title":"换装[双截棍int4适配非50系显卡]，换装+[精修]，换装++[蒙版自动填充],换装+++[高像素原图]",
+	    "theme": ["Swap", "Swap&Refine","Swap&Refine[Match Origin Resolution]"],
+        "theme_title":"Swap, Swap&Refine, Swap&Refine[Match Origin Resolution]",
 	    "disvisible": ["scene_additional_prompt","scene_aspect_ratio","scene_var_number","scene_input_image2", "scene_use_lora", "scene_video", "scene_audio",
-        "scene_var_number2","scene_var_number3","scene_var_number4","scene_switch_option1","scene_switch_option2","scene_steps", "scene_refiner_model", "scene_var_number5", "scene_var_number6", "scene_var_number7", "scene_var_number8", "scene_var_number9", "scene_var_number10"
+        "scene_var_number2","scene_var_number3","scene_var_number4","scene_switch_option2","scene_steps", "scene_refiner_model", "scene_var_number5", "scene_var_number6", "scene_var_number7", "scene_var_number8", "scene_var_number9", "scene_var_number10"
         ,"scene_switch_option3","scene_switch_option4"],
 	    "aspect_ratio" : ["9:16", "4:5", "4:3", "3:2", "16:9"],
 	    "aspect_ratio_select_mode": "auto_candidate",
-            "additional_prompt_title_2": "参考图检测目标=[主体] / [输入自定目标] / [无（留空）]",
+            "additional_prompt_title_2": "Reference Image Target=[Subject] / [Custom Target] / [None(empty)]",
             "additional_prompt_2": {
-                "换装": "主体",
-                "换装+": "主体",
-                "换装++": "主体",
-                "换装+++": "主体"
+                "Swap": "Subject",
+                "Swap&Refine": "Subject",
+                "Swap&Refine[Match Origin Resolution]": "Subject"
                 },
 	    "task_method": {
-		"换装": "clothing2_int4",
-        "换装+": "clothing3_int4",
-        "换装++": "clothing4_int4",
-        "换装+++": "clothing6_int4"
+                "Swap": "clothing2_fp4",
+                "Swap&Refine": "clothing3_fp4",
+                "Swap&Refine[Match Origin Resolution]": "clothing6_fp4"
 	    },
         "prompt": {
-            "换装": "keep the feature from the left picture.",
-            "换装+": "keep the feature from the left picture.",
-            "换装++": "keep the feature from the left picture.",
-            "换装+++": "keep the feature from the left picture."
+            "Swap": "keep the feature from the left picture.",
+            "Swap&Refine": "keep the feature from the left picture.",
+            "Swap&Refine[Match Origin Resolution]": "keep the feature from the left picture."
         },
         "image_preprocessor_method": {
-            "换装":  [[""]],
-            "换装+":  [[""]],
-            "换装++":  [[""]],
-            "换装+++": [["-normalization"]]
+            "Swap":  [[""]],
+            "Swap&Refine":  [[""]],
+            "Swap&Refine[Match Origin Resolution]": [["-normalization"]]
+        },
+        "switch_option1_title": "Mask Fill Hole",
+        "switch_option1": {
+            "Swap": false,
+            "Swap&Refine": false,
+            "Swap&Refine[Match Origin Resolution]": false
         },
         "scene_steps": {
-            "换装": 25,
-            "换装+": 25,
-            "换装++": 25,
-            "换装+++": 25
+            "Swap": 25,
+            "Swap&Refine": 25,
+            "Swap&Refine[Match Origin Resolution]": 25
             }
     	}
     },
-    "default_model": "svdq-int4_r32-flux.1-fill-dev.safetensors",
+    "default_model": "svdq-fp4_r32-flux.1-fill-dev.safetensors",
     "default_refiner": "None",
     "default_refiner_switch": 0.5,
     "default_loras": [
@@ -87,8 +88,8 @@
     "lora_downloads": {},
     "vae_downloads": {},
     "model_list": [
-        "checkpoints,svdq-int4_r32-flux.1-fill-dev.safetensors,6770275936,0,",
-        "checkpoints,svdq-int4_r32-flux.1-dev.safetensors,6768309832,0,",
+        "checkpoints,svdq-fp4_r32-flux.1-fill-dev.safetensors,7040672992,0,",
+        "checkpoints,svdq-fp4_r32-flux.1-dev.safetensors,7038706888,0,",
         "clip,clip_l.safetensors,246144152,0,",
     	"clip,t5xxl_fp8_e4m3fn.safetensors,4893934904,0,",
         "clip_vision,sigclip_vision_patch14_384.safetensors,856505640,0,",

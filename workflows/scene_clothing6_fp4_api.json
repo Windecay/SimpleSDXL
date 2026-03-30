@@ -110,6 +110,7 @@
   },
   "35": {
     "inputs": {
+      "strength": 1,
       "model": [
         "314",
         0
@@ -252,7 +253,7 @@
       "downsampling_function": "area",
       "mode": "autocrop with mask",
       "weight": 1,
-      "autocrop_margin": 0.05000000000000001,
+      "autocrop_margin": 0.05,
       "conditioning": [
         "33",
         0
@@ -312,7 +313,10 @@
       "blur_radius": 2.5,
       "lerp_alpha": 1,
       "decay_factor": 1,
-      "fill_holes": true,
+      "fill_holes": [
+        "317",
+        0
+      ],
       "mask": [
         "117",
         0
@@ -563,7 +567,7 @@
       "matting_method": "SegmentAnything",
       "sam_model": "sam_vit_h (2.56GB)",
       "grounding_dino_model": "GroundingDINO_SwinT_OGC (694MB)",
-      "sam_threshold": 0.30000000000000004,
+      "sam_threshold": 0.3,
       "sam_prompt": [
         "170",
         0
@@ -604,7 +608,7 @@
       "downsampling_function": "area",
       "mode": "keep aspect ratio",
       "weight": 1,
-      "autocrop_margin": 0.05000000000000001,
+      "autocrop_margin": 0.05,
       "conditioning": [
         "33",
         0
@@ -764,7 +768,7 @@
       "downsampling_function": "area",
       "mode": "keep aspect ratio",
       "weight": 1,
-      "autocrop_margin": 0.05000000000000001,
+      "autocrop_margin": 0.05,
       "conditioning": [
         "33",
         0
@@ -821,7 +825,10 @@
       "blur_radius": 2,
       "lerp_alpha": 1,
       "decay_factor": 1,
-      "fill_holes": true,
+      "fill_holes": [
+        "317",
+        0
+      ],
       "mask": [
         "183",
         1
@@ -974,11 +981,11 @@
       "invert_mask": false,
       "blend_mode": "normal",
       "opacity": 100,
-      "x_percent": 50.00000000000001,
-      "y_percent": 50.00000000000001,
+      "x_percent": 50,
+      "y_percent": 50,
       "mirror": "None",
-      "scale": 1.0000000000000002,
-      "aspect_ratio": 1.0000000000000002,
+      "scale": 1,
+      "aspect_ratio": 1,
       "rotate": 0,
       "transform_method": "lanczos",
       "anti_aliasing": 0,
@@ -1032,7 +1039,10 @@
       "blur_radius": 10,
       "lerp_alpha": 1,
       "decay_factor": 1,
-      "fill_holes": true,
+      "fill_holes": [
+        "317",
+        0
+      ],
       "mask": [
         "180",
         0
@@ -1085,7 +1095,7 @@
         "312",
         8
       ],
-      "denoise": 0.15000000000000002,
+      "denoise": 0.15,
       "model": [
         "275",
         0
@@ -1183,6 +1193,7 @@
   },
   "275": {
     "inputs": {
+      "strength": 1,
       "model": [
         "316",
         0
@@ -1453,6 +1464,7 @@
   },
   "297": {
     "inputs": {
+      "strength": 1,
       "model": [
         "315",
         0
@@ -1479,8 +1491,8 @@
   },
   "311": {
     "inputs": {
-      "crop_size_mult": 1.0000000000000002,
-      "bbox_smooth_alpha": 0.5000000000000001,
+      "crop_size_mult": 1,
+      "bbox_smooth_alpha": 0.5,
       "original_images": [
         "205",
         0
@@ -1568,6 +1580,15 @@
     "class_type": "NunchakuFluxDiTLoader",
     "_meta": {
       "title": "Nunchaku FLUX DiT Loader"
+    }
+  },
+  "317": {
+    "inputs": {
+      "value": false
+    },
+    "class_type": "easy boolean",
+    "_meta": {
+      "title": "switch_option1"
     }
   }
 }

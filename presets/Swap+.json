@@ -6,43 +6,44 @@
 	"available_aspect_ratios_selection": "Flux",
 	"scene_frontend": {
 	    "version": "m1.1",
-	    "theme": ["换装", "换装+","换装++","换装+++"],
-        "theme_title":"换装[fp8]，换装+[精修]，换装++[蒙版自动填充],换装+++[高像素原图]",
+	    "theme": ["Swap", "Swap&Refine","Swap&Refine[Match Origin Resolution]"],
+        "theme_title":"Swap, Swap&Refine, Swap&Refine[Match Origin Resolution]",
 	    "disvisible": ["scene_additional_prompt","scene_aspect_ratio","scene_var_number","scene_input_image2", "scene_use_lora", "scene_video", "scene_audio",
-        "scene_var_number2","scene_var_number3","scene_var_number4","scene_switch_option1","scene_switch_option2","scene_steps", "scene_refiner_model", "scene_var_number5", "scene_var_number6", "scene_var_number7", "scene_var_number8", "scene_var_number9", "scene_var_number10"
+        "scene_var_number2","scene_var_number3","scene_var_number4","scene_switch_option2","scene_steps", "scene_refiner_model", "scene_var_number5", "scene_var_number6", "scene_var_number7", "scene_var_number8", "scene_var_number9", "scene_var_number10"
         ,"scene_switch_option3","scene_switch_option4"],
 	    "aspect_ratio" : ["9:16", "4:5", "4:3", "3:2", "16:9"],
 	    "aspect_ratio_select_mode": "auto_candidate",
-            "additional_prompt_title_2": "参考图检测目标=[主体] / [输入自定目标] / [无（留空）]",
+            "additional_prompt_title_2": "Reference Image Target=[Subject] / [Custom Target] / [None(empty)]",
             "additional_prompt_2": {
-                "换装": "主体",
-                "换装+": "主体",
-                "换装++": "主体",
-                "换装+++": "主体"
+                "Swap": "Subject",
+                "Swap&Refine": "Subject",
+                "Swap&Refine[Match Origin Resolution]": "Subject"
                 },
 	    "task_method": {
-		"换装": "clothing2",
-        "换装+": "clothing3",
-        "换装++": "clothing4",
-        "换装+++": "clothing6"
+                "Swap": "clothing2",
+                "Swap&Refine": "clothing3",
+                "Swap&Refine[Match Origin Resolution]": "clothing6"
 	    },
         "prompt": {
-            "换装": "keep the feature from the left picture.",
-            "换装+": "keep the feature from the left picture.",
-            "换装++": "keep the feature from the left picture.",
-            "换装+++": "keep the feature from the left picture."
+            "Swap": "keep the feature from the left picture.",
+            "Swap&Refine": "keep the feature from the left picture.",
+            "Swap&Refine[Match Origin Resolution]": "keep the feature from the left picture."
         },
         "image_preprocessor_method": {
-            "换装":  [[""]],
-            "换装+":  [[""]],
-            "换装++":  [[""]],
-            "换装+++": [["-normalization"]]
+            "Swap":  [[""]],
+            "Swap&Refine":  [[""]],
+            "Swap&Refine[Match Origin Resolution]": [["-normalization"]]
+        },
+        "switch_option1_title": "Mask Fill Hole",
+        "switch_option1": {
+            "Swap": false,
+            "Swap&Refine": false,
+            "Swap&Refine[Match Origin Resolution]": false
         },
         "scene_steps": {
-            "换装": 25,
-            "换装+": 25,
-            "换装++": 25,
-            "换装+++": 25
+            "Swap": 25,
+            "Swap&Refine": 25,
+            "Swap&Refine[Match Origin Resolution]": 25
             }
     	}
     },

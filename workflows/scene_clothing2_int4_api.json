@@ -110,6 +110,7 @@
   },
   "35": {
     "inputs": {
+      "strength": 1,
       "model": [
         "256",
         0
@@ -252,7 +253,7 @@
       "downsampling_function": "area",
       "mode": "autocrop with mask",
       "weight": 1,
-      "autocrop_margin": 0.05000000000000001,
+      "autocrop_margin": 0.05,
       "conditioning": [
         "33",
         0
@@ -312,7 +313,10 @@
       "blur_radius": 2.5,
       "lerp_alpha": 1,
       "decay_factor": 1,
-      "fill_holes": false,
+      "fill_holes": [
+        "257",
+        0
+      ],
       "mask": [
         "117",
         0
@@ -551,7 +555,7 @@
       "matting_method": "SegmentAnything",
       "sam_model": "sam_vit_h (2.56GB)",
       "grounding_dino_model": "GroundingDINO_SwinT_OGC (694MB)",
-      "sam_threshold": 0.30000000000000004,
+      "sam_threshold": 0.3,
       "sam_prompt": [
         "170",
         0
@@ -592,7 +596,7 @@
       "downsampling_function": "area",
       "mode": "keep aspect ratio",
       "weight": 1,
-      "autocrop_margin": 0.05000000000000001,
+      "autocrop_margin": 0.05,
       "conditioning": [
         "33",
         0
@@ -752,7 +756,7 @@
       "downsampling_function": "area",
       "mode": "keep aspect ratio",
       "weight": 1,
-      "autocrop_margin": 0.05000000000000001,
+      "autocrop_margin": 0.05,
       "conditioning": [
         "33",
         0
@@ -800,7 +804,10 @@
       "blur_radius": 10,
       "lerp_alpha": 1,
       "decay_factor": 1,
-      "fill_holes": false,
+      "fill_holes": [
+        "257",
+        0
+      ],
       "mask": [
         "183",
         1
@@ -963,6 +970,7 @@
   },
   "243": {
     "inputs": {
+      "strength": 1,
       "model": [
         "254",
         0
@@ -975,8 +983,8 @@
   },
   "248": {
     "inputs": {
-      "crop_size_mult": 1.0000000000000002,
-      "bbox_smooth_alpha": 0.5000000000000001,
+      "crop_size_mult": 1,
+      "bbox_smooth_alpha": 0.5,
       "original_images": [
         "205",
         0
@@ -1052,6 +1060,15 @@
     "class_type": "NunchakuFluxLoraLoader",
     "_meta": {
       "title": "Nunchaku FLUX.1 LoRA Loader"
+    }
+  },
+  "257": {
+    "inputs": {
+      "value": false
+    },
+    "class_type": "easy boolean",
+    "_meta": {
+      "title": "switch_option1"
     }
   }
 }

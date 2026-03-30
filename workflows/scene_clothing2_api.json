@@ -313,7 +313,10 @@
       "blur_radius": 2.5,
       "lerp_alpha": 1,
       "decay_factor": 1,
-      "fill_holes": false,
+      "fill_holes": [
+        "261",
+        0
+      ],
       "mask": [
         "117",
         0
@@ -801,7 +804,10 @@
       "blur_radius": 10,
       "lerp_alpha": 1,
       "decay_factor": 1,
-      "fill_holes": false,
+      "fill_holes": [
+        "261",
+        0
+      ],
       "mask": [
         "183",
         1
@@ -1162,6 +1168,15 @@
     "class_type": "easy ifElse",
     "_meta": {
       "title": "If else"
+    }
+  },
+  "261": {
+    "inputs": {
+      "value": false
+    },
+    "class_type": "easy boolean",
+    "_meta": {
+      "title": "switch_option1"
     }
   }
 }

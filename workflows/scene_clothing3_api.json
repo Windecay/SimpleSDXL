@@ -259,7 +259,10 @@
       "blur_radius": 2.5,
       "lerp_alpha": 1,
       "decay_factor": 1,
-      "fill_holes": false,
+      "fill_holes": [
+        "350",
+        0
+      ],
       "mask": [
         "327",
         0
@@ -734,7 +737,10 @@
       "blur_radius": 5,
       "lerp_alpha": 1,
       "decay_factor": 1,
-      "fill_holes": false,
+      "fill_holes": [
+        "350",
+        0
+      ],
       "mask": [
         "183",
         1
@@ -938,7 +944,10 @@
       "blur_radius": 15,
       "lerp_alpha": 1,
       "decay_factor": 1,
-      "fill_holes": false,
+      "fill_holes": [
+        "350",
+        0
+      ],
       "mask": [
         "250",
         0
@@ -1088,7 +1097,10 @@
       "blur_radius": 25,
       "lerp_alpha": 1,
       "decay_factor": 1,
-      "fill_holes": false,
+      "fill_holes": [
+        "350",
+        0
+      ],
       "mask": [
         "231",
         0
@@ -1438,6 +1450,15 @@
     "class_type": "easy ifElse",
     "_meta": {
       "title": "If else"
+    }
+  },
+  "350": {
+    "inputs": {
+      "value": false
+    },
+    "class_type": "easy boolean",
+    "_meta": {
+      "title": "switch_option1"
     }
   }
 }
