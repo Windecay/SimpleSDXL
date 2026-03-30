@@ -165,7 +165,8 @@ def reset_simpleai_args():
     comfyclient_pipeline.COMFYUI_ENDPOINT_PORT = shared.sysinfo["loopback_port"]
     reserve_vram_value = ads.get_admin_default('reserved_vram')
     reserve_vram = [['--reserve-vram', f'{reserve_vram_value}']] if reserve_vram_value and reserve_vram_value>0 else [] 
-    cache_ram_value = ads.get_admin_default('cache_ram')
+    cache_ram_enable = ads.get_admin_default('cache_ram_enable')
+    cache_ram_value = ads.get_admin_default('cache_ram') if cache_ram_enable else 0
     cache_ram = [['--cache-ram', f'{cache_ram_value}']] if cache_ram_value and cache_ram_value>0 else []
     cache_clear_on_finish = [["--cache-clear-on-finish"]] if ads.get_admin_default('cache_clear_on_finish_checkbox') else []
     smart_memory = [] if shared.sysinfo['gpu_memory']<8180 else [['--disable-smart-memory']]

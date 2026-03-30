@@ -26,6 +26,8 @@ from .utils import ffmpeg_path, get_audio, hash_path, validate_path, requeue_wor
         ContainsAll
 from comfy.utils import ProgressBar
 
+_VHS_FFMPEG_PATH_LOGGED = False
+
 if 'VHS_video_formats' not in folder_paths.folder_names_and_paths:
     folder_paths.folder_names_and_paths["VHS_video_formats"] = ((),{".json"})
 if len(folder_paths.folder_names_and_paths['VHS_video_formats'][1]) == 0:
@@ -147,7 +149,7 @@ def ffmpeg_process(args, video_format, video_metadata, file_path, env):
             value = value.replace("\n","\\\n")
             return f"{key}={value}"
 
-        with open(metadata_path, "w") as f:
+        with open(metadata_path, "w", encoding="utf-8") as f:
             f.write(";FFMETADATA1\n")
             if "prompt" in video_metadata:
                 f.write(escape_ffmpeg_metadata("prompt", json.dumps(video_metadata["prompt"])) + "\n")
@@ -162,6 +164,14 @@ def ffmpeg_process(args, video_format, video_metadata, file_path, env):
                               stdin=subprocess.PIPE, env=env) as proc:
             try:
                 while frame_data is not None:
+                    if proc.poll() is not None:
+                        err = proc.stderr.read()
+                        raise Exception(
+                            "An error occurred in the ffmpeg subprocess:\n"
+                            + err.decode(*ENCODE_ARGS)
+                            + "\nCommand:\n"
+                            + " ".join(m_args + [file_path])
+                        )
                     proc.stdin.write(frame_data)
                     #TODO: skip flush for increased speed
                     frame_data = yield
@@ -169,14 +179,18 @@ def ffmpeg_process(args, video_format, video_metadata, file_path, env):
                 proc.stdin.flush()
                 proc.stdin.close()
                 res = proc.stderr.read()
-            except BrokenPipeError as e:
+            except (BrokenPipeError, OSError) as e:
                 err = proc.stderr.read()
                 #Check if output file exists. If it does, the re-execution
                 #will also fail. This obscures the cause of the error
                 #and seems to never occur concurrent to the metadata issue
                 if os.path.exists(file_path):
-                    raise Exception("An error occurred in the ffmpeg subprocess:\n" \
-                            + err.decode(*ENCODE_ARGS))
+                    raise Exception(
+                        "An error occurred in the ffmpeg subprocess:\n"
+                        + err.decode(*ENCODE_ARGS)
+                        + "\nCommand:\n"
+                        + " ".join(m_args + [file_path])
+                    )
                 #Res was not set
                 print(err.decode(*ENCODE_ARGS), end="", file=sys.stderr)
                 logger.warn("An error occurred when saving with metadata")
@@ -185,16 +199,28 @@ def ffmpeg_process(args, video_format, video_metadata, file_path, env):
                               stdin=subprocess.PIPE, env=env) as proc:
             try:
                 while frame_data is not None:
+                    if proc.poll() is not None:
+                        res = proc.stderr.read()
+                        raise Exception(
+                            "An error occurred in the ffmpeg subprocess:\n"
+                            + res.decode(*ENCODE_ARGS)
+                            + "\nCommand:\n"
+                            + " ".join(args + [file_path])
+                        )
                     proc.stdin.write(frame_data)
                     frame_data = yield
                     total_frames_output+=1
                 proc.stdin.flush()
                 proc.stdin.close()
                 res = proc.stderr.read()
-            except BrokenPipeError as e:
+            except (BrokenPipeError, OSError) as e:
                 res = proc.stderr.read()
-                raise Exception("An error occurred in the ffmpeg subprocess:\n" \
-                        + res.decode(*ENCODE_ARGS))
+                raise Exception(
+                    "An error occurred in the ffmpeg subprocess:\n"
+                    + res.decode(*ENCODE_ARGS)
+                    + "\nCommand:\n"
+                    + " ".join(args + [file_path])
+                )
     yield total_frames_output
     if len(res) > 0:
         print(res.decode(*ENCODE_ARGS), end="", file=sys.stderr)
@@ -433,6 +459,10 @@ class VideoCombine:
             # Use ffmpeg to save a video
             if ffmpeg_path is None:
                 raise ProcessLookupError(f"ffmpeg is required for video outputs and could not be found.\nIn order to use video outputs, you must either:\n- Install imageio-ffmpeg with pip,\n- Place a ffmpeg executable in {os.path.abspath('')}, or\n- Install ffmpeg and add it to the system path.")
+            global _VHS_FFMPEG_PATH_LOGGED
+            if not _VHS_FFMPEG_PATH_LOGGED:
+                logger.info(f"Using ffmpeg: {ffmpeg_path}")
+                _VHS_FFMPEG_PATH_LOGGED = True
 
             if manual_format_widgets is not None:
                 logger.warn("Format args can now be passed directly. The manual_format_widgets argument is now deprecated")

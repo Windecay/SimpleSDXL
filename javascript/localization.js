@@ -105,15 +105,42 @@ function processTextNode(node) {
     var text = node.textContent.trim();
     if (!canBeTranslated(node, text)) return;
 
-    var tl = getTranslation(text);
-    let originalText = text;
+    const rev = getReverseLocalization();
+    const parent = node.parentElement;
+    const originalFromAttr =
+        (parent && parent.getAttribute && parent.getAttribute('data-original-text')) ||
+        (parent && parent.closest && parent.closest('label') && parent.closest('label').getAttribute('data-original-text')) ||
+        (parent && parent.closest && parent.closest('span') && parent.closest('span').getAttribute('data-original-text')) ||
+        null;
+
+    const hasCJK = (s) => /[\u4e00-\u9fff]/.test(String(s || ""));
+    let identity = text;
+    if (originalFromAttr) {
+        const tlFromAttr = (typeof localization !== 'undefined' && localization) ? localization[originalFromAttr] : undefined;
+        const isEnglishLocale = (typeof locale_lang !== 'undefined' && locale_lang === 'en');
+        const useOriginal =
+            text === originalFromAttr ||
+            (tlFromAttr !== undefined && text === tlFromAttr) ||
+            (isEnglishLocale && hasCJK(text) && !hasCJK(originalFromAttr));
+        if (useOriginal) {
+            identity = originalFromAttr;
+        }
+    }
+    var tl = getTranslation(identity);
+    let originalText = identity;
 
     if (tl === undefined) {
-        const rev = getReverseLocalization();
         if (rev && rev[text]) {
-            originalText = rev[text];
-        } else {
-            tl = text;
+            identity = rev[text];
+            originalText = identity;
+            tl = getTranslation(identity);
+        }
+        if (tl === undefined) {
+            if (identity && identity !== text) {
+                tl = identity;
+            } else {
+                tl = text;
+            }
         }
     }
 

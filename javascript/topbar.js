@@ -40,12 +40,25 @@ function schedulePresetStoreUpdate() {
 }
 
 async function set_language_by_ui(newLanguage) {
-    if (newLanguage === "En") {
-	newLocale="cn"
-    } else {
-	newLocale="en"
+    const newLocale = (newLanguage === "En") ? "en" : "cn";
+    try {
+        await set_language(newLocale);
+    } catch (e) {
+        console.error("set_language failed:", e);
     }
-    set_language(newLocale);
+    try {
+        try {
+            setCookie("ailang", newLocale, 365);
+        } catch (e) {
+            console.error("set ailang cookie failed:", e);
+        }
+        const url = new URL(window.location.href);
+        url.searchParams.set("__lang", newLocale);
+        url.searchParams.set("t", `${Date.now()}.${Math.floor(Math.random() * 10000)}`);
+        window.location.replace(url.toString());
+    } catch (e) {
+        console.error("update __lang url failed:", e);
+    }
 }
 
 async function set_language(newLocale) {

@@ -521,6 +521,7 @@ export async function createCanvasWidget(node, widget, app) {
                                 sam3Threshold: 0.3,
                                 sam3MaskThreshold: 0.4,
                                 sam3CloseRadius: 1,
+                                invertMask: false,
                             };
                             const backdrop = $el("div", {
                                 id: modalId,
@@ -622,6 +623,11 @@ export async function createCanvasWidget(node, widget, app) {
                                 textContent: "清空",
                                 style: { height: "30px", minWidth: "64px" },
                             });
+                            const btnInvert = $el("button", {
+                                className: "painter-button",
+                                textContent: "反向蒙版",
+                                style: { height: "30px", minWidth: "86px", opacity: "0.85" },
+                            });
                             const btnCancel = $el("button", {
                                 className: "painter-button",
                                 textContent: "取消",
@@ -635,6 +641,7 @@ export async function createCanvasWidget(node, widget, app) {
                             headerActions.appendChild(btnUndo);
                             headerActions.appendChild(btnRedo);
                             headerActions.appendChild(btnClear);
+                            headerActions.appendChild(btnInvert);
                             headerActions.appendChild(btnCancel);
                             headerActions.appendChild(btnConfirm);
                             headerBottom.appendChild($el("label", { style: { display: "flex", alignItems: "center", gap: "6px", color: "rgba(255,255,255,0.8)", fontSize: "12px", userSelect: "none", whiteSpace: "nowrap" } }, [
@@ -783,7 +790,8 @@ export async function createCanvasWidget(node, widget, app) {
                                 const imgData = octx.getImageData(0, 0, w, h);
                                 const d = imgData.data;
                                 for (let i = 0; i < d.length; i += 4) {
-                                    const a = d[i];
+                                    const a0 = d[i];
+                                    const a = state.invertMask ? (255 - a0) : a0;
                                     d[i] = 112;
                                     d[i + 1] = 255;
                                     d[i + 2] = 129;
@@ -791,6 +799,49 @@ export async function createCanvasWidget(node, widget, app) {
                                 }
                                 octx.putImageData(imgData, 0, 0);
                                 state.overlayCanvas = oc;
+                            };
+                            const buildCutoutFromMask = () => {
+                                if (!state.baseImg || !state.maskImg)
+                                    return;
+                                const w = state.baseImg.width;
+                                const h = state.baseImg.height;
+                                const c = document.createElement("canvas");
+                                c.width = w;
+                                c.height = h;
+                                const cctx = c.getContext("2d");
+                                if (!cctx)
+                                    return;
+                                cctx.clearRect(0, 0, w, h);
+                                cctx.drawImage(state.baseImg, 0, 0, w, h);
+                                const imgData = cctx.getImageData(0, 0, w, h);
+                                const d = imgData.data;
+                                const mc = document.createElement("canvas");
+                                mc.width = w;
+                                mc.height = h;
+                                const mctx = mc.getContext("2d");
+                                if (!mctx)
+                                    return;
+                                mctx.clearRect(0, 0, w, h);
+                                mctx.drawImage(state.maskImg, 0, 0, w, h);
+                                const mData = mctx.getImageData(0, 0, w, h).data;
+                                for (let i = 0; i < d.length; i += 4) {
+                                    const m0 = mData[i];
+                                    const m = state.invertMask ? (255 - m0) : m0;
+                                    const a0 = d[i + 3];
+                                    d[i + 3] = Math.round((a0 * m) / 255);
+                                }
+                                cctx.putImageData(imgData, 0, 0);
+                                state.cutoutDataUrl = c.toDataURL("image/png");
+                            };
+                            const updateInvertUi = () => {
+                                btnInvert.style.opacity = state.invertMask ? "1" : "0.85";
+                            };
+                            const applyMaskPreview = async () => {
+                                if (!state.maskImg)
+                                    return;
+                                await buildOverlayCanvas();
+                                buildCutoutFromMask();
+                                draw();
                             };
                             const draw = () => {
                                 if (!state.open || !state.baseImg)
@@ -896,6 +947,7 @@ export async function createCanvasWidget(node, widget, app) {
                             const setUiBusy = (busy, text) => {
                                 btnConfirm.disabled = busy;
                                 btnClear.disabled = busy;
+                                btnInvert.disabled = busy;
                                 realtimeCheckbox.disabled = busy;
                                 fillHolesCheckbox.disabled = busy;
                                 closeEdgesCheckbox.disabled = busy;
@@ -995,7 +1047,7 @@ export async function createCanvasWidget(node, widget, app) {
                                         mi.src = result.mask;
                                         await mi.decode();
                                         state.maskImg = mi;
-                                        await buildOverlayCanvas();
+                                        await applyMaskPreview();
                                     }
                                     state.hadRunOnce = true;
                                     draw();
@@ -1169,6 +1221,13 @@ export async function createCanvasWidget(node, widget, app) {
                                 pushHistory();
                                 draw();
                             });
+                            btnInvert.addEventListener("click", async () => {
+                                state.invertMask = !state.invertMask;
+                                updateInvertUi();
+                                if (state.maskImg) {
+                                    await applyMaskPreview();
+                                }
+                            });
                             btnCancel.addEventListener("click", () => closeModal());
                             btnConfirm.addEventListener("click", async () => {
                                 try {
@@ -1281,6 +1340,7 @@ export async function createCanvasWidget(node, widget, app) {
                             await state.baseImg.decode();
                             state.open = true;
                             closeRadiusSlider.input.disabled = !closeEdgesCheckbox.checked;
+                            updateInvertUi();
                             state.viewScale = Math.min(1, (canvasWrap.clientWidth || 1) / Math.max(1, state.baseImg.width), (canvasWrap.clientHeight || 1) / Math.max(1, state.baseImg.height));
                             state.history = [];
                             state.historyIndex = -1;

@@ -894,7 +894,7 @@
   },
   "759": {
     "inputs": {
-      "block_size": 32,
+      "block_size": 16,
       "device": "cpu",
       "masks": [
         "760",
