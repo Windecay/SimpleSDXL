@@ -381,10 +381,9 @@ function getPresetNameForBarButton(barButtonEl) {
 function collapsePresetStoreImmediate() {
     const preset_store = gradioApp().querySelector('.preset_store');
     if (preset_store) {
-        const style = window.getComputedStyle(preset_store);
-        if (style && style.display !== 'none') {
-            preset_store.style.display = 'none';
-        }
+        preset_store.dataset.optimisticCollapsed = "1";
+        preset_store.style.display = 'none';
+        preset_store.style.pointerEvents = 'none';
     }
     if (presetStoreUiState.expand_flag) {
         presetStoreUiState.expand_flag = false;
@@ -544,6 +543,14 @@ function updatePresetStore(nav_name_list, role, expand_flag, theme) {
     }
     const preset_store = gradioApp().querySelector('.preset_store');
     if (!preset_store) return;    
+
+    if (expand_flag) {
+        if (preset_store.dataset.optimisticCollapsed === "1") {
+            delete preset_store.dataset.optimisticCollapsed;
+        }
+        preset_store.style.display = '';
+        preset_store.style.pointerEvents = '';
+    }
     
     if (theme == "light") {
         preset_store.style.backgroundColor= 'lightcyan';
