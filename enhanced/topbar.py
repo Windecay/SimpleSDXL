@@ -172,15 +172,17 @@ PRESET_STORE_ORDER = [
     "NewBie",
     "Wan(I2V)",
     "Dasiwa(I2V)",
+    "Wan(T2V)",
     "Wan(T2I)",
     "Wan-TTP",
-    "Wan(T2V)",
     "Wan-Animate",
     "Wan-Outpaint",
     "Wan-SCAIL",
+    "Wan-Remover",
     "InfiniteTalk",
     "LTX2.3(IA2V)",
     "LTX2.3(TA2V)",
+    "Nvidia-VSR",
     "default",
     "eraser-a",
     "StyleTransfer",
@@ -971,6 +973,7 @@ def reset_layout_ui(prompt, negative_prompt, state_params, is_generating, inpain
 
     if bar_button is not None:
         state_params.update({"bar_button": bar_button})
+        state_params["preset_store"] = False
 
     if "__lang" not in state_params:
         state_params["__lang"] = ads.get_user_default("__lang", state_params, args_manager.args.language)

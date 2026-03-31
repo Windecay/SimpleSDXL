@@ -378,7 +378,22 @@ function getPresetNameForBarButton(barButtonEl) {
     return topbarLastNavNameList[idx] || null;
 }
 
+function collapsePresetStoreImmediate() {
+    const preset_store = gradioApp().querySelector('.preset_store');
+    if (preset_store) {
+        const style = window.getComputedStyle(preset_store);
+        if (style && style.display !== 'none') {
+            preset_store.style.display = 'none';
+        }
+    }
+    if (presetStoreUiState.expand_flag) {
+        presetStoreUiState.expand_flag = false;
+        schedulePresetStoreUpdate();
+    }
+}
+
 function applyOptimisticBarHighlight(barButtonEl) {
+    collapsePresetStoreImmediate();
     const nextPreset = getPresetNameForBarButton(barButtonEl);
     if (!nextPreset) return;
     if (topbarLastPreset && nextPreset === topbarLastPreset) return;
