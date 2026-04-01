@@ -1,7 +1,7 @@
-import { getCanvasState, setCanvasState, saveImage, getImage } from "/file=javascript/layerforge/js/db.js?v=patch25";
-import { createModuleLogger } from "/file=javascript/layerforge/js/utils/LoggerUtils.js?v=patch25";
-import { showAlertNotification } from "/file=javascript/layerforge/js/utils/NotificationUtils.js?v=patch25";
-import { generateUUID, cloneLayers, getStateSignature, debounce, createCanvas } from "/file=javascript/layerforge/js/utils/CommonUtils.js?v=patch25";
+import { getCanvasState, setCanvasState, saveImage, getImage } from "/file=javascript/layerforge/js/db.js?v=patch26";
+import { createModuleLogger } from "/file=javascript/layerforge/js/utils/LoggerUtils.js?v=patch26";
+import { showAlertNotification } from "/file=javascript/layerforge/js/utils/NotificationUtils.js?v=patch26";
+import { generateUUID, cloneLayers, getStateSignature, debounce, createCanvas } from "/file=javascript/layerforge/js/utils/CommonUtils.js?v=patch26";
 const log = createModuleLogger('CanvasState');
 export class CanvasState {
     constructor(canvas) {

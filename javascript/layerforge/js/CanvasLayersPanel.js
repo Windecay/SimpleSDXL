@@ -1,7 +1,7 @@
-import { createModuleLogger } from "/file=javascript/layerforge/js/utils/LoggerUtils.js?v=patch25";
-import { iconLoader, LAYERFORGE_TOOLS } from "/file=javascript/layerforge/js/utils/IconLoader.js?v=patch25";
-import { createCanvas } from "/file=javascript/layerforge/js/utils/CommonUtils.js?v=patch25";
-import { addStylesheet, getUrl } from "/file=javascript/layerforge/js/utils/ResourceManager.js?v=patch25";
+import { createModuleLogger } from "/file=javascript/layerforge/js/utils/LoggerUtils.js?v=patch26";
+import { iconLoader, LAYERFORGE_TOOLS } from "/file=javascript/layerforge/js/utils/IconLoader.js?v=patch26";
+import { createCanvas } from "/file=javascript/layerforge/js/utils/CommonUtils.js?v=patch26";
+import { addStylesheet, getUrl } from "/file=javascript/layerforge/js/utils/ResourceManager.js?v=patch26";
 const log = createModuleLogger('CanvasLayersPanel');
 export class CanvasLayersPanel {
     constructor(canvas) {

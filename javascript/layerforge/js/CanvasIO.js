@@ -1,8 +1,8 @@
-import { createCanvas } from "/file=javascript/layerforge/js/utils/CommonUtils.js?v=patch25";
-import { createModuleLogger } from "/file=javascript/layerforge/js/utils/LoggerUtils.js?v=patch25";
-import { showErrorNotification, showSuccessNotification } from "/file=javascript/layerforge/js/utils/NotificationUtils.js?v=patch25";
-import { webSocketManager } from "/file=javascript/layerforge/js/utils/WebSocketManager.js?v=patch25";
-import { scaleImageToFit, createImageFromSource, tensorToImageData, createImageFromImageData } from "/file=javascript/layerforge/js/utils/ImageUtils.js?v=patch25";
+import { createCanvas } from "/file=javascript/layerforge/js/utils/CommonUtils.js?v=patch26";
+import { createModuleLogger } from "/file=javascript/layerforge/js/utils/LoggerUtils.js?v=patch26";
+import { showErrorNotification, showSuccessNotification } from "/file=javascript/layerforge/js/utils/NotificationUtils.js?v=patch26";
+import { webSocketManager } from "/file=javascript/layerforge/js/utils/WebSocketManager.js?v=patch26";
+import { scaleImageToFit, createImageFromSource, tensorToImageData, createImageFromImageData } from "/file=javascript/layerforge/js/utils/ImageUtils.js?v=patch26";
 const log = createModuleLogger('CanvasIO');
 export class CanvasIO {
     constructor(canvas) {

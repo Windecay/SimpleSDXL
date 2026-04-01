@@ -1,5 +1,5 @@
-import { removeImage, getAllImageIds } from "/file=javascript/layerforge/js/db.js?v=patch25";
-import { createModuleLogger } from "/file=javascript/layerforge/js/utils/LoggerUtils.js?v=patch25";
+import { removeImage, getAllImageIds } from "/file=javascript/layerforge/js/db.js?v=patch26";
+import { createModuleLogger } from "/file=javascript/layerforge/js/utils/LoggerUtils.js?v=patch26";
 const log = createModuleLogger('ImageReferenceManager');
 export class ImageReferenceManager {
     constructor(canvas) {

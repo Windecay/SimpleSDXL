@@ -1,18 +1,18 @@
 // @ts-ignore
-import { app } from "/file=javascript/layerforge/js/comfy_shim.js?v=patch25";
+import { app } from "/file=javascript/layerforge/js/comfy_shim.js?v=patch26";
 // @ts-ignore
-import { $el } from "/file=javascript/layerforge/js/comfy_shim.js?v=patch25";
-import { api } from "/file=javascript/layerforge/js/api_shim.js?v=patch25";
-import { addStylesheet, getUrl, loadTemplate } from "/file=javascript/layerforge/js/utils/ResourceManager.js?v=patch25";
-import { Canvas } from "/file=javascript/layerforge/js/Canvas.js?v=patch25";
-import { clearAllCanvasStates } from "/file=javascript/layerforge/js/db.js?v=patch25";
-import { ImageCache } from "/file=javascript/layerforge/js/ImageCache.js?v=patch25";
-import { createCanvas } from "/file=javascript/layerforge/js/utils/CommonUtils.js?v=patch25";
-import { createModuleLogger } from "/file=javascript/layerforge/js/utils/LoggerUtils.js?v=patch25";
-import { showErrorNotification, showSuccessNotification, showInfoNotification, showWarningNotification } from "/file=javascript/layerforge/js/utils/NotificationUtils.js?v=patch25";
-import { iconLoader, LAYERFORGE_TOOLS } from "/file=javascript/layerforge/js/utils/IconLoader.js?v=patch25";
-import { setupSAMDetectorHook } from "/file=javascript/layerforge/js/SAMDetectorIntegration.js?v=patch25";
-import { OpenPoseEditor } from "/file=javascript/layerforge/js/OpenPoseEditor.js?v=patch25";
+import { $el } from "/file=javascript/layerforge/js/comfy_shim.js?v=patch26";
+import { api } from "/file=javascript/layerforge/js/api_shim.js?v=patch26";
+import { addStylesheet, getUrl, loadTemplate } from "/file=javascript/layerforge/js/utils/ResourceManager.js?v=patch26";
+import { Canvas } from "/file=javascript/layerforge/js/Canvas.js?v=patch26";
+import { clearAllCanvasStates } from "/file=javascript/layerforge/js/db.js?v=patch26";
+import { ImageCache } from "/file=javascript/layerforge/js/ImageCache.js?v=patch26";
+import { createCanvas } from "/file=javascript/layerforge/js/utils/CommonUtils.js?v=patch26";
+import { createModuleLogger } from "/file=javascript/layerforge/js/utils/LoggerUtils.js?v=patch26";
+import { showErrorNotification, showSuccessNotification, showInfoNotification, showWarningNotification } from "/file=javascript/layerforge/js/utils/NotificationUtils.js?v=patch26";
+import { iconLoader, LAYERFORGE_TOOLS } from "/file=javascript/layerforge/js/utils/IconLoader.js?v=patch26";
+import { setupSAMDetectorHook } from "/file=javascript/layerforge/js/SAMDetectorIntegration.js?v=patch26";
+import { OpenPoseEditor } from "/file=javascript/layerforge/js/OpenPoseEditor.js?v=patch26";
 const log = createModuleLogger('Canvas_view');
 export async function createCanvasWidget(node, widget, app) {
     const canvas = new Canvas(node, widget, {
@@ -346,7 +346,7 @@ export async function createCanvasWidget(node, widget, app) {
             ]),
             $el("div.painter-separator"),
             $el("div.painter-button-group", {}, [
-                $el("button.painter-button.requires-selection.matting-button", {
+                $el("button.painter-button.info.requires-selection.matting-button", {
                     textContent: "抠图",
                     title: "对选定图层执行背景移除",
                     onclick: async (e) => {
@@ -457,7 +457,7 @@ export async function createCanvasWidget(node, widget, app) {
                         }
                     }
                 }),
-                $el("button.painter-button.requires-selection.sam3-matting-button", {
+                $el("button.painter-button.info.requires-selection.sam3-matting-button", {
                     textContent: "智能抠图",
                     title: "使用 SAM3 通过点选进行交互式抠图（右键为负样本）",
                     onclick: async (e) => {
@@ -522,6 +522,8 @@ export async function createCanvasWidget(node, widget, app) {
                                 sam3MaskThreshold: 0.4,
                                 sam3CloseRadius: 1,
                                 invertMask: false,
+                                posHit: null,
+                                negHit: null,
                             };
                             const backdrop = $el("div", {
                                 id: modalId,
@@ -586,6 +588,7 @@ export async function createCanvasWidget(node, widget, app) {
                             const realtimeCheckbox = $el("input", { type: "checkbox", checked: true });
                             const fillHolesCheckbox = $el("input", { type: "checkbox", checked: false });
                             const closeEdgesCheckbox = $el("input", { type: "checkbox", checked: true });
+                            const mergeToMaskCheckbox = $el("input", { type: "checkbox", checked: false });
                             const mkSlider = (labelText, min, max, step, initialValue, valueFormatter) => {
                                 const input = $el("input", {
                                     type: "range",
@@ -658,6 +661,10 @@ export async function createCanvasWidget(node, widget, app) {
                             headerBottom.appendChild($el("label", { style: { display: "flex", alignItems: "center", gap: "6px", color: "rgba(255,255,255,0.8)", fontSize: "12px", userSelect: "none", whiteSpace: "nowrap" } }, [
                                 fillHolesCheckbox,
                                 $el("span", {}, ["填充孔洞"])
+                            ]));
+                            headerBottom.appendChild($el("label", { style: { display: "flex", alignItems: "center", gap: "6px", color: "rgba(255,255,255,0.8)", fontSize: "12px", userSelect: "none", whiteSpace: "nowrap" } }, [
+                                mergeToMaskCheckbox,
+                                $el("span", {}, ["合并到蒙版"])
                             ]));
                             const body = $el("div", {
                                 style: {
@@ -833,6 +840,32 @@ export async function createCanvasWidget(node, widget, app) {
                                 cctx.putImageData(imgData, 0, 0);
                                 state.cutoutDataUrl = c.toDataURL("image/png");
                             };
+                            const buildMaskCanvasForLayer = () => {
+                                if (!state.maskImg)
+                                    return null;
+                                const w = Math.max(1, Math.round(selectedLayer.width || state.maskImg.width));
+                                const h = Math.max(1, Math.round(selectedLayer.height || state.maskImg.height));
+                                const c = document.createElement("canvas");
+                                c.width = w;
+                                c.height = h;
+                                const cctx = c.getContext("2d");
+                                if (!cctx)
+                                    return null;
+                                cctx.clearRect(0, 0, w, h);
+                                cctx.drawImage(state.maskImg, 0, 0, w, h);
+                                const imgData = cctx.getImageData(0, 0, w, h);
+                                const d = imgData.data;
+                                for (let i = 0; i < d.length; i += 4) {
+                                    const m0 = d[i];
+                                    const m = state.invertMask ? (255 - m0) : m0;
+                                    d[i] = 255;
+                                    d[i + 1] = 255;
+                                    d[i + 2] = 255;
+                                    d[i + 3] = m;
+                                }
+                                cctx.putImageData(imgData, 0, 0);
+                                return c;
+                            };
                             const updateInvertUi = () => {
                                 btnInvert.style.opacity = state.invertMask ? "1" : "0.85";
                             };
@@ -870,8 +903,18 @@ export async function createCanvasWidget(node, widget, app) {
                                     ctx.strokeStyle = "rgba(0,0,0,0.6)";
                                     ctx.stroke();
                                 };
-                                state.pointsPos.forEach(p => drawPoint(p, "#70FF81"));
-                                state.pointsNeg.forEach(p => drawPoint(p, "#FF6B6B"));
+                                const posHit = Array.isArray(state.posHit) ? state.posHit : [];
+                                const negHit = Array.isArray(state.negHit) ? state.negHit : [];
+                                const effPos = (i) => {
+                                    const h = (i < posHit.length) ? !!posHit[i] : true;
+                                    return state.invertMask ? !h : h;
+                                };
+                                const effNeg = (i) => {
+                                    const h = (i < negHit.length) ? !!negHit[i] : true;
+                                    return state.invertMask ? !h : h;
+                                };
+                                state.pointsPos.forEach((p, i) => drawPoint(p, effPos(i) ? "#70FF81" : "#2f7a3c"));
+                                state.pointsNeg.forEach((p, i) => drawPoint(p, effNeg(i) ? "#FF6B6B" : "#7a2f2f"));
                                 ctx.setTransform(1, 0, 0, 1, 0, 0);
                             };
                             const getCanvasNormPos = (ev) => {
@@ -995,6 +1038,17 @@ export async function createCanvasWidget(node, widget, app) {
                                 canvas.saveState();
                                 canvas.canvasLayersPanel?.renderLayers?.();
                                 showSuccessNotification("智能抠图完成，已生成新图层！");
+                                if (mergeToMaskCheckbox.checked) {
+                                    const maskCanvas = buildMaskCanvasForLayer();
+                                    if (maskCanvas) {
+                                        try {
+                                            canvas.maskTool.mergeMaskCanvas(maskCanvas, selectedLayer.x, selectedLayer.y);
+                                        }
+                                        catch (err) {
+                                            showErrorNotification(`合并到蒙版失败: ${err.message || err}`);
+                                        }
+                                    }
+                                }
                                 closeModal();
                             };
                             const triggerRun = async (isFinal) => {
@@ -1042,6 +1096,8 @@ export async function createCanvasWidget(node, widget, app) {
                                         throw new Error(errorMsg);
                                     }
                                     state.cutoutDataUrl = result.cutout_image || null;
+                                    state.posHit = result.pos_hit || null;
+                                    state.negHit = result.neg_hit || null;
                                     if (result.mask) {
                                         const mi = new Image();
                                         mi.src = result.mask;
@@ -1215,6 +1271,8 @@ export async function createCanvasWidget(node, widget, app) {
                                 state.maskImg = null;
                                 state.overlayCanvas = null;
                                 state.cutoutDataUrl = null;
+                                state.posHit = null;
+                                state.negHit = null;
                                 state.confirmRequested = false;
                                 state.pending = false;
                                 state.pendingFinal = false;
@@ -1362,7 +1420,7 @@ export async function createCanvasWidget(node, widget, app) {
                         }
                     }
                 }),
-                $el("button.painter-button.requires-selection.openpose-button", {
+                $el("button.painter-button.info.requires-selection.openpose-button", {
                     textContent: "骨骼编辑",
                     title: "对选定图层执行 OpenPose 检测并编辑骨骼",
                     onclick: async (e) => {
@@ -1590,6 +1648,9 @@ export async function createCanvasWidget(node, widget, app) {
                         }
                     }
                 }),
+            ]),
+            $el("div.painter-separator"),
+            $el("div.painter-button-group", {}, [
                 $el("button.painter-button", {
                     id: `undo-button-${node.id}`,
                     textContent: "撤销",

@@ -178,6 +178,7 @@ def run_sam3_image_mask_from_points(
     import torch  # noqa: E402
 
     masks_bin = None
+    logits_cpu = None
     if masks_logits is not None and getattr(masks_logits, "numel", lambda: 0)() > 0:
         ml = masks_logits
         if getattr(ml, "ndim", 0) == 4 and ml.shape[1] == 1:
@@ -185,6 +186,7 @@ def run_sam3_image_mask_from_points(
         if getattr(ml, "ndim", 0) == 2:
             ml = ml.unsqueeze(0)
         ml = ml.detach().to("cpu").float()
+        logits_cpu = ml
         masks_bin = ml > float(mask_threshold)
     elif masks is not None and getattr(masks, "numel", lambda: 0)() > 0:
         mb = masks
@@ -220,30 +222,65 @@ def run_sam3_image_mask_from_points(
     pos_xs, pos_ys = _to_px(pos)
     neg_xs, neg_ys = _to_px(neg)
 
-    if len(pos_xs) > 0:
-        pos_hits = masks_bin[:, pos_ys, pos_xs].sum(dim=1)
-    else:
-        pos_hits = torch.zeros((masks_bin.shape[0],), dtype=torch.long)
+    src = logits_cpu if logits_cpu is not None else masks_bin.float()
+    pos_hit_thr = float(max(0.05, float(mask_threshold) - 0.15)) if logits_cpu is not None else 0.5
+    neg_hit_thr = float(mask_threshold) if logits_cpu is not None else 0.5
+    hit_radius = 2
 
+    def _neigh_max(t: Any, x: int, y: int, r: int) -> Any:
+        x0 = max(0, x - r)
+        x1 = min(w, x + r + 1)
+        y0 = max(0, y - r)
+        y1 = min(h, y + r + 1)
+        patch = t[:, y0:y1, x0:x1]
+        if patch.numel() == 0:
+            return torch.zeros((t.shape[0],), dtype=torch.float32)
+        return patch.amax(dim=(1, 2))
+
+    neg_violation = torch.zeros((masks_bin.shape[0],), dtype=torch.bool)
     if len(neg_xs) > 0:
-        neg_hits = masks_bin[:, neg_ys, neg_xs].sum(dim=1)
-    else:
-        neg_hits = torch.zeros((masks_bin.shape[0],), dtype=torch.long)
+        for x, y in zip(neg_xs, neg_ys):
+            neg_violation |= (_neigh_max(src, x, y, hit_radius) > neg_hit_thr)
 
-    eligible = (pos_hits > 0) & (neg_hits == 0) if len(pos_xs) > 0 else (neg_hits == 0)
-    if bool(torch.any(eligible).item()):
-        best = torch.any(masks_bin[eligible], dim=0)
+    selected: set[int] = set()
+    if len(pos_xs) > 0:
+        for x, y in zip(pos_xs, pos_ys):
+            strengths = _neigh_max(src, x, y, hit_radius)
+            strengths = strengths.masked_fill(neg_violation, -1.0)
+            best_idx = int(torch.argmax(strengths).item())
+            best_val = float(strengths[best_idx].item())
+            if best_val >= pos_hit_thr:
+                selected.add(best_idx)
+
+    if len(selected) > 0:
+        best = torch.any(masks_bin[list(selected)], dim=0)
     else:
-        score_term = torch.zeros((masks_bin.shape[0],), dtype=torch.float32)
-        if scores is not None and getattr(scores, "numel", lambda: 0)() > 0:
-            scores = scores.detach().to("cpu").float()
-            if scores.ndim == 0:
-                score_term = torch.zeros((masks_bin.shape[0],), dtype=torch.float32)
-            else:
-                score_term = scores[: masks_bin.shape[0]]
-        combined = pos_hits.float() - (neg_hits.float() * 2.0) + (score_term * 0.01)
-        best_idx = int(torch.argmax(combined).item())
-        best = masks_bin[best_idx]
+        if len(pos_xs) > 0:
+            pos_hits = torch.zeros((masks_bin.shape[0],), dtype=torch.float32)
+            for x, y in zip(pos_xs, pos_ys):
+                pos_hits += (_neigh_max(src, x, y, hit_radius) > pos_hit_thr).float()
+        else:
+            pos_hits = torch.zeros((masks_bin.shape[0],), dtype=torch.float32)
+
+        if len(neg_xs) > 0:
+            neg_hits = torch.zeros((masks_bin.shape[0],), dtype=torch.float32)
+            for x, y in zip(neg_xs, neg_ys):
+                neg_hits += (_neigh_max(src, x, y, hit_radius) > neg_hit_thr).float()
+        else:
+            neg_hits = torch.zeros((masks_bin.shape[0],), dtype=torch.float32)
+
+        eligible = (pos_hits > 0) & (neg_hits == 0) if len(pos_xs) > 0 else (neg_hits == 0)
+        if bool(torch.any(eligible).item()):
+            best = torch.any(masks_bin[eligible], dim=0)
+        else:
+            score_term = torch.zeros((masks_bin.shape[0],), dtype=torch.float32)
+            if scores is not None and getattr(scores, "numel", lambda: 0)() > 0:
+                scores = scores.detach().to("cpu").float()
+                if scores.ndim != 0:
+                    score_term = scores[: masks_bin.shape[0]]
+            combined = pos_hits - (neg_hits * 2.0) + (score_term * 0.01)
+            best_idx = int(torch.argmax(combined).item())
+            best = masks_bin[best_idx]
 
     if getattr(best, "ndim", 0) == 4 and best.shape[0] == 1 and best.shape[1] == 1:
         best = best[0, 0]
@@ -324,6 +361,46 @@ def close_mask(mask_u8: np.ndarray, *, radius: int) -> np.ndarray:
         return mask_u8
 
 
+def compute_point_hits(
+    mask_u8: np.ndarray,
+    *,
+    positive_points: Iterable[dict[str, Any]] | None,
+    negative_points: Iterable[dict[str, Any]] | None,
+    radius: int = 2,
+) -> tuple[list[bool], list[bool]]:
+    if mask_u8.ndim != 2:
+        return [], []
+
+    h, w = mask_u8.shape
+    r = max(0, int(radius))
+    pos = _normalize_points(positive_points)
+    neg = _normalize_points(negative_points)
+
+    def _hit_foreground(x01: float, y01: float) -> bool:
+        x = int(round(float(x01) * max(1, w - 1)))
+        y = int(round(float(y01) * max(1, h - 1)))
+        x0 = max(0, x - r)
+        x1 = min(w, x + r + 1)
+        y0 = max(0, y - r)
+        y1 = min(h, y + r + 1)
+        patch = mask_u8[y0:y1, x0:x1]
+        return bool(patch.size > 0 and int(patch.max()) > 127)
+
+    def _hit_background(x01: float, y01: float) -> bool:
+        x = int(round(float(x01) * max(1, w - 1)))
+        y = int(round(float(y01) * max(1, h - 1)))
+        x0 = max(0, x - r)
+        x1 = min(w, x + r + 1)
+        y0 = max(0, y - r)
+        y1 = min(h, y + r + 1)
+        patch = mask_u8[y0:y1, x0:x1]
+        return bool(patch.size > 0 and int(patch.max()) <= 127)
+
+    pos_hit = [_hit_foreground(x, y) for x, y in pos]
+    neg_hit = [_hit_background(x, y) for x, y in neg]
+    return pos_hit, neg_hit
+
+
 def apply_mask_to_image(
     image_rgb: Image.Image, mask_u8: np.ndarray, *, original_alpha: Image.Image | None
 ) -> Image.Image:
@@ -372,11 +449,19 @@ def build_sam3_image_response(
     if bool(fill_holes):
         mask_u8 = fill_mask_holes(mask_u8)
     cutout = apply_mask_to_image(image_rgb, mask_u8, original_alpha=original_alpha)
+    pos_hit, neg_hit = compute_point_hits(
+        mask_u8,
+        positive_points=positive_points,
+        negative_points=negative_points,
+        radius=2,
+    )
 
     return {
         "mask": mask_u8_to_data_url(mask_u8),
         "cutout_image": pil_to_data_url(cutout),
         "width": int(image_rgb.width),
         "height": int(image_rgb.height),
+        "pos_hit": pos_hit,
+        "neg_hit": neg_hit,
         "id": uuid.uuid4().hex,
     }

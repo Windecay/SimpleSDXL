@@ -1,15 +1,15 @@
-import { saveImage } from "/file=javascript/layerforge/js/db.js?v=patch25";
-import { createModuleLogger } from "/file=javascript/layerforge/js/utils/LoggerUtils.js?v=patch25";
-import { generateUUID, generateUniqueFileName, createCanvas } from "/file=javascript/layerforge/js/utils/CommonUtils.js?v=patch25";
-import { withErrorHandling, createValidationError } from "/file=javascript/layerforge/js/ErrorHandler.js?v=patch25";
-import { showErrorNotification } from "/file=javascript/layerforge/js/utils/NotificationUtils.js?v=patch25";
-import { addStylesheet, getUrl } from "/file=javascript/layerforge/js/utils/ResourceManager.js?v=patch25";
+import { saveImage } from "/file=javascript/layerforge/js/db.js?v=patch26";
+import { createModuleLogger } from "/file=javascript/layerforge/js/utils/LoggerUtils.js?v=patch26";
+import { generateUUID, generateUniqueFileName, createCanvas } from "/file=javascript/layerforge/js/utils/CommonUtils.js?v=patch26";
+import { withErrorHandling, createValidationError } from "/file=javascript/layerforge/js/ErrorHandler.js?v=patch26";
+import { showErrorNotification } from "/file=javascript/layerforge/js/utils/NotificationUtils.js?v=patch26";
+import { addStylesheet, getUrl } from "/file=javascript/layerforge/js/utils/ResourceManager.js?v=patch26";
 // @ts-ignore
-import { app } from "/file=javascript/layerforge/js/comfy_shim.js?v=patch25";
+import { app } from "/file=javascript/layerforge/js/comfy_shim.js?v=patch26";
 // @ts-ignore
-import { ComfyApp } from "/file=javascript/layerforge/js/comfy_shim.js?v=patch25";
-import { ClipboardManager } from "/file=javascript/layerforge/js/utils/ClipboardManager.js?v=patch25";
-import { createDistanceFieldMaskSync } from "/file=javascript/layerforge/js/utils/ImageAnalysis.js?v=patch25";
+import { ComfyApp } from "/file=javascript/layerforge/js/comfy_shim.js?v=patch26";
+import { ClipboardManager } from "/file=javascript/layerforge/js/utils/ClipboardManager.js?v=patch26";
+import { createDistanceFieldMaskSync } from "/file=javascript/layerforge/js/utils/ImageAnalysis.js?v=patch26";
 const log = createModuleLogger('CanvasLayers');
 export class CanvasLayers {
     constructor(canvas) {

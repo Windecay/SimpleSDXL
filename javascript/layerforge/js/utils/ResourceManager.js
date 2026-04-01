@@ -1,7 +1,7 @@
 // @ts-ignore
-import { $el } from "/file=javascript/layerforge/js/comfy_shim.js?v=patch25";
-import { createModuleLogger } from "/file=javascript/layerforge/js/utils/LoggerUtils.js?v=patch25";
-import { withErrorHandling, createValidationError, createNetworkError } from "/file=javascript/layerforge/js/ErrorHandler.js?v=patch25";
+import { $el } from "/file=javascript/layerforge/js/comfy_shim.js?v=patch26";
+import { createModuleLogger } from "/file=javascript/layerforge/js/utils/LoggerUtils.js?v=patch26";
+import { withErrorHandling, createValidationError, createNetworkError } from "/file=javascript/layerforge/js/ErrorHandler.js?v=patch26";
 const log = createModuleLogger('ResourceManager');
 export const addStylesheet = withErrorHandling(function (url) {
     if (!url) {

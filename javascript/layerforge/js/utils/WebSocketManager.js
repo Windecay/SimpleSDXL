@@ -1,5 +1,5 @@
-import { createModuleLogger } from "/file=javascript/layerforge/js/utils/LoggerUtils.js?v=patch25";
-import { withErrorHandling, createValidationError, createNetworkError } from "/file=javascript/layerforge/js/ErrorHandler.js?v=patch25";
+import { createModuleLogger } from "/file=javascript/layerforge/js/utils/LoggerUtils.js?v=patch26";
+import { withErrorHandling, createValidationError, createNetworkError } from "/file=javascript/layerforge/js/ErrorHandler.js?v=patch26";
 const log = createModuleLogger('WebSocketManager');
 class WebSocketManager {
     constructor(url) {

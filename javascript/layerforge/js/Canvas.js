@@ -1,20 +1,20 @@
 // @ts-ignore
-import { api } from "/file=javascript/layerforge/js/api_shim.js?v=patch25";
-import { MaskTool } from "/file=javascript/layerforge/js/MaskTool.js?v=patch25";
-import { ShapeTool } from "/file=javascript/layerforge/js/ShapeTool.js?v=patch25";
-import { CustomShapeMenu } from "/file=javascript/layerforge/js/CustomShapeMenu.js?v=patch25";
-import { CanvasState } from "/file=javascript/layerforge/js/CanvasState.js?v=patch25";
-import { CanvasInteractions } from "/file=javascript/layerforge/js/CanvasInteractions.js?v=patch25";
-import { CanvasLayers } from "/file=javascript/layerforge/js/CanvasLayers.js?v=patch25";
-import { CanvasLayersPanel } from "/file=javascript/layerforge/js/CanvasLayersPanel.js?v=patch25";
-import { CanvasRenderer } from "/file=javascript/layerforge/js/CanvasRenderer.js?v=patch25";
-import { CanvasIO } from "/file=javascript/layerforge/js/CanvasIO.js?v=patch25";
-import { ImageReferenceManager } from "/file=javascript/layerforge/js/ImageReferenceManager.js?v=patch25";
-import { BatchPreviewManager } from "/file=javascript/layerforge/js/BatchPreviewManager.js?v=patch25";
-import { createModuleLogger } from "/file=javascript/layerforge/js/utils/LoggerUtils.js?v=patch25";
-import { debounce, createCanvas } from "/file=javascript/layerforge/js/utils/CommonUtils.js?v=patch25";
-import { MaskEditorIntegration } from "/file=javascript/layerforge/js/MaskEditorIntegration.js?v=patch25";
-import { CanvasSelection } from "/file=javascript/layerforge/js/CanvasSelection.js?v=patch25";
+import { api } from "/file=javascript/layerforge/js/api_shim.js?v=patch26";
+import { MaskTool } from "/file=javascript/layerforge/js/MaskTool.js?v=patch26";
+import { ShapeTool } from "/file=javascript/layerforge/js/ShapeTool.js?v=patch26";
+import { CustomShapeMenu } from "/file=javascript/layerforge/js/CustomShapeMenu.js?v=patch26";
+import { CanvasState } from "/file=javascript/layerforge/js/CanvasState.js?v=patch26";
+import { CanvasInteractions } from "/file=javascript/layerforge/js/CanvasInteractions.js?v=patch26";
+import { CanvasLayers } from "/file=javascript/layerforge/js/CanvasLayers.js?v=patch26";
+import { CanvasLayersPanel } from "/file=javascript/layerforge/js/CanvasLayersPanel.js?v=patch26";
+import { CanvasRenderer } from "/file=javascript/layerforge/js/CanvasRenderer.js?v=patch26";
+import { CanvasIO } from "/file=javascript/layerforge/js/CanvasIO.js?v=patch26";
+import { ImageReferenceManager } from "/file=javascript/layerforge/js/ImageReferenceManager.js?v=patch26";
+import { BatchPreviewManager } from "/file=javascript/layerforge/js/BatchPreviewManager.js?v=patch26";
+import { createModuleLogger } from "/file=javascript/layerforge/js/utils/LoggerUtils.js?v=patch26";
+import { debounce, createCanvas } from "/file=javascript/layerforge/js/utils/CommonUtils.js?v=patch26";
+import { MaskEditorIntegration } from "/file=javascript/layerforge/js/MaskEditorIntegration.js?v=patch26";
+import { CanvasSelection } from "/file=javascript/layerforge/js/CanvasSelection.js?v=patch26";
 const useChainCallback = (original, next) => {
     if (original === undefined || original === null) {
         return next;

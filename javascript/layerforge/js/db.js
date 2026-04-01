@@ -1,4 +1,4 @@
-import { createModuleLogger } from "/file=javascript/layerforge/js/utils/LoggerUtils.js?v=patch25";
+import { createModuleLogger } from "/file=javascript/layerforge/js/utils/LoggerUtils.js?v=patch26";
 const log = createModuleLogger('db');
 const DB_NAME = 'CanvasNodeDB_v2';
 const STATE_STORE_NAME = 'CanvasState';

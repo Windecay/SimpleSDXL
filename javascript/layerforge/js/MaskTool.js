@@ -1,5 +1,5 @@
-import { createModuleLogger } from "/file=javascript/layerforge/js/utils/LoggerUtils.js?v=patch25";
-import { createCanvas } from "/file=javascript/layerforge/js/utils/CommonUtils.js?v=patch25";
+import { createModuleLogger } from "/file=javascript/layerforge/js/utils/LoggerUtils.js?v=patch26";
+import { createCanvas } from "/file=javascript/layerforge/js/utils/CommonUtils.js?v=patch26";
 const log = createModuleLogger('Mask_tool');
 export class MaskTool {
     constructor(canvasInstance, callbacks = {}) {
@@ -37,6 +37,9 @@ export class MaskTool {
         this._previewOpacity = 1; // Default 100% opacity for preview
         this.isDrawing = false;
         this.lastPosition = null;
+        this.lastAnchorPoint = null;
+        this.isLineMode = false;
+        this.lineAnchorPoint = null;
         const { canvas: previewCanvas, ctx: previewCtx } = createCanvas(1, 1, '2d', { willReadFrequently: true });
         if (!previewCtx) {
             throw new Error("Failed to get 2D context for preview canvas");
@@ -697,10 +700,24 @@ export class MaskTool {
     setBrushStrength(strength) {
         this._brushStrength = Math.max(0, Math.min(1, strength));
     }
-    handleMouseDown(worldCoords, viewCoords) {
+    handleMouseDown(worldCoords, viewCoords, mods = null) {
         if (!this.isActive)
             return;
+        const shift = !!(mods && mods.shift);
+        if (shift && this.lastAnchorPoint) {
+            this.isDrawing = true;
+            this.isLineMode = true;
+            this.lineAnchorPoint = { x: this.lastAnchorPoint.x, y: this.lastAnchorPoint.y };
+            this.lastPosition = this.lineAnchorPoint;
+            this.currentStrokePoints = [this.lineAnchorPoint, worldCoords];
+            this.canvasInstance.canvasRenderer.clearMaskStrokeOverlay();
+            this.clearPreview();
+            this.canvasInstance.canvasRenderer.drawMaskStrokeSegment(this.lineAnchorPoint, worldCoords);
+            return;
+        }
         this.isDrawing = true;
+        this.isLineMode = false;
+        this.lineAnchorPoint = null;
         this.lastPosition = worldCoords;
         // Initialize stroke tracking for live preview
         this.currentStrokePoints = [worldCoords];
@@ -708,12 +725,19 @@ export class MaskTool {
         this.canvasInstance.canvasRenderer.clearMaskStrokeOverlay();
         this.clearPreview();
     }
-    handleMouseMove(worldCoords, viewCoords) {
+    handleMouseMove(worldCoords, viewCoords, mods = null) {
         if (this.isActive) {
             this.drawBrushPreview(viewCoords);
         }
         if (!this.isActive || !this.isDrawing)
             return;
+        if (this.isLineMode && this.lineAnchorPoint) {
+            this.currentStrokePoints = [this.lineAnchorPoint, worldCoords];
+            this.canvasInstance.canvasRenderer.clearMaskStrokeOverlay();
+            this.canvasInstance.canvasRenderer.drawMaskStrokeSegment(this.lineAnchorPoint, worldCoords);
+            this.lastPosition = worldCoords;
+            return;
+        }
         // Add point to stroke tracking
         this.currentStrokePoints.push(worldCoords);
         // Draw interpolated segments for smooth strokes without gaps
@@ -790,9 +814,17 @@ export class MaskTool {
             this.commitStrokeToChunks();
             // Clear stroke overlay and reset state
             this.canvasInstance.canvasRenderer.clearMaskStrokeOverlay();
+            if (this.currentStrokePoints.length > 0) {
+                const end = this.currentStrokePoints[this.currentStrokePoints.length - 1];
+                if (end) {
+                    this.lastAnchorPoint = { x: end.x, y: end.y };
+                }
+            }
             this.currentStrokePoints = [];
             this.lastPosition = null;
             this.currentDrawingChunk = null;
+            this.isLineMode = false;
+            this.lineAnchorPoint = null;
             // After drawing is complete, update active canvas to show all chunks
             this.updateActiveMaskCanvas(true); // Force full update
             this.completeMaskOperation();
@@ -1579,6 +1611,25 @@ export class MaskTool {
         this.updateActiveMaskCanvas(true); // Force full update to show all chunks including newly activated ones
         this.triggerStateChangeAndRender();
         log.info(`MaskTool added SAM mask to chunks covering bounds (${bounds.x}, ${bounds.y}) to (${maskRight}, ${maskBottom}) and activated ${activatedChunks} chunks for visibility`);
+    }
+
+    mergeMaskCanvas(maskCanvas, worldX, worldY) {
+        const maskLeft = worldX;
+        const maskTop = worldY;
+        const maskRight = worldX + maskCanvas.width;
+        const maskBottom = worldY + maskCanvas.height;
+        const chunkBounds = this.calculateChunkBounds(maskLeft, maskTop, maskRight, maskBottom);
+        const sourceArea = { left: maskLeft, top: maskTop, right: maskRight, bottom: maskBottom };
+        for (let chunkY = chunkBounds.minY; chunkY <= chunkBounds.maxY; chunkY++) {
+            for (let chunkX = chunkBounds.minX; chunkX <= chunkBounds.maxX; chunkX++) {
+                const chunk = this.getChunkForPosition(chunkX * this.chunkSize, chunkY * this.chunkSize);
+                this.performChunkOperation(chunk, maskCanvas, sourceArea, 'add', "Merged mask canvas into");
+            }
+        }
+        const activatedChunks = this.activateChunksInArea(maskLeft, maskTop, maskRight, maskBottom);
+        this.updateActiveMaskCanvas(true);
+        this.completeMaskOperation(true);
+        log.info(`MaskTool merged mask canvas at (${maskLeft}, ${maskTop}) size ${maskCanvas.width}x${maskCanvas.height}; activated ${activatedChunks} chunks`);
     }
     /**
      * Adds a mask image to a specific chunk

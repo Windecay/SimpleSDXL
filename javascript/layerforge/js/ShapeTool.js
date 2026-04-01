@@ -1,4 +1,4 @@
-import { createModuleLogger } from "/file=javascript/layerforge/js/utils/LoggerUtils.js?v=patch25";
+import { createModuleLogger } from "/file=javascript/layerforge/js/utils/LoggerUtils.js?v=patch26";
 const log = createModuleLogger('ShapeTool');
 export class ShapeTool {
     constructor(canvas) {

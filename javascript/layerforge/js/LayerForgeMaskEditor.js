@@ -1,4 +1,4 @@
-import { createCanvas } from "/file=javascript/layerforge/js/utils/CommonUtils.js?v=patch25";
+import { createCanvas } from "/file=javascript/layerforge/js/utils/CommonUtils.js?v=patch26";
 
 export class LayerForgeMaskEditor {
     constructor() {
@@ -24,6 +24,7 @@ export class LayerForgeMaskEditor {
         this.brushOpacity = 1.0;
         this.isEraser = false;
         this.resolvePromise = null;
+        this.lastAnchorPos = null;
         
         this.history = [];
         this.historyIndex = -1;
@@ -395,9 +396,19 @@ export class LayerForgeMaskEditor {
         }
         
         if (e.button === 0) {
-            this.isDrawing = true;
             const pos = this.getPointerPos(e);
+            if (e.shiftKey && this.lastAnchorPos) {
+                this.isDrawing = false;
+                this.lastDrawPos = this.lastAnchorPos;
+                this.draw(pos.x, pos.y);
+                this.lastDrawPos = pos;
+                this.lastAnchorPos = pos;
+                this.saveState();
+                return;
+            }
+            this.isDrawing = true;
             this.lastDrawPos = pos;
+            this.lastAnchorPos = pos;
             this.drawDot(pos.x, pos.y);
         }
     }
@@ -500,6 +511,9 @@ export class LayerForgeMaskEditor {
         if (this.isDrawing) {
             this.isDrawing = false;
             this.saveState();
+            if (this.lastDrawPos) {
+                this.lastAnchorPos = this.lastDrawPos;
+            }
         }
         this.isDragging = false;
     }

@@ -1,5 +1,5 @@
-import { createModuleLogger } from "/file=javascript/layerforge/js/utils/LoggerUtils.js?v=patch25";
-import { snapToGrid, getSnapAdjustment } from "/file=javascript/layerforge/js/utils/CommonUtils.js?v=patch25";
+import { createModuleLogger } from "/file=javascript/layerforge/js/utils/LoggerUtils.js?v=patch26";
+import { snapToGrid, getSnapAdjustment } from "/file=javascript/layerforge/js/utils/CommonUtils.js?v=patch26";
 const log = createModuleLogger('CanvasInteractions');
 export class CanvasInteractions {
     constructor(canvas) {
@@ -348,7 +348,7 @@ export class CanvasInteractions {
                 this.startPanning(e);
                 return;
             }
-            this.canvas.maskTool.handleMouseDown(coords.world, coords.view);
+            this.canvas.maskTool.handleMouseDown(coords.world, coords.view, mods);
             return;
         }
         if (this.interaction.mode === 'transformingOutputArea') {
@@ -447,7 +447,7 @@ export class CanvasInteractions {
         }
         switch (this.interaction.mode) {
             case 'drawingMask':
-                this.canvas.maskTool.handleMouseMove(coords.world, coords.view);
+                this.canvas.maskTool.handleMouseMove(coords.world, coords.view, mods);
                 // Don't render during mask drawing - it's handled by mask tool internally
                 break;
             case 'panning':

@@ -101,6 +101,18 @@
     background-color: #555;
 }
 
+.painter-button.info {
+    border-color: #4aa3ff;
+    background-color: #444;
+    color: #fff;
+    box-shadow: 0 0 0 1.5px #4aa3ff88;
+}
+.painter-button.info:hover {
+    border-color: #6ab6ff;
+    box-shadow: 0 0 0 2.5px #6ab6ff88;
+    background-color: #555;
+}
+
 .painter-button.icon-button {
     width: 30px;
     height: 30px;
