@@ -117,9 +117,11 @@ document.addEventListener("DOMContentLoaded", function() {
             uiCurrentTab = newTab;
             executeCallbacks(uiTabChangeCallbacks);
         }
+        initSelectedStylesPreviewLayout();
     });
     mutationObserver.observe(gradioApp(), {childList: true, subtree: true});
     initGeneratingStateRecovery();
+    initSelectedStylesPreviewLayout();
     initStylePreviewOverlay();
     initBatchPreviewGeneratingOverlay();
 });
@@ -322,7 +324,6 @@ function initStylePreviewOverlay() {
         overlay.style.top = `${e.clientY}px`;
         overlay.className = e.clientY > window.innerHeight / 2 ? "lower-half" : "upper-half";
     });
-    // 新增文本悬浮层
     const textOverlay = document.createElement('div');
     textOverlay.id = 'styleTextOverlay';
     Object.assign(textOverlay.style, {
@@ -340,9 +341,26 @@ function initStylePreviewOverlay() {
         backdropFilter: 'blur(3px)'
     });
     document.body.appendChild(textOverlay);
+    const styleTooltipSelector = '.style-tooltip-target';
+    const escapeHtml = (value) => String(value || '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    const renderStyleTextOverlay = (styleData) => {
+        const name = escapeHtml(styleData.name || '');
+        const prompt = escapeHtml(styleData.prompt || '');
+        const negativePrompt = escapeHtml(styleData.negative_prompt || '');
+        textOverlay.innerHTML = `
+            <div style="font-weight:bold; margin-bottom: 6px; font-size: 14px">${name}</div>
+            ${prompt ? `<div style="color:#ddd;font-size:12px;margin:4px 0">Prompt: ${prompt}</div>` : ''}
+            ${negativePrompt ? `<div style="color:#888;font-size:12px">Negative: ${negativePrompt}</div>` : ''}
+        `;
+    };
 
     document.addEventListener('mouseover', function(e) {
-        const container = e.target.closest('.style_item');
+        const container = e.target.closest(styleTooltipSelector);
         if (!container) {
             textOverlay.style.display = 'none';
             return;
@@ -355,11 +373,7 @@ function initStylePreviewOverlay() {
 
         try {
             const styleData = JSON.parse(styleDataRaw || '{}');
-            textOverlay.innerHTML = `
-                <div style="font-weight:bold; margin-bottom: 6px; font-size: 14px">${styleData.name || ''}</div>
-                ${styleData.prompt ? `<div style="color:#ddd;font-size:12px;margin:4px 0">Prompt: ${styleData.prompt}</div>` : ''}
-                ${styleData.negative_prompt ? `<div style="color:#888;font-size:12px">Negative: ${styleData.negative_prompt}</div>` : ''}
-            `;
+            renderStyleTextOverlay(styleData);
             textOverlay.style.display = 'block';
         } catch (e) {
             console.error('Error parsing style data:', e);
@@ -381,7 +395,7 @@ function initStylePreviewOverlay() {
         }
     });
     document.addEventListener('mouseout', function(e) {
-        if (!e.relatedTarget || !e.relatedTarget.closest('.style_item')) {
+        if (!e.relatedTarget || !e.relatedTarget.closest(styleTooltipSelector)) {
             textOverlay.style.display = 'none';
         }
     });
@@ -480,6 +494,43 @@ function initStylePreviewOverlay() {
             handleStyleData(dataInput, e);
         }
     });
+}
+
+let selectedStylesPreviewResizeObserver = null;
+let currentSelectedStylesPreview = null;
+
+function syncSelectedStylesPreviewLayout() {
+    const promptTextbox = gradioApp().querySelector('#positive_prompt textarea, #positive_prompt [data-testid="textbox"]');
+    if (!promptTextbox) return;
+
+    const preview = gradioApp().querySelector('#selected_styles_preview');
+    const summary = preview?.querySelector('.selected-style-summary');
+    const previewHeight = summary && !summary.classList.contains('is-empty')
+        ? Math.ceil(summary.getBoundingClientRect().height)
+        : 0;
+
+    promptTextbox.style.paddingBottom = `${Math.max(12, previewHeight + 16)}px`;
+}
+
+function initSelectedStylesPreviewLayout() {
+    const preview = gradioApp().querySelector('#selected_styles_preview');
+
+    if (!selectedStylesPreviewResizeObserver) {
+        selectedStylesPreviewResizeObserver = new ResizeObserver(() => {
+            syncSelectedStylesPreviewLayout();
+        });
+        window.addEventListener('resize', syncSelectedStylesPreviewLayout);
+    }
+
+    if (preview && currentSelectedStylesPreview !== preview) {
+        if (currentSelectedStylesPreview) {
+            selectedStylesPreviewResizeObserver.unobserve(currentSelectedStylesPreview);
+        }
+        currentSelectedStylesPreview = preview;
+        selectedStylesPreviewResizeObserver.observe(preview);
+    }
+
+    requestAnimationFrame(syncSelectedStylesPreviewLayout);
 }
 
 function initBatchPreviewGeneratingOverlay() {

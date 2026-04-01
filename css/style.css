@@ -1106,6 +1106,53 @@ body[data-theme="dark"] .preset_store button.preset-missing {
   width: 100%;
 }
 
+.selected-styles-preview {
+  position: absolute;
+  left: 0.4em;
+  right: 5.4em;
+  bottom: 0.4em;
+  z-index: 6;
+  min-height: 0 !important;
+}
+
+.selected-styles-preview > .html-container,
+.selected-styles-preview > .prose {
+  padding: 0 !important;
+  min-height: 0 !important;
+  background: transparent !important;
+}
+
+.selected-style-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  flex-wrap: wrap;
+}
+
+.selected-style-summary.is-empty {
+  display: none;
+}
+
+button.selected-style-chip {
+  border: none !important;
+  background: var(--secondary-400) !important;
+  color: var(--neutral-100) !important;
+  border-radius: var(--radius-md) !important;
+  padding: 0 0.5em !important;
+  min-height: 0 !important;
+  width: auto !important;
+  cursor: default !important;
+  font-size: 0.85em !important;
+  line-height: 1.8em !important;
+  opacity: 0.5;
+  box-shadow: none !important;
+}
+
+button.selected-style-chip:hover {
+  background: var(--secondary-400) !important;
+  opacity: 0.9;
+}
+
 .clear-prompt-btn {
   width: 20px;
   height: 24px;

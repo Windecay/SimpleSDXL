@@ -1,5 +1,6 @@
 import io
 import base64
+import html
 import numpy as np
 import gradio as gr
 import os
@@ -1458,6 +1459,23 @@ with shared.gradio_root:
                 bar_store_button.click(topbar.toggle_preset_store, inputs=state_topbar, outputs=[preset_store, preset_store_list, system_params, identity_dialog, current_id_info, current_upstream_status, identity_export_btn] + identity_ctrls + identity_input, show_progress=False).then(fn=lambda x: None, inputs=system_params, _js='(x)=>{refresh_topbar_status_js(x);}')
                 preset_store_list.click(topbar.update_navbar_from_mystore, inputs=[preset_store_list, state_topbar], outputs=nav_bars + [system_params], show_progress=False).then(fn=lambda x: None, inputs=system_params, _js='(x)=>{refresh_topbar_status_js(x);}')
                 
+            def render_selected_styles_html(selected_styles):
+                selected_styles = selected_styles or []
+                chips = []
+                for style_name in selected_styles:
+                    style_data = modules.sdxl_styles.get_style_config(style_name)
+                    style_data_json = json.dumps(style_data, ensure_ascii=False).replace('"', '&quot;')
+                    safe_style_name = html.escape(style_name, quote=True)
+                    chips.append(
+                        f'<button type="button" class="selected-style-chip style-tooltip-target" '
+                        f'data-style-name="{safe_style_name}" data-style-data="{style_data_json}">{safe_style_name}</button>'
+                    )
+
+                if len(chips) == 0:
+                    return '<div class="selected-style-summary is-empty"></div>'
+
+                return f'<div class="selected-style-summary">{"".join(chips)}</div>'
+
             with gr.Group():
                 with gr.Row():
                     with gr.Column(scale=12):
@@ -1469,6 +1487,11 @@ with shared.gradio_root:
                             clear_prompt_btn = gr.Button(value="x", elem_classes=["clear-prompt-btn"], visible=True)
                             prompt_token_counter = gr.HTML(visible=True, value=0, elem_classes=["tokenCounter"], elem_id="token_counter")
                             tag_helper_btn = gr.HTML('<i class="fa-solid fa-tags"></i>', elem_classes=["tagHelper"], elem_id="tag_helper_btn")
+                            selected_styles_preview = gr.HTML(
+                                value=render_selected_styles_html(copy.deepcopy(modules.config.default_styles)),
+                                elem_id="selected_styles_preview",
+                                elem_classes=["selected-styles-preview"]
+                            )
 
                         def calculateTokenCounter(text, style_selections):
                             if len(text) < 1:
@@ -3385,7 +3408,7 @@ with shared.gradio_root:
                         variant_class = "primary" if is_primary else "secondary"
                         style_data_json = json.dumps(style_data).replace('"', '&quot;')
                         html += f"""
-                        <div class="style_item" data-style-data="{style_data_json}">
+                        <div class="style_item style-tooltip-target" data-style-data="{style_data_json}">
                             <button class="style-button {variant_class}" data-style-name="{style}">{style}</button>
                         </div>
                         """
@@ -3404,6 +3427,11 @@ with shared.gradio_root:
                                         inputs=style_selections,
                                         outputs=None,
                                         _js='() => { refresh_style_layout(); }')
+                style_selections.change(render_selected_styles_html,
+                                        inputs=style_selections,
+                                        outputs=selected_styles_preview,
+                                        show_progress=False,
+                                        queue=False)
 
                 prompt.change(lambda x,y: calculateTokenCounter(x,y), inputs=[prompt, style_selections], outputs=prompt_token_counter)
 

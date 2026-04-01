@@ -1993,7 +1993,7 @@ def worker():
                         async_task.params_backend[f'enhance_uov_processing_order'] = async_task.enhance_uov_processing_order
                         if async_task.enhance_uov_processing_order == flags.enhancement_uov_after:
                             async_task.params_backend[f'enhance_uov_prompt_type'] = async_task.enhance_uov_prompt_type
-                        tiled_block = 1024 if (async_task.task_class == 'Comfy' and async_task.task_method == 'sd15_aio') else 2048
+                        tiled_block = 1024 if (async_task.task_class == 'Comfy' and async_task.task_method in ['sd15_aio','anima_aio']) else 2048
                         uov_method = async_task.enhance_uov_method
                         if async_task.enhance_input_image is not None:
                             H, W, C = async_task.enhance_input_image.shape
