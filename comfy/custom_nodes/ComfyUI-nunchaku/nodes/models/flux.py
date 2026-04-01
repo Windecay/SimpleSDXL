@@ -82,16 +82,16 @@ class NunchakuFluxDiTLoader:
 
         ngpus = torch.cuda.device_count()
 
-        all_turing = True
-        for i in range(torch.cuda.device_count()):
+        all_turing = ngpus > 0
+        for i in range(ngpus):
             if not is_turing(f"cuda:{i}"):
                 all_turing = False
 
         if all_turing:
-            attention_options = ["nunchaku-fp16"]  # turing GPUs do not support flashattn2
-            dtype_options = ["float16"]
-        else:
             attention_options = ["nunchaku-fp16", "flash-attention2"]
+            dtype_options = ["float16", "bfloat16"]
+        else:
+            attention_options = ["flash-attention2", "nunchaku-fp16"]
             dtype_options = ["bfloat16", "float16"]
 
         return {
@@ -207,11 +207,26 @@ class NunchakuFluxDiTLoader:
         """
         device = torch.device(f"cuda:{device_id}")
 
-        model_path = get_full_path_or_raise("diffusion_models", model_path)
-
         # Check if the device_id is valid
         if device_id >= torch.cuda.device_count():
             raise ValueError(f"Invalid device_id: {device_id}. Only {torch.cuda.device_count()} GPUs available.")
+
+        is_device_turing = is_turing(f"cuda:{device_id}")
+        if is_device_turing:
+            if attention == "flash-attention2":
+                logger.warning("Turing GPU does not support flash-attention2. Falling back to nunchaku-fp16.")
+                attention = "nunchaku-fp16"
+            if data_type == "bfloat16":
+                logger.warning("Turing GPU does not support bfloat16. Falling back to float16.")
+                data_type = "float16"
+
+        try:
+            model_path = get_full_path_or_raise("diffusion_models", model_path)
+        except Exception:
+            if os.path.isabs(model_path) and os.path.exists(model_path):
+                pass
+            else:
+                raise
 
         # Get the GPU properties
         gpu_properties = torch.cuda.get_device_properties(device_id)
@@ -251,11 +266,12 @@ class NunchakuFluxDiTLoader:
                 comfy.model_management.soft_empty_cache()
                 comfy.model_management.free_memory(model_size, device)
 
+            torch_dtype = torch.float16 if data_type == "float16" else torch.bfloat16
             self.transformer, self.metadata = NunchakuFluxTransformer2dModel.from_pretrained(
                 model_path,
                 offload=cpu_offload_enabled,
                 device=device,
-                torch_dtype=torch.float16 if data_type == "float16" else torch.bfloat16,
+                torch_dtype=torch_dtype,
                 return_metadata=True,
             )
             self.model_path = model_path
@@ -298,7 +314,7 @@ class NunchakuFluxDiTLoader:
             assert model_class_name == "Flux", f"Unknown model class {model_class_name}."
             model_class = Flux
         model_config = model_class(comfy_config["model_config"])
-        model_config.set_inference_dtype(torch.bfloat16, None)
+        model_config.set_inference_dtype(torch.float16 if data_type == "float16" else torch.bfloat16, None)
         model_config.custom_operations = None
         model = model_config.get_model({})
         model.diffusion_model = ComfyFluxWrapper(

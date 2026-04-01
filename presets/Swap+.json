@@ -15,9 +15,9 @@
 	    "aspect_ratio_select_mode": "auto_candidate",
             "additional_prompt_title_2": "Reference Image Target=[Subject] / [Custom Target] / [None(empty)]",
             "additional_prompt_2": {
-                "Swap": "Subject",
-                "Swap&Refine": "Subject",
-                "Swap&Refine[Match Origin Resolution]": "Subject"
+                "Swap": "",
+                "Swap&Refine": "",
+                "Swap&Refine[Match Origin Resolution]": ""
                 },
 	    "task_method": {
                 "Swap": "clothing2",
