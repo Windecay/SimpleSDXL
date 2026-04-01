@@ -114,6 +114,31 @@ export class CanvasLayersPanel {
             </div>
         `;
         this.layersContainer = this.container.querySelector('#layers-container');
+        if (this.layersContainer) {
+            this.layersContainer.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (e.dataTransfer) {
+                    e.dataTransfer.dropEffect = this.draggedElements.length ? 'move' : 'copy';
+                }
+                this.layersContainer.classList.add('dragover-external');
+            });
+            this.layersContainer.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (!this.layersContainer.contains(e.relatedTarget)) {
+                    this.layersContainer.classList.remove('dragover-external');
+                }
+            });
+            this.layersContainer.addEventListener('drop', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.layersContainer.classList.remove('dragover-external');
+                if (!this.draggedElements.length) {
+                    this.handleExternalDrop(e);
+                }
+            });
+        }
         // Setup event listeners dla przycisków
         this.setupControlButtons();
         this.setupMasterVisibilityToggle();
@@ -127,6 +152,83 @@ export class CanvasLayersPanel {
         });
         log.debug('Panel structure created');
         return this.container;
+    }
+
+    async handleExternalDrop(e) {
+        try {
+            if (!e || !e.dataTransfer)
+                return;
+            const img = await this.loadDroppedImageFromDataTransfer(e.dataTransfer);
+            if (!img)
+                return;
+            await this.canvas.canvasLayers.addLayerWithImage(img, {}, 'center');
+            this.renderLayers();
+        }
+        catch (err) {
+            log.warn('Failed to handle external drop into layers panel:', err);
+        }
+    }
+
+    async loadDroppedImageFromDataTransfer(dataTransfer) {
+        const files = dataTransfer && dataTransfer.files ? Array.from(dataTransfer.files) : [];
+        const imageFile = files.find((f) => String(f?.type || '').startsWith('image/')) || null;
+        if (imageFile) {
+            return await this.loadImageFromFile(imageFile);
+        }
+        const uriListRaw = String(dataTransfer.getData('text/uri-list') || '');
+        const uriListFirst = uriListRaw
+            .split(/\r?\n/g)
+            .map((s) => s.trim())
+            .find((s) => s && !s.startsWith('#'));
+        const textRaw = String(dataTransfer.getData('text/plain') || '').trim();
+        const payload = String(uriListFirst || textRaw || '').trim();
+        if (!payload)
+            return null;
+        if (payload.startsWith('data:image/')) {
+            return await this.loadImageFromDataUrl(payload);
+        }
+        try {
+            const resp = await fetch(payload);
+            const blob = await resp.blob();
+            const type = String(blob?.type || '');
+            if (!type.startsWith('image/'))
+                return null;
+            const file = new File([blob], `dropped_${Date.now()}.png`, { type: type || 'image/png' });
+            return await this.loadImageFromFile(file);
+        }
+        catch {
+            return null;
+        }
+    }
+
+    async loadImageFromFile(file) {
+        return await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                const dataUrl = typeof reader.result === 'string' ? reader.result : '';
+                if (!dataUrl || !dataUrl.startsWith('data:image/')) {
+                    resolve(null);
+                    return;
+                }
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                img.onload = () => resolve(img);
+                img.onerror = () => resolve(null);
+                img.src = dataUrl;
+            };
+            reader.onerror = () => resolve(null);
+            reader.readAsDataURL(file);
+        });
+    }
+
+    async loadImageFromDataUrl(dataUrl) {
+        return await new Promise((resolve) => {
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = () => resolve(img);
+            img.onerror = () => resolve(null);
+            img.src = dataUrl;
+        });
     }
     setupControlButtons() {
         if (!this.container)
@@ -425,8 +527,32 @@ export class CanvasLayersPanel {
             this.renderLayers();
         }
         this.draggedElements = [...this.canvas.canvasSelection.selectedLayers];
-        e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('text/plain', '');
+        e.dataTransfer.effectAllowed = 'copyMove';
+        const primary = layer || (this.draggedElements.length ? this.draggedElements[0] : null);
+        let payload = '';
+        try {
+            const img = primary && primary.image ? primary.image : null;
+            if (img && typeof img.toDataURL === 'function') {
+                payload = img.toDataURL('image/png');
+            }
+            else if (img && typeof img.src === 'string') {
+                payload = img.src;
+            }
+        }
+        catch (e0) {
+        }
+        try {
+            if (payload) {
+                e.dataTransfer.setData('text/uri-list', payload);
+                e.dataTransfer.setData('text/plain', payload);
+            }
+            else {
+                e.dataTransfer.setData('text/plain', '');
+            }
+        }
+        catch (e1) {
+            e.dataTransfer.setData('text/plain', '');
+        }
         this.layersContainer.querySelectorAll('.layer-row').forEach((row, idx) => {
             const sortedLayers = [...this.canvas.layers].sort((a, b) => b.zIndex - a.zIndex);
             if (this.draggedElements.includes(sortedLayers[idx])) {
@@ -437,8 +563,9 @@ export class CanvasLayersPanel {
     }
     handleDragOver(e) {
         e.preventDefault();
+        e.stopPropagation();
         if (e.dataTransfer)
-            e.dataTransfer.dropEffect = 'move';
+            e.dataTransfer.dropEffect = this.draggedElements.length ? 'move' : 'copy';
         const layerRow = e.currentTarget;
         const rect = layerRow.getBoundingClientRect();
         const midpoint = rect.top + rect.height / 2;
@@ -467,8 +594,13 @@ export class CanvasLayersPanel {
     }
     handleDrop(e, targetIndex) {
         e.preventDefault();
+        e.stopPropagation();
         this.removeDragInsertionLine();
-        if (this.draggedElements.length === 0 || !(e.currentTarget instanceof HTMLElement))
+        if (this.draggedElements.length === 0) {
+            this.handleExternalDrop(e);
+            return;
+        }
+        if (!(e.currentTarget instanceof HTMLElement))
             return;
         const rect = e.currentTarget.getBoundingClientRect();
         const midpoint = rect.top + rect.height / 2;

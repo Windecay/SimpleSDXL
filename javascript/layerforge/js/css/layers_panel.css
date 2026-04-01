@@ -266,6 +266,11 @@
     background: #5a5a5a;
 }
 
+.layers-container.dragover-external {
+    outline: 2px dashed rgba(74, 123, 200, 0.75);
+    outline-offset: -6px;
+}
+
 .layer-visibility-toggle {
     width: 20px;
     height: 20px;
