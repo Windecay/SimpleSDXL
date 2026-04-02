@@ -630,8 +630,7 @@ def get_preset_inc_url(preset_name='blank'):
     else:
         return f'{args_manager.args.webroot}/file={blank_inc_path}'
 
-def refresh_nav_bars(state_params):
-    # 安全获取__session和ua_hash，如果不存在则提供默认值
+def _get_effective_nav_preset_list(state_params):
     user_session = state_params.get("__session", "")
     ua_hash = state_params.get("ua_hash", "")
     preset_name_list = get_preset_name_list(user_session, ua_hash).split(',')
@@ -643,13 +642,15 @@ def refresh_nav_bars(state_params):
         if preset and preset not in unique_presets:
             unique_presets.append(preset)
     preset_name_list = unique_presets
+
     user_did = state_params["user"].get_did()
     is_guest = shared.token.is_guest(user_did)
     path_preset = os.path.abspath(f'./presets/')
     user_path_preset = get_path_in_user_dir('presets', user_did)
-    num = len(preset_name_list)
-    for preset in preset_name_list[:]:
-        arch_str = config.get_gpu_arch_str_in_preset_name()
+
+    existing_presets = []
+    arch_str = config.get_gpu_arch_str_in_preset_name()
+    for preset in preset_name_list:
         if preset.endswith('.'):
             preset_file = os.path.join(user_path_preset, f'{preset[:-1]}.json')
             preset_file2 = os.path.join(user_path_preset, f'{preset[:-1]}{arch_str}.json')
@@ -658,14 +659,22 @@ def refresh_nav_bars(state_params):
             preset_file2 = os.path.join(path_preset, f'{preset}{arch_str}.json')
         if os.path.exists(preset_file2):
             preset_file = preset_file2
-        if not os.path.exists(preset_file):
-            preset_name_list.remove(preset)
-    if num != len(preset_name_list):
-        nav_name_list = ','.join(preset_name_list)
+        if os.path.exists(preset_file):
+            existing_presets.append(preset)
+
+    if len(existing_presets) != len(preset_name_list):
+        nav_name_list = ','.join(existing_presets)
         if is_guest and hasattr(shared.token, 'set_local_vars_for_guest'):
-            shared.token.set_local_vars_for_guest("user_presets", nav_name_list, state_params["__session"], state_params["ua_hash"])
+            shared.token.set_local_vars_for_guest("user_presets", nav_name_list, state_params.get("__session", ""), state_params.get("ua_hash", ""))
         else:
-            shared.token.set_local_vars("user_presets", nav_name_list, state_params["__session"], state_params["ua_hash"])
+            shared.token.set_local_vars("user_presets", nav_name_list, state_params.get("__session", ""), state_params.get("ua_hash", ""))
+
+    return existing_presets
+
+def refresh_nav_bars(state_params):
+    preset_name_list = _get_effective_nav_preset_list(state_params)
+    user_did = state_params["user"].get_did()
+    is_guest = shared.token.is_guest(user_did)
 
     for i in range(shared.BUTTON_NUM - len(preset_name_list)):
         preset_name_list.append('')
@@ -1315,13 +1324,7 @@ def admin_sync_to_guest(state, catalog='presets'):
 
 
 def update_topbar_js_params(state):
-    # 获取原始预设列表
-    nav_name_list = get_preset_name_list(state["__session"], state["ua_hash"])
-    # 对预设列表进行过滤，确保与UI显示的预设一致
-    preset_name_list = nav_name_list.split(',')
-    filtered_presets = preset_filter(preset_name_list)
-    # 创建一个仅包含过滤后预设的新列表
-    filtered_preset_name_list = [preset for preset in preset_name_list if preset in filtered_presets]
+    filtered_preset_name_list = _get_effective_nav_preset_list(state)
     filtered_nav_name_list_str = ','.join(filtered_preset_name_list)
 
     if "__lang" not in state:
