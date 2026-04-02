@@ -117,8 +117,8 @@
             },
             "switch_option4_title": "Reference image: Crop ✓ / Pad ×",
             "switch_option4": {
-                "Wan-Animate-SAM3 Object Replacement": true,
-                "Wan-Animate-SAM3 Person Replacement": true,
+                "Wan-Animate-SAM3 Object Replacement": false,
+                "Wan-Animate-SAM3 Person Replacement": false,
                 "Wan-Animate Motion Transfer (No SAM3 Mask)": true
             },
                 "aspect_ratio" : ["640|1:1","720|1:1","832|1:1","960|1:1","1024|1:1","1280|1:1"]

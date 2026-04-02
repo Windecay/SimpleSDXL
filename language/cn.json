@@ -743,6 +743,7 @@
   "Nvidia-VSR":"Nvidia超分辨率",
   "Nvidia-VSR\u2B07":"Nvidia超分辨率\u2B07",
   "Hunyuan-Foley":"Foley音效生成",
+  "Hunyuan-Foley\u2B07":"Foley音效生成\u2B07",
   "Basic": "基础",
   "9 restore prompts: 0 Custom, 1–2 Original-color restore, 3 White balance, 4–5 Colorize, 6 Color old photos, 7 Modern pro photography, 8 Fix face/hands/feet, 9 Product retouch": "9种修复专用提示词，0自定义输入，12原色修复，3白平衡校正，45上色，6彩色老照片，7现代专业摄影，8修脸手脚，9产品精修",
   "ACE++ is fast; PuLID is slow. Larger processing size = clearer but slower. Output keeps original image size.": "ACE++高效，Pulid慢速，处理尺寸越大越清晰越耗时，输出为原图尺寸",
