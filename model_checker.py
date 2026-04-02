@@ -175,6 +175,8 @@ def load_model_paths():
             "SEEDVR2": [os.path.join(simplemodels_root, "SEEDVR2")],
             "sam3": [os.path.join(simplemodels_root, "sam3")],
             "qwen-tts": [os.path.join(simplemodels_root, "qwen-tts")],
+            "latent_upscale_models": [os.path.join(simplemodels_root, "latent_upscale_models")],
+            "hunyuan_foley": [os.path.join(simplemodels_root, "hunyuan_foley")],
         }
 
     except Exception as e:
@@ -226,6 +228,7 @@ def load_model_paths():
             "sams": [os.path.join(simplemodels_root, "sams")],
             "qwen-tts": [os.path.join(simplemodels_root, "qwen-tts")],
             "latent_upscale_models": [os.path.join(simplemodels_root, "latent_upscale_models")],
+            "hunyuan_foley": [os.path.join(simplemodels_root, "hunyuan_foley")],
         }
 
     for key in path_mapping:
@@ -740,6 +743,7 @@ def validate_files(packages):
         os.path.join(simplemodels_root, "sams"),
         os.path.join(simplemodels_root, "qwen-tts"),
         os.path.join(simplemodels_root, "latent_upscale_models"),
+        os.path.join(simplemodels_root, "hunyuan_foley"),
         ]
         for model_root in MODEL_PATHS_TO_SCAN:
             if not os.path.exists(model_root):
@@ -1039,7 +1043,7 @@ def delete_partial_files():
         'clip', 'clip_vision', 'llms', 'LLM', 'unet', 'diffusers', 'model_patches',
         'text_encoders', 'audio_encoders', 'safety_checker', 'layer_model', 'pulid', 'insightface',
         'prompt_expansion', 'fooocus_expansion', 'gemma3', 'jina_clip', 'rembg', 'sam3', 'sams', 'qwen-tts',
-        'latent_upscale_models',
+        'latent_upscale_models', 'hunyuan_foley',
     ]
 
     scan_dirs = []
@@ -1115,7 +1119,7 @@ def _find_obsolete_model_files():
         'clip', 'clip_vision', 'llms', 'LLM', 'unet', 'diffusers', 'model_patches',
         'text_encoders', 'audio_encoders', 'safety_checker', 'layer_model', 'pulid', 'insightface',
         'prompt_expansion', 'fooocus_expansion', 'gemma3', 'jina_clip', 'rembg', 'sam3', 'sams', 'qwen-tts',
-        'latent_upscale_models',
+        'latent_upscale_models', 'hunyuan_foley',
     ]
 
     scan_dirs = []
@@ -1332,25 +1336,30 @@ def download_file_with_resume(link, file_path, position, result_queue, max_retri
             response = requests.get(link, stream=True, headers=headers, timeout=(30, 60))
 
             mode = 'ab'
-            total_size = int(expected_total_size) if expected_total_size else 0
+            try:
+                total_size = int(expected_total_size) if expected_total_size is not None else 0
+            except Exception:
+                total_size = 0
+            if total_size < 0:
+                total_size = 0
             if response.status_code == 200:
                 resume_size = 0
                 mode = 'wb'
                 header_size = int(response.headers.get('content-length', 0) or 0)
-                if header_size > 0:
+                if total_size <= 0 and header_size > 0:
                     total_size = header_size
             elif response.status_code == 206:
                 content_range = response.headers.get('content-range', '')
                 match = re.search(r'/(\d+)$', content_range)
-                if match:
+                if total_size <= 0 and match:
                     total_size = int(match.group(1))
                 else:
                     header_size = int(response.headers.get('content-length', 0) or 0)
-                    if header_size > 0:
+                    if total_size <= 0 and header_size > 0:
                         total_size = header_size + resume_size
             else:
                 header_size = int(response.headers.get('content-length', 0) or 0)
-                if header_size > 0:
+                if total_size <= 0 and header_size > 0:
                     total_size = header_size + resume_size
 
             block_size = 8192
@@ -1408,9 +1417,10 @@ def download_file_with_resume(link, file_path, position, result_queue, max_retri
                 file.flush()
                 os.fsync(file.fileno())
 
-                # 校验文件大小
                 downloaded_size = os.path.getsize(partial_file_path)
-                if downloaded_size != total_size:
+                if downloaded_size <= 0:
+                    raise requests.exceptions.RequestException("文件大小校验失败：下载结果为空")
+                if total_size > 0 and downloaded_size != total_size:
                     raise requests.exceptions.RequestException(f"文件大小校验失败：预期 {total_size} 字节，实际 {downloaded_size} 字节")
 
             final_file_path = os.path.normpath(file_path)
@@ -1546,8 +1556,9 @@ def auto_download_missing_files_with_retry(max_threads=5):
                     # 理论上不应发生，但作为防守
                     position = 0 
 
-                link, size = line.split(',')
-                size_mb = int(size) / (1024 * 1024)
+                link, size_str = line.rsplit(',', 1)
+                expected_total_size = int(size_str)
+                size_mb = expected_total_size / (1024 * 1024)
 
                 # 使用 tqdm.write 避免破坏进度条
                 tqdm.write(f"{Fore.CYAN}▶ 正在下载: {link} ({size_mb:.1f}MB){Style.RESET_ALL}")
@@ -1608,7 +1619,7 @@ def auto_download_missing_files_with_retry(max_threads=5):
                 if link in url_index:
                     path_type, rel_path = url_index[link]
                     expected_path = f"{path_type}/{rel_path}"
-                download_file_with_resume(link, file_path, position, result_queue, 5, lock, expected_path=expected_path)
+                download_file_with_resume(link, file_path, position, result_queue, 5, lock, expected_path=expected_path, expected_total_size=expected_total_size)
 
                 # 下载完成（无论成功失败），归还 Slot
                 position_slots.put(position)
@@ -2263,16 +2274,21 @@ packages = {'base_package': {'id': 1,
                                         'style_models,flux1-redux-dev.safetensors,129063232,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/style_models/flux1-redux-dev.safetensors,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/style_models/flux1-redux-dev.safetensors'],
                               'info_links': ['https://modelscope.cn/models/nunchaku-tech/nunchaku-flux.1-dev'],
                               'preset_sample': []},
- 'kontext_package': {'id': 19,
-                     'name': '[19]Flux_Kontext扩展包',
-                     'note': 'Flux_Kontext指令修图功能扩展包|显存需求：★★★☆ 速度：★★',
-                     'files': ['checkpoints,flux1-dev-kontext_fp8_scaled.safetensors,11904640136,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/checkpoints/flux1-dev-kontext_fp8_scaled.safetensors,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/checkpoints/flux1-dev-kontext_fp8_scaled.safetensors',
-                               'clip,clip_l.safetensors,246144152,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/clip/clip_l.safetensors,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/clip/clip_l.safetensors',
-                               'clip,t5xxl_fp8_e4m3fn.safetensors,4893934904,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/clip/t5xxl_fp8_e4m3fn.safetensors,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/clip/t5xxl_fp8_e4m3fn.safetensors',
-                               'loras,flux1-turbo.safetensors,694082424,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/loras/flux1-turbo.safetensors,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/loras/flux1-turbo.safetensors',
-                               'vae,ae.safetensors,335304388,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/vae/ae.safetensors,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/vae/ae.safetensors'],
-                     'info_links': ['https://modelscope.cn/models/black-forest-labs/FLUX.1-Kontext-dev'],
-                     'preset_sample': []},
+ 'hunyuan_foley_package': {'id': 19, 'name': '[19]腾讯混元Foley音效生成预置包',
+                    'note': '腾讯混元Foley音效生成预置包|显存需求：★★☆ 速度：★★☆',
+                    'files': [
+                        'hunyuan_foley,clap/config.json,643,0,https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/hunyuan_foley/clap/config.json,https://huggingface.co/windecay/SimpleSDXL2/resolve/main/SimpleModels/hunyuan_foley/clap/config.json',
+                        'hunyuan_foley,clap/merges.txt,456318,0,https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/hunyuan_foley/clap/merges.txt,https://huggingface.co/windecay/SimpleSDXL2/resolve/main/SimpleModels/hunyuan_foley/clap/merges.txt',
+                        'hunyuan_foley,clap/pytorch_model.bin,776444665,0,https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/hunyuan_foley/clap/pytorch_model.bin,https://huggingface.co/windecay/SimpleSDXL2/resolve/main/SimpleModels/hunyuan_foley/clap/pytorch_model.bin',
+                        'hunyuan_foley,clap/vocab.json,798293,0,https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/hunyuan_foley/clap/vocab.json,https://huggingface.co/windecay/SimpleSDXL2/resolve/main/SimpleModels/hunyuan_foley/clap/vocab.json',
+                        'hunyuan_foley,hunyuanvideo_foley_xl.pth,5854140970,0,https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/hunyuan_foley/hunyuanvideo_foley_xl.pth,https://huggingface.co/windecay/SimpleSDXL2/resolve/main/SimpleModels/hunyuan_foley/hunyuanvideo_foley_xl.pth',
+                        'hunyuan_foley,siglip2/config.json,276,0,https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/hunyuan_foley/siglip2/config.json,https://huggingface.co/windecay/SimpleSDXL2/resolve/main/SimpleModels/hunyuan_foley/siglip2/config.json',
+                        'hunyuan_foley,siglip2/model.safetensors,1503344520,0,https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/hunyuan_foley/siglip2/model.safetensors,https://huggingface.co/windecay/SimpleSDXL2/resolve/main/SimpleModels/hunyuan_foley/siglip2/model.safetensors',
+                        'hunyuan_foley,siglip2/preprocessor_config.json,394,0,https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/hunyuan_foley/siglip2/preprocessor_config.json,https://huggingface.co/windecay/SimpleSDXL2/resolve/main/SimpleModels/hunyuan_foley/siglip2/preprocessor_config.json',
+                        'hunyuan_foley,synchformer_state_dict.pth,950058171,0,https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/hunyuan_foley/synchformer_state_dict.pth,https://huggingface.co/windecay/SimpleSDXL2/resolve/main/SimpleModels/hunyuan_foley/synchformer_state_dict.pth',
+                        'hunyuan_foley,vae_128d_48k.pth,1486465965,0,https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/hunyuan_foley/vae_128d_48k.pth,https://huggingface.co/windecay/SimpleSDXL2/resolve/main/SimpleModels/hunyuan_foley/vae_128d_48k.pth'],
+                    'info_links': ['https://modelscope.cn/models/Tencent-Hunyuan/HunyuanVideo-Foley/'],
+                    'preset_sample': []},
  'wan_t2i_package': {'id': 20,
                      'name': '[20]Wan2.2_T2I文生图扩展包',
                      'note': '万相2.2文生图扩展包，使用万相视频模型用于生成图片|显存需求：★★★ 速度：★★',

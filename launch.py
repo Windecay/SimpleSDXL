@@ -153,6 +153,47 @@ def ensure_nvidia_vfx_installed():
             custom_env=_make_pip_env(),
             live=True,
         )
+
+def ensure_descript_audiotools_installed():
+    target_ver = "0.7.4"
+    module_candidates = ("descript_audiotools", "audiotools")
+    dist_candidates = ("descript-audiotools", "descript_audiotools")
+
+    version_ok = False
+    for dist in dist_candidates:
+        try:
+            if is_installed_version(dist, target_ver):
+                version_ok = True
+                break
+        except Exception:
+            continue
+
+    module_ok = False
+    for module_name in module_candidates:
+        try:
+            if is_installed(module_name):
+                module_ok = True
+                break
+        except Exception:
+            continue
+
+    need_reinstall = not (module_ok and version_ok)
+    if not need_reinstall:
+        return
+
+    whl_url = "https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/audiotools/descript_audiotools-0.7.4-py2.py3-none-any.whl"
+    whl_name = "descript_audiotools-0.7.4-py2.py3-none-any.whl"
+    whl_path = os.path.abspath(os.path.join(root, whl_name))
+    print("check descript_audiotools...")
+    has_update_whl = download_if_updated(whl_url, whl_path)
+    if has_update_whl or need_reinstall:
+        print(f"ready to install {whl_path}")
+        run(
+            f'"{python}" -s -m pip install --no-user -U --force-reinstall --no-deps {whl_path}',
+            f"Install {whl_path}",
+            custom_env=_make_pip_env(),
+            live=True,
+        )
 def check_base_environment():
     print(f"{now_string()} Python {sys.version}")
     print(f"{now_string()} Fooocus version: {fooocus_version.version}")
@@ -204,7 +245,7 @@ def check_base_environment():
     if torch.__version__ == '2.9.1+cu130':
         logger.info(f'当前环境：PyTorch 2.9.1+CUDA 13.0. 50系以上显卡支持Nvfp4模型加速推理.')
         update_pkgs = [('comfyui_frontend_package', '1.41.18'), ('comfyui_workflow_templates', '0.9.21'), ('comfyui-embedded-docs', '0.4.3'), ('comfy-kitchen', '0.2.8'), ('comfy-aimdo', '0.2.10'), ('transformers', '4.57.6'), ('PyOpenGL', '3.1.10'), ('glfw', '2.10.0'), ('blake3', '1.0.8'), ('aiohttp', '3.13.3'),
-        ('ninja', '1.11.1.4'), ('numpy', '1.26.4'), ('absl-py', '2.4.0'), ('flatbuffers', '25.12.19'), ('mediapipe', '0.10.32'), ('psd-tools', '1.14.1'), ('sounddevice', '0.5.5')]
+        ('ninja', '1.11.1.4'), ('numpy', '1.26.4'), ('absl-py', '2.4.0'), ('flatbuffers', '25.12.19'), ('mediapipe', '0.10.32'), ('psd-tools', '1.14.1'), ('docstring-parser', '0.17.0'), ('fire', '0.7.1'), ('flatten-dict', '0.4.2'), ('grpcio', '1.80.0'), ('julius', '0.2.7'), ('markdown', '3.10.2'), ('markdown2', '2.5.5'), ('pystoi', '0.4.1'), ('randomname', '0.2.1'), ('tensorboard', '2.20.0'), ('tensorboard-data-server', '0.7.2'), ('torch-stoi', '0.2.3'), ('werkzeug', '3.1.7'), ('sounddevice', '0.5.5')]
         for (update_pkg_name, update_pkg_version) in update_pkgs:
             if not is_installed_version(update_pkg_name, update_pkg_version):
                 success = install_package_with_retry(update_pkg_name, update_pkg_version)
@@ -247,13 +288,19 @@ def check_base_environment():
             print(f'Error installing nvidia-vfx: {str(e)}')
             print('Skipping nvidia-vfx installation and continuing...')
 
+        try:
+            ensure_descript_audiotools_installed()
+        except Exception as e:
+            print(f'Error installing descript_audiotools: {str(e)}')
+            print('Skipping descript_audiotools installation and continuing...')
+
     elif is_installed("sageattention"):
 
         update_pkgs = [('comfyui_frontend_package', '1.41.18'), ('comfyui_workflow_templates', '0.9.21'), ('comfyui-embedded-docs', '0.4.3'), ('transformers', '4.57.6'), ('bitsandbytes', '0.45.5'), ('accelerate', '1.10.1'), ('av', '14.2.0'), ('yarl', '1.18.0'), ('gguf', '0.14.0'),
                        ('sentencepiece', '0.2.0'), ('diffusers', '0.36.0'), ('huggingface_hub', '0.35.1'), ('peft', '0.17.1'), ('tokenizers', '0.22.1'), ('tiktoken', '0.11.0'), ('librosa', '0.11.0'), ('moviepy', '2.2.1'), ('piexif', '1.1.3'), ('deepdiff', '8.6.0'), ('pydantic', '2.12.2'),
                        ('GitPython', '3.1.45'), ('PyGithub', '2.8.1'), ('matrix-nio', '0.24.0'), ('toml', '0.10.2'), ('uv', '0.9.3'), ('clip-interrogator', '0.6.0'), ('simpleeval', '1.0.3'), ('compel', '2.3.0'), ('rotary-embedding-torch', '0.8.9'), ('hydra-core', '1.3.2'), ('uuid7', '0.1.0'), ('aiosqlite', '0.21.0'), ('configs','3.0.3'),
                        ('mmdet', '3.3.0'), ('mmengine', '0.10.7'), ('munkres', '1.1.4'), ('terminaltables', '3.1.10'), ('color-matcher', '0.6.0'), ('natsort', '8.4.0'), ('olefile', '0.47'), ('taichi', '1.7.4'), ('torchdiffeq', '0.2.5'), ('lark', '1.3.1'), ('comfy-kitchen', '0.2.8'), ('comfy-aimdo', '0.2.10'), ('PyOpenGL', '3.1.10'), ('glfw', '2.10.0'), ('blake3', '1.0.8'),
-                       ('aiohttp', '3.13.3'), ('ninja', '1.11.1.4'), ('numpy', '1.26.4'), ('absl-py', '2.4.0'), ('flatbuffers', '25.12.19'), ('mediapipe', '0.10.32'), ('psd-tools', '1.14.1'), ('sounddevice', '0.5.5')]
+                       ('aiohttp', '3.13.3'), ('ninja', '1.11.1.4'), ('numpy', '1.26.4'), ('absl-py', '2.4.0'), ('flatbuffers', '25.12.19'), ('mediapipe', '0.10.32'), ('psd-tools', '1.14.1'), ('docstring-parser', '0.17.0'), ('fire', '0.7.1'), ('flatten-dict', '0.4.2'), ('grpcio', '1.80.0'), ('julius', '0.2.7'), ('markdown', '3.10.2'), ('markdown2', '2.5.5'), ('pystoi', '0.4.1'), ('randomname', '0.2.1'), ('tensorboard', '2.20.0'), ('tensorboard-data-server', '0.7.2'), ('torch-stoi', '0.2.3'), ('werkzeug', '3.1.7'), ('sounddevice', '0.5.5')]
         for (update_pkg_name, update_pkg_version) in update_pkgs:
             if not is_installed_version(update_pkg_name, update_pkg_version):
                 success = install_package_with_retry(update_pkg_name, update_pkg_version)
@@ -380,6 +427,12 @@ def check_base_environment():
         except Exception as e:
             print(f'Error installing nvidia-vfx: {str(e)}')
             print('Skipping nvidia-vfx installation and continuing...')
+
+        try:
+            ensure_descript_audiotools_installed()
+        except Exception as e:
+            print(f'Error installing descript_audiotools: {str(e)}')
+            print('Skipping descript_audiotools installation and continuing...')
 
     else:
         logger.info(f'环境缺失必要组件或系统不匹配。请参考SimpAI.cn的安装说明重新部署。')

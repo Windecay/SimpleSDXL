@@ -1,0 +1,291 @@
+{
+  "11": {
+    "inputs": {
+      "model_path_name": "hunyuan_foley",
+      "foley_checkpoint_name": "hunyuanvideo_foley_xl.pth",
+      "cpu_offload": [
+        "33",
+        21
+      ]
+    },
+    "class_type": "HunyuanFoleyModelLoader",
+    "_meta": {
+      "title": "Hunyuan-Foley model loader"
+    }
+  },
+  "12": {
+    "inputs": {
+      "vae_name": "hunyuan_foley\\vae_128d_48k.pth"
+    },
+    "class_type": "LoadDACHunyuanVAE",
+    "_meta": {
+      "title": "Hunyuan-Foley VAE loader"
+    }
+  },
+  "14": {
+    "inputs": {
+      "unload_models_after_use": false,
+      "unload_vae_after_use": false,
+      "samples": [
+        "22",
+        0
+      ],
+      "vae": [
+        "12",
+        0
+      ]
+    },
+    "class_type": "DACHunyuanVAEDecode",
+    "_meta": {
+      "title": "Hunyuan-Foley VAE Decode"
+    }
+  },
+  "22": {
+    "inputs": {
+      "fps": [
+        "28",
+        0
+      ],
+      "prompt": [
+        "40",
+        0
+      ],
+      "negative_prompt": [
+        "33",
+        1
+      ],
+      "guidance_scale": [
+        "33",
+        12
+      ],
+      "steps": [
+        "33",
+        9
+      ],
+      "seed": [
+        "34",
+        0
+      ],
+      "sync_batch_size": [
+        "33",
+        11
+      ],
+      "foley_model": [
+        "11",
+        0
+      ],
+      "video_frames": [
+        "27",
+        0
+      ]
+    },
+    "class_type": "HunyuanFoleySampler",
+    "_meta": {
+      "title": "Hunyuan-Foley Sampler"
+    }
+  },
+  "27": {
+    "inputs": {
+      "video": "example.mp4",
+      "force_rate": 0,
+      "custom_width": 0,
+      "custom_height": 0,
+      "frame_load_cap": 0,
+      "skip_first_frames": 0,
+      "select_every_nth": 1,
+      "format": "AnimateDiff"
+    },
+    "class_type": "VHS_LoadVideo",
+    "_meta": {
+      "title": "Load Video (Upload) 🎥🅥🅗🅢"
+    }
+  },
+  "28": {
+    "inputs": {
+      "video_info": [
+        "27",
+        3
+      ]
+    },
+    "class_type": "VHS_VideoInfoLoaded",
+    "_meta": {
+      "title": "Video Info (Loaded) 🎥🅥🅗🅢"
+    }
+  },
+  "30": {
+    "inputs": {
+      "format": "MP4",
+      "codec": "h264",
+      "fps": [
+        "28",
+        0
+      ],
+      "crf": 19,
+      "images": [
+        "27",
+        0
+      ],
+      "audio": [
+        "41",
+        0
+      ]
+    },
+    "class_type": "SaveVideoWebsocket",
+    "_meta": {
+      "title": "SaveVideoWebsocket"
+    }
+  },
+  "32": {
+    "inputs": {
+      "boolean": [
+        "33",
+        20
+      ],
+      "on_true": [
+        "35",
+        0
+      ],
+      "on_false": [
+        "38",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "33": {
+    "inputs": {
+      "prompt": "",
+      "additional_prompt": "noisy, harsh",
+      "ip_image": "None",
+      "ip_image1": "None",
+      "inpaint_image": "None",
+      "inpaint_mask": "None",
+      "width": 512,
+      "height": 512,
+      "cfg": 8,
+      "steps": 20,
+      "var_number": 0,
+      "var_number2": 4,
+      "var_number3": 4.5,
+      "var_number4": 0,
+      "var_number5": 0,
+      "var_number6": 0,
+      "var_number7": 0,
+      "var_number8": 0,
+      "var_number9": 0,
+      "var_number10": 0,
+      "switch_option1": false,
+      "switch_option2": true,
+      "switch_option3": false,
+      "switch_option4": false,
+      "model_type": 1,
+      "model_type2": 1
+    },
+    "class_type": "SceneInput",
+    "_meta": {
+      "title": "SceneInput"
+    }
+  },
+  "34": {
+    "inputs": {
+      "seed": 0
+    },
+    "class_type": "SeedInput",
+    "_meta": {
+      "title": "SeedInput"
+    }
+  },
+  "35": {
+    "inputs": {
+      "merge_method": "add",
+      "audio1": [
+        "39",
+        0
+      ],
+      "audio2": [
+        "38",
+        0
+      ]
+    },
+    "class_type": "AudioMerge",
+    "_meta": {
+      "title": "Audio Merge"
+    }
+  },
+  "37": {
+    "inputs": {
+      "volume": [
+        "33",
+        10
+      ],
+      "audio": [
+        "32",
+        0
+      ]
+    },
+    "class_type": "AudioAdjustVolume",
+    "_meta": {
+      "title": "Audio Adjust Volume"
+    }
+  },
+  "38": {
+    "inputs": {
+      "volume": [
+        "33",
+        17
+      ],
+      "audio": [
+        "14",
+        0
+      ]
+    },
+    "class_type": "AudioAdjustVolume",
+    "_meta": {
+      "title": "Audio Adjust Volume"
+    }
+  },
+  "39": {
+    "inputs": {
+      "volume": [
+        "33",
+        16
+      ],
+      "audio": [
+        "27",
+        2
+      ]
+    },
+    "class_type": "AudioAdjustVolume",
+    "_meta": {
+      "title": "Audio Adjust Volume"
+    }
+  },
+  "40": {
+    "inputs": {
+      "value": [
+        "33",
+        0
+      ],
+      "trim_empty_lines": true
+    },
+    "class_type": "CodeableString",
+    "_meta": {
+      "title": "Codeable String"
+    }
+  },
+  "41": {
+    "inputs": {
+      "anything": [
+        "37",
+        0
+      ]
+    },
+    "class_type": "easy cleanGpuUsed",
+    "_meta": {
+      "title": "Clean VRAM Used"
+    }
+  }
+}

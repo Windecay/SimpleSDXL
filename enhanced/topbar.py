@@ -183,6 +183,7 @@ PRESET_STORE_ORDER = [
     "LTX2.3(IA2V)",
     "LTX2.3(TA2V)",
     "Nvidia-VSR",
+    "Hunyuan-Foley",
     "default",
     "eraser-a",
     "StyleTransfer",

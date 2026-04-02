@@ -1,0 +1,7 @@
+diffusers
+timm
+transformers>=4.49.0
+#git+https://github.com/descriptinc/audiotools
+omegaconf
+
+  

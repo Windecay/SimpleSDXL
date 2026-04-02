@@ -1,0 +1,438 @@
+{
+  "id": "8b9f72e1-09c3-4ea9-8374-e4af8fd483e8",
+  "revision": 0,
+  "last_node_id": 26,
+  "last_link_id": 38,
+  "nodes": [
+    {
+      "id": 22,
+      "type": "HunyuanFoleySampler",
+      "pos": [
+        1363.6480712890625,
+        486.978759765625
+      ],
+      "size": [
+        400,
+        282
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "foley_model",
+          "type": "FOLEY_MODEL",
+          "link": 28
+        },
+        {
+          "name": "video_frames",
+          "type": "IMAGE",
+          "link": 37
+        },
+        {
+          "name": "fps",
+          "type": "FLOAT",
+          "widget": {
+            "name": "fps"
+          },
+          "link": 36
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            31
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "HunyuanFoleySampler",
+        "cnr_id": "HunyuanVideo_Foley",
+        "ver": "97c26eabc11e06474fc1ab158e3231ae74c28859"
+      },
+      "widgets_values": [
+        24,
+        "",
+        "noisy, harsh",
+        4.5,
+        50,
+        910860049850876,
+        "randomize"
+      ]
+    },
+    {
+      "id": 14,
+      "type": "DACHunyuanVAEDecode",
+      "pos": [
+        1791.5380859375,
+        349.3326110839844
+      ],
+      "size": [
+        247.6458282470703,
+        78
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 31
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 9
+        }
+      ],
+      "outputs": [
+        {
+          "name": "AUDIO",
+          "type": "AUDIO",
+          "links": [
+            34
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "DACHunyuanVAEDecode",
+        "cnr_id": "HunyuanVideo_Foley",
+        "ver": "97c26eabc11e06474fc1ab158e3231ae74c28859"
+      },
+      "widgets_values": [
+        false
+      ]
+    },
+    {
+      "id": 11,
+      "type": "HunyuanFoleyModelLoader",
+      "pos": [
+        1075.2630615234375,
+        377.64727783203125
+      ],
+      "size": [
+        273.767578125,
+        82
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "FOLEY_MODEL",
+          "type": "FOLEY_MODEL",
+          "links": [
+            28
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "HunyuanFoleyModelLoader",
+        "cnr_id": "HunyuanVideo_Foley",
+        "ver": "97c26eabc11e06474fc1ab158e3231ae74c28859"
+      },
+      "widgets_values": [
+        "hunyuan_foley",
+        "hunyuanvideo_foley_xl.pth"
+      ]
+    },
+    {
+      "id": 12,
+      "type": "LoadDACHunyuanVAE",
+      "pos": [
+        1412.2607421875,
+        363.8136901855469
+      ],
+      "size": [
+        270,
+        58
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            9
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadDACHunyuanVAE",
+        "cnr_id": "HunyuanVideo_Foley",
+        "ver": "97c26eabc11e06474fc1ab158e3231ae74c28859"
+      },
+      "widgets_values": [
+        "hunyuan_foley\\vae_128d_48k.pth"
+      ]
+    },
+    {
+      "id": 24,
+      "type": "GetVideoComponents",
+      "pos": [
+        1114.6123309981926,
+        523.1248816649382
+      ],
+      "size": [
+        194.2541717529297,
+        66
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "video",
+          "type": "VIDEO",
+          "link": 32
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": [
+            37,
+            38
+          ]
+        },
+        {
+          "name": "audio",
+          "type": "AUDIO",
+          "links": null
+        },
+        {
+          "name": "fps",
+          "type": "FLOAT",
+          "links": [
+            35,
+            36
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "GetVideoComponents"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 23,
+      "type": "LoadVideo",
+      "pos": [
+        652.6102448756175,
+        527.7199984786808
+      ],
+      "size": [
+        410.07885803222666,
+        595.9185465864703
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "VIDEO",
+          "type": "VIDEO",
+          "links": [
+            32
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadVideo"
+      },
+      "widgets_values": [
+        "vid_00001-audio.mp4",
+        "image"
+      ]
+    },
+    {
+      "id": 25,
+      "type": "CreateVideo",
+      "pos": [
+        2080.2967350731205,
+        347.73284894454594
+      ],
+      "size": [
+        210,
+        78
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 38
+        },
+        {
+          "name": "audio",
+          "shape": 7,
+          "type": "AUDIO",
+          "link": 34
+        },
+        {
+          "name": "fps",
+          "type": "FLOAT",
+          "widget": {
+            "name": "fps"
+          },
+          "link": 35
+        }
+      ],
+      "outputs": [
+        {
+          "name": "VIDEO",
+          "type": "VIDEO",
+          "links": [
+            33
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CreateVideo"
+      },
+      "widgets_values": [
+        30
+      ]
+    },
+    {
+      "id": 26,
+      "type": "SaveVideo",
+      "pos": [
+        1797.996808582755,
+        496.72137227329245
+      ],
+      "size": [
+        568.1818736683238,
+        821.1405664869576
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "video",
+          "type": "VIDEO",
+          "link": 33
+        }
+      ],
+      "outputs": [],
+      "properties": {},
+      "widgets_values": [
+        "video/ComfyUI",
+        "mp4",
+        "h264"
+      ]
+    }
+  ],
+  "links": [
+    [
+      9,
+      12,
+      0,
+      14,
+      1,
+      "VAE"
+    ],
+    [
+      28,
+      11,
+      0,
+      22,
+      0,
+      "FOLEY_MODEL"
+    ],
+    [
+      31,
+      22,
+      0,
+      14,
+      0,
+      "LATENT"
+    ],
+    [
+      32,
+      23,
+      0,
+      24,
+      0,
+      "VIDEO"
+    ],
+    [
+      33,
+      25,
+      0,
+      26,
+      0,
+      "VIDEO"
+    ],
+    [
+      34,
+      14,
+      0,
+      25,
+      1,
+      "AUDIO"
+    ],
+    [
+      35,
+      24,
+      2,
+      25,
+      2,
+      "FLOAT"
+    ],
+    [
+      36,
+      24,
+      2,
+      22,
+      2,
+      "FLOAT"
+    ],
+    [
+      37,
+      24,
+      0,
+      22,
+      1,
+      "IMAGE"
+    ],
+    [
+      38,
+      24,
+      0,
+      25,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.5131581182307067,
+      "offset": [
+        -552.6102448756175,
+        -247.73284894454594
+      ]
+    },
+    "frontendVersion": "1.38.13",
+    "VHS_latentpreview": true,
+    "VHS_latentpreviewrate": 0,
+    "VHS_MetadataImage": true,
+    "VHS_KeepIntermediate": true,
+    "workflowRendererVersion": "LG"
+  },
+  "version": 0.4
+}
