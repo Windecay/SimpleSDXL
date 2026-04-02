@@ -911,6 +911,7 @@
   "Wan-Animate Motion Transfer (No SAM3 Mask)": "Wan-Animate-动作迁移（无需sam3遮罩）",
   "Wan-Animate Video Outpaint": "Wan-Animate-视频外扩",
   "Wan-Animate-SAM3 Object Replacement": "Wan-Animate-Sam3物体替换",
+  "Wan-Animate-SAM3 Face Swap": "Wan-Animate-Sam3换脸",
   "Wan-Animate-SAM3 Person Replacement": "Wan-Animate-Sam3人物替换",
   "Wan-InfiniteTalk Image+Audio Lip Sync": "Wan-InfiniteTalk图片+音频对口型",
   "Wan-Remover-SAM3 Video Removal": "Wan-Remover-sam3视频消除",

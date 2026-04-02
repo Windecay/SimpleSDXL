@@ -7,22 +7,25 @@
         "available_aspect_ratios_selection": "Flux",
         "scene_frontend": {
             "version": "v1.1",
-            "theme": ["Wan-Animate-SAM3 Object Replacement", "Wan-Animate-SAM3 Person Replacement", "Wan-Animate Motion Transfer (No SAM3 Mask)"
+            "theme": ["Wan-Animate-SAM3 Object Replacement", "Wan-Animate-SAM3 Face Swap", "Wan-Animate-SAM3 Person Replacement", "Wan-Animate Motion Transfer (No SAM3 Mask)"
             ],
             "theme_title": "Wan-Animate Video Editing Tools",
             "disvisible": ["scene_canvas_image", "scene_additional_prompt", "scene_additional_prompt_2", "scene_input_image2", "scene_video", "scene_audio", "scene_refiner_model", "scene_var_number9", "scene_var_number10"],
             "task_method": {
                 "Wan-Animate-SAM3 Object Replacement": "wan_animate_sam3_replace_cn",
+                "Wan-Animate-SAM3 Face Swap": "wan_animate_sam3_face_cn",
                 "Wan-Animate-SAM3 Person Replacement": "wan_animate_sam3_person_cn",
                 "Wan-Animate Motion Transfer (No SAM3 Mask)": "wan_animate_pose_cn"
             },
             "prompt": {
                 "Wan-Animate-SAM3 Object Replacement": "",
+                "Wan-Animate-SAM3 Face Swap": "",
                 "Wan-Animate-SAM3 Person Replacement": "",
                 "Wan-Animate Motion Transfer (No SAM3 Mask)": ""
             },
             "multimodal_prompt": {
                 "Wan-Animate-SAM3 Object Replacement": "",
+                "Wan-Animate-SAM3 Face Swap": "",
                 "Wan-Animate-SAM3 Person Replacement": "",
                 "Wan-Animate Motion Transfer (No SAM3 Mask)": ""
             },
@@ -30,14 +33,16 @@
             "scene_steps_max": 8,
             "scene_steps": {
                 "Wan-Animate-SAM3 Object Replacement": 4,
+                "Wan-Animate-SAM3 Face Swap": 4,
                 "Wan-Animate-SAM3 Person Replacement": 4,
-                "Wan-Animate Motion Transfer (No SAM3 Mask)":4
+                "Wan-Animate Motion Transfer (No SAM3 Mask)": 4
             },
             "var_number_min": 0,
             "var_number_max": 60,
             "var_number_title": "Duration limit (seconds) [0 = no limit]",
             "var_number": {
                 "Wan-Animate-SAM3 Object Replacement": 0,
+                "Wan-Animate-SAM3 Face Swap": 0,
                 "Wan-Animate-SAM3 Person Replacement": 0,
                 "Wan-Animate Motion Transfer (No SAM3 Mask)": 0
             },
@@ -46,6 +51,7 @@
             "var_number2_max": 60,
             "var_number2": {
                 "Wan-Animate-SAM3 Object Replacement": 30,
+                "Wan-Animate-SAM3 Face Swap": 30,
                 "Wan-Animate-SAM3 Person Replacement": 30,
                 "Wan-Animate Motion Transfer (No SAM3 Mask)": 30
             },
@@ -54,6 +60,7 @@
             "var_number3_max": 30.0,
             "var_number3": {
                 "Wan-Animate-SAM3 Object Replacement": 16.0,
+                "Wan-Animate-SAM3 Face Swap": 16.0,
                 "Wan-Animate-SAM3 Person Replacement": 16.0,
                 "Wan-Animate Motion Transfer (No SAM3 Mask)": 16.0
             },
@@ -62,6 +69,7 @@
             "var_number4_max": 60,
             "var_number4": {
                 "Wan-Animate-SAM3 Object Replacement": 0.0,
+                "Wan-Animate-SAM3 Face Swap": 0.0,
                 "Wan-Animate-SAM3 Person Replacement": 0.0,
                 "Wan-Animate Motion Transfer (No SAM3 Mask)": 0.0
             },
@@ -70,6 +78,7 @@
             "var_number5_title": "Motion reference strength",
             "var_number5": {
                 "Wan-Animate-SAM3 Object Replacement": 1.0,
+                "Wan-Animate-SAM3 Face Swap": 1.0,
                 "Wan-Animate-SAM3 Person Replacement": 1.0,
                 "Wan-Animate Motion Transfer (No SAM3 Mask)": 1.0
             },
@@ -78,6 +87,7 @@
             "var_number6_title": "Face reference strength",
             "var_number6": {
                 "Wan-Animate-SAM3 Object Replacement": 1.0,
+                "Wan-Animate-SAM3 Face Swap": 0.6,
                 "Wan-Animate-SAM3 Person Replacement": 0.6,
                 "Wan-Animate Motion Transfer (No SAM3 Mask)": 1.0
             },
@@ -86,6 +96,7 @@
             "var_number7_title": "Mask expansion",
             "var_number7": {
                 "Wan-Animate-SAM3 Object Replacement": 1,
+                "Wan-Animate-SAM3 Face Swap": 1,
                 "Wan-Animate-SAM3 Person Replacement": 1,
                 "Wan-Animate Motion Transfer (No SAM3 Mask)": 1
             },
@@ -94,30 +105,35 @@
             "var_number8_title": "Block Swap [smaller uses more VRAM]",
             "var_number8": {
                 "Wan-Animate-SAM3 Object Replacement": 35,
+                "Wan-Animate-SAM3 Face Swap": 35,
                 "Wan-Animate-SAM3 Person Replacement": 35,
                 "Wan-Animate Motion Transfer (No SAM3 Mask)": 35
             },
             "switch_option1_title": "Use Tiled VAE Decode",
             "switch_option1": {
                 "Wan-Animate-SAM3 Object Replacement": true,
+                "Wan-Animate-SAM3 Face Swap": true,
                 "Wan-Animate-SAM3 Person Replacement": true,
                 "Wan-Animate Motion Transfer (No SAM3 Mask)": true
             },
             "switch_option2_title": "SageAttention SpeedUp",
             "switch_option2": {
                 "Wan-Animate-SAM3 Object Replacement": true,
+                "Wan-Animate-SAM3 Face Swap": true,
                 "Wan-Animate-SAM3 Person Replacement": true,
                 "Wan-Animate Motion Transfer (No SAM3 Mask)": true
             },
             "switch_option3_title": "Save comparison video to folder",
             "switch_option3": {
                 "Wan-Animate-SAM3 Object Replacement": true,
+                "Wan-Animate-SAM3 Face Swap": true,
                 "Wan-Animate-SAM3 Person Replacement": true,
                 "Wan-Animate Motion Transfer (No SAM3 Mask)": true
             },
             "switch_option4_title": "Reference image: Crop ✓ / Pad ×",
             "switch_option4": {
                 "Wan-Animate-SAM3 Object Replacement": false,
+                "Wan-Animate-SAM3 Face Swap": false,
                 "Wan-Animate-SAM3 Person Replacement": false,
                 "Wan-Animate Motion Transfer (No SAM3 Mask)": true
             },
