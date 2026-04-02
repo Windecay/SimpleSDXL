@@ -798,7 +798,8 @@ with shared.gradio_root:
                         display_data = []
                         for cata, path_file, human_size, url, preset_size in missing_models:
                             model_name = os.path.basename(path_file)
-                            status = model_loader.get_download_status(model_name)
+                            status_key = (str(cata) + "/" + str(path_file)).replace("\\", "/").strip("/")
+                            status = model_loader.get_download_status(status_key)
                             try:
                                 total_size += int(preset_size or 0)
                             except Exception:

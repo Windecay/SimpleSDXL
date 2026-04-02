@@ -269,6 +269,7 @@ paths_diffusion_models = get_dir_or_set_default('path_diffusion_models', f'{path
 paths_text_encoders = get_dir_or_set_default('path_text_encoders', f'{path_models_root}/text_encoders', True)
 paths_sam3 = get_dir_or_set_default('path_sam3', f'{path_models_root}/sam3', True)
 paths_SEEDVR2 = get_dir_or_set_default('path_SEEDVR2', f'{path_models_root}/SEEDVR2', True)
+paths_hunyuan_foley = get_dir_or_set_default('path_hunyuan_foley', f'{path_models_root}/hunyuan_foley', True)
 
 
 
@@ -303,6 +304,7 @@ model_cata_map = {
     'sams': paths_sams,
     'seedvr2': paths_SEEDVR2,
     'SEEDVR2': paths_SEEDVR2,
+    'hunyuan_foley': paths_hunyuan_foley,
     }
 
 def _normalize_model_dirs(paths):

@@ -21,9 +21,10 @@ download_tasks = set()
 download_progress = {}
 task_lock = threading.Lock()
 
-async def download_file_with_progress(url: str, file_path: str, size: int=0):
+async def download_file_with_progress(url: str, file_path: str, size: int=0, task_id: Optional[str] = None):
     global download_progress
     file_name = os.path.basename(file_path)
+    progress_key = task_id or file_name
     timeout = int(max(60.0, size / (1024 * 1024)))
     logger.info(f'the download file timeout: {timeout}s')
     async with httpx.AsyncClient(follow_redirects=True, timeout=timeout) as client:
@@ -72,10 +73,11 @@ async def download_file_with_progress(url: str, file_path: str, size: int=0):
                             current_size = progress_bar.n
                             if total_size > 0:
                                 percent = (current_size / total_size) * 100
-                                download_progress[file_name] = {
+                                download_progress[progress_key] = {
                                     "percent": percent,
                                     "current": current_size,
-                                    "total": total_size
+                                    "total": total_size,
+                                    "file_name": file_name,
                                 }
 
             downloaded_size = os.path.getsize(partial_file_path)
@@ -83,8 +85,8 @@ async def download_file_with_progress(url: str, file_path: str, size: int=0):
                 os.rename(partial_file_path, file_path)
                 shared.modelsinfo.refresh_file('add', file_path, url)
                 logger.info(f"文件下载完成: {file_path}")
-                if file_name in download_progress:
-                    del download_progress[file_name]
+                if progress_key in download_progress:
+                    del download_progress[progress_key]
             else:
                 logger.error(f"下载的文件大小不符，预期 {total_size} 字节，实际 {downloaded_size} 字节")
                 raise Exception(f"下载的文件大小不符，预期 {total_size} 字节，实际 {downloaded_size} 字节")
@@ -92,13 +94,13 @@ async def download_file_with_progress(url: str, file_path: str, size: int=0):
             logger.error(f"下载失败: {e}")
             logger.error(f"请求 URL: {e.request.url}")
             logger.error(f"重定向 URL: {e.response.headers.get('Location')}")
-            if file_name in download_progress:
-                download_progress[file_name]["error"] = str(e)
+            if progress_key in download_progress:
+                download_progress[progress_key]["error"] = str(e)
             raise
         except Exception as e:
             logger.error(f"下载过程中发生错误: {e}")
-            if file_name in download_progress:
-                download_progress[file_name]["error"] = str(e)
+            if progress_key in download_progress:
+                download_progress[progress_key]["error"] = str(e)
             raise
 
 
@@ -110,6 +112,7 @@ def load_file_from_url(
         file_name: Optional[str] = None,
         async_task: bool = False,
         size: int = 0,
+        task_id: Optional[str] = None,
 ) -> str:
     global download_queue
 
@@ -126,30 +129,31 @@ def load_file_from_url(
         parts = urlparse(url)
         file_name = os.path.basename(parts.path)
     cached_file = os.path.abspath(os.path.join(model_dir, file_name))
+    effective_task_id = task_id or file_name
     if not os.path.exists(cached_file):
         #logger.info(f'Downloading: "{url}" to {cached_file}')
         logger.info(f'正在下载文件: "{url}"。如果速度慢，建议自行用工具下载后保存到: {cached_file}。')
         def _download_task():
             try:
-                anyio.run(download_file_with_progress, url, cached_file, size)
+                anyio.run(download_file_with_progress, url, cached_file, size, effective_task_id)
             except Exception as e:
-                print(f'下载任务:{file_name} 失败, 错误为: {e}')
+                print(f'下载任务:{effective_task_id} 失败, 错误为: {e}')
             finally:
                 with task_lock:
-                    download_tasks.discard(file_name)
-                    logger.info(f"下载任务:{file_name} 已完成, 从任务队列中清除.")
+                    download_tasks.discard(effective_task_id)
+                    logger.info(f"下载任务:{effective_task_id} 已完成, 从任务队列中清除.")
         if async_task:
             with task_lock:
-                if file_name in download_tasks:
-                    print(f"下载任务:{file_name} 已经在任务队列中.")
+                if effective_task_id in download_tasks:
+                    print(f"下载任务:{effective_task_id} 已经在任务队列中.")
                     return
                 try:
-                    if file_name in download_progress and isinstance(download_progress.get(file_name), dict) and "error" in download_progress.get(file_name, {}):
-                        del download_progress[file_name]
+                    if effective_task_id in download_progress and isinstance(download_progress.get(effective_task_id), dict) and "error" in download_progress.get(effective_task_id, {}):
+                        del download_progress[effective_task_id]
                 except Exception:
                     pass
-                download_tasks.add(file_name)
-                print(f"启动新的下载任务:{file_name}.")
+                download_tasks.add(effective_task_id)
+                print(f"启动新的下载任务:{effective_task_id}.")
             thread_pool.submit(_download_task)
         else:
             download_url_to_file(url, cached_file, progress=progress)
@@ -426,6 +430,7 @@ def download_model_files(preset, user_did=None, async_task=False):
                 if url:
                     parts = urlparse(url)
                     file_name = os.path.basename(parts.path)
+                    task_id = f"{cata}/{file_name}".replace("\\", "/")
                     result = shared.modelsinfo.get_model_names(cata, [f'{path_file[1:-1]}/'], casesensitive=True)
                     if result and len(result)>=size:
                         continue
@@ -433,6 +438,7 @@ def download_model_files(preset, user_did=None, async_task=False):
                     continue
             else:
                 file_name = path_file.replace('\\', '/').replace(os.sep, '/')
+                task_id = f"{cata}/{file_name}".replace("\\", "/")
 
             if cata in model_cata_map:
                 model_dirs = model_cata_map[cata]
@@ -479,7 +485,8 @@ def download_model_files(preset, user_did=None, async_task=False):
                     load_file_from_url(
                         url=url,
                         model_dir=model_dir,
-                        file_name=file_name
+                        file_name=file_name,
+                        task_id=task_id
                     )
                 else:
                     load_file_from_url(
@@ -487,7 +494,8 @@ def download_model_files(preset, user_did=None, async_task=False):
                         model_dir=model_dir,
                         file_name=file_name,
                         async_task=True,
-                        size=size
+                        size=size,
+                        task_id=task_id
                     )
     return
 
