@@ -473,6 +473,34 @@ def generate_clicked(task: worker.AsyncTask, state):
                     if not args_manager.args.disable_enhance_output_sorting and is_fooocus:
                         product = sort_enhance_images(product, task)
 
+                    if not product:
+                        user_cancel_action = getattr(task, 'user_cancel_action', None)
+                        if user_cancel_action is None and getattr(task, 'last_stop', False) in ['stop', 'skip']:
+                            user_cancel_action = task.last_stop
+                        try:
+                            if user_cancel_action in ['stop', 'skip']:
+                                gr.Info("用户跳过或停止本次生成。")
+                            else:
+                                gr.Warning("生成失败：后端未返回任何结果。请查看控制台日志以定位错误。")
+                        except Exception as e:
+                            logger.info(f"[Generate] gr.Info/Warning failed: {e}")
+                        if user_cancel_action in ['stop', 'skip']:
+                            logger.info(f"[Generate] finish_empty_results_user_cancel: action={user_cancel_action}, {task_meta}")
+                        else:
+                            logger.warning(f"[Generate] finish_empty_results: {task_meta}")
+                        yield gr.update(visible=False), \
+                            gr.update(visible=True, value=get_welcome_image(is_mobile=is_mobile)), \
+                            gr.update(visible=False, value=None), \
+                            gr.update(visible=False, value=None), \
+                            gr.update(visible=False), \
+                            False, \
+                            gr.update(visible=False), \
+                            gr.update(visible=False, size='sm'), \
+                            gr.update(interactive=True), \
+                            gr.update(interactive=True)
+                        finished = True
+                        continue
+
                     has_video = False
                     video_path = None
                     for path in product:

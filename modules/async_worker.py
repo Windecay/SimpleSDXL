@@ -46,6 +46,7 @@ class AsyncTask:
         self.yields = []
         self.results = []
         self.last_stop = False
+        self.user_cancel_action = None
         self.processing = False
         self.task_id = str(uuid.uuid4()) if task_id is None else task_id
         self.remote_task = None
@@ -1564,6 +1565,7 @@ def worker():
             except ldm_patched.modules.model_management.InterruptProcessingException:
                 if async_task.last_stop == 'skip':
                     logger.info('User skipped')
+                    async_task.user_cancel_action = 'skip'
                     async_task.last_stop = False
                     # also skip all enhance steps for this image, but add the steps to the progress bar
                     if async_task.enhance_uov_processing_order == flags.enhancement_uov_before:
@@ -1571,6 +1573,7 @@ def worker():
                     exception_result = 'continue'
                 else:
                     logger.info('User stopped')
+                    async_task.user_cancel_action = 'stop'
                     exception_result = 'break'
             finally:
                 done_steps_upscaling += steps
@@ -2224,10 +2227,12 @@ def worker():
                     if async_task.task_class in ['Fooocus']:
                         del task['c'], task['uc']  # Save memory
                     logger.info(f'User skipped')
+                    async_task.user_cancel_action = 'skip'
                     async_task.last_stop = False
                     continue
                 else:
                     logger.info('User stopped')
+                    async_task.user_cancel_action = 'stop'
                     break
 
             if async_task.task_class in ['Fooocus']:
@@ -2363,10 +2368,12 @@ def worker():
                 except ldm_patched.modules.model_management.InterruptProcessingException:
                     if async_task.last_stop == 'skip':
                         logger.info('User skipped')
+                        async_task.user_cancel_action = 'skip'
                         async_task.last_stop = False
                         continue
                     else:
                         logger.info('User stopped')
+                        async_task.user_cancel_action = 'stop'
                         exception_result = 'break'
                         break
                 finally:
