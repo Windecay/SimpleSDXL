@@ -352,7 +352,7 @@
     "inputs": {
       "img_compression": 18,
       "image": [
-        "576",
+        "611",
         0
       ]
     },
@@ -437,7 +437,7 @@
       "upscale_method": "lanczos",
       "scale_by": 0.5,
       "image": [
-        "576",
+        "611",
         0
       ]
     },
@@ -463,7 +463,7 @@
   "358": {
     "inputs": {
       "audio": "audio_example.mp3",
-      "audioUI": "/api/view?filename=audio_example.mp3&type=input&subfolder=&rand=0.24242007969922574"
+      "audioUI": "/api/view?filename=audio_example.mp3&type=input&subfolder=&rand=0.7339331623100649"
     },
     "class_type": "LoadAudio",
     "_meta": {
@@ -533,7 +533,7 @@
     "inputs": {
       "longer_edge": 1536,
       "images": [
-        "576",
+        "611",
         0
       ]
     },
@@ -849,7 +849,7 @@
       "keep_proportion": "total_pixels",
       "pad_color": "0, 0, 0",
       "crop_position": "center",
-      "divisible_by": 32,
+      "divisible_by": 64,
       "device": "cpu",
       "image": [
         "585",
@@ -884,7 +884,7 @@
       "var_number9": 0,
       "var_number10": 0,
       "switch_option1": false,
-      "switch_option2": false,
+      "switch_option2": true,
       "switch_option3": false,
       "switch_option4": false,
       "model_type": 1,
@@ -1037,7 +1037,7 @@
       "batch_size": 32,
       "use_fp16": true,
       "images": [
-        "567",
+        "610",
         0
       ]
     },
@@ -1069,7 +1069,7 @@
         0
       ],
       "on_false": [
-        "567",
+        "610",
         0
       ]
     },
@@ -1272,6 +1272,118 @@
     "class_type": "UnetLoaderGGUF",
     "_meta": {
       "title": "Unet Loader (GGUF)"
+    }
+  },
+  "606": {
+    "inputs": {
+      "left": 0,
+      "right": 0,
+      "top": 0,
+      "bottom": 64,
+      "extra_padding": 0,
+      "pad_mode": "color",
+      "color": "0, 0, 0",
+      "image": [
+        "576",
+        0
+      ]
+    },
+    "class_type": "ImagePadKJ",
+    "_meta": {
+      "title": "ImagePad KJ"
+    }
+  },
+  "607": {
+    "inputs": {
+      "mask": [
+        "606",
+        1
+      ]
+    },
+    "class_type": "InvertMask",
+    "_meta": {
+      "title": "InvertMask"
+    }
+  },
+  "608": {
+    "inputs": {
+      "text": "TEXTTEXTTEXTTEXTTEXTT",
+      "font": "ShareTechMono-Regular.ttf",
+      "size": 50,
+      "color": "#FFFFFF",
+      "background_color": "#00000000",
+      "shadow_distance": 0,
+      "shadow_blur": 0,
+      "shadow_color": "#000000",
+      "horizontal_align": "center",
+      "vertical_align": "bottom",
+      "offset_x": 0,
+      "offset_y": -10,
+      "direction": "ltr",
+      "img_composite": [
+        "606",
+        0
+      ]
+    },
+    "class_type": "DrawText+",
+    "_meta": {
+      "title": "🔧 Draw Text"
+    }
+  },
+  "609": {
+    "inputs": {
+      "image": [
+        "567",
+        0
+      ],
+      "mask": [
+        "607",
+        0
+      ]
+    },
+    "class_type": "ImageCropByMask",
+    "_meta": {
+      "title": "Image Crop By Mask"
+    }
+  },
+  "610": {
+    "inputs": {
+      "boolean": [
+        "578",
+        21
+      ],
+      "on_true": [
+        "609",
+        0
+      ],
+      "on_false": [
+        "567",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "611": {
+    "inputs": {
+      "boolean": [
+        "578",
+        21
+      ],
+      "on_true": [
+        "608",
+        0
+      ],
+      "on_false": [
+        "576",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
     }
   }
 }

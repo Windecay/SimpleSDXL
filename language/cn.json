@@ -801,6 +801,7 @@
   "Home appliances": "家电",
   "Image+Audio to Video": "图+音频生视频",
   "Image-to-Video": "图生视频",
+  "Disable Subtitle": "禁止生成字幕",
   "Ink wash": "水墨",
   "Interpolate to target FPS": "补帧到设定帧率",
   "Interpolate to total frames [16 = no interpolation]": "补帧到帧数[16为不补帧]",
