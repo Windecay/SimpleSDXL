@@ -78,7 +78,7 @@
             "var_number5_title": "Motion reference strength",
             "var_number5": {
                 "Wan-Animate-SAM3 Object Replacement": 1.0,
-                "Wan-Animate-SAM3 Face Swap": 1.0,
+                "Wan-Animate-SAM3 Face Swap": 0.25,
                 "Wan-Animate-SAM3 Person Replacement": 1.0,
                 "Wan-Animate Motion Transfer (No SAM3 Mask)": 1.0
             },
@@ -96,9 +96,9 @@
             "var_number7_title": "Mask expansion",
             "var_number7": {
                 "Wan-Animate-SAM3 Object Replacement": 1,
-                "Wan-Animate-SAM3 Face Swap": 1,
-                "Wan-Animate-SAM3 Person Replacement": 1,
-                "Wan-Animate Motion Transfer (No SAM3 Mask)": 1
+                "Wan-Animate-SAM3 Face Swap": 5,
+                "Wan-Animate-SAM3 Person Replacement": 5,
+                "Wan-Animate Motion Transfer (No SAM3 Mask)": 0
             },
             "var_number8_min": 0,
             "var_number8_max": 40,
