@@ -835,7 +835,7 @@
   "Merge Original Audio": "合并原始音频",
   "Batch Size[larger uses more VRAM,only CPU offload mode]": "处理批次大小[数值大更消耗显存，仅CPU卸载模式生效]",
   "Use Cpu-Offload[Low VRAM Mode]": "使用CPU卸载[低显存模式]",
-  "Force Select Resolution": "覆盖选择分辨率",
+  "Force Select Resolution": "使用选择分辨率输出",
   "Nunchaku Qwen-Edit-2511 Image Editing [Optional mask]": "双截棍Qwen-Edit-2511指令修图[蒙版可选]",
   "Nunchaku Qwen-Edit-1024px": "双截棍Qwen-Edit-1024px",
   "Nunchaku Qwen-Edit-1536px": "双截棍Qwen-Edit-1536px",

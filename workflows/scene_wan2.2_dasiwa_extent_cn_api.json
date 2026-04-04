@@ -67,7 +67,7 @@
         0
       ],
       "latent": [
-        "201",
+        "212",
         2
       ]
     },
@@ -169,15 +169,15 @@
         0
       ],
       "positive": [
-        "201",
+        "212",
         0
       ],
       "negative": [
-        "201",
+        "212",
         1
       ],
       "latent_image": [
-        "201",
+        "212",
         2
       ]
     },
@@ -614,22 +614,6 @@
       "title": "Load Video (Upload) 🎥🅥🅗🅢"
     }
   },
-  "146": {
-    "inputs": {
-      "pixels": [
-        "182",
-        0
-      ],
-      "vae": [
-        "10",
-        0
-      ]
-    },
-    "class_type": "VAEEncode",
-    "_meta": {
-      "title": "VAE Encode"
-    }
-  },
   "150": {
     "inputs": {
       "prompt": "",
@@ -645,7 +629,7 @@
       "var_number": 5,
       "var_number2": 0,
       "var_number3": 1,
-      "var_number4": 1,
+      "var_number4": 1.1,
       "var_number5": 1,
       "var_number6": 1,
       "var_number7": 0,
@@ -656,8 +640,8 @@
       "switch_option2": false,
       "switch_option3": false,
       "switch_option4": false,
-      "model_type": 2,
-      "model_type2": 2
+      "model_type": 1,
+      "model_type2": 1
     },
     "class_type": "SceneInput",
     "_meta": {
@@ -689,11 +673,11 @@
         0
       ],
       "positive": [
-        "201",
+        "212",
         0
       ],
       "negative": [
-        "201",
+        "212",
         1
       ],
       "latent_image": [
@@ -720,7 +704,7 @@
   },
   "156": {
     "inputs": {
-      "overlap": 2,
+      "overlap": 1,
       "overlap_side": "source",
       "overlap_mode": "linear_blend",
       "source_images": [
@@ -990,6 +974,20 @@
       "title": "Wan Extract Last Images"
     }
   },
+  "189": {
+    "inputs": {
+      "batch_index": 0,
+      "length": 1,
+      "image": [
+        "191",
+        0
+      ]
+    },
+    "class_type": "ImageFromBatch",
+    "_meta": {
+      "title": "ImageFromBatch"
+    }
+  },
   "191": {
     "inputs": {
       "generation_width": [
@@ -1009,51 +1007,6 @@
     "class_type": "WanVideoImageResizeToClosest",
     "_meta": {
       "title": "WanVideo Image Resize To Closest"
-    }
-  },
-  "201": {
-    "inputs": {
-      "length": [
-        "1",
-        0
-      ],
-      "motion_latent_count": 2,
-      "positive": [
-        "2",
-        0
-      ],
-      "negative": [
-        "5",
-        0
-      ],
-      "anchor_samples": [
-        "202",
-        0
-      ],
-      "prev_samples": [
-        "146",
-        0
-      ]
-    },
-    "class_type": "WanImageToVideoSVIPro",
-    "_meta": {
-      "title": "WanImageToVideoSVIPro"
-    }
-  },
-  "202": {
-    "inputs": {
-      "pixels": [
-        "187",
-        0
-      ],
-      "vae": [
-        "10",
-        0
-      ]
-    },
-    "class_type": "VAEEncode",
-    "_meta": {
-      "title": "VAE Encode"
     }
   },
   "204": {
@@ -1120,19 +1073,6 @@
       "title": "Get Image Size & Count"
     }
   },
-  "210": {
-    "inputs": {
-      "output": "",
-      "input": [
-        "208",
-        0
-      ]
-    },
-    "class_type": "Display Int (rgthree)",
-    "_meta": {
-      "title": "Display Int (rgthree)"
-    }
-  },
   "211": {
     "inputs": {
       "clip_name": "nsfw_wan_umt5-xxl_bf16_fixed.safetensors",
@@ -1142,6 +1082,56 @@
     "class_type": "CLIPLoader",
     "_meta": {
       "title": "Load CLIP"
+    }
+  },
+  "212": {
+    "inputs": {
+      "width": [
+        "191",
+        1
+      ],
+      "height": [
+        "191",
+        2
+      ],
+      "length": [
+        "1",
+        0
+      ],
+      "batch_size": 1,
+      "motion_frames": 8,
+      "motion_amplitude": [
+        "150",
+        13
+      ],
+      "positive": [
+        "2",
+        0
+      ],
+      "negative": [
+        "5",
+        0
+      ],
+      "vae": [
+        "10",
+        0
+      ],
+      "previous_video": [
+        "182",
+        0
+      ],
+      "initial_reference_image": [
+        "189",
+        0
+      ],
+      "start_image": [
+        "187",
+        0
+      ]
+    },
+    "class_type": "PainterLongVideo",
+    "_meta": {
+      "title": "Painter Long Video"
     }
   }
 }
