@@ -6,11 +6,14 @@ from .imagefunc import *
 
 mode_dict = {"ckpt_base.pth": "base", "ckpt_base_nightly.pth": "base-nightly", "ckpt_fast.pth": "fast"}
 def scan_model():
-    model_file_list = glob.glob(os.path.join(folder_paths.models_dir, "transparent-background") + '/*.pth')
     model_dict = {}
-    for i in range(len(model_file_list)):
-        _, __filename = os.path.split(model_file_list[i])
-        model_dict[__filename] = model_file_list[i]
+    model_dirs = ["transparent-background", "rembg"]
+    for model_dir in model_dirs:
+        model_file_list = glob.glob(os.path.join(folder_paths.models_dir, model_dir) + '/*.pth')
+        for i in range(len(model_file_list)):
+            _, __filename = os.path.split(model_file_list[i])
+            if __filename not in model_dict:
+                model_dict[__filename] = model_file_list[i]
     return model_dict
 
 class TransparentBackgroundUltra:
