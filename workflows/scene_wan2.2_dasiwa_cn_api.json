@@ -243,7 +243,7 @@
     "inputs": {
       "shift": 8,
       "model": [
-        "79",
+        "148",
         0
       ]
     },
@@ -279,7 +279,7 @@
     "inputs": {
       "strength": 1,
       "model": [
-        "76",
+        "146",
         0
       ]
     },
@@ -310,7 +310,7 @@
     "inputs": {
       "shift": 8,
       "model": [
-        "76",
+        "146",
         0
       ]
     },
@@ -323,7 +323,7 @@
     "inputs": {
       "shift": 8,
       "model": [
-        "79",
+        "148",
         0
       ]
     },
@@ -535,7 +535,7 @@
       "lora_name": "placeholder.safetensors",
       "strength_model": 0,
       "model": [
-        "93",
+        "76",
         0
       ]
     },
@@ -1479,6 +1479,90 @@
     "class_type": "CLIPLoader",
     "_meta": {
       "title": "Load CLIP"
+    }
+  },
+  "146": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "79",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_5"
+    }
+  },
+  "147": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "150",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_9"
+    }
+  },
+  "148": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "147",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_10"
+    }
+  },
+  "149": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "151",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_7"
+    }
+  },
+  "150": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "149",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_8"
+    }
+  },
+  "151": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "93",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_6"
     }
   }
 }

@@ -1651,7 +1651,7 @@
     },
     "class_type": "LayerUtility: ImageMaskScaleAs",
     "_meta": {
-      "title": "LayerUtility: ImageMaskScaleAs"
+      "title": "LayerUtility: Image Mask Scale As"
     }
   },
   "347": {
@@ -2316,15 +2316,15 @@
         0
       ],
       "value0": [
-        "798",
+        "848",
         0
       ],
       "value1": [
-        "798",
+        "848",
         0
       ],
       "value2": [
-        "798",
+        "848",
         0
       ]
     },
@@ -2568,7 +2568,7 @@
     },
     "class_type": "LayerUtility: ImageMaskScaleAs",
     "_meta": {
-      "title": "LayerUtility: ImageMaskScaleAs"
+      "title": "LayerUtility: Image Mask Scale As"
     }
   },
   "420": {
@@ -3200,7 +3200,7 @@
     "inputs": {
       "total": 3,
       "initial_value1": [
-        "798",
+        "848",
         0
       ]
     },
@@ -3448,7 +3448,7 @@
         0
       ],
       "on_false": [
-        "798",
+        "848",
         0
       ]
     },
@@ -3468,7 +3468,7 @@
         0
       ],
       "on_false": [
-        "798",
+        "848",
         0
       ]
     },
@@ -5312,7 +5312,7 @@
       "end_at_step": 10000,
       "return_with_leftover_noise": "disable",
       "model": [
-        "798",
+        "848",
         0
       ],
       "positive": [
@@ -5696,7 +5696,7 @@
       "end_at_step": 10000,
       "return_with_leftover_noise": "disable",
       "model": [
-        "798",
+        "848",
         0
       ],
       "positive": [
@@ -5756,6 +5756,34 @@
     "class_type": "easy ifElse",
     "_meta": {
       "title": "If else"
+    }
+  },
+  "847": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "798",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_9"
+    }
+  },
+  "848": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "847",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_10"
     }
   }
 }

@@ -5852,7 +5852,7 @@
     "inputs": {
       "total": 4,
       "initial_value1": [
-        "641",
+        "646",
         0
       ]
     },
@@ -6152,6 +6152,34 @@
     "class_type": "smZ Settings",
     "_meta": {
       "title": "Settings (smZ)"
+    }
+  },
+  "645": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "641",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_9"
+    }
+  },
+  "646": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "645",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_10"
     }
   }
 }

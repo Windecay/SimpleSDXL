@@ -1395,7 +1395,7 @@
     },
     "class_type": "ImageBlur",
     "_meta": {
-      "title": "ImageBlur"
+      "title": "Image Blur"
     }
   },
   "306": {
@@ -1970,7 +1970,7 @@
     },
     "class_type": "LayerUtility: ImageMaskScaleAs",
     "_meta": {
-      "title": "LayerUtility: ImageMaskScaleAs"
+      "title": "LayerUtility: Image Mask Scale As"
     }
   },
   "347": {
@@ -2902,7 +2902,7 @@
     },
     "class_type": "LayerUtility: ImageMaskScaleAs",
     "_meta": {
-      "title": "LayerUtility: ImageMaskScaleAs"
+      "title": "LayerUtility: Image Mask Scale As"
     }
   },
   "420": {
@@ -4076,7 +4076,7 @@
         0
       ],
       "on_false": [
-        "768",
+        "804",
         0
       ]
     },
@@ -4096,7 +4096,7 @@
         0
       ],
       "on_false": [
-        "768",
+        "804",
         0
       ]
     },
@@ -4287,7 +4287,7 @@
       ],
       "denoise": 0.9900000000000002,
       "model": [
-        "768",
+        "804",
         0
       ],
       "positive": [
@@ -6022,6 +6022,34 @@
     "class_type": "ReferenceLatent",
     "_meta": {
       "title": "ReferenceLatent"
+    }
+  },
+  "803": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "768",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_9"
+    }
+  },
+  "804": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "803",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_10"
     }
   }
 }

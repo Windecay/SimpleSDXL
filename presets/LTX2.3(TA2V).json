@@ -64,8 +64,8 @@
     "default_refiner_switch": 0.5,
     "default_loras": [
         [
-            "None",
-            1.0
+            "ltx\\ltx-2.3-22b-distilled-lora-384.safetensors",
+            0.6
         ],
         [
             "None",

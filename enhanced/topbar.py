@@ -721,13 +721,43 @@ def avoid_empty_prompt_for_scene(prompt, state, canvas_image, input_image1, scen
     return gr.update() if describe_prompt is None else describe_prompt
 
 
-def process_before_generation(state_params, seed_random, image_seed, backend_params, scene_theme, scene_canvas_image, scene_input_image1, scene_input_image2, scene_additional_prompt, scene_additional_prompt_2, scene_var_number, scene_var_number2, scene_var_number3, scene_var_number4, scene_var_number5, scene_var_number6, scene_var_number7, scene_var_number8, scene_var_number9, scene_var_number10, scene_steps, scene_switch_option1, scene_switch_option2, scene_switch_option3, scene_switch_option4, scene_aspect_ratio, scene_image_number, scene_video, scene_audio, scene_original_video_path, active_video_source, sam3_input_video, sam3_original_video_path, sam3_mask_video):
+def _build_scene_loras(scene_use_lora, *scene_lora_ctrl_values):
+    scene_loras = []
+    use_lora = bool(scene_use_lora)
+
+    for i in range(config.default_max_lora_number):
+        ctrl_index = i * 3
+        enabled = False
+        model = 'None'
+        weight = 1.0
+
+        if ctrl_index + 2 < len(scene_lora_ctrl_values):
+            enabled = bool(scene_lora_ctrl_values[ctrl_index])
+            model = scene_lora_ctrl_values[ctrl_index + 1]
+            weight = scene_lora_ctrl_values[ctrl_index + 2]
+
+        try:
+            weight = float(weight)
+        except Exception:
+            weight = 1.0
+
+        model = model if isinstance(model, str) and model else 'None'
+        enabled = use_lora and enabled and model != 'None'
+        scene_loras.append([enabled, model if enabled else 'None', weight])
+
+    return scene_loras
+
+
+def process_before_generation(state_params, seed_random, image_seed, backend_params, scene_theme, scene_canvas_image, scene_input_image1, scene_input_image2, scene_additional_prompt, scene_additional_prompt_2, scene_var_number, scene_var_number2, scene_var_number3, scene_var_number4, scene_var_number5, scene_var_number6, scene_var_number7, scene_var_number8, scene_var_number9, scene_var_number10, scene_steps, scene_switch_option1, scene_switch_option2, scene_switch_option3, scene_switch_option4, scene_aspect_ratio, scene_image_number, scene_video, scene_audio, scene_original_video_path, active_video_source, sam3_input_video, sam3_original_video_path, sam3_mask_video, scene_base_model, scene_refiner_model, scene_use_lora, *scene_lora_ctrl_values):
     backend_params.update(dict(
         nickname=state_params["user"].get_nickname(),
         user_did=state_params["user"].get_did(),
         preset=state_params["__preset"],
         engine_type=state_params.get("engine_type", "image"),
         ))
+    backend_params.pop('scene_loras', None)
+    backend_params.pop('scene_base_model', None)
+    backend_params.pop('scene_refiner_model', None)
 
     if scene_audio is not None and not (isinstance(scene_audio, str) and os.path.exists(scene_audio)):
         try:
@@ -879,7 +909,10 @@ def process_before_generation(state_params, seed_random, image_seed, backend_par
             video=video_effective,
             audio=scene_audio,
             mask_video=sam3_mask_video,
-            scene_steps=scene_steps if 'scene_steps' in scene_frontend else None
+            scene_steps=scene_steps if 'scene_steps' in scene_frontend else None,
+            scene_base_model=scene_base_model,
+            scene_refiner_model=scene_refiner_model,
+            scene_loras=_build_scene_loras(scene_use_lora, *scene_lora_ctrl_values)
             ))
     state_params["absent_model"] = False
     if not args_manager.args.disable_backend and is_models_file_absent(state_params["__preset"], state_params["user"].get_did()):
@@ -1164,7 +1197,7 @@ def reset_layout_values(state_params, is_generating, inpaint_mode, use_resolutio
     results += update_after_identity_sub(state_params)
 
     reset_ui_results = [gr.update(), gr.update(), gr.update()] + \
-               [gr.update()]*4 + [True] + [False] + \
+               [gr.update() for _ in range(config.default_max_lora_number * 3)] + [True] + [False] + \
                [gr.update(visible=False),False,[],"base",gr.update(variant="secondary"),gr.update(variant="secondary")] + \
                [gr.update(visible=False) for _ in config.default_loras] + \
                [False for _ in config.default_loras] + \

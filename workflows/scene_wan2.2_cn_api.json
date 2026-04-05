@@ -253,7 +253,7 @@
     "inputs": {
       "shift": 8,
       "model": [
-        "41",
+        "150",
         0
       ]
     },
@@ -289,7 +289,7 @@
     "inputs": {
       "strength": 1,
       "model": [
-        "95",
+        "149",
         0
       ]
     },
@@ -307,20 +307,6 @@
       "title": "i2i_ip_image1"
     }
   },
-  "41": {
-    "inputs": {
-      "lora_name": "wan2.2_i2v_A14b_low_noise_lora_rank64_lightx2v_4step_1022.safetensors",
-      "strength_model": 1.2,
-      "model": [
-        "79",
-        0
-      ]
-    },
-    "class_type": "LoraLoaderModelOnly",
-    "_meta": {
-      "title": "LoraLoaderModelOnly"
-    }
-  },
   "54": {
     "inputs": {
       "image": "welcome.png"
@@ -334,7 +320,7 @@
     "inputs": {
       "shift": 8,
       "model": [
-        "61",
+        "149",
         0
       ]
     },
@@ -347,27 +333,13 @@
     "inputs": {
       "shift": 8,
       "model": [
-        "57",
+        "150",
         0
       ]
     },
     "class_type": "ModelSamplingSD3",
     "_meta": {
       "title": "ModelSamplingSD3"
-    }
-  },
-  "57": {
-    "inputs": {
-      "lora_name": "wan2.2_i2v_A14b_low_noise_lora_rank64_lightx2v_4step_1022.safetensors",
-      "strength_model": 1.2,
-      "model": [
-        "79",
-        0
-      ]
-    },
-    "class_type": "LoraLoaderModelOnly",
-    "_meta": {
-      "title": "LoraLoaderModelOnly"
     }
   },
   "58": {
@@ -455,20 +427,6 @@
     "class_type": "KSamplerAdvanced",
     "_meta": {
       "title": "KSampler (Advanced)"
-    }
-  },
-  "61": {
-    "inputs": {
-      "lora_name": "wan2.2_i2v_A14b_high_noise_lora_rank64_lightx2v_4step_1022.safetensors",
-      "strength_model": 1,
-      "model": [
-        "76",
-        0
-      ]
-    },
-    "class_type": "LoraLoaderModelOnly",
-    "_meta": {
-      "title": "LoraLoaderModelOnly"
     }
   },
   "62": {
@@ -587,7 +545,7 @@
       "lora_name": "placeholder.safetensors",
       "strength_model": 0,
       "model": [
-        "93",
+        "76",
         0
       ]
     },
@@ -878,20 +836,6 @@
     "class_type": "ModelPatchTorchSettings",
     "_meta": {
       "title": "Model Patch Torch Settings"
-    }
-  },
-  "95": {
-    "inputs": {
-      "lora_name": "wan2.2_i2v_A14b_high_noise_lora_rank64_lightx2v_4step_1022.safetensors",
-      "strength_model": 0.35,
-      "model": [
-        "76",
-        0
-      ]
-    },
-    "class_type": "LoraLoaderModelOnly",
-    "_meta": {
-      "title": "LoraLoaderModelOnly"
     }
   },
   "96": {
@@ -1534,6 +1478,90 @@
     "class_type": "SimpleMath+",
     "_meta": {
       "title": "🔧 Simple Math"
+    }
+  },
+  "145": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "148",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_9"
+    }
+  },
+  "146": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "93",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_6"
+    }
+  },
+  "147": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "146",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_7"
+    }
+  },
+  "148": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "147",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_8"
+    }
+  },
+  "149": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "79",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_5"
+    }
+  },
+  "150": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "145",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_10"
     }
   }
 }

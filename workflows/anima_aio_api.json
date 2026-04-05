@@ -402,7 +402,7 @@
       "sage_attention": "auto",
       "allow_compile": false,
       "model": [
-        "68",
+        "71",
         0
       ]
     },
@@ -532,6 +532,34 @@
     "class_type": "CLIPLoader",
     "_meta": {
       "title": "Load CLIP"
+    }
+  },
+  "70": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "68",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_9"
+    }
+  },
+  "71": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "70",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_10"
     }
   }
 }

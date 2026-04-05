@@ -1964,7 +1964,7 @@
       ],
       "return_with_leftover_noise": "disable",
       "model": [
-        "791",
+        "808",
         0
       ],
       "positive": [
@@ -3548,7 +3548,7 @@
     "inputs": {
       "total": 4,
       "initial_value1": [
-        "796",
+        "803",
         0
       ]
     },
@@ -3863,6 +3863,10 @@
         0
       ],
       "value2": [
+        "801",
+        0
+      ],
+      "value3": [
         "529",
         0
       ]
@@ -4126,7 +4130,7 @@
   },
   "583": {
     "inputs": {
-      "total": 3,
+      "total": 4,
       "initial_value1": [
         "439",
         0
@@ -4472,7 +4476,7 @@
         0
       ],
       "on_false": [
-        "796",
+        "803",
         0
       ]
     },
@@ -4492,7 +4496,7 @@
         0
       ],
       "on_false": [
-        "796",
+        "803",
         0
       ]
     },
@@ -6369,7 +6373,7 @@
   },
   "786": {
     "inputs": {
-      "model_path": "svdq-fp4_r32-flux.1-dev.safetensors",
+      "model_path": "svdq-int4_r32-flux.1-dev.safetensors",
       "cache_threshold": [
         "728",
         12
@@ -6603,6 +6607,104 @@
     "class_type": "easy int",
     "_meta": {
       "title": "Int"
+    }
+  },
+  "802": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "lora_strength": 0,
+      "model": [
+        "796",
+        0
+      ]
+    },
+    "class_type": "NunchakuFluxLoraLoader",
+    "_meta": {
+      "title": "NunchakuFluxLoraLoader9"
+    }
+  },
+  "803": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "lora_strength": 0,
+      "model": [
+        "802",
+        0
+      ]
+    },
+    "class_type": "NunchakuFluxLoraLoader",
+    "_meta": {
+      "title": "NunchakuFluxLoraLoader10"
+    }
+  },
+  "804": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "lora_strength": 0,
+      "model": [
+        "805",
+        0
+      ]
+    },
+    "class_type": "NunchakuFluxLoraLoader",
+    "_meta": {
+      "title": "NunchakuFluxLoraLoader7"
+    }
+  },
+  "805": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "lora_strength": 0,
+      "model": [
+        "791",
+        0
+      ]
+    },
+    "class_type": "NunchakuFluxLoraLoader",
+    "_meta": {
+      "title": "NunchakuFluxLoraLoader6"
+    }
+  },
+  "806": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "lora_strength": 0,
+      "model": [
+        "807",
+        0
+      ]
+    },
+    "class_type": "NunchakuFluxLoraLoader",
+    "_meta": {
+      "title": "NunchakuFluxLoraLoader9"
+    }
+  },
+  "807": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "lora_strength": 0,
+      "model": [
+        "804",
+        0
+      ]
+    },
+    "class_type": "NunchakuFluxLoraLoader",
+    "_meta": {
+      "title": "NunchakuFluxLoraLoader8"
+    }
+  },
+  "808": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "lora_strength": 0,
+      "model": [
+        "806",
+        0
+      ]
+    },
+    "class_type": "NunchakuFluxLoraLoader",
+    "_meta": {
+      "title": "NunchakuFluxLoraLoader10"
     }
   }
 }

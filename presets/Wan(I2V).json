@@ -68,8 +68,8 @@
     "default_refiner_switch": 0.5,
     "default_loras": [
         [
-            "None",
-            1.0
+            "wan2.2_i2v_A14b_high_noise_lora_rank64_lightx2v_4step_1022.safetensors",
+            0.5
         ],
         [
             "None",
@@ -86,6 +86,10 @@
         [
             "None",
             1.0
+        ],
+        [
+            "wan2.2_i2v_A14b_low_noise_lora_rank64_lightx2v_4step_1022.safetensors",
+            1.2
         ]
     ],
     "default_cfg_scale": 1,

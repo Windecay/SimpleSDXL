@@ -1960,7 +1960,7 @@
     },
     "class_type": "LayerUtility: ImageMaskScaleAs",
     "_meta": {
-      "title": "LayerUtility: ImageMaskScaleAs"
+      "title": "LayerUtility: Image Mask Scale As"
     }
   },
   "347": {
@@ -2892,7 +2892,7 @@
     },
     "class_type": "LayerUtility: ImageMaskScaleAs",
     "_meta": {
-      "title": "LayerUtility: ImageMaskScaleAs"
+      "title": "LayerUtility: Image Mask Scale As"
     }
   },
   "420": {
@@ -3332,7 +3332,7 @@
     "inputs": {
       "total": 4,
       "initial_value1": [
-        "768",
+        "781",
         0
       ]
     },
@@ -4320,7 +4320,7 @@
         0
       ],
       "on_false": [
-        "768",
+        "781",
         0
       ]
     },
@@ -4340,7 +4340,7 @@
         0
       ],
       "on_false": [
-        "768",
+        "781",
         0
       ]
     },
@@ -6296,6 +6296,34 @@
     "class_type": "SimpleMath+",
     "_meta": {
       "title": "🔧 Simple Math"
+    }
+  },
+  "780": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "768",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_9"
+    }
+  },
+  "781": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "780",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_10"
     }
   }
 }

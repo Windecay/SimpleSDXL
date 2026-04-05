@@ -420,6 +420,7 @@ def save_preset(*args):
     scene_image_number = None
     scene_mask_color = None
     scene_use_lora = None
+    scene_lora_ctrl_values = []
 
     if args:
         scene_theme = args.pop()
@@ -444,6 +445,7 @@ def save_preset(*args):
         scene_image_number = args.pop()
         scene_mask_color = args.pop()
         scene_use_lora = args.pop()
+        scene_lora_ctrl_values = [args.pop() for _ in range(config.default_max_lora_number * 3)] if len(args) >= config.default_max_lora_number * 3 else []
 
     if name:
         preset = {}
@@ -537,6 +539,19 @@ def save_preset(*args):
             _set_theme_value("image_number", scene_image_number)
             _set_theme_value("mask_color", scene_mask_color)
             _set_theme_value("use_lora", scene_use_lora)
+            if scene_lora_ctrl_values:
+                scene_loras = []
+                for i in range(config.default_max_lora_number):
+                    model = scene_lora_ctrl_values[i * 3 + 1]
+                    weight = scene_lora_ctrl_values[i * 3 + 2]
+                    if not isinstance(model, str) or not model:
+                        model = 'None'
+                    try:
+                        weight = float(weight)
+                    except Exception:
+                        weight = 1.0
+                    scene_loras.append([model, weight])
+                _set_theme_value("loras", scene_loras)
 
             def _normalize_aspect_ratio_to_raw(ar):
                 if not isinstance(ar, str):

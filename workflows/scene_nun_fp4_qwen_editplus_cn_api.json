@@ -63,7 +63,7 @@
     "inputs": {
       "shift": 3.1,
       "model": [
-        "191",
+        "204",
         0
       ]
     },
@@ -1085,6 +1085,90 @@
     "class_type": "FluxKontextMultiReferenceLatentMethod",
     "_meta": {
       "title": "Edit Model Reference Method"
+    }
+  },
+  "199": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "lora_strength": 0,
+      "model": [
+        "191",
+        0
+      ]
+    },
+    "class_type": "NunchakuQwenImageLoraLoader",
+    "_meta": {
+      "title": "Nunchaku Qwen Image LoRA Loader5"
+    }
+  },
+  "200": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "lora_strength": 0,
+      "model": [
+        "199",
+        0
+      ]
+    },
+    "class_type": "NunchakuQwenImageLoraLoader",
+    "_meta": {
+      "title": "Nunchaku Qwen Image LoRA Loader6"
+    }
+  },
+  "201": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "lora_strength": 0,
+      "model": [
+        "200",
+        0
+      ]
+    },
+    "class_type": "NunchakuQwenImageLoraLoader",
+    "_meta": {
+      "title": "Nunchaku Qwen Image LoRA Loader7"
+    }
+  },
+  "202": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "lora_strength": 0,
+      "model": [
+        "201",
+        0
+      ]
+    },
+    "class_type": "NunchakuQwenImageLoraLoader",
+    "_meta": {
+      "title": "Nunchaku Qwen Image LoRA Loader8"
+    }
+  },
+  "203": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "lora_strength": 0,
+      "model": [
+        "202",
+        0
+      ]
+    },
+    "class_type": "NunchakuQwenImageLoraLoader",
+    "_meta": {
+      "title": "Nunchaku Qwen Image LoRA Loader9"
+    }
+  },
+  "204": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "lora_strength": 0,
+      "model": [
+        "203",
+        0
+      ]
+    },
+    "class_type": "NunchakuQwenImageLoraLoader",
+    "_meta": {
+      "title": "Nunchaku Qwen Image LoRA Loader10"
     }
   }
 }

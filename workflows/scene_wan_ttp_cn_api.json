@@ -994,17 +994,153 @@
       "title": "CLIPLoader (GGUF)"
     }
   },
-  "166:139": {
+  "238": {
     "inputs": {
-      "shift": 8,
+      "unet_name": "placeholder.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "base_model"
+    }
+  },
+  "239": {
+    "inputs": {
+      "value": 1
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "i2i_model_type"
+    }
+  },
+  "240": {
+    "inputs": {
+      "value": 1
+    },
+    "class_type": "easy int",
+    "_meta": {
+      "title": "Int"
+    }
+  },
+  "241": {
+    "inputs": {
+      "comparison": "a == b",
+      "a": [
+        "239",
+        0
+      ],
+      "b": [
+        "240",
+        0
+      ]
+    },
+    "class_type": "easy compare",
+    "_meta": {
+      "title": "Compare"
+    }
+  },
+  "242": {
+    "inputs": {
+      "boolean": [
+        "241",
+        0
+      ],
+      "on_true": [
+        "238",
+        0
+      ],
+      "on_false": [
+        "149",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "243": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "246",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_9"
+    }
+  },
+  "244": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "247",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_6"
+    }
+  },
+  "245": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "244",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_7"
+    }
+  },
+  "246": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "245",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_8"
+    }
+  },
+  "247": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
       "model": [
         "181",
         0
       ]
     },
-    "class_type": "ModelSamplingSD3",
+    "class_type": "LoraLoaderModelOnly",
     "_meta": {
-      "title": "ModelSamplingSD3"
+      "title": "lora_5"
+    }
+  },
+  "248": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "243",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_10"
     }
   },
   "166:112": {
@@ -1063,6 +1199,19 @@
     "class_type": "TTP_Image_Tile_Batch",
     "_meta": {
       "title": "TTP_Image_Tile_Batch"
+    }
+  },
+  "166:139": {
+    "inputs": {
+      "shift": 8,
+      "model": [
+        "248",
+        0
+      ]
+    },
+    "class_type": "ModelSamplingSD3",
+    "_meta": {
+      "title": "ModelSamplingSD3"
     }
   },
   "166:128": {
@@ -1140,71 +1289,6 @@
     "class_type": "TTP_Image_Assy",
     "_meta": {
       "title": "TTP_Image_Assy"
-    }
-  },
-  "238": {
-    "inputs": {
-      "unet_name": "placeholder.safetensors",
-      "weight_dtype": "default"
-    },
-    "class_type": "UNETLoader",
-    "_meta": {
-      "title": "base_model"
-    }
-  },
-  "239": {
-    "inputs": {
-      "value": 1
-    },
-    "class_type": "easy int",
-    "_meta": {
-      "title": "i2i_model_type"
-    }
-  },
-  "240": {
-    "inputs": {
-      "value": 1
-    },
-    "class_type": "easy int",
-    "_meta": {
-      "title": "Int"
-    }
-  },
-  "241": {
-    "inputs": {
-      "comparison": "a == b",
-      "a": [
-        "239",
-        0
-      ],
-      "b": [
-        "240",
-        0
-      ]
-    },
-    "class_type": "easy compare",
-    "_meta": {
-      "title": "Compare"
-    }
-  },
-  "242": {
-    "inputs": {
-      "boolean": [
-        "241",
-        0
-      ],
-      "on_true": [
-        "238",
-        0
-      ],
-      "on_false": [
-        "149",
-        0
-      ]
-    },
-    "class_type": "easy ifElse",
-    "_meta": {
-      "title": "If else"
     }
   }
 }

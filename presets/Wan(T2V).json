@@ -66,15 +66,19 @@
             1.0
         ],
         [
+            "None",
+            1.0
+        ],
+        [
+            "None",
+            1.0
+        ],
+        [
+            "None",
+            1.0
+        ],
+        [
             "lightx2v_T2V_14B_cfg_step_distill_v2_lora_rank64_bf16.safetensors",
-            1.0
-        ],
-        [
-            "None",
-            1.0
-        ],
-        [
-            "None",
             1.0
         ]
     ],

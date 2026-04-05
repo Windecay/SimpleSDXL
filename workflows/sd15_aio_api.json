@@ -1274,7 +1274,7 @@
         0
       ],
       "on_false": [
-        "676",
+        "683",
         0
       ]
     },
@@ -1294,7 +1294,7 @@
         0
       ],
       "on_false": [
-        "676",
+        "683",
         0
       ]
     },
@@ -2012,7 +2012,7 @@
         "542",
         3
       ],
-      "interpolation": "lanczos",
+      "interpolation": "bilinear",
       "method": "keep proportion",
       "condition": "always",
       "multiple_of": 0,
@@ -3437,7 +3437,7 @@
     },
     "class_type": "LayerUtility: ImageMaskScaleAs",
     "_meta": {
-      "title": "LayerUtility: ImageMaskScaleAs"
+      "title": "LayerUtility: Image Mask Scale As"
     }
   },
   "380": {
@@ -5579,7 +5579,7 @@
     },
     "class_type": "LayerUtility: ImageMaskScaleAs",
     "_meta": {
-      "title": "LayerUtility: ImageMaskScaleAs"
+      "title": "LayerUtility: Image Mask Scale As"
     }
   },
   "512": {
@@ -6556,7 +6556,7 @@
     "inputs": {
       "total": 4,
       "initial_value1": [
-        "676",
+        "683",
         0
       ]
     },
@@ -7395,6 +7395,34 @@
     "class_type": "LoraLoaderModelOnly",
     "_meta": {
       "title": "lora_7"
+    }
+  },
+  "682": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "676",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_9"
+    }
+  },
+  "683": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "682",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_10"
     }
   }
 }

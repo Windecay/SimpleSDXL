@@ -1519,7 +1519,7 @@
     },
     "class_type": "LayerUtility: ImageMaskScaleAs",
     "_meta": {
-      "title": "LayerUtility: ImageMaskScaleAs"
+      "title": "LayerUtility: Image Mask Scale As"
     }
   },
   "347": {
@@ -2431,7 +2431,7 @@
     },
     "class_type": "LayerUtility: ImageMaskScaleAs",
     "_meta": {
-      "title": "LayerUtility: ImageMaskScaleAs"
+      "title": "LayerUtility: Image Mask Scale As"
     }
   },
   "420": {
@@ -4746,7 +4746,7 @@
     "inputs": {
       "shift": 8.000000000000002,
       "model": [
-        "1005",
+        "1012",
         0
       ]
     },
@@ -5070,11 +5070,11 @@
   },
   "863": {
     "inputs": {
-      "unet_name": "placeholder.gguf"
+      "unet_name": "Wan2.2_T2V_Low_Noise_14B_VACE-Q4_K_M.gguf"
     },
     "class_type": "UnetLoaderGGUF",
     "_meta": {
-      "title": "base_model_gguf2"
+      "title": "base_model2"
     }
   },
   "867": {
@@ -6182,6 +6182,34 @@
     "class_type": "UNETLoader",
     "_meta": {
       "title": "base_model"
+    }
+  },
+  "1011": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "1005",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_9"
+    }
+  },
+  "1012": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "1011",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_10"
     }
   }
 }

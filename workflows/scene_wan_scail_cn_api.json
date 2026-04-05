@@ -12,7 +12,7 @@
         0
       ],
       "lora": [
-        "378",
+        "703",
         0
       ]
     },
@@ -143,30 +143,6 @@
     "class_type": "OnnxDetectionModelLoader",
     "_meta": {
       "title": "ONNX Detection Model Loader"
-    }
-  },
-  "378": {
-    "inputs": {
-      "lora_0": "lightx2v_I2V_14B_480p_cfg_step_distill_rank64_bf16.safetensors",
-      "strength_0": 1.25,
-      "lora_1": "none",
-      "strength_1": 1,
-      "lora_2": "none",
-      "strength_2": 1,
-      "lora_3": "none",
-      "strength_3": 1,
-      "lora_4": "none",
-      "strength_4": 1,
-      "low_mem_load": false,
-      "merge_loras": false,
-      "prev_lora": [
-        "699",
-        0
-      ]
-    },
-    "class_type": "WanVideoLoraSelectMulti",
-    "_meta": {
-      "title": "WanVideo Lora Select Multi"
     }
   },
   "400": {
@@ -525,11 +501,7 @@
   },
   "664": {
     "inputs": {
-      "expression": "a / 2",
-      "a": [
-        "670",
-        1
-      ]
+      "expression": "a / 2"
     },
     "class_type": "SimpleCalculatorKJ",
     "_meta": {
@@ -538,11 +510,7 @@
   },
   "665": {
     "inputs": {
-      "expression": "a / 2",
-      "a": [
-        "670",
-        2
-      ]
+      "expression": "a / 2"
     },
     "class_type": "SimpleCalculatorKJ",
     "_meta": {
@@ -788,7 +756,7 @@
         0
       ],
       "lora": [
-        "378",
+        "703",
         0
       ]
     },
@@ -892,6 +860,102 @@
     "class_type": "WanVideoLoraSelect",
     "_meta": {
       "title": "WanVideoLoraSelect4"
+    }
+  },
+  "700": {
+    "inputs": {
+      "lora": "placeholder.safetensors",
+      "strength": 0,
+      "low_mem_load": false,
+      "merge_loras": false,
+      "prev_lora": [
+        "705",
+        0
+      ]
+    },
+    "class_type": "WanVideoLoraSelect",
+    "_meta": {
+      "title": "WanVideoLoraSelect6"
+    }
+  },
+  "701": {
+    "inputs": {
+      "lora": "placeholder.safetensors",
+      "strength": 0,
+      "low_mem_load": false,
+      "merge_loras": false,
+      "prev_lora": [
+        "700",
+        0
+      ]
+    },
+    "class_type": "WanVideoLoraSelect",
+    "_meta": {
+      "title": "WanVideoLoraSelect7"
+    }
+  },
+  "702": {
+    "inputs": {
+      "lora": "placeholder.safetensors",
+      "strength": 0,
+      "low_mem_load": false,
+      "merge_loras": false,
+      "prev_lora": [
+        "701",
+        0
+      ]
+    },
+    "class_type": "WanVideoLoraSelect",
+    "_meta": {
+      "title": "WanVideoLoraSelect8"
+    }
+  },
+  "703": {
+    "inputs": {
+      "lora": "placeholder.safetensors",
+      "strength": 0,
+      "low_mem_load": false,
+      "merge_loras": false,
+      "prev_lora": [
+        "704",
+        0
+      ]
+    },
+    "class_type": "WanVideoLoraSelect",
+    "_meta": {
+      "title": "WanVideoLoraSelect10"
+    }
+  },
+  "704": {
+    "inputs": {
+      "lora": "placeholder.safetensors",
+      "strength": 0,
+      "low_mem_load": false,
+      "merge_loras": false,
+      "prev_lora": [
+        "702",
+        0
+      ]
+    },
+    "class_type": "WanVideoLoraSelect",
+    "_meta": {
+      "title": "WanVideoLoraSelect9"
+    }
+  },
+  "705": {
+    "inputs": {
+      "lora": "placeholder.safetensors",
+      "strength": 0,
+      "low_mem_load": false,
+      "merge_loras": false,
+      "prev_lora": [
+        "699",
+        0
+      ]
+    },
+    "class_type": "WanVideoLoraSelect",
+    "_meta": {
+      "title": "WanVideoLoraSelect5"
     }
   }
 }

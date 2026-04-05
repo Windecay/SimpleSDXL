@@ -360,14 +360,19 @@ def batch_run_scene(folder_path, upload_files, target, seed_random, image_seed, 
                     scene_var_number7, scene_var_number8, scene_var_number9, scene_var_number10, scene_steps,
                     scene_switch_option1, scene_switch_option2, scene_switch_option3, scene_switch_option4, scene_aspect_ratio,
                     scene_image_number, scene_video, scene_audio, scene_original_video_path, active_video_source,
-                    sam3_input_video, sam3_original_video_path, sam3_mask_video, *args, get_task_with_resolution_multiplier, generate_clicked, worker, constants, html, get_welcome_image, api_params, topbar):
-    if len(args) < 4:
+                    sam3_input_video, sam3_original_video_path, sam3_mask_video, scene_base_model, scene_refiner_model, scene_use_lora, *args, get_task_with_resolution_multiplier, generate_clicked, worker, constants, html, get_welcome_image, api_params, topbar):
+    import modules.config
+
+    scene_lora_ctrl_count = modules.config.default_max_lora_number * 3
+
+    if len(args) < scene_lora_ctrl_count + 3:
         return
+    scene_lora_ctrl_values = list(args[:scene_lora_ctrl_count])
     state = args[-1]
     is_mobile = state.get("__is_mobile", False) if isinstance(state, dict) else False
     resolution_quantize_step = args[-2]
     resolution_multiplier = args[-3]
-    ctrls_values = list(args[:-3])
+    ctrls_values = list(args[scene_lora_ctrl_count:-3])
     ctrls_values = _ensure_backend_ctrl(ctrls_values, state)
 
     files = get_files(folder_path, upload_files)
@@ -440,7 +445,7 @@ def batch_run_scene(folder_path, upload_files, target, seed_random, image_seed, 
                 scene_steps, scene_switch_option1, scene_switch_option2, scene_switch_option3, scene_switch_option4,
                 scene_aspect_ratio, scene_image_number,
                 scene_video, scene_audio, scene_original_video_path, active_video_source,
-                sam3_input_video, sam3_original_video_path, sam3_mask_video
+                sam3_input_video, sam3_original_video_path, sam3_mask_video, scene_base_model, scene_refiner_model, scene_use_lora, *scene_lora_ctrl_values
             )
         except Exception:
             bp = {} if backend_params is None else copy.deepcopy(backend_params)

@@ -1127,7 +1127,7 @@
   },
   "328": {
     "inputs": {
-      "lora_name": "comfyui_subject_lora16.safetensors",
+      "lora_name": "placeholder.safetensors",
       "strength_model": 0,
       "model": [
         "337",

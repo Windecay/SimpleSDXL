@@ -12,7 +12,7 @@
         0
       ],
       "lora": [
-        "378",
+        "816",
         0
       ]
     },
@@ -149,30 +149,6 @@
     "class_type": "CLIPVisionLoader",
     "_meta": {
       "title": "Load CLIP Vision"
-    }
-  },
-  "378": {
-    "inputs": {
-      "lora_0": "none",
-      "strength_0": 0.5,
-      "lora_1": "lightx2v_I2V_14B_480p_cfg_step_distill_rank64_bf16.safetensors",
-      "strength_1": 1.2,
-      "lora_2": "none",
-      "strength_2": 0,
-      "lora_3": "none",
-      "strength_3": 0,
-      "lora_4": "none",
-      "strength_4": 0,
-      "low_mem_load": false,
-      "merge_loras": false,
-      "prev_lora": [
-        "708",
-        0
-      ]
-    },
-    "class_type": "WanVideoLoraSelectMulti",
-    "_meta": {
-      "title": "WanVideo Lora Select Multi"
     }
   },
   "400": {
@@ -817,7 +793,7 @@
         0
       ],
       "lora": [
-        "378",
+        "816",
         0
       ]
     },
@@ -983,7 +959,7 @@
         0
       ],
       "lora": [
-        "378",
+        "816",
         0
       ]
     },
@@ -1005,7 +981,7 @@
         0
       ],
       "lora": [
-        "378",
+        "816",
         0
       ]
     },
@@ -1646,6 +1622,102 @@
     "class_type": "WanVideoContextOptions",
     "_meta": {
       "title": "WanVideo Context Options"
+    }
+  },
+  "812": {
+    "inputs": {
+      "lora": "placeholder.safetensors",
+      "strength": 0,
+      "low_mem_load": false,
+      "merge_loras": false,
+      "prev_lora": [
+        "708",
+        0
+      ]
+    },
+    "class_type": "WanVideoLoraSelect",
+    "_meta": {
+      "title": "WanVideoLoraSelect5"
+    }
+  },
+  "813": {
+    "inputs": {
+      "lora": "placeholder.safetensors",
+      "strength": 0,
+      "low_mem_load": false,
+      "merge_loras": false,
+      "prev_lora": [
+        "812",
+        0
+      ]
+    },
+    "class_type": "WanVideoLoraSelect",
+    "_meta": {
+      "title": "WanVideoLoraSelect6"
+    }
+  },
+  "814": {
+    "inputs": {
+      "lora": "placeholder.safetensors",
+      "strength": 0,
+      "low_mem_load": false,
+      "merge_loras": false,
+      "prev_lora": [
+        "813",
+        0
+      ]
+    },
+    "class_type": "WanVideoLoraSelect",
+    "_meta": {
+      "title": "WanVideoLoraSelect7"
+    }
+  },
+  "815": {
+    "inputs": {
+      "lora": "placeholder.safetensors",
+      "strength": 0,
+      "low_mem_load": false,
+      "merge_loras": false,
+      "prev_lora": [
+        "814",
+        0
+      ]
+    },
+    "class_type": "WanVideoLoraSelect",
+    "_meta": {
+      "title": "WanVideoLoraSelect8"
+    }
+  },
+  "816": {
+    "inputs": {
+      "lora": "placeholder.safetensors",
+      "strength": 0,
+      "low_mem_load": false,
+      "merge_loras": false,
+      "prev_lora": [
+        "817",
+        0
+      ]
+    },
+    "class_type": "WanVideoLoraSelect",
+    "_meta": {
+      "title": "WanVideoLoraSelect10"
+    }
+  },
+  "817": {
+    "inputs": {
+      "lora": "placeholder.safetensors",
+      "strength": 0,
+      "low_mem_load": false,
+      "merge_loras": false,
+      "prev_lora": [
+        "815",
+        0
+      ]
+    },
+    "class_type": "WanVideoLoraSelect",
+    "_meta": {
+      "title": "WanVideoLoraSelect9"
     }
   }
 }

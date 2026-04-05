@@ -186,11 +186,28 @@ class AsyncTask:
         self.task_name = self.params_backend.pop('preset', 'default')
         default_task_method = 'text2image' if self.task_class == 'Fooocus' else 'z_image_turbo_aio_cn'
         self.task_method = self.params_backend.pop('task_method', default_task_method)
+        scene_base_model = self.params_backend.pop('scene_base_model', None)
+        scene_refiner_model = self.params_backend.pop('scene_refiner_model', None)
+        scene_loras = self.params_backend.pop('scene_loras', None)
         if 'layer' in self.current_tab and self.task_class == 'Fooocus' and self.input_image_checkbox:
             self.task_class = 'Comfy'
             self.task_name = 'default'
             self.task_method = self.layer_method
         self.task_class_full = task_class_mapping[self.task_class]
+
+        if isinstance(self.task_method, str) and self.task_method.startswith('scene_'):
+            if isinstance(scene_base_model, str) and scene_base_model not in ['', 'None']:
+                self.base_model_name = scene_base_model.replace("\\", os.sep).replace("/", os.sep).lstrip(os.sep)
+            if isinstance(scene_refiner_model, str) and scene_refiner_model not in ['', 'None']:
+                self.refiner_model_name = scene_refiner_model.replace("\\", os.sep).replace("/", os.sep).lstrip(os.sep)
+            elif scene_refiner_model == 'None':
+                self.refiner_model_name = 'None'
+
+        if isinstance(scene_loras, list) and isinstance(self.task_method, str) and self.task_method.startswith('scene_'):
+            try:
+                self.loras = get_enabled_loras([(bool(lora[0]), str(lora[1]), float(lora[2])) for lora in scene_loras])
+            except Exception:
+                pass
 
         if len(self.loras) > 0:
             for i, (lora_name, lora_strength) in enumerate(self.loras):

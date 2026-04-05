@@ -443,7 +443,7 @@ def print_instructions():
     time.sleep(0.1)
     print(f"{Fore.GREEN}★{Style.RESET_ALL}打开默认浏览器设置，关闭GPU加速、或图形加速的选项。{Fore.GREEN}★{Style.RESET_ALL}大内存(64+)与固态硬盘存放模型有助于减少模型加载时间。{Fore.GREEN}★{Style.RESET_ALL}")
     time.sleep(0.1)
-    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：1005085136{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:26.03.31{Fore.GREEN}★{Style.RESET_ALL}")
+    print(f"{Fore.GREEN}★{Style.RESET_ALL}疑难杂症进QQ群求助：1005085136{Fore.GREEN}★{Style.RESET_ALL}脚本：✿   冰華 |版本:26.04.06{Fore.GREEN}★{Style.RESET_ALL}")
     print()
     time.sleep(0.1)
 
@@ -2124,7 +2124,6 @@ packages = {'base_package': {'id': 1,
                                      'style_models,flux1-redux-dev.safetensors,129063232,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/style_models/flux1-redux-dev.safetensors,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/style_models/flux1-redux-dev.safetensors',
                                      'upscale_models,4x-UltraSharp.pth,66961958,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/upscale_models/4x-UltraSharp.pth,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/upscale_models/4x-UltraSharp.pth',
                                      'rembg,General.safetensors,884878856,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/rembg/General.safetensors,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/rembg/General.safetensors',
-                                     'loras,comfyui_subject_lora16.safetensors,153268392,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/loras/comfyui_subject_lora16.safetensors,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/loras/comfyui_subject_lora16.safetensors',
                                      'llms,Helsinki-NLP/opus-mt-zh-en/config.json,1394,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/llms/Helsinki-NLP/opus-mt-zh-en/config.json,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/llms/Helsinki-NLP/opus-mt-zh-en/config.json',
                                      'llms,Helsinki-NLP/opus-mt-zh-en/generation_config.json,293,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/llms/Helsinki-NLP/opus-mt-zh-en/generation_config.json,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/llms/Helsinki-NLP/opus-mt-zh-en/generation_config.json',
                                      'llms,Helsinki-NLP/opus-mt-zh-en/metadata.json,1477,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/llms/Helsinki-NLP/opus-mt-zh-en/metadata.json,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/llms/Helsinki-NLP/opus-mt-zh-en/metadata.json',

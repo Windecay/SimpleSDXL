@@ -479,8 +479,8 @@ default_loras = get_config_item_or_set_default(
 default_loras = [(y[0], y[1].replace('\\', os.sep).replace('/', os.sep), y[2]) if len(y) == 3 else (True, y[0].replace('\\', os.sep).replace('/', os.sep), y[1]) for y in default_loras]
 default_max_lora_number = get_config_item_or_set_default(
     key='default_max_lora_number',
-    default_value=8,
-    validator=lambda x: isinstance(x, int) and x >= 1
+    default_value=10,
+    validator=lambda x: isinstance(x, int) and x == 10
 )
 
 

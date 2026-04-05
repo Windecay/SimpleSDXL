@@ -188,7 +188,7 @@ def switch_scene_theme_ready_to_gen(state, image_number, canvas_image, input_ima
     return describe_prompt if describe_prompt else gr.update(), gr.update(interactive=True if not ready_to_gen else img_is_ok)
 
 
-def switch_scene_theme(state, image_number, canvas_image, input_image1, additional_prompt, additional_prompt_2, var_number, var_number2, var_number3, var_number4, var_number5, var_number6, var_number7, var_number8, var_number9, var_number10, scene_steps, switch_option1, switch_option2, switch_option3, switch_option4, theme=None):
+def switch_scene_theme(state, image_number, canvas_image, input_image1, additional_prompt, additional_prompt_2, var_number, var_number2, var_number3, var_number4, var_number5, var_number6, var_number7, var_number8, var_number9, var_number10, scene_steps, switch_option1, switch_option2, switch_option3, switch_option4, theme=None, *scene_lora_ctrl_values):
     scenes = state.get("scene_frontend",{})
     visible = scenes.get('disvisible', [])
     inter = scenes.get('disinteractive', [])
@@ -345,6 +345,41 @@ def switch_scene_theme(state, image_number, canvas_image, input_image1, addition
     results.append(gr.update())
     results.append(get_layout_visible('scene_video', visible))
     results.append(get_layout_visible('scene_audio', visible))
+    scene_lora_config = scenes.get('loras', [])
+    theme_scene_loras = None
+    if isinstance(scene_lora_config, dict) and isinstance(theme, str) and theme in scene_lora_config:
+        theme_scene_loras = scene_lora_config.get(theme, [])
+    normalized_scene_loras = []
+    for i in range(modules.config.default_max_lora_number):
+        if isinstance(theme_scene_loras, list) and i < len(theme_scene_loras) and isinstance(theme_scene_loras[i], (list, tuple)):
+            if len(theme_scene_loras[i]) >= 3:
+                enabled = bool(theme_scene_loras[i][0])
+                model = theme_scene_loras[i][1]
+                weight = theme_scene_loras[i][2]
+            else:
+                model = theme_scene_loras[i][0] if len(theme_scene_loras[i]) > 0 else 'None'
+                weight = theme_scene_loras[i][1] if len(theme_scene_loras[i]) > 1 else 1.0
+                enabled = True
+        elif i * 3 + 2 < len(scene_lora_ctrl_values):
+            enabled = bool(scene_lora_ctrl_values[i * 3])
+            model = scene_lora_ctrl_values[i * 3 + 1]
+            weight = scene_lora_ctrl_values[i * 3 + 2]
+        else:
+            enabled = True
+            model = 'None'
+            weight = 1.0
+        if not isinstance(model, str) or not model:
+            model = 'None'
+        try:
+            weight = float(weight)
+        except Exception:
+            weight = 1.0
+        normalized_scene_loras.append((enabled, model, weight))
+    lora_choices = ['None'] + modules.config.lora_filenames
+    for enabled, model, weight in normalized_scene_loras:
+        results.append(gr.update(value=enabled, visible=True))
+        results.append(gr.update(choices=lora_choices, value=model, interactive=enabled, visible=True))
+        results.append(gr.update(value=weight, interactive=enabled, visible=True))
     state['scene_theme'] = theme
     state.pop("switch_scene_theme", None)
     return results
@@ -561,6 +596,33 @@ def switch_layout_template(presetdata: dict | str, state_params, preset_url=''):
 
         results.append(get_layout_visible('scene_video', visible))
         results.append(get_layout_visible('scene_audio', visible))
+        scene_lora_defaults = modules.flags.get_value_by_scene_theme(state_params, theme_default, 'loras', [])
+        if not isinstance(scene_lora_defaults, list):
+            scene_lora_defaults = []
+        lora_choices = ['None'] + modules.config.lora_filenames
+        for i in range(modules.config.default_max_lora_number):
+            if i < len(scene_lora_defaults) and isinstance(scene_lora_defaults[i], (list, tuple)):
+                if len(scene_lora_defaults[i]) >= 3:
+                    enabled = bool(scene_lora_defaults[i][0])
+                    model = scene_lora_defaults[i][1]
+                    weight = scene_lora_defaults[i][2]
+                else:
+                    model = scene_lora_defaults[i][0] if len(scene_lora_defaults[i]) > 0 else 'None'
+                    weight = scene_lora_defaults[i][1] if len(scene_lora_defaults[i]) > 1 else 1.0
+                    enabled = True
+            else:
+                enabled = True
+                model = 'None'
+                weight = 1.0
+            if not isinstance(model, str) or not model:
+                model = 'None'
+            try:
+                weight = float(weight)
+            except Exception:
+                weight = 1.0
+            results.append(gr.update(value=enabled, visible=True))
+            results.append(gr.update(choices=lora_choices, value=model, interactive=enabled, visible=True))
+            results.append(gr.update(value=weight, interactive=enabled, visible=True))
 
         results.append(gr.update(visible=True, interactive=True)) #generate_button
         results.append(gr.update(visible=False))                   #load_parameter_button
@@ -573,7 +635,7 @@ def switch_layout_template(presetdata: dict | str, state_params, preset_url=''):
         results.append(gr.update(visible=False))
         results.append(gr.update(visible=True, interactive=True))
         
-        results += [gr.update(visible=False)] * 29
+        results += [gr.update(visible=False)] * (29 + modules.config.default_max_lora_number * 3)
 
         results.append(gr.update(visible=True, interactive=True))  #generate_button
         results.append(gr.update(visible=False))                   #load_parameter_button

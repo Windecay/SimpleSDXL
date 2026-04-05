@@ -369,7 +369,7 @@
     "inputs": {
       "shift": 6,
       "model": [
-        "68",
+        "70",
         0
       ]
     },
@@ -546,6 +546,34 @@
     "class_type": "LoraLoaderModelOnly",
     "_meta": {
       "title": "lora_8"
+    }
+  },
+  "69": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "68",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_9"
+    }
+  },
+  "70": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "69",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_10"
     }
   }
 }

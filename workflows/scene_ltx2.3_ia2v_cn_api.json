@@ -302,20 +302,6 @@
       "title": "Audio Duration (mtb)"
     }
   },
-  "293": {
-    "inputs": {
-      "lora_name": "ltx\\ltx-2.3-22b-distilled-lora-384.safetensors",
-      "strength_model": 0.6,
-      "model": [
-        "603",
-        0
-      ]
-    },
-    "class_type": "LoraLoaderModelOnly",
-    "_meta": {
-      "title": "Load LoRA"
-    }
-  },
   "332": {
     "inputs": {
       "clip_name1": "gemma_3_12B_it_fpmixed.safetensors",
@@ -463,7 +449,7 @@
   "358": {
     "inputs": {
       "audio": "audio_example.mp3",
-      "audioUI": "/api/view?filename=audio_example.mp3&type=input&subfolder=&rand=0.7339331623100649"
+      "audioUI": "/api/view?filename=audio_example.mp3&type=input&subfolder=&rand=0.40534309525163414"
     },
     "class_type": "LoadAudio",
     "_meta": {
@@ -665,7 +651,7 @@
       "strength_model": 1,
       "strength_clip": 1,
       "model": [
-        "583",
+        "617",
         0
       ],
       "clip": [
@@ -923,13 +909,13 @@
       "lora_name": "placeholder.safetensors",
       "strength_model": 0,
       "model": [
-        "293",
+        "603",
         0
       ]
     },
     "class_type": "LoraLoaderModelOnly",
     "_meta": {
-      "title": "lora1"
+      "title": "lora_1"
     }
   },
   "581": {
@@ -943,7 +929,7 @@
     },
     "class_type": "LoraLoaderModelOnly",
     "_meta": {
-      "title": "lora2"
+      "title": "lora_2"
     }
   },
   "582": {
@@ -957,7 +943,7 @@
     },
     "class_type": "LoraLoaderModelOnly",
     "_meta": {
-      "title": "lora3"
+      "title": "lora_3"
     }
   },
   "583": {
@@ -971,7 +957,7 @@
     },
     "class_type": "LoraLoaderModelOnly",
     "_meta": {
-      "title": "lora4"
+      "title": "lora_4"
     }
   },
   "584": {
@@ -1013,7 +999,7 @@
       "sage_attention": "auto",
       "allow_compile": false,
       "model": [
-        "583",
+        "617",
         0
       ]
     },
@@ -1384,6 +1370,90 @@
     "class_type": "easy ifElse",
     "_meta": {
       "title": "If else"
+    }
+  },
+  "612": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "614",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_7"
+    }
+  },
+  "613": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "583",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_5"
+    }
+  },
+  "614": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "613",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_6"
+    }
+  },
+  "615": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "612",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_8"
+    }
+  },
+  "616": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "615",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_9"
+    }
+  },
+  "617": {
+    "inputs": {
+      "lora_name": "placeholder.safetensors",
+      "strength_model": 0,
+      "model": [
+        "616",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "lora_10"
     }
   }
 }
