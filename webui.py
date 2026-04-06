@@ -1363,7 +1363,7 @@ with shared.gradio_root:
                                                 fn=send_trigger_to_prompt,
                                                 inputs=[scene_lora_model, scene_lora_trigger_word],
                                                 outputs=[scene_send_to_prompt_btn]
-                                            )
+                                            ).then(fn=None, _js=f"() => {{ if(window.globalAutoAddLoraTriggerWord) window.globalAutoAddLoraTriggerWord('{scene_lora_trigger_word.elem_id}', '{scene_lora_model.elem_id}') }}")
 
                                         scene_lora_enableds.append(scene_lora_enabled)
                                         scene_lora_models.append(scene_lora_model)
@@ -1390,6 +1390,14 @@ with shared.gradio_root:
                                         outputs=[scene_lora_trigger_words[i]],
                                         queue=False,
                                         show_progress=False
+                                    )
+                                    scene_lora_models[i].input(
+                                        fn=None,
+                                        inputs=None,
+                                        outputs=None,
+                                        queue=False,
+                                        show_progress=False,
+                                        _js=f"() => {{ if(window.globalAutoAddLoraTriggerWord) window.globalAutoAddLoraTriggerWord('{scene_lora_trigger_words[i].elem_id}', '{scene_lora_models[i].elem_id}') }}"
                                     )
                             with gr.Row():
                                 scene_refresh_files = gr.Button(label='Refresh', value='\U0001f504 Refresh All Files', variant='secondary', elem_classes='refresh_button')
