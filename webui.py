@@ -3974,13 +3974,13 @@ with shared.gradio_root:
                 if 'layer' in tab:
                     result += [gr.update(choices=flags.Performance.list()[:2]), gr.update(value=[s for s in styles if s!=fooocus_expansion and s!='Fooocus Sharp']), gr.update()]
                     result += [gr.update(value=False, interactive=False)]
-                    result += [gr.update(interactive=False)] * 26
+                    result += [gr.update(interactive=False)] * (len(layout_image_tab) - 4)
                 elif 'uov' in tab:
                     result += [gr.update(choices=flags.Performance.list()), gr.update(), 1]
-                    result += [gr.update(interactive=True)] * 27
+                    result += [gr.update(interactive=True)] * (len(layout_image_tab) - 3)
                 else:
                     result += [gr.update(choices=flags.Performance.list()), gr.update(), gr.update()]
-                    result += [gr.update(interactive=True)] * 27
+                    result += [gr.update(interactive=True)] * (len(layout_image_tab) - 3)
                 return result
             
             uov_tab.select(lambda: 'uov', outputs=current_tab, queue=False, _js=down_js, show_progress=False).then(toggle_image_tab,inputs=[current_tab, style_selections], outputs=layout_image_tab, show_progress=False, queue=False)
@@ -3996,7 +3996,7 @@ with shared.gradio_root:
                     gr.update(choices=flags.Performance.list()),
                     gr.update(),
                     gr.update(),
-                ] + [gr.update(interactive=True)] * 27
+                ] + [gr.update(interactive=True)] * (len(layout_image_tab) - 3)
                 if is_checked:
                     result += [gr.update(visible=False), gr.update(value=False)]
                 else:
@@ -4314,7 +4314,7 @@ with shared.gradio_root:
             
             return [gr.update(), super_prompter_result, gr.update(visible=True), gr.update(visible=False), gr.update()]
 
-        prompt.change(parse_meta, inputs=[prompt, state_topbar, scene_input_image1, state_is_generating], outputs=[prompt, super_prompter, generate_button, load_parameter_button, prompt_panel_checkbox], queue=False, show_progress=False)      
+        prompt.change(parse_meta, inputs=[prompt, state_topbar, scene_input_image1, state_is_generating], outputs=[prompt, super_prompter, generate_button, load_parameter_button, prompt_panel_checkbox], queue=False, show_progress=False)
 
         def trigger_metadata_import(file, state_is_generating, state_params):
             parameters, metadata_scheme = modules.meta_parser.read_info_from_image(file)
@@ -4343,6 +4343,7 @@ with shared.gradio_root:
         scene_frontend_ctrls = [prompt_internal_panel, random_button, super_prompter, disable_intermediate_results, image_tools_checkbox, scene_panel, scene_theme, scene_resolution_override_accordion, scene_use_resolution_override_checkbox, scene_resolution_override] + scene_params[1:] + [generate_button, load_parameter_button]
 
         metadata_import_button.click(trigger_metadata_import, inputs=[metadata_input_image, state_is_generating, state_topbar], outputs=reset_preset_layout + reset_preset_func + scene_frontend_ctrls + load_data_outputs, queue=False, show_progress=True) \
+            .then(toggle_image_input_panel, inputs=[input_image_checkbox, qwen_tts_checkbox], outputs=[image_input_panel, engine_class_display] + layout_image_tab + [tts_panel, qwen_tts_checkbox], queue=False, show_progress=False) \
             .then(style_sorter.sort_styles, inputs=style_selections, outputs=style_selections, queue=False, show_progress=False)
 
         model_check = [prompt, negative_prompt, base_model, refiner_model] + lora_ctrls
@@ -4985,6 +4986,7 @@ with shared.gradio_root:
     
     prompt_regen_button.click(toolbox.toggle_note_box_regen, inputs=model_check + [state_topbar], outputs=note_box_outputs, show_progress=False)
     params_note_regen_button.click(toolbox.reset_image_params, inputs=[state_topbar, state_is_generating, inpaint_mode], outputs=reset_preset_layout + reset_preset_func + scene_frontend_ctrls + load_data_outputs + [params_note_regen_button, params_note_box], show_progress=False) \
+            .then(toggle_image_input_panel, inputs=[input_image_checkbox, qwen_tts_checkbox], outputs=[image_input_panel, engine_class_display] + layout_image_tab + [tts_panel, qwen_tts_checkbox], queue=False, show_progress=False) \
             .then(toolbox.close_note_box, inputs=state_topbar, outputs=note_box_outputs, show_progress=False)
     prompt_preset_button.click(toolbox.toggle_note_box_preset, inputs=model_check + [state_topbar], outputs=note_box_outputs, show_progress=False)
     scene_prompt_preset_button.click(toolbox.toggle_note_box_preset, inputs=model_check + [state_topbar], outputs=note_box_outputs, show_progress=False)
@@ -5040,6 +5042,7 @@ with shared.gradio_root:
 
     for i in range(shared.BUTTON_NUM):
         bar_buttons[i].click(topbar.reset_layout_ui, inputs=reset_preset_inputs + [bar_buttons[i]], outputs=reset_layout_ui_outputs + [state_topbar, comparison_state, comparison_box, progress_gallery, compare_btn, progress_window], queue=False, show_progress=False) \
+               .then(toggle_image_input_panel, inputs=[input_image_checkbox, qwen_tts_checkbox], outputs=[image_input_panel, engine_class_display] + layout_image_tab + [tts_panel, qwen_tts_checkbox], queue=False, show_progress=False) \
                .then(apply_preferred_output_format, inputs=[state_topbar], outputs=[output_format], queue=False, show_progress=False) \
                .then(lambda sp, umf: refresh_files_clicked(sp, umf, False), inputs=[state_topbar, model_filter_state], outputs=refresh_files_output + lora_ctrls, queue=False, show_progress=False) \
                .then(topbar.reset_layout_values, inputs=reset_values_inputs, outputs=reset_layout_values_outputs, show_progress=False) \
@@ -5056,6 +5059,7 @@ with shared.gradio_root:
                       .then(topbar.init_nav_bars, inputs=[state_topbar] + admin_ctrls, outputs=[progress_window, language_ui, background_theme, preset_instruction] + user_app_ctrls + admin_ctrls, show_progress=False) \
                       .then(_qwen_refresh_style_preset_dropdowns, inputs=[state_topbar, qwen_design_style_preset_choices, qwen_custom_style_preset_choices], outputs=[qwen_design_style_preset_choices, qwen_custom_style_preset_choices], queue=False, show_progress=False) \
                       .then(topbar.reset_layout_ui, inputs=reset_preset_inputs, outputs=reset_layout_ui_outputs + [state_topbar, comparison_state, comparison_box, progress_gallery, compare_btn, progress_window], show_progress=False) \
+                      .then(toggle_image_input_panel, inputs=[input_image_checkbox, qwen_tts_checkbox], outputs=[image_input_panel, engine_class_display] + layout_image_tab + [tts_panel, qwen_tts_checkbox], queue=False, show_progress=False) \
                       .then(apply_preferred_output_format, inputs=[state_topbar], outputs=[output_format], queue=False, show_progress=False) \
                       .then(lambda sp, umf: refresh_files_clicked(sp, umf, False), inputs=[state_topbar, model_filter_state], outputs=refresh_files_output + lora_ctrls, queue=True, show_progress=False) \
                       .then(topbar.refresh_preset_store_list, inputs=state_topbar, outputs=preset_store_list, show_progress=False, queue=False) \
