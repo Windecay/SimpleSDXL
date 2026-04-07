@@ -1,5 +1,5 @@
-comfyui-frontend-package==1.41.18
-comfyui-workflow-templates==0.9.21
+comfyui-frontend-package==1.42.8
+comfyui-workflow-templates==0.9.44
 comfyui-embedded-docs==0.4.3
 torch
 torchsde
@@ -23,10 +23,24 @@ SQLAlchemy
 filelock
 av>=14.2.0
 comfy-kitchen>=0.2.8
-comfy-aimdo>=0.2.10
+comfy-aimdo>=0.2.12
 requests
 simpleeval>=1.0.0
 blake3
+werkzeug==3.1.7
+docstring-parser==0.17.0
+fire==0.7.1
+flatten-dict==0.4.2
+grpcio==1.80.0
+julius==0.2.7
+markdown==3.10.2
+markdown2==2.5.5
+pystoi==0.4.1
+randomname==0.2.1
+sounddevice==0.5.5
+tensorboard==2.20.0
+tensorboard-data-server==0.7.2
+torch-stoi==0.2.3
 
 #non essential dependencies:
 kornia>=0.7.1

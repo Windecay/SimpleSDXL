@@ -3,23 +3,16 @@
 
 console.log('[WeiLin] JavaScript file loaded: weilin_prompt_ui_node.js');
 
-// 加载CSS修复文件
 (function() {
-    // 尝试多个可能的路径
-    const possiblePaths = [
-        './extensions/weilin-comfyui-tools/weilin_fix.css',
-        './extensions/weilin-comfyui-tools/js_node/weilin_fix.css',
-        './weilin_fix.css'
-    ];
-    
-    possiblePaths.forEach(path => {
+    const cssId = 'weilin-fix-css';
+    if (!document.getElementById(cssId)) {
         const link = document.createElement('link');
+        link.id = cssId;
         link.rel = 'stylesheet';
         link.type = 'text/css';
-        link.href = path;
+        link.href = new URL('./weilin_fix.css', import.meta.url).href;
         document.head.appendChild(link);
-    });
-    
+    }
     console.log('[WeiLin] CSS fix files loaded');
 })();
 
@@ -145,7 +138,7 @@ function loadResourcesOnDemand() {
     
     // 加载主JS (648KB) - 使用defer确保不阻塞
     var script1 = document.createElement('script');
-    script1.src = './weilin/prompt_ui/webjs?v=' + WEILIN_VERSION;
+    script1.src = '/weilin/prompt_ui/webjs?v=' + WEILIN_VERSION;
     script1.type = 'text/javascript';
     script1.defer = true;
     script1.onload = checkAllLoaded;
@@ -156,14 +149,14 @@ function loadResourcesOnDemand() {
     var link1 = document.createElement('link');
     link1.rel = 'stylesheet';
     link1.type = 'text/css';
-    link1.href = './weilin/prompt_ui/file/style.css?v=' + WEILIN_VERSION;
+    link1.href = '/weilin/prompt_ui/file/style.css?v=' + WEILIN_VERSION;
     link1.onload = checkAllLoaded;
     link1.onerror = checkAllLoaded;
     document.head.appendChild(link1);
 
     // loraStack 脚本载入
     var script2 = document.createElement('script');
-    script2.src = './weilin/prompt_ui/file/lora_stack.js?v=' + WEILIN_VERSION;
+    script2.src = '/weilin/prompt_ui/file/lora_stack.js?v=' + WEILIN_VERSION;
     script2.type = 'text/javascript';
     script2.defer = true;
     script2.onload = checkAllLoaded;
@@ -174,7 +167,7 @@ function loadResourcesOnDemand() {
     var link2 = document.createElement('link');
     link2.rel = 'stylesheet';
     link2.type = 'text/css';
-    link2.href = './weilin/prompt_ui/file/lora_stack.css?v=' + WEILIN_VERSION;
+    link2.href = '/weilin/prompt_ui/file/lora_stack.css?v=' + WEILIN_VERSION;
     link2.onload = checkAllLoaded;
     link2.onerror = checkAllLoaded;
     document.head.appendChild(link2);

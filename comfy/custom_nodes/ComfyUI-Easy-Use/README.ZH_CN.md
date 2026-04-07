@@ -19,7 +19,7 @@
 - 增加了预采样参数配置的节点，可与采样节点分离，更方便预览。
 - 支持通配符与Lora的提示词节点，如需使用Lora Block Weight用法，需先保证自定义节点包中安装了 [ComfyUI-Inspire-Pack](https://github.com/ltdrdata/ComfyUI-Inspire-Pack)
 - 可多选的风格化提示词选择器，默认是Fooocus的样式json，可自定义json放在styles底下，samples文件夹里可放预览图(名称和name一致,图片文件名如有空格需转为下划线'_')
-- 加载器可开启A1111提示词风格模式，可重现与webui生成近乎相同的图像，需先安装 [ComfyUI_smZNodes](https://github.com/shiimizu/ComfyUI_smZNodes)
+- 加载器可开启A1111提示词风格模式，可重现与webui生成近乎相同的图像
 - 可使用`easy latentNoisy`或`easy preSamplingNoiseIn`节点实现对潜空间的噪声注入
 - 简化 SD1.x、SD2.x、SDXL、SVD、Zero123等流程 
 - 简化 Stable Cascade [示例参考](https://github.com/yolain/ComfyUI-Yolain-Workflows?tab=readme-ov-file#1-13-stable-cascade)
@@ -51,6 +51,25 @@ git clone https://github.com/yolain/ComfyUI-Easy-Use
 ```
 
 ## 📜 更新日志
+
+**v1.3.6**
+
+- 恢复 `easy showAnything` 对于列表类型的支持（但一些情况下展示庞大数据时仍会导致ComfyUI崩溃） 
+- 修复自定义小部件以支持子图和 Nodes 2.0 #942
+- 添加 `easy multiAngle` 节点
+- 将 `prompt.py` 转换为 V3 Schema
+- 修复 `easy humanSegmentation` 错误
+- 添加 `easy stringJoinLines`、`easy stringToIntList`、`easy simpleMath`
+- 修复 `easy ifElse` 和 `easy anythingIndexSwitch` 在某些环境下失败的问题
+
+**v1.3.5**
+
+- 修复`isNone`
+- 将`preview_rescale`添加到`easy imageChooser`
+- 修复小部件隐藏#910
+- 将 max 参数添加到 `wildcardsPromptMatrix` 偏移量 #909
+- 修复子图节点上的标题框样式
+- 在 `easypromptLine` 上添加 `remove_empty_lines`
 
 **v1.3.4**
 

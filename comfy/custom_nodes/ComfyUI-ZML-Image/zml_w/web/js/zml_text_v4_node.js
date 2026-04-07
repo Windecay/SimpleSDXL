@@ -1,4 +1,4 @@
-import { app } from "../../../scripts/app.js";
+import { app } from "/scripts/app.js";
 
 // 创建辅助函数用于创建DOM元素
 function createEl(tag, className = "", properties = {}, text = "") {

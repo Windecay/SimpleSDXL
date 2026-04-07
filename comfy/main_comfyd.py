@@ -103,24 +103,78 @@ def install_requirements_sequential():
 
     return None
 
-def install_llama_cpp_python():
-    import subprocess
+def build_force_reinstall_pip_cmd():
+    python_exe = sys.executable
+    cmd = [python_exe]
+    if sys.flags.no_user_site or ("python_embeded" in python_exe) or ("python_embedded" in python_exe):
+        cmd.append("-s")
+    cmd += ["-m", "pip", "install", "-U", "--force-reinstall", "--no-deps"]
+    return cmd
+
+def version_matches(installed: str, target: str) -> bool:
+    if not installed:
+        return False
+    return installed == target or installed.split("+", 1)[0] == target
+
+def get_installed_version(dist_candidates):
     import importlib.metadata
 
-    python_exe = sys.executable
-    timeout_seconds = int(os.environ.get("COMFY_LLAMA_INSTALL_TIMEOUT", "300"))
+    for dist_name in dist_candidates:
+        try:
+            installed_ver = importlib.metadata.version(dist_name)
+            if installed_ver:
+                return installed_ver
+        except Exception:
+            continue
+    return None
 
-    def build_pip_cmd():
-        cmd = [python_exe]
-        if sys.flags.no_user_site or ("python_embeded" in python_exe) or ("python_embedded" in python_exe):
-            cmd.append("-s")
-        cmd += ["-m", "pip", "install", "-U", "--force-reinstall", "--no-deps"]
-        return cmd
+def has_installed_module(module_candidates):
+    import importlib.util
 
-    def version_matches(installed: str, target: str) -> bool:
-        if not installed:
-            return False
-        return installed == target or installed.split("+", 1)[0] == target
+    for module_name in module_candidates:
+        try:
+            if importlib.util.find_spec(module_name) is not None:
+                return True
+        except ModuleNotFoundError:
+            continue
+        except Exception:
+            continue
+    return False
+
+def install_wheel_url_if_needed(package_name, target_version, wheel_url, timeout_env_var, dist_candidates, module_candidates=None, import_check=None):
+    import subprocess
+
+    if not wheel_url:
+        return None
+
+    timeout_seconds = int(os.environ.get(timeout_env_var, "300"))
+    installed_ver = get_installed_version(dist_candidates)
+    version_ok = version_matches(installed_ver, target_version)
+    module_ok = True if not module_candidates else has_installed_module(module_candidates)
+    need_reinstall = not (version_ok and module_ok)
+
+    if not need_reinstall and import_check is not None:
+        try:
+            import_check()
+        except Exception:
+            need_reinstall = True
+
+    if not need_reinstall:
+        return None
+
+    try:
+        print(f"[Comfyd] Installing {package_name} from: {wheel_url}")
+        cmd = build_force_reinstall_pip_cmd() + [wheel_url]
+        subprocess.run(cmd, check=False, timeout=timeout_seconds)
+    except subprocess.TimeoutExpired:
+        print(f"[Comfyd] {package_name} install timed out")
+    except Exception as e:
+        print(f"[Comfyd] {package_name} install failed: {e}")
+
+    return None
+
+def install_llama_cpp_python():
+    import importlib.metadata
 
     try:
         torch_version = importlib.metadata.version("torch")
@@ -145,50 +199,17 @@ def install_llama_cpp_python():
     if not llama_url:
         return None
 
-    installed_ver = None
-    try:
-        installed_ver = importlib.metadata.version("llama_cpp_python")
-    except Exception:
-        installed_ver = None
-
-    need_reinstall = not version_matches(installed_ver, target_llama_ver)
-    if not need_reinstall and platform.system() == "Linux":
-        try:
-            import llama_cpp
-        except Exception:
-            need_reinstall = True
-
-    if need_reinstall:
-        try:
-            print(f"[Comfyd] Installing llama_cpp_python from: {llama_url}")
-            cmd = build_pip_cmd() + [llama_url]
-            subprocess.run(cmd, check=False, timeout=timeout_seconds)
-        except subprocess.TimeoutExpired:
-            print("[Comfyd] llama_cpp_python install timed out")
-        except Exception as e:
-            print(f"[Comfyd] llama_cpp_python install failed: {e}")
-
-    return None
+    import_check = (lambda: __import__("llama_cpp")) if platform.system() == "Linux" else None
+    return install_wheel_url_if_needed(
+        package_name="llama_cpp_python",
+        target_version=target_llama_ver,
+        wheel_url=llama_url,
+        timeout_env_var="COMFY_LLAMA_INSTALL_TIMEOUT",
+        dist_candidates=("llama_cpp_python",),
+        import_check=import_check,
+    )
 
 def install_nvidia_vfx():
-    import subprocess
-    import importlib.metadata
-
-    python_exe = sys.executable
-    timeout_seconds = int(os.environ.get("COMFY_NVIDIA_VFX_INSTALL_TIMEOUT", "300"))
-
-    def build_pip_cmd():
-        cmd = [python_exe]
-        if sys.flags.no_user_site or ("python_embeded" in python_exe) or ("python_embedded" in python_exe):
-            cmd.append("-s")
-        cmd += ["-m", "pip", "install", "-U", "--force-reinstall", "--no-deps"]
-        return cmd
-
-    def version_matches(installed: str, target: str) -> bool:
-        if not installed:
-            return False
-        return installed == target or installed.split("+", 1)[0] == target
-
     vfx_url = None
     target_vfx_ver = "0.1.0.1"
     if sys.version_info.major == 3 and sys.version_info.minor == 10:
@@ -200,33 +221,27 @@ def install_nvidia_vfx():
     if not vfx_url:
         return None
 
-    installed_ver = None
-    for dist in ("nvidia-vfx", "nvidia_vfx"):
-        try:
-            installed_ver = importlib.metadata.version(dist)
-            if installed_ver:
-                break
-        except Exception:
-            continue
+    import_check = (lambda: __import__("nvvfx")) if platform.system() == "Linux" else None
+    return install_wheel_url_if_needed(
+        package_name="nvidia-vfx",
+        target_version=target_vfx_ver,
+        wheel_url=vfx_url,
+        timeout_env_var="COMFY_NVIDIA_VFX_INSTALL_TIMEOUT",
+        dist_candidates=("nvidia-vfx", "nvidia_vfx"),
+        import_check=import_check,
+    )
 
-    need_reinstall = not version_matches(installed_ver, target_vfx_ver)
-    if not need_reinstall and platform.system() == "Linux":
-        try:
-            import nvvfx
-        except Exception:
-            need_reinstall = True
-
-    if need_reinstall:
-        try:
-            print(f"[Comfyd] Installing nvidia-vfx from: {vfx_url}")
-            cmd = build_pip_cmd() + [vfx_url]
-            subprocess.run(cmd, check=False, timeout=timeout_seconds)
-        except subprocess.TimeoutExpired:
-            print("[Comfyd] nvidia-vfx install timed out")
-        except Exception as e:
-            print(f"[Comfyd] nvidia-vfx install failed: {e}")
-
-    return None
+def ensure_descript_audiotools_installed():
+    target_ver = "0.7.4"
+    whl_url = "https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/libs/audiotools/descript_audiotools-0.7.4-py2.py3-none-any.whl"
+    return install_wheel_url_if_needed(
+        package_name="descript_audiotools",
+        target_version=target_ver,
+        wheel_url=whl_url,
+        timeout_env_var="COMFY_DESCRIPT_AUDIOTOOLS_INSTALL_TIMEOUT",
+        dist_candidates=("descript-audiotools", "descript_audiotools"),
+        module_candidates=("descript_audiotools", "audiotools"),
+    )
 
 if __name__ == "__main__":
     try:
@@ -241,6 +256,10 @@ if __name__ == "__main__":
         install_nvidia_vfx()
     except Exception as e:
         print(f"[Comfyd] nvidia-vfx install step failed: {e}")
+    try:
+        ensure_descript_audiotools_installed()
+    except Exception as e:
+        print(f"[Comfyd] descript_audiotools install step failed: {e}")
 
 import comfy.options
 comfy.options.enable_args_parsing()
@@ -252,6 +271,8 @@ import folder_paths
 import time
 from comfy.cli_args import args, enables_dynamic_vram
 from app.logger import setup_logger
+from app.assets.seeder import asset_seeder
+from app.assets.services import register_output_files
 import itertools
 import utils.extra_config
 from utils.mime_types import init_mime_types
@@ -469,7 +490,6 @@ if 'torch' in sys.modules:
 
 
 import comfy.utils
-from app.assets.seeder import asset_seeder
 
 import execution
 import server
@@ -483,8 +503,8 @@ import hook_breaker_ac10a0
 import comfy.memory_management
 import comfy.model_patcher
 
-if enables_dynamic_vram() and comfy.model_management.is_nvidia() and not comfy.model_management.is_wsl():
-    if comfy.model_management.torch_version_numeric < (2, 8):
+if args.enable_dynamic_vram or (enables_dynamic_vram() and comfy.model_management.is_nvidia() and not comfy.model_management.is_wsl()):
+    if (not args.enable_dynamic_vram) and (comfy.model_management.torch_version_numeric < (2, 8)):
         logging.warning("Unsupported Pytorch detected. DynamicVRAM support requires Pytorch version 2.8 or later. Falling back to legacy ModelPatcher. VRAM estimates may be unreliable especially on Windows")
     elif comfy_aimdo.control.init_device(comfy.model_management.get_torch_device().index):
         if args.verbose == 'DEBUG':
@@ -516,17 +536,52 @@ def cuda_malloc_warning():
         if cuda_malloc_warning:
             logging.warning("\nWARNING: this card most likely does not support cuda-malloc, if you get \"CUDA error\" please run ComfyUI with: --disable-cuda-malloc\n")
 
+def _collect_output_absolute_paths(history_result: dict) -> list[str]:
+    """Extract absolute file paths for output items from a history result."""
+    paths: list[str] = []
+    seen: set[str] = set()
+    for node_output in history_result.get("outputs", {}).values():
+        for items in node_output.values():
+            if not isinstance(items, list):
+                continue
+            for item in items:
+                if not isinstance(item, dict):
+                    continue
+                item_type = item.get("type")
+                if item_type not in ("output", "temp"):
+                    continue
+                base_dir = folder_paths.get_directory_by_type(item_type)
+                if base_dir is None:
+                    continue
+                base_dir = os.path.abspath(base_dir)
+                filename = item.get("filename")
+                if not filename:
+                    continue
+                abs_path = os.path.abspath(
+                    os.path.join(base_dir, item.get("subfolder", ""), filename)
+                )
+                if not abs_path.startswith(base_dir + os.sep) and abs_path != base_dir:
+                    continue
+                if abs_path not in seen:
+                    seen.add(abs_path)
+                    paths.append(abs_path)
+    return paths
+
 def prompt_worker(q, server_instance):
     current_time: float = 0.0
+    cache_ram = args.cache_ram
+    if cache_ram < 0:
+        cache_ram = min(32.0, max(4.0, comfy.model_management.total_ram * 0.25 / 1024.0))
+
     cache_type = execution.CacheType.CLASSIC
     if args.cache_lru > 0:
         cache_type = execution.CacheType.LRU
-    elif args.cache_ram > 0:
+    elif cache_ram > 0:
         cache_type = execution.CacheType.RAM_PRESSURE
     elif args.cache_none:
         cache_type = execution.CacheType.NONE
 
-    e = execution.PromptExecutor(server_instance, cache_type=cache_type, cache_args={ "lru" : args.cache_lru, "ram" : args.cache_ram } )
+    e = execution.PromptExecutor(server_instance, cache_type=cache_type, cache_args={ "lru" : args.cache_lru, "ram" : cache_ram } )
     last_gc_collect = 0
     need_gc = False
     gc_collect_interval = 10.0
@@ -586,6 +641,10 @@ def prompt_worker(q, server_instance):
             else:
                 logging.info("Prompt executed in {:.2f} seconds".format(execution_time))
 
+            if not asset_seeder.is_disabled():
+                paths = _collect_output_absolute_paths(e.history_result)
+                register_output_files(paths, job_id=prompt_id)
+
         flags = q.get_flags()
         free_memory = flags.get("free_memory", False)
 
@@ -607,6 +666,9 @@ def prompt_worker(q, server_instance):
                 last_gc_collect = current_time
                 need_gc = False
                 hook_breaker_ac10a0.restore_functions()
+
+                if not asset_seeder.is_disabled():
+                    asset_seeder.enqueue_enrich(roots=("output",), compute_hashes=True)
                 asset_seeder.resume()
 
 

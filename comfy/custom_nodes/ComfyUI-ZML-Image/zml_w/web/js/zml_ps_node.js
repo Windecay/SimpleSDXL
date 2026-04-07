@@ -1,5 +1,5 @@
 // 文件路径: ComfyUI-ZML-Image/zml_w/web/js/zml_ps_node.js
-import { app } from "../../../scripts/app.js";
+import { app } from "/scripts/app.js";
 
 // ======================= 通用 JS 函数 =======================
 // loadScript函数现在支持module类型，并使用import.meta.url确保路径正确
@@ -56,7 +56,7 @@ app.registerExtension({
 async function showDeformEditorModal(node) {
     // 确保PIXI.js库已加载
     if (typeof PIXI === 'undefined') {
-        const pixiJsPath = new URL('../lib/pixi.min.js', import.meta.url).href;
+        const pixiJsPath = '/zml-assets/lib/pixi.min.js';
         await loadScript(pixiJsPath);
     }
 
@@ -2137,7 +2137,7 @@ async function showPanoViewerModal(node) {
 async function show360Preview(imageUrl) {
     // 2. 加载 Three.js 库 (只加载一次)
     if (typeof THREE === 'undefined') {
-        const threeJsPath = new URL('../lib/three.min.js', import.meta.url).href;
+        const threeJsPath = '/zml-assets/lib/three.min.js';
         await loadScript(threeJsPath);
     }
 
@@ -2438,7 +2438,7 @@ async function show360Preview(imageUrl) {
 async function showPlanePreview(imageUrl) {
     // 加载 Three.js 库 (只加载一次)
     if (typeof THREE === 'undefined') {
-        const threeJsPath = new URL('../lib/three.min.js', import.meta.url).href;
+        const threeJsPath = '/zml-assets/lib/three.min.js';
         await loadScript(threeJsPath);
     }
 

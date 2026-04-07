@@ -1,4 +1,4 @@
-import { app } from "../../../scripts/app.js";
+import { app } from "/scripts/app.js";
 
 // ======================= 全局变量和缓存 =======================
 // 存储图像尺寸缓存，key为图像URL，value为缓存的尺寸信息
@@ -14,9 +14,13 @@ function loadScript(url) {
         const script = document.createElement('script');
         script.src = url;
         script.onload = resolve;
-        script.onerror = reject;
+        script.onerror = () => reject(new Error(`Failed to load script: ${url}`));
         document.body.appendChild(script);
     });
+}
+
+function assetUrl(path) {
+    return `/zml-assets/${path}`;
 }
 
 function createModal(htmlContent) {
@@ -93,29 +97,11 @@ function showVisualEditorModal(node, widgets) {
     }
 }
 
-// 获取当前扩展的基础路径
-function get_extension_base_path() {
-    const scriptUrl = import.meta.url;
-    const parts = scriptUrl.split('/');
-    const extensionsIndex = parts.indexOf('extensions');
-    if (extensionsIndex !== -1 && parts.length > extensionsIndex + 1) {
-        return '/' + parts.slice(extensionsIndex, extensionsIndex + 2).join('/') + '/';
-    }
-    console.error('ZML Visual Cropper: 无法自动推断扩展基础路径');
-    // 尝试从全局变量获取，防止完全失败
-    if (window.zmlExtensionBasePath) {
-        return window.zmlExtensionBasePath;
-    }
-    return '/extensions/ComfyUI-ZML-Image/'; // 最后的回退
-}
-
-const extensionBasePath = get_extension_base_path();
-
 function setupCropper(mainContainer, controlsContainer, widgets, imageUrl, node, modal) {
-    const cropperUrl = extensionBasePath + 'lib/cropper.min.js';
+    const cropperUrl = assetUrl('lib/cropper.min.js');
     const cropperCss = document.createElement('link');
     cropperCss.rel = 'stylesheet';
-    cropperCss.href = extensionBasePath + 'lib/cropper.min.css';
+    cropperCss.href = assetUrl('lib/cropper.min.css');
     document.head.appendChild(cropperCss);
 
     mainContainer.innerHTML = `<img id="zml-cropper-image" src="${imageUrl}" style="display: block; max-width: 100%; max-height: 75vh;">`;
@@ -179,11 +165,15 @@ function setupCropper(mainContainer, controlsContainer, widgets, imageUrl, node,
         if(image.complete) image.onload();
 
         modal.querySelector('#zml-cancel-btn').onclick = () => closeModal(modal, cropperCss);
+    }).catch((e) => {
+        console.error(e);
+        alert("加载裁剪组件失败");
+        closeModal(modal, cropperCss);
     });
 }
 
 function setupFabric(mainContainer, controlsContainer, widgets, imageUrl, node, modal) {
-    const fabricUrl = extensionBasePath + 'lib/fabric.min.js';
+    const fabricUrl = assetUrl('lib/fabric.min.js');
     mainContainer.innerHTML = `<canvas id="zml-fabric-canvas"></canvas>`;
 
     const cropMode = widgets.mode.value;
@@ -272,6 +262,10 @@ function setupFabric(mainContainer, controlsContainer, widgets, imageUrl, node, 
             closeModal(modal);
         };
         modal.querySelector('#zml-cancel-btn').onclick = () => closeModal(modal);
+    }).catch((e) => {
+        console.error(e);
+        alert("加载画布组件失败");
+        closeModal(modal);
     });
 }
 // ======================= ZML_MergeImages 节点 (使用旧版逻辑) =======================
@@ -342,7 +336,7 @@ function showMergeModal(node, widget) {
     const opacitySlider = modal.querySelector('#zml-opacity-slider');
     // MODIFICATION END
 
-    loadScript(extensionBasePath + 'lib/fabric.min.js').then(() => {
+    loadScript(assetUrl('lib/fabric.min.js')).then(() => {
         let uiCanvas, uiCanvasScale = 1.0;
         let fabricLayers = [];
         let allLayerParams = [];
@@ -532,6 +526,10 @@ function showMergeModal(node, widget) {
         };
         
         modal.querySelector('#zml-cancel-btn').onclick = () => closeModal(modal);
+    }).catch((e) => {
+        console.error(e);
+        alert("加载画布组件失败");
+        closeModal(modal);
     });
 }
 // ======================= ZML_ImagePainter 节点 =======================
@@ -1058,7 +1056,7 @@ function showPainterModal(node, widget) {
         });
     }
 
-    loadScript(extensionBasePath + 'lib/fabric.min.js').then(() => {
+    loadScript(assetUrl('lib/fabric.min.js')).then(() => {
         // Initialize canvas
         const canvas = new fabric.Canvas(canvasElement, { stopContextMenu: true });
         let isPanning = false, lastPanPoint = null;

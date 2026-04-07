@@ -11,8 +11,24 @@ from aiohttp import web, ClientSession
 plugin_root = os.path.dirname(os.path.abspath(__file__))
 # 定义节点代码所在的目录
 nodes_dir = os.path.join(plugin_root, "zml_w")
-# 定义JS文件所在的Web目录
-WEB_DIRECTORY = "zml_w/web"
+# 定义JS文件所在的Web目录（仅包含扩展入口脚本，避免将第三方库脚本当作扩展模块自动加载）
+WEB_DIRECTORY = "zml_w/web/js"
+
+assets_root = os.path.join(plugin_root, "zml_w", "web")
+
+@PromptServer.instance.routes.get("/zml-assets/{file_path:.*}")
+async def zml_assets_handler(request):
+    file_path = request.match_info.get("file_path", "")
+    base = os.path.abspath(assets_root)
+    full_path = os.path.abspath(os.path.join(base, file_path))
+
+    if not (full_path == base or full_path.startswith(base + os.sep)):
+        raise web.HTTPForbidden()
+
+    if os.path.isfile(full_path):
+        return web.FileResponse(full_path)
+
+    raise web.HTTPNotFound()
 
 # --------------------------------------------------------------------
 # 1. API 端点注册

@@ -250,6 +250,9 @@
       },
       "max_rows": {
         "name": "max_rows"
+      },
+      "remove_empty_lines":{
+        "name": "remove_empty_lines"
       }
     },
     "outputs": {
@@ -463,6 +466,19 @@
       },
       "1": {
         "name": "negative"
+      }
+    }
+  },
+  "easy multiAngle":{
+    "display_name": "Multi Angle Prompt",
+    "inputs": {
+    },
+    "outputs": {
+      "0": {
+        "name": "prompt"
+      },
+      "1":{
+        "name": "params"
       }
     }
   },

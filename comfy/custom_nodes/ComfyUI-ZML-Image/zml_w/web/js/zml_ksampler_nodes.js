@@ -1,5 +1,5 @@
-import { app } from "../../../scripts/app.js";
-import { api } from "../../../scripts/api.js";
+import { app } from "/scripts/app.js";
+import { api } from "/scripts/api.js";
 
 const LAST_SEED_BUTTON_LABEL = '🎲 随机 / ♻️ 上次';
 

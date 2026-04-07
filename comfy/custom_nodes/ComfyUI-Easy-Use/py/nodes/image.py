@@ -1012,6 +1012,7 @@ class imageChooser(PreviewImage):
     return {
       "required":{
         "mode": (['Always Pause', 'Keep Last Selection'], {"default": "Always Pause"}),
+        "preview_rescale": ("FLOAT", {"default": 1.0, "min": 0.05, "max": 1.0, "step": 0.05}),
       },
       "optional": {
         "images": ("IMAGE",),
@@ -1053,7 +1054,13 @@ class imageChooser(PreviewImage):
       pnginfo = extra_pnginfo[0]
     except:
       pnginfo = None
-    result = self.save_images(images=images_in, prompt=prompt, extra_pnginfo=pnginfo)
+
+    preview_rescale = kwargs.pop('preview_rescale', 1.0)
+    if preview_rescale < 1.0:
+      images_preview, = imageScaleDownBy().image_scale_down_by(images_in, preview_rescale)
+    else:
+      images_preview = images_in
+    result = self.save_images(images=images_preview, prompt=prompt, extra_pnginfo=pnginfo)
     if "ui" in result and "images" in result['ui']:
       images = result["ui"]["images"]
     else:
@@ -1295,6 +1302,11 @@ class humanSegmentation:
       return mp.Image(image_format=image_format, data=numpy_image)
 
     def parsing(self, image, confidence, method, crop_multi, mask_components, prompt=None, my_unique_id=None):
+      if isinstance(mask_components, str):
+        mask_components = [int(x) for x in mask_components.split(',') if x]
+      else:
+        mask_components = mask_components if mask_components else []
+
       if method == 'selfie_multiclass_256x256':
         try:
           import mediapipe as mp
@@ -1320,6 +1332,9 @@ class humanSegmentation:
         # Create the image segmenter
         ret_images = []
         ret_masks = []
+
+        if len(mask_components) == 0:
+          return (image, torch.zeros_like(image[:, :, :, 0:1]), torch.tensor([0,0,0,0]))
 
         with mp.tasks.vision.ImageSegmenter.create_from_options(options) as segmenter:
             for img in image:
@@ -1354,7 +1369,14 @@ class humanSegmentation:
                     mask_arrays.append(mask_background_array)
                 else:
                     for i, mask in enumerate(masks):
-                        condition = np.stack((mask.numpy_view(),) * image_shape[-1], axis=-1) > confidence
+                        mask_2d = mask.numpy_view()
+                        if mask_2d.ndim == 3 and mask_2d.shape[2] == 1:
+                            mask_2d = mask_2d.squeeze(axis=2)
+                        elif mask_2d.ndim != 2:
+                            raise ValueError(f"Unexpected mask shape: {mask_2d.shape}")
+                        condition = np.stack((mask_2d,) * image_shape[-1], axis=-1) > confidence
+                        if condition.ndim == 4 and condition.shape[2] == 1:
+                            condition = condition.squeeze(2)
                         mask_array = np.where(condition, mask_foreground_array, mask_background_array)
                         mask_arrays.append(mask_array)
                 # Merge our masks taking the maximum from each

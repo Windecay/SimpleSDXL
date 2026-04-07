@@ -1,4 +1,4 @@
-import { app } from "../../../scripts/app.js";
+import { app } from "/scripts/app.js";
 
 // 新增：定义 SelectTextV3 节点推荐的最小宽度和高度
 const ZML_SELECT_TEXT_V3_MIN_WIDTH = 350; // 适配控件数量
