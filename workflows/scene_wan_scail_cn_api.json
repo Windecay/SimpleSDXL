@@ -367,12 +367,12 @@
   "654": {
     "inputs": {
       "width": [
-        "664",
-        1
+        "706",
+        0
       ],
       "height": [
-        "665",
-        1
+        "707",
+        0
       ],
       "draw_face": true,
       "draw_hands": true,
@@ -497,24 +497,6 @@
     "class_type": "PoseDetectionVitPoseToDWPose",
     "_meta": {
       "title": "Pose Detection VitPose to DWPose"
-    }
-  },
-  "664": {
-    "inputs": {
-      "expression": "a / 2"
-    },
-    "class_type": "SimpleCalculatorKJ",
-    "_meta": {
-      "title": "Simple Calculator KJ"
-    }
-  },
-  "665": {
-    "inputs": {
-      "expression": "a / 2"
-    },
-    "class_type": "SimpleCalculatorKJ",
-    "_meta": {
-      "title": "Simple Calculator KJ"
     }
   },
   "670": {
@@ -956,6 +938,32 @@
     "class_type": "WanVideoLoraSelect",
     "_meta": {
       "title": "WanVideoLoraSelect5"
+    }
+  },
+  "706": {
+    "inputs": {
+      "value": "a/2",
+      "a": [
+        "670",
+        1
+      ]
+    },
+    "class_type": "SimpleMath+",
+    "_meta": {
+      "title": "🔧 Simple Math"
+    }
+  },
+  "707": {
+    "inputs": {
+      "value": "a/2",
+      "a": [
+        "670",
+        2
+      ]
+    },
+    "class_type": "SimpleMath+",
+    "_meta": {
+      "title": "🔧 Simple Math"
     }
   }
 }
