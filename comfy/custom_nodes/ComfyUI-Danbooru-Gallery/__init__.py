@@ -169,14 +169,14 @@ try:
     from .py.utils import config
     import time
 
-    # 导入 tag sync API 以注册API端点（可选功能）
-    try:
-        from .py.shared.sync import tag_sync_api
-        logger.info("✓ Tag sync API 已加载")
-    except (ImportError, ModuleNotFoundError):
-        # Tag sync API 依赖 cache 模块，如果 cache 不可用则此功能不可用
-        # 这不影响其他核心功能（如 SaveImagePlus）
-        tag_sync_api = None
+    # # 导入 tag sync API 以注册API端点（可选功能）
+    # try:
+    #     from .py.shared.sync import tag_sync_api
+    #     logger.info("✓ Tag sync API 已加载")
+    # except (ImportError, ModuleNotFoundError):
+    #     # Tag sync API 依赖 cache 模块，如果 cache 不可用则此功能不可用
+    #     # 这不影响其他核心功能（如 SaveImagePlus）
+    #     tag_sync_api = None
 
     # 导入并注册 checkpoint 预览图 API
     try:

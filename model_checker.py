@@ -2159,9 +2159,9 @@ packages = {'base_package': {'id': 1,
                          'info_links': ['https://civitai.com/models/934764?modelVersionId=1346747'],
                          'preset_sample': []},
  'anima_package': {'id': 13,
-                             'name': '[13]Anima动漫Preview2预置包',
-                             'note': 'Anima动漫Preview2-默认模型[anima-preview2.safetensors]|显存需求：★★★ 速度：★★',
-                             'files': ['diffusion_models,anima-preview2.safetensors,4182218360,0,https://www.modelscope.cn/models/circlestone-labs/Anima/resolve/master/split_files/diffusion_models/anima-preview2.safetensors,https://huggingface.co/circlestone-labs/Anima/resolve/main/split_files/diffusion_models/anima-preview2.safetensors',
+                             'name': '[13]Anima动漫Preview3预置包',
+                             'note': 'Anima动漫Preview3-默认模型[anima-preview3-base.safetensors]|显存需求：★★★ 速度：★★',
+                             'files': ['diffusion_models,anima-preview3-base.safetensors,4182218360,0,https://www.modelscope.cn/models/circlestone-labs/Anima/resolve/master/split_files/diffusion_models/anima-preview3-base.safetensors,https://huggingface.co/circlestone-labs/Anima/resolve/main/split_files/diffusion_models/anima-preview3-base.safetensors',
                                         'text_encoders,qwen_3_06b_base.safetensors,1192135096,0,https://www.modelscope.cn/models/circlestone-labs/Anima/resolve/master/split_files/text_encoders/qwen_3_06b_base.safetensors,https://huggingface.co/circlestone-labs/Anima/resolve/main/split_files/text_encoders/qwen_3_06b_base.safetensors',
                                         'vae,qwen_image_vae.safetensors,253806246,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/vae/qwen_image_vae.safetensors,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/vae/qwen_image_vae.safetensors',],
                              'info_links': ['https://www.modelscope.cn/models/circlestone-labs/Anima/summary'],
@@ -2796,7 +2796,8 @@ OBSOLETE_MODELS = [
     "svdq-int4_r128-qwen-image-edit-2509-lightningv2.0-4steps.safetensors",
     "svdq-fp4_r128-qwen-image-edit-2509-lightningv2.0-4steps.safetensors",
     "flux1-depth-dev-lora.safetensors",
-    "Qwen-Rapid-AIO-NSFW-v20.safetensors"
+    "Qwen-Rapid-AIO-NSFW-v20.safetensors",
+    "anima-preview2.safetensors"
 ]
 
 MODELSCOPE_FILE_CACHE = {}

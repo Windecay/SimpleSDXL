@@ -9,7 +9,7 @@
                 "task_method": "anima_aio"
                 }
         },
-    "default_model": "anima-preview2.safetensors",
+    "default_model": "anima-preview3-base.safetensors",
     "default_refiner": "None",
     "default_refiner_switch": 0.5,
     "default_loras": [
@@ -49,7 +49,7 @@
     "embeddings_downloads": {},
     "lora_downloads": {},
     "model_list": [
-        "diffusion_models,anima-preview2.safetensors,4182218360,0,https://www.modelscope.cn/models/circlestone-labs/Anima/resolve/master/split_files/diffusion_models/anima-preview2.safetensors",
+        "diffusion_models,anima-preview3-base.safetensors,4182218360,0,https://www.modelscope.cn/models/circlestone-labs/Anima/resolve/master/split_files/diffusion_models/anima-preview3-base.safetensors",
         "text_encoders,qwen_3_06b_base.safetensors,1192135096,0,https://www.modelscope.cn/models/circlestone-labs/Anima/resolve/master/split_files/text_encoders/qwen_3_06b_base.safetensors",
         "vae,qwen_image_vae.safetensors,253806246,0,",
         "upscale_models,4x-AnimeSharp.pth,67010245,0,https://modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/upscale_models/4x-AnimeSharp.pth"
