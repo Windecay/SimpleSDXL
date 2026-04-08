@@ -1500,20 +1500,11 @@ class showAnything(io.ComfyNode):
                         except Exception:
                             raise Exception("source exists, but could not be serialized.")
 
-        if not extra_pnginfo:
-            pass
-        elif (not isinstance(extra_pnginfo[0], dict) or "workflow" not in extra_pnginfo[0]):
-            pass
-        else:
-            workflow = extra_pnginfo[0]["workflow"]
-            if isinstance(workflow, dict) and "nodes" in workflow:
-                node = next((x for x in workflow["nodes"] if str(x["id"]) == unique_id[0]), None)
-                if node:
-                    node["widgets_values"] = [values]
-        if isinstance(values, list) and len(values) == 1:
-            return {"ui": {"text": values}, "result": (values[0],), }
-        else:
-            return {"ui": {"text": values}, "result": (values,), }
+        if extra_pnginfo and isinstance(extra_pnginfo, dict) and "workflow" in extra_pnginfo:
+            _uid = unique_id[0] if isinstance(unique_id, list) else unique_id
+            node = next((x for x in extra_pnginfo["workflow"]["nodes"] if str(x["id"]) == _uid), None)
+            if node:
+                node["widgets_values"] = [values]
 
         result_val = values[0] if (isinstance(values, list) and len(values) == 1) else values
         return io.NodeOutput(result_val, ui={"text": values})
