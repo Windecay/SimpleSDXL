@@ -103,9 +103,15 @@ def load_model_paths():
                                 if isinstance(config.get("path_llms"), list)
                                 else [config.get("path_llms") or os.path.join(simplemodels_root, "llms")])],
             "LLM": [os.path.abspath(os.path.join(script_dir, p)) if not os.path.isabs(p) else p
-                        for p in (config.get("path_llm", config.get("path_LLM", [os.path.join(simplemodels_root, "LLM")]))
-                                if isinstance(config.get("path_llm", config.get("path_LLM")), list)
-                                else [config.get("path_llm", config.get("path_LLM")) or os.path.join(simplemodels_root, "LLM")])],
+                        for p in _dedupe_keep_order(
+                            (config.get("path_LLM", [])
+                                if isinstance(config.get("path_LLM"), list)
+                                else [config.get("path_LLM")] if config.get("path_LLM") else [])
+                            + (config.get("path_llm", [])
+                                if isinstance(config.get("path_llm"), list)
+                                else [config.get("path_llm")] if config.get("path_llm") else [])
+                            + [os.path.join(simplemodels_root, "LLM")]
+                        )],
             "safety_checker": [os.path.abspath(os.path.join(script_dir, p)) if not os.path.isabs(p) else p
                         for p in (config.get("path_safety_checker", [])
                             if isinstance(config.get("path_safety_checker"), list)

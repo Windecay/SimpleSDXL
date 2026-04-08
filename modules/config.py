@@ -36,8 +36,10 @@ config_path = os.path.abspath(os.path.join(userhome_path, "config.txt"))
 config_example_path = os.path.join(os.path.dirname(config_path), "config_modification_tutorial.txt")
 
 config_dict = {}
+config_template_dict = {}
 always_save_keys = []
 visited_keys = []
+config_needs_write = False
 wildcards_max_bfs_depth = 64
 
 try:
@@ -54,8 +56,9 @@ try:
         os.rename(config_path_old, config_path_deprecated)
     if os.path.exists(config_path):
         with open(config_path, "r", encoding="utf-8") as json_file:
-            config_dict.update(json.load(json_file))
-        always_save_keys = list(config_dict.keys())
+            loaded_config = json.load(json_file)
+            config_dict.update(loaded_config)
+        always_save_keys = list(loaded_config.keys())
         for key in always_save_keys:
             if key.startswith('default_') and key[8:] in ads.default:
                 ads.default[key[8:]] = config_dict[key]
@@ -67,6 +70,13 @@ except Exception as e:
     logger.info('2. Use "\\\\" instead of "\\" when describing paths.')
     logger.info('3. There is no "," before the last "}".')
     logger.info('4. All key/value formats are correct.')
+
+try:
+    if os.path.exists(config_path_old):
+        with open(config_path_old, "r", encoding="utf-8") as json_file:
+            config_template_dict.update(json.load(json_file))
+except Exception as e:
+    logger.info(f'Failed to load template config file "{config_path_old}" . The reason is: {str(e)}')
 
 shared.gpu_arch = mm.get_current_compute_capability()
 
@@ -116,8 +126,53 @@ def try_load_deprecated_user_path_config():
         logger.info(e)
     return
 
+def _normalize_path_for_compare(path):
+    if not isinstance(path, str) or not path.strip():
+        return None
+    expanded = os.path.expandvars(os.path.expanduser(path))
+    if not os.path.isabs(expanded):
+        expanded = os.path.join(shared.root, expanded)
+    return os.path.normcase(os.path.normpath(os.path.abspath(expanded)))
+
+def _to_path_list(value):
+    if isinstance(value, list):
+        return [p for p in value if isinstance(p, str) and p.strip()]
+    if isinstance(value, str) and value.strip():
+        return [value]
+    return []
+
+def _migrate_path_alias(legacy_key, canonical_key):
+    global config_dict, always_save_keys, config_needs_write
+
+    legacy_paths = _to_path_list(config_dict.get(legacy_key))
+    if not legacy_paths:
+        return
+
+    merged = list(_to_path_list(config_dict.get(canonical_key)))
+    existing = {p for p in (_normalize_path_for_compare(x) for x in merged) if p}
+    added = []
+    for path in legacy_paths:
+        normalized = _normalize_path_for_compare(path)
+        if not normalized or normalized in existing:
+            continue
+        merged.append(path)
+        existing.add(normalized)
+        added.append(path)
+
+    config_dict[canonical_key] = merged
+    del config_dict[legacy_key]
+    if legacy_key in always_save_keys:
+        always_save_keys.remove(legacy_key)
+    if canonical_key not in always_save_keys:
+        always_save_keys.append(canonical_key)
+    config_needs_write = True
+    logger.info(f'Auto migrated config key "{legacy_key}" -> "{canonical_key}" with paths: {json.dumps(legacy_paths, ensure_ascii=False)}')
+    if added:
+        logger.info(f'Auto merged alias paths into "{canonical_key}": {json.dumps(added, ensure_ascii=False)}')
+
 
 try_load_deprecated_user_path_config()
+_migrate_path_alias("path_llm", "path_LLM")
 
 def get_gpu_arch_str_in_preset_name():
     if shared.gpu_arch:
@@ -186,8 +241,45 @@ def get_path_models_root() -> str:
     logger.info(f'The path_models_root: {os.path.abspath(path_models_root)}')
     return path_models_root
 
+def _get_path_defaults(key, default_value):
+    template_value = config_template_dict.get(key, None)
+    if isinstance(default_value, list) and isinstance(template_value, list) and template_value:
+        return template_value
+    return default_value
+
+def _merge_missing_path_defaults(key, current_value, default_value):
+    global config_dict, config_needs_write
+
+    if not isinstance(default_value, list):
+        return current_value
+
+    if isinstance(current_value, list):
+        merged = [p for p in current_value if isinstance(p, str) and p.strip()]
+    elif isinstance(current_value, str) and current_value.strip():
+        merged = [current_value]
+    else:
+        return current_value
+
+    existing = {p for p in (_normalize_path_for_compare(x) for x in merged) if p}
+    added = []
+    for default_path in default_value:
+        normalized = _normalize_path_for_compare(default_path)
+        if not normalized or normalized in existing:
+            continue
+        merged.append(default_path)
+        existing.add(normalized)
+        added.append(default_path)
+
+    if not added:
+        return current_value
+
+    config_dict[key] = merged
+    config_needs_write = True
+    logger.info(f'Auto updated config key "{key}" with missing default paths: {json.dumps(added, ensure_ascii=False)}')
+    return merged
+
 def get_dir_or_set_default(key, default_value, as_array=False, make_directory=True):
-    global config_dict, visited_keys, always_save_keys
+    global config_dict, visited_keys, always_save_keys, config_needs_write
 
     if key not in visited_keys:
         visited_keys.append(key)
@@ -195,12 +287,16 @@ def get_dir_or_set_default(key, default_value, as_array=False, make_directory=Tr
     if key not in always_save_keys:
         always_save_keys.append(key)
 
+    had_config_value = key in config_dict
     v = os.getenv(key)
     if v is not None:
         logger.info(f"Environment: {key} = {v}")
         config_dict[key] = v
     else:
         v = config_dict.get(key, None)
+
+    resolved_default_value = _get_path_defaults(key, default_value)
+    v = _merge_missing_path_defaults(key, v, resolved_default_value)
 
     if isinstance(v, str):
         if make_directory:
@@ -215,23 +311,26 @@ def get_dir_or_set_default(key, default_value, as_array=False, make_directory=Tr
             return v
 
     if v is not None:
-        logger.info(f'Failed to load config key: {json.dumps({key:v})} is invalid or does not exist; will use {json.dumps({key:default_value})} instead.')
-    if isinstance(default_value, list):
+        logger.info(f'Failed to load config key: {json.dumps({key:v})} is invalid or does not exist; will use {json.dumps({key:resolved_default_value})} instead.')
+    if isinstance(resolved_default_value, list):
         dp = []
-        for path in default_value:
+        for path in resolved_default_value:
             abs_path = os.path.abspath(os.path.join(shared.root, path))
             if not os.path.isabs(path):
                 path = os.path.relpath(abs_path, shared.root)
             dp.append(path)
             os.makedirs(abs_path, exist_ok=True)
     else:
-        dp = os.path.abspath(os.path.join(shared.root, default_value))
+        dp = os.path.abspath(os.path.join(shared.root, resolved_default_value))
         os.makedirs(dp, exist_ok=True)
-        if not os.path.isabs(default_value):
+        if not os.path.isabs(resolved_default_value):
             dp = os.path.relpath(dp, shared.root)
         if as_array:
             dp = [dp]
     config_dict[key] = dp
+    config_needs_write = True
+    if not had_config_value:
+        logger.info(f'Auto added missing config key "{key}" with default paths: {json.dumps(dp, ensure_ascii=False)}')
     return dp
 
 path_userhome = get_path_userhome()
@@ -265,6 +364,9 @@ paths_style_models = get_dir_or_set_default('path_style_models', f'{path_models_
 paths_audio_encoders = get_dir_or_set_default('path_audio_encoders', f'{path_models_root}/audio_encoders', True)
 paths_model_patches = get_dir_or_set_default('path_model_patches', f'{path_models_root}/model_patches', True)
 paths_detection = get_dir_or_set_default('path_detection', f'{path_models_root}/detection', True)
+paths_ultralytics = get_dir_or_set_default('path_ultralytics', f'{path_models_root}/ultralytics', True)
+paths_bbox = get_dir_or_set_default('path_bbox', f'{path_models_root}/ultralytics/bbox', True)
+paths_segm = get_dir_or_set_default('path_segm', f'{path_models_root}/ultralytics/segm', True)
 paths_diffusion_models = get_dir_or_set_default('path_diffusion_models', f'{path_models_root}/diffusion_models', True)
 paths_text_encoders = get_dir_or_set_default('path_text_encoders', f'{path_models_root}/text_encoders', True)
 paths_sam3 = get_dir_or_set_default('path_sam3', f'{path_models_root}/sam3', True)
@@ -298,6 +400,9 @@ model_cata_map = {
     'audio_encoders': paths_audio_encoders,
     'model_patches': paths_model_patches,
     'detection': paths_detection,
+    'ultralytics': paths_ultralytics,
+    'bbox': paths_bbox,
+    'segm': paths_segm,
     'diffusion_models': paths_unet + paths_diffusion_models + paths_checkpoints,
     'text_encoders': paths_text_encoders + paths_clip,
     'sam3': paths_sam3,
@@ -1064,7 +1169,7 @@ available_aspect_ratios_labels = modules.flags.available_aspect_ratios_list['SDX
 
 
 # Only write config in the first launch.
-if not os.path.exists(config_path):
+if not os.path.exists(config_path) or config_needs_write:
     with open(config_path, "w", encoding="utf-8") as json_file:
         json.dump({k: config_dict[k] for k in always_save_keys}, json_file, indent=4)
 
