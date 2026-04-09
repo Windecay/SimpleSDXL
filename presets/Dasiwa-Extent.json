@@ -10,7 +10,7 @@
             "theme": ["Basic"],
             "theme_title": "Dasiwa-Wan2.2 SVI-Pro Video Extend",
             "disvisible": ["scene_canvas_image", "scene_input_image1", "scene_input_image2","scene_additional_prompt","scene_additional_prompt_2", "scene_audio", "scene_var_number2",
-                "scene_var_number5", "scene_var_number6", "scene_var_number7", "scene_var_number8", "scene_var_number9", "scene_var_number10"
+                "scene_var_number5", "scene_var_number6", "scene_var_number7", "scene_var_number8", "scene_var_number9", "scene_var_number10", "scene_batch"
                 ,"scene_switch_option3","scene_switch_option4"],
             "prompt": {
                 "Basic": ""

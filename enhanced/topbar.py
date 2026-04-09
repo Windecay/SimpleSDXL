@@ -178,6 +178,7 @@ PRESET_STORE_ORDER = [
     "Wan(T2I)",
     "Wan-TTP",
     "Wan-Animate",
+    "Wan-Swap",
     "Wan-Outpaint",
     "Wan-SCAIL",
     "Wan-Remover",

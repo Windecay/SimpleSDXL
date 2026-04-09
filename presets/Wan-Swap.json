@@ -2,126 +2,110 @@
     "default_engine": {
         "backend_engine": "Wan",
         "engine_type": "video",
-        "disvisible": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
-        "disinteractive": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
+        "disvisible": ["input_image_checkbox","advanced_checkbox"],
+        "disinteractive": ["input_image_checkbox","advanced_checkbox"],
         "available_aspect_ratios_selection": "Flux",
         "scene_frontend": {
             "version": "v1.1",
-            "theme": ["Wan-Animate-SAM3 Object Replacement", "Wan-Animate-SAM3 Face Swap", "Wan-Animate-SAM3 Person Replacement"
+            "theme": ["Wan-Animate Face Swap", "Wan-Animate Motion Transfer"
             ],
-            "theme_title": "Wan-Animate + SAM3 Video Editing Tools",
-            "disvisible": ["scene_canvas_image", "scene_additional_prompt", "scene_additional_prompt_2", "scene_input_image2", "scene_video", "scene_audio", "scene_refiner_model", "scene_var_number9", "scene_var_number10"],
+            "theme_title": "Wan-Animate Face Swap / Motion Transfer Tools",
+            "disvisible": ["scene_canvas_image","scene_additional_prompt","scene_additional_prompt_2","scene_input_image2",
+                "scene_audio","scene_refiner_model","scene_canvas_image","scene_additional_prompt","scene_additional_prompt_2","scene_input_image2",
+                "scene_refiner_model","scene_var_number9","scene_var_number10","scene_var_number9","scene_var_number10"
+            ],
             "task_method": {
-                "Wan-Animate-SAM3 Object Replacement": "wan_animate_sam3_replace_cn",
-                "Wan-Animate-SAM3 Face Swap": "wan_animate_sam3_face_cn",
-                "Wan-Animate-SAM3 Person Replacement": "wan_animate_sam3_person_cn"
+                "Wan-Animate Face Swap": "wan_animate_face_cn",
+                "Wan-Animate Motion Transfer": "wan_animate_pose_cn"
             },
             "prompt": {
-                "Wan-Animate-SAM3 Object Replacement": "",
-                "Wan-Animate-SAM3 Face Swap": "",
-                "Wan-Animate-SAM3 Person Replacement": ""
-            },
-            "multimodal_prompt": {
-                "Wan-Animate-SAM3 Object Replacement": "",
-                "Wan-Animate-SAM3 Face Swap": "",
-                "Wan-Animate-SAM3 Person Replacement": ""
+                "Wan-Animate Face Swap": "",
+                "Wan-Animate Motion Transfer": ""
             },
             "scene_steps_min": 4,
             "scene_steps_max": 8,
             "scene_steps": {
-                "Wan-Animate-SAM3 Object Replacement": 4,
-                "Wan-Animate-SAM3 Face Swap": 4,
-                "Wan-Animate-SAM3 Person Replacement": 4
+                "Wan-Animate Face Swap": 4,
+                "Wan-Animate Motion Transfer": 4
             },
             "var_number_min": 0,
             "var_number_max": 60,
             "var_number_title": "Duration limit (seconds) [0 = no limit]",
             "var_number": {
-                "Wan-Animate-SAM3 Object Replacement": 0,
-                "Wan-Animate-SAM3 Face Swap": 0,
-                "Wan-Animate-SAM3 Person Replacement": 0
+                "Wan-Animate Face Swap": 0,
+                "Wan-Animate Motion Transfer": 0
             },
             "var_number2_title": "Interpolate to total frames [no interpolation below override FPS]",
             "var_number2_min": 16,
             "var_number2_max": 60,
             "var_number2": {
-                "Wan-Animate-SAM3 Object Replacement": 30,
-                "Wan-Animate-SAM3 Face Swap": 30,
-                "Wan-Animate-SAM3 Person Replacement": 30
+                "Wan-Animate Face Swap": 30,
+                "Wan-Animate Motion Transfer": 30
             },
             "var_number3_title": "Reference video override FPS",
             "var_number3_min": 16.0,
             "var_number3_max": 30.0,
             "var_number3": {
-                "Wan-Animate-SAM3 Object Replacement": 16.0,
-                "Wan-Animate-SAM3 Face Swap": 16.0,
-                "Wan-Animate-SAM3 Person Replacement": 16.0
+                "Wan-Animate Face Swap": 16,
+                "Wan-Animate Motion Transfer": 16
             },
             "var_number4_title": "Skip first N seconds of reference video",
             "var_number4_min": 0.0,
             "var_number4_max": 60,
             "var_number4": {
-                "Wan-Animate-SAM3 Object Replacement": 0.0,
-                "Wan-Animate-SAM3 Face Swap": 0.0,
-                "Wan-Animate-SAM3 Person Replacement": 0.0
+                "Wan-Animate Face Swap": 0,
+                "Wan-Animate Motion Transfer": 0
             },
             "var_number5_min": 0,
             "var_number5_max": 2.0,
             "var_number5_title": "Motion reference strength",
             "var_number5": {
-                "Wan-Animate-SAM3 Object Replacement": 1.0,
-                "Wan-Animate-SAM3 Face Swap": 0.25,
-                "Wan-Animate-SAM3 Person Replacement": 1.0
+                "Wan-Animate Face Swap": 0.25,
+                "Wan-Animate Motion Transfer": 1.0
             },
             "var_number6_min": 0,
             "var_number6_max": 2.0,
             "var_number6_title": "Face reference strength",
             "var_number6": {
-                "Wan-Animate-SAM3 Object Replacement": 1.0,
-                "Wan-Animate-SAM3 Face Swap": 0.6,
-                "Wan-Animate-SAM3 Person Replacement": 0.6
+                "Wan-Animate Face Swap": 0.8,
+                "Wan-Animate Motion Transfer": 0.8
             },
             "var_number7_min": -255,
             "var_number7_max": 255,
             "var_number7_title": "Mask expansion",
             "var_number7": {
-                "Wan-Animate-SAM3 Object Replacement": 1,
-                "Wan-Animate-SAM3 Face Swap": 5,
-                "Wan-Animate-SAM3 Person Replacement": 5
+                "Wan-Animate Face Swap": 5,
+                "Wan-Animate Motion Transfer": 5
             },
             "var_number8_min": 0,
             "var_number8_max": 40,
             "var_number8_title": "Block Swap [smaller uses more VRAM]",
             "var_number8": {
-                "Wan-Animate-SAM3 Object Replacement": 35,
-                "Wan-Animate-SAM3 Face Swap": 35,
-                "Wan-Animate-SAM3 Person Replacement": 35
+                "Wan-Animate Face Swap": 35,
+                "Wan-Animate Motion Transfer": 35
             },
             "switch_option1_title": "Use Tiled VAE Decode",
             "switch_option1": {
-                "Wan-Animate-SAM3 Object Replacement": true,
-                "Wan-Animate-SAM3 Face Swap": true,
-                "Wan-Animate-SAM3 Person Replacement": true
+                "Wan-Animate Face Swap": true,
+                "Wan-Animate Motion Transfer": true
             },
             "switch_option2_title": "SageAttention SpeedUp",
             "switch_option2": {
-                "Wan-Animate-SAM3 Object Replacement": true,
-                "Wan-Animate-SAM3 Face Swap": true,
-                "Wan-Animate-SAM3 Person Replacement": true
+                "Wan-Animate Face Swap": true,
+                "Wan-Animate Motion Transfer": true
             },
             "switch_option3_title": "Save comparison video to folder",
             "switch_option3": {
-                "Wan-Animate-SAM3 Object Replacement": true,
-                "Wan-Animate-SAM3 Face Swap": true,
-                "Wan-Animate-SAM3 Person Replacement": true
+                "Wan-Animate Face Swap": true,
+                "Wan-Animate Motion Transfer": true
             },
-            "switch_option4_title": "Reference image: Crop ✓ / Pad ×",
+            "switch_option4_title": "Reference image: Crop \u2713 / Pad \u00d7",
             "switch_option4": {
-                "Wan-Animate-SAM3 Object Replacement": false,
-                "Wan-Animate-SAM3 Face Swap": false,
-                "Wan-Animate-SAM3 Person Replacement": false
+                "Wan-Animate Face Swap": false,
+                "Wan-Animate Motion Transfer": false
             },
-                "aspect_ratio" : ["640|1:1","720|1:1","832|1:1","960|1:1","1024|1:1","1280|1:1"]
+            "aspect_ratio": ["640|1:1","720|1:1","832|1:1","960|1:1","1024|1:1","1280|1:1"
+            ]
         }
     },
     "default_model": "Wan2_2-Animate-14B_fp8_scaled_e4m3fn_KJ_v2.safetensors",
@@ -130,11 +114,31 @@
     "default_loras": [
         [
             "WanAnimate_relight_lora_fp16.safetensors",
-            0.8
+            1.0
         ],
         [
             "lightx2v_I2V_14B_480p_cfg_step_distill_rank64_bf16.safetensors",
             1.2
+        ],
+        [
+            "None",
+            1.0
+        ],
+        [
+            "None",
+            1.0
+        ],
+        [
+            "None",
+            1.0
+        ],
+        [
+            "None",
+            1.0
+        ],
+        [
+            "None",
+            1.0
         ],
         [
             "None",
@@ -166,7 +170,6 @@
     "vae_downloads": {},
     "model_list": [
         "diffusion_models,Wan2_2-Animate-14B_fp8_scaled_e4m3fn_KJ_v2.safetensors,17317143060,0,https://www.modelscope.cn/models/Kijai/WanVideo_comfy_fp8_scaled/resolve/master/Wan22Animate/Wan2_2-Animate-14B_fp8_scaled_e4m3fn_KJ_v2.safetensors",
-        "sam3,sam3.pt,3450062241,0,https://www.modelscope.cn/models/facebook/sam3/resolve/master/sam3.pt",
         "clip_vision,clip_vision_vit_h.safetensors,1972298538,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/clip_vision/clip_vision_vit_h.safetensors",
         "clip,umt5-xxl-encoder-Q8_0.gguf,6043068256,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/clip/umt5-xxl-encoder-Q8_0.gguf",
         "vae,Wan2_1_VAE_bf16.safetensors,253806278,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/vae/Wan2_1_VAE_bf16.safetensors",
