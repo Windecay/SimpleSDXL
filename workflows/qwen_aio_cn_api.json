@@ -3161,8 +3161,8 @@
   "540": {
     "inputs": {
       "strength": [
-        "521",
-        0
+        "806",
+        1
       ],
       "start_percent": 0,
       "end_percent": [
@@ -5580,6 +5580,19 @@
     "class_type": "LoraLoaderModelOnly",
     "_meta": {
       "title": "lora_10"
+    }
+  },
+  "806": {
+    "inputs": {
+      "value": "a*1.5",
+      "a": [
+        "521",
+        0
+      ]
+    },
+    "class_type": "SimpleMath+",
+    "_meta": {
+      "title": "🔧 Simple Math"
     }
   }
 }
