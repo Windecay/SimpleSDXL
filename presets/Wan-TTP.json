@@ -17,11 +17,14 @@
             "prompt": {
                 "Wan_TTP_Hires.Upscale": "(Masterpiece:1.2), (best quality:1.2), ultra high resolution, (ultra-detailed), (beautiful and aesthetic:1.2),high texture,hyperrealistic materials, 4K, raw, arw, cr2,"                },
             "scene_steps": {
-                "Wan_TTP_Hires.Upscale": 24                },
+                "Wan_TTP_Hires.Upscale": 24
+            },
             "image_preprocessor_method": {
                 "Wan_TTP_Hires.Upscale": [["-normalization"]]
             },
             "var_number_title": "Final megapixels",
+            "var_number_min": 4,
+            "var_number_max": 16,
             "var_number": {
                 "Wan_TTP_Hires.Upscale": 8
             },
@@ -35,7 +38,7 @@
             "var_number3_max": 0.5,
             "var_number3_min": 0.1,
             "var_number3": {
-                "Wan_TTP_Hires.Upscale": 0.28
+                "Wan_TTP_Hires.Upscale": 0.25
             },
             "switch_option1_title": "FlashAttention [Disable on RTX 20 series and below]",
             "switch_option1": {
@@ -45,7 +48,6 @@
             "switch_option2": {
                 "Wan_TTP_Hires.Upscale": false
             },
-            "var_number_max": 16,
                 "aspect_ratio" : ["1024|1:1"]
         }
     },

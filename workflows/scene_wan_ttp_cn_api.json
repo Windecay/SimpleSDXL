@@ -548,15 +548,6 @@
       "title": "Model Patch Torch Settings"
     }
   },
-  "197": {
-    "inputs": {
-      "vae_name": "Wan2.1_VAE_upscale2x_imageonly_real_v1.safetensors"
-    },
-    "class_type": "VAEUtils_CustomVAELoader",
-    "_meta": {
-      "title": "Load VAE (VAE Utils)"
-    }
-  },
   "200": {
     "inputs": {
       "value": 0.28
@@ -741,7 +732,8 @@
   },
   "219": {
     "inputs": {
-      "vae_name": "Wan2.1_VAE_upscale2x_imageonly_real_v1.safetensors"
+      "vae_name": "Wan2.1_VAE_upscale2x_imageonly_real_v1.safetensors",
+      "disable_offload": true
     },
     "class_type": "VAEUtils_CustomVAELoader",
     "_meta": {
