@@ -5050,10 +5050,8 @@ with shared.gradio_root:
 
     for i in range(shared.BUTTON_NUM):
         bar_buttons[i].click(topbar.reset_layout_ui, inputs=reset_preset_inputs + [bar_buttons[i]], outputs=reset_layout_ui_outputs + [state_topbar, comparison_state, comparison_box, progress_gallery, compare_btn, progress_window], queue=False, show_progress=False) \
-               .then(toggle_image_input_panel, inputs=[input_image_checkbox, qwen_tts_checkbox], outputs=[image_input_panel, engine_class_display] + layout_image_tab + [tts_panel, qwen_tts_checkbox], queue=False, show_progress=False) \
-               .then(apply_preferred_output_format, inputs=[state_topbar], outputs=[output_format], queue=False, show_progress=False) \
                .then(lambda sp, umf: refresh_files_clicked(sp, umf, False), inputs=[state_topbar, model_filter_state], outputs=refresh_files_output + lora_ctrls, queue=False, show_progress=False) \
-               .then(topbar.reset_layout_values, inputs=reset_values_inputs, outputs=reset_layout_values_outputs, show_progress=False) \
+               .then(topbar.reset_layout_values, inputs=reset_values_inputs, outputs=reset_layout_values_outputs, queue=False, show_progress=False) \
                .then(_sanitize_ip_types, inputs=ip_types, outputs=ip_types, queue=False, show_progress=False) \
                .then(sync_scene_models_from_main, inputs=[state_topbar, base_model, refiner_model], outputs=scene_generation_model_ctrls, queue=False, show_progress=False) \
                .then(apply_main_loras_to_scene_controls, inputs=[state_topbar, scene_theme, scene_use_lora] + lora_ctrls, outputs=[scene_use_lora, lora_group] + scene_lora_ctrls, queue=False, show_progress=False) \
@@ -5061,6 +5059,7 @@ with shared.gradio_root:
                .then(update_describe_output_tags, inputs=engine_class_display, outputs=describe_output_tags, queue=False, show_progress=False) \
                .then(inpaint_mode_change, inputs=[inpaint_mode, inpaint_engine_state, outpaint_selections, state_topbar], outputs=[inpaint_additional_prompt, outpaint_selections, example_inpaint_prompts, inpaint_disable_initial_latent, inpaint_engine, inpaint_strength, inpaint_respective_field], show_progress=False, queue=False) \
                .then(inpaint_engine_state_change, inputs=[inpaint_engine_state, state_topbar] + enhance_inpaint_mode_ctrls, outputs=enhance_inpaint_engine_ctrls, queue=False, show_progress=False)  \
+               .then(apply_preferred_output_format, inputs=[state_topbar], outputs=[output_format], queue=False, show_progress=False) \
                .then(check_and_show_missing_models, inputs=[bar_buttons[i], state_topbar], outputs=[missing_model_modal, missing_model_list, missing_model_total_progress, missing_model_btn]) \
                .then(topbar.stop_comfyd_background, inputs=[comfyd_active_checkbox], queue=False)
     shared.gradio_root.load(fn=lambda x: x, inputs=system_params, outputs=state_topbar, _js=topbar.get_system_params_js, queue=False, show_progress=False) \

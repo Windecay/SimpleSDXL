@@ -1139,7 +1139,7 @@
         0
       ],
       "batch_size": 1,
-      "motion_frames": 8,
+      "motion_frames": 20,
       "motion_amplitude": [
         "150",
         13

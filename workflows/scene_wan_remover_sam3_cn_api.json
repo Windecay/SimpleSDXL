@@ -529,6 +529,10 @@
       "images": [
         "223",
         0
+      ],
+      "audio": [
+        "65",
+        2
       ]
     },
     "class_type": "SaveVideoWebsocket",
