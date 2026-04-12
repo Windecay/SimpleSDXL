@@ -70,11 +70,11 @@
                 "Wan-Animate Face Swap": 0.8,
                 "Wan-Animate Motion Transfer": 0.8
             },
-            "var_number7_min": -255,
-            "var_number7_max": 255,
+            "var_number7_min": 0,
+            "var_number7_max": 50,
             "var_number7_title": "Mask expansion",
             "var_number7": {
-                "Wan-Animate Face Swap": 5,
+                "Wan-Animate Face Swap": 20,
                 "Wan-Animate Motion Transfer": 5
             },
             "var_number8_min": 0,
@@ -102,7 +102,7 @@
             "switch_option4_title": "Reference image: Crop \u2713 / Pad \u00d7",
             "switch_option4": {
                 "Wan-Animate Face Swap": false,
-                "Wan-Animate Motion Transfer": false
+                "Wan-Animate Motion Transfer": true
             },
             "aspect_ratio": ["640|1:1","720|1:1","832|1:1","960|1:1","1024|1:1","1280|1:1"
             ]

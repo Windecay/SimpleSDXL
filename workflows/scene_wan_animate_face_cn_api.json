@@ -220,13 +220,13 @@
         2
       ],
       "num_frames": [
-        "400",
-        1
+        "792",
+        0
       ],
       "force_offload": true,
       "frame_window_size": [
-        "792",
-        0
+        "751",
+        6
       ],
       "colormatch": "disabled",
       "pose_strength": [
@@ -828,8 +828,8 @@
   "760": {
     "inputs": {
       "expand_by": [
-        "748",
-        16
+        "831",
+        0
       ],
       "tapered_corners": false,
       "batch_size": 5,
@@ -1288,7 +1288,7 @@
   },
   "804": {
     "inputs": {
-      "dilation": 10,
+      "dilation": 0,
       "feather": 0,
       "bboxes": [
         "762",
@@ -1306,7 +1306,7 @@
   },
   "805": {
     "inputs": {
-      "dilation": 30,
+      "dilation": 50,
       "feather": 0,
       "bboxes": [
         "762",
@@ -1510,6 +1510,19 @@
     "class_type": "GrowMaskWithBlur",
     "_meta": {
       "title": "Grow Mask With Blur"
+    }
+  },
+  "831": {
+    "inputs": {
+      "value": "a+20",
+      "a": [
+        "748",
+        16
+      ]
+    },
+    "class_type": "SimpleMath+",
+    "_meta": {
+      "title": "🔧 Simple Math"
     }
   }
 }

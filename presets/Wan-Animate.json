@@ -81,8 +81,8 @@
                 "Wan-Animate-SAM3 Face Swap": 0.6,
                 "Wan-Animate-SAM3 Person Replacement": 0.6
             },
-            "var_number7_min": -255,
-            "var_number7_max": 255,
+            "var_number7_min": -50,
+            "var_number7_max": 50,
             "var_number7_title": "Mask expansion",
             "var_number7": {
                 "Wan-Animate-SAM3 Object Replacement": 1,
