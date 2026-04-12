@@ -3,6 +3,7 @@ from torch import Tensor
 import torch
 import os
 
+import comfy.model_base
 import comfy.ops
 import comfy.utils
 import comfy.model_management
@@ -108,13 +109,13 @@ class ControlNetAdvanced(ControlNet, AdvancedControlBase):
         for c in self.extra_conds:
             temp = cond.get(c, None)
             if temp is not None:
-                extra[c] = temp.to(dtype)
+                extra[c] = comfy.model_base.convert_tensor(temp, dtype, x_noisy.device)
 
         timestep = self.model_sampling_current.timestep(t)
         x_noisy = self.model_sampling_current.calculate_input(t, x_noisy)
         self.x_noisy_shape = x_noisy.shape
 
-        control = self.control_model(x=x_noisy.to(dtype), hint=self.cond_hint, timesteps=timestep.to(dtype), context=context.to(dtype), **extra)
+        control = self.control_model(x=x_noisy.to(dtype), hint=self.cond_hint, timesteps=timestep.to(dtype), context=comfy.model_management.cast_to_device(context, x_noisy.device, dtype), **extra)
         return self.control_merge(control, control_prev, output_dtype=None)
 
     def pre_run_advanced(self, *args, **kwargs):
@@ -325,14 +326,14 @@ class SVDControlNetAdvanced(ControlNetAdvanced):
         # uses 'y' in new ComfyUI update
         y = cond.get('y', None)
         if y is not None:
-            y = y.to(dtype)
+            y = comfy.model_base.convert_tensor(y, dtype, x_noisy.device)
         timestep = self.model_sampling_current.timestep(t)
         x_noisy = self.model_sampling_current.calculate_input(t, x_noisy)
         # concat c_concat if exists (should exist for SVD), doubling channels to 8
         if cond.get('c_concat', None) is not None:
             x_noisy = torch.cat([x_noisy] + [cond['c_concat']], dim=1)
 
-        control = self.control_model(x=x_noisy.to(dtype), hint=self.cond_hint, timesteps=timestep.float(), context=context.to(dtype), y=y, cond=cond)
+        control = self.control_model(x=x_noisy.to(dtype), hint=self.cond_hint, timesteps=timestep.float(), context=comfy.model_management.cast_to_device(context, x_noisy.device, dtype), y=y, cond=cond)
         return self.control_merge(control, control_prev, output_dtype)
 
     def copy(self):
@@ -458,11 +459,11 @@ class SparseCtrlAdvanced(ControlNetAdvanced):
         context = cond['c_crossattn']
         y = cond.get('y', None)
         if y is not None:
-            y = y.to(dtype)
+            y = comfy.model_base.convert_tensor(y, dtype, x_noisy.device)
         timestep = self.model_sampling_current.timestep(t)
         x_noisy = self.model_sampling_current.calculate_input(t, x_noisy)
 
-        control = self.control_model(x=x_noisy.to(dtype), hint=self.cond_hint, timesteps=timestep.float(), context=context.to(dtype), y=y)
+        control = self.control_model(x=x_noisy.to(dtype), hint=self.cond_hint, timesteps=timestep.float(), context=comfy.model_management.cast_to_device(context, x_noisy.device, dtype), y=y)
         return self.control_merge(control, control_prev, output_dtype)
 
     def apply_advanced_strengths_and_masks(self, x: Tensor, batched_number: int, *args, **kwargs):

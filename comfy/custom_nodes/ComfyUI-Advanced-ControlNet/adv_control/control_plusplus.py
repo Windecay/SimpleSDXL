@@ -11,6 +11,7 @@ from collections import OrderedDict
 
 
 from comfy.ldm.modules.diffusionmodules.util import (zero_module, timestep_embedding)
+from comfy.ldm.modules.diffusionmodules.openaimodel import TimestepEmbedSequential
 
 from comfy.cldm.cldm import ControlNet as ControlNetCLDM
 import comfy.cldm.cldm
@@ -18,6 +19,7 @@ from comfy.controlnet import ControlNet
 #from comfy.t2i_adapter.adapter import ResidualAttentionBlock
 from comfy.ldm.modules.attention import optimized_attention
 import comfy.ops
+import comfy.model_base
 import comfy.model_management
 import comfy.model_detection
 import comfy.utils
@@ -36,10 +38,11 @@ class PlusPlusType:
     SEGMENT = "segment"
     TILE = "tile"
     REPAINT = "inpaint/outpaint"
+    FUSE = "fuse(实验性功能)"
     NONE = "none"
-    _LIST_WITH_NONE = [OPENPOSE, DEPTH, THICKLINE, THINLINE, NORMAL, SEGMENT, TILE, REPAINT, NONE]
-    _LIST = [OPENPOSE, DEPTH, THICKLINE, THINLINE, NORMAL, SEGMENT, TILE, REPAINT]
-    _DICT = {OPENPOSE: 0, DEPTH: 1, THICKLINE: 2, THINLINE: 3, NORMAL: 4, SEGMENT: 5, TILE: 6, REPAINT: 7, NONE: -1}
+    _LIST_WITH_NONE = [OPENPOSE, DEPTH, THICKLINE, THINLINE, NORMAL, SEGMENT, TILE, REPAINT, FUSE, NONE]
+    _LIST = [OPENPOSE, DEPTH, THICKLINE, THINLINE, NORMAL, SEGMENT, TILE, REPAINT, FUSE]
+    _DICT = {OPENPOSE: 0, DEPTH: 1, THICKLINE: 2, THINLINE: 3, NORMAL: 4, SEGMENT: 5, TILE: 6, REPAINT: 7, FUSE: 8, NONE: -1}
 
     @classmethod
     def to_idx(cls, control_type: str):
@@ -148,6 +151,26 @@ class ControlNetPlusPlus(ControlNetCLDM):
 
         operations: comfy.ops.disable_weight_init = kwargs.get("operations", comfy.ops.disable_weight_init)
         device = kwargs.get("device", None)
+        dims = 2
+        hint_channels = kwargs.get("hint_channels", 3)
+        c0, c1, c2, c3 = 48, 96, 192, 384
+        self.input_hint_block = TimestepEmbedSequential(
+            operations.conv_nd(dims, hint_channels, c0, 3, padding=1, dtype=self.dtype, device=device),
+            nn.SiLU(),
+            operations.conv_nd(dims, c0, c0, 3, padding=1, dtype=self.dtype, device=device),
+            nn.SiLU(),
+            operations.conv_nd(dims, c0, c1, 3, padding=1, stride=2, dtype=self.dtype, device=device),
+            nn.SiLU(),
+            operations.conv_nd(dims, c1, c1, 3, padding=1, dtype=self.dtype, device=device),
+            nn.SiLU(),
+            operations.conv_nd(dims, c1, c2, 3, padding=1, stride=2, dtype=self.dtype, device=device),
+            nn.SiLU(),
+            operations.conv_nd(dims, c2, c2, 3, padding=1, dtype=self.dtype, device=device),
+            nn.SiLU(),
+            operations.conv_nd(dims, c2, c3, 3, padding=1, stride=2, dtype=self.dtype, device=device),
+            nn.SiLU(),
+            operations.conv_nd(dims, c3, self.model_channels, 3, padding=1, dtype=self.dtype, device=device),
+        )
 
         time_embed_dim = self.model_channels * 4
         control_add_embed_dim = 256
@@ -339,11 +362,11 @@ class ControlNetPlusPlusAdvanced(ControlNet, AdvancedControlBase):
         context = cond.get('crossattn_controlnet', cond['c_crossattn'])
         y = cond.get('y', None)
         if y is not None:
-            y = y.to(dtype)
+            y = comfy.model_base.convert_tensor(y, dtype, x_noisy.device)
         timestep = self.model_sampling_current.timestep(t)
         x_noisy = self.model_sampling_current.calculate_input(t, x_noisy)
 
-        control = self.control_model(x=x_noisy.to(dtype), hint=self.cond_hint, timesteps=timestep.float(), context=context.to(dtype), y=y, control_type=self.cond_hint_types)
+        control = self.control_model(x=x_noisy.to(dtype), hint=self.cond_hint, timesteps=timestep.float(), context=comfy.model_management.cast_to_device(context, x_noisy.device, dtype), y=y, control_type=self.cond_hint_types)
         return self.control_merge(control, control_prev, output_dtype)
 
     def copy(self):
