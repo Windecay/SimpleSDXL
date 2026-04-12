@@ -2679,7 +2679,18 @@ packages = {'base_package': {'id': 1,
                         'vae,taeltx2_3.safetensors,23531296,0,https://www.modelscope.cn/models/Kijai/LTX2.3_comfy/resolve/master/vae/taeltx2_3.safetensors,https://huggingface.co/Kijai/LTX2.3_comfy/resolve/main/vae/taeltx2_3.safetensors',
                         'controlnet,rife/flownet.pkl,24636301,0,https://www.modelscope.cn/models/windecay/rife/resolve/master/flownet.pkl,https://huggingface.co/windecay/SimpleSDXL2/resolve/main/SimpleModels/controlnet/rife/flownet.pkl'],
                     'info_links': ['https://www.modelscope.cn/models/Lightricks/LTX-2.3'],
-                    'preset_sample': []}
+                    'preset_sample': []},
+ 'chenking_aio_package': {'id': 44,
+                              'name': '[44]ChenkingNoob-XL-V0.5扩展包',
+                              'note': 'ChenkingNoob-XL-V0.5二次元动漫模型扩展包|显存需求：★★ 速度：★★★☆',
+                              'files': ['checkpoints,ChenkinNoob-XL-V0.5.safetensors,6938042930,0,https://www.modelscope.cn/models/ChenkinNoob/ChenkinNoob-XL-V0.5/resolve/20260410110159/ChenkinNoob-XL-V0.5.safetensors,https://huggingface.co/ChenkinNoob/ChenkinNoob-XL-V0.5/resolve/main/ChenkinNoob-XL-V0.5.safetensors',
+                                        'ipadapter,noob_ip_adapter.bin,1396798350,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/ipadapter/noob_ip_adapter.bin,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/ipadapter/noob_ip_adapter.bin',
+                                        'upscale_models,remacri_original.safetensors,66864028,0,https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/upscale_models/remacri_original.safetensors,https://huggingface.co/windecay/SimpleSDXL2/resolve/main/SimpleModels/upscale_models/remacri_original.safetensors',
+                                        'controlnet,lllyasviel/Annotators/ZoeD_M12_N.pt,1443406099,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/controlnet/lllyasviel/Annotators/ZoeD_M12_N.pt,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/controlnet/lllyasviel/Annotators/ZoeD_M12_N.pt',
+                                        'vae,ponyDiffusionV6XL_vae.safetensors,334641162,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/vae/ponyDiffusionV6XL_vae.safetensors,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/vae/ponyDiffusionV6XL_vae.safetensors',
+                                        'controlnet,Chenkin-UniControl-XL.safetensors,2516656328,0,https://www.modelscope.cn/models/ChenkinNoob/Chenkin-UniControl-XL/resolve/master/Chenkin-UniControl-XL.safetensors,https://huggingface.co/ChenkinNoob/Chenkin-UniControl-XL/resolve/main/Chenkin-UniControl-XL.safetensors'],
+                              'info_links': ['https://www.modelscope.cn/models/ChenkinNoob/ChenkinNoob-XL-V0.5'],
+                              'preset_sample': []},
                     }
 MANUAL_DOWNLOAD_MAP = {
     "checkpoints": [

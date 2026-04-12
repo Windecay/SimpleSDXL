@@ -1,0 +1,60 @@
+
+{
+    "default_engine": {
+        "backend_engine": "SDXL",
+        "disvisible": ["backend_selection", "performance_selection", "refiner_model"],
+        "disinteractive": ["performance_selection", "refiner_model", "FaceSwap"],
+        "available_aspect_ratios_selection": "SDXL",
+        "backend_params": {
+                "task_method": "chenkin_noob_aio"
+                }
+        },
+    "default_model": "ChenkinNoob-XL-V0.5.safetensors",
+    "default_refiner": "None",
+    "default_refiner_switch": 0.5,
+    "default_loras": [
+        [
+            "None",
+            1.0
+        ],
+        [
+            "None",
+            1.0
+        ],
+	    [
+            "None",
+            1.0
+        ],
+	    [
+            "None",
+            1.0
+        ],
+	    [
+            "None",
+            1.0
+        ]
+    ],
+    "default_cfg_scale": 5.0,
+    "default_sample_sharpness": 2.0,
+    "default_sampler": "euler_ancestral",
+    "default_scheduler": "simple",
+    "default_performance": "Speed",
+    "default_prompt_negative": "nsfw, worst quality, old, early, low quality, lowres, signature, username, logo, bad hands, mutated hands,",
+    "default_styles": [
+        "Illustrious"
+    ],
+    "default_aspect_ratio": "832*1216",
+    "default_overwrite_step": 30,
+    "embeddings_downloads": {},
+    "lora_downloads": {},
+    "model_list": [
+        "checkpoints,ChenkinNoob-XL-V0.5.safetensors,6938042930,0,https://www.modelscope.cn/models/ChenkinNoob/ChenkinNoob-XL-V0.5/resolve/20260410110159/ChenkinNoob-XL-V0.5.safetensors",
+        "ipadapter,noob_ip_adapter.bin,1396798350,0,",
+        "upscale_models,remacri_original.safetensors,66864028,0,https://www.modelscope.cn/models/windecay/SimpAI_dev/resolve/master/SimpleModels/upscale_models/remacri_original.safetensors",
+        "clip_vision,clip_vision_vit_h.safetensors,1972298538,0,",
+        "controlnet,lllyasviel/Annotators/ZoeD_M12_N.pt,1443406099,0,",
+        "controlnet,noob_sdxl_controlnet_inpainting.safetensors,5004167832,0,",
+        "controlnet,Chenkin-UniControl-XL.safetensors,2516656328,0,https://www.modelscope.cn/models/ChenkinNoob/Chenkin-UniControl-XL/resolve/master/Chenkin-UniControl-XL.safetensors",
+        "vae,ponyDiffusionV6XL_vae.safetensors,334641162,0,"
+    ]
+}
