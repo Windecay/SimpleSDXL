@@ -151,8 +151,8 @@
     "inputs": {
       "start_index": 0,
       "num_frames": [
-        "400",
-        1
+        "751",
+        6
       ],
       "images": [
         "28",
@@ -182,7 +182,7 @@
         0
       ],
       "select_every_nth": 1,
-      "format": "AnimateDiff"
+      "format": "Wan"
     },
     "class_type": "VHS_LoadVideo",
     "_meta": {
@@ -196,7 +196,7 @@
         0
       ],
       "on_true": [
-        "814",
+        "835",
         0
       ],
       "on_false": [
@@ -220,13 +220,13 @@
         2
       ],
       "num_frames": [
-        "792",
-        0
+        "751",
+        6
       ],
       "force_offload": true,
       "frame_window_size": [
-        "751",
-        6
+        "792",
+        0
       ],
       "colormatch": "disabled",
       "pose_strength": [
@@ -280,7 +280,7 @@
       "purge_cache": true,
       "purge_models": true,
       "anything": [
-        "814",
+        "835",
         0
       ]
     },
@@ -373,8 +373,8 @@
       ],
       "aspect_ratio_preservation": "keep_input",
       "image": [
-        "806",
-        0
+        "833",
+        1
       ]
     },
     "class_type": "WanVideoImageResizeToClosest",
@@ -397,7 +397,7 @@
       "batch_size": 32,
       "use_fp16": true,
       "images": [
-        "814",
+        "835",
         0
       ]
     },
@@ -752,14 +752,14 @@
       "var_number4": 0,
       "var_number5": 1,
       "var_number6": 1,
-      "var_number7": 10,
+      "var_number7": 20,
       "var_number8": 35,
       "var_number9": 0,
       "var_number10": 0,
       "switch_option1": true,
       "switch_option2": true,
       "switch_option3": true,
-      "switch_option4": true,
+      "switch_option4": false,
       "model_type": 1,
       "model_type2": 1
     },
@@ -816,32 +816,13 @@
       "block_size": 16,
       "device": "cpu",
       "masks": [
-        "760",
+        "842",
         0
       ]
     },
     "class_type": "BlockifyMask",
     "_meta": {
       "title": "Blockify Mask"
-    }
-  },
-  "760": {
-    "inputs": {
-      "expand_by": [
-        "831",
-        0
-      ],
-      "tapered_corners": false,
-      "batch_size": 5,
-      "device": "cuda:0",
-      "mask": [
-        "813",
-        0
-      ]
-    },
-    "class_type": "Grow_Mask_Ultra_Fast",
-    "_meta": {
-      "title": "GrowMask Ultra-Fast"
     }
   },
   "762": {
@@ -879,35 +860,11 @@
       "title": "ONNX Detection Model Loader"
     }
   },
-  "764": {
-    "inputs": {
-      "width": [
-        "535",
-        1
-      ],
-      "height": [
-        "535",
-        2
-      ],
-      "retarget_padding": 16,
-      "body_stick_width": -1,
-      "hand_stick_width": -1,
-      "draw_head": true,
-      "pose_data": [
-        "762",
-        0
-      ]
-    },
-    "class_type": "DrawViTPose",
-    "_meta": {
-      "title": "Draw ViT Pose"
-    }
-  },
   "766": {
     "inputs": {
       "enabled": true,
       "images": [
-        "764",
+        "793",
         0
       ]
     },
@@ -939,7 +896,7 @@
       "format": "video/h264-mp4",
       "pix_fmt": "yuv420p",
       "crf": 28,
-      "save_metadata": true,
+      "save_metadata": false,
       "trim_to_audio": false,
       "pingpong": false,
       "save_output": true,
@@ -960,7 +917,7 @@
   "774": {
     "inputs": {
       "image": [
-        "814",
+        "835",
         0
       ]
     },
@@ -988,7 +945,7 @@
         0
       ],
       "image_4": [
-        "535",
+        "758",
         0
       ]
     },
@@ -1145,7 +1102,7 @@
         0
       ],
       "images": [
-        "794",
+        "535",
         0
       ],
       "ref_image": [
@@ -1156,20 +1113,6 @@
     "class_type": "PoseDetectionOneToAllAnimation",
     "_meta": {
       "title": "Pose Detection OneToAll Animation"
-    }
-  },
-  "794": {
-    "inputs": {
-      "batch_index": 0,
-      "length": 1,
-      "image": [
-        "535",
-        0
-      ]
-    },
-    "class_type": "ImageFromBatch",
-    "_meta": {
-      "title": "ImageFromBatch"
     }
   },
   "795": {
@@ -1304,75 +1247,6 @@
       "title": "BBoxes to SEGS"
     }
   },
-  "805": {
-    "inputs": {
-      "dilation": 50,
-      "feather": 0,
-      "bboxes": [
-        "762",
-        4
-      ],
-      "image": [
-        "400",
-        0
-      ]
-    },
-    "class_type": "bbox_to_mask",
-    "_meta": {
-      "title": "BBoxes to MASK"
-    }
-  },
-  "806": {
-    "inputs": {
-      "invert_mask": false,
-      "detect": "mask_area",
-      "top_reserve": 0,
-      "bottom_reserve": 0,
-      "left_reserve": 0,
-      "right_reserve": 0,
-      "round_to_multiple": "16",
-      "image": [
-        "400",
-        0
-      ],
-      "mask": [
-        "829",
-        0
-      ]
-    },
-    "class_type": "LayerUtility: CropByMask V2",
-    "_meta": {
-      "title": "LayerUtility: CropByMask V2"
-    }
-  },
-  "809": {
-    "inputs": {
-      "image": [
-        "810",
-        0
-      ],
-      "mask": [
-        "805",
-        0
-      ]
-    },
-    "class_type": "ImageCropByMask",
-    "_meta": {
-      "title": "Image Crop By Mask"
-    }
-  },
-  "810": {
-    "inputs": {
-      "mask": [
-        "812",
-        0
-      ]
-    },
-    "class_type": "MaskToImage",
-    "_meta": {
-      "title": "Convert Mask to Image"
-    }
-  },
   "811": {
     "inputs": {
       "segs": [
@@ -1397,52 +1271,14 @@
       "title": "Mask List to Mask Batch"
     }
   },
-  "813": {
-    "inputs": {
-      "channel": "red",
-      "image": [
-        "809",
-        0
-      ]
-    },
-    "class_type": "ImageToMask",
-    "_meta": {
-      "title": "Convert Image to Mask"
-    }
-  },
-  "814": {
-    "inputs": {
-      "invert_mask": false,
-      "background_image": [
-        "400",
-        0
-      ],
-      "croped_image": [
-        "815",
-        0
-      ],
-      "crop_box": [
-        "806",
-        2
-      ],
-      "croped_mask": [
-        "830",
-        0
-      ]
-    },
-    "class_type": "LayerUtility: RestoreCropBox",
-    "_meta": {
-      "title": "LayerUtility: RestoreCropBox"
-    }
-  },
   "815": {
     "inputs": {
       "width": [
-        "816",
+        "839",
         0
       ],
       "height": [
-        "816",
+        "839",
         1
       ],
       "upscale_method": "lanczos",
@@ -1461,37 +1297,6 @@
       "title": "Resize Image v2"
     }
   },
-  "816": {
-    "inputs": {
-      "image": [
-        "806",
-        0
-      ]
-    },
-    "class_type": "GetImageSize+",
-    "_meta": {
-      "title": "🔧 Get Image Size"
-    }
-  },
-  "829": {
-    "inputs": {
-      "expand_by": [
-        "748",
-        16
-      ],
-      "tapered_corners": false,
-      "batch_size": 5,
-      "device": "cuda:0",
-      "mask": [
-        "805",
-        0
-      ]
-    },
-    "class_type": "Grow_Mask_Ultra_Fast",
-    "_meta": {
-      "title": "GrowMask Ultra-Fast"
-    }
-  },
   "830": {
     "inputs": {
       "expand": -15,
@@ -1503,8 +1308,8 @@
       "decay_factor": 1,
       "fill_holes": false,
       "mask": [
-        "806",
-        1
+        "842",
+        0
       ]
     },
     "class_type": "GrowMaskWithBlur",
@@ -1523,6 +1328,99 @@
     "class_type": "SimpleMath+",
     "_meta": {
       "title": "🔧 Simple Math"
+    }
+  },
+  "833": {
+    "inputs": {
+      "downscale_algorithm": "bicubic",
+      "upscale_algorithm": "bicubic",
+      "preresize": false,
+      "preresize_mode": "ensure minimum resolution",
+      "preresize_min_width": 1024,
+      "preresize_min_height": 1024,
+      "preresize_max_width": 16384,
+      "preresize_max_height": 16384,
+      "mask_fill_holes": false,
+      "mask_expand_pixels": [
+        "831",
+        0
+      ],
+      "mask_invert": false,
+      "mask_blend_pixels": 32,
+      "mask_hipass_filter": 0,
+      "extend_for_outpainting": false,
+      "extend_up_factor": 1,
+      "extend_down_factor": 1,
+      "extend_left_factor": 1,
+      "extend_right_factor": 1,
+      "context_from_mask_extend_factor": 2,
+      "output_resize_to_target_size": true,
+      "output_target_width": 1024,
+      "output_target_height": 1024,
+      "output_padding": "0",
+      "image": [
+        "400",
+        0
+      ],
+      "mask": [
+        "812",
+        0
+      ]
+    },
+    "class_type": "InpaintCropImproved",
+    "_meta": {
+      "title": "✂️ Inpaint Crop (Improved)"
+    }
+  },
+  "835": {
+    "inputs": {
+      "stitcher": [
+        "833",
+        0
+      ],
+      "inpainted_image": [
+        "815",
+        0
+      ]
+    },
+    "class_type": "InpaintStitchImproved",
+    "_meta": {
+      "title": "✂️ Inpaint Stitch (Improved)"
+    }
+  },
+  "839": {
+    "inputs": {
+      "image": [
+        "833",
+        1
+      ]
+    },
+    "class_type": "GetImageSize+",
+    "_meta": {
+      "title": "🔧 Get Image Size"
+    }
+  },
+  "842": {
+    "inputs": {
+      "width": [
+        "535",
+        1
+      ],
+      "height": [
+        "535",
+        2
+      ],
+      "keep_proportions": false,
+      "upscale_method": "nearest-exact",
+      "crop": "disabled",
+      "mask": [
+        "833",
+        2
+      ]
+    },
+    "class_type": "ResizeMask",
+    "_meta": {
+      "title": "Resize Mask"
     }
   }
 }
