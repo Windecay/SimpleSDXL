@@ -70,11 +70,11 @@
                 "Wan-Animate Face Swap": 0.8,
                 "Wan-Animate Motion Transfer": 0.8
             },
-            "var_number7_min": 0,
-            "var_number7_max": 50,
+            "var_number7_min": -100,
+            "var_number7_max": 255,
             "var_number7_title": "Mask expansion",
             "var_number7": {
-                "Wan-Animate Face Swap": 20,
+                "Wan-Animate Face Swap": 5,
                 "Wan-Animate Motion Transfer": 5
             },
             "var_number8_min": 0,

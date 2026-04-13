@@ -1319,7 +1319,7 @@
   },
   "831": {
     "inputs": {
-      "value": "a+20",
+      "value": "a+256",
       "a": [
         "748",
         16
@@ -1353,7 +1353,7 @@
       "extend_down_factor": 1,
       "extend_left_factor": 1,
       "extend_right_factor": 1,
-      "context_from_mask_extend_factor": 2,
+      "context_from_mask_extend_factor": 1,
       "output_resize_to_target_size": true,
       "output_target_width": 1024,
       "output_target_height": 1024,
@@ -1414,13 +1414,29 @@
       "upscale_method": "nearest-exact",
       "crop": "disabled",
       "mask": [
-        "833",
-        2
+        "846",
+        0
       ]
     },
     "class_type": "ResizeMask",
     "_meta": {
       "title": "Resize Mask"
+    }
+  },
+  "846": {
+    "inputs": {
+      "expand_by": -196,
+      "tapered_corners": false,
+      "batch_size": 5,
+      "device": "cuda:0",
+      "mask": [
+        "833",
+        2
+      ]
+    },
+    "class_type": "Grow_Mask_Ultra_Fast",
+    "_meta": {
+      "title": "GrowMask Ultra-Fast"
     }
   }
 }
