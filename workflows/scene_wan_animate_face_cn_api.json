@@ -1346,7 +1346,7 @@
         0
       ],
       "mask_invert": false,
-      "mask_blend_pixels": 32,
+      "mask_blend_pixels": 64,
       "mask_hipass_filter": 0,
       "extend_for_outpainting": false,
       "extend_up_factor": 1,
