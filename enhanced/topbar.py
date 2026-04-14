@@ -168,7 +168,7 @@ PRESET_STORE_ORDER = [
     "Illustrious",
     "Illustrious2",
     "IllustriousAIO",
-    "ChenKinXL",
+    "ChenkinXL",
     "Anima",
     "NewBie",
     "Wan(I2V)",

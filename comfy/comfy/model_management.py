@@ -2045,25 +2045,33 @@ def set_extra_reserved_vram(reserved):
 def get_compute_capability(device):
     if not is_nvidia():
         return ''
-
-    from cuda import cuda
-    err, = cuda.cuInit(0)
-    if err != cuda.CUresult.CUDA_SUCCESS:
-        return ''
-    err, device = cuda.cuDeviceGet(device)
-    if err != cuda.CUresult.CUDA_SUCCESS:
-        return ''
-    err1, major = cuda.cuDeviceGetAttribute(
-        cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR,
-        device
-    )
-    err2, minor = cuda.cuDeviceGetAttribute(
-        cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR,
-        device
-    )
-    if err1 != cuda.CUresult.CUDA_SUCCESS or err2 != cuda.CUresult.CUDA_SUCCESS:
-        return ''
-    return f'SM{major}{minor}'
+    try:
+        from cuda import cuda
+        err, = cuda.cuInit(0)
+        if err != cuda.CUresult.CUDA_SUCCESS:
+            raise Exception("cuInit failed")
+        err, device = cuda.cuDeviceGet(device)
+        if err != cuda.CUresult.CUDA_SUCCESS:
+            raise Exception("cuDeviceGet failed")
+        err1, major = cuda.cuDeviceGetAttribute(
+            cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR,
+            device
+        )
+        err2, minor = cuda.cuDeviceGetAttribute(
+            cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR,
+            device
+        )
+        if err1 == cuda.CUresult.CUDA_SUCCESS and err2 == cuda.CUresult.CUDA_SUCCESS:
+            return f'SM{major}{minor}'
+    except:
+        pass
+    try:
+        import torch
+        major, minor = torch.cuda.get_device_capability(device)
+        return f'SM{major}{minor}'
+    except:
+        pass
+    return ''
 
 def get_current_compute_capability():
     if not is_nvidia():
