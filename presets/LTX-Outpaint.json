@@ -1,0 +1,142 @@
+{
+    "default_engine": {
+        "backend_engine": "Comfy",
+        "engine_type": "video",
+            "disvisible": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
+            "disinteractive": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
+        "available_aspect_ratios_selection": "Flux",
+        "scene_frontend": {
+            "version": "v1.1",
+                "theme": ["LTX-Outpaint"],
+            "theme_title": "LTX Video Outpaint",
+                "disvisible": ["scene_canvas_image","scene_steps", "scene_additional_prompt", "scene_additional_prompt_2", "scene_input_image1", "scene_input_image2", "scene_audio", "scene_refiner_model", "scene_var_number5", "scene_var_number6"],
+            "task_method": {
+                "LTX-Outpaint": "ltx2.3_outpaint_cn"
+            },
+            "multimodal_prompt": {
+                "LTX-Outpaint": ""
+            },
+            "scene_steps": {
+                "LTX-Outpaint": 11
+            },
+            "var_number_min": 0,
+            "var_number_max": 60,
+            "var_number_title": "Duration limit (seconds) [0 = no limit]",
+            "var_number": {
+                "LTX-Outpaint": 0
+            },
+            "var_number2_title": "Interpolate to total frames [no interpolation below override FPS]",
+            "var_number2_min": 16,
+            "var_number2_max": 60,
+            "var_number2": {
+                "LTX-Outpaint": 24
+            },
+            "var_number3_title": "Reference video override FPS",
+            "var_number3_min": 16.0,
+            "var_number3_max": 30.0,
+            "var_number3": {
+                "LTX-Outpaint": 24.0
+            },
+            "var_number4_title": "Skip first N seconds of reference video",
+            "var_number4_min": 0.0,
+            "var_number4_max": 60,
+            "var_number4": {
+                "LTX-Outpaint": 0.0
+            },
+            "var_number7_min": 0,
+            "var_number7_max": 50,
+            "var_number7_title": "Outpaint Up (%)",
+            "var_number7": {
+                "LTX-Outpaint": 20
+            },
+            "var_number8_title": "Outpaint Down (%)",
+            "var_number8_min": 0,
+            "var_number8_max": 50,
+            "var_number8": {
+                "LTX-Outpaint": 20
+            },
+            "var_number9_title": "Outpaint Left (%)",
+            "var_number9_min": 0,
+            "var_number9_max": 50,
+            "var_number9": {
+                "LTX-Outpaint": 20
+            },
+            "var_number10_title": "Outpaint Right (%)",
+            "var_number10_min": 0,
+            "var_number10_max": 50,
+            "var_number10": {
+                "LTX-Outpaint": 20
+            },
+            "switch_option1_title": "Use override FPS and Interpolate Frames",
+            "switch_option1": {
+                "LTX-Outpaint": false
+            },
+            "switch_option2_title": "Force Select Resolution",
+            "switch_option2": {
+                "LTX-Outpaint": true
+            },
+            "switch_option3_title": "Original Audio / Generate Audio",
+            "switch_option3": {
+                "LTX-Outpaint": true
+            },
+            "switch_option4_title": "Use Color Correct(For Dark Video)",
+            "switch_option4": {
+                "LTX-Outpaint": false
+            },
+                "aspect_ratio" : ["960|1:1","1024|1:1","1280|1:1","1536|1:1"]
+        }
+    },
+    "default_model": "ltx-2-3-22b-dev_transformer_only_fp8_input_scaled.safetensors",
+    "default_refiner": "None",
+    "default_refiner_switch": 0.5,
+    "default_loras": [
+        [
+            "ltx\\ltx-2.3-22b-distilled-lora-384.safetensors",
+            0.5
+        ],
+        [
+            "None",
+            1.0
+        ],
+        [
+            "None",
+            1.0
+        ],
+        [
+            "None",
+            1.0
+        ],
+        [
+            "None",
+            1.0
+        ]
+    ],
+    "default_cfg_scale": 1,
+    "default_sample_sharpness": 2,
+    "default_sampler": "euler",
+    "default_scheduler": "simple",
+    "default_performance": "Speed",
+    "default_styles": [],
+    "default_aspect_ratio": "1024*1024",
+    "default_image_number": 1,
+    "default_overwrite_step": 30,
+    "default_prompt": "",
+    "default_prompt_negative": "字幕，中文字幕，水印，错误的肢体，缺失的手指，缺失的脚趾， blurry, oversaturated, pixelated, low resolution, grainy, distorted, noise, compression artifacts, jpeg artifacts, glitches, watermark, text, logo, signature, copyright, subtitles, distorted sound, saturated sound, loud",
+    "checkpoint_downloads": {},
+    "embeddings_downloads": {},
+    "lora_downloads": {},
+    "vae_downloads": {},
+    "model_list": [
+        "diffusion_models,ltx-2-3-22b-dev_transformer_only_fp8_input_scaled.safetensors,25016398608,0,https://www.modelscope.cn/models/Kijai/LTX2.3_comfy/resolve/master/diffusion_models/ltx-2-3-22b-dev_transformer_only_fp8_input_scaled.safetensors",
+        "loras,ltx/ltx-2.3-22b-distilled-lora-384.safetensors,7605507256,0,https://www.modelscope.cn/models/Lightricks/LTX-2.3/resolve/master/ltx-2.3-22b-distilled-lora-384.safetensors",
+        "loras,ltx/gemma-3-12b-it-abliterated_heretic_lora_rank64_bf16.safetensors,628203616,0,https://www.modelscope.cn/models/Comfy-Org/ltx-2/resolve/master/split_files/loras/gemma-3-12b-it-abliterated_heretic_lora_rank64_bf16.safetensors",
+        "text_encoders,ltx-2.3_text_projection_bf16.safetensors,2312149072,0,https://www.modelscope.cn/models/Kijai/LTX2.3_comfy/resolve/master/text_encoders/ltx-2.3_text_projection_bf16.safetensors",
+        "loras,ltx/ltx-2.3-22b-ic-lora-outpaint.safetensors,1308756416,0,https://www.modelscope.cn/models/oumoumad-ai/LTX-2.3-22b-IC-LoRA-Outpaint/resolve/master/ltx-2.3-22b-ic-lora-outpaint.safetensors",
+        "text_encoders,gemma_3_12B_it_fpmixed.safetensors,13708659515,0,https://www.modelscope.cn/models/Comfy-Org/ltx-2/resolve/master/split_files/text_encoders/gemma_3_12B_it_fpmixed.safetensors",
+        "latent_upscale_models,ltx-2.3-spatial-upscaler-x2-1.1.safetensors,995743560,0,https://www.modelscope.cn/models/Lightricks/LTX-2.3/resolve/master/ltx-2.3-spatial-upscaler-x2-1.1.safetensors",
+        "vae,LTX23_audio_vae_bf16.safetensors,364855188,0,https://www.modelscope.cn/models/Kijai/LTX2.3_comfy/resolve/master/vae/LTX23_audio_vae_bf16.safetensors",
+        "vae,LTX23_video_vae_bf16.safetensors,1452258578,0,https://www.modelscope.cn/models/Kijai/LTX2.3_comfy/resolve/master/vae/LTX23_video_vae_bf16.safetensors",
+        "vae,taeltx2_3.safetensors,23531296,0,https://www.modelscope.cn/models/Kijai/LTX2.3_comfy/resolve/master/vae/taeltx2_3.safetensors",
+        "controlnet,rife/flownet.pkl,24636301,0,https://www.modelscope.cn/models/windecay/rife/resolve/master/flownet.pkl"
+    ]
+}

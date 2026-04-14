@@ -1037,7 +1037,7 @@
     },
     "class_type": "UnetLoaderGGUF",
     "_meta": {
-      "title": "Unet Loader (GGUF)"
+      "title": "base_model_gguf"
     }
   },
   "605": {
