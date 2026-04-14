@@ -250,7 +250,7 @@
         0
       ],
       "ref_images": [
-        "795",
+        "853",
         0
       ],
       "pose_images": [
@@ -933,7 +933,7 @@
       "match_image_size": true,
       "Update inputs": null,
       "image_1": [
-        "795",
+        "853",
         0
       ],
       "image_2": [
@@ -1437,6 +1437,51 @@
     "class_type": "Grow_Mask_Ultra_Fast",
     "_meta": {
       "title": "GrowMask Ultra-Fast"
+    }
+  },
+  "851": {
+    "inputs": {
+      "mask": [
+        "852",
+        0
+      ]
+    },
+    "class_type": "easy isMaskEmpty",
+    "_meta": {
+      "title": "Is Mask Empty"
+    }
+  },
+  "852": {
+    "inputs": {
+      "channel": "red",
+      "image": [
+        "795",
+        0
+      ]
+    },
+    "class_type": "ImageToMask",
+    "_meta": {
+      "title": "Convert Image to Mask"
+    }
+  },
+  "853": {
+    "inputs": {
+      "boolean": [
+        "851",
+        0
+      ],
+      "on_true": [
+        "791",
+        0
+      ],
+      "on_false": [
+        "795",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
     }
   }
 }
