@@ -23,13 +23,48 @@ class CivitaiApiMetadataParser(RecipeMetadataParser):
         """
         if not metadata or not isinstance(metadata, dict):
             return False
-            
-        # Check for key markers specific to Civitai image metadata
-        return any([
-            "resources" in metadata,
-            "civitaiResources" in metadata,
-            "additionalResources" in metadata
-        ])
+
+        def has_markers(payload: Dict[str, Any]) -> bool:
+            # Check for common CivitAI image metadata fields
+            civitai_image_fields = (
+                "resources",
+                "civitaiResources", 
+                "additionalResources",
+                "hashes",
+                "prompt",
+                "negativePrompt",
+                "steps",
+                "sampler",
+                "cfgScale",
+                "seed",
+                "width",
+                "height",
+                "Model",
+                "Model hash"
+            )
+            return any(key in payload for key in civitai_image_fields)
+
+        # Check the main metadata object
+        if has_markers(metadata):
+            return True
+
+        # Check for LoRA hash patterns
+        hashes = metadata.get("hashes")
+        if isinstance(hashes, dict) and any(str(key).lower().startswith("lora:") for key in hashes):
+            return True
+
+        # Check nested meta object (common in CivitAI image responses)
+        nested_meta = metadata.get("meta")
+        if isinstance(nested_meta, dict):
+            if has_markers(nested_meta):
+                return True
+
+            # Also check for LoRA hash patterns in nested meta
+            hashes = nested_meta.get("hashes")
+            if isinstance(hashes, dict) and any(str(key).lower().startswith("lora:") for key in hashes):
+                return True
+
+        return False
     
     async def parse_metadata(self, metadata, recipe_scanner=None, civitai_client=None) -> Dict[str, Any]:
         """Parse metadata from Civitai image format
@@ -45,6 +80,26 @@ class CivitaiApiMetadataParser(RecipeMetadataParser):
         try:
             # Get metadata provider instead of using civitai_client directly
             metadata_provider = await get_default_metadata_provider()
+
+            # Civitai image responses may wrap the actual metadata inside a "meta" key
+            if (
+                isinstance(metadata, dict)
+                and "meta" in metadata
+                and isinstance(metadata["meta"], dict)
+            ):
+                inner_meta = metadata["meta"]
+                if any(
+                    key in inner_meta
+                    for key in (
+                        "resources",
+                        "civitaiResources",
+                        "additionalResources",
+                        "hashes",
+                        "prompt",
+                        "negativePrompt",
+                    )
+                ):
+                    metadata = inner_meta
             
             # Initialize result structure
             result = {
@@ -62,8 +117,9 @@ class CivitaiApiMetadataParser(RecipeMetadataParser):
             lora_hashes = {}
             if "hashes" in metadata and isinstance(metadata["hashes"], dict):
                 for key, hash_value in metadata["hashes"].items():
-                    if key.startswith("LORA:"):
-                        lora_name = key.replace("LORA:", "")
+                    key_str = str(key)
+                    if key_str.lower().startswith("lora:"):
+                        lora_name = key_str.split(":", 1)[1]
                         lora_hashes[lora_name] = hash_value
             
             # Extract prompt and negative prompt

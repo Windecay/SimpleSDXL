@@ -1,6 +1,261 @@
 {
     "custom_nodes": [
         {
+            "author": "Kur0butiMegane",
+            "title": "Comfyui-StringUtils [REMOVED]",
+            "reference": "https://github.com/Kur0butiMegane/Comfyui-StringUtils2",
+            "files": [
+                "https://github.com/Kur0butiMegane/Comfyui-StringUtils2"
+            ],
+            "install_type": "git-clone",
+            "description": "NODES: Normalizer, Splitter, Selector, XML Parser, XML Parser, Make Property, Add XML Tag, Is String Empty, Cond Passthrough, CLIP Passthrough, ClipRegion Passthrough, Scheduler Selector (Impact), Scheduler Selector (Inspire), Save Text, XML to Cutoff"
+        },
+        {
+            "author": "rookiestar28",
+            "title": "ComfyUI_Security_Audit [REMOVED]",
+            "reference": "https://github.com/rookiestar28/ComfyUI_Security_Audit",
+            "files": [
+                "https://github.com/rookiestar28/ComfyUI_Security_Audit"
+            ],
+            "install_type": "git-clone",
+            "description": "A lightweight, dual-layer security extension for ComfyUI using AST-based static analysis and runtime monitoring to detect malicious code in custom nodes."
+        },
+        {
+            "author": "hw5511",
+            "title": "Woohee HF Upscaler Loader [REMOVED]",
+            "reference": "https://github.com/hw5511/comfyui_hf_upscaler_loader",
+            "files": [
+                "https://github.com/hw5511/comfyui_hf_upscaler_loader"
+            ],
+            "install_type": "git-clone",
+            "description": "Load upscale models directly from Hugging Face Hub in ComfyUI"
+        },
+        {
+            "author": "arthur",
+            "title": "Video Output Bridge [REMOVED]",
+            "reference": "https://github.com/arthurtravers/ComfyUI-VideoOutputBridge",
+            "files": [
+                "https://github.com/arthurtravers/ComfyUI-VideoOutputBridge"
+            ],
+            "install_type": "git-clone",
+            "description": "Bridge VHS_VideoCombine video outputs to standard image payloads for serverless runners (RunPod, Modal). Enables automatic S3 uploads of MP4/WebP files in worker-comfyui deployments."
+        },
+        {
+            "author": "UmeAiRT",
+            "title": "ComfyUI-UmeAiRT-Sync [REMOVED]",
+            "reference": "https://github.com/UmeAiRT/ComfyUI-UmeAiRT-Sync",
+            "files": [
+                "https://github.com/UmeAiRT/ComfyUI-UmeAiRT-Sync"
+            ],
+            "install_type": "git-clone",
+            "description": "Automatic workflow synchronizer/loader for UmeAiRT Workflows (Flux, SDXL, WAN, etc.)."
+        },
+        {
+            "author": "UmeAiRT",
+            "title": "UmeAiRT-Toolkit [REMOVED]",
+            "reference": "https://github.com/UmeAiRT/ComfyUI-UmeAiRT-Toolkit",
+            "files": [
+                "https://github.com/UmeAiRT/ComfyUI-UmeAiRT-Toolkit"
+            ],
+            "install_type": "git-clone",
+            "description": "A Wireless, Nodes 2.0 Ready, and Aesthetic Toolkit for ComfyUI."
+        },
+        {
+            "author": "sln77",
+            "title": "ComfyUI-Camie-Tagger [REMOVED]",
+            "reference": "https://github.com/sln77/ComfyUI-Camie-Tagger",
+            "files": [
+                "https://github.com/sln77/ComfyUI-Camie-Tagger"
+            ],
+            "install_type": "git-clone",
+            "description": "ComfyUI node integration for the Camie tagger v2 model from Hugging Face for image tagging. (Description by CC)"
+        },
+        {
+            "author": "vegaflowltd",
+            "title": "Vega Flow V8.9 — Temporal Stabilisation [REMOVED]",
+            "id": "comfyui-vegaflow",
+            "reference": "https://github.com/vegaflowltd/ComfyUI-VegaFlow",
+            "files": [
+                "https://github.com/vegaflowltd/ComfyUI-VegaFlow"
+            ],
+            "install_type": "git-clone",
+            "description": "Professional temporal stabilisation engine. Eliminates flicker, luminance drift, and frame-to-frame inconsistency in AI-generated and traditional video footage."
+        },
+        {
+            "author": "seanhan19911990-source",
+            "title": "ComfyUI-LTX2-Visual-LoRA [REMOVED",
+            "reference": "https://github.com/seanhan19911990-source/ComfyUI-LTX2-Visual-LoRA",
+            "files": [
+                "https://github.com/seanhan19911990-source/ComfyUI-LTX2-Visual-LoRA"
+            ],
+            "install_type": "git-clone",
+            "description": "A ComfyUI custom node that filters LTX-2 LoRAs to strip out audio-weight interference, ensuring clean, high-fidelity sound while maintaining visual fine-tuning."
+        },
+        {
+            "author": "chrisgoringe",
+            "title": "Comfy Controller [REMOVED",
+            "id": "cg-comfycontroller",
+            "reference": "https://github.com/chrisgoringe/cg-controller",
+            "files": [
+                "https://github.com/chrisgoringe/cg-controller"
+            ],
+            "install_type": "git-clone",
+            "description": "Quickly and easily build a GUI on top of your workflow. Gather just the nodes that you want to see, with no spaghetti, onto controller panels, leaving your workflow untouched in the background."
+        },
+        {
+            "author": "Ada123-a",
+            "title": "ComfyUI-Kandinsky [REMOVED]",
+            "reference": "https://github.com/Ada123-a/ComfyUI-Kandinsky",
+            "files": [
+                "https://github.com/Ada123-a/ComfyUI-Kandinsky"
+            ],
+            "install_type": "git-clone",
+            "description": "Kandinsky 2/20B ComfyUI support with FP8/GGUF/blockswap support."
+        },
+        {
+            "author": "lgldlk",
+            "title": "ComfyUI-PSD-Replace [REMOVED]",
+            "reference": "https://github.com/lgldlk/ComfyUI-PSD-Replace",
+            "files": [
+                "https://github.com/lgldlk/ComfyUI-PSD-Replace"
+            ],
+            "install_type": "git-clone",
+            "description": "One click replacement of smart objects or layers in PSD"
+        },
+        {
+            "author": "Rizzlord",
+            "title": "ComfyUI-RizzNodes [REMOVED]",
+            "reference": "https://github.com/Rizzlord/ComfyUI-RizzNodes",
+            "files": [
+                "https://github.com/Rizzlord/ComfyUI-RizzNodes"
+            ],
+            "install_type": "git-clone",
+            "description": "RizzNodes for ComfyUI Welcome to RizzNodes, a collection of custom nodes for ComfyUI designed to streamline various workflows, from loading images and models in batches to dynamic prompt generation and memory management."
+        },
+        {
+            "author": "palant",
+            "title": "Image Resize for ComfyUI [REMOVED]",
+            "id": "image-resize",
+            "reference": "https://github.com/palant/image-resize-comfyui",
+            "files": [
+                "https://github.com/palant/image-resize-comfyui"
+            ],
+            "install_type": "git-clone",
+            "description": "This custom node provides various tools for resizing images. The goal is resizing without distorting proportions, yet without having to perform any calculations with the size of the original image. If a mask is present, it is resized and modified along with the image."
+        },
+        {
+            "author": "palant",
+            "title": "Integrated Nodes for ComfyUI [REMOVED]",
+            "reference": "https://github.com/palant/integrated-nodes-comfyui",
+            "files": [
+                "https://github.com/palant/integrated-nodes-comfyui"
+            ],
+            "install_type": "git-clone",
+            "description": "This tool will turn entire workflows or parts of them into single integrated nodes. In a way, it is similar to the Node Templates functionality but hides the inner structure. This is useful if all you want is to reuse and quickly configure a bunch of nodes without caring how they are interconnected."
+        },
+        {
+            "author": "zfkun",
+            "title": "ComfyUI_zfkun [REMOVED]",
+            "reference": "https://github.com/zfkun/ComfyUI_zfkun",
+            "files": [
+                "https://github.com/zfkun/ComfyUI_zfkun"
+            ],
+            "install_type": "git-clone",
+            "description": "A collection of nodes for common tools, including text preview, text translation (multi-platform, multi-language), image loader, webcamera capture."
+        },
+        {
+            "author": "xXAdonesXx",
+            "title": "NodeGPT",
+            "id": "nodegpt",
+            "reference": "https://github.com/xXAdonesXx/NodeGPT",
+            "reference2": "https://github.com/antonym-git/NodeGPT",
+            "files": [
+                "https://github.com/xXAdonesXx/NodeGPT"
+            ],
+            "install_type": "git-clone",
+            "description": "Implementation of AutoGen inside ComfyUI. This repository is under development, and not everything is functioning correctly yet."
+        },
+        {
+            "author": "basenc",
+            "title": "ComfyUI Environment Variable Node [UNSAFE/REMOVED]",
+            "reference": "https://github.com/basenc/Comfyui-EnvVarNode",
+            "files": [
+                "https://github.com/basenc/Comfyui-EnvVarNode"
+            ],
+            "install_type": "git-clone",
+            "description": "Exposes environment variables inside ComfyUI workflows. Use it to keep API keys and other secrets out of your graph files while still wiring them into nodes that need them.[w/This nodepack has a vulnerability that allows reading arbitrary environment variables.]"
+        },
+        {
+            "author": "Bharanidharan",
+            "title": "iSeeBetter Node for ComfyUI [REMOVED]",
+            "reference": "https://github.com/llikethat/ComfyUI-iseebetter",
+            "files": [
+                "https://github.com/llikethat/ComfyUI-iseebetter"
+            ],
+            "install_type": "git-clone",
+            "description": "Custom Node to implement iSeeBetter upscaling method."
+        },
+        {
+            "author": "uczensokratesa",
+            "title": "ComfyUI-Gemini-VAE-Fix [REMOVED]",
+            "reference": "https://github.com/uczensokratesa/ComfyUI-Gemini-VAE-Fix",
+            "files": [
+                "https://github.com/uczensokratesa/ComfyUI-Gemini-VAE-Fix"
+            ],
+            "install_type": "git-clone",
+            "description": "Advanced VAE decoder node with audio sync precision and crash-proof memory management for long videos. (Description by CC)"
+        },
+        {
+            "author": "uczensokratesa",
+            "title": "ComfyUI-UniversalSmartVAE [REMOVED]",
+            "reference": "https://github.com/uczensokratesa/ComfyUI-UniversalSmartVAE",
+            "files": [
+                "https://github.com/uczensokratesa/ComfyUI-UniversalSmartVAE"
+            ],
+            "install_type": "git-clone",
+            "description": "VRAM-safe VAE decoder for video latents in ComfyUI. Decodes 5D video latents in temporal batches to prevent GPU memory explosions."
+        },
+        {
+            "author": "uczensokratesa",
+            "title": "ComfyUI-Claude-VAE [REMOVED]",
+            "reference": "https://github.com/uczensokratesa/ComfyUI-Claude-VAE",
+            "files": [
+                "https://github.com/uczensokratesa/ComfyUI-Claude-VAE"
+            ],
+            "install_type": "git-clone",
+            "description": "VAE Decode node that solves VRAM problems with mathematically precise temporal stitching, maintaining perfect frame counts across batch sizes for video generation."
+        },
+        {
+            "author": "siray-ai",
+            "title": "siray-comfyui [REMOVED]",
+            "reference": "https://github.com/siray-ai/siray-comfyui",
+            "files": [
+                "https://github.com/siray-ai/siray-comfyui"
+            ],
+            "install_type": "git-clone",
+            "description": "Custom ComfyUI nodes for Siray image/video models with dynamic schema-based inputs, authentication, and video streaming. (Description by CC)"
+        },
+        {
+            "author": "1hew",
+            "title": "ComfyUI-1hewHungryStudio [REMOVED]",
+            "reference": "https://github.com/1hew/ComfyUI-1hewHungryStudio",
+            "files": [
+                "https://github.com/1hew/ComfyUI-1hewHungryStudio"
+            ],
+            "install_type": "git-clone",
+            "description": "Custom ComfyUI nodes for image cloning and shape drawing operations. (Description by CC)\nNOTE: The files in the repo are not organized."
+        },
+        {
+            "author": "Oct7",
+            "title": "ComfyUI-LaplaMask [REMOVED]",
+            "reference": "https://github.com/Oct7/ComfyUI-LaplaMask",
+            "files": [
+                "https://github.com/Oct7/ComfyUI-LaplaMask"
+            ],
+            "install_type": "git-clone",
+            "description": "NODES: Blur→Mask"
+        },
+        {
             "author": "aliabougazia",
             "title": "comfyui_pt_security_scanner [REMOVED]",
             "reference": "https://github.com/aliabougazia/comfyui_pt_security_scanner",
@@ -312,16 +567,6 @@
             ],
             "install_type": "git-clone",
             "description": "ComfyUI nodes for loading images and drawing polygon masks interactively on them"
-        },
-        {
-            "author": "siray-ai",
-            "title": "siray-comfyui [REMOVED]",
-            "reference": "https://github.com/siray-ai/siray-comfyui",
-            "files": [
-                "https://github.com/siray-ai/siray-comfyui"
-            ],
-            "install_type": "git-clone",
-            "description": "Custom ComfyUI nodes for Siray image/video models with dynamic schema-based inputs, authentication, and video streaming. (Description by CC)"
         },
         {
             "author": "easelhub",

@@ -32,6 +32,25 @@ function removeLoraExtension(fileName = '') {
     return fileName.replace(/\.(safetensors|ckpt|pt|bin)$/i, '');
 }
 
+function parseSearchTokens(term = '') {
+    const include = [];
+    const exclude = [];
+
+    term.split(/\s+/).forEach((rawTerm) => {
+        const token = rawTerm.trim();
+        if (!token) {
+            return;
+        }
+        if (token.startsWith('-') && token.length > 1) {
+            exclude.push(token.slice(1).toLowerCase());
+        } else {
+            include.push(token.toLowerCase());
+        }
+    });
+
+    return { include, exclude };
+}
+
 function createDefaultBehavior(modelType) {
     return {
         enablePreview: false,
@@ -281,10 +300,23 @@ class AutoComplete {
         if (this.debounceTimer) {
             clearTimeout(this.debounceTimer);
         }
-        
-        // Get the search term (text after last comma)
-        const searchTerm = this.getSearchTerm(value);
-        
+
+        // Get the search term (text after last comma / '>')
+        const rawSearchTerm = this.getSearchTerm(value);
+        let searchTerm = rawSearchTerm;
+
+        // For embeddings, only trigger autocomplete when the current token
+        // starts with the explicit "emb:" prefix. This avoids interrupting
+        // normal prompt typing while still allowing quick manual triggering.
+        if (this.modelType === 'embeddings') {
+            const match = rawSearchTerm.match(/^emb:(.*)$/i);
+            if (!match) {
+                this.hide();
+                return;
+            }
+            searchTerm = (match[1] || '').trim();
+        }
+
         if (searchTerm.length < this.options.minChars) {
             this.hide();
             return;
@@ -393,10 +425,20 @@ class AutoComplete {
     }
     
     highlightMatch(text, searchTerm) {
-        if (!searchTerm) return text;
-        
-        const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-        return text.replace(regex, '<span style="background-color: rgba(66, 153, 225, 0.3); color: white; padding: 1px 2px; border-radius: 2px;">$1</span>');
+        const { include } = parseSearchTokens(searchTerm);
+        const sanitizedTokens = include
+            .filter(Boolean)
+            .map((token) => token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+
+        if (!sanitizedTokens.length) {
+            return text;
+        }
+
+        const regex = new RegExp(`(${sanitizedTokens.join('|')})`, 'gi');
+        return text.replace(
+            regex,
+            '<span style="background-color: rgba(66, 153, 225, 0.3); color: white; padding: 1px 2px; border-radius: 2px;">$1</span>',
+        );
     }
     
     showPreviewForItem(relativePath, itemElement) {

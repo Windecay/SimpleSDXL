@@ -1,6 +1,166 @@
 {
     "custom_nodes": [
         {
+            "author": "Zinigo",
+            "title": "Prompt Builder [NAME CONFLICT]",
+            "reference": "https://github.com/zinigo-creations/comfyui-prompt-builder",
+            "files": [
+                "https://github.com/zinigo-creations/comfyui-prompt-builder"
+            ],
+            "install_type": "git-clone",
+            "description": "Dropdown-based prompt builder for ComfyUI. Create characters, scenes, and styles without writing prompts. Designed for beginners and fast iteration."
+        },
+        {
+            "author": "ethanfel",
+            "title": "Comfyui-Return-Run-Logic",
+            "reference": "https://github.com/ethanfel/Comfyui-Return-Run-Logic",
+            "files": [
+                "https://github.com/ethanfel/Comfyui-Return-Run-Logic"
+            ],
+            "install_type": "git-clone",
+            "description": "Adds a toggle button to quickly switch between Run and Run (Instant) modes without opening the queue button dropdown menu."
+        },
+        {
+            "author": "outrun32",
+            "title": "[WIP] comfyui-chat-assistant",
+            "reference": "https://github.com/outrun32/comfyui-chat-assistant",
+            "files": [
+                "https://github.com/outrun32/comfyui-chat-assistant"
+            ],
+            "install_type": "git-clone",
+            "description": "A streamlined ComfyUI extension that adds an AI-powered chat interface to the sidebar for converting complex briefs/specs into generation-ready prompts. (Description by CC)\nNOTE: The files in the repo are not organized."
+        },
+        {
+            "author": "ComfyuiGY",
+            "title": "Comfyui-Memory-Clear",
+            "reference": "https://github.com/ComfyuiGY/Comfyui-Memory-Clear",
+            "files": [
+                "https://github.com/ComfyuiGY/Comfyui-Memory-Clear"
+            ],
+            "install_type": "git-clone",
+            "description": "ComfyUI node for clearing memory. (Description by CC)"
+        },
+        {
+            "author": "lying1324a-glitch",
+            "title": "comfyuiautofirelaod",
+            "reference": "https://github.com/lying1324a-glitch/comfyuiautofirelaod",
+            "files": [
+                "https://github.com/lying1324a-glitch/comfyuiautofirelaod"
+            ],
+            "install_type": "git-clone",
+            "description": "ComfyUI auto-fire loader extension. (Description by CC)"
+        },
+        {
+            "author": "skkut",
+            "title": "[WIP] ComfyUI-detailed-jobstatus",
+            "reference": "https://github.com/skkut/ComfyUI-detailed-jobstatus",
+            "files": [
+                "https://github.com/skkut/ComfyUI-detailed-jobstatus"
+            ],
+            "install_type": "git-clone",
+            "description": "A simple ComfyUI extension to show a execution timer.\nNOTE: The files in the repo are not organized."
+        },
+        {
+            "author": "bob-bar-b-que",
+            "title": "ComfyUI CLIP Token Counter [WIP]",
+            "reference": "https://github.com/Bob-Bar-B-Que/ComfyUI_clip_token_counter",
+            "files": [
+                "https://github.com/Bob-Bar-B-Que/ComfyUI_clip_token_counter"
+            ],
+            "install_type": "git-clone",
+            "description": "Shows real-time token count and adds a copy button to CLIPTextEncode nodes in ComfyUI.\nNOTE: The files in the repo are not organized."
+        },
+        {
+            "author": "andreszs",
+            "title": "LoRA Pipeline [WIP]",
+            "reference": "https://github.com/andreszs/ComfyUI-Lora-Pipeline",
+            "files": [
+                "https://github.com/andreszs/ComfyUI-Lora-Pipeline"
+            ],
+            "install_type": "git-clone",
+            "description": "Area-based LoRA scheduling and area conditioning wrappers for ComfyUI.\nNOTE: The files in the repo are not organized."
+        },
+        {
+            "author": "Lisa-Mays",
+            "title": "wan-model-downloader",
+            "reference": "https://github.com/Lisa-Mays/wan-model-downloader",
+            "files": [
+                "https://github.com/Lisa-Mays/wan-model-downloader"
+            ],
+            "install_type": "git-clone",
+            "description": "Auto-downloads required models on startup."
+        },
+        {
+            "author": "fya16838",
+            "title": "Comfyui-Xiufu",
+            "reference": "https://github.com/fya16838/Comfyui-Xiufu",
+            "files": [
+                "https://github.com/fya16838/Comfyui-Xiufu"
+            ],
+            "install_type": "git-clone",
+            "description": "Fix ComfyUI models and nodes after importing workflows from others. (Description by CC)"
+        },
+        {
+            "author": "fengye12",
+            "title": "ComfyUI_XL_OpenAPI",
+            "reference": "https://github.com/fengye12/ComfyUI_XL_OpenAPI",
+            "files": [
+                "https://github.com/fengye12/ComfyUI_XL_OpenAPI"
+            ],
+            "install_type": "git-clone",
+            "description": "OpenAPI wrapper for ComfyUI XL, providing standardized API access. (Description by CC)"
+        },
+        {
+            "author": "scruffynerf",
+            "title": "_0_comfyui_transformers_fix",
+            "reference": "https://github.com/scruffynerf/_0_comfyui_transformers_fix",
+            "files": [
+                "https://github.com/scruffynerf/_0_comfyui_transformers_fix"
+            ],
+            "install_type": "git-clone",
+            "description": "Quick patch that solves compatibility problems caused by MeshGraphormer-DepthMapPreprocessor by injecting missing functions into transformers."
+        },
+        {
+            "author": "pixelmavenai",
+            "title": "comfyui-custom-branding",
+            "reference": "https://github.com/pixelmavenai/comfyui-custom-branding",
+            "files": [
+                "https://github.com/pixelmavenai/comfyui-custom-branding"
+            ],
+            "install_type": "git-clone",
+            "description": "Custom branding for ComfyUI tab title and favicon"
+        },
+        {
+            "author": "ka4ok424",
+            "title": "ComfyUI-NodeLibrary",
+            "reference": "https://github.com/ka4ok424/ComfyUI-NodeLibrary",
+            "files": [
+                "https://github.com/ka4ok424/ComfyUI-NodeLibrary"
+            ],
+            "install_type": "git-clone",
+            "description": "No ComfyUI nodes detected. May not be a ComfyUI custom node repository."
+        },
+        {
+            "author": "skkut",
+            "title": "ComfyUI-Auto-DarkMode [WIP]",
+            "reference": "https://github.com/skkut/ComfyUI-Auto-DarkMode",
+            "files": [
+                "https://github.com/skkut/ComfyUI-Auto-DarkMode"
+            ],
+            "install_type": "git-clone",
+            "description": "Lightweight ComfyUI extension that automatically detects and matches your system's Light/Dark theme in real-time.\nNOTE: The files in the repo are not organized."
+        },
+        {
+            "author": "xWris3",
+            "title": "jus_multifruit_comfyui",
+            "reference": "https://github.com/xWris3/jus_multifruit_comfyui",
+            "files": [
+                "https://github.com/xWris3/jus_multifruit_comfyui"
+            ],
+            "install_type": "git-clone",
+            "description": "Collection of custom nodes."
+        },
+        {
             "author": "synthetai",
             "title": "ComfyUI-ToolBox [NAME CONFLICT]",
             "reference": "https://github.com/synthetai/ComfyUI-ToolBox",
@@ -139,16 +299,6 @@
             ],
             "install_type": "git-clone",
             "description": "ComfyUI custom nodes for AudioX/AudioX-MAF video-to-audio generation"
-        },
-        {
-            "author": "1hew",
-            "title": "ComfyUI-1hewHungryStudio [WIP]",
-            "reference": "https://github.com/1hew/ComfyUI-1hewHungryStudio",
-            "files": [
-                "https://github.com/1hew/ComfyUI-1hewHungryStudio"
-            ],
-            "install_type": "git-clone",
-            "description": "Custom ComfyUI nodes for image cloning and shape drawing operations. (Description by CC)\nNOTE: The files in the repo are not organized."
         },
         {
             "author": "Ahmed791996",
@@ -1685,16 +1835,6 @@
             "description": "ComfyUI custom node that splits multi-line prompts by line, enabling batch image generation with each line triggering one execution and supporting custom prompt boxes. (Description by CC)\nNOTE: The files in the repo are not organized."
         },
         {
-            "author": "rookiestar28",
-            "title": "ComfyUI_Security_Audit",
-            "reference": "https://github.com/rookiestar28/ComfyUI_Security_Audit",
-            "files": [
-                "https://github.com/rookiestar28/ComfyUI_Security_Audit"
-            ],
-            "install_type": "git-clone",
-            "description": "A lightweight, dual-layer security extension for ComfyUI using AST-based static analysis and runtime monitoring to detect malicious code in custom nodes."
-        },
-        {
             "author": "c1660181647-hash",
             "title": "ComfyUI-MM-Visual-Encryption",
             "reference": "https://github.com/c1660181647-hash/ComfyUI-MM-Visual-Encryption",
@@ -2907,16 +3047,6 @@
             ],
             "install_type": "git-clone",
             "description": "NODES: ImageScaleToTotalPixelsRound64, ImageBlendLighter, ImageOffset, RGBtoRYGCBM, RYGCBMtoRGB, ExtractImageChannel, MatchRYGCBMColors, TextCommaToWeighted, TextCommaToRandomWeighted, RGBtoLAB, LABtoRGB, ImageMirrorPad, ImageCropBorders, ImageStitcher, ImageScaleToQwen, ..."
-        },
-        {
-            "author": "basenc",
-            "title": "ComfyUI Environment Variable Node [UNSAFE]",
-            "reference": "https://github.com/basenc/Comfyui-EnvVarNode",
-            "files": [
-                "https://github.com/basenc/Comfyui-EnvVarNode"
-            ],
-            "install_type": "git-clone",
-            "description": "Exposes environment variables inside ComfyUI workflows. Use it to keep API keys and other secrets out of your graph files while still wiring them into nodes that need them.[w/This nodepack has a vulnerability that allows reading arbitrary environment variables.]"
         },
         {
             "author": "silveroxides",
@@ -5852,16 +5982,6 @@
             "description": "This comfyui node helps save image[w/This nodepack contains a node that can write files to an arbitrary path.]"
         },
         {
-            "author": "Oct7",
-            "title": "ComfyUI-LaplaMask",
-            "reference": "https://github.com/Oct7/ComfyUI-LaplaMask",
-            "files": [
-                "https://github.com/Oct7/ComfyUI-LaplaMask"
-            ],
-            "install_type": "git-clone",
-            "description": "NODES: Blur→Mask"
-        },
-        {
             "author": "etng",
             "title": "ComfyUI-Heartbeat [UNSAFE]",
             "reference": "https://github.com/etng/ComfyUI-Heartbeat",
@@ -6551,16 +6671,6 @@
             ],
             "description": "NODES: Properties, Apply SVG to Image",
             "install_type": "git-clone"
-        },
-        {
-            "author": "Kur0butiMegane",
-            "title": "Comfyui-StringUtils",
-            "reference": "https://github.com/Kur0butiMegane/Comfyui-StringUtils2",
-            "files": [
-                "https://github.com/Kur0butiMegane/Comfyui-StringUtils2"
-            ],
-            "install_type": "git-clone",
-            "description": "NODES: Normalizer, Splitter, Selector, XML Parser, XML Parser, Make Property, Add XML Tag, Is String Empty, Cond Passthrough, CLIP Passthrough, ClipRegion Passthrough, Scheduler Selector (Impact), Scheduler Selector (Inspire), Save Text, XML to Cutoff"
         },
         {
             "author": "ronaldstg",
