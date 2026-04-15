@@ -13,7 +13,7 @@
                 "By-Portrait"
             ],
             "theme_title": "Choose different models: remove background quality and time vary. The last two masked options work better.",
-            "disvisible": ["scene_additional_prompt", "scene_additional_prompt_2", "scene_aspect_ratio", "scene_image_number", "scene_input_image1", "scene_var_number", "scene_input_image2", "scene_use_lora", "scene_video", "scene_audio",
+            "disvisible": ["scene_additional_prompt", "scene_additional_prompt_2", "scene_aspect_ratio", "scene_input_image1", "scene_var_number", "scene_input_image2", "scene_use_lora", "scene_video", "scene_audio",
                 "scene_var_number2","scene_var_number3","scene_var_number4","scene_switch_option1","scene_switch_option2","scene_steps", "scene_base_model", "scene_refiner_model", "scene_var_number5", "scene_var_number6", "scene_var_number7", "scene_var_number8", "scene_var_number9", "scene_var_number10"
                     ,"scene_switch_option3","scene_switch_option4"],
             "prompt": {
