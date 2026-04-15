@@ -597,7 +597,7 @@
       ],
       "scale": 2,
       "model_name": "flownet.pkl",
-      "batch_size": 32,
+      "batch_size": 16,
       "use_fp16": true,
       "images": [
         "28",

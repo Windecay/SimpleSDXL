@@ -2670,7 +2670,7 @@ packages = {'base_package': {'id': 1,
                     'note': 'LTX2.3文生、图生音视频生成、视频外扩预置包|显存需求：★★★☆ 速度：★★☆',
                     'files': [
                         'diffusion_models,ltx-2-3-22b-dev_transformer_only_fp8_input_scaled.safetensors,25016398608,0,https://www.modelscope.cn/models/Kijai/LTX2.3_comfy/resolve/master/diffusion_models/ltx-2-3-22b-dev_transformer_only_fp8_input_scaled.safetensors,https://huggingface.co/Kijai/LTX2.3_comfy/resolve/main/diffusion_models/ltx-2-3-22b-dev_transformer_only_fp8_input_scaled.safetensors',
-                        'loras,ltx/ltx-2.3-22b-distilled-lora-384.safetensors,7605507256,0,https://www.modelscope.cn/models/Lightricks/LTX-2.3/resolve/master/ltx-2.3-22b-distilled-lora-384.safetensors,https://huggingface.co/Lightricks/LTX-2.3/resolve/main/ltx-2.3-22b-distilled-lora-384.safetensors',
+                        'loras,ltx/ltx-2.3-22b-distilled-lora-384-1.1.safetensors,7605507256,0,https://www.modelscope.cn/models/Lightricks/LTX-2.3/resolve/master/ltx-2.3-22b-distilled-lora-384-1.1.safetensors,https://huggingface.co/Lightricks/LTX-2.3/resolve/main/ltx-2.3-22b-distilled-lora-384-1.1.safetensors',
                         'loras,ltx/gemma-3-12b-it-abliterated_heretic_lora_rank64_bf16.safetensors,628203616,0,https://www.modelscope.cn/models/Comfy-Org/ltx-2/resolve/master/split_files/loras/gemma-3-12b-it-abliterated_heretic_lora_rank64_bf16.safetensors,https://huggingface.co/Comfy-Org/ltx-2/resolve/main/split_files/loras/gemma-3-12b-it-abliterated_heretic_lora_rank64_bf16.safetensors',
                         'loras,ltx/ltx-2.3-22b-ic-lora-outpaint.safetensors,1308756416,0,https://www.modelscope.cn/models/oumoumad-ai/LTX-2.3-22b-IC-LoRA-Outpaint/resolve/master/ltx-2.3-22b-ic-lora-outpaint.safetensors,https://huggingface.co/oumoumad/LTX-2.3-22b-IC-LoRA-Outpaint/resolve/main/ltx-2.3-22b-ic-lora-outpaint.safetensors',
                         'text_encoders,ltx-2.3_text_projection_bf16.safetensors,2312149072,0,https://www.modelscope.cn/models/Kijai/LTX2.3_comfy/resolve/master/text_encoders/ltx-2.3_text_projection_bf16.safetensors,https://huggingface.co/Kijai/LTX2.3_comfy/resolve/main/text_encoders/ltx-2.3_text_projection_bf16.safetensors',
@@ -2816,7 +2816,8 @@ OBSOLETE_MODELS = [
     "svdq-fp4_r128-qwen-image-edit-2509-lightningv2.0-4steps.safetensors",
     "flux1-depth-dev-lora.safetensors",
     "Qwen-Rapid-AIO-NSFW-v20.safetensors",
-    "anima-preview2.safetensors"
+    "anima-preview2.safetensors",
+    "ltx-2.3-22b-distilled-lora-384.safetensors"
 ]
 
 MODELSCOPE_FILE_CACHE = {}

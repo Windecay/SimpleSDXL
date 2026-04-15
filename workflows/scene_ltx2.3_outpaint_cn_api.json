@@ -1,34 +1,4 @@
 {
-  "100": {
-    "inputs": {
-      "sigmas": "0.85, 0.7250, 0.4219, 0.0"
-    },
-    "class_type": "ManualSigmas",
-    "_meta": {
-      "title": "ManualSigmas"
-    }
-  },
-  "103": {
-    "inputs": {
-      "cfg": 1,
-      "model": [
-        "507",
-        0
-      ],
-      "positive": [
-        "107",
-        0
-      ],
-      "negative": [
-        "107",
-        1
-      ]
-    },
-    "class_type": "CFGGuider",
-    "_meta": {
-      "title": "CFGGuider"
-    }
-  },
   "107": {
     "inputs": {
       "frame_rate": [
@@ -114,50 +84,6 @@
       "title": "LTXVSeparateAVLatent"
     }
   },
-  "117": {
-    "inputs": {
-      "video_latent": [
-        "631",
-        2
-      ],
-      "audio_latent": [
-        "116",
-        1
-      ]
-    },
-    "class_type": "LTXVConcatAVLatent",
-    "_meta": {
-      "title": "LTXVConcatAVLatent"
-    }
-  },
-  "119": {
-    "inputs": {
-      "noise": [
-        "115",
-        0
-      ],
-      "guider": [
-        "103",
-        0
-      ],
-      "sampler": [
-        "138",
-        0
-      ],
-      "sigmas": [
-        "100",
-        0
-      ],
-      "latent_image": [
-        "117",
-        0
-      ]
-    },
-    "class_type": "SamplerCustomAdvanced",
-    "_meta": {
-      "title": "SamplerCustomAdvanced"
-    }
-  },
   "121": {
     "inputs": {
       "text": [
@@ -172,18 +98,6 @@
     "class_type": "CLIPTextEncode",
     "_meta": {
       "title": "CLIP Text Encode (Prompt)"
-    }
-  },
-  "125": {
-    "inputs": {
-      "av_latent": [
-        "119",
-        1
-      ]
-    },
-    "class_type": "LTXVSeparateAVLatent",
-    "_meta": {
-      "title": "LTXVSeparateAVLatent"
     }
   },
   "129": {
@@ -209,16 +123,7 @@
   },
   "137": {
     "inputs": {
-      "sampler_name": "euler_ancestral_cfg_pp"
-    },
-    "class_type": "KSamplerSelect",
-    "_meta": {
-      "title": "KSamplerSelect"
-    }
-  },
-  "138": {
-    "inputs": {
-      "sampler_name": "euler_cfg_pp"
+      "sampler_name": "euler_ancestral"
     },
     "class_type": "KSamplerSelect",
     "_meta": {
@@ -228,7 +133,7 @@
   "201": {
     "inputs": {
       "samples": [
-        "125",
+        "116",
         1
       ],
       "audio_vae": [
@@ -348,7 +253,7 @@
   "345": {
     "inputs": {
       "image": [
-        "677",
+        "660",
         0
       ]
     },
@@ -369,28 +274,6 @@
     "class_type": "LTXVChunkFeedForward",
     "_meta": {
       "title": "LTXV Chunk FeedForward (optional)"
-    }
-  },
-  "367": {
-    "inputs": {
-      "strength": 1,
-      "bypass": true,
-      "vae": [
-        "454",
-        0
-      ],
-      "image": [
-        "660",
-        0
-      ],
-      "latent": [
-        "544",
-        0
-      ]
-    },
-    "class_type": "LTXVImgToVideoInplace",
-    "_meta": {
-      "title": "LTXVImgToVideoInplace"
     }
   },
   "374": {
@@ -526,43 +409,6 @@
       "title": "LTXV Enhance A Video KJ"
     }
   },
-  "507": {
-    "inputs": {
-      "weight": 4,
-      "model": [
-        "459",
-        0
-      ],
-      "latent": [
-        "117",
-        0
-      ]
-    },
-    "class_type": "LTXVEnhanceAVideoKJ",
-    "_meta": {
-      "title": "LTXV Enhance A Video KJ"
-    }
-  },
-  "544": {
-    "inputs": {
-      "samples": [
-        "629",
-        2
-      ],
-      "upscale_model": [
-        "333",
-        0
-      ],
-      "vae": [
-        "454",
-        0
-      ]
-    },
-    "class_type": "LTXVLatentUpsampler",
-    "_meta": {
-      "title": "LTXVLatentUpsampler"
-    }
-  },
   "545": {
     "inputs": {
       "expression": "a",
@@ -578,7 +424,7 @@
   },
   "546": {
     "inputs": {
-      "expression": "round(a*b/8)*8+1",
+      "expression": "round(a*b/8)*8+9",
       "values.a": [
         "578",
         10
@@ -612,7 +458,7 @@
       "spatial_overlap": 2,
       "temporal_tile_length": 16,
       "temporal_overlap": 2,
-      "last_frame_fix": false,
+      "last_frame_fix": true,
       "working_device": "auto",
       "working_dtype": "auto",
       "vae": [
@@ -620,7 +466,7 @@
         0
       ],
       "latents": [
-        "630",
+        "629",
         2
       ]
     },
@@ -663,10 +509,10 @@
       "ip_image1": "welcome.png",
       "inpaint_image": "welcome.png",
       "inpaint_mask": "welcome.png",
-      "width": 1024,
-      "height": 1024,
+      "width": 960,
+      "height": 960,
       "cfg": 1,
-      "steps": 11,
+      "steps": 8,
       "var_number": 0,
       "var_number2": 24,
       "var_number3": 24,
@@ -803,7 +649,7 @@
       ],
       "scale": 2,
       "model_name": "flownet.pkl",
-      "batch_size": 32,
+      "batch_size": 16,
       "use_fp16": true,
       "images": [
         "670",
@@ -1234,61 +1080,6 @@
       "title": "LTXVCropGuides"
     }
   },
-  "630": {
-    "inputs": {
-      "positive": [
-        "631",
-        0
-      ],
-      "negative": [
-        "631",
-        1
-      ],
-      "latent": [
-        "125",
-        0
-      ]
-    },
-    "class_type": "LTXVCropGuides",
-    "_meta": {
-      "title": "LTXVCropGuides"
-    }
-  },
-  "631": {
-    "inputs": {
-      "frame_idx": 0,
-      "strength": 1,
-      "latent_downscale_factor": 1,
-      "crop": "disabled",
-      "use_tiled_encode": false,
-      "tile_size": 256,
-      "tile_overlap": 64,
-      "positive": [
-        "107",
-        0
-      ],
-      "negative": [
-        "107",
-        1
-      ],
-      "vae": [
-        "454",
-        0
-      ],
-      "latent": [
-        "367",
-        0
-      ],
-      "image": [
-        "660",
-        0
-      ]
-    },
-    "class_type": "LTXAddVideoICLoRAGuide",
-    "_meta": {
-      "title": "🅛🅣🅧 Add Video IC-LoRA Guide"
-    }
-  },
   "632": {
     "inputs": {
       "expression": "round(a/8)*8+1",
@@ -1466,7 +1257,7 @@
         1
       ],
       "images": [
-        "635",
+        "699",
         0
       ]
     },
@@ -1545,11 +1336,11 @@
         1
       ],
       "num_frames": [
-        "625",
-        6
+        "701",
+        1
       ],
       "images": [
-        "635",
+        "699",
         0
       ]
     },
@@ -1704,7 +1495,7 @@
       "saturation": 1,
       "value": 1,
       "image": [
-        "567",
+        "703",
         0
       ]
     },
@@ -1764,7 +1555,7 @@
         0
       ],
       "on_false": [
-        "567",
+        "703",
         0
       ]
     },
@@ -1808,19 +1599,113 @@
       "title": "If else"
     }
   },
-  "677": {
+  "697": {
     "inputs": {
-      "resize_type": "scale by multiplier",
-      "resize_type.multiplier": 0.5,
-      "scale_method": "area",
-      "input": [
-        "660",
+      "multiply_by": 8,
+      "images": [
+        "698",
         0
       ]
     },
-    "class_type": "ResizeImageMaskNode",
+    "class_type": "VHS_DuplicateImages",
     "_meta": {
-      "title": "Resize Image/Mask"
+      "title": "Repeat Images 🎥🅥🅗🅢"
+    }
+  },
+  "698": {
+    "inputs": {
+      "num_frames": 1,
+      "images": [
+        "635",
+        0
+      ]
+    },
+    "class_type": "WanAdvancedExtractLastImages",
+    "_meta": {
+      "title": "Wan Extract Last Images"
+    }
+  },
+  "699": {
+    "inputs": {
+      "any_1": [
+        "635",
+        0
+      ],
+      "any_2": [
+        "697",
+        0
+      ]
+    },
+    "class_type": "easy batchAnything",
+    "_meta": {
+      "title": "Batch Any"
+    }
+  },
+  "701": {
+    "inputs": {
+      "expression": "a+8",
+      "values.a": [
+        "625",
+        6
+      ]
+    },
+    "class_type": "ComfyMathExpression",
+    "_meta": {
+      "title": "Math Expression"
+    }
+  },
+  "703": {
+    "inputs": {
+      "batch_index": 0,
+      "length": [
+        "710",
+        0
+      ],
+      "image": [
+        "567",
+        0
+      ]
+    },
+    "class_type": "ImageFromBatch",
+    "_meta": {
+      "title": "ImageFromBatch"
+    }
+  },
+  "710": {
+    "inputs": {
+      "boolean": [
+        "644",
+        0
+      ],
+      "on_true": [
+        "625",
+        6
+      ],
+      "on_false": [
+        "714",
+        0
+      ]
+    },
+    "class_type": "easy ifElse",
+    "_meta": {
+      "title": "If else"
+    }
+  },
+  "714": {
+    "inputs": {
+      "value": "a*b",
+      "a": [
+        "625",
+        5
+      ],
+      "b": [
+        "578",
+        10
+      ]
+    },
+    "class_type": "SimpleMath+",
+    "_meta": {
+      "title": "🔧 Simple Math"
     }
   }
 }

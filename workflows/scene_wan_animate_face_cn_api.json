@@ -196,7 +196,7 @@
         0
       ],
       "on_true": [
-        "835",
+        "854",
         0
       ],
       "on_false": [
@@ -273,20 +273,6 @@
     "class_type": "WanVideoAnimateEmbeds",
     "_meta": {
       "title": "WanVideo Animate Embeds"
-    }
-  },
-  "487": {
-    "inputs": {
-      "purge_cache": true,
-      "purge_models": true,
-      "anything": [
-        "835",
-        0
-      ]
-    },
-    "class_type": "LayerUtility: PurgeVRAM",
-    "_meta": {
-      "title": "LayerUtility: Purge VRAM"
     }
   },
   "490": {
@@ -394,10 +380,10 @@
       ],
       "scale": 2,
       "model_name": "flownet.pkl",
-      "batch_size": 32,
+      "batch_size": 16,
       "use_fp16": true,
       "images": [
-        "835",
+        "854",
         0
       ]
     },
@@ -917,7 +903,7 @@
   "774": {
     "inputs": {
       "image": [
-        "835",
+        "854",
         0
       ]
     },
@@ -1482,6 +1468,20 @@
     "class_type": "easy ifElse",
     "_meta": {
       "title": "If else"
+    }
+  },
+  "854": {
+    "inputs": {
+      "purge_cache": true,
+      "purge_models": true,
+      "anything": [
+        "835",
+        0
+      ]
+    },
+    "class_type": "LayerUtility: PurgeVRAM V2",
+    "_meta": {
+      "title": "LayerUtility: Purge VRAM V2"
     }
   }
 }

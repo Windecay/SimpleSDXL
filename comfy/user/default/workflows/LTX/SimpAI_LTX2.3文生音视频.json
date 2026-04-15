@@ -1354,7 +1354,7 @@
         }
       },
       "widgets_values": [
-        "https://www.modelscope.cn/models/Lightricks/LTX-2.3/resolve/master/ltx-2.3-22b-distilled-lora-384.safetensors",
+        "https://www.modelscope.cn/models/Lightricks/LTX-2.3/resolve/master/ltx-2.3-22b-distilled-lora-384-1.1.safetensors",
         "https://www.modelscope.cn/models/Comfy-Org/ltx-2/resolve/master/split_files/loras/gemma-3-12b-it-abliterated_heretic_lora_rank64_bf16.safetensors",
         "",
         "",
@@ -1799,7 +1799,7 @@
         "tabXOffset": 10
       },
       "widgets_values": [
-        "ltx\\ltx-2.3-22b-distilled-lora-384.safetensors",
+        "ltx\\ltx-2.3-22b-distilled-lora-384-1.1.safetensors",
         0.5
       ],
       "color": "#223",
