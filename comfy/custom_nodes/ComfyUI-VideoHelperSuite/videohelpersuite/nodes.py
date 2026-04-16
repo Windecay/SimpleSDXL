@@ -131,6 +131,15 @@ def tensor_to_shorts(tensor):
 def tensor_to_bytes(tensor):
     return tensor_to_int(tensor, 8).astype(np.uint8)
 
+def get_metadata_output_args(video_format, source_index=None):
+    metadata_args = []
+    if source_index is not None:
+        metadata_args += ["-map_metadata", str(source_index)]
+    metadata_args += ["-metadata", "creation_time=now"]
+    if video_format.get("extension") in ("mp4", "mov", "m4v"):
+        metadata_args += ["-movflags", "use_metadata_tags"]
+    return metadata_args
+
 def ffmpeg_process(args, video_format, video_metadata, file_path, env):
 
     res = None
@@ -159,7 +168,7 @@ def ffmpeg_process(args, video_format, video_metadata, file_path, env):
                 if k not in ["prompt", "workflow"]:
                     f.write(escape_ffmpeg_metadata(k, json.dumps(v)) + "\n")
 
-        m_args = args[:1] + ["-i", metadata_path] + args[1:] + ["-metadata", "creation_time=now", "-movflags", "use_metadata_tags"]
+        m_args = args[:1] + ["-i", metadata_path] + args[1:] + get_metadata_output_args(video_format, 0)
         with subprocess.Popen(m_args + [file_path], stderr=subprocess.PIPE,
                               stdin=subprocess.PIPE, env=env) as proc:
             try:
@@ -623,11 +632,15 @@ class VideoCombine:
                     apad = []
                 else:
                     apad = ["-af", "apad=whole_dur="+str(min_audio_dur)]
+                metadata_args = []
+                if video_format.get('save_metadata', 'False') != 'False':
+                    # Preserve workflow metadata from the intermediate video on the audio mux pass.
+                    metadata_args = get_metadata_output_args(video_format, 0)
                 mux_args = [ffmpeg_path, "-v", "error", "-n", "-i", file_path,
                             "-ar", str(audio['sample_rate']), "-ac", str(channels),
                             "-f", "f32le", "-i", "-", "-c:v", "copy"] \
                             + video_format["audio_pass"] \
-                            + apad + ["-shortest", output_file_with_audio_path]
+                            + apad + metadata_args + ["-shortest", output_file_with_audio_path]
 
                 audio_data = audio['waveform'].squeeze(0).transpose(0,1) \
                         .numpy().tobytes()
