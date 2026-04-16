@@ -23,6 +23,7 @@ from io import BytesIO
 import aiohttp
 from aiohttp import web
 import logging
+import hashlib
 
 import mimetypes
 from comfy.cli_args import args
@@ -56,6 +57,54 @@ from middleware.cache_middleware import cache_control
 
 if args.enable_manager:
     import comfyui_manager
+
+
+def _env_flag(name: str, default: bool = False) -> bool:
+    raw = os.getenv(name)
+    if raw is None:
+        return default
+    raw = raw.strip().lower()
+    if raw in ("1", "true", "yes", "y", "on"):
+        return True
+    if raw in ("0", "false", "no", "n", "off"):
+        return False
+    return default
+
+
+def _env_float(name: str, default: Optional[float] = None) -> Optional[float]:
+    raw = os.getenv(name)
+    if raw is None or raw == "":
+        return default
+    try:
+        return float(raw)
+    except Exception:
+        return default
+
+
+_COMFY_DEBUG = (
+    _env_flag("SIMPLEAI_COMFY_DEBUG")
+    or _env_flag("COMFY_SERVER_DEBUG")
+    or _env_flag("COMFY_DEBUG")
+)
+_COMFY_WS_SEND_TIMEOUT_SEC = _env_float("SIMPLEAI_COMFY_WS_SEND_TIMEOUT_SEC", None)
+if _COMFY_DEBUG and _COMFY_WS_SEND_TIMEOUT_SEC is None:
+    _COMFY_WS_SEND_TIMEOUT_SEC = 5.0
+_COMFY_SEND_WARN_SEC = _env_float("SIMPLEAI_COMFY_SEND_WARN_SEC", 1.5) or 1.5
+
+
+def _mask_value(value: Optional[str]) -> str:
+    if not value:
+        return ""
+    value = str(value)
+    if len(value) <= 8:
+        return "***"
+    h = hashlib.sha256(value.encode("utf-8", errors="ignore")).hexdigest()[:10]
+    return f"{value[:3]}***{value[-3:]}(sha:{h})"
+
+
+def _dbg(msg: str):
+    if _COMFY_DEBUG:
+        logging.info(f"[COMFYDBG] {msg}")
 
 
 def _remove_sensitive_from_queue(queue: list) -> list:
@@ -263,11 +312,21 @@ class PromptServer():
             ws = web.WebSocketResponse()
             await ws.prepare(request)
             sid = request.rel_url.query.get('clientId', '')
+            if _COMFY_DEBUG:
+                _dbg(
+                    "ws connect begin clientId={} remote={} ua={}".format(
+                        _mask_value(sid),
+                        request.remote,
+                        (request.headers.get("User-Agent", "")[:120]),
+                    )
+                )
             if sid:
                 # Reusing existing session, remove old
                 old_ws = self.sockets.pop(sid, None)
                 self.sockets_metadata.pop(sid, None)
                 if old_ws is not None:
+                    if _COMFY_DEBUG:
+                        _dbg("ws reuse clientId={}, closing old ws".format(_mask_value(sid)))
                     asyncio.create_task(old_ws.close())
             else:
                 sid = uuid.uuid4().hex
@@ -278,6 +337,12 @@ class PromptServer():
             self.sockets_metadata[sid] = {"feature_flags": {}}
 
             try:
+                if _COMFY_DEBUG:
+                    _dbg(
+                        "ws connected sid={} sockets={}".format(
+                            _mask_value(sid), len(self.sockets)
+                        )
+                    )
                 # Send initial state to the new client
                 await self.send("status", {"status": self.get_queue_info(), "sid": sid}, sid)
                 # On reconnect if we are the currently executing client send the current node
@@ -293,6 +358,14 @@ class PromptServer():
                     elif msg.type == aiohttp.WSMsgType.TEXT:
                         try:
                             data = json.loads(msg.data)
+                            if _COMFY_DEBUG:
+                                _dbg(
+                                    "ws recv sid={} type={} first={}".format(
+                                        _mask_value(sid),
+                                        str(data.get("type", ""))[:50],
+                                        first_message,
+                                    )
+                                )
                             # Check if first message is feature flags
                             if first_message and data.get("type") == "feature_flags":
                                 # Store client feature flags
@@ -317,8 +390,20 @@ class PromptServer():
                         except Exception as e:
                             logging.error(f"Error processing WebSocket message: {e}")
             finally:
-                self.sockets.pop(sid, None)
-                self.sockets_metadata.pop(sid, None)
+                removed = await self._forget_ws_if_same(sid, ws)
+                if _COMFY_DEBUG:
+                    if removed:
+                        _dbg(
+                            "ws disconnected sid={} sockets={}".format(
+                                _mask_value(sid), len(self.sockets)
+                            )
+                        )
+                    else:
+                        _dbg(
+                            "ws disconnect cleanup skipped sid={} reason=replaced sockets={}".format(
+                                _mask_value(sid), len(self.sockets)
+                            )
+                        )
             return ws
 
         @routes.get("/")
@@ -336,6 +421,15 @@ class PromptServer():
                     return response
 
             key_point = request.query.get("p")
+            if _COMFY_DEBUG:
+                _dbg(
+                    "GET / scheme={} remote={} has_p={} p={}".format(
+                        getattr(request, "scheme", ""),
+                        request.remote,
+                        bool(key_point),
+                        _mask_value(key_point),
+                    )
+                )
 
             is_valid_entry = False
             try:
@@ -349,6 +443,7 @@ class PromptServer():
                 return web.Response(status=403, text="Invalid identity key / 没有有效的身份标识 !")
 
             response = web.FileResponse(os.path.join(self.web_root, "index.html"))
+            response.set_cookie("sstoken", key_point, max_age=3600*24*30*6, httponly=True, secure=True)
             response.headers['Cache-Control'] = 'no-store, must-revalidate'
             response.headers["Pragma"] = "no-cache"
             response.headers["Expires"] = "0"
@@ -991,6 +1086,14 @@ class PromptServer():
 
                 if "client_id" in json_data:
                     client_id = json_data["client_id"]
+                    if _COMFY_DEBUG:
+                        _dbg(
+                            "POST /prompt client_id={} sockets={} has_ws={}".format(
+                                _mask_value(client_id),
+                                len(self.sockets),
+                                client_id in self.sockets,
+                            )
+                        )
                     if client_id not in self.sockets and len(self.sockets) == 1:
                         old_sid = next(iter(self.sockets.keys()))
                         ws = self.sockets.pop(old_sid, None)
@@ -998,6 +1101,14 @@ class PromptServer():
                         if ws is not None:
                             self.sockets[client_id] = ws
                             self.sockets_metadata[client_id] = meta
+                            if _COMFY_DEBUG:
+                                _dbg(
+                                    "ws rekey old_sid={} -> client_id={} sockets={}".format(
+                                        _mask_value(old_sid),
+                                        _mask_value(client_id),
+                                        len(self.sockets),
+                                    )
+                                )
                             now = time.monotonic()
                             if now - self._last_ws_rekey_ts >= 10.0:
                                 self._last_ws_rekey_ts = now
@@ -1290,25 +1401,105 @@ class PromptServer():
 
         await self.send_bytes(BinaryEventTypes.PREVIEW_IMAGE_WITH_METADATA, combined_data, sid=sid)
 
+    async def _forget_ws_if_same(self, sid, ws) -> bool:
+        if self.sockets.get(sid) is ws:
+            self.sockets.pop(sid, None)
+            self.sockets_metadata.pop(sid, None)
+            return True
+        return False
+
+    async def _close_ws(self, sid, ws, reason: str):
+        await self._forget_ws_if_same(sid, ws)
+        if _COMFY_DEBUG:
+            _dbg("ws drop sid={} reason={}".format(_mask_value(sid), reason[:200]))
+        try:
+            asyncio.create_task(ws.close())
+        except Exception:
+            pass
+
+    async def _send_ws_bytes(self, sid, ws, message: Union[bytes, bytearray], event):
+        start = time.monotonic()
+        try:
+            if _COMFY_WS_SEND_TIMEOUT_SEC:
+                await asyncio.wait_for(ws.send_bytes(message), timeout=_COMFY_WS_SEND_TIMEOUT_SEC)
+            else:
+                await ws.send_bytes(message)
+        except asyncio.TimeoutError:
+            logging.warning(
+                "[Prompt Server] ws send_bytes timeout sid={} event={} timeout_sec={}".format(
+                    sid, event, _COMFY_WS_SEND_TIMEOUT_SEC
+                )
+            )
+            await self._close_ws(sid, ws, "send_bytes_timeout")
+        except (aiohttp.ClientError, aiohttp.ClientPayloadError, ConnectionResetError, BrokenPipeError, ConnectionError) as err:
+            logging.warning("[Prompt Server] ws send_bytes error sid={} event={} err={}".format(sid, event, err))
+            await self._close_ws(sid, ws, "send_bytes_error")
+        except Exception as err:
+            logging.error("[Prompt Server] ws send_bytes exception sid={} event={} err={}".format(sid, event, err))
+            await self._close_ws(sid, ws, "send_bytes_exception")
+        else:
+            dur = time.monotonic() - start
+            if _COMFY_DEBUG and dur >= _COMFY_SEND_WARN_SEC:
+                _dbg(
+                    "ws send_bytes slow sid={} event={} sec={:.3f} size={}".format(
+                        _mask_value(sid), event, dur, len(message)
+                    )
+                )
+
+    async def _send_ws_json(self, sid, ws, message: dict, event):
+        start = time.monotonic()
+        try:
+            if _COMFY_WS_SEND_TIMEOUT_SEC:
+                await asyncio.wait_for(ws.send_json(message), timeout=_COMFY_WS_SEND_TIMEOUT_SEC)
+            else:
+                await ws.send_json(message)
+        except asyncio.TimeoutError:
+            logging.warning(
+                "[Prompt Server] ws send_json timeout sid={} event={} timeout_sec={}".format(
+                    sid, event, _COMFY_WS_SEND_TIMEOUT_SEC
+                )
+            )
+            await self._close_ws(sid, ws, "send_json_timeout")
+        except (aiohttp.ClientError, aiohttp.ClientPayloadError, ConnectionResetError, BrokenPipeError, ConnectionError) as err:
+            logging.warning("[Prompt Server] ws send_json error sid={} event={} err={}".format(sid, event, err))
+            await self._close_ws(sid, ws, "send_json_error")
+        except Exception as err:
+            logging.error("[Prompt Server] ws send_json exception sid={} event={} err={}".format(sid, event, err))
+            await self._close_ws(sid, ws, "send_json_exception")
+        else:
+            dur = time.monotonic() - start
+            if _COMFY_DEBUG and dur >= _COMFY_SEND_WARN_SEC:
+                _dbg(
+                    "ws send_json slow sid={} event={} sec={:.3f}".format(
+                        _mask_value(sid), event, dur
+                    )
+                )
+
     async def send_bytes(self, event, data, sid=None):
         message = self.encode_bytes(event, data)
 
         if sid is None:
-            sockets = list(self.sockets.values())
-            for ws in sockets:
-                await send_socket_catch_exception(ws.send_bytes, message)
+            sockets = list(self.sockets.items())
+            for socket_sid, ws in sockets:
+                await self._send_ws_bytes(socket_sid, ws, message, event)
         elif sid in self.sockets:
-            await send_socket_catch_exception(self.sockets[sid].send_bytes, message)
+            await self._send_ws_bytes(sid, self.sockets[sid], message, event)
+        else:
+            if _COMFY_DEBUG:
+                _dbg("ws drop send_bytes event={} sid_missing={}".format(event, _mask_value(sid)))
 
     async def send_json(self, event, data, sid=None):
         message = {"type": event, "data": data}
 
         if sid is None:
-            sockets = list(self.sockets.values())
-            for ws in sockets:
-                await send_socket_catch_exception(ws.send_json, message)
+            sockets = list(self.sockets.items())
+            for socket_sid, ws in sockets:
+                await self._send_ws_json(socket_sid, ws, message, event)
         elif sid in self.sockets:
-            await send_socket_catch_exception(self.sockets[sid].send_json, message)
+            await self._send_ws_json(sid, self.sockets[sid], message, event)
+        else:
+            if _COMFY_DEBUG:
+                _dbg("ws drop send_json event={} sid_missing={}".format(event, _mask_value(sid)))
 
     def send_sync(self, event, data, sid=None):
         self.loop.call_soon_threadsafe(
@@ -1320,7 +1511,25 @@ class PromptServer():
     async def publish_loop(self):
         while True:
             msg = await self.messages.get()
-            await self.send(*msg)
+            start = time.monotonic()
+            try:
+                await self.send(*msg)
+            except Exception:
+                logging.error("[Prompt Server] publish_loop send failed")
+                logging.error(traceback.format_exc())
+            finally:
+                if _COMFY_DEBUG:
+                    dur = time.monotonic() - start
+                    if dur >= _COMFY_SEND_WARN_SEC:
+                        try:
+                            event, _data, sid = msg
+                        except Exception:
+                            event, sid = "?", None
+                        _dbg(
+                            "publish_loop slow event={} sid={} sec={:.3f} qsize={}".format(
+                                event, _mask_value(sid), dur, self.messages.qsize()
+                            )
+                        )
 
     async def start(self, address, port, verbose=True, call_on_start=None):
         await self.start_multi_address([(address, port)], call_on_start=call_on_start)
