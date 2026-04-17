@@ -6373,7 +6373,7 @@
   },
   "786": {
     "inputs": {
-      "model_path": "svdq-int4_r32-flux.1-dev.safetensors",
+      "model_path": "svdq-fp4_r32-flux.1-dev.safetensors",
       "cache_threshold": [
         "728",
         12
