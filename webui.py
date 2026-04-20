@@ -3713,6 +3713,8 @@ with shared.gradio_root:
 
                 scene_generation_model_ctrls = [scene_base_model, scene_refiner_model]
                 scene_generation_lora_ctrls = [scene_use_lora] + scene_lora_ctrls
+                scene_lora_ctrl_count_state = gr.State(len(scene_lora_ctrls))
+                scene_batch_lora_ctrls = [scene_use_lora, scene_lora_ctrl_count_state] + scene_lora_ctrls
                 refresh_files_output = [base_model, refiner_model, vae_name] + scene_generation_model_ctrls + scene_lora_ctrls
                 refresh_files_targets = refresh_files_output + lora_ctrls
                 refresh_files.click(refresh_files_clicked, [state_topbar, model_filter_state], refresh_files_output + lora_ctrls,
@@ -4304,7 +4306,7 @@ with shared.gradio_root:
                 scene_switch_option1, scene_switch_option2, scene_switch_option3, scene_switch_option4, scene_aspect_ratio,
                 scene_image_number, scene_video, scene_audio, scene_original_video_path, active_video_source,
                 sam3_input_video, sam3_original_video_path, sam3_mask_video
-            ] + scene_generation_model_ctrls + scene_generation_lora_ctrls + ctrls + [resolution_multiplier, resolution_quantize_step, state_topbar],
+            ] + scene_generation_model_ctrls + scene_batch_lora_ctrls + ctrls + [resolution_multiplier, resolution_quantize_step, state_topbar],
             outputs=[progress_html, progress_window, progress_gallery, progress_video, gallery, comparison_state, comparison_box, compare_btn, stop_button, skip_button, generate_button, state_is_generating, scene_batch_status, scene_batch_id],
             show_progress=False
         )

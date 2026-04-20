@@ -100,11 +100,25 @@ def stop_batch(batch_id, worker=None):
 
 def fill_backend_meta(args_norm, state):
     try:
-        if not isinstance(args_norm, list) or len(args_norm) <= 67:
+        if not isinstance(args_norm, list):
             return args_norm
-        backend = args_norm[67]
+        import simpleai_base.api_params as api_params
+        try:
+            params_backend_index = api_params.all_args.index("params_backend")
+        except Exception:
+            params_backend_index = 67
+        if len(args_norm) <= params_backend_index:
+            return args_norm
+
+        backend = args_norm[params_backend_index]
         if not isinstance(backend, list):
             return args_norm
+
+        backend_args = getattr(api_params, "backend_args", [])
+        if not isinstance(backend_args, list) or len(backend_args) == 0:
+            return args_norm
+        backend_idx = {name: i for i, name in enumerate(backend_args)}
+
         user = state.get("user") if isinstance(state, dict) else None
         preset = state.get("__preset") if isinstance(state, dict) else None
         engine_type = state.get("engine_type") if isinstance(state, dict) else None
@@ -112,10 +126,15 @@ def fill_backend_meta(args_norm, state):
             engine_type = state.get("default_engine", {}).get("engine_type")
         nickname = user.get_nickname() if user is not None else ""
         user_did = user.get_did() if user is not None else ""
-        backend[1] = preset if preset is not None else backend[1]
-        backend[3] = nickname if nickname is not None else ""
-        backend[4] = user_did if user_did is not None else ""
-        backend[-1] = engine_type if engine_type is not None else backend[-1]
+
+        if preset is not None and "preset" in backend_idx:
+            backend[backend_idx["preset"]] = preset
+        if "nickname" in backend_idx:
+            backend[backend_idx["nickname"]] = nickname if nickname is not None else ""
+        if "user_did" in backend_idx:
+            backend[backend_idx["user_did"]] = user_did if user_did is not None else ""
+        if engine_type is not None and "engine_type" in backend_idx:
+            backend[backend_idx["engine_type"]] = engine_type
     except Exception:
         return args_norm
     return args_norm
@@ -360,13 +379,17 @@ def batch_run_scene(folder_path, upload_files, target, seed_random, image_seed, 
                     scene_var_number7, scene_var_number8, scene_var_number9, scene_var_number10, scene_steps,
                     scene_switch_option1, scene_switch_option2, scene_switch_option3, scene_switch_option4, scene_aspect_ratio,
                     scene_image_number, scene_video, scene_audio, scene_original_video_path, active_video_source,
-                    sam3_input_video, sam3_original_video_path, sam3_mask_video, scene_base_model, scene_refiner_model, scene_use_lora, *args, get_task_with_resolution_multiplier, generate_clicked, worker, constants, html, get_welcome_image, api_params, topbar):
-    import modules.config
-
-    scene_lora_ctrl_count = modules.config.default_max_lora_number * 3
+                    sam3_input_video, sam3_original_video_path, sam3_mask_video, scene_base_model, scene_refiner_model, scene_use_lora, scene_lora_ctrl_count, *args, get_task_with_resolution_multiplier, generate_clicked, worker, constants, html, get_welcome_image, api_params, topbar):
+    try:
+        scene_lora_ctrl_count = int(scene_lora_ctrl_count)
+    except Exception:
+        scene_lora_ctrl_count = 0
+    if scene_lora_ctrl_count < 0:
+        scene_lora_ctrl_count = 0
 
     if len(args) < scene_lora_ctrl_count + 3:
         return
+
     scene_lora_ctrl_values = list(args[:scene_lora_ctrl_count])
     state = args[-1]
     is_mobile = state.get("__is_mobile", False) if isinstance(state, dict) else False
@@ -449,10 +472,15 @@ def batch_run_scene(folder_path, upload_files, target, seed_random, image_seed, 
             )
         except Exception:
             bp = {} if backend_params is None else copy.deepcopy(backend_params)
+
         backend_norm = api_params.normalization_backend(bp)
 
         args_i = copy.deepcopy(base_args)
-        args_i[67] = backend_norm
+        try:
+            params_backend_index = api_params.all_args.index("params_backend")
+        except Exception:
+            params_backend_index = 67
+        args_i[params_backend_index] = backend_norm
         args_i = fill_backend_meta(args_i, state)
         if fixed_seed is not None:
             try:
