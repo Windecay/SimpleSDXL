@@ -244,7 +244,7 @@ def check_base_environment():
 
     if torch.__version__ == '2.9.1+cu130':
         logger.info(f'当前环境：PyTorch 2.9.1+CUDA 13.0. 50系以上显卡支持Nvfp4模型加速推理.')
-        update_pkgs = [('comfyui_frontend_package', '1.42.8'), ('comfyui_workflow_templates', '0.9.44'), ('comfyui-embedded-docs', '0.4.3'), ('comfy-kitchen', '0.2.8'), ('comfy-aimdo', '0.2.12'), ('transformers', '4.57.6'), ('PyOpenGL', '3.1.10'), ('glfw', '2.10.0'), ('blake3', '1.0.8'), ('aiohttp', '3.13.3'),
+        update_pkgs = [('comfyui_frontend_package', '1.42.15'), ('comfyui_workflow_templates', '0.9.66'), ('comfyui-embedded-docs', '0.4.4'), ('comfy-kitchen', '0.2.8'), ('comfy-aimdo', '0.3.0'), ('transformers', '4.57.6'), ('PyOpenGL', '3.1.10'), ('glfw', '2.10.0'), ('blake3', '1.0.8'), ('aiohttp', '3.13.3'),
         ('ninja', '1.11.1.4'), ('numpy', '1.26.4'), ('absl-py', '2.4.0'), ('flatbuffers', '25.12.19'), ('mediapipe', '0.10.32'), ('psd-tools', '1.14.1'), ('docstring-parser', '0.17.0'), ('fire', '0.7.1'), ('flatten-dict', '0.4.2'), ('grpcio', '1.80.0'), ('julius', '0.2.7'), ('markdown', '3.10.2'), ('markdown2', '2.5.5'), ('pystoi', '0.4.1'), ('randomname', '0.2.1'), ('tensorboard', '2.20.0'), ('tensorboard-data-server', '0.7.2'), ('torch-stoi', '0.2.3'), ('werkzeug', '3.1.7'), ('sounddevice', '0.5.5')]
         for (update_pkg_name, update_pkg_version) in update_pkgs:
             if not is_installed_version(update_pkg_name, update_pkg_version):

@@ -156,6 +156,10 @@ def load_model_paths():
                         for p in (config.get("path_audio_encoders", [os.path.join(simplemodels_root, "audio_encoders")])
                                     if isinstance(config.get("path_audio_encoders"), list)
                                     else [config.get("path_audio_encoders") or os.path.join(simplemodels_root, "audio_encoders")])],
+            "frame_interpolation": [os.path.abspath(os.path.join(script_dir, p)) if not os.path.isabs(p) else p
+                        for p in (config.get("path_frame_interpolation", [os.path.join(simplemodels_root, "frame_interpolation")])
+                                    if isinstance(config.get("path_frame_interpolation"), list)
+                                    else [config.get("path_frame_interpolation") or os.path.join(simplemodels_root, "frame_interpolation")])],
             "text_encoders": [os.path.abspath(os.path.join(script_dir, p)) if not os.path.isabs(p) else p
                         for p in (config.get("path_text_encoders", [os.path.join(simplemodels_root, "text_encoders")])
                                 if isinstance(config.get("path_text_encoders"), list)
@@ -216,6 +220,7 @@ def load_model_paths():
             "prompt_expansion": [os.path.normpath(os.path.join(simplemodels_root, "prompt_expansion"))],
             "model_patches": [os.path.join(simplemodels_root, "model_patches")],
             "audio_encoders": [os.path.join(simplemodels_root, "audio_encoders")],
+            "frame_interpolation": [os.path.join(simplemodels_root, "frame_interpolation")],
             "text_encoders": [os.path.join(simplemodels_root, "text_encoders")],
             "lsnet": [os.path.join(simplemodels_root, "lsnet")],
             "kaloscope": [os.path.join(simplemodels_root, "lsnet", "kaloscope")],
@@ -1047,7 +1052,7 @@ def delete_partial_files():
         'checkpoints', 'loras', 'controlnet', 'embeddings', 'diffusion_models',
         'vae_approx', 'vae', 'upscale_models', 'inpaint', "ipadapter",
         'clip', 'clip_vision', 'llms', 'LLM', 'unet', 'diffusers', 'model_patches',
-        'text_encoders', 'audio_encoders', 'safety_checker', 'layer_model', 'pulid', 'insightface',
+        'text_encoders', 'audio_encoders', 'frame_interpolation', 'safety_checker', 'layer_model', 'pulid', 'insightface',
         'prompt_expansion', 'fooocus_expansion', 'gemma3', 'jina_clip', 'rembg', 'sam3', 'sams', 'qwen-tts',
         'latent_upscale_models', 'hunyuan_foley',
     ]
@@ -1123,7 +1128,7 @@ def _find_obsolete_model_files():
         'checkpoints', 'loras', 'controlnet', 'embeddings',
         'vae_approx', 'vae', 'upscale_models', 'inpaint', "ipadapter",
         'clip', 'clip_vision', 'llms', 'LLM', 'unet', 'diffusers', 'model_patches',
-        'text_encoders', 'audio_encoders', 'safety_checker', 'layer_model', 'pulid', 'insightface',
+        'text_encoders', 'audio_encoders', 'frame_interpolation', 'safety_checker', 'layer_model', 'pulid', 'insightface',
         'prompt_expansion', 'fooocus_expansion', 'gemma3', 'jina_clip', 'rembg', 'sam3', 'sams', 'qwen-tts',
         'latent_upscale_models', 'hunyuan_foley',
     ]
@@ -2435,6 +2440,7 @@ packages = {'base_package': {'id': 1,
                   'files': ['controlnet,ip-adapter-plus-face_sdxl_vit-h.bin,1013454761,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/controlnet/ip-adapter-plus-face_sdxl_vit-h.bin,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/controlnet/ip-adapter-plus-face_sdxl_vit-h.bin',
                             'controlnet,ip-adapter-plus_sdxl_vit-h.bin,1013454427,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/controlnet/ip-adapter-plus_sdxl_vit-h.bin,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/controlnet/ip-adapter-plus_sdxl_vit-h.bin',
                             'controlnet,xinsir_cn_union_sdxl_1.0_promax.safetensors,2513342408,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/controlnet/xinsir_cn_union_sdxl_1.0_promax.safetensors,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/controlnet/xinsir_cn_union_sdxl_1.0_promax.safetensors',
+                            'loras,sd_xl_offset_example-lora_1.0.safetensors,49553604,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/loras/sd_xl_offset_example-lora_1.0.safetensors,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/loras/sd_xl_offset_example-lora_1.0.safetensors',
                             'loras,ip-adapter-faceid-plusv2_sdxl_lora.safetensors,371842896,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/loras/ip-adapter-faceid-plusv2_sdxl_lora.safetensors,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/loras/ip-adapter-faceid-plusv2_sdxl_lora.safetensors',
                             'loras,sdxl_lightning_4step_lora.safetensors,393854592,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/loras/sdxl_lightning_4step_lora.safetensors,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/loras/sdxl_lightning_4step_lora.safetensors',
                             'upscale_models,fooocus_upscaler_s409985e5.bin,33636613,0,https://www.modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/SimpleModels/upscale_models/fooocus_upscaler_s409985e5.bin,https://huggingface.co/metercai/SimpleSDXL2/resolve/main/SimpleModels/upscale_models/fooocus_upscaler_s409985e5.bin',

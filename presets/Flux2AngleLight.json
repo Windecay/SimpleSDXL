@@ -33,7 +33,7 @@
                     "Flux2-AngleLight-1536px": [["-normalization"]],
                     "Flux2-AngleLight-2048px": [["-normalization"]]
             },
-            "var_number4_title": "颜色匹配原图",
+            "var_number4_title": "Match original colors",
             "var_number4_min": 0,
             "var_number4_max": 1.0,
             "var_number4": {
@@ -41,13 +41,13 @@
                 "Flux2-AngleLight-1536px": 0,
                 "Flux2-AngleLight-2048px": 0
             },
-            "switch_option1_title": "自定义比例[下方选择]",
+            "switch_option1_title": "Custom aspect ratio [choose below]",
             "switch_option1": {
                 "Flux2-AngleLight-1024px": false,
                 "Flux2-AngleLight-1536px": false,
                 "Flux2-AngleLight-2048px": false
             },
-            "additional_prompt_title_2": "灯光参数",
+            "additional_prompt_title_2": "Lighting parameters",
             "additional_prompt_2": {
                 "Flux2-AngleLight-1024px": "SCENE LOCK, FIXED VIEWPOINT, maintaining character consistency and pose. RELIGHTING ONLY: light source from the right, high-angle light source, bright colored light (#FFFFFF), cinematic relighting",
                 "Flux2-AngleLight-1536px": "SCENE LOCK, FIXED VIEWPOINT, maintaining character consistency and pose. RELIGHTING ONLY: light source from the right, high-angle light source, bright colored light (#FFFFFF), cinematic relighting",

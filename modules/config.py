@@ -362,6 +362,7 @@ paths_pulid = get_dir_or_set_default('path_pulid', f'{path_models_root}/pulid', 
 paths_insightface = get_dir_or_set_default('path_insightface', f'{path_models_root}/insightface', True)
 paths_style_models = get_dir_or_set_default('path_style_models', f'{path_models_root}/style_models', True)
 paths_audio_encoders = get_dir_or_set_default('path_audio_encoders', f'{path_models_root}/audio_encoders', True)
+paths_frame_interpolation = get_dir_or_set_default('path_frame_interpolation', f'{path_models_root}/frame_interpolation', True)
 paths_model_patches = get_dir_or_set_default('path_model_patches', f'{path_models_root}/model_patches', True)
 paths_detection = get_dir_or_set_default('path_detection', f'{path_models_root}/detection', True)
 paths_ultralytics = get_dir_or_set_default('path_ultralytics', f'{path_models_root}/ultralytics', True)
@@ -398,6 +399,7 @@ model_cata_map = {
     'insightface': paths_insightface,
     'style_models': paths_style_models,
     'audio_encoders': paths_audio_encoders,
+    'frame_interpolation': paths_frame_interpolation,
     'model_patches': paths_model_patches,
     'detection': paths_detection,
     'ultralytics': paths_ultralytics,
@@ -1213,6 +1215,7 @@ comfyui:
      insightface: {insightface}
      style_models: {style_models}
      audio_encoders: {audio_encoders}
+     frame_interpolation: {frame_interpolation}
      model_patches: {model_patches}
      detection: {detection}
      text_encoders: {text_encoders}
@@ -1245,6 +1248,7 @@ config_comfy_text = config_comfy_formatted_text.format(
         insightface=paths2str(paths_insightface, 'insightface'),
         style_models=paths2str(paths_style_models, 'style_models'),
         audio_encoders=paths2str(paths_audio_encoders, 'audio_encoders'),
+        frame_interpolation=paths2str(paths_frame_interpolation, 'frame_interpolation'),
         model_patches=paths2str(paths_model_patches, 'model_patches'),
         detection=paths2str(paths_detection, 'detection'),
         text_encoders=paths2str(paths_text_encoders + paths_clip, 'text_encoders'),

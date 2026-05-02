@@ -31,13 +31,9 @@ def install_requirements_sequential():
 
     force_reinstall_names = set()
     try:
-        check_cmd = [python_exe]
-        if sys.flags.no_user_site or ("python_embeded" in python_exe) or ("python_embedded" in python_exe):
-            check_cmd.append("-s")
-        check_cmd += ["-c", "from aiohttp import web; import sys; sys.exit(0)"]
-        res = subprocess.run(check_cmd, check=False, timeout=10)
-        if res.returncode != 0:
-            force_reinstall_names.add("aiohttp")
+        importlib.metadata.version('aiohttp')
+    except importlib.metadata.PackageNotFoundError:
+        force_reinstall_names.add("aiohttp")
     except Exception:
         force_reinstall_names.add("aiohttp")
 
@@ -88,6 +84,7 @@ def install_requirements_sequential():
             cmd += ["-m", "pip", "install", "-U", "--upgrade-strategy", "only-if-needed"]
             if force_reinstall:
                 cmd.append("--force-reinstall")
+                cmd.append("--no-deps")
             cmd += [req_line, "--prefer-binary"]
 
             if index_url:
