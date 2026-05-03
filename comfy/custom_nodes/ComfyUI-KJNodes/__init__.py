@@ -7,6 +7,9 @@ from .nodes.intrinsic_lora_nodes import *
 from .nodes.mask_nodes import *
 from .nodes.model_optimization_nodes import *
 from .nodes.lora_nodes import *
+from .nodes.image_transform_node import ImageTransformKJ
+from .nodes.sharpen_nodes import ImageSharpenKJ
+from .nodes.hdr_preview_node import HDRPreviewKJ
 
 
 NODE_CONFIG = {
@@ -57,10 +60,12 @@ NODE_CONFIG = {
     "CrossFadeImagesMulti": {"class": CrossFadeImagesMulti, "name": "Cross Fade Images Multi"},
     "GetImagesFromBatchIndexed": {"class": GetImagesFromBatchIndexed, "name": "Get Images From Batch Indexed"},
     "GetImageRangeFromBatch": {"class": GetImageRangeFromBatch, "name": "Get Image or Mask Range From Batch"},
+    "RandomImageFromBatch": {"class": RandomImageFromBatch, "name": "Random Image From Batch"},
     "GetLatentRangeFromBatch": {"class": GetLatentRangeFromBatch, "name": "Get Latent Range From Batch"},
     "GetLatentSizeAndCount": {"class": GetLatentSizeAndCount, "name": "Get Latent Size & Count"},
     "GetImageSizeAndCount": {"class": GetImageSizeAndCount, "name": "Get Image Size & Count"},
     "FastPreview": {"class": FastPreview, "name": "Fast Preview"},
+    "FastPreviewBatch": {"class": FastPreviewBatch, "name": "Fast Preview Batch"},
     "ImageBatchFilter": {"class": ImageBatchFilter, "name": "Image Batch Filter"},
     "ImageAndMaskPreview": {"class": ImageAndMaskPreview},
     "ImageAddMulti": {"class": ImageAddMulti, "name": "Image Add Multi"},
@@ -108,6 +113,11 @@ NODE_CONFIG = {
     "TransitionImagesMulti": {"class": TransitionImagesMulti, "name": "Transition Images Multi"},
     "TransitionImagesInBatch": {"class": TransitionImagesInBatch, "name": "Transition Images In Batch"},
     "EncodeVideoComponents": {"class": EncodeVideoComponents, "name": "Encode Video Components"},
+    "DecodeAndSaveVideo": {"class": DecodeAndSaveVideo, "name": "Decode And Save Video"},
+    "ImageTransformKJ": {"class": ImageTransformKJ, "name": "Image Transform KJ"},
+    "HDRPreviewKJ": {"class": HDRPreviewKJ, "name": "HDR Preview KJ"},
+    "PreviewImageOrMask": {"class": PreviewImageOrMask, "name": "Preview Image Or Mask"},
+    "ImageSharpenKJ": {"class": ImageSharpenKJ, "name": "Image Sharpen KJ"},
     #batch cropping
     "BatchCropFromMask": {"class": BatchCropFromMask, "name": "Batch Crop From Mask"},
     "BatchCropFromMaskAdvanced": {"class": BatchCropFromMaskAdvanced, "name": "Batch Crop From Mask Advanced"},
@@ -180,6 +190,7 @@ NODE_CONFIG = {
     "Intrinsic_lora_sampling": {"class": Intrinsic_lora_sampling, "name": "Intrinsic Lora Sampling"},
     "CheckpointPerturbWeights": {"class": CheckpointPerturbWeights, "name": "CheckpointPerturbWeights"},
     "Screencap_mss": {"class": Screencap_mss, "name": "Screencap mss"},
+    "ScreencapStream": {"class": ScreencapStream, "name": "Screencap Stream"},
     "WebcamCaptureCV2": {"class": WebcamCaptureCV2, "name": "Webcam Capture CV2"},
     "DifferentialDiffusionAdvanced": {"class": DifferentialDiffusionAdvanced, "name": "Differential Diffusion Advanced"},
     "DiTBlockLoraLoader": {"class": DiTBlockLoraLoader, "name": "DiT Block Lora Loader"},
@@ -221,6 +232,7 @@ NODE_CONFIG = {
     "ModelMemoryUsageFactorOverride": {"class": ModelMemoryUsageFactorOverride, "name": "Model Memory Usage Factor Override"},
     "WanChunkFeedForward": {"class": WanChunkFeedForward, "name": "Wan ChunkFeedForward"},
     "SamplerSelfRefineVideo": {"class": SamplerSelfRefineVideo, "name": "Sampler SelfRefineVideo"},
+    "PlaySoundKJ": {"class": PlaySoundKJ, "name": "Play Sound KJ"},
 
     #instance diffusion
     "CreateInstanceDiffusionTracking": {"class": CreateInstanceDiffusionTracking},

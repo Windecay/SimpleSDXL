@@ -175,14 +175,11 @@ class CheckpointLoaderKJ():
             args.fast.discard("cublas_ops")
 
         ckpt_path = folder_paths.get_full_path_or_raise("checkpoints", ckpt_name)
-        sd, metadata = comfy.utils.load_torch_file(ckpt_path, return_metadata=True)
-
-        model, clip, vae, _ = comfy.sd.load_state_dict_guess_config(
-            sd,
+        model, clip, vae, _ = comfy.sd.load_checkpoint_guess_config(
+            ckpt_path,
             output_vae=True,
             output_clip=True,
             embedding_directory=folder_paths.get_folder_paths("embeddings"),
-            metadata=metadata,
             model_options=model_options)
 
         if dtype := DTYPE_MAP.get(compute_dtype):
@@ -237,6 +234,28 @@ class DiffusionModelSelector():
         else:
             model_path = folder_paths.get_full_path_or_raise("diffusion_models", model_name)
         return (model_path,)
+
+def _load_diffusion_model_kj(unet_path, model_options=None, extra_state_dict=None, disable_dynamic=False):
+    model_options = {} if model_options is None else dict(model_options)
+
+    sd, metadata = comfy.utils.load_torch_file(unet_path, return_metadata=True)
+    if extra_state_dict is not None:
+        extra_sd = comfy.utils.load_torch_file(extra_state_dict)
+        sd.update(extra_sd)
+        del extra_sd
+
+        diffusion_model_prefix = comfy.sd.model_detection.unet_prefix_from_state_dict(sd)
+        sd = comfy.utils.state_dict_prefix_replace(sd, {diffusion_model_prefix: ""}, filter_keys=False)
+
+    model = comfy.sd.load_diffusion_model_state_dict(
+        sd,
+        model_options=model_options,
+        metadata=metadata,
+        disable_dynamic=disable_dynamic,
+    )
+
+    model.cached_patcher_init = (_load_diffusion_model_kj, (unet_path, model_options, extra_state_dict))
+    return model
 
 class DiffusionModelLoaderKJ():
     @classmethod
@@ -293,16 +312,7 @@ class DiffusionModelLoaderKJ():
 
         unet_path = folder_paths.get_full_path_or_raise("diffusion_models", model_name)
 
-        sd, metadata = comfy.utils.load_torch_file(unet_path, return_metadata=True)
-        if extra_state_dict is not None:
-            extra_sd = comfy.utils.load_torch_file(extra_state_dict)
-            sd.update(extra_sd)
-            del extra_sd
-
-            diffusion_model_prefix = comfy.sd.model_detection.unet_prefix_from_state_dict(sd)
-            sd = comfy.utils.state_dict_prefix_replace(sd, {diffusion_model_prefix: ""}, filter_keys=False)
-
-        model = comfy.sd.load_diffusion_model_state_dict(sd, model_options=model_options, metadata=metadata)
+        model = _load_diffusion_model_kj(unet_path, model_options=model_options, extra_state_dict=extra_state_dict)
         if dtype := DTYPE_MAP.get(compute_dtype):
             model.set_model_compute_dtype(dtype)
             model.force_cast_weights = False
@@ -1671,7 +1681,10 @@ class GGUFLoaderKJ(io.ComfyNode):
         if extra_model_name is not None and extra_model_name != "none":
             if extra_model_name.endswith(".gguf"):
                 extra_model_full_path = folder_paths.get_full_path("unet", extra_model_name)
-                extra_model = gguf_nodes.loader.gguf_sd_loader(extra_model_full_path)
+                try:
+                    extra_model, _ = gguf_nodes.loader.gguf_sd_loader(extra_model_full_path)
+                except:
+                    extra_model = gguf_nodes.loader.gguf_sd_loader(extra_model_full_path)
             elif "connector" in extra_model_name.lower():
                 extra_model_full_path = folder_paths.get_full_path("text_encoders", extra_model_name)
                 extra_model = comfy.utils.load_torch_file(extra_model_full_path)
