@@ -2599,37 +2599,13 @@
         0
       ],
       "on_false": [
-        "423",
+        "849",
         0
       ]
     },
     "class_type": "easy ifElse",
     "_meta": {
       "title": "If else"
-    }
-  },
-  "423": {
-    "inputs": {
-      "clip_l": [
-        "719",
-        0
-      ],
-      "t5xxl": [
-        "719",
-        0
-      ],
-      "guidance": [
-        "728",
-        4
-      ],
-      "clip": [
-        "766",
-        0
-      ]
-    },
-    "class_type": "CLIPTextEncodeFlux",
-    "_meta": {
-      "title": "i2i_enhance_area_prompt_1"
     }
   },
   "424": {
@@ -5784,6 +5760,22 @@
     "class_type": "LoraLoaderModelOnly",
     "_meta": {
       "title": "lora_10"
+    }
+  },
+  "849": {
+    "inputs": {
+      "text": [
+        "719",
+        0
+      ],
+      "clip": [
+        "766",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Prompt)"
     }
   }
 }

@@ -1950,7 +1950,7 @@ def worker():
                     if isinstance(canvas_image, np.ndarray):
                         canvas_image = HWC3(canvas_image)
                     input_images.set_image('i2i_inpaint_image', canvas_image)
-                    input_images.set_image('i2i_inpaint_mask', canvas_mask)
+                    input_images.set_image('i2i_inpaint_mask', HWC3(canvas_mask))
                 if async_task.scene_steps is not None:
                     async_task.steps = async_task.scene_steps
                     #all_steps = async_task.steps * async_task.image_number
@@ -2140,7 +2140,7 @@ def worker():
                     async_task.params_backend['i2i_inpaint_version'] = async_task.inpaint_engine
                     async_task.params_backend['i2i_function'] = 3 # image inpaint
                     input_images.set_image(f'i2i_inpaint_image', inpaint_worker.current_task.interested_image)
-                    input_images.set_image(f'i2i_inpaint_mask', inpaint_worker.current_task.interested_mask)
+                    input_images.set_image(f'i2i_inpaint_mask', HWC3(inpaint_worker.current_task.interested_mask))
                     if async_task.inpaint_disable_initial_latent:
                         async_task.params_backend['i2i_inpaint_disable_initial_latent'] = async_task.inpaint_disable_initial_latent
                     inpaint_engine_model_index = f'{async_task.task_method}_{async_task.inpaint_engine}'
