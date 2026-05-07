@@ -934,7 +934,7 @@
         2
       ],
       "keep_proportions": false,
-      "upscale_method": "lanczos",
+      "upscale_method": "nearest-exact",
       "crop": "disabled",
       "mask": [
         "657",

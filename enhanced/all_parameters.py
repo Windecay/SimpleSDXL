@@ -116,7 +116,7 @@ default = {
     'backfill_prompt': False,
     'translation_methods': 'Third APIs',
     'backend': 'SDXL',
-    'comfyd_active_checkbox': False,
+    'comfyd_active_checkbox': True,
     'image_catalog_max_number': 65,
     'clip_skip': 2,
     'vae': 'Default (model)',

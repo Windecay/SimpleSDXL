@@ -807,10 +807,9 @@ if shared.args.gpu_device_id is not None:
 if shared.sysinfo["gpu_memory"]<4000 and not shared.args.disable_backend:
     logger.info(f'The GPU memory capacity of the system is too small to run the latest models such as Flux, SD3m, Kolors, and HyDiT properly, and the Comfyd engine will be automatically disabled.')
     logger.info(f'系统GPU显存容量太小，或是检测不到GPU实际容量，可能是操作系统阻止或需要升级硬件。')
-    logger.info(f'有任何疑问可到SimpleSDXL的QQ群交流: 1005085136')
+    logger.info(f'有任何疑问可到SimpAI的QQ群交流: 1005085136')
     shared.args.async_cuda_allocation = False
     shared.args.disable_async_cuda_allocation = True
-    shared.args.disable_comfyd = True
 
 if shared.args.async_cuda_allocation:
     env_var = os.environ.get('PYTORCH_CUDA_ALLOC_CONF', None)
