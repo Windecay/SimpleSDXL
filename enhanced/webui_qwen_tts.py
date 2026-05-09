@@ -175,6 +175,69 @@ class QwenTTSWrapper:
         self.loaded_model = None
         self.model_config = {}
 
+    @staticmethod
+    def _patch_chunked_decode(model, decode_bs):
+        from contextlib import contextmanager
+        @contextmanager
+        def _ctx():
+            if decode_bs <= 0:
+                yield
+                return
+            targets = []
+            for attr in ("speech_tokenizer",):
+                tok = getattr(model, attr, None)
+                if tok is not None and hasattr(tok, "decode"):
+                    targets.append(tok)
+                inner = getattr(model, "model", None)
+                if inner is not None:
+                    tok2 = getattr(inner, attr, None)
+                    if tok2 is not None and tok2 not in targets and hasattr(tok2, "decode"):
+                        targets.append(tok2)
+            if not targets:
+                yield
+                return
+            originals = [t.decode for t in targets]
+
+            def _make_chunked(orig_fn):
+                def _chunked(input_ids_list, **kwargs):
+                    all_wavs = []
+                    fs = None
+                    for cs in range(0, len(input_ids_list), decode_bs):
+                        chunk = input_ids_list[cs:cs + decode_bs]
+                        wavs_c, fs_c = orig_fn(chunk, **kwargs)
+                        all_wavs.extend(wavs_c)
+                        if fs is None:
+                            fs = fs_c
+                    return all_wavs, fs
+                return _chunked
+
+            patched = _make_chunked(originals[0])
+            for t in targets:
+                t.decode = patched
+            try:
+                yield
+            finally:
+                for t, o in zip(targets, originals):
+                    t.decode = o
+
+        return _ctx()
+
+    @staticmethod
+    def _clear_gpu_cache():
+        import gc
+        gc.collect()
+        if torch.cuda.is_available():
+            torch.cuda.synchronize()
+            torch.cuda.empty_cache()
+            torch.cuda.ipc_collect()
+
+    @staticmethod
+    def _move_audio_to_cpu(seg_audio: Dict[str, Any]) -> Dict[str, Any]:
+        w = seg_audio.get("waveform")
+        if isinstance(w, torch.Tensor):
+            seg_audio["waveform"] = w.detach().cpu()
+        return seg_audio
+
     def _parse_pause_markup(self, text: str) -> List[Tuple[str, Any]]:
         if text is None:
             return []
@@ -327,7 +390,7 @@ class QwenTTSWrapper:
                 dtype = w.dtype
         if n <= 0:
             n = 0
-        return {"waveform": torch.zeros((1, channels, n), dtype=dtype), "sample_rate": sample_rate}
+        return {"waveform": torch.zeros((1, channels, n), dtype=dtype, device="cpu"), "sample_rate": sample_rate}
 
     def _split_long_text(self, text: str, max_chars: int = 200, hard_max_chars: int = 260) -> List[str]:
         if text is None:
@@ -675,6 +738,7 @@ class QwenTTSWrapper:
         unload_model_after_generate=False,
         lock_timbre_with_first_segment=False,
         clone_batch_size=4,
+        decode_batch_size=2,
         max_chars=200,
         hard_max_chars=260,
         progress_callback=None,
@@ -734,6 +798,8 @@ class QwenTTSWrapper:
                 leading_pause_s = 120.0
 
             sr_known = None
+            bs_original = bs
+            batches_since_success = 0
             actions = plan[i:]
             cursor = 0
             while cursor < len(actions):
@@ -766,26 +832,24 @@ class QwenTTSWrapper:
                         except Exception:
                             pass
                     try:
-                        wavs, sr = model.generate_voice_design(
-                            text=batch_texts,
-                            instruct=instruct,
-                            language=[mapped_lang] * len(batch_texts),
-                            max_new_tokens=per_seg_tokens,
-                            top_p=top_p,
-                            top_k=top_k,
-                            temperature=temperature,
-                            repetition_penalty=repetition_penalty,
-                        )
-                        try:
-                            if torch.cuda.is_available():
-                                torch.cuda.empty_cache()
-                                torch.cuda.ipc_collect()
-                        except Exception:
-                            pass
+                        self._clear_gpu_cache()
+                        with self._patch_chunked_decode(model, int(decode_batch_size)):
+                            wavs, sr = model.generate_voice_design(
+                                text=batch_texts,
+                                instruct=instruct,
+                                language=[mapped_lang] * len(batch_texts),
+                                max_new_tokens=per_seg_tokens,
+                                top_p=top_p,
+                                top_k=top_k,
+                                temperature=temperature,
+                                repetition_penalty=repetition_penalty,
+                            )
+                        self._clear_gpu_cache()
                     except RuntimeError as e:
                         msg = str(e).lower()
                         if ("out of memory" in msg or "cuda" in msg) and bs > 1:
                             bs = max(1, bs // 2)
+                            self._clear_gpu_cache()
                             continue
                         raise
                     for w, pause_s in zip(wavs, batch_pauses):
@@ -795,6 +859,7 @@ class QwenTTSWrapper:
                         elif waveform.ndim == 2:
                             waveform = waveform.unsqueeze(0)
                         seg_audio = {"waveform": waveform, "sample_rate": sr}
+                        self._move_audio_to_cpu(seg_audio)
                         if sr_known is None:
                             sr_known = int(sr)
                         if not audios and leading_pause_s > 0.0:
@@ -804,6 +869,11 @@ class QwenTTSWrapper:
                         if pause_s and float(pause_s) > 0.0:
                             audios.append(self._make_silence_audio_dict(int(sr_known), float(pause_s), seg_audio))
                         done_count += 1
+                    del wavs
+                    batches_since_success += 1
+                    if bs < bs_original and batches_since_success >= 3:
+                        bs = min(bs + 1, bs_original)
+                        batches_since_success = 0
                     start_index += len(batch_texts)
         else:
             if callable(progress_callback):
@@ -839,6 +909,8 @@ class QwenTTSWrapper:
                 unload_model_after_generate=False,
             )
             first_audio = self._extract_audio_dict(first_result)
+            self._move_audio_to_cpu(first_audio)
+            self._clear_gpu_cache()
             if leading_pause_s > 0.0:
                 audios.append(self._make_silence_audio_dict(int(first_audio.get("sample_rate", 24000)), leading_pause_s, first_audio))
             audios.append(first_audio)
@@ -879,12 +951,15 @@ class QwenTTSWrapper:
                 x_vector_only=False,
                 unload_model_after_generate=False,
             )[0]
+            self._clear_gpu_cache()
 
             model = load_qwen_model("Base", model_choice, device, precision, attention, False, None, "")
             mapped_lang = LANGUAGE_MAP.get(language, "auto")
 
             done_count = 1
             sr_known = int(first_audio.get("sample_rate", 24000))
+            bs_original = bs
+            batches_since_success = 0
             if first_text_index is None:
                 actions = []
             else:
@@ -924,28 +999,26 @@ class QwenTTSWrapper:
                         except Exception:
                             pass
                     try:
-                        wavs, sr = model.generate_voice_clone(
-                            text=batch_texts,
-                            language=[mapped_lang] * len(batch_texts),
-                            voice_clone_prompt=voice_clone_prompt,
-                            ref_text=first_text,
-                            x_vector_only_mode=False,
-                            max_new_tokens=per_seg_tokens,
-                            top_p=top_p,
-                            top_k=top_k,
-                            temperature=temperature,
-                            repetition_penalty=repetition_penalty,
-                        )
-                        try:
-                            if torch.cuda.is_available():
-                                torch.cuda.empty_cache()
-                                torch.cuda.ipc_collect()
-                        except Exception:
-                            pass
+                        self._clear_gpu_cache()
+                        with self._patch_chunked_decode(model, int(decode_batch_size)):
+                            wavs, sr = model.generate_voice_clone(
+                                text=batch_texts,
+                                language=[mapped_lang] * len(batch_texts),
+                                voice_clone_prompt=voice_clone_prompt,
+                                ref_text=first_text,
+                                x_vector_only_mode=False,
+                                max_new_tokens=per_seg_tokens,
+                                top_p=top_p,
+                                top_k=top_k,
+                                temperature=temperature,
+                                repetition_penalty=repetition_penalty,
+                            )
+                        self._clear_gpu_cache()
                     except RuntimeError as e:
                         msg = str(e).lower()
                         if ("out of memory" in msg or "cuda" in msg) and bs > 1:
-                            bs = 1
+                            bs = max(1, bs // 2)
+                            self._clear_gpu_cache()
                             continue
                         raise
 
@@ -956,11 +1029,17 @@ class QwenTTSWrapper:
                         elif waveform.ndim == 2:
                             waveform = waveform.unsqueeze(0)
                         seg_audio = {"waveform": waveform, "sample_rate": sr}
+                        self._move_audio_to_cpu(seg_audio)
                         sr_known = int(sr)
                         audios.append(seg_audio)
                         if pause_s and float(pause_s) > 0.0:
                             audios.append(self._make_silence_audio_dict(int(sr_known), float(pause_s), seg_audio))
                         done_count += 1
+                    del wavs
+                    batches_since_success += 1
+                    if bs < bs_original and batches_since_success >= 3:
+                        bs = min(bs + 1, bs_original)
+                        batches_since_success = 0
                     start_index += len(batch_texts)
 
         merge_gap = 0.0 if saw_pause_markup else 0.4
@@ -1023,6 +1102,7 @@ class QwenTTSWrapper:
         unload_model_after_generate=False,
         custom_model_path="",
         batch_size=4,
+        decode_batch_size=2,
         max_chars=200,
         hard_max_chars=260,
         progress_callback=None,
@@ -1067,6 +1147,7 @@ class QwenTTSWrapper:
             x_vector_only=bool(x_vector_only),
             unload_model_after_generate=False,
         )[0]
+        self._clear_gpu_cache()
         if callable(progress_callback):
             try:
                 progress_callback(5, f"提取声音特征，准备分段：{len(segments)} 段")
@@ -1087,6 +1168,8 @@ class QwenTTSWrapper:
         audios = []
         done_count = 0
         sr_known = None
+        bs_original = bs
+        batches_since_success = 0
         leading_pause_s = 0.0
         i = 0
         while i < len(plan) and plan[i][0] == "pause":
@@ -1130,28 +1213,26 @@ class QwenTTSWrapper:
                     except Exception:
                         pass
                 try:
-                    wavs, sr = model.generate_voice_clone(
-                        text=batch_texts,
-                        language=[mapped_lang] * len(batch_texts),
-                        voice_clone_prompt=voice_clone_prompt,
-                        ref_text=(ref_text.strip() if isinstance(ref_text, str) and ref_text.strip() else None),
-                        x_vector_only_mode=bool(x_vector_only),
-                        max_new_tokens=per_seg_tokens,
-                        top_p=top_p,
-                        top_k=top_k,
-                        temperature=temperature,
-                        repetition_penalty=repetition_penalty,
-                    )
-                    try:
-                        if torch.cuda.is_available():
-                            torch.cuda.empty_cache()
-                            torch.cuda.ipc_collect()
-                    except Exception:
-                        pass
+                    self._clear_gpu_cache()
+                    with self._patch_chunked_decode(model, int(decode_batch_size)):
+                        wavs, sr = model.generate_voice_clone(
+                            text=batch_texts,
+                            language=[mapped_lang] * len(batch_texts),
+                            voice_clone_prompt=voice_clone_prompt,
+                            ref_text=(ref_text.strip() if isinstance(ref_text, str) and ref_text.strip() else None),
+                            x_vector_only_mode=bool(x_vector_only),
+                            max_new_tokens=per_seg_tokens,
+                            top_p=top_p,
+                            top_k=top_k,
+                            temperature=temperature,
+                            repetition_penalty=repetition_penalty,
+                        )
+                    self._clear_gpu_cache()
                 except RuntimeError as e:
                     msg = str(e).lower()
                     if ("out of memory" in msg or "cuda" in msg) and bs > 1:
                         bs = max(1, bs // 2)
+                        self._clear_gpu_cache()
                         continue
                     raise
                 for w, pause_s in zip(wavs, batch_pauses):
@@ -1161,6 +1242,7 @@ class QwenTTSWrapper:
                     elif waveform.ndim == 2:
                         waveform = waveform.unsqueeze(0)
                     seg_audio = {"waveform": waveform, "sample_rate": sr}
+                    self._move_audio_to_cpu(seg_audio)
                     if sr_known is None:
                         sr_known = int(sr)
                     if not audios and leading_pause_s > 0.0:
@@ -1170,6 +1252,11 @@ class QwenTTSWrapper:
                     if pause_s and float(pause_s) > 0.0:
                         audios.append(self._make_silence_audio_dict(int(sr_known), float(pause_s), seg_audio))
                     done_count += 1
+                del wavs
+                batches_since_success += 1
+                if bs < bs_original and batches_since_success >= 3:
+                    bs = min(bs + 1, bs_original)
+                    batches_since_success = 0
                 start_index += len(batch_texts)
 
         merge_gap = 0.0 if saw_pause_markup else 0.14
@@ -1232,6 +1319,7 @@ class QwenTTSWrapper:
         custom_model_path="",
         custom_speaker_name="",
         batch_size=4,
+        decode_batch_size=2,
         max_chars=200,
         hard_max_chars=260,
         progress_callback=None,
@@ -1283,6 +1371,8 @@ class QwenTTSWrapper:
                 pass
         done_count = 0
         sr_known = None
+        bs_original = bs
+        batches_since_success = 0
         leading_pause_s = 0.0
         i = 0
         while i < len(plan) and plan[i][0] == "pause":
@@ -1326,27 +1416,25 @@ class QwenTTSWrapper:
                     except Exception:
                         pass
                 try:
-                    wavs, sr = model.generate_custom_voice(
-                        text=batch_texts,
-                        speaker=[target_speaker] * len(batch_texts),
-                        language=[mapped_lang] * len(batch_texts),
-                        instruct=(instruct if isinstance(instruct, str) and instruct.strip() else None),
-                        max_new_tokens=per_seg_tokens,
-                        top_p=top_p,
-                        top_k=top_k,
-                        temperature=temperature,
-                        repetition_penalty=repetition_penalty,
-                    )
-                    try:
-                        if torch.cuda.is_available():
-                            torch.cuda.empty_cache()
-                            torch.cuda.ipc_collect()
-                    except Exception:
-                        pass
+                    self._clear_gpu_cache()
+                    with self._patch_chunked_decode(model, int(decode_batch_size)):
+                        wavs, sr = model.generate_custom_voice(
+                            text=batch_texts,
+                            speaker=[target_speaker] * len(batch_texts),
+                            language=[mapped_lang] * len(batch_texts),
+                            instruct=(instruct if isinstance(instruct, str) and instruct.strip() else None),
+                            max_new_tokens=per_seg_tokens,
+                            top_p=top_p,
+                            top_k=top_k,
+                            temperature=temperature,
+                            repetition_penalty=repetition_penalty,
+                        )
+                    self._clear_gpu_cache()
                 except RuntimeError as e:
                     msg = str(e).lower()
                     if ("out of memory" in msg or "cuda" in msg) and bs > 1:
                         bs = max(1, bs // 2)
+                        self._clear_gpu_cache()
                         continue
                     raise
                 for w, pause_s in zip(wavs, batch_pauses):
@@ -1356,6 +1444,7 @@ class QwenTTSWrapper:
                     elif waveform.ndim == 2:
                         waveform = waveform.unsqueeze(0)
                     seg_audio = {"waveform": waveform, "sample_rate": sr}
+                    self._move_audio_to_cpu(seg_audio)
                     if sr_known is None:
                         sr_known = int(sr)
                     if not audios and leading_pause_s > 0.0:
@@ -1365,6 +1454,11 @@ class QwenTTSWrapper:
                     if pause_s and float(pause_s) > 0.0:
                         audios.append(self._make_silence_audio_dict(int(sr_known), float(pause_s), seg_audio))
                     done_count += 1
+                del wavs
+                batches_since_success += 1
+                if bs < bs_original and batches_since_success >= 3:
+                    bs = min(bs + 1, bs_original)
+                    batches_since_success = 0
                 start_index += len(batch_texts)
 
         merge_gap = 0.0 if saw_pause_markup else 0.14
@@ -1442,6 +1536,7 @@ class QwenTTSWrapper:
         repetition_penalty=1.05,
         attention="auto",
         unload_model_after_generate=False,
+        decode_batch_size=2,
         progress_callback=None,
     ):
         t0 = time.perf_counter()
@@ -1456,6 +1551,7 @@ class QwenTTSWrapper:
         prompt_node = VoiceClonePromptNode()
         role_bank_node = RoleBankNode()
         dialogue_node = DialogueInferenceNode()
+        preloaded_model = load_qwen_model("Base", model_choice, device, precision, attention, False, None, "")
 
         prompts = []
         names = []
@@ -1491,6 +1587,7 @@ class QwenTTSWrapper:
                 )[0]
                 prompts.append(prompt)
                 names.append(role_name)
+                self._clear_gpu_cache()
                 if callable(progress_callback):
                     try:
                         pct = int(len(prompts) * 30 / max(len(roles_with_audio), 1))
@@ -1503,6 +1600,7 @@ class QwenTTSWrapper:
             kwargs[f"role_name_{i}"] = name
             kwargs[f"prompt_{i}"] = prompt
         role_bank = role_bank_node.create_bank(**kwargs)[0]
+        self._clear_gpu_cache()
 
         if callable(progress_callback):
             try:
@@ -1512,29 +1610,31 @@ class QwenTTSWrapper:
         parts = self._parse_pause_markup(script)
         saw_pause_markup = any(k == "pause" for (k, _) in parts)
         if not saw_pause_markup:
-            result = dialogue_node.generate_dialogue(
-                script=script,
-                role_bank=role_bank,
-                model_choice=model_choice,
-                device=device,
-                precision=precision,
-                language=language,
-                pause_linebreak=pause_linebreak,
-                period_pause=period_pause,
-                comma_pause=comma_pause,
-                question_pause=question_pause,
-                hyphen_pause=hyphen_pause,
-                merge_outputs=merge_outputs,
-                batch_size=bs,
-                seed=seed,
-                max_new_tokens_per_line=max_new_tokens_per_line,
-                top_p=top_p,
-                top_k=top_k,
-                temperature=temperature,
-                repetition_penalty=repetition_penalty,
-                attention=attention,
-                unload_model_after_generate=unload_model_after_generate,
-            )
+            with self._patch_chunked_decode(preloaded_model, int(decode_batch_size)):
+                result = dialogue_node.generate_dialogue(
+                    script=script,
+                    role_bank=role_bank,
+                    model_choice=model_choice,
+                    device=device,
+                    precision=precision,
+                    language=language,
+                    pause_linebreak=pause_linebreak,
+                    period_pause=period_pause,
+                    comma_pause=comma_pause,
+                    question_pause=question_pause,
+                    hyphen_pause=hyphen_pause,
+                    merge_outputs=merge_outputs,
+                    batch_size=bs,
+                    seed=seed,
+                    max_new_tokens_per_line=max_new_tokens_per_line,
+                    top_p=top_p,
+                    top_k=top_k,
+                    temperature=temperature,
+                    repetition_penalty=repetition_penalty,
+                    attention=attention,
+                    unload_model_after_generate=unload_model_after_generate,
+                )
+            self._clear_gpu_cache()
         else:
             leading_pause_s = 0.0
             idx = 0
@@ -1563,30 +1663,33 @@ class QwenTTSWrapper:
                         progress_callback(40, "生成对话音频（分段）")
                     except Exception:
                         pass
-                seg_result = dialogue_node.generate_dialogue(
-                    script=seg_script,
-                    role_bank=role_bank,
-                    model_choice=model_choice,
-                    device=device,
-                    precision=precision,
-                    language=language,
-                    pause_linebreak=pause_linebreak,
-                    period_pause=period_pause,
-                    comma_pause=comma_pause,
-                    question_pause=question_pause,
-                    hyphen_pause=hyphen_pause,
-                    merge_outputs=True,
-                    batch_size=bs,
-                    seed=seed,
-                    max_new_tokens_per_line=max_new_tokens_per_line,
-                    top_p=top_p,
-                    top_k=top_k,
-                    temperature=temperature,
-                    repetition_penalty=repetition_penalty,
-                    attention=attention,
-                    unload_model_after_generate=False,
-                )
+                with self._patch_chunked_decode(preloaded_model, int(decode_batch_size)):
+                    seg_result = dialogue_node.generate_dialogue(
+                        script=seg_script,
+                        role_bank=role_bank,
+                        model_choice=model_choice,
+                        device=device,
+                        precision=precision,
+                        language=language,
+                        pause_linebreak=pause_linebreak,
+                        period_pause=period_pause,
+                        comma_pause=comma_pause,
+                        question_pause=question_pause,
+                        hyphen_pause=hyphen_pause,
+                        merge_outputs=True,
+                        batch_size=bs,
+                        seed=seed,
+                        max_new_tokens_per_line=max_new_tokens_per_line,
+                        top_p=top_p,
+                        top_k=top_k,
+                        temperature=temperature,
+                        repetition_penalty=repetition_penalty,
+                        attention=attention,
+                        unload_model_after_generate=False,
+                    )
                 seg_audio = self._extract_audio_dict(seg_result)
+                self._move_audio_to_cpu(seg_audio)
+                self._clear_gpu_cache()
                 sr_known = int(seg_audio.get("sample_rate", 24000))
                 if not audios and leading_pause_s > 0.0:
                     audios.append(self._make_silence_audio_dict(int(sr_known), leading_pause_s, seg_audio))

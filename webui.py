@@ -1809,7 +1809,7 @@ with shared.gradio_root:
                                     qwen_design_style_preset_delete_btn = gr.Button(value="Delete Character", elem_classes=["type_row_half", "qwen_tts_stack_item"], size="sm", min_width=70)
                             with gr.Row():
                                 qwen_design_lock_timbre = gr.Checkbox(label="Lock Timbre (clone from first segment)", value=True)
-                                qwen_design_clone_batch_size = gr.Slider(label="Batch size", minimum=1, maximum=16, step=1, value=4)
+                                qwen_design_clone_batch_size = gr.Slider(label="Batch size", minimum=1, maximum=16, step=1, value=16)
                             with gr.Row():
                                 qwen_design_btn = gr.Button("Generate Audio", elem_classes="type_row_half")
                                 qwen_design_stop_btn = gr.Button("Stop", elem_classes="type_row_half", min_width=70, visible=False)
@@ -1825,7 +1825,7 @@ with shared.gradio_root:
                             qwen_clone_ref_audio = gr.Audio(label="Reference Audio", source="upload", type="numpy")
                             qwen_clone_ref_text = gr.Textbox(label="Reference Audio Text", lines=3, placeholder="Recommended: the spoken content in reference audio")
                             qwen_clone_target_text = gr.Textbox(label="Target Text to Speech", lines=3, placeholder="Enter text here...[pause=800ms] or [pause=0.8s] can add pause between sentences.")
-                            qwen_clone_batch_size = gr.Slider(label="Batch size", minimum=1, maximum=16, step=1, value=4)
+                            qwen_clone_batch_size = gr.Slider(label="Batch size", minimum=1, maximum=16, step=1, value=16)
                             with gr.Row():
                                 qwen_clone_btn = gr.Button("Clone & Generate", elem_classes="type_row_half")
                                 qwen_clone_stop_btn = gr.Button("Stop", elem_classes="type_row_half", min_width=70, visible=False)
@@ -1882,7 +1882,7 @@ with shared.gradio_root:
                                 with gr.Column(scale=1):
                                     qwen_custom_expand_btn = gr.Button(value="Style Expand", elem_classes=["type_row_half", "qwen_tts_stack_item"], size="sm", min_width=70, visible=MiniCPM.get_enable())
                                     qwen_custom_style_preset_choices = gr.Dropdown(label="Character Presets", choices=list(qwen_tts_style_presets.keys()), value=None, show_label=True, elem_classes="qwen_tts_stack_item")
-                            qwen_custom_batch_size = gr.Slider(label="Batch size", minimum=1, maximum=16, step=1, value=4)
+                            qwen_custom_batch_size = gr.Slider(label="Batch size", minimum=1, maximum=16, step=1, value=16)
                             with gr.Row():
                                 with gr.Column(scale=4):
                                     qwen_custom_style_preset_name = gr.Textbox(label="Character Name", lines=1, placeholder="Character Name for Your Role/Style", elem_classes="qwen_tts_stack_item")
