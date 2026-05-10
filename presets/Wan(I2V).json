@@ -8,7 +8,7 @@
         "scene_frontend": {
             "version": "v1.1",
             "theme": ["Basic"],
-            "theme_title": "Wan2.2图生视频 [左边上传首帧，右边尾帧可选]",
+            "theme_title": "Wan2.2 Image-to-Video [Upload first frame on the left, optional last frame on the right]",
             "disvisible": ["scene_canvas_image", "scene_additional_prompt","scene_additional_prompt_2", "scene_video", "scene_audio",
                 "scene_var_number5", "scene_var_number6", "scene_var_number7", "scene_var_number8", "scene_var_number9", "scene_var_number10"
                 ,"scene_switch_option3","scene_switch_option4"],

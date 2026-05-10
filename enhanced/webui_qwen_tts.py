@@ -280,6 +280,7 @@ class QwenTTSWrapper:
         max_chars: int = 200,
         hard_max_chars: int = 260,
     ) -> Tuple[List[Tuple[str, Any]], bool]:
+        text = self._preprocess_line_breaks(str(text))
         parts = self._parse_pause_markup(text)
         saw_pause = any(k == "pause" for (k, _) in parts)
 
@@ -339,6 +340,7 @@ class QwenTTSWrapper:
         return plan2, True
 
     def _split_text_with_pause_markup(self, text: str, max_chars: int = 200, hard_max_chars: int = 260) -> List[Tuple[str, Any]]:
+        text = self._preprocess_line_breaks(str(text))
         parts = self._parse_pause_markup(text)
         if not parts:
             return [("text", x) for x in self._split_long_text(text, max_chars=max_chars, hard_max_chars=hard_max_chars)]
@@ -392,6 +394,58 @@ class QwenTTSWrapper:
             n = 0
         return {"waveform": torch.zeros((1, channels, n), dtype=dtype, device="cpu"), "sample_rate": sample_rate}
 
+    @staticmethod
+    def _preprocess_line_breaks(text: str, merge_threshold: int = 80, inter_group_pause_ms: float = 120.0) -> str:
+        if not text:
+            return text
+        raw = text.replace("\r\n", "\n").replace("\r", "\n")
+        lines = raw.split("\n")
+        if len(lines) <= 1:
+            return raw
+
+        pause_re = re.compile(r"\[\s*pause\s*=", re.IGNORECASE)
+        groups: List[str] = []
+        buffer = ""
+
+        for line in lines:
+            stripped = line.strip()
+            if not stripped:
+                if buffer:
+                    groups.append(buffer)
+                    buffer = ""
+                continue
+            if pause_re.search(stripped):
+                if buffer:
+                    groups.append(buffer)
+                    buffer = ""
+                groups.append(stripped)
+                continue
+            if not buffer:
+                buffer = stripped
+                continue
+            if len(buffer) + 1 + len(stripped) <= merge_threshold:
+                buffer = buffer + " " + stripped
+            else:
+                groups.append(buffer)
+                buffer = stripped
+        if buffer:
+            groups.append(buffer)
+
+        if not groups:
+            return raw
+
+        merged = groups[0]
+        last_was_pause = bool(pause_re.match(groups[0].strip()))
+        pause_tag = f"[pause={inter_group_pause_ms:.0f}ms]" if inter_group_pause_ms > 0 else None
+        for g in groups[1:]:
+            cur_is_pause = bool(pause_re.match(g.strip()))
+            if pause_tag and not last_was_pause and not cur_is_pause:
+                merged = merged + "\n" + pause_tag + "\n" + g
+            else:
+                merged = merged + "\n" + g
+            last_was_pause = cur_is_pause
+        return merged
+
     def _split_long_text(self, text: str, max_chars: int = 200, hard_max_chars: int = 260) -> List[str]:
         if text is None:
             return []
@@ -428,7 +482,8 @@ class QwenTTSWrapper:
         lines = [ln.strip() for ln in raw.split("\n")]
         for line in lines:
             if not line:
-                flush()
+                if len(current) >= max_chars * 0.6:
+                    flush()
                 continue
             parts = re.split(sentence_delims, line)
             pieces: List[str] = []
