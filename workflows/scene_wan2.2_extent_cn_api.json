@@ -77,7 +77,7 @@
         0
       ],
       "latent": [
-        "211",
+        "217",
         2
       ]
     },
@@ -119,8 +119,8 @@
   "18": {
     "inputs": {
       "anything": [
-        "206",
-        2
+        "209",
+        0
       ]
     },
     "class_type": "easy cleanGpuUsed",
@@ -179,15 +179,15 @@
         0
       ],
       "positive": [
-        "211",
+        "217",
         0
       ],
       "negative": [
-        "211",
+        "217",
         1
       ],
       "latent_image": [
-        "211",
+        "217",
         2
       ]
     },
@@ -284,7 +284,7 @@
   },
   "57": {
     "inputs": {
-      "lora_name": "SVI_Wan2.2-I2V-A14B_lora_LOW_v2.0_rank_128_fp16.safetensors",
+      "lora_name": "SVI_v2_PRO_Wan2.2-I2V-A14B_LOW_lora_rank_128_fp16.safetensors",
       "strength_model": 1,
       "model": [
         "215",
@@ -298,7 +298,7 @@
   },
   "61": {
     "inputs": {
-      "lora_name": "SVI_Wan2.2-I2V-A14B_lora_HIGH_v2.0_rank_128_fp16.safetensors",
+      "lora_name": "SVI_v2_PRO_Wan2.2-I2V-A14B_HIGH_lora_rank_128_fp16.safetensors",
       "strength_model": 1,
       "model": [
         "41",
@@ -625,7 +625,7 @@
   },
   "143": {
     "inputs": {
-      "expression": "int(a/2)",
+      "expression": "ceil(a/2-1)",
       "a": [
         "150",
         9
@@ -665,8 +665,8 @@
       "cfg": 1,
       "steps": 6,
       "var_number": 5,
-      "var_number2": 0,
-      "var_number3": 1,
+      "var_number2": 16,
+      "var_number3": 2,
       "var_number4": 1.1,
       "var_number5": 1,
       "var_number6": 1,
@@ -711,11 +711,11 @@
         0
       ],
       "positive": [
-        "211",
+        "217",
         0
       ],
       "negative": [
-        "211",
+        "217",
         1
       ],
       "latent_image": [
@@ -742,7 +742,7 @@
   },
   "156": {
     "inputs": {
-      "overlap": 1,
+      "overlap": 9,
       "overlap_side": "source",
       "overlap_mode": "linear_blend",
       "source_images": [
@@ -757,28 +757,6 @@
     "class_type": "ImageBatchExtendWithOverlap",
     "_meta": {
       "title": "Image Batch Extend With Overlap"
-    }
-  },
-  "157": {
-    "inputs": {
-      "video": "example.mp4",
-      "force_rate": 0,
-      "custom_width": [
-        "191",
-        1
-      ],
-      "custom_height": [
-        "191",
-        2
-      ],
-      "frame_load_cap": 0,
-      "skip_first_frames": 0,
-      "select_every_nth": 1,
-      "format": "AnimateDiff"
-    },
-    "class_type": "VHS_LoadVideo",
-    "_meta": {
-      "title": "Load Video (Upload) 🎥🅥🅗🅢"
     }
   },
   "166": {
@@ -958,7 +936,7 @@
   },
   "182": {
     "inputs": {
-      "num_frames": 33,
+      "num_frames": 9,
       "images": [
         "191",
         0
@@ -967,63 +945,6 @@
     "class_type": "WanAdvancedExtractLastImages",
     "_meta": {
       "title": "Wan Extract Last Images"
-    }
-  },
-  "185": {
-    "inputs": {
-      "batch_index": 0,
-      "length": [
-        "186",
-        0
-      ],
-      "image": [
-        "157",
-        0
-      ]
-    },
-    "class_type": "ImageFromBatch",
-    "_meta": {
-      "title": "ImageFromBatch"
-    }
-  },
-  "186": {
-    "inputs": {
-      "value": "a-30",
-      "a": [
-        "155",
-        1
-      ]
-    },
-    "class_type": "SimpleMath+",
-    "_meta": {
-      "title": "🔧 Simple Math"
-    }
-  },
-  "187": {
-    "inputs": {
-      "num_frames": 1,
-      "images": [
-        "191",
-        0
-      ]
-    },
-    "class_type": "WanAdvancedExtractLastImages",
-    "_meta": {
-      "title": "Wan Extract Last Images"
-    }
-  },
-  "189": {
-    "inputs": {
-      "batch_index": 0,
-      "length": 1,
-      "image": [
-        "191",
-        0
-      ]
-    },
-    "class_type": "ImageFromBatch",
-    "_meta": {
-      "title": "ImageFromBatch"
     }
   },
   "191": {
@@ -1047,58 +968,6 @@
       "title": "WanVideo Image Resize To Closest"
     }
   },
-  "204": {
-    "inputs": {
-      "num_frames": [
-        "208",
-        0
-      ],
-      "images": [
-        "124",
-        0
-      ]
-    },
-    "class_type": "WanAdvancedExtractLastImages",
-    "_meta": {
-      "title": "Wan Extract Last Images"
-    }
-  },
-  "206": {
-    "inputs": {
-      "overlap": 10,
-      "overlap_side": "source",
-      "overlap_mode": "linear_blend",
-      "source_images": [
-        "185",
-        0
-      ],
-      "new_images": [
-        "204",
-        0
-      ]
-    },
-    "class_type": "ImageBatchExtendWithOverlap",
-    "_meta": {
-      "title": "Image Batch Extend With Overlap"
-    }
-  },
-  "208": {
-    "inputs": {
-      "value": "a-b+40",
-      "a": [
-        "209",
-        3
-      ],
-      "b": [
-        "157",
-        1
-      ]
-    },
-    "class_type": "SimpleMath+",
-    "_meta": {
-      "title": "🔧 Simple Math"
-    }
-  },
   "209": {
     "inputs": {
       "image": [
@@ -1111,73 +980,10 @@
       "title": "Get Image Size & Count"
     }
   },
-  "210": {
-    "inputs": {
-      "output": "",
-      "input": [
-        "208",
-        0
-      ]
-    },
-    "class_type": "Display Int (rgthree)",
-    "_meta": {
-      "title": "Display Int (rgthree)"
-    }
-  },
-  "211": {
-    "inputs": {
-      "width": [
-        "191",
-        1
-      ],
-      "height": [
-        "191",
-        2
-      ],
-      "length": [
-        "1",
-        0
-      ],
-      "batch_size": 1,
-      "motion_frames": 20,
-      "motion_amplitude": [
-        "150",
-        13
-      ],
-      "positive": [
-        "2",
-        0
-      ],
-      "negative": [
-        "5",
-        0
-      ],
-      "vae": [
-        "10",
-        0
-      ],
-      "previous_video": [
-        "182",
-        0
-      ],
-      "initial_reference_image": [
-        "189",
-        0
-      ],
-      "start_image": [
-        "187",
-        0
-      ]
-    },
-    "class_type": "PainterLongVideo",
-    "_meta": {
-      "title": "Painter Long Video"
-    }
-  },
   "212": {
     "inputs": {
       "lora_name": "placeholder.safetensors",
-      "strength_model": 0,
+      "strength_model": 1,
       "model": [
         "93",
         0
@@ -1228,6 +1034,51 @@
     "class_type": "LoraLoaderModelOnly",
     "_meta": {
       "title": "lora_10"
+    }
+  },
+  "217": {
+    "inputs": {
+      "length": [
+        "1",
+        0
+      ],
+      "motion_latent_count": 1,
+      "positive": [
+        "2",
+        0
+      ],
+      "negative": [
+        "5",
+        0
+      ],
+      "anchor_samples": [
+        "218",
+        0
+      ],
+      "prev_samples": [
+        "218",
+        0
+      ]
+    },
+    "class_type": "WanImageToVideoSVIPro",
+    "_meta": {
+      "title": "WanImageToVideoSVIPro"
+    }
+  },
+  "218": {
+    "inputs": {
+      "pixels": [
+        "182",
+        0
+      ],
+      "vae": [
+        "10",
+        0
+      ]
+    },
+    "class_type": "VAEEncode",
+    "_meta": {
+      "title": "VAE Encode"
     }
   }
 }
