@@ -40,7 +40,7 @@
 
       <!-- 高级设置 -->
       <div class="toolbar-bottom">
-        <div class="group-edit-mode">
+        <div class="auto-add-checkbox">
           <label>
             <input type="checkbox" v-model="isAutoAddSearchTag" :true-value="1" :false-value="0" />
             {{ t('tagManager.autoAddSearchTag') }}
@@ -1607,10 +1607,12 @@ const resetTabSizeConfig = () => {
 .tag-manager {
   display: flex;
   flex-direction: column;
-  padding: 0 16px 16px 16px;
+  padding: 0;
   background: var(--weilin-prompt-ui-primary-bg);
   height: 100%;
   box-sizing: border-box;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .category-tabs {
@@ -1618,11 +1620,15 @@ const resetTabSizeConfig = () => {
   flex-direction: column;
   gap: 16px;
   margin-bottom: 16px;
+  margin-top: 0;
+  flex-shrink: 0;
+  padding-top: 8px;
 }
 
 .tabs-wrapper {
   position: relative;
   border-bottom: 1px solid var(--weilin-prompt-ui-border-color);
+  margin-top: 0;
 }
 
 .tabs-scroll {
@@ -1630,7 +1636,7 @@ const resetTabSizeConfig = () => {
   gap: 2px;
   padding: 0 2px 2px;
   flex-wrap: wrap;
-  align-items: flex-end;
+  align-items: center;
 }
 
 /* 自定义滚动条样式 */
@@ -2212,6 +2218,8 @@ const resetTabSizeConfig = () => {
 .search-container {
   position: relative;
   z-index: 100;
+  flex: 1;
+  min-width: 0;
 }
 
 .search-input {
@@ -2222,6 +2230,13 @@ const resetTabSizeConfig = () => {
   background: var(--weilin-prompt-ui-input-bg);
   color: var(--weilin-prompt-ui-primary-text);
   font-size: 14px;
+  height: 32px;
+  box-sizing: border-box;
+}
+
+.search-input::placeholder {
+  color: var(--weilin-prompt-ui-secondary-text);
+  opacity: 1;
 }
 
 .search-input:focus {
@@ -2232,9 +2247,6 @@ const resetTabSizeConfig = () => {
 
 .search-results {
   position: fixed;
-  top: 60px;
-  left: 0;
-  right: 0;
   max-height: 300px;
   overflow-y: auto;
   background: var(--weilin-prompt-ui-primary-bg);
@@ -2301,8 +2313,14 @@ const resetTabSizeConfig = () => {
 }
 
 .toolbar {
+  display: flex;
   flex-direction: column;
-  padding: 12px 16px;
+  padding: 0 0 12px 0;
+  flex-shrink: 0;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--weilin-prompt-ui-border-color);
+  min-height: fit-content;
+  height: auto;
 }
 
 .toolbar .toolbar-top {
@@ -2335,10 +2353,6 @@ const resetTabSizeConfig = () => {
   fill: var(--weilin-prompt-ui-primary-text);
 }
 
-.search-container {
-  flex: 1;
-}
-
 .tags-actions {
   width: fit-content;
   display: flex;
@@ -2362,7 +2376,29 @@ const resetTabSizeConfig = () => {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-top: 5px;
+  margin-top: 8px;
+  padding-bottom: 8px;
+}
+
+.auto-add-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--weilin-prompt-ui-primary-text);
+}
+
+.auto-add-checkbox label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.auto-add-checkbox input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
 }
 
 .group-edit-mode {
@@ -2410,6 +2446,10 @@ const resetTabSizeConfig = () => {
   color: white;
   cursor: pointer;
   transition: all 0.3s ease;
+  height: 32px;
+  box-sizing: border-box;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .import-btn:hover {

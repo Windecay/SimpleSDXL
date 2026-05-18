@@ -1858,10 +1858,11 @@ const processInput = async () => {
   if (proceTimeout.value) {
     clearTimeout(proceTimeout.value);
   }
+  // ✅ 修复：减少延迟时间从1000ms到100ms
   proceTimeout.value = setTimeout(() => {
     // console.log('处理历史记录');
     finishPromptPutItHistory();
-  }, 1000);
+  }, 100);  // 从1000改为100
   postMessageToWindowsPrompt();
 
   // 处理翻译
@@ -3180,6 +3181,11 @@ const handleMessage = (event) => {
     lastInputValue.value = inputText.value; // 更新上一次的输入内容
     // 触发输入事件以更新词组
     processInput()
+
+    // ✅ 修复：确保数据立即同步到节点
+    nextTick(() => {
+      finishPromptPutItHistory();
+    });
   } else if (event.data.type === 'weilin_prompt_ui_user_history_tag') {
     const tagText = event.data.tagText
     tempInputText.value = tagText

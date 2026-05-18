@@ -1,308 +1,440 @@
 <template>
-    <div :class="`${prefix}lora-stack`">
-        <div :class="`${prefix}lora-content`">
-            <div :class="`${prefix}lora-header`">
-                <div class="header-actions">
-                    <button :class="`${prefix}add-btn`" @click="openLoraManager" :title="t('controls.addLora')">
-                        <svg viewBox="0 0 24 24" width="16" height="16">
-                            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            <div :class="`${prefix}lora-body`">
-                <div :class="`${prefix}lora-list`">
-                    <div v-for="(lora, idx) in selectedLoras" ref="loraStackItemRef" :key="lora.name" class="lora-item"
-                        :class="{ 'hidden-lora': lora.hidden }" @mouseover="(e) => handleMouseHover(lora.lora, e)"
-                        @mouseleave="handleMouseLeave" draggable="true" @dragstart="handleDragStart(idx)"
-                        @dragover.prevent @drop="handleDrop(idx)">
-                        <div class="lora-info">
-                            <div class="lora-header">
-                                <span class="lora-name" :title="lora.name">{{ lora.name }}</span>
-                                <div class="lora-actions">
-                                    <button class="look-on-btn" @click="lookOnLora(lora)"
-                                        :title="t('controls.lookOnLora')">
-                                        <svg viewBox="0 0 1024 1024" width="14" height="14">
-                                            <path
-                                                d="M576.5 930.2H163.1c-52.9 0-96-43.1-96-96v-672c0-52.9 43.1-96 96-96h672c52.9 0 96 43.1 96 96V577c0 17.7-14.3 32-32 32s-32-14.3-32-32V162.2c0-17.6-14.4-32-32-32h-672c-17.6 0-32 14.4-32 32v672c0 17.6 14.4 32 32 32h413.4c17.7 0 32 14.3 32 32s-14.3 32-32 32z"
-                                                p-id="3466"></path>
-                                            <path
-                                                d="M692.4 322.3H245.7c-17.7 0-32-14.3-32-32s14.3-32 32-32h446.7c17.7 0 32 14.3 32 32s-14.3 32-32 32zM388.5 530.2H245.7c-17.7 0-32-14.3-32-32s14.3-32 32-32h142.7c17.7 0 32 14.3 32 32 0.1 17.6-14.3 32-31.9 32zM388.5 738H245.7c-17.7 0-32-14.3-32-32s14.3-32 32-32h142.7c17.7 0 32 14.3 32 32 0.1 17.7-14.3 32-31.9 32z"
-                                                p-id="3467"></path>
-                                            <path
-                                                d="M624.1 792.5c-94.8 0-172-77.2-172-172s77.2-172 172-172 172 77.2 172 172-77.1 172-172 172z m0-280c-59.6 0-108 48.4-108 108s48.4 108 108 108 108-48.4 108-108-48.4-108-108-108z"
-                                                p-id="3468"></path>
-                                            <path
-                                                d="M820.8 864.2L710.5 753.9c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L866 818.9c12.5 12.5 12.5 32.8 0 45.3s-32.7 12.5-45.2 0z"
-                                                p-id="3469"></path>
-                                        </svg>
-                                    </button>
-                                    <button class="remove-btn" @click="removeLora(lora)"
-                                        :title="t('controls.removeLora')">
-                                        <svg viewBox="0 0 24 24" width="14" height="14">
-                                            <path
-                                                d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-                            <!-- 输入框一行显示 -->
-                            <div class="lora-weights-row">
-                                <div class="weight-item-col">
-                                    <label>{{ t('loraManager.modelWeight') }}</label>
-                                    <input type="number" v-model="lora.weight" class="lora-weight" step="0.1" />
-                                </div>
-                                <div class="weight-item-col">
-                                    <label>{{ t('loraManager.textEncoderWeight') }}</label>
-                                    <input type="number" v-model="lora.text_encoder_weight" class="lora-weight"
-                                        step="0.1" />
-                                </div>
-                                <!-- Switch 开关 -->
-                                <div class="switch-item-col">
-                                    <label>{{ lora.hidden ? t('lora.hideLora') : t('lora.showLora') }}</label>
-                                    <label class="switch">
-                                        <input type="checkbox" :checked="!lora.hidden" @change="toggleHideLora(lora)">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                            </div>
-                            <!-- lora-footer 移除 -->
-                        </div>
-                    </div>
-                </div>
-            </div>
+  <div :class="`${prefix}lora-stack`">
+    <div :class="`${prefix}lora-content`">
+      <div :class="`${prefix}lora-header`">
+        <div class="header-actions">
+          <button
+            :class="`${prefix}add-btn`"
+            @click="openLoraManager"
+            :title="t('controls.addLora')"
+          >
+            <svg viewBox="0 0 24 24" width="16" height="16">
+              <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+            </svg>
+          </button>
         </div>
-        <loraDetail ref="loraDetailLoraStackRef" />
-        <LoraCard ref="loraCardItem" v-if="showCard" :fileNmae="hoveFileName" :paddingLeft="paddingLeftValue"
-            :paddingTop="paddingTopValue" @cardLeave="handleEnterLeave" @cardenter="handEnterCard" />
-
+      </div>
+      <div :class="`${prefix}lora-body`">
+        <div :class="`${prefix}lora-list`">
+          <div
+            v-for="(lora, idx) in selectedLoras"
+            ref="loraStackItemRef"
+            :key="lora.name"
+            class="lora-item"
+            :class="{ 'hidden-lora': lora.hidden }"
+            @mouseover="(e) => handleMouseHover(lora.lora, e)"
+            @mouseleave="handleMouseLeave"
+            draggable="true"
+            @dragstart="handleDragStart(idx)"
+            @dragover.prevent
+            @drop="handleDrop(idx)"
+          >
+            <div class="lora-info">
+              <div class="lora-header">
+                <span class="lora-name" :title="lora.name">{{ lora.name }}</span>
+                <div class="lora-actions">
+                  <button
+                    class="look-on-btn"
+                    @click="lookOnLora(lora)"
+                    :title="t('controls.lookOnLora')"
+                  >
+                    <svg viewBox="0 0 1024 1024" width="14" height="14">
+                      <path
+                        d="M576.5 930.2H163.1c-52.9 0-96-43.1-96-96v-672c0-52.9 43.1-96 96-96h672c52.9 0 96 43.1 96 96V577c0 17.7-14.3 32-32 32s-32-14.3-32-32V162.2c0-17.6-14.4-32-32-32h-672c-17.6 0-32 14.4-32 32v672c0 17.6 14.4 32 32 32h413.4c17.7 0 32 14.3 32 32s-14.3 32-32 32z"
+                        p-id="3466"
+                      />
+                      <path
+                        d="M692.4 322.3H245.7c-17.7 0-32-14.3-32-32s14.3-32 32-32h446.7c17.7 0 32 14.3 32 32s-14.3 32-32 32zM388.5 530.2H245.7c-17.7 0-32-14.3-32-32s14.3-32 32-32h142.7c17.7 0 32 14.3 32 32 0.1 17.6-14.3 32-31.9 32zM388.5 738H245.7c-17.7 0-32-14.3-32-32s14.3-32 32-32h142.7c17.7 0 32 14.3 32 32 0.1 17.7-14.3 32-31.9 32z"
+                        p-id="3467"
+                      />
+                      <path
+                        d="M624.1 792.5c-94.8 0-172-77.2-172-172s77.2-172 172-172 172 77.2 172 172-77.1 172-172 172z m0-280c-59.6 0-108 48.4-108 108s48.4 108 108 108 108-48.4 108-108-48.4-108-108-108z"
+                        p-id="3468"
+                      />
+                      <path
+                        d="M820.8 864.2L710.5 753.9c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L866 818.9c12.5 12.5 12.5 32.8 0 45.3s-32.7 12.5-45.2 0z"
+                        p-id="3469"
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    class="remove-btn"
+                    @click="removeLora(lora)"
+                    :title="t('controls.removeLora')"
+                  >
+                    <svg viewBox="0 0 24 24" width="14" height="14">
+                      <path
+                        d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <!-- 输入框一行显示 -->
+              <div class="lora-weights-row">
+                <div class="weight-item-col">
+                  <label>{{ t('loraManager.modelWeight') }}</label>
+                  <input type="number" v-model="lora.weight" class="lora-weight" step="0.1" />
+                </div>
+                <div class="weight-item-col">
+                  <label>{{ t('loraManager.textEncoderWeight') }}</label>
+                  <input
+                    type="number"
+                    v-model="lora.text_encoder_weight"
+                    class="lora-weight"
+                    step="0.1"
+                  />
+                </div>
+                <div class="weight-item-col">
+                  <label>{{ t('loraManager.triggerWeight') }}</label>
+                  <input
+                    type="number"
+                    v-model="lora.trigger_weight"
+                    class="lora-weight"
+                    step="0.1"
+                  />
+                </div>
+                <!-- Switch 开关 -->
+                <div class="switch-item-col">
+                  <label>{{ lora.hidden ? t('lora.hideLora') : t('lora.showLora') }}</label>
+                  <label class="switch">
+                    <input type="checkbox" :checked="!lora.hidden" @change="toggleHideLora(lora)" />
+                    <span class="slider"></span>
+                  </label>
+                </div>
+              </div>
+              <!-- lora-footer 移除 -->
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+    <loraDetail ref="loraDetailLoraStackRef" />
+    <LoraCard
+      ref="loraCardItem"
+      v-if="showCard"
+      :fileNmae="hoveFileName"
+      :paddingLeft="paddingLeftValue"
+      :paddingTop="paddingTopValue"
+      @card-leave="handleEnterLeave"
+      @cardenter="handEnterCard"
+    />
+  </div>
 </template>
 
 <script setup>
-import { ref, watch, nextTick } from 'vue'
-import { useI18n } from 'vue-i18n'
-import loraDetail from '@/view/lora_manager/lora_detail.vue'
-import message from '@/utils/message'
-import LoraCard from '@/view/lora_manager/lora_card.vue'
+  import { ref, watch, nextTick, onMounted } from 'vue'
+  import { useI18n } from 'vue-i18n'
+  import loraDetail from '@/view/lora_manager/lora_detail.vue'
+  import message from '@/utils/message'
+  import LoraCard from '@/view/lora_manager/lora_card.vue'
 
-const prefix = "weilin_prompt_ui_"
-const { t } = useI18n()
+  const prefix = 'weilin_prompt_ui_'
+  const { t } = useI18n()
 
-const selectedLoras = ref([])
-const seed = ref("")
+  const selectedLoras = ref([])
+  const seed = ref('')
 
-const showCard = ref(false)
-const hoveFileName = ref('')
-const paddingLeftValue = ref(100)
-const paddingTopValue = ref(0)
-const loraStackItemRef = ref()
-const isEnterCatd = ref(false)
-const isHovering = ref(false);
-const loraCardItem = ref()
+  // 生成随机 seed
+  const generateRandomSeed = () => {
+    return `lora_stack_${Math.random().toString(36).substring(2, 15)}`
+  }
 
-// 打开Lora管理器
-const openLoraManager = () => {
-    window.postMessage({ type: 'weilin_prompt_ui_openLoraManager_addLora_stack', seed: seed.value }, '*')
-}
-
-// 添加切换隐藏状态的方法
-const toggleHideLora = (lora) => {
-    lora.hidden = !lora.hidden;
-};
-
-
-
-const handleMouseHover = (fileName, event) => {
-    isHovering.value = true;
-    if (hoveFileName.value === fileName && showCard.value) return;
-
-    const hoveredCard = event.currentTarget;
-    const cardRect = hoveredCard.getBoundingClientRect();
-    const viewportWidth = window.innerWidth;
-    const cardWidth = 450;
-
-    // 默认显示在左侧
-    let position = {
-        left: cardRect.left - cardWidth - 10,
-        top: cardRect.top
-    };
-
-    // 如果左侧空间不足(小于10px)，则显示在右侧
-    if (position.left < 10) {
-        position.left = cardRect.right + 10;
+  // 组件挂载时，如果没有 seed，生成一个
+  onMounted(() => {
+    if (!seed.value) {
+      seed.value = generateRandomSeed()
     }
+  })
 
-    // 确保不会超出视口顶部和底部
-    position.top = Math.max(10, Math.min(position.top, window.innerHeight - 310));
+  // 监听来自Lora管理器的消息（动态监听，支持seed变化）
+  // 添加标志避免循环更新
+  let isUpdatingFromNode = false
 
-    paddingLeftValue.value = position.left;
-    paddingTopValue.value = position.top;
-
-    showCard.value = true;
-    hoveFileName.value = fileName;
-    // console.log(fileName)
-    nextTick(() => {
-        loraCardItem.value.refresh()
-    })
-}
-
-const handleMouseLeave = () => {
-    isHovering.value = false;
-    setTimeout(() => {
-        if (!isEnterCatd.value && !isHovering.value) {
-            showCard.value = false;
-            hoveFileName.value = "";
-            isEnterCatd.value = false;
+  const messageHandler = (event) => {
+    if (event.data.type === `weilin_prompt_ui_selectLora_stack_${seed.value}`) {
+      addLora(event.data.lora)
+    } else if (event.data.type === `weilin_prompt_ui_prompt_node_finish_lora_stack_${seed.value}`) {
+      // 监听来自节点的更新消息，实现双向同步
+      try {
+        const jsonStr = JSON.parse(event.data.data)
+        // 设置标志，避免循环更新
+        isUpdatingFromNode = true
+        // 更新 selectedLoras，保持与节点数据同步
+        if (jsonStr.temp_lora && jsonStr.temp_lora.length > 0 && jsonStr.temp_lora !== '') {
+          selectedLoras.value = jsonStr.temp_lora
+        } else if (jsonStr.lora && jsonStr.lora !== '') {
+          selectedLoras.value = jsonStr.lora
+        } else {
+          selectedLoras.value = []
         }
-    }, 200)
-}
-
-const handEnterCard = () => {
-    // console.log("enter")
-    isEnterCatd.value = true;
-    isHovering.value = true;
-}
-
-const handleEnterLeave = () => {
-    showCard.value = false;
-    hoveFileName.value = "";
-    isEnterCatd.value = false;
-}
-
-
-
-// 添加Lora
-const addLora = (lora) => {
-    // 检查是否已存在
-    if (!selectedLoras.value.find(item => item.name === lora.name)) {
-        selectedLoras.value.push({
-            name: lora.name,
-            weight: 1,
-            text_encoder_weight: 1,
-            ...lora
+        // 下一个tick后重置标志
+        nextTick(() => {
+          isUpdatingFromNode = false
         })
+      } catch (e) {
+        console.error('解析节点lora数据失败:', e)
+        isUpdatingFromNode = false
+      }
+    } else if (event.data.type === `weilin_prompt_ui_query_lora_stack_response_${seed.value}`) {
+      // 监听来自节点的查询响应，组件打开时获取最新数据
+      try {
+        const jsonStr = JSON.parse(event.data.data)
+        isUpdatingFromNode = true
+        if (jsonStr.temp_lora && jsonStr.temp_lora.length > 0) {
+          selectedLoras.value = jsonStr.temp_lora
+        } else {
+          selectedLoras.value = []
+        }
+        nextTick(() => {
+          isUpdatingFromNode = false
+        })
+      } catch (e) {
+        console.error('解析节点查询响应失败:', e)
+        isUpdatingFromNode = false
+      }
     }
-}
+  }
 
-// 移除Lora
-const removeLora = (lora) => {
-    const index = selectedLoras.value.findIndex(item => item.name === lora.name)
-    if (index > -1) {
-        selectedLoras.value.splice(index, 1)
-    }
-}
+  // 注册消息监听器
+  window.addEventListener('message', messageHandler)
 
-
-const loraDetailLoraStackRef = ref()
-
-const lookOnLora = (loraData) => {
-    // console.log('lookOnLora', loraData)
-    loraDetailLoraStackRef.value.open({ name: loraData.lora })
-}
-
-// 监听来自Lora管理器的消息
-window.addEventListener('message', (event) => {
-    if (event.data.type === 'weilin_prompt_ui_selectLora_stack_' + seed.value) {
-        addLora(event.data.lora)
-    }
-})
-
-const initLoraStack = (text, newSeed) => {
+  const initLoraStack = (text, newSeed) => {
     // 初始化Lora列表
     seed.value = newSeed
 
-    // console.log(text)
+    // 主动查询节点获取最新数据（查询方式）
+    window.postMessage(
+      {
+        type: `weilin_prompt_ui_query_lora_stack_${seed.value}`
+      },
+      '*'
+    )
+
+    // 如果有text，也处理text中的数据（兼容旧逻辑）
     if (text.length > 0) {
-        try {
-            const jsonStr = JSON.parse(text)
+      try {
+        const jsonStr = JSON.parse(text)
 
-            if (jsonStr.lora && jsonStr.lora != "") {
-                selectedLoras.value = jsonStr.lora
-            }
-
-            if (jsonStr.temp_lora && jsonStr.temp_lora.length > 0 && jsonStr.temp_lora != "") {
-                const tempDataJson = jsonStr.temp_lora
-                selectedLoras.value = tempDataJson
-            }
-
-        } catch (error) {
-            // console.log('读取数据错误：', error)
-            message({ type: "warn", str: 'promptBox.settings.errorPrompt' });
+        if (jsonStr.lora && jsonStr.lora !== '') {
+          selectedLoras.value = jsonStr.lora
         }
+
+        if (jsonStr.temp_lora && jsonStr.temp_lora.length > 0 && jsonStr.temp_lora !== '') {
+          const tempDataJson = jsonStr.temp_lora
+          selectedLoras.value = tempDataJson
+        }
+      } catch (error) {
+        // console.log('读取数据错误：', error)
+        message({ type: 'warn', str: 'promptBox.settings.errorPrompt' })
+      }
     }
-}
+  }
 
-watch(selectedLoras, (newLoras) => {
-    updateLoraStackInfoToWindows()
-}, { deep: true })
+  const showCard = ref(false)
+  const hoveFileName = ref('')
+  const paddingLeftValue = ref(100)
+  const paddingTopValue = ref(0)
+  const loraStackItemRef = ref()
+  const isEnterCatd = ref(false)
+  const isHovering = ref(false)
+  const loraCardItem = ref()
 
-const updateLoraStackInfoToWindows = () => {
-    if (selectedLoras.value.length > 0) {
-        const tempLora = selectedLoras.value.filter(lora => !lora.hidden);
-        let putJson = {
-            lora: "",
-            temp_lora: selectedLoras.value
-        }
-        if (tempLora.length > 0) {
-            putJson.lora = tempLora
-        }
-        const jsonStr = JSON.stringify(putJson)
-        window.postMessage({
-            type: 'weilin_prompt_ui_prompt_finish_lora_stack_' + seed.value,
-            data: jsonStr
-        }, '*')
+  // 打开Lora管理器
+  const openLoraManager = () => {
+    window.postMessage(
+      { type: 'weilin_prompt_ui_openLoraManager_addLora_stack', seed: seed.value },
+      '*'
+    )
+  }
+
+  // 添加切换隐藏状态的方法
+  const toggleHideLora = (lora) => {
+    lora.hidden = !lora.hidden
+  }
+
+  const handleMouseHover = (fileName, event) => {
+    isHovering.value = true
+    if (hoveFileName.value === fileName && showCard.value) {
+      return
+    }
+
+    const hoveredCard = event.currentTarget
+    const cardRect = hoveredCard.getBoundingClientRect()
+    const cardWidth = 450
+
+    // 默认显示在左侧
+    const position = {
+      left: cardRect.left - cardWidth - 10,
+      top: cardRect.top
+    }
+
+    // 如果左侧空间不足(小于10px)，则显示在右侧
+    if (position.left < 10) {
+      position.left = cardRect.right + 10
+    }
+
+    // 确保不会超出视口顶部和底部
+    position.top = Math.max(10, Math.min(position.top, window.innerHeight - 310))
+
+    paddingLeftValue.value = position.left
+    paddingTopValue.value = position.top
+
+    showCard.value = true
+    hoveFileName.value = fileName
+    // console.log(fileName)
+    nextTick(() => {
+      loraCardItem.value.refresh()
+    })
+  }
+
+  const handleMouseLeave = () => {
+    isHovering.value = false
+    setTimeout(() => {
+      if (!isEnterCatd.value && !isHovering.value) {
+        showCard.value = false
+        hoveFileName.value = ''
+        isEnterCatd.value = false
+      }
+    }, 200)
+  }
+
+  const handEnterCard = () => {
+    // console.log("enter")
+    isEnterCatd.value = true
+    isHovering.value = true
+  }
+
+  const handleEnterLeave = () => {
+    showCard.value = false
+    hoveFileName.value = ''
+    isEnterCatd.value = false
+  }
+
+  // 添加Lora
+  const addLora = (lora) => {
+    // 检查是否已存在（兼容堆节点场景的重复添加）
+    const existingIndex = selectedLoras.value.findIndex((item) => item.name === lora.name)
+
+    // 场景1：首次添加LoRA
+    if (existingIndex === -1) {
+      selectedLoras.value.push({
+        name: lora.name,
+        weight: 1,
+        text_encoder_weight: 1,
+        ...lora
+      })
     } else {
-        const putJson = {
-            lora: "",
-            temp_lora: ""
-        }
-        const jsonStr = JSON.stringify(putJson)
-        window.postMessage({
-            type: 'weilin_prompt_ui_prompt_finish_lora_stack_' + seed.value,
-            data: jsonStr
-        }, '*')
+      // 场景2：LoRA已存在（堆节点复用/重新加载），更新信息
+      selectedLoras.value[existingIndex] = {
+        ...selectedLoras.value[existingIndex],
+        ...lora,
+        weight: selectedLoras.value[existingIndex].weight, // 保留用户设置的权重
+        text_encoder_weight: selectedLoras.value[existingIndex].text_encoder_weight
+      }
     }
-}
 
-// 拖拽相关
-const dragIndex = ref(null)
-const handleDragStart = (idx) => {
+    // 触发词不再自动添加，用户可以在LoRA详情中手动复制使用
+  }
+
+  // 移除Lora
+  const removeLora = (lora) => {
+    const index = selectedLoras.value.findIndex((item) => item.name === lora.name)
+    if (index > -1) {
+      selectedLoras.value.splice(index, 1)
+    }
+  }
+
+  const loraDetailLoraStackRef = ref()
+
+  const lookOnLora = (loraData) => {
+    // console.log('lookOnLora', loraData)
+    loraDetailLoraStackRef.value.open({ name: loraData.lora })
+  }
+
+  watch(
+    selectedLoras,
+    () => {
+      // 如果是从节点更新触发的，不发送消息回节点，避免循环
+      if (!isUpdatingFromNode) {
+        updateLoraStackInfoToWindows()
+      }
+    },
+    { deep: true }
+  )
+
+  const updateLoraStackInfoToWindows = () => {
+    // 1. 更新Lora数据
+    const tempLora = selectedLoras.value.filter((lora) => !lora.hidden)
+    const putJson = {
+      lora: tempLora.length > 0 ? tempLora : '',
+      temp_lora: selectedLoras.value.length > 0 ? selectedLoras.value : []
+    }
+    const jsonStr = JSON.stringify(putJson)
+
+    // 发送Lora数据到节点
+    window.postMessage(
+      {
+        type: `weilin_prompt_ui_prompt_node_finish_lora_stack_${seed.value}`,
+        data: jsonStr
+      },
+      '*'
+    )
+
+    // 2. 发送Lora标签到节点（新增）
+    const loraTags = tempLora.map((lora) => {
+      const loraName = lora.lora ? lora.lora.replace('.safetensors', '') : lora.name
+      return `<wlr:${loraName}:${lora.weight || 1}:${lora.text_encoder_weight || 1}:${lora.trigger_weight || 1}>`
+    })
+
+    window.postMessage(
+      {
+        type: `weilin_prompt_ui_update_lora_tags_${seed.value}`,
+        tags: loraTags
+      },
+      '*'
+    )
+  }
+
+  // 拖拽相关
+  const dragIndex = ref(null)
+  const handleDragStart = (idx) => {
     dragIndex.value = idx
-}
-const handleDrop = (idx) => {
-    if (dragIndex.value === null || dragIndex.value === idx) return
+  }
+  const handleDrop = (idx) => {
+    if (dragIndex.value === null || dragIndex.value === idx) {
+      return
+    }
     const moved = selectedLoras.value.splice(dragIndex.value, 1)[0]
     selectedLoras.value.splice(idx, 0, moved)
     dragIndex.value = null
     updateLoraStackInfoToWindows()
-}
+  }
 
-defineExpose({
+  defineExpose({
     initLoraStack
-})
-
+  })
 </script>
 
 <style scoped>
-.weilin_prompt_ui_lora-stack {
+  .weilin_prompt_ui_lora-stack {
     height: 100%;
     width: 100%;
     background: var(--weilin-prompt-ui-primary-bg);
     transition: width 0.3s ease;
     overflow: hidden;
     box-sizing: border-box;
-}
+  }
 
-.weilin_prompt_ui_lora-content {
+  .weilin_prompt_ui_lora-content {
     width: 100%;
     height: 100%;
     display: flex;
     flex-direction: column;
     margin-left: 0;
-}
+  }
 
-.weilin_prompt_ui_lora-header {
+  .weilin_prompt_ui_lora-header {
     padding: 8px 16px;
     border-bottom: 1px solid var(--weilin-prompt-ui-border-color);
     display: flex;
@@ -310,15 +442,15 @@ defineExpose({
     align-items: center;
     border-top-right-radius: 8px;
     border-top-left-radius: 8px;
-}
+  }
 
-.weilin_prompt_ui_lora-header h3 {
+  .weilin_prompt_ui_lora-header h3 {
     margin: 0;
     font-size: 16px;
     color: var(--weilin-prompt-ui-primary-text);
-}
+  }
 
-.weilin_prompt_ui_close-btn {
+  .weilin_prompt_ui_close-btn {
     border: none;
     background: none;
     cursor: pointer;
@@ -327,44 +459,44 @@ defineExpose({
     display: flex;
     align-items: center;
     justify-content: center;
-}
+  }
 
-.weilin_prompt_ui_close-btn:hover {
+  .weilin_prompt_ui_close-btn:hover {
     background-color: var(--weilin-prompt-ui-hover-bg-color);
-}
+  }
 
-.weilin_prompt_ui_close-btn svg {
+  .weilin_prompt_ui_close-btn svg {
     fill: var(--weilin-prompt-ui-secondary-text);
-}
+  }
 
-.weilin_prompt_ui_lora-body {
+  .weilin_prompt_ui_lora-body {
     flex: 1;
     overflow-y: auto;
     padding: 16px;
-}
+  }
 
-.weilin_prompt_ui_lora-list {
+  .weilin_prompt_ui_lora-list {
     display: flex;
     flex-direction: column;
     gap: 8px;
-}
+  }
 
-.weilin_prompt_ui_lora-title {
+  .weilin_prompt_ui_lora-title {
     margin: 0;
     font-size: 16px;
     color: var(--weilin-prompt-ui-primary-text);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-}
+  }
 
-.header-actions {
+  .header-actions {
     display: flex;
     gap: 8px;
     align-items: center;
-}
+  }
 
-.weilin_prompt_ui_add-btn {
+  .weilin_prompt_ui_add-btn {
     border: none;
     background: none;
     cursor: pointer;
@@ -373,53 +505,55 @@ defineExpose({
     display: flex;
     align-items: center;
     justify-content: center;
-}
+  }
 
-.weilin_prompt_ui_add-btn:hover {
+  .weilin_prompt_ui_add-btn:hover {
     background-color: var(--weilin-prompt-ui-hover-bg-color);
-}
+  }
 
-.weilin_prompt_ui_add-btn svg {
+  .weilin_prompt_ui_add-btn svg {
     fill: var(--weilin-prompt-ui-secondary-text);
-}
+  }
 
-.lora-item {
+  .lora-item {
     background: var(--weilin-prompt-ui-secondary-bg);
     border: 1px solid var(--weilin-prompt-ui-border-color);
     border-radius: 8px;
     margin-bottom: 12px;
     overflow: hidden;
     transition: all 0.3s ease;
-}
+  }
 
-.lora-item:hover {
+  .lora-item:hover {
     border-color: var(--weilin-prompt-ui-primary-color);
     box-shadow: 0 2px 8px var(--weilin-prompt-ui-shadow-color);
-}
+  }
 
-.lora-info {
+  .lora-info {
     display: flex;
     flex-direction: column;
     width: 100%;
-}
+  }
 
-.hidden-lora {
-    background: rgba(255, 200, 200, 0.2) !important;
+  .hidden-lora {
+    background: rgb(255 200 200 / 0.2) !important;
+
     /* 淡红色背景 */
-    border-color: rgba(255, 150, 150, 0.5) !important;
-    /* 可选：淡红色边框 */
-}
+    border-color: rgb(255 150 150 / 0.5) !important;
 
-.lora-header {
+    /* 可选：淡红色边框 */
+  }
+
+  .lora-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 8px 12px;
     background: var(--weilin-prompt-ui-primary-bg);
     border-bottom: 1px solid var(--weilin-prompt-ui-border-color);
-}
+  }
 
-.lora-name {
+  .lora-name {
     font-size: 14px;
     font-weight: 500;
     color: var(--weilin-prompt-ui-primary-text);
@@ -427,52 +561,52 @@ defineExpose({
     text-overflow: ellipsis;
     white-space: nowrap;
     max-width: 200px;
-}
+  }
 
-.lora-actions {
+  .lora-actions {
     display: flex;
     align-items: center;
     gap: 8px;
-}
+  }
 
-/* 输入框一行显示，label在上方 */
-.lora-weights-row {
+  /* 输入框一行显示，label在上方 */
+  .lora-weights-row {
     display: flex;
     flex-direction: row;
     gap: 5px;
     align-items: flex-end;
     padding: 12px;
     background: var(--weilin-prompt-ui-secondary-bg);
-}
+  }
 
-.weight-item-col {
+  .weight-item-col {
     display: flex;
     flex-direction: column;
     gap: 2px;
     width: 60px;
-}
+  }
 
-.weight-item-col label {
+  .weight-item-col label {
     font-size: 11px;
     color: var(--weilin-prompt-ui-secondary-text);
     margin-bottom: 2px;
-}
+  }
 
-/* Switch标签上方且字体小 */
-.switch-item-col {
+  /* Switch标签上方且字体小 */
+  .switch-item-col {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 2px;
-}
+  }
 
-.switch-item-col label {
+  .switch-item-col label {
     font-size: 11px;
     color: var(--weilin-prompt-ui-secondary-text);
     margin-bottom: 2px;
-}
+  }
 
-.lora-weight {
+  .lora-weight {
     flex: 1;
     width: 100%;
     padding: 4px 6px;
@@ -482,20 +616,20 @@ defineExpose({
     color: var(--weilin-prompt-ui-primary-text);
     font-size: 12px;
     transition: all 0.3s ease;
-}
+  }
 
-.lora-weight:hover {
+  .lora-weight:hover {
     border-color: var(--weilin-prompt-ui-primary-color);
-}
+  }
 
-.lora-weight:focus {
+  .lora-weight:focus {
     border-color: var(--weilin-prompt-ui-primary-color);
     outline: none;
     box-shadow: 0 0 0 2px var(--weilin-prompt-ui-primary-color-fade);
-}
+  }
 
-.remove-btn,
-.look-on-btn {
+  .remove-btn,
+  .look-on-btn {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -505,76 +639,72 @@ defineExpose({
     cursor: pointer;
     border-radius: 4px;
     transition: all 0.3s ease;
-}
+  }
 
-.remove-btn:hover,
-.look-on-btn:hover {
+  .remove-btn:hover,
+  .look-on-btn:hover {
     background-color: var(--weilin-prompt-ui-hover-bg-color);
-}
+  }
 
-.remove-btn svg,
-.look-on-btn svg {
+  .remove-btn svg,
+  .look-on-btn svg {
     fill: var(--weilin-prompt-ui-secondary-text);
-}
+  }
 
-.remove-btn:hover svg {
+  .remove-btn:hover svg {
     fill: var(--weilin-prompt-ui-danger-color);
-}
+  }
 
-.look-on-btn:hover svg {
+  .look-on-btn:hover svg {
     fill: var(--weilin-prompt-ui-primary-color);
-}
+  }
 
-/* Switch 开关样式 */
-.switch-item {
+  /* Switch 开关样式 */
+  .switch-item {
     display: flex;
     align-items: center;
     gap: 6px;
-}
+  }
 
-.switch {
+  .switch {
     position: relative;
     display: inline-block;
     width: 36px;
     height: 20px;
-}
+  }
 
-.switch input {
+  .switch input {
     opacity: 0;
     width: 0;
     height: 0;
-}
+  }
 
-.switch input:checked + .slider:before {
-  transform: translateX(16px);
-}
+  .switch input:checked + .slider::before {
+    transform: translateX(16px);
+  }
 
-
-.slider {
+  .slider {
     position: absolute;
     cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    inset: 0;
     background-color: #ccc;
-    transition: .4s;
+    transition: 0.4s;
     border-radius: 20px;
-}
+  }
 
-.slider:before {
+  .slider::before {
     position: absolute;
-    content: "";
+    content: '';
     height: 16px;
     width: 16px;
     left: 2px;
     bottom: 2px;
     background-color: white;
-    transition: .4s;
+    transition: 0.4s;
     border-radius: 50%;
-}
+  }
 
-.switch input:checked+.slider {
+  .switch input:checked + .slider {
     background-color: var(--weilin-prompt-ui-primary-color);
-}
+  }
 </style>

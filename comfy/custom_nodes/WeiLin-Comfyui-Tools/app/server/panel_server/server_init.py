@@ -1,24 +1,26 @@
-import os
 import json
+import os
 from http.server import BaseHTTPRequestHandler
+
 from ..dao.dao import set_language
 from .ymal_utils import mergerDataToDb
 
+
 class FileListHandler:
-    def __init__(self, directory='user_data'):
+    def __init__(self, directory="user_data"):
         current_dir = os.path.dirname(os.path.abspath(__file__))
-        db_path = os.path.join(current_dir, f'../../../user_data')
+        db_path = os.path.join(current_dir, "../../../user_data")
         self.directory = db_path
 
     def handle(self, request_handler: BaseHTTPRequestHandler):
-        if request_handler.path == '/api/file_list':
+        if request_handler.path == "/api/file_list":
             file_list = self.get_file_list()
             response = json.dumps({"data": file_list})
             request_handler.send_response(200)
-            request_handler.send_header('Content-type', 'application/json')
-            request_handler.send_header('Access-Control-Allow-Origin', '*')
+            request_handler.send_header("Content-type", "application/json")
+            request_handler.send_header("Access-Control-Allow-Origin", "*")
             request_handler.end_headers()
-            request_handler.wfile.write(response.encode('utf-8'))
+            request_handler.wfile.write(response.encode("utf-8"))
             return True
         return False
 
@@ -27,25 +29,23 @@ class FileListHandler:
         for root, dirs, files in os.walk(self.directory):
             for file in files:
                 file_path = os.path.join(root, file)
-                file_list.append({
-                    'path': file_path,
-                    'name': file
-                })
+                file_list.append({"path": file_path, "name": file})
         return file_list
+
 
 class LanguageHandler:
     def _set_headers(self, handler):
-        handler.send_header('Content-type', 'application/json')
-        handler.send_header('Access-Control-Allow-Origin', '*')
-        handler.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-        handler.send_header('Access-Control-Allow-Headers', 'x-api-key,Content-Type')
+        handler.send_header("Content-type", "application/json")
+        handler.send_header("Access-Control-Allow-Origin", "*")
+        handler.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        handler.send_header("Access-Control-Allow-Headers", "x-api-key,Content-Type")
 
     def handle(self, request_handler: BaseHTTPRequestHandler):
-        if request_handler.path == '/api/set_language':
-            if request_handler.command == 'OPTIONS':
+        if request_handler.path == "/api/set_language":
+            if request_handler.command == "OPTIONS":
                 self.handle_options(request_handler)
                 return True
-            elif request_handler.command == 'POST':
+            elif request_handler.command == "POST":
                 self.handle_post(request_handler)
                 return True
         return False
@@ -57,10 +57,10 @@ class LanguageHandler:
 
     def handle_post(self, request_handler: BaseHTTPRequestHandler):
         try:
-            content_length = int(request_handler.headers['Content-Length'])
+            content_length = int(request_handler.headers["Content-Length"])
             post_data = request_handler.rfile.read(content_length)
             # 确保读取到的数据是字符串
-            post_data = post_data.decode('utf-8')
+            post_data = post_data.decode("utf-8")
             data = json.loads(post_data)
             name = data.get("name")
 
@@ -76,33 +76,36 @@ class LanguageHandler:
                     response = json.dumps({"status": "error", "message": str(e)})
                     request_handler.send_response(500)
             else:
-                response = json.dumps({"status": "error", "message": "Missing 'name' parameter"})
+                response = json.dumps(
+                    {"status": "error", "message": "Missing 'name' parameter"}
+                )
                 request_handler.send_response(400)
 
             self._set_headers(request_handler)
             request_handler.end_headers()
-            request_handler.wfile.write(response.encode('utf-8'))
+            request_handler.wfile.write(response.encode("utf-8"))
         except Exception as e:
             print(f"Error handling request: {e}")
             request_handler.send_response(500)
             self._set_headers(request_handler)
             request_handler.end_headers()
             response = json.dumps({"status": "error", "message": str(e)})
-            request_handler.wfile.write(response.encode('utf-8'))
+            request_handler.wfile.write(response.encode("utf-8"))
+
 
 class YamlConvertHandler:
     def _set_headers(self, handler):
-        handler.send_header('Content-type', 'application/json')
-        handler.send_header('Access-Control-Allow-Origin', '*')
-        handler.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-        handler.send_header('Access-Control-Allow-Headers', 'x-api-key,Content-Type')
+        handler.send_header("Content-type", "application/json")
+        handler.send_header("Access-Control-Allow-Origin", "*")
+        handler.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        handler.send_header("Access-Control-Allow-Headers", "x-api-key,Content-Type")
 
     def handle(self, request_handler: BaseHTTPRequestHandler):
-        if request_handler.path == '/api/convert_yaml':
-            if request_handler.command == 'OPTIONS':
+        if request_handler.path == "/api/convert_yaml":
+            if request_handler.command == "OPTIONS":
                 self.handle_options(request_handler)
                 return True
-            elif request_handler.command == 'POST':
+            elif request_handler.command == "POST":
                 self.handle_post(request_handler)
                 return True
         return False
@@ -114,14 +117,16 @@ class YamlConvertHandler:
 
     def handle_post(self, request_handler: BaseHTTPRequestHandler):
         try:
-            content_length = int(request_handler.headers['Content-Length'])
+            content_length = int(request_handler.headers["Content-Length"])
             post_data = request_handler.rfile.read(content_length)
-            data = json.loads(post_data.decode('utf-8'))
-            
+            data = json.loads(post_data.decode("utf-8"))
+
             yaml_file = data.get("yaml_file")
-            
+
             if not yaml_file:
-                response = json.dumps({"status": "error", "message": "Missing yaml_file parameter"})
+                response = json.dumps(
+                    {"status": "error", "message": "Missing yaml_file parameter"}
+                )
                 request_handler.send_response(400)
             else:
                 try:
@@ -131,14 +136,14 @@ class YamlConvertHandler:
                 except Exception as e:
                     response = json.dumps({"status": "error", "message": str(e)})
                     request_handler.send_response(500)
-            
+
             self._set_headers(request_handler)
             request_handler.end_headers()
-            request_handler.wfile.write(response.encode('utf-8'))
+            request_handler.wfile.write(response.encode("utf-8"))
         except Exception as e:
             print(f"Error handling request: {e}")
             request_handler.send_response(500)
             self._set_headers(request_handler)
             request_handler.end_headers()
             response = json.dumps({"status": "error", "message": str(e)})
-            request_handler.wfile.write(response.encode('utf-8'))
+            request_handler.wfile.write(response.encode("utf-8"))

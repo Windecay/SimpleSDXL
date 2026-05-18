@@ -1,20 +1,23 @@
 from ..dao.dao import fetch_one
 
+
 async def get_translation_from_tag_tags(word):
     """从 tag_tags 表中获取单词的翻译"""
-    query = 'SELECT desc, color FROM tag_tags WHERE text = ?'
-    result = await fetch_one('tags',query, (word,))
+    query = "SELECT desc, color FROM tag_tags WHERE text = ?"
+    result = await fetch_one("tags", query, (word,))
     if result:
         return {"translate": result[0], "color": result[1], "color_id": -1}
     return None
 
+
 async def get_translation_from_danbooru_tag(word):
     """从 danbooru_tag 表中获取单词的翻译"""
-    query = 'SELECT translate, color_id FROM danbooru_tag WHERE tag = ?'
-    result = await fetch_one('danbooru',query, (word,))
+    query = "SELECT translate, color_id FROM danbooru_tag WHERE tag = ?"
+    result = await fetch_one("danbooru", query, (word,))
     if result:
         return {"translate": result[0], "color": None, "color_id": result[1]}
     return None
+
 
 async def get_translation(word):
     """从数据库中获取单词的翻译，优先从 tag_tags 表中获取"""
@@ -22,6 +25,7 @@ async def get_translation(word):
     if translation:
         return translation
     return await get_translation_from_danbooru_tag(word)
+
 
 async def translate_phrase(phrase):
     """翻译整个词组"""
@@ -32,7 +36,7 @@ async def translate_phrase(phrase):
     while i < len(words):
         found_translation = False
         for j in range(len(words), i, -1):
-            sub_phrase = ' '.join(words[i:j])
+            sub_phrase = " ".join(words[i:j])
             translation = await get_translation(sub_phrase)
             if translation:
                 translated_dict["translate"] += translation["translate"] + " "

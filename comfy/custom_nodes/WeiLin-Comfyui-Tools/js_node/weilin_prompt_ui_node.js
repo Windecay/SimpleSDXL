@@ -3,16 +3,23 @@
 
 console.log('[WeiLin] JavaScript file loaded: weilin_prompt_ui_node.js');
 
+// 加载CSS修复文件
 (function() {
-    const cssId = 'weilin-fix-css';
-    if (!document.getElementById(cssId)) {
+    // 尝试多个可能的路径
+    const possiblePaths = [
+        './extensions/weilin-comfyui-tools/weilin_fix.css',
+        './extensions/weilin-comfyui-tools/js_node/weilin_fix.css',
+        './weilin_fix.css'
+    ];
+    
+    possiblePaths.forEach(path => {
         const link = document.createElement('link');
-        link.id = cssId;
         link.rel = 'stylesheet';
         link.type = 'text/css';
-        link.href = new URL('./weilin_fix.css', import.meta.url).href;
+        link.href = path;
         document.head.appendChild(link);
-    }
+    });
+    
     console.log('[WeiLin] CSS fix files loaded');
 })();
 
@@ -36,9 +43,9 @@ if (window.weilinExtensionRegistered) {
         setTimeout(check, 100);
       } else {
         console.error('[WeiLin] Failed to find app object after', maxAttempts, 'attempts');
-        console.log('[WeiLin] window.comfyAPI:', window.comfyAPI);
-        console.log('[WeiLin] window.app:', window.app);
-        console.log('[WeiLin] window.comfyApp:', window.comfyApp);
+        // console.log('[WeiLin] window.comfyAPI:', window.comfyAPI);
+        // console.log('[WeiLin] window.app:', window.app);
+        // console.log('[WeiLin] window.comfyApp:', window.comfyApp);
       }
     };
     check();
@@ -130,17 +137,60 @@ function loadResourcesOnDemand() {
     const checkAllLoaded = () => {
       loadedCount++;
       if (loadedCount === totalResources) {
-        resourcesLoaded = true;
-        resourcesLoading = false;
-        resolve();
+        // 等待Vue应用初始化完成
+        waitForVueAppInit(resolve);
       }
     };
     
-    // 加载主JS (648KB) - 使用defer确保不阻塞
+    // 等待Vue应用初始化完成的函数
+    const waitForVueAppInit = (resolveCallback) => {
+      // 检查Vue应用是否已初始化的标志：
+      // 1. weilin_comfyui_tools_prompt_ui_div 元素存在
+      // 2. Vue应用已挂载（检查 __vue_app__ 或元素内部有内容）
+      const checkVueReady = () => {
+        const container = document.getElementById('weilin_comfyui_tools_prompt_ui_div');
+        if (!container) return false;
+        
+        // Vue 3 会在挂载元素上设置 __vue_app__ 属性
+        // 或者检查容器内是否有Vue渲染的内容
+        const hasVueApp = container.__vue_app__ || 
+                          container.__vue__ || 
+                          container.children.length > 0;
+        
+        if (hasVueApp) {
+          console.log('[WeiLin] Vue app initialized, resources ready');
+          resourcesLoaded = true;
+          resourcesLoading = false;
+          resolveCallback();
+          return true;
+        }
+        return false;
+      };
+      
+      // 立即检查一次
+      if (checkVueReady()) return;
+      
+      // 如果还没准备好，使用轮询检查
+      let attempts = 0;
+      const maxAttempts = 100; // 最多等待10秒
+      const pollInterval = setInterval(() => {
+        attempts++;
+        if (checkVueReady()) {
+          clearInterval(pollInterval);
+        } else if (attempts >= maxAttempts) {
+          console.warn('[WeiLin] Vue app initialization timeout, proceeding anyway');
+          clearInterval(pollInterval);
+          resourcesLoaded = true;
+          resourcesLoading = false;
+          resolveCallback();
+        }
+      }, 100);
+    };
+    
+    // 加载主JS (648KB) - 移除defer，让脚本立即执行
     var script1 = document.createElement('script');
-    script1.src = '/weilin/prompt_ui/webjs?v=' + WEILIN_VERSION;
+    script1.src = './weilin/prompt_ui/webjs?v=' + WEILIN_VERSION;
     script1.type = 'text/javascript';
-    script1.defer = true;
     script1.onload = checkAllLoaded;
     script1.onerror = checkAllLoaded;
     document.head.appendChild(script1);
@@ -149,16 +199,15 @@ function loadResourcesOnDemand() {
     var link1 = document.createElement('link');
     link1.rel = 'stylesheet';
     link1.type = 'text/css';
-    link1.href = '/weilin/prompt_ui/file/style.css?v=' + WEILIN_VERSION;
+    link1.href = './weilin/prompt_ui/file/style.css?v=' + WEILIN_VERSION;
     link1.onload = checkAllLoaded;
     link1.onerror = checkAllLoaded;
     document.head.appendChild(link1);
 
     // loraStack 脚本载入
     var script2 = document.createElement('script');
-    script2.src = '/weilin/prompt_ui/file/lora_stack.js?v=' + WEILIN_VERSION;
+    script2.src = './weilin/prompt_ui/file/lora_stack.js?v=' + WEILIN_VERSION;
     script2.type = 'text/javascript';
-    script2.defer = true;
     script2.onload = checkAllLoaded;
     script2.onerror = checkAllLoaded;
     document.head.appendChild(script2);
@@ -167,7 +216,7 @@ function loadResourcesOnDemand() {
     var link2 = document.createElement('link');
     link2.rel = 'stylesheet';
     link2.type = 'text/css';
-    link2.href = '/weilin/prompt_ui/file/lora_stack.css?v=' + WEILIN_VERSION;
+    link2.href = './weilin/prompt_ui/file/lora_stack.css?v=' + WEILIN_VERSION;
     link2.onload = checkAllLoaded;
     link2.onerror = checkAllLoaded;
     document.head.appendChild(link2);
@@ -193,7 +242,7 @@ waitForApp((app) => {
       // 尝试获取所有已注册的节点
       if (window.comfyAPI && window.comfyAPI.app && window.comfyAPI.app.app) {
         const app = window.comfyAPI.app.app;
-        console.log('[WeiLin] App object:', app);
+        // console.log('[WeiLin] App object:', app);
         
         // 检查nodes属性
         if (app.nodes) {
@@ -201,7 +250,7 @@ waitForApp((app) => {
           
           // 查找WeiLin节点
           const weilinNodes = Object.keys(app.nodes).filter(name => name.includes('WeiLin'));
-          console.log('[WeiLin] WeiLin nodes found:', weilinNodes);
+          // console.log('[WeiLin] WeiLin nodes found:', weilinNodes);
         }
       }
     }, 2000);
@@ -210,7 +259,7 @@ waitForApp((app) => {
     console.log('[WeiLin] Extension setup');
   },
   async beforeRegisterNodeDef(nodeType, nodeData, app) {
-    console.log('[WeiLin] beforeRegisterNodeDef called, nodeData.name:', nodeData.name);
+    // console.log('[WeiLin] beforeRegisterNodeDef called, nodeData.name:', nodeData.name);
     
     // 检查是否是WeiLin节点
     if (
@@ -265,6 +314,14 @@ waitForApp((app) => {
         // ========================================
         const fixCurrentNodeDomWidgets = () => {
           if (!this.widgets) return;
+          // 三种 WeiLin 节点统一保留 Comfy 原生缩放链，
+          // 避免小画布/缩放时 dom-widget 与 canvas widget 叠层错位。
+          if (
+            nodeData.name === "WeiLinPromptUI" ||
+            nodeData.name === "WeiLinPromptUIWithoutLora" ||
+            nodeData.name === "WeiLinPromptUIOnlyLoraStack"
+          ) return;
+          const processedDomWidgets = new Set();
           
           this.widgets.forEach(widget => {
             if (widget.element) {
@@ -272,17 +329,25 @@ waitForApp((app) => {
               let parent = widget.element.parentElement;
               while (parent) {
                 if (parent.classList && parent.classList.contains('dom-widget')) {
-                  // 只修复当前节点的dom-widget
-                  // 设置pointer-events: none让画布可以交互
+                  if (processedDomWidgets.has(parent)) {
+                    parent = parent.parentElement;
+                    continue;
+                  }
+                  processedDomWidgets.add(parent);
+
+                  const isFirstFix = !parent.classList.contains('weilin-owned-dom-widget');
                   parent.style.setProperty('pointer-events', 'none', 'important');
-                  parent.classList.add('weilin-dom-widget-fixed');
+                  parent.classList.add('weilin-owned-dom-widget');
+                  parent.style.setProperty('position', 'absolute', 'important');
+                  parent.classList.remove('size-full');
+                  if (isFirstFix) {
+                    console.log('[WeiLin] Fixed dom-widget for node:', nodeData.name);
+                  }
                   
                   // 确保内部元素可以交互
                   if (widget.element) {
                     widget.element.style.setProperty('pointer-events', 'auto', 'important');
                   }
-                  
-                  console.log('[WeiLin] Fixed dom-widget for node:', nodeData.name);
                   break;
                 }
                 parent = parent.parentElement;
@@ -338,38 +403,69 @@ waitForApp((app) => {
           }
         }
 
+        // 为不同的按钮使用不同的ID，避免冲突（必须在使用前声明）
+        // 修复Bug：初始化时直接生成唯一UUID，防止被全局窗口(空ID)广播的消息意外覆盖
+        let promptBoxRandomID = generateUUID();
+        let loraStackRandomID = generateUUID();
+
         // 监听lora数据变化，通知UI窗口同步
         if (nodeData.name === "WeiLinPromptUI" || nodeData.name === "WeiLinPromptUIOnlyLoraStack") {
-          const hookTextareaValueChange = (textarea) => {
-            if (!textarea || textarea.__weilinValueHooked) return;
-            textarea.__weilinValueHooked = true;
-
-            textarea.addEventListener('input', () => {
+          // 监听 lora_str 变化
+          if (nodeTextAreaList[1]) {
+            const loraTextarea = nodeTextAreaList[1];
+            const originalLoraValue = loraTextarea.value;
+            
+            // 使用 MutationObserver 监听值变化
+            const loraObserver = new MutationObserver(() => {
+              if (loraTextarea.value !== originalLoraValue) {
+                notifyLoraDataChange();
+              }
+            });
+            
+            // 同时监听 input 事件
+            loraTextarea.addEventListener('input', () => {
               notifyLoraDataChange();
             });
-
-            const proto = Object.getPrototypeOf(textarea);
-            const desc = Object.getOwnPropertyDescriptor(proto, 'value');
-            if (!desc || !desc.configurable || typeof desc.get !== 'function' || typeof desc.set !== 'function') return;
-
-            Object.defineProperty(textarea, 'value', {
+            
+            // 监听 value 属性变化
+            let currentLoraValue = loraTextarea.value;
+            Object.defineProperty(loraTextarea, 'value', {
               get() {
-                return desc.get.call(this);
+                return currentLoraValue;
               },
               set(newValue) {
-                const oldValue = desc.get.call(this);
-                desc.set.call(this, newValue);
-                if (newValue !== oldValue) {
-                  notifyLoraDataChange();
-                }
+                currentLoraValue = newValue;
+                notifyLoraDataChange();
               },
-              enumerable: desc.enumerable,
+              enumerable: true,
               configurable: true
             });
-          };
-
-          hookTextareaValueChange(nodeTextAreaList[1]);
-          hookTextareaValueChange(nodeTextAreaList[3]);
+          }
+          
+          // 监听 temp_lora_str 变化
+          if (nodeTextAreaList[3]) {
+            const tempLoraTextarea = nodeTextAreaList[3];
+            const originalTempLoraValue = tempLoraTextarea.value;
+            
+            // 监听 input 事件
+            tempLoraTextarea.addEventListener('input', () => {
+              notifyLoraDataChange();
+            });
+            
+            // 监听 value 属性变化
+            let currentTempLoraValue = tempLoraTextarea.value;
+            Object.defineProperty(tempLoraTextarea, 'value', {
+              get() {
+                return currentTempLoraValue;
+              },
+              set(newValue) {
+                currentTempLoraValue = newValue;
+                notifyLoraDataChange();
+              },
+              enumerable: true,
+              configurable: true
+            });
+          }
         }
         
         // 通知UI窗口lora数据变化的函数
@@ -406,11 +502,14 @@ waitForApp((app) => {
 
         // Lora Stack 创建可视化节点
         if (nodeData.name === "WeiLinPromptUIOnlyLoraStack") {
+          // 确保资源加载完成后再创建widget
+          await loadResourcesOnDemand();
           await createLoraStackWidget(this, thisNodeSeed,nodeTextAreaList[3]);
         }
 
         // console.log(this)
 
+        // 修改的是这部分
         if (nodeData.name === "WeiLinPromptUI" ||
           nodeData.name === "WeiLinPromptUIWithoutLora") {
           globalNodeList.push({ seed: thisNodeSeed, text: nodeTextAreaList[0].value, id: this.id })
@@ -419,10 +518,12 @@ waitForApp((app) => {
 
           textarea.addEventListener('input', (event) => {
             const newValue = event.target.value;
-            updateNodeTextBySeed(newValue);
+            // 修复Bug：补充缺失的 thisNodeSeed 参数
+            updateNodeTextBySeed(thisNodeSeed, newValue);
             window.parent.postMessage({ type: 'weilin_prompt_ui_update_node_list_info', nodeList: globalNodeList }, '*')
           });
         }
+
 
         // 监听节点ID
         let currentThisId = this.id
@@ -479,40 +580,6 @@ waitForApp((app) => {
 
         //console.log(globalNodeList)
 
-        // 为不同的按钮使用不同的ID，避免冲突
-        let promptBoxRandomID = ""
-        let loraStackRandomID = ""
-
-        const applyLoraStackToNode = (jsonReponse) => {
-          if (nodeData.name !== "WeiLinPromptUI" && nodeData.name !== "WeiLinPromptUIOnlyLoraStack") return;
-
-          if (jsonReponse.lora && jsonReponse.lora.length > 0 && jsonReponse.lora != "") {
-            if (nodeTextAreaList[1]) nodeTextAreaList[1].value = JSON.stringify(jsonReponse.lora);
-            if (nodeWidgetList[1]) nodeWidgetList[1].value = JSON.stringify(jsonReponse.lora);
-          } else {
-            if (nodeTextAreaList[1]) nodeTextAreaList[1].value = "";
-            if (nodeWidgetList[1]) nodeWidgetList[1].value = "";
-          }
-
-          if (jsonReponse.temp_lora && jsonReponse.temp_lora != "") {
-            if (nodeTextAreaList[3]) nodeTextAreaList[3].value = JSON.stringify(jsonReponse.temp_lora);
-            if (nodeWidgetList[3]) nodeWidgetList[3].value = JSON.stringify(jsonReponse.temp_lora);
-          } else {
-            if (nodeTextAreaList[3]) nodeTextAreaList[3].value = "";
-            if (nodeWidgetList[3]) nodeWidgetList[3].value = "";
-          }
-
-          if (nodeTextAreaList[3] && nodeTextAreaList[3].value && nodeTextAreaList[3].value.length > 0) {
-            window.weilinGlobalSelectedLoras[thisNodeSeed] = JSON.parse(nodeTextAreaList[3].value)
-          } else {
-            window.weilinGlobalSelectedLoras[thisNodeSeed] = []
-          }
-
-          if (typeof renderAllLoras === 'function') {
-            renderAllLoras(thisNodeSeed)
-          }
-        };
-
         // 定义消息处理函数，保存引用以便后续移除
         const messageHandler = (event) => {
           // console.log(e)
@@ -526,7 +593,7 @@ waitForApp((app) => {
 
             if (nodeData.name === "WeiLinPromptUI") {
               // console.log(jsonReponse.lora.length)
-              if (jsonReponse.lora && jsonReponse.lora.length > 0 && jsonReponse.lora != "") {
+              if (jsonReponse.lora && Array.isArray(jsonReponse.lora) && jsonReponse.lora.length > 0) {
                 if (nodeTextAreaList[1]) nodeTextAreaList[1].value = JSON.stringify(jsonReponse.lora);
                 if (nodeWidgetList[1]) nodeWidgetList[1].value = JSON.stringify(jsonReponse.lora);
               } else {
@@ -535,7 +602,7 @@ waitForApp((app) => {
               }
             }
 
-            if (jsonReponse.temp_prompt && jsonReponse.temp_prompt != "") {
+            if (jsonReponse.temp_prompt && (typeof jsonReponse.temp_prompt === 'object') && Object.keys(jsonReponse.temp_prompt).length > 0) {
               if (nodeTextAreaList[2]) nodeTextAreaList[2].value = JSON.stringify(jsonReponse.temp_prompt);
               if (nodeWidgetList[2]) nodeWidgetList[2].value = JSON.stringify(jsonReponse.temp_prompt);
             }else {
@@ -544,7 +611,7 @@ waitForApp((app) => {
             }
 
             if (nodeData.name === "WeiLinPromptUI") {
-              if (jsonReponse.temp_lora && jsonReponse.temp_lora != "") {
+              if (jsonReponse.temp_lora && Array.isArray(jsonReponse.temp_lora)) {
                 if (nodeTextAreaList[3]) nodeTextAreaList[3].value = JSON.stringify(jsonReponse.temp_lora);
                 if (nodeWidgetList[3]) nodeWidgetList[3].value = JSON.stringify(jsonReponse.temp_lora);
               }else {
@@ -591,19 +658,118 @@ waitForApp((app) => {
               window.parent.postMessage({ type: 'weilin_prompt_ui_openPromptBox', id: promptBoxRandomID, prompt: data, node: nodeData.name }, '*')
             });
           
-          } else if (
-            (promptBoxRandomID && event.data.type === 'weilin_prompt_ui_prompt_finish_lora_stack_' + promptBoxRandomID) ||
-            (loraStackRandomID && event.data.type === 'weilin_prompt_ui_prompt_finish_lora_stack_' + loraStackRandomID)
-          ) {
+          } else if (event.data.type === 'weilin_prompt_ui_prompt_finish_lora_stack_' + promptBoxRandomID) {
             // 接收到更新LoraStack内容消息
             const jsonReponse = JSON.parse(event.data.data)
-            applyLoraStackToNode(jsonReponse)
+            // console.log(jsonReponse)
+            if (nodeData.name === "WeiLinPromptUI" || nodeData.name === "WeiLinPromptUIOnlyLoraStack") {
+              // console.log(jsonReponse.lora.length)
+              if (jsonReponse.lora && Array.isArray(jsonReponse.lora) && jsonReponse.lora.length > 0) {
+                if (nodeTextAreaList[1]) nodeTextAreaList[1].value = JSON.stringify(jsonReponse.lora);
+                if (nodeWidgetList[1]) nodeWidgetList[1].value = JSON.stringify(jsonReponse.lora);
+              } else {
+                if (nodeTextAreaList[1]) nodeTextAreaList[1].value = "";
+                if (nodeWidgetList[1]) nodeWidgetList[1].value = "";
+              }
+
+              if (jsonReponse.temp_lora && Array.isArray(jsonReponse.temp_lora)) {
+                if (nodeTextAreaList[3]) nodeTextAreaList[3].value = JSON.stringify(jsonReponse.temp_lora);
+                if (nodeWidgetList[3]) nodeWidgetList[3].value = JSON.stringify(jsonReponse.temp_lora);
+              }else{
+                if (nodeTextAreaList[3]) nodeTextAreaList[3].value = "";
+                if (nodeWidgetList[3]) nodeWidgetList[3].value = "";
+              }
+
+              if (nodeTextAreaList[3] && nodeTextAreaList[3].value && nodeTextAreaList[3].value.length > 0) {
+                window.weilinGlobalSelectedLoras[thisNodeSeed] = JSON.parse(nodeTextAreaList[3].value)
+              }else {
+                window.weilinGlobalSelectedLoras[thisNodeSeed]= []
+              }
+              renderAllLoras(thisNodeSeed)
+            }
           
           }else if (event.data.type === "weilin_prompt_ui_prompt_node_finish_lora_stack_" + thisNodeSeed) {
             // 接收到更新LoraStack内容消息
             const jsonReponse = JSON.parse(event.data.data)
-            if (nodeData.name === "WeiLinPromptUIOnlyLoraStack") {
-              applyLoraStackToNode(jsonReponse)
+            if (nodeData.name === "WeiLinPromptUI" || nodeData.name === "WeiLinPromptUIOnlyLoraStack") {
+              // 处理 lora 数据
+              if (jsonReponse.lora && Array.isArray(jsonReponse.lora) && jsonReponse.lora.length > 0) {
+                if (nodeTextAreaList[1]) nodeTextAreaList[1].value = JSON.stringify(jsonReponse.lora);
+                if (nodeWidgetList[1]) nodeWidgetList[1].value = JSON.stringify(jsonReponse.lora);
+              } else {
+                if (nodeTextAreaList[1]) nodeTextAreaList[1].value = "";
+                if (nodeWidgetList[1]) nodeWidgetList[1].value = "";
+              }
+              // 处理 temp_lora 数据 - 支持空数组
+              if (jsonReponse.temp_lora && Array.isArray(jsonReponse.temp_lora)) {
+                if (nodeTextAreaList[3]) nodeTextAreaList[3].value = JSON.stringify(jsonReponse.temp_lora);
+                if (nodeWidgetList[3]) nodeWidgetList[3].value = JSON.stringify(jsonReponse.temp_lora);
+                // 更新全局数据
+                window.weilinGlobalSelectedLoras[thisNodeSeed] = jsonReponse.temp_lora;
+              } else {
+                if (nodeTextAreaList[3]) nodeTextAreaList[3].value = "";
+                if (nodeWidgetList[3]) nodeWidgetList[3].value = "";
+                window.weilinGlobalSelectedLoras[thisNodeSeed] = [];
+              }
+              // 重新渲染节点上的Lora堆
+              renderAllLoras(thisNodeSeed)
+              // 广播消息给所有组件（包括内嵌Lora堆和独立窗口）
+              updateLoraStackInfoToWindows(thisNodeSeed)
+            }
+          }else if (event.data.type === `weilin_prompt_ui_update_lora_tags_${thisNodeSeed}`) {
+            // 处理来自独立窗口的Lora标签更新消息
+            const loraTags = event.data.tags
+            const currentPrompt = nodeTextAreaList[0].value
+            
+            // 使用与编辑器相同的逻辑处理提示词文本
+            if (loraTags && loraTags.length > 0) {
+              // 移除所有现有的 <wlr:...> 标签
+              const wlrPattern = /<wlr:[^>]+>/g
+              let cleanText = currentPrompt.replace(wlrPattern, '')
+              
+              // 清理连续的逗号和空格
+              cleanText = cleanText
+                .replace(/,\s*,/g, ',')      // 连续逗号替换为单个逗号
+                .replace(/,\s*$/g, '')       // 移除末尾的逗号和空格
+                .replace(/^\s*,/g, '')       // 移除开头的逗号和空格
+                .trim()
+              
+              // 添加新的标签到开头
+              const newTags = loraTags.join(', ')
+              if (cleanText) {
+                nodeTextAreaList[0].value = `${newTags}, ${cleanText}`
+              } else {
+                nodeTextAreaList[0].value = newTags
+              }
+            } else {
+              // 当 loraTags 为空数组时，清空提示词中的所有 LoRA 标签
+              const wlrPattern = /<wlr:[^>]+>/g
+              let cleanText = currentPrompt.replace(wlrPattern, '')
+              
+              // 清理连续的逗号和空格
+              cleanText = cleanText
+                .replace(/,\s*,/g, ',')
+                .replace(/,\s*$/g, '')
+                .replace(/^\s*,/g, '')
+                .trim()
+              
+              nodeTextAreaList[0].value = cleanText
+            }
+            
+            // 同步更新Widget
+            if (nodeWidgetList[0]) nodeWidgetList[0].value = nodeTextAreaList[0].value
+          }else if (event.data.type === "weilin_prompt_ui_query_lora_stack_" + thisNodeSeed) {
+            // 查询Lora堆数据 - 组件打开时主动查询
+            if (nodeData.name === "WeiLinPromptUI" || nodeData.name === "WeiLinPromptUIOnlyLoraStack") {
+              const currentLoras = window.weilinGlobalSelectedLoras[thisNodeSeed] || [];
+              const putJson = {
+                lora: currentLoras.filter(lora => !lora.hidden),
+                temp_lora: currentLoras
+              };
+              window.postMessage({
+                type: 'weilin_prompt_ui_query_lora_stack_response_' + thisNodeSeed,
+                data: JSON.stringify(putJson)
+              }, '*');
             }
           }else if (event.data.type === "weilin_prompt_ui_selectLora_stack_node_"+thisNodeSeed) {
             addLora(thisNodeSeed,event.data.lora)
@@ -662,11 +828,10 @@ waitForApp((app) => {
             // 先加载资源（如果还未加载）
             await loadResourcesOnDemand();
             
+            // 使用 thisNodeSeed 而不是生成新的UUID，确保数据能正确同步
             // console.log(thisNodeName)
             // 发送消息给父窗口
             // console.log(global_randomID)
-            loraStackRandomID = generateUUID();
-            // console.log("register====>",loraStackRandomID)
             let jsonData = {
               lora: [],
               temp_lora: {},
@@ -680,7 +845,13 @@ waitForApp((app) => {
             }
 
             const data = JSON.stringify(jsonData)
-            window.parent.postMessage({ type: 'weilin_prompt_ui_open_node_lora_stack_window', seed: loraStackRandomID, prompt: data, node: nodeData.name }, '*')
+            // 区分两种节点类型，使用不同的消息类型
+            // WeiLinPromptUI: 使用独立的LoRA堆窗口，与内嵌LoRA堆同步
+            // WeiLinPromptUIOnlyLoraStack: 使用独立的LoRA堆窗口，独立管理
+            const messageType = nodeData.name === "WeiLinPromptUI" 
+              ? 'weilin_prompt_ui_open_prompt_lora_stack_window' 
+              : 'weilin_prompt_ui_open_node_lora_stack_window';
+            window.parent.postMessage({ type: messageType, seed: thisNodeSeed, prompt: data, node: nodeData.name }, '*')
           });
         }
 
@@ -745,21 +916,18 @@ waitForApp((app) => {
 //from melmass
 // https://github.com/kijai/ComfyUI-KJNodes/blob/main/web/js/spline_editor.js
 function hideWidgetForGood(node, widget, suffix = '') {
+
   widget.origType = widget.type
   widget.origComputeSize = widget.computeSize
   widget.origSerializeValue = widget.serializeValue
   widget.computeSize = () => [0, -4] // -4 is due to the gap litegraph adds between widgets automatically
   widget.type = "converted-widget" + suffix
-
+  widget.element.setAttribute("id", "weilin-hidden-weight");
   widget.element.style.display = 'none'
-  // widget.serializeValue = () => {
-  //     // Prevent serializing the widget if we have no input linked
-  //     const w = node.inputs?.find((i) => i.widget?.name === widget.name);
-  //     if (w?.link == null) {
-  //         return undefined;
-  //     }
-  //     return widget.origSerializeValue ? widget.origSerializeValue() : widget.value;
-  // };
+  // 启用序列化，确保widget值被保存到工作流JSON中
+  widget.serializeValue = () => {
+      return widget.value;
+  }
 
   // Hide any linked widgets, e.g. seed+seedControl
   if (widget.linkedWidgets) {
@@ -821,15 +989,18 @@ function createLoraStackWidget(node, seed, ptEl) {
   previewWidget.contentEl.className = "weilin-comfyui-lora-content"
   previewWidget.parentEl.appendChild(previewWidget.contentEl)
   
-  // 使用 addEventListener 绑定点击事件，更可靠
-  const addLoraBtn = document.getElementById('addLoraBtn_' + prSeed);
+  // 使用 querySelector 在当前元素内查找按钮，而不是 document.getElementById
+  const addLoraBtn = previewWidget.contentEl.querySelector('#addLoraBtn_' + prSeed);
   if (addLoraBtn) {
     addLoraBtn.addEventListener('click', function(e) {
       e.preventDefault();
       e.stopPropagation();
       const seed = this.getAttribute('data-seed');
+      console.log('[WeiLin] Add Lora button clicked, seed:', seed);
       if (seed && typeof openLoraManager === 'function') {
         openLoraManager(this);
+      } else {
+        console.warn('[WeiLin] openLoraManager function not found or seed is invalid');
       }
     });
     // 阻止事件冒泡，防止被 LiteGraph 拦截
@@ -839,6 +1010,8 @@ function createLoraStackWidget(node, seed, ptEl) {
     addLoraBtn.addEventListener('mouseup', function(e) {
       e.stopPropagation();
     });
+  } else {
+    console.warn('[WeiLin] Add Lora button not found for seed:', prSeed);
   }
 
   setTimeout(() => {

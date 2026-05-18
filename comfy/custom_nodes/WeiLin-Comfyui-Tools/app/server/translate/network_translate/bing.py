@@ -1,7 +1,9 @@
 # Bing翻译
-import requests
-import time
 import threading
+import time
+
+import requests
+
 
 class BingTokenManager:
     _token = None
@@ -44,6 +46,7 @@ class BingTokenManager:
         resp.raise_for_status()
         return resp.text.strip()
 
+
 def bing_translate(text, from_lang="zh-Hans", to_lang="en"):
     token = BingTokenManager.get_token()
     url = f"https://api-edge.cognitive.microsofttranslator.com/translate?from={from_lang}&to={to_lang}&api-version=3.0&includeSentenceLength=true"
@@ -59,12 +62,13 @@ def bing_translate(text, from_lang="zh-Hans", to_lang="en"):
         "sec-fetch-dest": "empty",
         "sec-fetch-mode": "cors",
         "sec-fetch-site": "none",
-        "sec-fetch-storage-access": "active"
+        "sec-fetch-storage-access": "active",
     }
     body = [{"Text": text}]
     resp = requests.post(url, headers=headers, json=body)
     resp.raise_for_status()
     return resp.json()
+
 
 if __name__ == "__main__":
     result = bing_translate("你好，我的世界！")

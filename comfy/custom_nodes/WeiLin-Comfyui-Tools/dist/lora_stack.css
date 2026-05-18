@@ -404,3 +404,52 @@
     0%, 100% { opacity: 0.6; }
     50% { opacity: 1; }
 }
+
+/* 修复：确保按钮不会被dom-widget透明层覆盖 */
+.weilin-comfyui-add-btn,
+.weilin-comfyui-remove-btn,
+.weilin-comfyui-look-on-btn,
+.weilin-comfyui-toggle-hide-btn {
+    position: relative;
+    z-index: 10;
+    pointer-events: auto;
+}
+
+/* 确保整个lora-stack容器有正确的层级 */
+.weilin-comfyui-lora-stack {
+    position: relative;
+    z-index: 1;
+}
+
+/* 确保lora-item有正确的层级 */
+.weilin-comfyui-lora-item {
+    position: relative;
+    z-index: 1;
+}
+
+/* 关键修复：仅作用于 WeiLin 节点标记过的 dom-widget，避免影响其他插件 */
+.dom-widget.weilin-owned-dom-widget {
+    pointer-events: none !important;
+    position: absolute !important; /* 覆盖fixed定位 */
+}
+
+.dom-widget.weilin-owned-dom-widget textarea,
+.dom-widget.weilin-owned-dom-widget input,
+.dom-widget.weilin-owned-dom-widget select,
+.dom-widget.weilin-owned-dom-widget button,
+.dom-widget.weilin-owned-dom-widget canvas,
+.dom-widget.weilin-owned-dom-widget iframe,
+.dom-widget.weilin-owned-dom-widget a,
+.dom-widget.weilin-owned-dom-widget [contenteditable='true'],
+.dom-widget.weilin-owned-dom-widget .weilin-comfyui-lora-stack,
+.dom-widget.weilin-owned-dom-widget .weilin-prompt-ui-container,
+.dom-widget.weilin-owned-dom-widget .weilin-lora-manager-container {
+    pointer-events: auto !important;
+}
+
+/* 额外修复：确保weilin相关的容器本身可以响应事件 */
+.weilin-comfyui-lora-stack,
+.weilin-prompt-ui-container,
+.weilin-lora-manager-container {
+    pointer-events: auto !important;
+}

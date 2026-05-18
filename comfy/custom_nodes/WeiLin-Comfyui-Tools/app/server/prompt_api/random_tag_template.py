@@ -1,14 +1,14 @@
+import datetime
 import json
 import os
-import datetime
-# import random
-from typing import List
-from ..dao.dao import tags_db_path
-import sqlite3
 import secrets
+import sqlite3
+
+# import random
+from ..dao.dao import tags_db_path
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
-init_file_path = os.path.join(current_dir, '../../../random_tag')
+init_file_path = os.path.join(current_dir, "../../../random_tag")
 
 
 def save_template(data):
@@ -35,7 +35,7 @@ def save_template(data):
             raise Exception("文件已存在")
 
         # 写入JSON文件
-        with open(file_path, 'w', encoding='utf-8') as f:
+        with open(file_path, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=4)
 
         return {"code": 200, "path_name": str(file_name)}
@@ -62,7 +62,7 @@ def update_template(name: str, data):
             raise Exception("文件不存在")
 
         # 写入JSON文件(覆盖更新)
-        with open(file_path, 'w', encoding='utf-8') as f:
+        with open(file_path, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=4)
 
         return {"code": 200, "path_name": str(name)}
@@ -108,20 +108,19 @@ def get_template_list():
         # 获取所有JSON文件
         file_list = []
         for filename in os.listdir(init_file_path):
-            if filename.endswith('.json'):
+            if filename.endswith(".json"):
                 file_path = os.path.join(init_file_path, filename)
                 try:
                     # 读取JSON文件获取file_name字段
-                    with open(file_path, 'r', encoding='utf-8') as f:
+                    with open(file_path, encoding="utf-8") as f:
                         data = json.load(f)
-                        file_name = data.get('file_name', '')
+                        file_name = data.get("file_name", "")
                 except:
-                    file_name = ''
+                    file_name = ""
 
-                file_list.append({
-                    "file_name": file_name,
-                    "path_name": filename.replace('.json', '')
-                })
+                file_list.append(
+                    {"file_name": file_name, "path_name": filename.replace(".json", "")}
+                )
 
         return {"code": 200, "data": file_list}
 
@@ -147,7 +146,7 @@ def get_template_data(name: str):
             raise Exception("文件不存在")
 
         # 读取JSON文件
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, encoding="utf-8") as f:
             data = json.load(f)
 
         return {"code": 200, "data": data, "path_name": str(name)}
@@ -156,31 +155,37 @@ def get_template_data(name: str):
         raise Exception(str(e))
 
 
-def get_random_tags_by_group(p_uuid: str) -> List[str]:
+def get_random_tags_by_group(p_uuid: str) -> list[str]:
     """根据group的p_uuid获取随机标签"""
     conn = sqlite3.connect(tags_db_path)
     cursor = conn.cursor()
-    cursor.execute('''
+    cursor.execute(
+        """
         SELECT t.text FROM tag_tags t
         JOIN tag_subgroups sg ON t.subgroup_id = sg.id_index
         WHERE sg.p_uuid = ?
-    ''', (p_uuid,))
+    """,
+        (p_uuid,),
+    )
     results = cursor.fetchall()
     return [row[0] for row in results]
 
 
-def get_random_tags_by_subgroup(g_uuid: str) -> List[str]:
+def get_random_tags_by_subgroup(g_uuid: str) -> list[str]:
     """根据subgroup的g_uuid获取随机标签"""
     conn = sqlite3.connect(tags_db_path)
     cursor = conn.cursor()
-    cursor.execute('''
+    cursor.execute(
+        """
         SELECT text FROM tag_tags WHERE g_uuid = ?
-    ''', (g_uuid,))
+    """,
+        (g_uuid,),
+    )
     results = cursor.fetchall()
     return [row[0] for row in results]
 
 
-def shuffle_and_select(tags: List[str], count: int) -> List[str]:
+def shuffle_and_select(tags: list[str], count: int) -> list[str]:
     """随机打乱并选择指定数量的标签"""
     # random.shuffle(tags)
     # return tags[:count]
@@ -194,29 +199,27 @@ def generate_random_tags(data: dict) -> str:
     """生成随机标签字符串"""
     result = []
 
-    for rule in data['rules']:
-        min_count = rule['range']['min']
-        max_count = rule['range']['max']
+    for rule in data["rules"]:
+        min_count = rule["range"]["min"]
+        max_count = rule["range"]["max"]
         count = max_count - min_count + 1
 
-        if rule['type'] == 'category':
+        if rule["type"] == "category":
             tags = []
-            for group in rule['tagGroupList']:
-                if group['sub']:
-                    tags.extend(get_random_tags_by_subgroup(
-                        group['sub']['g_uuid']))
+            for group in rule["tagGroupList"]:
+                if group["sub"]:
+                    tags.extend(get_random_tags_by_subgroup(group["sub"]["g_uuid"]))
                 else:
-                    tags.extend(get_random_tags_by_group(
-                        group['group']['p_uuid']))
+                    tags.extend(get_random_tags_by_group(group["group"]["p_uuid"]))
             selected_tags = shuffle_and_select(tags, count)
             result.extend(selected_tags)
 
-        elif rule['type'] == 'specific':
-            tags = rule['specificTags']
+        elif rule["type"] == "specific":
+            tags = rule["specificTags"]
             selected_tags = shuffle_and_select(tags, min(count, len(tags)))
             result.extend(selected_tags)
 
-    return ','.join(result) + ','
+    return ",".join(result) + ","
 
 
 def go_radom_template(name: str):
@@ -229,7 +232,7 @@ def go_radom_template(name: str):
             raise Exception("文件不存在")
 
         # 读取JSON文件
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, encoding="utf-8") as f:
             data = json.load(f)
 
         # 生成随机标签

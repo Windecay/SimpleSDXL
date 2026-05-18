@@ -10,7 +10,7 @@ export const windowManager = {
     if (activeWindow.value !== windowName) {
       activeWindow.value = windowName
       // 更新所有窗口的 z-index
-      Object.keys(windowZIndexes.value).forEach(key => {
+      Object.keys(windowZIndexes.value).forEach((key) => {
         windowZIndexes.value[key] = baseZIndex
       })
       // 设置当前窗口为最高层
@@ -37,4 +37,4 @@ export const windowManager = {
   unregisterWindow(windowName) {
     delete windowZIndexes.value[windowName]
   }
-} 
+}

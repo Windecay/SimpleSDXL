@@ -1,19 +1,22 @@
-import os
-import sqlite3
-import locale
+import asyncio
 import datetime
+import locale
+import os
 import shutil
-import requests
-from ..user_init.user_init import read_init_file
+import sqlite3
+from typing import Any
 
 import aiosqlite
-import asyncio
-from typing import Optional, List, Tuple, Any
-from ..cloud_warehouse.save_history import save_package_path
+import requests
 from uuid_extensions import uuid7
+
+from ..cloud_warehouse.save_history import save_package_path
+from ..user_init.user_init import read_init_file
+
 
 def getUUID():
     return str(uuid7())
+
 
 # 修改连接池为异步版本
 _connection_pool = {}
@@ -21,8 +24,8 @@ _connection_lock = asyncio.Lock()
 
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
-db_prefix = 'userdatas_'
-db_suffix = 'default'
+db_prefix = "userdatas_"
+db_suffix = "default"
 localLang = locale.getdefaultlocale()[0]
 
 # 读取配置文件中的语言设置来决定加载什么数据库文件
@@ -31,27 +34,116 @@ userSetting = read_init_file() or {}
 if userSetting == {}:
     # 根据系统语言设置数据库文件
     system_lang = locale.getdefaultlocale()[0]
-    if system_lang.startswith('zh'):
-        localLang = 'zh_CN'
+    if system_lang.startswith("zh"):
+        localLang = "zh_CN"
     else:
-        localLang = 'en_US'
-else :
-    localLang = userSetting['user_lang']
+        localLang = "en_US"
+else:
+    localLang = userSetting["user_lang"]
 
 
 # 旧表数据
-db_path = os.path.join(current_dir, f'../../../user_data/{db_prefix}{db_suffix}.db')
+db_path = os.path.join(current_dir, f"../../../user_data/{db_prefix}{db_suffix}.db")
 
 # 新增数据库路径定义
-tags_db_path = os.path.join(current_dir, f'../../../user_data/{db_prefix}{db_suffix}_tags.db')
-history_db_path = os.path.join(current_dir, f'../../../user_data/{db_prefix}{db_suffix}_history.db')
-danbooru_db_path = os.path.join(current_dir, f'../../../user_data/{db_prefix}{db_suffix}_danbooru.db')
-old_db_path = os.path.join(current_dir, f'../../../user_data_old/')
+tags_db_path = os.path.join(
+    current_dir, f"../../../user_data/{db_prefix}{db_suffix}_tags.db"
+)
+history_db_path = os.path.join(
+    current_dir, f"../../../user_data/{db_prefix}{db_suffix}_history.db"
+)
+danbooru_db_path = os.path.join(
+    current_dir, f"../../../user_data/{db_prefix}{db_suffix}_danbooru.db"
+)
+old_db_path = os.path.join(current_dir, "../../../user_data_old/")
 
 headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-    'Accept': 'application/json'
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+    "Accept": "application/json",
 }
+
+
+def check_and_repair_db(db_path: str, db_type: str = None) -> bool:
+    """检查数据库完整性，如果损坏则尝试修复"""
+    if not os.path.exists(db_path):
+        return True  # 文件不存在，不需要修复
+
+    try:
+        # 先尝试关闭连接池中的连接
+        if db_type and db_type in _connection_pool:
+            try:
+                conn = _connection_pool.pop(db_type)
+                # 同步关闭异步连接需要特殊处理
+                import asyncio
+
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    # 如果事件循环正在运行，创建一个任务来关闭连接
+                    asyncio.create_task(conn.close())
+                else:
+                    loop.run_until_complete(conn.close())
+            except Exception as e:
+                print(f"关闭连接池连接时出错: {e}")
+
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        # 执行完整性检查
+        cursor.execute("PRAGMA integrity_check")
+        result = cursor.fetchone()
+        conn.close()
+
+        if result and result[0] == "ok":
+            return True  # 数据库正常
+
+        print(f"数据库损坏，尝试修复: {db_path}")
+        return repair_database(db_path)
+    except sqlite3.Error as e:
+        print(f"检查数据库时出错: {e}")
+        return repair_database(db_path)
+
+
+def repair_database(db_path: str) -> bool:
+    """尝试修复损坏的数据库"""
+    import shutil
+    import time
+
+    try:
+        # 创建备份
+        backup_path = db_path + ".corrupted_backup"
+        if os.path.exists(db_path):
+            shutil.copy2(db_path, backup_path)
+            print(f"已创建损坏数据库备份: {backup_path}")
+
+        # 尝试删除损坏的数据库文件
+        if os.path.exists(db_path):
+            try:
+                os.remove(db_path)
+            except PermissionError:
+                # 如果文件被锁定，尝试重命名
+                timestamp = int(time.time())
+                renamed_path = db_path + f".locked_{timestamp}"
+                print(f"文件被锁定，尝试重命名为: {renamed_path}")
+                os.rename(db_path, renamed_path)
+                print("已重命名损坏的数据库文件")
+
+        # 同时删除WAL和SHM文件
+        wal_path = db_path + "-wal"
+        shm_path = db_path + "-shm"
+        for extra_path in [wal_path, shm_path]:
+            if os.path.exists(extra_path):
+                try:
+                    os.remove(extra_path)
+                except PermissionError:
+                    timestamp = int(time.time())
+                    renamed_path = extra_path + f".locked_{timestamp}"
+                    print(f"文件被锁定，尝试重命名为: {renamed_path}")
+                    os.rename(extra_path, renamed_path)
+
+        print(f"已处理损坏的数据库文件，将重新创建: {db_path}")
+        return True
+    except Exception as e:
+        print(f"修复数据库时出错: {e}")
+        return False
 
 
 async def _get_connection(db_type: str) -> aiosqlite.Connection:
@@ -59,11 +151,16 @@ async def _get_connection(db_type: str) -> aiosqlite.Connection:
     async with _connection_lock:
         if db_type not in _connection_pool:
             db_map = {
-                'tags': tags_db_path,
-                'history': history_db_path,
-                'danbooru': danbooru_db_path
+                "tags": tags_db_path,
+                "history": history_db_path,
+                "danbooru": danbooru_db_path,
             }
-            conn = await aiosqlite.connect(db_map[db_type])
+            db_path = db_map[db_type]
+            # 确保数据库目录存在
+            os.makedirs(os.path.dirname(db_path), exist_ok=True)
+            # 检查数据库完整性
+            check_and_repair_db(db_path, db_type)
+            conn = await aiosqlite.connect(db_path)
             # 设置连接池参数
             await conn.execute("PRAGMA journal_mode=WAL")
             await conn.execute("PRAGMA synchronous=NORMAL")
@@ -73,11 +170,23 @@ async def _get_connection(db_type: str) -> aiosqlite.Connection:
 
 
 def create_tables():
+    # 确保user_data目录存在
+    user_data_dir = os.path.dirname(tags_db_path)
+    os.makedirs(user_data_dir, exist_ok=True)
+
+    # 检查所有数据库完整性
+    db_types = ["tags", "history", "danbooru"]
+    for db_type, db_path in zip(
+        db_types, [tags_db_path, history_db_path, danbooru_db_path], strict=False
+    ):
+        check_and_repair_db(db_path, db_type)
+
     try:
         # 创建tags数据库表
         conn = sqlite3.connect(tags_db_path)
         cursor = conn.cursor()
-        cursor.execute('''
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS tag_groups (
                 id_index INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT,
@@ -85,8 +194,10 @@ def create_tables():
                 create_time INTEGER,
                 p_uuid TEXT(128)
             )
-        ''')
-        cursor.execute('''
+        """
+        )
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS tag_subgroups (
                 id_index INTEGER PRIMARY KEY AUTOINCREMENT,
                 group_id INTEGER,
@@ -96,8 +207,10 @@ def create_tables():
                 p_uuid TEXT(128),
                 g_uuid TEXT(128)
             )
-        ''')
-        cursor.execute('''
+        """
+        )
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS tag_tags (
                 id_index INTEGER PRIMARY KEY AUTOINCREMENT,
                 subgroup_id INTEGER,
@@ -108,53 +221,69 @@ def create_tables():
                 t_uuid TEXT(128),
                 g_uuid TEXT(128)
             )
-        ''')
-         # 添加update_info表
-        cursor.execute('''
+        """
+        )
+        # 添加update_info表
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS update_info (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 update_at INTEGER
             )
-        ''')
+        """
+        )
         # 插入默认数据
-        cursor.execute('''
-            INSERT OR IGNORE INTO update_info (id, update_at) 
+        cursor.execute(
+            """
+            INSERT OR IGNORE INTO update_info (id, update_at)
             VALUES (1, 1743405726)
-        ''')
-        cursor.execute('''
+        """
+        )
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS schema_version (
                 version INTEGER PRIMARY KEY
             )
-        ''')
-        
+        """
+        )
+
         # 添加性能优化索引
-        cursor.execute('''
-            CREATE INDEX IF NOT EXISTS idx_tag_tags_g_uuid 
+        cursor.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_tag_tags_g_uuid
             ON tag_tags(g_uuid)
-        ''')
-        
-        cursor.execute('''
-            CREATE INDEX IF NOT EXISTS idx_tag_subgroups_p_uuid 
+        """
+        )
+
+        cursor.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_tag_subgroups_p_uuid
             ON tag_subgroups(p_uuid)
-        ''')
-        
-        cursor.execute('''
-            CREATE INDEX IF NOT EXISTS idx_tag_tags_text 
+        """
+        )
+
+        cursor.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_tag_tags_text
             ON tag_tags(text)
-        ''')
-        
-        cursor.execute('''
-            CREATE INDEX IF NOT EXISTS idx_tag_tags_create_time 
+        """
+        )
+
+        cursor.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_tag_tags_create_time
             ON tag_tags(create_time)
-        ''')
-        
+        """
+        )
+
         conn.commit()
         conn.close()
 
         # 创建history数据库表
         conn = sqlite3.connect(history_db_path)
         cursor = conn.cursor()
-        cursor.execute('''
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS history (
                 id_index INTEGER PRIMARY KEY AUTOINCREMENT,
                 tag TEXT,
@@ -163,8 +292,10 @@ def create_tables():
                 create_time INTEGER,
                 is_deleted INTEGER DEFAULT 0
             )
-        ''')
-        cursor.execute('''
+        """
+        )
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS collect_history (
                 id_index INTEGER PRIMARY KEY AUTOINCREMENT,
                 tag TEXT,
@@ -173,19 +304,23 @@ def create_tables():
                 create_time INTEGER,
                 is_deleted INTEGER DEFAULT 0
             )
-        ''')
-        cursor.execute('''
+        """
+        )
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS schema_version (
                 version INTEGER PRIMARY KEY
             )
-        ''')
+        """
+        )
         conn.commit()
         conn.close()
 
         # 创建danbooru数据库表
         conn = sqlite3.connect(danbooru_db_path)
         cursor = conn.cursor()
-        cursor.execute('''
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS danbooru_tag (
                 id_index INTEGER PRIMARY KEY AUTOINCREMENT,
                 tag TEXT,
@@ -194,40 +329,50 @@ def create_tables():
                 hot INTEGER DEFAULT 0,
                 aliases INTEGER DEFAULT 0
             )
-        ''')
+        """
+        )
         # 添加update_info表
-        cursor.execute('''
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS update_info (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 update_at INTEGER
             )
-        ''')
+        """
+        )
         # 插入默认数据
-        cursor.execute('''
-            INSERT OR IGNORE INTO update_info (id, update_at) 
+        cursor.execute(
+            """
+            INSERT OR IGNORE INTO update_info (id, update_at)
             VALUES (1, 1743405726)
-        ''')
-        cursor.execute('''
+        """
+        )
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS schema_version (
                 version INTEGER PRIMARY KEY
             )
-        ''')
+        """
+        )
         conn.commit()
         conn.close()
     except sqlite3.Error as e:
         print(f"创建tags数据库表时出错: {e}")
         raise
 
+
 def get_current_version(db_type):
     db_map = {
-        'tags': tags_db_path,
-        'history': history_db_path,
-        'danbooru': danbooru_db_path
+        "tags": tags_db_path,
+        "history": history_db_path,
+        "danbooru": danbooru_db_path,
     }
     conn = sqlite3.connect(db_map[db_type])
     cursor = conn.cursor()
     try:
-        cursor.execute('SELECT version FROM schema_version ORDER BY version DESC LIMIT 1')
+        cursor.execute(
+            "SELECT version FROM schema_version ORDER BY version DESC LIMIT 1"
+        )
         result = cursor.fetchone()
         return result[0] if result else 0
     except sqlite3.OperationalError:
@@ -236,41 +381,45 @@ def get_current_version(db_type):
     finally:
         conn.close()
 
+
 def update_version(db_type, version):
     db_map = {
-        'tags': tags_db_path,
-        'history': history_db_path,
-        'danbooru': danbooru_db_path
+        "tags": tags_db_path,
+        "history": history_db_path,
+        "danbooru": danbooru_db_path,
     }
     try:
         conn = sqlite3.connect(db_map[db_type])
         cursor = conn.cursor()
-        cursor.execute('INSERT INTO schema_version (version) VALUES (?)', (version,))
+        cursor.execute("INSERT INTO schema_version (version) VALUES (?)", (version,))
         conn.commit()
     except sqlite3.Error as e:
         print(f"更新版本时出错: {e}")
         raise
     finally:
-        if 'conn' in locals():
+        if "conn" in locals():
             conn.close()
+
 
 def migrate_db():
     # tags数据库迁移
-    current_version = get_current_version('tags')
+    current_version = get_current_version("tags")
     if current_version < 1:
         conn = sqlite3.connect(tags_db_path)
         cursor = conn.cursor()
         # 创建schema_version表
-        cursor.execute('''
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS schema_version (
                 version INTEGER PRIMARY KEY
             )
-        ''')
+        """
+        )
         # 其他迁移操作
-        update_version('tags', 1)
+        update_version("tags", 1)
         conn.commit()
         conn.close()
-    
+
     # 添加版本2的迁移
     if current_version < 2:
         conn = sqlite3.connect(tags_db_path)
@@ -282,80 +431,84 @@ def migrate_db():
             columns = [info[1] for info in cursor.fetchall()]
             if column not in columns:
                 cursor.execute(f"ALTER TABLE {table} ADD COLUMN {column} {column_type}")
-        
-        add_column_if_not_exists('tag_groups', 'p_uuid', 'TEXT(128)')
-        add_column_if_not_exists('tag_subgroups', 'p_uuid', 'TEXT(128)')
-        add_column_if_not_exists('tag_subgroups', 'g_uuid', 'TEXT(128)')
-        add_column_if_not_exists('tag_tags', 't_uuid', 'TEXT(128)')
-        add_column_if_not_exists('tag_tags', 'g_uuid', 'TEXT(128)')
 
-         # 删除特定数据
+        add_column_if_not_exists("tag_groups", "p_uuid", "TEXT(128)")
+        add_column_if_not_exists("tag_subgroups", "p_uuid", "TEXT(128)")
+        add_column_if_not_exists("tag_subgroups", "g_uuid", "TEXT(128)")
+        add_column_if_not_exists("tag_tags", "t_uuid", "TEXT(128)")
+        add_column_if_not_exists("tag_tags", "g_uuid", "TEXT(128)")
+
+        # 删除特定数据
         cursor.execute("DELETE FROM tag_groups WHERE id_index = 11")
         cursor.execute("DELETE FROM tag_subgroups WHERE id_index = 134")
         cursor.execute("DELETE FROM tag_tags WHERE subgroup_id = 137")
 
         # 更新所有UUID字段
         update_uuids(conn)
-        update_version('tags', 2)
+        update_version("tags", 2)
         conn.commit()
         conn.close()
-    
+
     # 添加版本3的迁移
     if current_version < 3:
         print("检测到数据库版本变动 版本V3 正在升级中...")
         conn = sqlite3.connect(tags_db_path)
         cursor = conn.cursor()
-        
+
         # 检查并添加新字段(如果不存在)
         def add_column_if_not_exists(table, column, column_type):
             cursor.execute(f"PRAGMA table_info({table})")
             columns = [info[1] for info in cursor.fetchall()]
             if column not in columns:
                 cursor.execute(f"ALTER TABLE {table} ADD COLUMN {column} {column_type}")
-        
+
         # 确保所有表都有UUID字段
-        add_column_if_not_exists('tag_groups', 'p_uuid', 'TEXT(128)')
-        add_column_if_not_exists('tag_subgroups', 'p_uuid', 'TEXT(128)')
-        add_column_if_not_exists('tag_subgroups', 'g_uuid', 'TEXT(128)')
-        add_column_if_not_exists('tag_tags', 't_uuid', 'TEXT(128)')
-        add_column_if_not_exists('tag_tags', 'g_uuid', 'TEXT(128)')
-        
+        add_column_if_not_exists("tag_groups", "p_uuid", "TEXT(128)")
+        add_column_if_not_exists("tag_subgroups", "p_uuid", "TEXT(128)")
+        add_column_if_not_exists("tag_subgroups", "g_uuid", "TEXT(128)")
+        add_column_if_not_exists("tag_tags", "t_uuid", "TEXT(128)")
+        add_column_if_not_exists("tag_tags", "g_uuid", "TEXT(128)")
+
         # 更新所有UUID字段
         update_uuids_v3(conn)
 
-        update_version('tags', 3)
+        update_version("tags", 3)
         conn.commit()
         conn.close()
         print("升级完成")
 
     # history数据库迁移
-    current_version = get_current_version('history')
+    current_version = get_current_version("history")
     if current_version < 1:
         conn = sqlite3.connect(history_db_path)
         cursor = conn.cursor()
-        cursor.execute('''
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS schema_version (
                 version INTEGER PRIMARY KEY
             )
-        ''')
-        update_version('history', 1)
+        """
+        )
+        update_version("history", 1)
         conn.commit()
         conn.close()
 
     # danbooru数据库迁移
-    current_version = get_current_version('danbooru')
+    current_version = get_current_version("danbooru")
     if current_version < 1:
         conn = sqlite3.connect(danbooru_db_path)
         cursor = conn.cursor()
-        cursor.execute('''
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS schema_version (
                 version INTEGER PRIMARY KEY
             )
-        ''')
-        update_version('danbooru', 1)
+        """
+        )
+        update_version("danbooru", 1)
         conn.commit()
         conn.close()
-    
+
     # 添加版本2的迁移
     if current_version < 2:
         conn = sqlite3.connect(danbooru_db_path)
@@ -363,26 +516,30 @@ def migrate_db():
         # 检查hot列是否存在
         cursor.execute("PRAGMA table_info(danbooru_tag)")
         columns = [info[1] for info in cursor.fetchall()]
-        if 'hot' not in columns:
+        if "hot" not in columns:
             # 添加hot字段
-            cursor.execute('''
+            cursor.execute(
+                """
                 ALTER TABLE danbooru_tag ADD COLUMN hot INTEGER DEFAULT 0
-            ''')
-        if 'aliases' not in columns:
+            """
+            )
+        if "aliases" not in columns:
             # 添加hot字段
-            cursor.execute('''
+            cursor.execute(
+                """
                 ALTER TABLE danbooru_tag ADD COLUMN aliases INTEGER DEFAULT 0
-            ''')
-        update_version('danbooru', 2)
+            """
+            )
+        update_version("danbooru", 2)
         conn.commit()
         conn.close()
+
 
 def update_uuids(conn):
     """根据SQL文件中的固定UUID更新所有表的UUID字段"""
     cursor = conn.cursor()
     print("开始更新Tag数据...")
     try:
-        
         # 从Gitee获取SQL文件内容
         # sql_url = "https://api.gitcode.com/api/v5/repos/qq_27627297/WeiLin-Comfyui-Tools-Prompt/raw/tags/2025_03_31/tags_2025_03_31.sql?access_token=y7S27_wDHXy1xaSQjupJk-Wy"
         sql_url = "https://raw.githubusercontent.com/weilin9999/WeiLin-Comfyui-Tools-Prompt/refs/heads/master/tags/2025_03_31/tags_2025_03_31.sql"
@@ -394,46 +551,61 @@ def update_uuids(conn):
         cursor.executescript(sql_content)
 
         # 1. 先检查并更新tag_groups的p_uuid
-        cursor.execute("SELECT id_index FROM tag_groups WHERE p_uuid IS NULL OR p_uuid = ''")
+        cursor.execute(
+            "SELECT id_index FROM tag_groups WHERE p_uuid IS NULL OR p_uuid = ''"
+        )
         empty_groups = cursor.fetchall()
         for group in empty_groups:
             group_id = group[0]
             new_uuid = getUUID()
-            cursor.execute("UPDATE tag_groups SET p_uuid = ? WHERE id_index = ?", (new_uuid, group_id))
-        
+            cursor.execute(
+                "UPDATE tag_groups SET p_uuid = ? WHERE id_index = ?",
+                (new_uuid, group_id),
+            )
+
         # 2. 更新tag_subgroups的p_uuid和g_uuid
-        cursor.execute('''
-            SELECT sg.id_index, g.p_uuid 
+        cursor.execute(
+            """
+            SELECT sg.id_index, g.p_uuid
             FROM tag_subgroups sg
             JOIN tag_groups g ON sg.group_id = g.id_index
             WHERE sg.p_uuid IS NULL OR sg.p_uuid = '' OR sg.g_uuid IS NULL OR sg.g_uuid = ''
-        ''')
+        """
+        )
         subgroups = cursor.fetchall()
         for subgroup in subgroups:
             subgroup_id, group_p_uuid = subgroup
             new_g_uuid = getUUID()
-            cursor.execute('''
-                UPDATE tag_subgroups 
+            cursor.execute(
+                """
+                UPDATE tag_subgroups
                 SET p_uuid = ?, g_uuid = ?
                 WHERE id_index = ?
-            ''', (group_p_uuid, new_g_uuid, subgroup_id))
-        
+            """,
+                (group_p_uuid, new_g_uuid, subgroup_id),
+            )
+
         # 3. 更新tag_tags的g_uuid和t_uuid
-        cursor.execute('''
-            SELECT t.id_index, sg.g_uuid 
+        cursor.execute(
+            """
+            SELECT t.id_index, sg.g_uuid
             FROM tag_tags t
             JOIN tag_subgroups sg ON t.subgroup_id = sg.id_index
             WHERE t.g_uuid IS NULL OR t.g_uuid = '' OR t.t_uuid IS NULL OR t.t_uuid = ''
-        ''')
+        """
+        )
         tags = cursor.fetchall()
         for tag in tags:
             tag_id, subgroup_g_uuid = tag
             new_t_uuid = getUUID()
-            cursor.execute('''
-                UPDATE tag_tags 
+            cursor.execute(
+                """
+                UPDATE tag_tags
                 SET g_uuid = ?, t_uuid = ?
                 WHERE id_index = ?
-            ''', (subgroup_g_uuid, new_t_uuid, tag_id))
+            """,
+                (subgroup_g_uuid, new_t_uuid, tag_id),
+            )
 
         conn.commit()
         save_package_path("tags/2025_03_31/tags_2025_03_31.sql")
@@ -443,143 +615,191 @@ def update_uuids(conn):
         conn.rollback()
         raise
 
+
 def update_uuids_v3(conn):
     """根据SQL文件中的固定UUID更新所有表的UUID字段"""
     cursor = conn.cursor()
     print("开始更新Tag数据 V3...")
     try:
         # 1. 确保所有tag_groups都有p_uuid
-        cursor.execute("SELECT id_index FROM tag_groups WHERE p_uuid IS NULL OR p_uuid = ''")
+        cursor.execute(
+            "SELECT id_index FROM tag_groups WHERE p_uuid IS NULL OR p_uuid = ''"
+        )
         empty_groups = cursor.fetchall()
         for group in empty_groups:
             group_id = group[0]
             new_uuid = getUUID()
-            cursor.execute("UPDATE tag_groups SET p_uuid = ? WHERE id_index = ?", (new_uuid, group_id))
-        
+            cursor.execute(
+                "UPDATE tag_groups SET p_uuid = ? WHERE id_index = ?",
+                (new_uuid, group_id),
+            )
+
         # 2. 更新tag_subgroups的p_uuid和g_uuid
-        cursor.execute('''
-            SELECT sg.id_index, g.p_uuid 
+        cursor.execute(
+            """
+            SELECT sg.id_index, g.p_uuid
             FROM tag_subgroups sg
             LEFT JOIN tag_groups g ON sg.group_id = g.id_index
             WHERE sg.p_uuid IS NULL OR sg.p_uuid = '' OR sg.g_uuid IS NULL OR sg.g_uuid = ''
-        ''')
+        """
+        )
         subgroups = cursor.fetchall()
         for subgroup in subgroups:
             subgroup_id, group_p_uuid = subgroup
             new_g_uuid = getUUID()
             if group_p_uuid:  # 如果找到对应的group
-                cursor.execute('''
-                    UPDATE tag_subgroups 
+                cursor.execute(
+                    """
+                    UPDATE tag_subgroups
                     SET p_uuid = ?, g_uuid = ?
                     WHERE id_index = ?
-                ''', (group_p_uuid, new_g_uuid, subgroup_id))
+                """,
+                    (group_p_uuid, new_g_uuid, subgroup_id),
+                )
             else:  # 如果没有对应的group，只设置g_uuid
-                cursor.execute('''
-                    UPDATE tag_subgroups 
+                cursor.execute(
+                    """
+                    UPDATE tag_subgroups
                     SET g_uuid = ?
                     WHERE id_index = ?
-                ''', (new_g_uuid, subgroup_id))
-        
+                """,
+                    (new_g_uuid, subgroup_id),
+                )
+
         # 3. 更新tag_tags的g_uuid和t_uuid
-        cursor.execute('''
-            SELECT t.id_index, sg.g_uuid 
+        cursor.execute(
+            """
+            SELECT t.id_index, sg.g_uuid
             FROM tag_tags t
             LEFT JOIN tag_subgroups sg ON t.subgroup_id = sg.id_index
             WHERE t.g_uuid IS NULL OR t.g_uuid = '' OR t.t_uuid IS NULL OR t.t_uuid = ''
-        ''')
+        """
+        )
         tags = cursor.fetchall()
         for tag in tags:
             tag_id, subgroup_g_uuid = tag
             new_t_uuid = getUUID()
             if subgroup_g_uuid:  # 如果找到对应的subgroup
-                cursor.execute('''
-                    UPDATE tag_tags 
+                cursor.execute(
+                    """
+                    UPDATE tag_tags
                     SET g_uuid = ?, t_uuid = ?
                     WHERE id_index = ?
-                ''', (subgroup_g_uuid, new_t_uuid, tag_id))
+                """,
+                    (subgroup_g_uuid, new_t_uuid, tag_id),
+                )
             else:  # 如果没有对应的subgroup，只设置t_uuid
-                cursor.execute('''
-                    UPDATE tag_tags 
+                cursor.execute(
+                    """
+                    UPDATE tag_tags
                     SET t_uuid = ?
                     WHERE id_index = ?
-                ''', (new_t_uuid, tag_id))
+                """,
+                    (new_t_uuid, tag_id),
+                )
 
-        
-        
         # 删除空UUID的数据
         print("删除空UUID的数据...")
         cursor.execute("DELETE FROM tag_groups WHERE p_uuid IS NULL OR p_uuid = ''")
         cursor.execute("DELETE FROM tag_subgroups WHERE g_uuid IS NULL OR g_uuid = ''")
         cursor.execute("DELETE FROM tag_tags WHERE t_uuid IS NULL OR t_uuid = ''")
 
-        
         # 处理重复的t_uuid值
         print("检查并修复重复的UUID...")
-        cursor.execute('''
+        cursor.execute(
+            """
             SELECT t_uuid, COUNT(*) as count
             FROM tag_tags
             WHERE t_uuid IS NOT NULL
             GROUP BY t_uuid
             HAVING count > 1
-        ''')
-        
+        """
+        )
+
         duplicates = cursor.fetchall()
         for dup in duplicates:
             dup_uuid = dup[0]
             # 获取所有具有相同t_uuid的记录
-            cursor.execute('SELECT id_index FROM tag_tags WHERE t_uuid = ? ORDER BY id_index', (dup_uuid,))
+            cursor.execute(
+                "SELECT id_index FROM tag_tags WHERE t_uuid = ? ORDER BY id_index",
+                (dup_uuid,),
+            )
             records = cursor.fetchall()
             # 保留第一条记录，更新其余记录的t_uuid
             for record in records[1:]:
                 new_uuid = getUUID()
-                cursor.execute('UPDATE tag_tags SET t_uuid = ? WHERE id_index = ?', (new_uuid, record[0]))
-        
+                cursor.execute(
+                    "UPDATE tag_tags SET t_uuid = ? WHERE id_index = ?",
+                    (new_uuid, record[0]),
+                )
+
         # 处理重复的p_uuid值（tag_groups表）
-        cursor.execute('''
+        cursor.execute(
+            """
             SELECT p_uuid, COUNT(*) as count
             FROM tag_groups
             WHERE p_uuid IS NOT NULL
             GROUP BY p_uuid
             HAVING count > 1
-        ''')
-        
+        """
+        )
+
         duplicates = cursor.fetchall()
         for dup in duplicates:
             dup_uuid = dup[0]
             # 获取所有具有相同p_uuid的记录
-            cursor.execute('SELECT id_index FROM tag_groups WHERE p_uuid = ? ORDER BY id_index', (dup_uuid,))
+            cursor.execute(
+                "SELECT id_index FROM tag_groups WHERE p_uuid = ? ORDER BY id_index",
+                (dup_uuid,),
+            )
             records = cursor.fetchall()
             # 保留第一条记录，更新其余记录的p_uuid
             for record in records[1:]:
                 new_uuid = getUUID()
-                cursor.execute('UPDATE tag_groups SET p_uuid = ? WHERE id_index = ?', (new_uuid, record[0]))
-        
+                cursor.execute(
+                    "UPDATE tag_groups SET p_uuid = ? WHERE id_index = ?",
+                    (new_uuid, record[0]),
+                )
+
         # 处理重复的g_uuid值（tag_subgroups表）
-        cursor.execute('''
+        cursor.execute(
+            """
             SELECT g_uuid, COUNT(*) as count
             FROM tag_subgroups
             WHERE g_uuid IS NOT NULL
             GROUP BY g_uuid
             HAVING count > 1
-        ''')
-        
+        """
+        )
+
         duplicates = cursor.fetchall()
         for dup in duplicates:
             dup_uuid = dup[0]
             # 获取所有具有相同g_uuid的记录
-            cursor.execute('SELECT id_index FROM tag_subgroups WHERE g_uuid = ? ORDER BY id_index', (dup_uuid,))
+            cursor.execute(
+                "SELECT id_index FROM tag_subgroups WHERE g_uuid = ? ORDER BY id_index",
+                (dup_uuid,),
+            )
             records = cursor.fetchall()
             # 保留第一条记录，更新其余记录的g_uuid
             for record in records[1:]:
                 new_uuid = getUUID()
-                cursor.execute('UPDATE tag_subgroups SET g_uuid = ? WHERE id_index = ?', (new_uuid, record[0]))
-        
-        # 添加唯一索引
-        cursor.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_tag_groups_p_uuid ON tag_groups(p_uuid)')
-        cursor.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_tag_subgroups_g_uuid ON tag_subgroups(g_uuid)')
-        cursor.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_tag_tags_t_uuid ON tag_tags(t_uuid)')
+                cursor.execute(
+                    "UPDATE tag_subgroups SET g_uuid = ? WHERE id_index = ?",
+                    (new_uuid, record[0]),
+                )
 
-        
+        # 添加唯一索引
+        cursor.execute(
+            "CREATE UNIQUE INDEX IF NOT EXISTS idx_tag_groups_p_uuid ON tag_groups(p_uuid)"
+        )
+        cursor.execute(
+            "CREATE UNIQUE INDEX IF NOT EXISTS idx_tag_subgroups_g_uuid ON tag_subgroups(g_uuid)"
+        )
+        cursor.execute(
+            "CREATE UNIQUE INDEX IF NOT EXISTS idx_tag_tags_t_uuid ON tag_tags(t_uuid)"
+        )
+
         conn.commit()
         print("Tag数据更新完成。")
     except Exception as e:
@@ -587,85 +807,118 @@ def update_uuids_v3(conn):
         conn.rollback()
         raise
 
+
 def migrate_old_db():
     if os.path.exists(db_path):
         try:
             print("检测到旧数据插件，开始数据库迁移...")
             # 确保目标目录存在
             os.makedirs(os.path.dirname(tags_db_path), exist_ok=True)
-            
+
             # 先创建新表
             create_tables()
-            
+
             # 连接旧数据库
             old_conn = sqlite3.connect(db_path)
             old_cursor = old_conn.cursor()
-            
+
             # 迁移tag相关表
-            old_cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='tag_groups'")
+            old_cursor.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name='tag_groups'"
+            )
             if old_cursor.fetchone():
                 # 确保新数据库文件存在
                 if not os.path.exists(tags_db_path):
-                    open(tags_db_path, 'a').close()
-                
+                    open(tags_db_path, "a").close()
+
                 tags_conn = sqlite3.connect(tags_db_path)
                 tags_cursor = tags_conn.cursor()
-                
+
                 # 迁移tag_groups，保留原始id_index
                 old_cursor.execute("SELECT * FROM tag_groups")
-                tags_cursor.executemany("INSERT INTO tag_groups (id_index, name, color, create_time) VALUES (?, ?, ?, ?)", 
-                                     [(row[0], row[1], row[2], row[3]) for row in old_cursor.fetchall()])
-                
+                tags_cursor.executemany(
+                    "INSERT INTO tag_groups (id_index, name, color, create_time) VALUES (?, ?, ?, ?)",
+                    [(row[0], row[1], row[2], row[3]) for row in old_cursor.fetchall()],
+                )
+
                 # 迁移tag_subgroups，保留原始id_index
                 old_cursor.execute("SELECT * FROM tag_subgroups")
-                tags_cursor.executemany("INSERT INTO tag_subgroups (id_index, group_id, name, color, create_time) VALUES (?, ?, ?, ?, ?)", 
-                                      [(row[0], row[1], row[2], row[3], row[4]) for row in old_cursor.fetchall()])
-                
+                tags_cursor.executemany(
+                    "INSERT INTO tag_subgroups (id_index, group_id, name, color, create_time) VALUES (?, ?, ?, ?, ?)",
+                    [
+                        (row[0], row[1], row[2], row[3], row[4])
+                        for row in old_cursor.fetchall()
+                    ],
+                )
+
                 # 迁移tag_tags，保留原始id_index
                 old_cursor.execute("SELECT * FROM tag_tags")
-                tags_cursor.executemany("INSERT INTO tag_tags (id_index, subgroup_id, text, desc, color, create_time) VALUES (?, ?, ?, ?, ?, ?)", 
-                                      [(row[0], row[1], row[2], row[3], row[4], row[5]) for row in old_cursor.fetchall()])
-                
+                tags_cursor.executemany(
+                    "INSERT INTO tag_tags (id_index, subgroup_id, text, desc, color, create_time) VALUES (?, ?, ?, ?, ?, ?)",
+                    [
+                        (row[0], row[1], row[2], row[3], row[4], row[5])
+                        for row in old_cursor.fetchall()
+                    ],
+                )
+
                 # 更新SQLite序列计数器
                 tags_cursor.execute("SELECT MAX(id_index) FROM tag_groups")
                 max_id = tags_cursor.fetchone()[0] or 0
-                tags_cursor.execute(f"UPDATE SQLITE_SEQUENCE SET seq = {max_id} WHERE name = 'tag_groups'")
-                
+                tags_cursor.execute(
+                    f"UPDATE SQLITE_SEQUENCE SET seq = {max_id} WHERE name = 'tag_groups'"
+                )
+
                 tags_cursor.execute("SELECT MAX(id_index) FROM tag_subgroups")
                 max_id = tags_cursor.fetchone()[0] or 0
-                tags_cursor.execute(f"UPDATE SQLITE_SEQUENCE SET seq = {max_id} WHERE name = 'tag_subgroups'")
-                
+                tags_cursor.execute(
+                    f"UPDATE SQLITE_SEQUENCE SET seq = {max_id} WHERE name = 'tag_subgroups'"
+                )
+
                 tags_cursor.execute("SELECT MAX(id_index) FROM tag_tags")
                 max_id = tags_cursor.fetchone()[0] or 0
-                tags_cursor.execute(f"UPDATE SQLITE_SEQUENCE SET seq = {max_id} WHERE name = 'tag_tags'")
-                
+                tags_cursor.execute(
+                    f"UPDATE SQLITE_SEQUENCE SET seq = {max_id} WHERE name = 'tag_tags'"
+                )
+
                 tags_conn.commit()
                 tags_conn.close()
 
             # 迁移history相关表
-            old_cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='history'")
+            old_cursor.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name='history'"
+            )
             if old_cursor.fetchone():
                 if not os.path.exists(history_db_path):
-                    open(history_db_path, 'a').close()
-                
+                    open(history_db_path, "a").close()
+
                 history_conn = sqlite3.connect(history_db_path)
                 history_cursor = history_conn.cursor()
-                
+
                 # 迁移history
                 old_cursor.execute("SELECT * FROM history")
-                history_cursor.executemany("INSERT INTO history (tag, name, color, create_time, is_deleted) VALUES (?, ?, ?, ?, ?)", 
-                                         [(row[1], row[2], row[3], row[4], row[5]) for row in old_cursor.fetchall()])
-                
+                history_cursor.executemany(
+                    "INSERT INTO history (tag, name, color, create_time, is_deleted) VALUES (?, ?, ?, ?, ?)",
+                    [
+                        (row[1], row[2], row[3], row[4], row[5])
+                        for row in old_cursor.fetchall()
+                    ],
+                )
+
                 # 迁移collect_history
                 old_cursor.execute("SELECT * FROM collect_history")
-                history_cursor.executemany("INSERT INTO collect_history (tag, name, color, create_time, is_deleted) VALUES (?, ?, ?, ?, ?)", 
-                                         [(row[1], row[2], row[3], row[4], row[5]) for row in old_cursor.fetchall()])
-                
+                history_cursor.executemany(
+                    "INSERT INTO collect_history (tag, name, color, create_time, is_deleted) VALUES (?, ?, ?, ?, ?)",
+                    [
+                        (row[1], row[2], row[3], row[4], row[5])
+                        for row in old_cursor.fetchall()
+                    ],
+                )
+
                 history_conn.commit()
                 history_conn.close()
 
             # danbooru表不迁移
-            
+
             old_conn.close()
 
             # 迁移完成后将旧数据库移动到old_db_path
@@ -673,11 +926,13 @@ def migrate_old_db():
             os.makedirs(old_db_path, exist_ok=True)
             abs_db_path = os.path.abspath(db_path)
             abs_old_db_path = os.path.abspath(old_db_path)
-            
+
             timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
             old_db_filename = os.path.basename(abs_db_path)
-            new_db_path = os.path.join(abs_old_db_path, f"{timestamp}_{old_db_filename}")
-            
+            new_db_path = os.path.join(
+                abs_old_db_path, f"{timestamp}_{old_db_filename}"
+            )
+
             # 检查源文件是否存在
             if os.path.exists(abs_db_path):
                 # 移动文件
@@ -685,7 +940,7 @@ def migrate_old_db():
                 print(f"数据迁移完成，旧数据库文件已移动到: {new_db_path}")
             else:
                 print(f"警告：源文件 {abs_db_path} 不存在，无法移动")
-            
+
         except sqlite3.Error as e:
             print(f"数据库迁移出错: {e}")
             raise
@@ -693,75 +948,79 @@ def migrate_old_db():
             print(f"文件移动出错: {e}")
             raise
 
+
 # 拉取远程数据库 y7S27_wDHXy1xaSQjupJk-Wy
 def check_and_initialize_db(db_type):
     import os
-    
+
     # 动态获取token，如果不存在则为None
-    token = os.environ.get('GITHUB_TOKEN')
-    
+    token = os.environ.get("GITHUB_TOKEN")
+
     # 只在token存在时输出调试信息
     if token:
-        print("="*50)
-        print(f"Token 读取成功: True")
+        print("=" * 50)
+        print("Token 读取成功: True")
         print(f"Token 前缀: {token[:4]}...")
         print(f"Token 长度: {len(token)}")
-        print("="*50)
-    
+        print("=" * 50)
+
     # 只在token存在时设置headers
-    headers = {'Authorization': f'token {token}'} if token else {}
+    headers = {"Authorization": f"token {token}"} if token else {}
 
     db_map = {
-        'tags': {
-            'path': tags_db_path,
-            'url': 'https://api.github.com/repos/weilin9999/WeiLin-Comfyui-Tools-Prompt/contents/tags/2025_03_31'
+        "tags": {
+            "path": tags_db_path,
+            "url": "https://api.github.com/repos/weilin9999/WeiLin-Comfyui-Tools-Prompt/contents/tags/2025_03_31",
         },
-        'danbooru': {
-            'path': danbooru_db_path,
-            'url': 'https://api.github.com/repos/weilin9999/WeiLin-Comfyui-Tools-Prompt/contents/danbooru/2025_04_01'
-        }
+        "danbooru": {
+            "path": danbooru_db_path,
+            "url": "https://api.github.com/repos/weilin9999/WeiLin-Comfyui-Tools-Prompt/contents/danbooru/2025_04_01",
+        },
     }
-    
+
     db_info = db_map[db_type]
-    conn = sqlite3.connect(db_info['path'])
+    conn = sqlite3.connect(db_info["path"])
     cursor = conn.cursor()
-    
+
     try:
         # 检查是否有数据
-        if db_type == 'tags':
+        if db_type == "tags":
             cursor.execute("SELECT COUNT(*) FROM tag_groups")
         else:  # danbooru
             cursor.execute("SELECT COUNT(*) FROM danbooru_tag")
-            
+
         count = cursor.fetchone()[0]
         if count == 0:
             print(f"{db_type} 数据库正在拉取中... 地址{db_info['url']}")
             print("大文件处理速度可能会需要点时间，请耐心等待...")
-            
+
             # 获取目录下的所有SQL文件
-            response = requests.get(db_info['url'], headers=headers)
+            response = requests.get(db_info["url"], headers=headers)
             response.raise_for_status()
-            
+
             files = response.json()
             print(f"获取到 {len(files)} 个文件")
             print("只获取前3个Danbooru文件，如果需要完整版请进入插件UI内获取完整版")
             i = 0
             for file in files:
-                if file['name'].endswith('.sql'):
+                if file["name"].endswith(".sql"):
                     i += 1
                     if i > 3:
                         break
                     print(f"正在处理文件: {file['name']}")
 
                     # 从GitHub获取SQL文件内容
-                    sql_url = "https://raw.githubusercontent.com/weilin9999/WeiLin-Comfyui-Tools-Prompt/master/" + file['path']
+                    sql_url = (
+                        "https://raw.githubusercontent.com/weilin9999/WeiLin-Comfyui-Tools-Prompt/master/"
+                        + file["path"]
+                    )
                     response = requests.get(sql_url, headers=headers)
                     response.raise_for_status()
                     sql_content = response.text
 
                     cursor.executescript(sql_content)
-                    save_package_path(file['path'])
-            
+                    save_package_path(file["path"])
+
             conn.commit()
             print(f"{db_type} 数据库已成功初始化")
     except sqlite3.OperationalError as e:
@@ -775,34 +1034,37 @@ def check_and_initialize_db(db_type):
 # 拉去远程数据库-安装
 def install_cloud_file_db(db_type, paths):
     db_map = {
-        'tags': {
-            'path': tags_db_path,
+        "tags": {
+            "path": tags_db_path,
         },
-        'danbooru': {
-            'path': danbooru_db_path,
-        }
+        "danbooru": {
+            "path": danbooru_db_path,
+        },
     }
-    
+
     db_info = db_map[db_type]
-    conn = sqlite3.connect(db_info['path'])
+    conn = sqlite3.connect(db_info["path"])
     cursor = conn.cursor()
-    
-    try:    
+
+    try:
         if len(paths) > 0:
             print(f"从你的选择中获取到 {len(paths)} 个文件")
             for path_url in paths:
-                if path_url.endswith('.sql'):
+                if path_url.endswith(".sql"):
                     print(f"正在处理文件: {path_url}")
 
                     # 从GitCode获取SQL文件内容
-                    sql_url = "https://raw.githubusercontent.com/weilin9999/WeiLin-Comfyui-Tools-Prompt/master/"+path_url
+                    sql_url = (
+                        "https://raw.githubusercontent.com/weilin9999/WeiLin-Comfyui-Tools-Prompt/master/"
+                        + path_url
+                    )
                     response = requests.get(sql_url, headers=headers)
                     response.raise_for_status()
                     sql_content = response.text
 
                     cursor.executescript(sql_content)
                     save_package_path(path_url)
-            
+
             conn.commit()
             print(f"{db_type} 已完成数据安装。")
     except sqlite3.OperationalError as e:
@@ -812,71 +1074,216 @@ def install_cloud_file_db(db_type, paths):
     finally:
         conn.close()
 
-async def execute_query(db_type: str, query: str, params: Tuple[Any, ...] = ()) -> None:
+
+async def _reconnect_after_error(db_type: str) -> aiosqlite.Connection:
+    """在发生错误后重新连接数据库"""
+    db_map = {
+        "tags": tags_db_path,
+        "history": history_db_path,
+        "danbooru": danbooru_db_path,
+    }
+    db_path = db_map[db_type]
+
+    # 关闭旧连接
+    if db_type in _connection_pool:
+        try:
+            old_conn = _connection_pool.pop(db_type)
+            await old_conn.close()
+        except Exception as e:
+            print(f"关闭旧连接时出错: {e}")
+
+    # 强制修复数据库
+    print(f"尝试强制修复数据库: {db_type}")
+    force_repair_database(db_path)
+
+    # 重新连接
+    os.makedirs(os.path.dirname(db_path), exist_ok=True)
+    conn = await aiosqlite.connect(db_path)
+    await conn.execute("PRAGMA journal_mode=WAL")
+    await conn.execute("PRAGMA synchronous=NORMAL")
+    await conn.execute("PRAGMA cache_size=-2000")
+    _connection_pool[db_type] = conn
+    return conn
+
+
+def force_repair_database(db_path: str) -> bool:
+    """强制修复数据库（用于运行时错误恢复）"""
+    import time
+
+    try:
+        # 关闭所有可能的连接
+        import gc
+
+        gc.collect()  # 强制垃圾回收，释放可能的文件句柄
+
+        # 尝试删除或重命名文件
+        for path in [db_path, db_path + "-wal", db_path + "-shm"]:
+            if os.path.exists(path):
+                try:
+                    os.remove(path)
+                except PermissionError:
+                    timestamp = int(time.time())
+                    renamed = path + f".locked_{timestamp}"
+                    try:
+                        os.rename(path, renamed)
+                        print(f"重命名: {path} -> {renamed}")
+                    except Exception as e:
+                        print(f"无法处理文件 {path}: {e}")
+
+        print(f"数据库已重置: {db_path}")
+        return True
+    except Exception as e:
+        print(f"强制修复数据库时出错: {e}")
+        return False
+
+
+async def execute_query(db_type: str, query: str, params: tuple[Any, ...] = ()) -> None:
     """执行SQL查询"""
     conn = await _get_connection(db_type)
     try:
         async with conn.cursor() as cursor:
             await cursor.execute(query, params)
             await conn.commit()
+    except aiosqlite.DatabaseError as e:
+        if "malformed" in str(e) or "disk image" in str(e):
+            print("检测到数据库损坏，尝试自动修复...")
+            conn = await _reconnect_after_error(db_type)
+            _create_history_tables()
+            async with conn.cursor() as cursor:
+                await cursor.execute(query, params)
+                await conn.commit()
+        else:
+            print(f"执行查询时出错: {e}")
+            raise
     except aiosqlite.Error as e:
         print(f"执行查询时出错: {e}")
         raise
 
-async def fetch_all(db_type: str, query: str, params: Tuple[Any, ...] = ()) -> List[Tuple[Any, ...]]:
+
+async def fetch_all(
+    db_type: str, query: str, params: tuple[Any, ...] = ()
+) -> list[tuple[Any, ...]]:
     """获取所有结果"""
     conn = await _get_connection(db_type)
     try:
         async with conn.cursor() as cursor:
             await cursor.execute(query, params)
             return await cursor.fetchall()
+    except aiosqlite.DatabaseError as e:
+        if "malformed" in str(e) or "disk image" in str(e):
+            print("检测到数据库损坏，尝试自动修复...")
+            conn = await _reconnect_after_error(db_type)
+            _create_history_tables()
+            async with conn.cursor() as cursor:
+                await cursor.execute(query, params)
+                return await cursor.fetchall()
+        print(f"获取数据时出错: {e}")
+        raise
     except aiosqlite.Error as e:
         print(f"获取数据时出错: {e}")
         raise
 
-async def fetch_one(db_type: str, query: str, params: Tuple[Any, ...] = ()) -> Optional[Tuple[Any, ...]]:
+
+async def fetch_one(
+    db_type: str, query: str, params: tuple[Any, ...] = ()
+) -> tuple[Any, ...] | None:
     """获取单条结果"""
     conn = await _get_connection(db_type)
     try:
         async with conn.cursor() as cursor:
             await cursor.execute(query, params)
             return await cursor.fetchone()
+    except aiosqlite.DatabaseError as e:
+        if "malformed" in str(e) or "disk image" in str(e):
+            print("检测到数据库损坏，尝试自动修复...")
+            # 重新连接并修复
+            conn = await _reconnect_after_error(db_type)
+            # 重新创建表
+            _create_history_tables()
+            # 重试查询
+            async with conn.cursor() as cursor:
+                await cursor.execute(query, params)
+                return await cursor.fetchone()
+        print(f"获取数据时出错: {e}")
+        raise
     except aiosqlite.Error as e:
         print(f"获取数据时出错: {e}")
         raise
 
+
+def _create_history_tables():
+    """创建history数据库表"""
+    conn = sqlite3.connect(history_db_path)
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS history (
+            id_index INTEGER PRIMARY KEY AUTOINCREMENT,
+            tag TEXT,
+            name TEXT,
+            color TEXT,
+            create_time INTEGER,
+            is_deleted INTEGER DEFAULT 0
+        )
+    """
+    )
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS collect_history (
+            id_index INTEGER PRIMARY KEY AUTOINCREMENT,
+            tag TEXT,
+            name TEXT,
+            color TEXT,
+            create_time INTEGER,
+            is_deleted INTEGER DEFAULT 0
+        )
+    """
+    )
+    conn.commit()
+    conn.close()
+
+
 # 修改set_language函数
 def set_language(lang):
     global db_path, tags_db_path, history_db_path, danbooru_db_path
-    db_path = os.path.join(current_dir, f'../../../user_data/userdatas_{lang}.db')
-    tags_db_path = os.path.join(current_dir, f'../../../user_data/userdatas_{lang}_tags.db')
-    history_db_path = os.path.join(current_dir, f'../../../user_data/userdatas_{lang}_history.db')
-    danbooru_db_path = os.path.join(current_dir, f'../../../user_data/userdatas_{lang}_danbooru.db')
-    
+    db_path = os.path.join(current_dir, f"../../../user_data/userdatas_{lang}.db")
+    tags_db_path = os.path.join(
+        current_dir, f"../../../user_data/userdatas_{lang}_tags.db"
+    )
+    history_db_path = os.path.join(
+        current_dir, f"../../../user_data/userdatas_{lang}_history.db"
+    )
+    danbooru_db_path = os.path.join(
+        current_dir, f"../../../user_data/userdatas_{lang}_danbooru.db"
+    )
+
     # 初始化数据库
     create_tables()
-    migrate_old_db() # 迁移旧数据库
+    migrate_old_db()  # 迁移旧数据库
     migrate_db()  # 新增数据库迁移
 
     # 检查并初始化tags和danbooru数据库
-    if lang == 'zh_CN':
-        check_and_initialize_db('tags')
-        check_and_initialize_db('danbooru')
+    if lang == "zh_CN":
+        check_and_initialize_db("tags")
+        check_and_initialize_db("danbooru")
+
 
 # 获取数据库路径
 def get_db_path(db_type):
     db_map = {
-        'tags': tags_db_path,
-        'history': history_db_path,
-        'danbooru': danbooru_db_path
+        "tags": tags_db_path,
+        "history": history_db_path,
+        "danbooru": danbooru_db_path,
     }
     return db_map[db_type]
+
 
 # 初始化数据库
 set_language(localLang)
 
 
 import atexit
+
 
 @atexit.register
 async def _close_connections() -> None:

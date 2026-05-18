@@ -1,8 +1,51 @@
 // Global variables
 window.weilinGlobalSelectedLoras = [];
 
+// 添加标志避免循环更新
+let isUpdatingFromVue = false;
 
-// window.addEventListener('message', handleWindowMessage);
+// Handle window messages - 用于同步Vue窗口的数据
+function handleWindowMessage(event) {
+   // 监听来自Vue窗口的更新消息
+   if (event.data.type && event.data.type.startsWith('weilin_prompt_ui_prompt_node_finish_lora_stack_')) {
+       const seed = event.data.type.replace('weilin_prompt_ui_prompt_node_finish_lora_stack_', '');
+       if (event.data.data) {
+           try {
+               const jsonStr = JSON.parse(event.data.data);
+               // 设置标志，避免循环更新
+               isUpdatingFromVue = true;
+               
+               // 更新全局数据
+               if (jsonStr.temp_lora && jsonStr.temp_lora.length > 0) {
+                   window.weilinGlobalSelectedLoras[seed] = jsonStr.temp_lora;
+               } else if (jsonStr.lora && jsonStr.lora.length > 0) {
+                   window.weilinGlobalSelectedLoras[seed] = jsonStr.lora;
+               } else {
+                   window.weilinGlobalSelectedLoras[seed] = [];
+               }
+               
+               // 重新渲染
+               renderAllLoras(seed);
+               
+               // 重置标志
+               setTimeout(() => {
+                   isUpdatingFromVue = false;
+               }, 100);
+           } catch (e) {
+               console.error('[weilin-comfyui] 解析Vue窗口lora数据失败:', e);
+               isUpdatingFromVue = false;
+           }
+       }
+   }
+   // 兼容旧的消息类型
+   if (event.data.type === 'weilin_prompt_ui_node_lora_stack_update_lora_stack') {
+       const seed = event.data.seed;
+       renderAllLoras(seed);
+   }
+}
+
+// 注册消息监听器
+window.addEventListener('message', handleWindowMessage);
 
 // Open Lora Manager
 function openLoraManager(buttonElement) {
@@ -24,16 +67,12 @@ function openLoraManager(buttonElement) {
    }, '*');
 }
 
-// Handle window messages
-function handleWindowMessage(event) {
-   if (event.data.type === 'weilin_prompt_ui_node_lora_stack_update_lora_stack') {
-       const seed = event.data.seed;
-       renderAllLoras(seed)
-   }
-}
-
 // Add a new Lora
 function addLora(seed, lora) {
+   // Initialize array if not exists
+   if (!window.weilinGlobalSelectedLoras[seed]) {
+       window.weilinGlobalSelectedLoras[seed] = [];
+   }
    // Check if already exists
    if (!window.weilinGlobalSelectedLoras[seed].some(item => item.name === lora.name)) {
        // Ensure defaults are 1 and override any incoming 0.5
@@ -52,7 +91,7 @@ function addLora(seed, lora) {
 
 // Remove a Lora
 function removeLora(seed, index) {
-   if (index > -1) {
+   if (index > -1 && window.weilinGlobalSelectedLoras[seed]) {
        // console.log(index)
        window.weilinGlobalSelectedLoras[seed].splice(index, 1);
        renderAllLoras(seed);
@@ -62,7 +101,7 @@ function removeLora(seed, index) {
 
 // Toggle Lora visibility
 function toggleHideLora(seed, index) {
-   if (index > -1) {
+   if (index > -1 && window.weilinGlobalSelectedLoras[seed] && window.weilinGlobalSelectedLoras[seed][index]) {
        const lora = window.weilinGlobalSelectedLoras[seed][index];
        lora.hidden = !lora.hidden;
        updateLoraStackInfoToWindows(seed);
@@ -149,8 +188,29 @@ function renderLoraItem(seed, index, lora) {
        e.stopPropagation();
    });
 
-   loraItem.querySelector('.weilin-comfyui-look-on-btn').addEventListener('click', () => lookOnLora(lora.lora));
-   loraItem.querySelector('.weilin-comfyui-remove-btn').addEventListener('click', () => removeLora(seed, index));
+   loraItem.querySelector('.weilin-comfyui-look-on-btn').addEventListener('click', (e) => {
+       e.preventDefault();
+       e.stopPropagation();
+       lookOnLora(lora.lora);
+   });
+   loraItem.querySelector('.weilin-comfyui-look-on-btn').addEventListener('mousedown', (e) => {
+       e.stopPropagation();
+   });
+   loraItem.querySelector('.weilin-comfyui-look-on-btn').addEventListener('mouseup', (e) => {
+       e.stopPropagation();
+   });
+
+   loraItem.querySelector('.weilin-comfyui-remove-btn').addEventListener('click', (e) => {
+       e.preventDefault();
+       e.stopPropagation();
+       removeLora(seed, index);
+   });
+   loraItem.querySelector('.weilin-comfyui-remove-btn').addEventListener('mousedown', (e) => {
+       e.stopPropagation();
+   });
+   loraItem.querySelector('.weilin-comfyui-remove-btn').addEventListener('mouseup', (e) => {
+       e.stopPropagation();
+   });
 
    const weightInputs = loraItem.querySelectorAll('.weilin-comfyui-lora-weight');
    weightInputs.forEach(input => {
@@ -174,6 +234,17 @@ function renderLoraItem(seed, index, lora) {
                updateLoraStackInfoToWindows(seed);
            }
        });
+   });
+
+   // 防止点击 LoRA 项时触发其他事件（如 LiteGraph 的节点选择）
+   loraItem.addEventListener('mousedown', (e) => {
+       e.stopPropagation();
+   });
+   loraItem.addEventListener('mouseup', (e) => {
+       e.stopPropagation();
+   });
+   loraItem.addEventListener('click', (e) => {
+       e.stopPropagation();
    });
 
    loraListContainer.appendChild(loraItem);
@@ -280,6 +351,15 @@ function renderAllLoras(seed) {
 
 // Update Lora stack info to windows
 function updateLoraStackInfoToWindows(seed) {
+   // 如果是从Vue窗口更新触发的，不发送消息，避免循环
+   if (isUpdatingFromVue) {
+       return;
+   }
+   
+   // Ensure array exists
+   if (!window.weilinGlobalSelectedLoras[seed]) {
+       window.weilinGlobalSelectedLoras[seed] = [];
+   }
    
    let putJson = {
        lora: "",

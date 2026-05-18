@@ -1,9 +1,9 @@
 [project]
 name = "weilin-comfyui-tools"
 description = "让你在 ComfyUI 中快捷的使用提示词工具 Quickly use the prompt word tool in ComfyUI"
-version = "0.0.72"
+version = "0.0.75"
 license = {file = "LICENSE"}
-dependencies = []
+dependencies = ['uuid7', 'aiosqlite']
 
 [project.urls]
 Repository = "https://github.com/weilin9999/WeiLin-Comfyui-Tools"
@@ -13,3 +13,31 @@ Repository = "https://github.com/weilin9999/WeiLin-Comfyui-Tools"
 PublisherId = "weilin"
 DisplayName = "WeiLin-Comfyui-Tools"
 Icon = "https://raw.gitcode.com/qq_27627297/public_project/files/main/comfyui_logo.jpg"
+
+# Ruff 代码检查配置
+[tool.ruff]
+target-version = "py310"
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B"]
+ignore = [
+    "E402",   # 模块级导入不在文件顶部 (ComfyUI插件需要先设置EXTENSION_WEB_DIRS)
+    "E501",   # 行过长 (长字符串和URL)
+    "F403",   # 星号导入 (ComfyUI插件常见模式)
+    "F405",   # 星号导入可能未定义 (ComfyUI插件常见模式)
+    "E722",   # 裸except (简化错误处理)
+    "B007",   # 循环变量未使用
+    "B009",   # getattr常量参数
+    "B010",   # setattr常量参数
+    "B904",   # raise from (简化错误处理)
+    "UP007",  # Union类型注解 (兼容旧版Python)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]  # 未使用的导入 (ComfyUI入口文件)
+
+# Black 代码格式化配置
+[tool.black]
+line-length = 88
+target-version = ["py310"]

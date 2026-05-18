@@ -1,31 +1,20 @@
 /* WeiLin ComfyUI 2.0 兼容性修复 */
-/* 解决dom-widget容器遮挡画布的问题 */
+/* 仅作用于由 WeiLin 节点运行时打标的 dom-widget，禁止全局污染其他插件 */
 
-/* 
- * 问题分析：
- * 1. 存在多个 dom-widget size-full 容器，几乎重叠
- * 2. 所有容器都有 position: fixed，固定在视口上
- * 3. pointer-events: auto 导致事件被拦截
- * 4. 输入框（textarea）被隐藏（display: none）
- * 
- * 解决方案：
- * 1. 设置 pointer-events: none 让画布可以交互
- * 2. 设置 position: absolute 让容器跟随节点
- * 3. 确保内部交互元素（textarea等）可以正常响应
- */
-
-/* 方案1：针对包含weilin相关元素的dom-widget */
-.dom-widget.weilin-dom-widget-fixed {
+.dom-widget.weilin-owned-dom-widget {
     pointer-events: none !important;
+    position: absolute !important;
 }
 
-/* 确保weilin内部的交互元素可以正常响应 */
-.dom-widget.weilin-dom-widget-fixed textarea,
-.dom-widget.weilin-dom-widget-fixed input,
-.dom-widget.weilin-dom-widget-fixed select,
-.dom-widget.weilin-dom-widget-fixed button,
-.dom-widget.weilin-dom-widget-fixed a,
-.dom-widget.weilin-dom-widget-fixed [contenteditable="true"],
-.dom-widget.weilin-dom-widget-fixed [class*="weilin-"] {
+.dom-widget.weilin-owned-dom-widget textarea,
+.dom-widget.weilin-owned-dom-widget input,
+.dom-widget.weilin-owned-dom-widget select,
+.dom-widget.weilin-owned-dom-widget button,
+.dom-widget.weilin-owned-dom-widget canvas,
+.dom-widget.weilin-owned-dom-widget iframe,
+.dom-widget.weilin-owned-dom-widget a,
+.dom-widget.weilin-owned-dom-widget [contenteditable='true'],
+.dom-widget.weilin-owned-dom-widget .weilin-prompt-ui-container,
+.dom-widget.weilin-owned-dom-widget .weilin-lora-manager-container {
     pointer-events: auto !important;
 }
