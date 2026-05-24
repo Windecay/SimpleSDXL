@@ -238,6 +238,162 @@ class QwenTTSWrapper:
             seg_audio["waveform"] = w.detach().cpu()
         return seg_audio
 
+    @staticmethod
+    def _audio_to_tensor_3d(w: Any) -> torch.Tensor:
+        if hasattr(w, "detach"):
+            w = w.detach()
+        if hasattr(w, "cpu"):
+            w = w.cpu()
+        if isinstance(w, np.ndarray):
+            w = torch.from_numpy(w)
+        if not isinstance(w, torch.Tensor):
+            w = torch.as_tensor(w)
+
+        if getattr(w, "ndim", 0) == 0:
+            w = w.reshape(1)
+        if getattr(w, "ndim", 0) == 1:
+            return w[None, None, :]
+        if getattr(w, "ndim", 0) == 2:
+            if int(w.shape[0]) <= 8 and int(w.shape[1]) > 8:
+                return w[None, :, :]
+            if int(w.shape[1]) <= 8 and int(w.shape[0]) > 8:
+                return w.T[None, :, :]
+            return w[None, :, :]
+        if getattr(w, "ndim", 0) == 3:
+            if int(w.shape[0]) != 1:
+                w = w[:1]
+            if int(w.shape[1]) > 8 and int(w.shape[2]) <= 8:
+                w = w.transpose(1, 2)
+            return w
+        return w.reshape(1, 1, -1)
+
+    def _trim_generated_silence_tensor(
+        self,
+        w: Any,
+        sr: int,
+        keep_leading_s: float = 0.08,
+        keep_trailing_s: float = 0.22,
+        min_trim_s: float = 0.35,
+    ) -> Tuple[torch.Tensor, bool, float, float]:
+        w3 = self._audio_to_tensor_3d(w)
+        try:
+            sample_rate = int(max(1, int(sr)))
+            n = int(w3.shape[-1])
+            min_trim = int(max(1, float(min_trim_s) * float(sample_rate)))
+            if n <= min_trim * 2:
+                return w3, False, 0.0, 0.0
+
+            x = w3[0]
+            if getattr(x, "ndim", 0) == 2:
+                x = x.mean(dim=0)
+            x = x.to(torch.float32)
+            win = int(max(128, int(float(sample_rate) * 0.03)))
+            hop = int(max(64, int(float(sample_rate) * 0.01)))
+            if n < win:
+                return w3, False, 0.0, 0.0
+
+            frames = x.unfold(0, win, hop)
+            rms = frames.pow(2.0).mean(dim=1).sqrt()
+            if int(rms.numel()) <= 0:
+                return w3, False, 0.0, 0.0
+
+            rms_max = float(rms.max().item())
+            if not np.isfinite(rms_max) or rms_max <= 1e-7:
+                keep_n = int(min(n, max(1, int(float(sample_rate) * 0.12))))
+                if n - keep_n > min_trim:
+                    return w3[..., :keep_n].contiguous(), True, 0.0, float(n - keep_n) / float(sample_rate)
+                return w3, False, 0.0, 0.0
+
+            speech_thr = float(max(0.003, min(0.018, 0.05 * rms_max)))
+            active = rms > speech_thr
+            if not bool(active.any().item()):
+                soft_thr = float(max(0.0006, min(0.006, 0.15 * rms_max)))
+                active = rms > soft_thr
+            if not bool(active.any().item()):
+                keep_n = int(min(n, max(1, int(float(sample_rate) * 0.12))))
+                if n - keep_n > min_trim:
+                    return w3[..., :keep_n].contiguous(), True, 0.0, float(n - keep_n) / float(sample_rate)
+                return w3, False, 0.0, 0.0
+
+            idx = torch.nonzero(active, as_tuple=False).flatten().detach().cpu().tolist()
+            runs: List[Tuple[int, int]] = []
+            start = int(idx[0])
+            prev = int(idx[0])
+            for raw_i in idx[1:]:
+                cur = int(raw_i)
+                if cur == prev + 1:
+                    prev = cur
+                    continue
+                runs.append((start, prev))
+                start = cur
+                prev = cur
+            runs.append((start, prev))
+            long_runs = [r for r in runs if r[1] - r[0] >= 1]
+            if long_runs:
+                first_frame = long_runs[0][0]
+                last_frame = long_runs[-1][1]
+            else:
+                first_frame = int(idx[0])
+                last_frame = int(idx[-1])
+
+            keep_start = int(max(0, first_frame * hop - int(float(keep_leading_s) * float(sample_rate))))
+            keep_end = int(min(n, last_frame * hop + win + int(float(keep_trailing_s) * float(sample_rate))))
+            trim_start = keep_start if keep_start > min_trim else 0
+            trim_end = keep_end if n - keep_end > min_trim else n
+            if trim_end <= trim_start + int(0.08 * float(sample_rate)):
+                return w3, False, 0.0, 0.0
+            changed = trim_start > 0 or trim_end < n
+            if not changed:
+                return w3, False, 0.0, 0.0
+            return (
+                w3[..., trim_start:trim_end].contiguous(),
+                True,
+                float(trim_start) / float(sample_rate),
+                float(n - trim_end) / float(sample_rate),
+            )
+        except Exception:
+            return w3, False, 0.0, 0.0
+
+    def _trim_generated_silence_audio_dict(self, seg_audio: Dict[str, Any]) -> Dict[str, Any]:
+        if not isinstance(seg_audio, dict):
+            return seg_audio
+        w = seg_audio.get("waveform")
+        if w is None:
+            return seg_audio
+        try:
+            sr = int(seg_audio.get("sample_rate", 24000))
+        except Exception:
+            sr = 24000
+        if bool(seg_audio.get("_tts_pause")):
+            seg_audio["waveform"] = self._audio_to_tensor_3d(w)
+            return seg_audio
+        trimmed, changed, trim_head_s, trim_tail_s = self._trim_generated_silence_tensor(w, sr)
+        seg_audio["waveform"] = trimmed
+        if changed and (trim_head_s + trim_tail_s) >= 1.0:
+            logging.info(
+                "QwenTTS trimmed generated silence: head=%.3fs tail=%.3fs sr=%s",
+                trim_head_s,
+                trim_tail_s,
+                sr,
+            )
+        return seg_audio
+
+    @staticmethod
+    def _effective_per_segment_tokens(max_new_tokens: Any, segments: List[str]) -> int:
+        try:
+            requested = int(max_new_tokens)
+        except Exception:
+            requested = 2048
+        requested = max(1, requested)
+        try:
+            longest = max((len(str(s).strip()) for s in segments if str(s).strip()), default=0)
+        except Exception:
+            longest = 0
+        if requested <= 512 or longest <= 0:
+            return requested
+        dynamic_cap = int(max(512, min(4096, longest * 6 + 256)))
+        return int(min(requested, dynamic_cap))
+
     def _parse_pause_markup(self, text: str) -> List[Tuple[str, Any]]:
         if text is None:
             return []
@@ -377,22 +533,16 @@ class QwenTTSWrapper:
         dtype = torch.float32
         if isinstance(target_audio, dict):
             w = target_audio.get("waveform")
-            if hasattr(w, "detach"):
-                w = w.detach()
-            if hasattr(w, "cpu"):
-                w = w.cpu()
-            if isinstance(w, np.ndarray):
-                w = torch.from_numpy(w)
-            if hasattr(w, "ndim") and int(getattr(w, "ndim", 0)) >= 2:
-                try:
-                    channels = int(w.shape[1])
-                except Exception:
-                    channels = 1
-            if hasattr(w, "dtype"):
-                dtype = w.dtype
+            try:
+                w3 = self._audio_to_tensor_3d(w)
+                channels = int(w3.shape[1])
+                dtype = w3.dtype
+            except Exception:
+                if hasattr(w, "dtype"):
+                    dtype = w.dtype
         if n <= 0:
             n = 0
-        return {"waveform": torch.zeros((1, channels, n), dtype=dtype, device="cpu"), "sample_rate": sample_rate}
+        return {"waveform": torch.zeros((1, channels, n), dtype=dtype, device="cpu"), "sample_rate": sample_rate, "_tts_pause": True}
 
     @staticmethod
     def _preprocess_line_breaks(text: str, merge_threshold: int = 80, inter_group_pause_ms: float = 120.0) -> str:
@@ -546,21 +696,15 @@ class QwenTTSWrapper:
             if int(a.get("sample_rate")) != sr:
                 raise ValueError("Mismatched sample_rate across segments")
             w = a.get("waveform")
-            if hasattr(w, "detach"):
-                w = w.detach()
-            if hasattr(w, "cpu"):
-                w = w.cpu()
-            if isinstance(w, np.ndarray):
-                w = torch.from_numpy(w)
+            w = self._audio_to_tensor_3d(w)
+            is_pause = bool(a.get("_tts_pause"))
+            if not is_pause:
+                w, _, _, _ = self._trim_generated_silence_tensor(w, sr)
             waveforms.append(w)
 
         target_channels = int(waveforms[0].shape[1]) if getattr(waveforms[0], "ndim", 0) >= 2 else 1
         fixed = []
         for w in waveforms:
-            if getattr(w, "ndim", 0) == 1:
-                w = w[None, None, :]
-            elif getattr(w, "ndim", 0) == 2:
-                w = w[None, :, :]
             if int(w.shape[1]) != target_channels:
                 if target_channels == 2 and int(w.shape[1]) == 1:
                     w = w.repeat(1, 2, 1)
@@ -820,7 +964,7 @@ class QwenTTSWrapper:
             hard_max_chars=split_hard_max_chars,
         )
         segments = [p[1] for p in plan if p and p[0] == "text"]
-        per_seg_tokens = int(max(1, int(max_new_tokens)))
+        per_seg_tokens = self._effective_per_segment_tokens(max_new_tokens, segments)
         try:
             bs = int(clone_batch_size)
         except Exception:
@@ -914,7 +1058,7 @@ class QwenTTSWrapper:
                         elif waveform.ndim == 2:
                             waveform = waveform.unsqueeze(0)
                         seg_audio = {"waveform": waveform, "sample_rate": sr}
-                        self._move_audio_to_cpu(seg_audio)
+                        seg_audio = self._trim_generated_silence_audio_dict(self._move_audio_to_cpu(seg_audio))
                         if sr_known is None:
                             sr_known = int(sr)
                         if not audios and leading_pause_s > 0.0:
@@ -964,7 +1108,7 @@ class QwenTTSWrapper:
                 unload_model_after_generate=False,
             )
             first_audio = self._extract_audio_dict(first_result)
-            self._move_audio_to_cpu(first_audio)
+            first_audio = self._trim_generated_silence_audio_dict(self._move_audio_to_cpu(first_audio))
             self._clear_gpu_cache()
             if leading_pause_s > 0.0:
                 audios.append(self._make_silence_audio_dict(int(first_audio.get("sample_rate", 24000)), leading_pause_s, first_audio))
@@ -1084,7 +1228,7 @@ class QwenTTSWrapper:
                         elif waveform.ndim == 2:
                             waveform = waveform.unsqueeze(0)
                         seg_audio = {"waveform": waveform, "sample_rate": sr}
-                        self._move_audio_to_cpu(seg_audio)
+                        seg_audio = self._trim_generated_silence_audio_dict(self._move_audio_to_cpu(seg_audio))
                         sr_known = int(sr)
                         audios.append(seg_audio)
                         if pause_s and float(pause_s) > 0.0:
@@ -1127,6 +1271,7 @@ class QwenTTSWrapper:
                 ("Lock Timbre", "lock_timbre_with_first_segment", lock_timbre_with_first_segment),
                 ("Batch Size", "clone_batch_size", bs),
                 ("Max New Tokens", "max_new_tokens", max_new_tokens),
+                ("Effective Max New Tokens", "effective_max_new_tokens", per_seg_tokens),
                 ("Top P", "top_p", top_p),
                 ("Top K", "top_k", top_k),
                 ("Temperature", "temperature", temperature),
@@ -1184,7 +1329,7 @@ class QwenTTSWrapper:
             hard_max_chars=split_hard_max_chars,
         )
         segments = [p[1] for p in plan if p and p[0] == "text"]
-        per_seg_tokens = int(max(1, int(max_new_tokens)))
+        per_seg_tokens = self._effective_per_segment_tokens(max_new_tokens, segments)
         prompt_node = VoiceClonePromptNode()
         audio_dict = self._audio_input_to_comfy_audio(ref_audio)
         if callable(progress_callback):
@@ -1297,7 +1442,7 @@ class QwenTTSWrapper:
                     elif waveform.ndim == 2:
                         waveform = waveform.unsqueeze(0)
                     seg_audio = {"waveform": waveform, "sample_rate": sr}
-                    self._move_audio_to_cpu(seg_audio)
+                    seg_audio = self._trim_generated_silence_audio_dict(self._move_audio_to_cpu(seg_audio))
                     if sr_known is None:
                         sr_known = int(sr)
                     if not audios and leading_pause_s > 0.0:
@@ -1344,6 +1489,7 @@ class QwenTTSWrapper:
                 ("XVector Only", "x_vector_only", x_vector_only),
                 ("Batch Size", "batch_size", bs),
                 ("Max New Tokens", "max_new_tokens", max_new_tokens),
+                ("Effective Max New Tokens", "effective_max_new_tokens", per_seg_tokens),
                 ("Top P", "top_p", top_p),
                 ("Top K", "top_k", top_k),
                 ("Temperature", "temperature", temperature),
@@ -1401,7 +1547,7 @@ class QwenTTSWrapper:
             hard_max_chars=split_hard_max_chars,
         )
         segments = [p[1] for p in plan if p and p[0] == "text"]
-        per_seg_tokens = int(max(1, int(max_new_tokens)))
+        per_seg_tokens = self._effective_per_segment_tokens(max_new_tokens, segments)
         model = load_qwen_model("CustomVoice", model_choice, device, precision, attention, False, None, custom_model_path or "")
         mapped_lang = LANGUAGE_MAP.get(language, "auto")
         if custom_speaker_name and str(custom_speaker_name).strip():
@@ -1499,7 +1645,7 @@ class QwenTTSWrapper:
                     elif waveform.ndim == 2:
                         waveform = waveform.unsqueeze(0)
                     seg_audio = {"waveform": waveform, "sample_rate": sr}
-                    self._move_audio_to_cpu(seg_audio)
+                    seg_audio = self._trim_generated_silence_audio_dict(self._move_audio_to_cpu(seg_audio))
                     if sr_known is None:
                         sr_known = int(sr)
                     if not audios and leading_pause_s > 0.0:
@@ -1547,6 +1693,7 @@ class QwenTTSWrapper:
                 ("Instruct", "instruct", instruct),
                 ("Batch Size", "batch_size", bs),
                 ("Max New Tokens", "max_new_tokens", max_new_tokens),
+                ("Effective Max New Tokens", "effective_max_new_tokens", per_seg_tokens),
                 ("Top P", "top_p", top_p),
                 ("Top K", "top_k", top_k),
                 ("Temperature", "temperature", temperature),
@@ -1743,7 +1890,7 @@ class QwenTTSWrapper:
                         unload_model_after_generate=False,
                     )
                 seg_audio = self._extract_audio_dict(seg_result)
-                self._move_audio_to_cpu(seg_audio)
+                seg_audio = self._trim_generated_silence_audio_dict(self._move_audio_to_cpu(seg_audio))
                 self._clear_gpu_cache()
                 sr_known = int(seg_audio.get("sample_rate", 24000))
                 if not audios and leading_pause_s > 0.0:
