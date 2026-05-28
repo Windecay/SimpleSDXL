@@ -497,7 +497,7 @@
   "411": {
     "inputs": {
       "lora_name": "placeholder.safetensors",
-      "strength_model": 1,
+      "strength_model": 0,
       "model": [
         "410",
         0
@@ -511,7 +511,7 @@
   "412": {
     "inputs": {
       "lora_name": "placeholder.safetensors",
-      "strength_model": 1,
+      "strength_model": 0,
       "model": [
         "411",
         0
@@ -525,7 +525,7 @@
   "413": {
     "inputs": {
       "lora_name": "placeholder.safetensors",
-      "strength_model": 1,
+      "strength_model": 0,
       "model": [
         "412",
         0

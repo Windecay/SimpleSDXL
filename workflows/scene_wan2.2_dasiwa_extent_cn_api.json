@@ -973,7 +973,7 @@
   "212": {
     "inputs": {
       "lora_name": "placeholder.safetensors",
-      "strength_model": 1,
+      "strength_model": 0,
       "model": [
         "93",
         0

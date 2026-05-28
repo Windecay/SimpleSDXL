@@ -140,6 +140,18 @@ def fill_backend_meta(args_norm, state):
     return args_norm
 
 
+def resolve_batch_seed(seed_random, seed_value, constants):
+    if seed_random:
+        return random.randint(constants.MIN_SEED, constants.MAX_SEED)
+    try:
+        seed_value = int(seed_value)
+        if constants.MIN_SEED <= seed_value <= constants.MAX_SEED:
+            return seed_value
+    except Exception:
+        pass
+    return random.randint(constants.MIN_SEED, constants.MAX_SEED)
+
+
 def refresh_scene_batch_target(state_params, current_value):
     disvisible = []
     if isinstance(state_params, dict):
@@ -252,14 +264,6 @@ def batch_run_uov(folder_path, upload_files, seed_random, *args, get_task_with_r
     base_args = copy.deepcopy(base_task.args)
     base_args = fill_backend_meta(base_args, state)
 
-    try:
-        if seed_random:
-            base_args[8] = random.randint(constants.MIN_SEED, constants.MAX_SEED)
-        else:
-            base_args[8] = int(base_args[8])
-    except Exception:
-        pass
-
     stopped = False
     completed = 0
 
@@ -276,6 +280,10 @@ def batch_run_uov(folder_path, upload_files, seed_random, *args, get_task_with_r
             continue
 
         args_i = copy.deepcopy(base_args)
+        try:
+            args_i[8] = resolve_batch_seed(seed_random, args_i[8], constants)
+        except Exception:
+            pass
         args_i[19] = img
         task = worker.AsyncTask(args=args_i)
 
@@ -326,14 +334,6 @@ def batch_run_enhance(folder_path, upload_files, seed_random, *args, get_task_wi
     base_args = copy.deepcopy(base_task.args)
     base_args = fill_backend_meta(base_args, state)
 
-    try:
-        if seed_random:
-            base_args[8] = random.randint(constants.MIN_SEED, constants.MAX_SEED)
-        else:
-            base_args[8] = int(base_args[8])
-    except Exception:
-        pass
-
     stopped = False
     completed = 0
 
@@ -350,6 +350,10 @@ def batch_run_enhance(folder_path, upload_files, seed_random, *args, get_task_wi
             continue
 
         args_i = copy.deepcopy(base_args)
+        try:
+            args_i[8] = resolve_batch_seed(seed_random, args_i[8], constants)
+        except Exception:
+            pass
         args_i[75] = img
         task = worker.AsyncTask(args=args_i)
 
@@ -413,20 +417,6 @@ def batch_run_scene(folder_path, upload_files, target, seed_random, image_seed, 
     base_task = get_task_with_resolution_multiplier(*ctrls_values, resolution_multiplier, resolution_quantize_step)
     base_args = copy.deepcopy(base_task.args)
 
-    fixed_seed = None
-    try:
-        if seed_random:
-            fixed_seed = random.randint(constants.MIN_SEED, constants.MAX_SEED)
-        else:
-            fixed_seed = int(image_seed)
-    except Exception:
-        fixed_seed = None
-    if fixed_seed is not None:
-        try:
-            base_args[8] = fixed_seed
-        except Exception:
-            pass
-
     stopped = False
     completed = 0
 
@@ -458,9 +448,10 @@ def batch_run_scene(folder_path, upload_files, target, seed_random, image_seed, 
             scene_input_image1_v = img
 
         bp = {} if backend_params is None else copy.deepcopy(backend_params)
+        task_seed = resolve_batch_seed(seed_random, image_seed, constants)
         try:
             topbar.process_before_generation(
-                state, False if fixed_seed is not None else seed_random, fixed_seed if fixed_seed is not None else image_seed,
+                state, False, task_seed,
                 bp, scene_theme, scene_canvas_image_v, scene_input_image1_v, scene_input_image2_v,
                 scene_additional_prompt, scene_additional_prompt_2,
                 scene_var_number, scene_var_number2, scene_var_number3, scene_var_number4, scene_var_number5,
@@ -482,11 +473,10 @@ def batch_run_scene(folder_path, upload_files, target, seed_random, image_seed, 
             params_backend_index = 67
         args_i[params_backend_index] = backend_norm
         args_i = fill_backend_meta(args_i, state)
-        if fixed_seed is not None:
-            try:
-                args_i[8] = fixed_seed
-            except Exception:
-                pass
+        try:
+            args_i[8] = task_seed
+        except Exception:
+            pass
 
         task = worker.AsyncTask(args=args_i)
         status = f"Batch Scene: {i + 1}/{len(files)} - {os.path.basename(path)}"
