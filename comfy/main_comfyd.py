@@ -275,6 +275,7 @@ import utils.extra_config
 from utils.mime_types import init_mime_types
 import faulthandler
 import logging
+import json
 import sys
 from comfy_execution.progress import get_progress_state
 from comfy_execution.utils import get_executing_context
@@ -351,9 +352,132 @@ if args.enable_manager:
         handle_comfyui_manager_unavailable()
 
 
+_SIMPAI_CONFIG_PATH_MAP = {
+    "checkpoints": ("path_diffusion_models", "path_checkpoints"),
+    "LLM": ("path_LLM",),
+    "clip_vision": ("path_clip_vision", "path_ipadapter"),
+    "clip": ("path_text_encoders", "path_clip"),
+    "controlnet": ("path_controlnet",),
+    "diffusers": ("path_diffusers",),
+    "diffusion_models": ("path_unet", "path_diffusion_models", "path_checkpoints"),
+    "embeddings": ("path_embeddings",),
+    "loras": ("path_loras",),
+    "upscale_models": ("path_upscale_models",),
+    "latent_upscale_models": ("path_latent_upscale_models",),
+    "unet": ("path_unet", "path_diffusion_models", "path_checkpoints"),
+    "rembg": ("path_rembg",),
+    "layer_model": ("path_layer_model",),
+    "vae": ("path_vae",),
+    "ipadapter": ("path_ipadapter", "path_controlnet"),
+    "inpaint": ("path_inpaint",),
+    "sams": ("path_sams",),
+    "pulid": ("path_pulid",),
+    "insightface": ("path_insightface",),
+    "style_models": ("path_style_models",),
+    "audio_encoders": ("path_audio_encoders",),
+    "model_patches": ("path_model_patches",),
+    "detection": ("path_detection",),
+    "text_encoders": ("path_text_encoders", "path_clip"),
+    "sam3": ("path_sam3",),
+    "sharp": ("path_sharp",),
+    "seedvr2": ("path_SEEDVR2",),
+    "qwen-tts": ("path_qwen_tts",),
+}
+
+
+def _as_path_list(value):
+    if isinstance(value, list):
+        return [x for x in value if isinstance(x, str) and x.strip()]
+    if isinstance(value, str) and value.strip():
+        return [value]
+    return []
+
+
+def _resolve_path(path, base_dir):
+    expanded = os.path.expandvars(os.path.expanduser(path))
+    if not os.path.isabs(expanded):
+        expanded = os.path.join(base_dir, expanded)
+    return os.path.normpath(os.path.abspath(expanded))
+
+
+def _simpai_config_candidates():
+    candidates = []
+    env_userhome = os.getenv("simpleai_userhome")
+    if env_userhome:
+        candidates.append(os.path.join(_resolve_path(env_userhome, os.getcwd()), "config.txt"))
+
+    # Launcher/main-process default when SimpAI is started with --userhome-path ../../users.
+    candidates.append(os.path.abspath(os.path.join(os.getcwd(), "..", "..", "users", "config.txt")))
+    candidates.append(os.path.abspath(os.path.join(os.getcwd(), "users", "config.txt")))
+
+    result = []
+    seen = set()
+    for path in candidates:
+        normalized = os.path.normcase(os.path.normpath(os.path.abspath(path)))
+        if normalized in seen:
+            continue
+        seen.add(normalized)
+        result.append(path)
+    return result
+
+
+def _find_simpai_config_path():
+    for candidate in _simpai_config_candidates():
+        if os.path.isfile(candidate):
+            return candidate
+    return None
+
+
+def _format_extra_model_paths_value(value, indent):
+    paths = _as_path_list(value)
+    if not paths:
+        return None
+    if len(paths) == 1:
+        return paths[0]
+    return "|\n" + "\n".join((" " * indent) + path for path in paths)
+
+
+def write_simpai_extra_model_paths_from_config(yaml_path):
+    config_path = _find_simpai_config_path()
+    if config_path is None:
+        return False
+
+    try:
+        with open(config_path, "r", encoding="utf-8") as f:
+            config = json.load(f)
+    except Exception as e:
+        logging.warning("Failed to load SimpAI model paths from config: %s (%s)", config_path, e)
+        return False
+
+    lines = ["", "comfyui:"]
+    models_root = config.get("path_models_root")
+    if not isinstance(models_root, str) or not models_root.strip():
+        models_root = "models"
+    lines.append(f"     models_root: {models_root}")
+
+    for folder_name, config_keys in _SIMPAI_CONFIG_PATH_MAP.items():
+        paths = []
+        for config_key in config_keys:
+            paths.extend(_as_path_list(config.get(config_key)))
+        value = _format_extra_model_paths_value(paths, 5 + len(folder_name))
+        if value is not None:
+            lines.append(f"     {folder_name}: {value}")
+
+    try:
+        with open(yaml_path, "w", encoding="utf-8") as f:
+            f.write("\n".join(lines) + "\n")
+    except Exception as e:
+        logging.warning("Failed to write SimpAI extra model paths: %s (%s)", yaml_path, e)
+        return False
+
+    logging.info("Wrote SimpAI extra model paths from %s", config_path)
+    return True
+
+
 def apply_custom_paths():
     # extra model paths
     extra_model_paths_config_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "extra_model_paths.yaml")
+    write_simpai_extra_model_paths_from_config(extra_model_paths_config_path)
     if os.path.isfile(extra_model_paths_config_path):
         utils.extra_config.load_extra_path_config(extra_model_paths_config_path)
 
