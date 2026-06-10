@@ -68,7 +68,7 @@
       ],
       "size": [
         390,
-        948.1123657226562
+        950
       ],
       "flags": {
         "pinned": true
@@ -291,7 +291,7 @@
       ],
       "size": [
         210,
-        34
+        40
       ],
       "flags": {
         "collapsed": true,
@@ -387,7 +387,7 @@
       ],
       "size": [
         240,
-        106
+        110
       ],
       "flags": {
         "collapsed": false,
@@ -462,7 +462,7 @@
       ],
       "size": [
         210,
-        78
+        80
       ],
       "flags": {
         "pinned": true
@@ -527,7 +527,7 @@
         20
       ],
       "size": [
-        217.865234375,
+        220,
         190
       ],
       "flags": {
@@ -604,7 +604,7 @@
       ],
       "size": [
         230,
-        106
+        110
       ],
       "flags": {
         "pinned": true
@@ -740,7 +740,7 @@
       ],
       "size": [
         230,
-        82
+        90
       ],
       "flags": {
         "pinned": true
@@ -785,7 +785,7 @@
       ],
       "size": [
         390,
-        1318.4705810546875
+        1320
       ],
       "flags": {
         "pinned": true
@@ -925,8 +925,8 @@
         1370
       ],
       "size": [
-        232.302734375,
-        216
+        240,
+        220
       ],
       "flags": {
         "pinned": true
@@ -1006,7 +1006,7 @@
       ],
       "size": [
         230,
-        186
+        190
       ],
       "flags": {
         "pinned": true
@@ -1483,7 +1483,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -1509,6 +1509,8 @@
       ],
       "title": "Set_pipe-A",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "pipe-A",
         "ue_properties": {
           "version": "7.3",
@@ -1550,6 +1552,8 @@
       ],
       "title": "Get_pipe-A",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "version": "7.3",
           "widget_ue_connectable": {},
@@ -1568,7 +1572,7 @@
         -20
       ],
       "size": [
-        210.3951171875,
+        220,
         60
       ],
       "flags": {
@@ -1595,6 +1599,8 @@
       ],
       "title": "Set_preview_FaceDetailer",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "preview_FaceDetailer",
         "ue_properties": {
           "version": "7.3",
@@ -1615,7 +1621,7 @@
       ],
       "size": [
         210,
-        78
+        80
       ],
       "flags": {
         "pinned": true
@@ -1678,8 +1684,8 @@
         540
       ],
       "size": [
-        213.43710327148438,
-        78
+        220,
+        80
       ],
       "flags": {
         "pinned": true
@@ -1737,7 +1743,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "pinned": true
@@ -1758,6 +1764,8 @@
       ],
       "title": "Get_Checkpoint-B",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "version": "7.3",
           "widget_ue_connectable": {},
@@ -1777,7 +1785,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -1803,6 +1811,8 @@
       ],
       "title": "Set_Preview_1st_step",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "Preview_1st_step",
         "ue_properties": {
           "version": "7.3",
@@ -1916,6 +1926,8 @@
       ],
       "title": "Set_Checkpoint-B",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "Checkpoint-B",
         "ue_properties": {
           "version": "7.3",
@@ -1962,6 +1974,8 @@
       ],
       "title": "Set_Checkpoint-A",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "Checkpoint-A",
         "ue_properties": {
           "version": "7.3",
@@ -2003,6 +2017,8 @@
       ],
       "title": "Get_pipe-A",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "version": "7.3",
           "widget_ue_connectable": {},
@@ -2022,7 +2038,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -2045,6 +2061,8 @@
       ],
       "title": "Get_preview_2nd_step",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "version": "7.3",
           "widget_ue_connectable": {},
@@ -2064,7 +2082,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -2091,6 +2109,8 @@
       ],
       "title": "Set_preview_2nd_step",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "preview_2nd_step",
         "ue_properties": {
           "version": "7.3",
@@ -2111,7 +2131,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -2137,6 +2157,8 @@
       ],
       "title": "Set_pipe-B",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "pipe-B",
         "ue_properties": {
           "version": "7.3",
@@ -2284,7 +2306,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "pinned": true
@@ -2326,7 +2348,7 @@
       ],
       "size": [
         210,
-        278
+        280
       ],
       "flags": {
         "pinned": true
@@ -2456,7 +2478,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "pinned": true
@@ -2586,7 +2608,7 @@
       ],
       "size": [
         230,
-        126
+        130
       ],
       "flags": {
         "pinned": true
@@ -2691,6 +2713,8 @@
       ],
       "title": "Get_Checkpoint-B",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "version": "7.3",
           "widget_ue_connectable": {},
@@ -2710,7 +2734,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -2732,6 +2756,8 @@
       ],
       "title": "Get_Checkpoint-B",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "version": "7.3",
           "widget_ue_connectable": {},
@@ -2751,7 +2777,7 @@
       ],
       "size": [
         260,
-        186
+        190
       ],
       "flags": {
         "pinned": true
@@ -2838,7 +2864,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": false,
@@ -2882,7 +2908,7 @@
       ],
       "size": [
         210,
-        82
+        90
       ],
       "flags": {
         "collapsed": false,
@@ -2935,7 +2961,7 @@
       ],
       "size": [
         230,
-        82
+        90
       ],
       "flags": {
         "collapsed": false,
@@ -2997,7 +3023,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -3023,6 +3049,8 @@
       ],
       "title": "Set_VAE-A",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "VAE-A",
         "ue_properties": {
           "version": "7.3",
@@ -3045,7 +3073,7 @@
       ],
       "size": [
         210,
-        34
+        40
       ],
       "flags": {
         "collapsed": true,
@@ -3067,6 +3095,8 @@
       ],
       "title": "Get_VAE-B",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "version": "7.3",
           "widget_ue_connectable": {},
@@ -3107,6 +3137,8 @@
       ],
       "title": "Get_VAE-B",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "version": "7.3",
           "widget_ue_connectable": {},
@@ -3126,7 +3158,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -3148,6 +3180,8 @@
       ],
       "title": "Get_VAE-B",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "version": "7.3",
           "widget_ue_connectable": {},
@@ -3166,8 +3200,8 @@
         1040
       ],
       "size": [
-        230.8345703125,
-        82
+        240,
+        90
       ],
       "flags": {
         "collapsed": false,
@@ -3219,8 +3253,8 @@
         1030
       ],
       "size": [
-        221.01171875,
-        366
+        230,
+        370
       ],
       "flags": {
         "collapsed": false,
@@ -3317,6 +3351,8 @@
       ],
       "title": "Set_positive",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "positive",
         "ue_properties": {
           "version": "7.3",
@@ -3336,8 +3372,8 @@
         160
       ],
       "size": [
-        225.39453125,
-        202
+        230,
+        210
       ],
       "flags": {
         "collapsed": false,
@@ -3403,8 +3439,8 @@
         400
       ],
       "size": [
-        225.39453125,
-        202
+        230,
+        210
       ],
       "flags": {
         "collapsed": false,
@@ -3471,7 +3507,7 @@
       ],
       "size": [
         210,
-        78
+        80
       ],
       "flags": {
         "collapsed": false,
@@ -3541,7 +3577,7 @@
       ],
       "size": [
         210,
-        78
+        80
       ],
       "flags": {
         "collapsed": false,
@@ -3651,7 +3687,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": false,
@@ -3695,7 +3731,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -3718,6 +3754,8 @@
       ],
       "title": "Get_Preview_1st_step",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "version": "7.3",
           "widget_ue_connectable": {},
@@ -3738,8 +3776,8 @@
         410
       ],
       "size": [
-        233.5689453125,
-        46
+        240,
+        50
       ],
       "flags": {
         "collapsed": false,
@@ -3794,7 +3832,7 @@
       ],
       "size": [
         210,
-        82
+        90
       ],
       "flags": {
         "collapsed": false,
@@ -3900,8 +3938,8 @@
         970
       ],
       "size": [
-        211.8580078125,
-        58
+        220,
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -3923,6 +3961,8 @@
       ],
       "title": "Get_preview_FaceDetailer",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "version": "7.3",
           "widget_ue_connectable": {},
@@ -3988,8 +4028,8 @@
         660
       ],
       "size": [
-        225.39453125,
-        202
+        230,
+        210
       ],
       "flags": {
         "collapsed": false,
@@ -4382,7 +4422,7 @@
       ],
       "size": [
         230,
-        58
+        60
       ],
       "flags": {
         "pinned": true
@@ -4469,8 +4509,8 @@
         -80
       ],
       "size": [
-        272.2740234375,
-        146
+        280,
+        150
       ],
       "flags": {
         "pinned": true
@@ -4623,7 +4663,7 @@
       ],
       "size": [
         310,
-        58
+        60
       ],
       "flags": {
         "collapsed": false,
@@ -4715,7 +4755,7 @@
       ],
       "size": [
         210,
-        78
+        80
       ],
       "flags": {
         "pinned": true
@@ -5186,7 +5226,7 @@
       ],
       "size": [
         210,
-        78
+        80
       ],
       "flags": {
         "pinned": true
@@ -5333,7 +5373,7 @@
       ],
       "size": [
         340,
-        759.4285888671875
+        760
       ],
       "flags": {
         "pinned": true
@@ -5445,7 +5485,7 @@
       ],
       "size": [
         340,
-        759.4285888671875
+        760
       ],
       "flags": {
         "pinned": true
@@ -5557,7 +5597,7 @@
       ],
       "size": [
         220,
-        46
+        50
       ],
       "flags": {
         "collapsed": false,
@@ -5609,7 +5649,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -5629,6 +5669,8 @@
       ],
       "title": "Get_VAE-B",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -5648,7 +5690,7 @@
       ],
       "size": [
         340,
-        686.3529663085938
+        690
       ],
       "flags": {
         "pinned": true
@@ -5733,7 +5775,7 @@
       ],
       "size": [
         220,
-        46
+        50
       ],
       "flags": {
         "pinned": true
@@ -5782,7 +5824,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "pinned": true
@@ -5830,7 +5872,7 @@
       ],
       "size": [
         240,
-        142
+        150
       ],
       "flags": {
         "collapsed": false,
@@ -5922,6 +5964,8 @@
       ],
       "title": "Set_cfg",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "cfg",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -5968,6 +6012,8 @@
       ],
       "title": "Set_origin_latent",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "origin_latent",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -5990,7 +6036,7 @@
       ],
       "size": [
         210,
-        34
+        40
       ],
       "flags": {
         "collapsed": true,
@@ -6010,6 +6056,8 @@
       ],
       "title": "Get_origin_latent",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -6055,6 +6103,8 @@
       ],
       "title": "Set_is_encode",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "is_encode",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -6075,7 +6125,7 @@
       ],
       "size": [
         210,
-        34
+        40
       ],
       "flags": {
         "collapsed": true,
@@ -6095,6 +6145,8 @@
       ],
       "title": "Get_is_encode",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -6138,6 +6190,8 @@
       ],
       "title": "Set_reference_image",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "reference_image",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -6160,7 +6214,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -6184,6 +6238,8 @@
       ],
       "title": "Set_control_image",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "control_image",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -6206,7 +6262,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "pinned": true
@@ -6225,6 +6281,8 @@
       ],
       "title": "Get_control_image",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -6246,7 +6304,7 @@
       ],
       "size": [
         210,
-        34
+        40
       ],
       "flags": {
         "collapsed": true,
@@ -6266,6 +6324,8 @@
       ],
       "title": "Get_control_image",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -6287,7 +6347,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -6309,6 +6369,8 @@
       ],
       "title": "Get_VAE-A",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -6330,7 +6392,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -6354,6 +6416,8 @@
       ],
       "title": "Set_controlnet_positive",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "controlnet_positive",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -6376,7 +6440,7 @@
       ],
       "size": [
         210,
-        34
+        40
       ],
       "flags": {
         "collapsed": true,
@@ -6400,6 +6464,8 @@
       ],
       "title": "Set_controlnet_negative",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "controlnet_negative",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -6443,6 +6509,8 @@
       ],
       "title": "Get_controlnet_positive",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -6464,7 +6532,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -6485,6 +6553,8 @@
       ],
       "title": "Get_controlnet_negative",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -6506,7 +6576,7 @@
       ],
       "size": [
         230,
-        106
+        110
       ],
       "flags": {
         "pinned": true
@@ -6632,6 +6702,8 @@
       ],
       "title": "Set_seed",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "seed",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -6676,6 +6748,8 @@
       ],
       "title": "Get_seed",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -6694,7 +6768,7 @@
         890
       ],
       "size": [
-        251.67734375,
+        260,
         50
       ],
       "flags": {
@@ -6719,6 +6793,8 @@
       ],
       "title": "Set_origin_positive_conditioning",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "origin_positive_conditioning",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -6740,8 +6816,8 @@
         890
       ],
       "size": [
-        256.8111328125,
-        58
+        260,
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -6765,6 +6841,8 @@
       ],
       "title": "Set_origin_negative_conditioning",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "origin_negative_conditioning",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -6807,6 +6885,8 @@
       ],
       "title": "Get_2nd_step_positive",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -6825,7 +6905,7 @@
         70
       ],
       "size": [
-        258.2740234375,
+        260,
         60
       ],
       "flags": {
@@ -6846,6 +6926,8 @@
       ],
       "title": "Get_origin_negative_conditioning",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -6891,6 +6973,8 @@
       ],
       "title": "Set_CLIP-B",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "CLIP-B",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -6935,6 +7019,8 @@
       ],
       "title": "Set_CLIP-A",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "CLIP-A",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -6957,7 +7043,7 @@
       ],
       "size": [
         210,
-        34
+        40
       ],
       "flags": {
         "collapsed": true,
@@ -6977,6 +7063,8 @@
       ],
       "title": "Get_CLIP-B",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -6996,7 +7084,7 @@
       ],
       "size": [
         210,
-        34
+        40
       ],
       "flags": {
         "collapsed": true,
@@ -7016,6 +7104,8 @@
       ],
       "title": "Get_VAE-B",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -7035,7 +7125,7 @@
       ],
       "size": [
         210,
-        34
+        40
       ],
       "flags": {
         "collapsed": true,
@@ -7055,6 +7145,8 @@
       ],
       "title": "Get_VAE-A",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -7076,7 +7168,7 @@
       ],
       "size": [
         210,
-        34
+        40
       ],
       "flags": {
         "collapsed": true,
@@ -7096,6 +7188,8 @@
       ],
       "title": "Get_CLIP-A",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -7116,7 +7210,7 @@
         200
       ],
       "size": [
-        258.2740234375,
+        260,
         50
       ],
       "flags": {
@@ -7138,6 +7232,8 @@
       ],
       "title": "Get_origin_negative_conditioning",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -7159,7 +7255,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -7179,6 +7275,8 @@
       ],
       "title": "Get_model-A",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -7200,7 +7298,7 @@
       ],
       "size": [
         210,
-        34
+        40
       ],
       "flags": {
         "collapsed": true,
@@ -7220,6 +7318,8 @@
       ],
       "title": "Get_Checkpoint-A",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -7238,8 +7338,8 @@
         730
       ],
       "size": [
-        253.140234375,
-        34
+        260,
+        40
       ],
       "flags": {
         "collapsed": true,
@@ -7259,6 +7359,8 @@
       ],
       "title": "Get_origin_positive_conditioning",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -7279,8 +7381,8 @@
         730
       ],
       "size": [
-        258.2740234375,
-        34
+        260,
+        40
       ],
       "flags": {
         "collapsed": true,
@@ -7300,6 +7402,8 @@
       ],
       "title": "Get_origin_negative_conditioning",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -7341,6 +7445,8 @@
       ],
       "title": "Get_model-B",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -7362,7 +7468,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -7386,6 +7492,8 @@
       ],
       "title": "Set_model-A",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "model-A",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -7408,7 +7516,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -7432,6 +7540,8 @@
       ],
       "title": "Set_model-B",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "model-B",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -7454,7 +7564,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -7478,6 +7588,8 @@
       ],
       "title": "Set_detailer_pipe",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "detailer_pipe",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -7498,7 +7610,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -7520,6 +7632,8 @@
       ],
       "title": "Get_detailer_pipe",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "version": "7.3",
           "widget_ue_connectable": {},
@@ -7539,7 +7653,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -7562,6 +7676,8 @@
       ],
       "title": "Get_CLIP-A",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -7583,7 +7699,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -7604,6 +7720,8 @@
       ],
       "title": "Get_positive",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -7623,7 +7741,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -7644,6 +7762,8 @@
       ],
       "title": "Get_quality_prompt",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -7663,7 +7783,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -7689,6 +7809,8 @@
       ],
       "title": "Set_negative",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "negative",
         "ue_properties": {
           "version": "7.3",
@@ -7735,6 +7857,8 @@
       ],
       "title": "Set_quality_prompt",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "quality_prompt",
         "ue_properties": {
           "version": "7.3",
@@ -7755,7 +7879,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -7775,6 +7899,8 @@
       ],
       "title": "Get_negative",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -7794,7 +7920,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -7818,6 +7944,8 @@
       ],
       "title": "Set_sdup_positive",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "sdup_positive",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -7840,7 +7968,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -7864,6 +7992,8 @@
       ],
       "title": "Set_sdup_negative",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "sdup_negative",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -7885,8 +8015,8 @@
         -50
       ],
       "size": [
-        242.25741577148438,
-        58
+        250,
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -7906,6 +8036,8 @@
       ],
       "title": "Get_sdup_positive",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -7926,8 +8058,8 @@
         -50
       ],
       "size": [
-        247.71932983398438,
-        58
+        250,
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -7947,6 +8079,8 @@
       ],
       "title": "Get_sdup_negative",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -7968,7 +8102,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -7992,6 +8126,8 @@
       ],
       "title": "Set_final_result",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "final_result",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -8034,6 +8170,8 @@
       ],
       "title": "Get_final_result",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -8055,7 +8193,7 @@
       ],
       "size": [
         240,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -8075,6 +8213,8 @@
       ],
       "title": "Get_Preview_1st_step",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -8116,6 +8256,8 @@
       ],
       "title": "Get_preview_2nd_step",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -8155,6 +8297,8 @@
       ],
       "title": "Get_preview_FaceDetailer",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -8321,6 +8465,8 @@
       ],
       "title": "Set_1st_step_latent",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "1st_step_latent",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -8343,7 +8489,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -8367,6 +8513,8 @@
       ],
       "title": "Set_2nd_step_latent",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "2nd_step_latent",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -8389,7 +8537,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -8409,6 +8557,8 @@
       ],
       "title": "Get_1st_step_latent",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -8450,6 +8600,8 @@
       ],
       "title": "Get_2nd_step_latent",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -8471,7 +8623,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -8495,6 +8647,8 @@
       ],
       "title": "Set_2nd_step_positive",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "2nd_step_positive",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -8539,6 +8693,8 @@
       ],
       "title": "Set_tiled_width",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "tiled_width",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -8561,7 +8717,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -8585,6 +8741,8 @@
       ],
       "title": "Set_tiled_height",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "tiled_height",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -8607,7 +8765,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -8627,6 +8785,8 @@
       ],
       "title": "Get_tiled_width",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -8648,7 +8808,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -8668,6 +8828,8 @@
       ],
       "title": "Get_tiled_height",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -8688,8 +8850,8 @@
         40
       ],
       "size": [
-        211.8580078125,
-        58
+        220,
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -8712,6 +8874,8 @@
       ],
       "title": "Get_preview_FaceDetailer",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "version": "7.3",
           "widget_ue_connectable": {},
@@ -8731,7 +8895,7 @@
       ],
       "size": [
         220,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -8755,6 +8919,8 @@
       ],
       "title": "Set_sdup_image",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "sdup_image",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -8775,7 +8941,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -8798,6 +8964,8 @@
       ],
       "title": "Get_sdup_image",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "version": "7.3",
           "widget_ue_connectable": {},
@@ -8841,6 +9009,8 @@
       ],
       "title": "Set_upscale_by",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "upscale_by",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -8863,7 +9033,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -8885,6 +9055,8 @@
       ],
       "title": "Get_upscale_by",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "version": "7.3",
           "widget_ue_connectable": {},
@@ -8906,7 +9078,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -8926,6 +9098,8 @@
       ],
       "title": "Get_1st_step_encode",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -8945,7 +9119,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -8969,6 +9143,8 @@
       ],
       "title": "Set_1st_step_encode",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "1st_step_encode",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -9013,6 +9189,8 @@
       ],
       "title": "Set_dowscale_unet",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "dowscale_unet",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -9033,7 +9211,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "pinned": true
@@ -9053,6 +9231,8 @@
       ],
       "title": "Get_dowscale_unet",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -9096,6 +9276,8 @@
       ],
       "title": "Set_total_steps",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "total_steps",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -9140,6 +9322,8 @@
       ],
       "title": "Get_final_total_steps",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -9180,6 +9364,8 @@
       ],
       "title": "Get_final_switch_steps",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -9199,7 +9385,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -9223,6 +9409,8 @@
       ],
       "title": "Set_switch_steps",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "switch_steps",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -9268,6 +9456,8 @@
       ],
       "title": "Get_cfg",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -9289,7 +9479,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -9313,6 +9503,8 @@
       ],
       "title": "Set_2nd_step_encode",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "2nd_step_encode",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -9335,7 +9527,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -9355,6 +9547,8 @@
       ],
       "title": "Get_2nd_step_encode",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -9376,7 +9570,7 @@
       ],
       "size": [
         210,
-        34
+        40
       ],
       "flags": {
         "collapsed": true,
@@ -9398,6 +9592,8 @@
       ],
       "title": "Get_downscale factor",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -9443,6 +9639,8 @@
       ],
       "title": "Set_downscale factor",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -9464,8 +9662,8 @@
         1500
       ],
       "size": [
-        211.8580078125,
-        58
+        220,
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -9487,6 +9685,8 @@
       ],
       "title": "Get_preview_FaceDetailer",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "version": "7.3",
           "widget_ue_connectable": {},
@@ -9623,6 +9823,8 @@
       ],
       "title": "Set_hires_fix_prompt",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "change_prompt",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -9663,6 +9865,8 @@
       ],
       "title": "Get_change_prompt",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -9702,6 +9906,8 @@
       ],
       "title": "Get_final_prompt",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -9810,6 +10016,8 @@
       ],
       "title": "Set_final_prompt",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "final_prompt",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -9840,7 +10048,7 @@
       "mode": 0,
       "inputs": [],
       "outputs": [],
-      "title": " 此工作流于SimpAI_comfyd后端发布ver1.2 Design by 冰華",
+      "title": " 此工作流于SimpAI_comfyd后端发布ver1.3 Design by 冰華",
       "properties": {
         "fontSize": 20,
         "fontFamily": "Arial",
@@ -10023,7 +10231,7 @@
       ],
       "size": [
         210,
-        142.81088256835938
+        150
       ],
       "flags": {
         "pinned": true
@@ -10063,7 +10271,7 @@
         200
       ],
       "size": [
-        213.464453125,
+        220,
         150
       ],
       "flags": {
@@ -10118,7 +10326,7 @@
         390
       ],
       "size": [
-        213.464453125,
+        220,
         150
       ],
       "flags": {
@@ -10173,7 +10381,7 @@
         580
       ],
       "size": [
-        213.464453125,
+        220,
         150
       ],
       "flags": {
@@ -10269,7 +10477,7 @@
         770
       ],
       "size": [
-        213.464453125,
+        220,
         150
       ],
       "flags": {
@@ -10366,7 +10574,7 @@
       ],
       "size": [
         470,
-        58
+        60
       ],
       "flags": {
         "pinned": true
@@ -10407,7 +10615,7 @@
         960
       ],
       "size": [
-        213.464453125,
+        220,
         150
       ],
       "flags": {
@@ -10503,7 +10711,7 @@
         1160
       ],
       "size": [
-        213.464453125,
+        220,
         150
       ],
       "flags": {
@@ -10599,8 +10807,8 @@
         1350
       ],
       "size": [
-        210.0396484375,
-        246
+        220,
+        250
       ],
       "flags": {
         "pinned": true
@@ -10699,7 +10907,7 @@
         1240
       ],
       "size": [
-        226.59628295898438,
+        230,
         190
       ],
       "flags": {
@@ -10812,6 +11020,8 @@
       ],
       "title": "Set_controlnet_model",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "controlnet_model",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -10854,6 +11064,8 @@
       ],
       "title": "Get_controlnet_model",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -10874,7 +11086,7 @@
         1640
       ],
       "size": [
-        213.464453125,
+        220,
         150
       ],
       "flags": {
@@ -11037,6 +11249,8 @@
       ],
       "title": "Set_2nd_steps_model",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "2nd_steps_model",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -11059,7 +11273,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -11079,6 +11293,8 @@
       ],
       "title": "Get_2nd_steps_model",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -11124,6 +11340,8 @@
       ],
       "title": "Set_described_prompt",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "described_prompt",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -11164,6 +11382,8 @@
       ],
       "title": "Get_described_prompt",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -11209,6 +11429,8 @@
       ],
       "title": "Set_prompt",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "prompt",
         "ue_properties": {
           "version": "7.3",
@@ -11229,7 +11451,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -11249,6 +11471,8 @@
       ],
       "title": "Get_prompt",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -11292,6 +11516,8 @@
       ],
       "title": "Set_upscale_model",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "upscale_model",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -11332,6 +11558,8 @@
       ],
       "title": "Get_upscale_model",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -11350,8 +11578,8 @@
         -30
       ],
       "size": [
-        219.1041015625,
-        106
+        220,
+        110
       ],
       "flags": {
         "collapsed": true,
@@ -11495,7 +11723,7 @@
       ],
       "size": [
         270,
-        78
+        80
       ],
       "flags": {
         "collapsed": true,
@@ -11553,7 +11781,7 @@
       ],
       "size": [
         270,
-        78
+        80
       ],
       "flags": {
         "collapsed": true,
@@ -11736,6 +11964,8 @@
       ],
       "title": "Set_artist_prompt",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "artist_prompt",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -11756,7 +11986,7 @@
       ],
       "size": [
         320,
-        166
+        170
       ],
       "flags": {
         "collapsed": true,
@@ -11836,6 +12066,8 @@
       ],
       "title": "Get_artist_prompt",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -12049,6 +12281,8 @@
       ],
       "title": "Set_hires_fix",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "hires-fix",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -12093,6 +12327,8 @@
       ],
       "title": "Set_face_detailer",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "face_detailer",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -12113,7 +12349,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -12137,6 +12373,8 @@
       ],
       "title": "Set_sd_upscale",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "sd_upscale",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -12177,6 +12415,8 @@
       ],
       "title": "Get_origin_latent",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -12218,6 +12458,8 @@
       ],
       "title": "Get_hires-fix",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -12226,84 +12468,6 @@
       },
       "widgets_values": [
         "hires-fix"
-      ]
-    },
-    {
-      "id": 1958,
-      "type": "GetNode",
-      "pos": [
-        -760,
-        40
-      ],
-      "size": [
-        210,
-        58
-      ],
-      "flags": {
-        "collapsed": true,
-        "pinned": true
-      },
-      "order": 102,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "BOOLEAN",
-          "type": "BOOLEAN",
-          "links": [
-            3445
-          ]
-        }
-      ],
-      "title": "Get_face_detailer",
-      "properties": {
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "version": "7.3",
-          "input_ue_unconnectable": {}
-        }
-      },
-      "widgets_values": [
-        "face_detailer"
-      ]
-    },
-    {
-      "id": 1959,
-      "type": "GetNode",
-      "pos": [
-        -1130,
-        -50
-      ],
-      "size": [
-        210,
-        58
-      ],
-      "flags": {
-        "collapsed": true,
-        "pinned": true
-      },
-      "order": 103,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "BOOLEAN",
-          "type": "BOOLEAN",
-          "links": [
-            3444
-          ]
-        }
-      ],
-      "title": "Get_sd_upscale",
-      "properties": {
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "version": "7.3",
-          "input_ue_unconnectable": {}
-        }
-      },
-      "widgets_values": [
-        "sd_upscale"
       ]
     },
     {
@@ -12339,6 +12503,8 @@
       ],
       "title": "Set_is_change_prompt",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "is_change_prompt",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -12365,7 +12531,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 104,
+      "order": 102,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -12379,6 +12545,8 @@
       ],
       "title": "Get_is_change_prompt",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -12404,7 +12572,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 105,
+      "order": 103,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -12446,7 +12614,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 106,
+      "order": 104,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -12481,7 +12649,7 @@
         1780
       ],
       "size": [
-        224.4498046875,
+        230,
         50
       ],
       "flags": {
@@ -12506,6 +12674,8 @@
       ],
       "title": "Set_is_change_face_prompt",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "is_change_face_prompt",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -12610,7 +12780,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 107,
+      "order": 105,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -12624,6 +12794,8 @@
       ],
       "title": "Get_face_prompt",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -12649,7 +12821,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 108,
+      "order": 106,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -12714,6 +12886,8 @@
       ],
       "title": "Set_face_prompt",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "face_prompt",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -12734,7 +12908,7 @@
       ],
       "size": [
         270,
-        78
+        80
       ],
       "flags": {
         "collapsed": true,
@@ -12791,14 +12965,14 @@
         940
       ],
       "size": [
-        225.9126953125,
+        230,
         60
       ],
       "flags": {
         "collapsed": true,
         "pinned": true
       },
-      "order": 109,
+      "order": 107,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -12812,6 +12986,8 @@
       ],
       "title": "Get_is_change_face_prompt",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -12837,7 +13013,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 110,
+      "order": 108,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -12879,7 +13055,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 111,
+      "order": 109,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -12912,7 +13088,7 @@
         "pinned": true,
         "allow_interaction": false
       },
-      "order": 112,
+      "order": 110,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -12943,7 +13119,7 @@
         1830
       ],
       "size": [
-        213.464453125,
+        220,
         150
       ],
       "flags": {
@@ -13064,6 +13240,8 @@
       ],
       "title": "Set_i2i_denoise",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "i2i_denoise",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -13092,7 +13270,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 113,
+      "order": 111,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -13107,6 +13285,8 @@
       ],
       "title": "Get_total_steps",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -13128,13 +13308,13 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
         "pinned": true
       },
-      "order": 114,
+      "order": 112,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -13149,6 +13329,8 @@
       ],
       "title": "Get_switch_steps",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -13170,13 +13352,13 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
         "pinned": true
       },
-      "order": 115,
+      "order": 113,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -13192,6 +13374,8 @@
       ],
       "title": "Get_i2i_denoise",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -13342,7 +13526,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 116,
+      "order": 114,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -13472,6 +13656,8 @@
       ],
       "title": "Set_final_total_steps",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "final_total_steps",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -13492,7 +13678,7 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
@@ -13516,6 +13702,8 @@
       ],
       "title": "Set_final_switch_steps",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "final_switch_steps",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -13560,6 +13748,8 @@
       ],
       "title": "Set_final_start_steps",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "final_start_steps",
         "ue_properties": {
           "widget_ue_connectable": {},
@@ -13586,7 +13776,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 117,
+      "order": 115,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -13600,6 +13790,8 @@
       ],
       "title": "Get_final_start_steps",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -13625,7 +13817,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 118,
+      "order": 116,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -13641,6 +13833,8 @@
       ],
       "title": "Get_is_encode",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -13718,7 +13912,7 @@
       ],
       "size": [
         270,
-        78
+        80
       ],
       "flags": {
         "collapsed": true,
@@ -13776,7 +13970,7 @@
       ],
       "size": [
         270,
-        78
+        80
       ],
       "flags": {
         "collapsed": true,
@@ -13834,13 +14028,13 @@
       ],
       "size": [
         270,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
         "pinned": true
       },
-      "order": 119,
+      "order": 117,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -13879,7 +14073,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 120,
+      "order": 118,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -13921,7 +14115,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 121,
+      "order": 119,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -13957,8 +14151,8 @@
         1380
       ],
       "size": [
-        175.8189453125,
-        106
+        180,
+        110
       ],
       "flags": {
         "pinned": true
@@ -13991,7 +14185,6 @@
           "link": null
         },
         {
-          "dir": 3,
           "name": "any_05",
           "type": "STRING",
           "link": null
@@ -14027,8 +14220,8 @@
         1340
       ],
       "size": [
-        175.8189453125,
-        106
+        180,
+        110
       ],
       "flags": {
         "pinned": true
@@ -14061,7 +14254,6 @@
           "link": null
         },
         {
-          "dir": 3,
           "name": "any_05",
           "type": "STRING",
           "link": null
@@ -14096,7 +14288,7 @@
         2020
       ],
       "size": [
-        213.464453125,
+        220,
         150
       ],
       "flags": {
@@ -14192,8 +14384,8 @@
         2210
       ],
       "size": [
-        210.0396484375,
-        246
+        220,
+        250
       ],
       "flags": {
         "pinned": true
@@ -14290,8 +14482,8 @@
         700
       ],
       "size": [
-        196.9009765625,
-        126
+        200,
+        130
       ],
       "flags": {
         "collapsed": true,
@@ -14364,7 +14556,7 @@
       ],
       "size": [
         270,
-        286
+        290
       ],
       "flags": {
         "collapsed": true,
@@ -14455,7 +14647,7 @@
       ],
       "size": [
         210,
-        34
+        40
       ],
       "flags": {
         "collapsed": true,
@@ -14557,7 +14749,7 @@
         "collapsed": true,
         "pinned": true
       },
-      "order": 122,
+      "order": 120,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -14571,6 +14763,8 @@
       ],
       "title": "Get_Checkpoint-B",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -14589,8 +14783,8 @@
         660
       ],
       "size": [
-        195.23984375,
-        122
+        200,
+        130
       ],
       "flags": {
         "collapsed": true,
@@ -14652,7 +14846,7 @@
       ],
       "size": [
         320,
-        102
+        110
       ],
       "flags": {
         "pinned": true
@@ -14700,8 +14894,8 @@
         660
       ],
       "size": [
-        263.72841796875,
-        106
+        270,
+        110
       ],
       "flags": {
         "collapsed": true,
@@ -14770,8 +14964,8 @@
         1420
       ],
       "size": [
-        263.72841796875,
-        106
+        270,
+        110
       ],
       "flags": {
         "collapsed": true,
@@ -14805,7 +14999,6 @@
           "link": null
         },
         {
-          "dir": 3,
           "name": "any_05",
           "type": "CLIP",
           "link": null
@@ -14840,8 +15033,8 @@
         340
       ],
       "size": [
-        263.72841796875,
-        106
+        270,
+        110
       ],
       "flags": {
         "collapsed": true,
@@ -14911,7 +15104,7 @@
       ],
       "size": [
         210,
-        106
+        110
       ],
       "flags": {
         "collapsed": true,
@@ -14945,7 +15138,6 @@
           "link": null
         },
         {
-          "dir": 3,
           "name": "any_05",
           "type": "MODEL",
           "link": null
@@ -14986,7 +15178,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 123,
+      "order": 121,
       "mode": 0,
       "inputs": [
         {
@@ -15054,7 +15246,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 124,
+      "order": 122,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -15081,13 +15273,13 @@
       ],
       "size": [
         210,
-        58
+        60
       ],
       "flags": {
         "collapsed": true,
         "pinned": true
       },
-      "order": 125,
+      "order": 123,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -15101,6 +15293,8 @@
       ],
       "title": "Get_reference_image",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -15178,8 +15372,8 @@
         590
       ],
       "size": [
-        263.72841796875,
-        106
+        270,
+        110
       ],
       "flags": {
         "collapsed": true,
@@ -15302,7 +15496,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 126,
+      "order": 124,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -15390,7 +15584,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 127,
+      "order": 125,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -15430,7 +15624,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 128,
+      "order": 126,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -15497,7 +15691,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 129,
+      "order": 127,
       "mode": 4,
       "inputs": [],
       "outputs": [
@@ -15556,14 +15750,14 @@
         170
       ],
       "size": [
-        253.140234375,
-        58
+        260,
+        60
       ],
       "flags": {
         "collapsed": true,
         "pinned": true
       },
-      "order": 130,
+      "order": 128,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -15578,6 +15772,8 @@
       ],
       "title": "Get_origin_positive_conditioning",
       "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "ue_properties": {
           "widget_ue_connectable": {},
           "version": "7.3",
@@ -15604,7 +15800,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 131,
+      "order": 129,
       "mode": 4,
       "inputs": [],
       "outputs": [
@@ -15646,7 +15842,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 132,
+      "order": 130,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -15708,6 +15904,8 @@
       ],
       "title": "Set_VAE-B",
       "properties": {
+        "Node name for S&R": "SetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
         "previousName": "VAE-B",
         "ue_properties": {
           "version": "7.3",
@@ -15717,6 +15915,88 @@
       },
       "widgets_values": [
         "VAE-B"
+      ]
+    },
+    {
+      "id": 1959,
+      "type": "GetNode",
+      "pos": [
+        -1130,
+        -50
+      ],
+      "size": [
+        210,
+        60
+      ],
+      "flags": {
+        "collapsed": true,
+        "pinned": true
+      },
+      "order": 131,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "BOOLEAN",
+          "type": "BOOLEAN",
+          "links": [
+            3444
+          ]
+        }
+      ],
+      "title": "Get_face_detailer",
+      "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.3",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "face_detailer"
+      ]
+    },
+    {
+      "id": 1958,
+      "type": "GetNode",
+      "pos": [
+        -760,
+        40
+      ],
+      "size": [
+        210,
+        60
+      ],
+      "flags": {
+        "collapsed": true,
+        "pinned": true
+      },
+      "order": 132,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "BOOLEAN",
+          "type": "BOOLEAN",
+          "links": [
+            3445
+          ]
+        }
+      ],
+      "title": "Get_sd_upscale",
+      "properties": {
+        "Node name for S&R": "GetNode",
+        "aux_id": "kijai/ComfyUI-KJNodes",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.3",
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "sd_upscale"
       ]
     }
   ],
@@ -18480,13 +18760,13 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.1771561000000042,
+      "scale": 0.6727499949325768,
       "offset": [
-        7520.611943751015,
-        2720.114639884221
+        2471.3454811050356,
+        404.0707355735517
       ]
     },
-    "frontendVersion": "1.41.18",
+    "frontendVersion": "1.42.15",
     "groupNodes": {},
     "ue_links": [],
     "node_versions": {
@@ -18513,7 +18793,7 @@
     "links_added_by_ue": [],
     "VHS_latentpreview": true,
     "VHS_latentpreviewrate": 8,
-    "VHS_MetadataImage": true,
+    "VHS_MetadataImage": false,
     "VHS_KeepIntermediate": true,
     "qgn_navigation_groups": [],
     "qgn_locked": false

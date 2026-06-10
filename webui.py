@@ -287,6 +287,22 @@ def generate_clicked(task: worker.AsyncTask, state):
     backend_ready = False
     preview_interval = 1.0 / 8.0
     last_preview_image = None
+    max_video_preview_cache = 128
+
+    def trim_video_preview_cache():
+        nonlocal preview_cache_index
+
+        if task.content_type != 'video':
+            return
+        overflow = len(preview_cache) - max_video_preview_cache
+        if overflow <= 0:
+            return
+
+        del preview_cache[:overflow]
+        if len(preview_cache) == 0:
+            preview_cache_index = 0
+        else:
+            preview_cache_index = max(0, preview_cache_index - overflow) % len(preview_cache)
 
     try:
         while not finished:
@@ -413,6 +429,7 @@ def generate_clicked(task: worker.AsyncTask, state):
                             waiting_for_new_step_frame = False
 
                         preview_cache.append(image)
+                        trim_video_preview_cache()
 
                     last_preview_percentage = percentage
                     image_to_show = image
